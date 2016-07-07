@@ -55,6 +55,7 @@ so you must use our `android.jar` replace the old one **(Android-SDK/platforms/a
     </provider>
     <!--and so on-->
 ```
+
 3. Add **all permissions** your host and your plugins need to use.
 
 4. Goto your Application and insert the following code:
