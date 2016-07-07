@@ -1,0 +1,45 @@
+apply plugin: 'com.android.application'
+apply plugin: 'me.tatarka.retrolambda'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
+
+    defaultConfig {
+        applicationId "io.virtualapp"
+        minSdkVersion 16
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        debug {
+            jniDebuggable false
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    //Android Lib
+    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.melnykov:floatingactionbutton:1.3.0'
+    compile 'com.android.support:recyclerview-v7:23.4.0'
+    compile 'com.android.support:percent:23.4.0'
+    //Promise Support
+    compile 'org.jdeferred:jdeferred-android-aar:1.2.4'
+    //Preference mark Support
+    compile 'com.jonathanfinerty.once:once:1.0.3'
+    debugCompile 'com.github.moduth:blockcanary:1.0.2'
+    releaseCompile 'com.github.moduth:blockcanary-no-op:1.0.2'
+    compile project(':lib')
+}

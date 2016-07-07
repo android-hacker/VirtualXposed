@@ -1,0 +1,15 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <!--Card Stack-->
+    <dimen name="card_gap">60dp</dimen>
+    <dimen name="card_gap_bottom">5dp</dimen>
+    <dimen name="dp30">30dp</dimen>
+    <dimen name="dp8">8dp</dimen>
+    <dimen name="dp10">10dp</dimen>
+    <dimen name="dp80">80dp</dimen>
+    <dimen name="card_radius">5dp</dimen>
+    <dimen name="dp16">16dp</dimen>
+</resources>

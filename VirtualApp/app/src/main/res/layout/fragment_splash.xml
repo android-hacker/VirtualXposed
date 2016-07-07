@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<io.virtualapp.abs.percent.PercentLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:gravity="center"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:layout_marginBottom="50dp"
+        android:id="@+id/setup_ic"
+        app:layout_widthPercent="45%"
+        app:layout_heightPercent="45%"
+        android:src="@mipmap/ic_launcher"
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
+
+        <LinearLayout
+            android:id="@+id/splash_loading_body"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:gravity="center"
+                android:text="@string/wait"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+
+</io.virtualapp.abs.percent.PercentLinearLayout>
