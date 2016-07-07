@@ -1,5 +1,7 @@
 [![VA banner](https://raw.githubusercontent.com/asLody/VirtualApp/master/banner.png)](https://github.com/asLody/VirtualApp)
 
+[中文](CHINESE.md "中文")
+
 About
 -----
 Likes `LBE Parallel Space`, **VirtualApp** is an open platform for Android that allows you to create a `Virtual Space`,
