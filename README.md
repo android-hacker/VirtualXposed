@@ -2,6 +2,11 @@
 
 About
 -----
+Likes `LBE Parallel Space`, **VirtualApp** is an open platform for Android that allows you to create a `Virtual Space`,
+you can install and run apk inside. Beyond that, VirtualApp is also a `Plugin Framework`,
+the plugins running on VirtualApp does not require any constraints.
+VirtualApp does **not** require root, it is running on the `local process`.
+
 
 Background
 ----------
