@@ -1,10 +1,7 @@
+[![VA banner](https://raw.githubusercontent.com/asLody/VirtualApp/master/banner.png)](https://github.com/asLody/VirtualApp)
+
 About
 -----
-
-Likes `LBE Parallel Space`, VirtualApp is an open platform for Android that allows you to create a `virtual space`,
-you can install and run apk inside. Beyond that, VirtualApp is also a `plugin framework`,
-the plugins running on VirtualApp does not require any constraints.
-VirtualApp does not require **root**, it is running on the local process.
 
 Background
 ----------
