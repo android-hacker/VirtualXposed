@@ -1,9 +1,10 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import java.lang.reflect.Method;
-
-import com.lody.virtual.client.local.LocalPackageManager;
+import com.lody.virtual.client.env.BlackList;
 import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.local.LocalPackageManager;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -28,6 +29,12 @@ import com.lody.virtual.client.hook.base.Hook;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		return LocalPackageManager.getInstance().getApplicationInfo((String) args[0], (Integer) args[1]);
+		String pkg = (String) args[0];
+		int flags = (int) args[1];
+		if (BlackList.isBlackPkg(pkg)) {
+			// 隔离Gms
+			return null;
+		}
+		return LocalPackageManager.getInstance().getApplicationInfo(pkg, flags);
 	}
 }
