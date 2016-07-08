@@ -99,7 +99,7 @@ QQ Group: **553070909**
 文档
 -------------
 
-VirtualApp 目前暂时**没有文档**，Pleae read the fucking source code。
+VirtualApp 目前暂时**没有文档**，Please read the fucking source code。
 
 关于Author
 ------------
