@@ -6,9 +6,9 @@ import com.lody.virtual.client.interfaces.IHookObject;
 import com.lody.virtual.helper.utils.XLog;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,9 +23,8 @@ import java.util.Map;
 public class HookObject<T> implements IHookObject<T> {
 
 	private static final String TAG = HookObject.class.getSimpleName();
-	private static final boolean sLocalD = false;
-	protected T mBaseObject;
-	protected T mProxyObject;
+	private T mBaseObject;
+	private T mProxyObject;
 	/**
 	 * 内部维护的Hook集合
 	 */
@@ -142,21 +141,18 @@ public class HookObject<T> implements IHookObject<T> {
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 			Hook hook = getHook(method.getName());
-			if (hook != null && hook.isEnable()) {
-				if (sLocalD) {
-					XLog.i(TAG, "Call(hooked) %s", method.getName());
+			try {
+				if (hook != null && hook.isEnable()) {
+					return hook.onHook(mBaseObject, method, args);
 				}
-				return hook.onHook(mBaseObject, method, args);
+				return method.invoke(mBaseObject, args);
+			} catch (Throwable e) {
+				if (e instanceof InvocationTargetException) {
+					throw e.getCause();
+				} else {
+					throw e;
+				}
 			}
-			if (sLocalD) {
-				XLog.i(TAG, "Call(unhook) %s", method.getName());
-			}
-			Object result = method.invoke(mBaseObject, args);
-			if (result == null && sLocalD) {
-				XLog.d(TAG, "%s return a null value.", method.getName());
-			}
-			XLog.d(TAG, "call %s(%s) -> %s", method.getName(), Arrays.toString(args), result);
-			return result;
 		}
 	}
 
