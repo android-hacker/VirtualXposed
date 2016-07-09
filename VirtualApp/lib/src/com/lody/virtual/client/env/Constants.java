@@ -30,5 +30,6 @@ public class Constants {
 	public static final String ACTION_UNINSTALL_SHORTCUT = "com.android.launcher.action.UNINSTALL_SHORTCUT";
 	public static String SHORTCUT_PROXY_ACTIVITY_NAME = ShortcutHandleActivity.class.getName();
 
-	public static boolean USE_DIY_SERVICE_ENV = true;
+	public static final String GMS_PKG = "com.google.android.gms";
+	public static final String GOOGLE_PLAY_STORE_PKG = "com.android.vending";
 }

@@ -1,16 +1,5 @@
 package com.lody.virtual.client.hook.base;
 
-import java.io.FileDescriptor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.HashMap;
-import java.util.Map;
-
-import com.lody.virtual.client.interfaces.IHookObject;
-import com.lody.virtual.helper.utils.XLog;
-
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.IBinder;
@@ -19,6 +8,18 @@ import android.os.Parcel;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.text.TextUtils;
+
+import com.lody.virtual.client.interfaces.IHookObject;
+import com.lody.virtual.helper.utils.XLog;
+
+import java.io.FileDescriptor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Lody
@@ -30,8 +31,7 @@ import android.text.TextUtils;
 public abstract class HookBinder<Interface extends IInterface> implements IHookObject<Interface>, IBinder {
 
 	private static final String TAG = HookBinder.class.getSimpleName();
-	private static final boolean sLocalD = false;
-	static Map<String, IBinder> sCache;
+	private static Map<String, IBinder> sCache;
 
 	static {
 		try {
@@ -235,20 +235,18 @@ public abstract class HookBinder<Interface extends IInterface> implements IHookO
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 			Hook hook = getHook(method.getName());
-			if (hook != null && hook.isEnable()) {
-				if (sLocalD) {
-					XLog.i(TAG, "Call(hooked) %s", method.getName());
+			try {
+				if (hook != null && hook.isEnable()) {
+					return hook.onHook(mBaseObject, method, args);
 				}
-				return hook.onHook(mBaseObject, method, args);
+				return method.invoke(mBaseObject, args);
+			} catch (Throwable e) {
+				if (e instanceof InvocationTargetException) {
+					throw e.getCause();
+				} else {
+					throw e;
+				}
 			}
-			if (sLocalD) {
-				XLog.i(TAG, "Call(unhook) %s", method.getName());
-			}
-			Object result = method.invoke(mBaseObject, args);
-			if (result == null && sLocalD) {
-				XLog.d(TAG, "%s return a null value.", method.getName());
-			}
-			return result;
 		}
 	}
 }

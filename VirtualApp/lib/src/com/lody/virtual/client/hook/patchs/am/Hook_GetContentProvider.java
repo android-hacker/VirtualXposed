@@ -1,13 +1,14 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.local.LocalContentManager;
-import com.lody.virtual.client.hook.base.Hook;
-
 import android.app.IActivityManager;
 import android.app.IApplicationThread;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.Constants;
+import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.local.LocalContentManager;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -38,6 +39,10 @@ import android.app.IApplicationThread;
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		int N = getProviderNameIndex();
 		String name = (String) args[N];
+		if (Constants.GMS_PKG.equals(name)) {
+			// 隔离Gms
+			return null;
+		}
 		if (!VirtualCore.getCore().isHostProvider(name)) {
 			IActivityManager.ContentProviderHolder holder = LocalContentManager.getDefault().getContentProvider(name);
 			if (holder != null) {

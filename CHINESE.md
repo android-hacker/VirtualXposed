@@ -96,10 +96,15 @@ QQ Group: **553070909**
     VirtualCore.getCore().findApp({PackageName});
 ```
 
+
 文档
 -------------
 
-VirtualApp 目前暂时**没有文档**, 如果你的VA感兴趣，请通过Emali联系我。
+VirtualApp 目前暂时**没有文档**，Please read the fucking source code。
+
+License
+-------
+LGPL 3.0
 
 关于Author
 ------------
