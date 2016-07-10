@@ -247,6 +247,13 @@ public class PagerView extends ViewGroup implements PagerAdapter.OnDataChangeLis
         }
     }
 
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if (mode == MODE_DRAG || mode == MODE_SCROLL){
+            return true;
+        }
+        return super.onInterceptTouchEvent(ev);
+    }
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
@@ -277,6 +284,10 @@ public class PagerView extends ViewGroup implements PagerAdapter.OnDataChangeLis
                     mLastMotionX = x;
                     scrollBy(deltaX, 0);
                     mode = MODE_SCROLL;
+                } else if (mode == MODE_DRAG){
+
+                } else {
+                    mode = MODE_FREE;
                 }
 
                 if (mode == MODE_DRAG) {
