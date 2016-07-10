@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.virtualapp">
-    <uses-permission android:name="android.permission.ACCOUNT_MANAGER" />
+          xmlns:tools="http://schemas.android.com/tools"
+          package="io.virtualapp">
+    <uses-permission android:name="android.permission.ACCOUNT_MANAGER"
+                     tools:ignore="ProtectedPermissions"/>
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
@@ -10,12 +12,14 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
-    <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION"
+                     tools:ignore="MockLocation"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIMAX_STATE" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
-    <uses-permission android:name="android.permission.BIND_APPWIDGET" />
+    <uses-permission android:name="android.permission.BIND_APPWIDGET"
+                     tools:ignore="ProtectedPermissions"/>
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BODY_SENSORS" />
@@ -140,15 +144,21 @@
     <uses-permission android:name="com.google.android.providers.talk.permission.WRITE_ONLY" />
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
     <uses-permission android:name="android.permission.READ_LOGS" />
-    <uses-permission android:name="android.permission.INSTALL_PACKAGES" />
-    <uses-permission android:name="android.permission.DELETE_PACKAGES" />
-    <uses-permission android:name="android.permission.CLEAR_APP_USER_DATA" />
-    <uses-permission android:name="android.permission.WRITE_MEDIA_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_CACHE_FILESYSTEM" />
+    <uses-permission android:name="android.permission.INSTALL_PACKAGES"
+                     tools:ignore="ProtectedPermissions"/>
+    <uses-permission android:name="android.permission.DELETE_PACKAGES"
+                     tools:ignore="ProtectedPermissions"/>
+    <uses-permission android:name="android.permission.CLEAR_APP_USER_DATA"
+                     tools:ignore="ProtectedPermissions"/>
+    <uses-permission android:name="android.permission.WRITE_MEDIA_STORAGE"
+                     tools:ignore="ProtectedPermissions"/>
+    <uses-permission android:name="android.permission.ACCESS_CACHE_FILESYSTEM"
+                     tools:ignore="ProtectedPermissions"/>
     <uses-permission android:name="android.permission.READ_OWNER_DATA" />
     <uses-permission android:name="android.permission.WRITE_OWNER_DATA" />
     <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
-    <uses-permission android:name="android.permission.DEVICE_POWER" />
+    <uses-permission android:name="android.permission.DEVICE_POWER"
+                     tools:ignore="ProtectedPermissions"/>
     <uses-permission android:name="android.permission.BATTERY_STATS" />
     <uses-permission android:name="android.permission.ACCESS_DOWNLOAD_MANAGER" />
     <uses-permission android:name="com.android.launcher.permission.READ_SETTINGS" />
@@ -171,7 +181,8 @@
     <uses-permission android:name="com.huawei.android.launcher.permission.READ_SETTINGS" />
     <uses-permission android:name="com.huawei.android.launcher.permission.CHANGE_BADGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_APN_SETTINGS"/>
+    <uses-permission android:name="android.permission.WRITE_APN_SETTINGS"
+                     tools:ignore="ProtectedPermissions"/>
     <uses-feature android:name="android.hardware.camera" />
 
     <permission
