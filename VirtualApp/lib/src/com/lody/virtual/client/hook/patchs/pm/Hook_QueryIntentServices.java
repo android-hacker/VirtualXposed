@@ -39,13 +39,19 @@ import android.content.pm.ResolveInfo;
 
 		List<ResolveInfo> pluginResult = LocalPackageManager.getInstance().queryIntentServices((Intent) args[0],
 				(String) args[1], (Integer) args[2]);
-		if (result == null) {
+
+		if (result == null) {//貌似不会为null
 			result = new ArrayList<ResolveInfo>();
 		}
-		if (pluginResult != null && !pluginResult.isEmpty()) {
-			result.addAll(pluginResult);
+
+		if (!result.isEmpty()) {//双开模式下返回系统获取的
+			return result;
 		}
 
+		if (pluginResult != null && !pluginResult.isEmpty()) {//如果系统没有安装,单开模式下返回从apk中解析的,一般情况下只有一个
+//            result.addAll(pluginResult);
+			return pluginResult;
+		}
 		return result;
 	}
 }
