@@ -12,6 +12,7 @@ import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.proto.AppTaskInfo;
 import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.VRedirectActRequest;
+import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.service.IActivityManager;
 
 import java.util.HashMap;
@@ -19,11 +20,10 @@ import java.util.Map;
 
 /**
  * @author Lody
- *
  */
 public class LocalActivityManager {
 
-	private IActivityManager service;
+    private IActivityManager service;
 
     private Map<IBinder, LocalActivityRecord> mActivities = new HashMap<IBinder, LocalActivityRecord>(6);
 
@@ -32,24 +32,24 @@ public class LocalActivityManager {
     }
 
     public static LocalActivityManager getInstance() {
-		return Holder.sAM;
-	}
+        return Holder.sAM;
+    }
 
-	public IActivityManager getService() {
-		if (service == null) {
-			service = IActivityManager.Stub
-					.asInterface(ServiceManagerNative.getService(ServiceManagerNative.ACTIVITY_MANAGER));
-		}
-		return service;
-	}
+    public IActivityManager getService() {
+        if (service == null) {
+            service = IActivityManager.Stub
+                    .asInterface(ServiceManagerNative.getService(ServiceManagerNative.ACTIVITY_MANAGER));
+        }
+        return service;
+    }
 
-	public VActRedirectResult redirectTargetActivity(VRedirectActRequest request) {
-		try {
-			return getService().redirectTargetActivity(request);
-		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
-		}
-	}
+    public VActRedirectResult redirectTargetActivity(VRedirectActRequest request) {
+        try {
+            return getService().redirectTargetActivity(request);
+        } catch (RemoteException e) {
+            return RuntimeEnv.crash(e);
+        }
+    }
 
     public LocalActivityRecord onActivityCreate(Activity activity) {
         Intent intent = activity.getIntent();
@@ -57,6 +57,12 @@ public class LocalActivityManager {
             return null;
         }
         ActivityInfo activityInfo = intent.getParcelableExtra(ExtraConstants.EXTRA_TARGET_ACT_INFO);
+        //此处在使用LocalActivityManager启动Activity的时候是空的,因为走不到replaceIntent里,
+        // 比如掌阅会崩溃,暂时从Activity里取,没调研兼容性=_=,先用着
+        if (activityInfo == null) {
+            activityInfo = Reflect.on(activity).field("mActivityInfo").get();
+        }
+
         IBinder token = activity.getActivityToken();
         LocalActivityRecord r = new LocalActivityRecord();
         r.activityInfo = activityInfo;
@@ -100,6 +106,6 @@ public class LocalActivityManager {
     }
 
     private static final class Holder {
-		private static final LocalActivityManager sAM = new LocalActivityManager();
-	}
+        private static final LocalActivityManager sAM = new LocalActivityManager();
+    }
 }

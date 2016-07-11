@@ -73,6 +73,10 @@ public abstract class PagerAdapter<DataItem> {
         return mList.get(position);
     }
 
+    public int indexOf(Object item) {
+        return mList.indexOf(item);
+    }
+
     public interface OnDataChangeListener {
         void onDataChange();
     }
