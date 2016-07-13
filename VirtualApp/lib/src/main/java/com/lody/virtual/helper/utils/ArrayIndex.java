@@ -64,11 +64,10 @@ public class ArrayIndex {
 
 	public static int indexOfLast(Object[] array, Class<?> type) {
 		if (!isEmpty(array)) {
-			int N = array.length;
-			for (Object one : array) {
-				N--;
+			for(int N=array.length; N>0; N--) {
+				Object one = array[N-1];
 				if (one != null && one.getClass() == type) {
-					return N;
+					return N-1;
 				}
 			}
 		}
