@@ -41,11 +41,6 @@ import java.lang.reflect.Method;
 		if (resolveInfo == null) {
 			resolveInfo = (ResolveInfo) method.invoke(who, args);
 		}
-		if (resolveInfo != null && resolveInfo.activityInfo != null
-				&& !getHostPkg().equals(resolveInfo.activityInfo.packageName)) {
-			// 在插件中无法resolve这个Intent, 尝试在Host中resolve.
-			resolveInfo = null;
-		}
 		return resolveInfo;
 	}
 }

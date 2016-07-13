@@ -39,10 +39,8 @@ import java.lang.reflect.Method;
 		String resolvedType = (String) args[1];
 		int flags = (int) args[2];
 		ResolveInfo resolveInfo = LocalPackageManager.getInstance().resolveService(intent, resolvedType, flags);
-		if (resolveInfo != null && resolveInfo.serviceInfo != null
-				&& !getHostPkg().equals(resolveInfo.serviceInfo.packageName)) {
-			// 在插件中无法resolve这个Intent, 尝试在Host中resolve.
-			resolveInfo = null;
+		if (resolveInfo == null) {
+			resolveInfo = (ResolveInfo) method.invoke(who, args);
 		}
 		return resolveInfo;
 	}
