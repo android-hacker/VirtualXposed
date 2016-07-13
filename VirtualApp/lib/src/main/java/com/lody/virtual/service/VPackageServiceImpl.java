@@ -1,13 +1,5 @@
 package com.lody.virtual.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.bundle.APKBundle;
-import com.lody.virtual.helper.bundle.IntentResolver;
-
 import android.annotation.TargetApi;
 import android.content.ComponentName;
 import android.content.Context;
@@ -24,6 +16,14 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.text.TextUtils;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.bundle.APKBundle;
+import com.lody.virtual.helper.bundle.IntentResolver;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Lody
@@ -47,7 +47,7 @@ public class VPackageServiceImpl extends IPackageManager.Stub {
 	}
 
 	public void onCreate(Context context) {
-		this.mPM = context.getPackageManager();
+		this.mPM = VirtualCore.getCore().getUnHookPackageManager();
 	}
 
 	public PackageInfo getPackageInfo(String packageName, int flags) {
@@ -55,11 +55,6 @@ public class VPackageServiceImpl extends IPackageManager.Stub {
 			APKBundle bundle = getPMS().getAPKBundle(packageName);
 			if (bundle != null) {
 				return bundle.getPackageInfo(flags);
-			}
-			try {
-				return mPM.getPackageInfo(packageName, flags);
-			} catch (PackageManager.NameNotFoundException e) {
-				// Ignore
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();

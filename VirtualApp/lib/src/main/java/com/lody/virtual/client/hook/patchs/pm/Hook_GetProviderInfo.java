@@ -1,11 +1,11 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import java.lang.reflect.Method;
-
-import com.lody.virtual.client.local.LocalPackageManager;
-import com.lody.virtual.client.hook.base.Hook;
-
 import android.content.ComponentName;
+
+import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.local.LocalPackageManager;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -34,7 +34,12 @@ import android.content.ComponentName;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		return LocalPackageManager.getInstance().getProviderInfo((ComponentName) args[0], (Integer) args[1]);
+		ComponentName componentName = (ComponentName) args[0];
+		int flags = (int) args[1];
+		if (getHostPkg().equals(componentName.getPackageName())) {
+			return method.invoke(who, args);
+		}
+		return LocalPackageManager.getInstance().getProviderInfo(componentName, flags);
 	}
 
 }

@@ -39,6 +39,9 @@ public final class Hook_GetPackageInfo extends Hook<PackageManagerPatch> {
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		String pkg = (String) args[0];
 		int flags = (int) args[1];
+		if (getHostPkg().equals(pkg)) {
+			return method.invoke(who, args);
+		}
 		if (BlackList.isBlackPkg(pkg)) {
 			// 隔离Gms
 			return null;
