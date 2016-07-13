@@ -4,7 +4,7 @@
 
 # Files for the ART/Dalvik VM
 *.dex
-
+.idea
 # Java class files
 *.class
 
