@@ -1,15 +1,15 @@
 package com.lody.virtual.service;
 
-import java.util.List;
-
-import com.lody.virtual.helper.proto.VComponentInfo;
-import com.lody.virtual.helper.utils.XLog;
-
 import android.app.IActivityManager;
 import android.content.pm.ProviderInfo;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
+
+import com.lody.virtual.helper.proto.VComponentInfo;
+import com.lody.virtual.helper.utils.XLog;
+
+import java.util.List;
 
 /**
  * @author Lody
@@ -85,7 +85,7 @@ public class VContentServiceImpl extends IContentManager.Stub {
 		}
 	}
 
-	private boolean linkProviderDied(final String auth, IBinder binder) {
+	private boolean linkProviderDied(final String auth, final IBinder binder) {
 		if (binder == null) {
 			return false;
 		}
@@ -95,6 +95,7 @@ public class VContentServiceImpl extends IContentManager.Stub {
 				public void binderDied() {
 					synchronized (mProviderList) {
 						mProviderList.removeAuth(auth);
+						binder.unlinkToDeath(this, 0);
 					}
 				}
 			}, 0);
