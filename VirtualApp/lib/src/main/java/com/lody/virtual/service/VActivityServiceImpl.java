@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ServiceInfo;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -127,6 +128,12 @@ public class VActivityServiceImpl extends IActivityManager.Stub {
 		if ((requestFlags & Intent.FLAG_ACTIVITY_MULTIPLE_TASK) != 0) {
 			resultFlags |= Intent.FLAG_ACTIVITY_NEW_TASK;
 			resultFlags |= Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.L) {
+				resultFlags |= Intent.FLAG_ACTIVITY_NEW_DOCUMENT;
+			} else {
+				//noinspection deprecation
+				resultFlags |= Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET;
+			}
 		}
 		StubInfo selectStubInfo = fetchRunningStubInfo(targetProcessName);
 		if (selectStubInfo == null) {
