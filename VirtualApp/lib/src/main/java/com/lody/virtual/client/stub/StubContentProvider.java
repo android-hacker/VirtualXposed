@@ -36,6 +36,7 @@ public abstract class StubContentProvider extends BaseContentProvider {
 				while (AppSandBox.isInstalling()) {
 					Thread.sleep(50);
 				}
+				Thread.sleep(50);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
