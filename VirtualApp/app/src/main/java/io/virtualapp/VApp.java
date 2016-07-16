@@ -5,6 +5,7 @@ import android.content.Context;
 
 import com.lody.virtual.client.core.VirtualCore;
 
+import io.virtualapp.ui.NotificationHandler;
 import jonathanfinerty.once.Once;
 
 /**
@@ -33,6 +34,7 @@ public class VApp extends Application {
     public void onCreate() {
         gDefault = this;
         super.onCreate();
+        VirtualCore.getCore().setINotificationHandler(new NotificationHandler());
 //        BlockCanary.install(this, new AppBlockCanaryContext()).start();
         VirtualCore.getCore().handleApplication(this);
         if (VirtualCore.getCore().isMainProcess()) {

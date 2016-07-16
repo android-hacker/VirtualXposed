@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          package="io.virtualapp">
+<manifest package="io.virtualapp"
+          xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission
         android:name="android.permission.ACCOUNT_MANAGER"
@@ -231,7 +231,11 @@
         <service
             android:name="com.lody.virtual.client.stub.KeepService"
             android:process=":x"/>
-
+        <receiver android:name="com.lody.virtual.client.stub.ReceiverDelegate">
+            <intent-filter>
+                <action android:name="com.lody.virtual.action.DELEGATE_PENDING_INTENT"/>
+            </intent-filter>
+        </receiver>
         <provider
             android:name="com.lody.virtual.service.BinderProvider"
             android:authorities="virtual.service.BinderProvider"

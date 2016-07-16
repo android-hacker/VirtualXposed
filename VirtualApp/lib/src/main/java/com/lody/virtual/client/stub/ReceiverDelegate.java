@@ -33,6 +33,8 @@ public class ReceiverDelegate extends BroadcastReceiver {
 			switch (flags) {
 				case ActivityManager.INTENT_SENDER_ACTIVITY :
 					try {
+                        //非activity的context得加这个
+                        senderIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 						context.startActivity(senderIntent);
 					} catch (Throwable e) {
 						// Ignore
