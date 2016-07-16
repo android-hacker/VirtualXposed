@@ -1,4 +1,4 @@
-package com.lody.virtual.service;
+package com.lody.virtual.service.process;
 
 import android.app.ActivityManagerNative;
 import android.app.ApplicationThreadNative;
@@ -20,6 +20,12 @@ import com.lody.virtual.helper.MethodConstants;
 import com.lody.virtual.helper.proto.VComponentInfo;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.service.IProcessManager;
+import com.lody.virtual.service.am.ServiceRecord;
+import com.lody.virtual.service.VAppService;
+import com.lody.virtual.service.am.StubInfo;
+import com.lody.virtual.service.am.VActivityService;
+import com.lody.virtual.service.am.VServiceService;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -338,7 +344,7 @@ public class VProcessService extends IProcessManager.Stub {
 		return processRecord;
 	}
 
-	public VActivityService.StubInfo findStubInfo(String appProcessName) {
+	public StubInfo findStubInfo(String appProcessName) {
 		ProcessRecord r = findRecord(appProcessName);
 		if (r != null) {
 			return r.stubInfo;
@@ -355,7 +361,7 @@ public class VProcessService extends IProcessManager.Stub {
 		return null;
 	}
 
-	public void launchComponentProcess(ComponentInfo componentInfo, VActivityService.StubInfo stubInfo) {
+	public void launchComponentProcess(ComponentInfo componentInfo, StubInfo stubInfo) {
 		if (componentInfo != null && stubInfo != null) {
 			VProcessService.getService().mapProcessName(stubInfo.processName, componentInfo.processName);
 			ProviderInfo env = stubInfo.providerInfos.get(0);
@@ -368,16 +374,16 @@ public class VProcessService extends IProcessManager.Stub {
 
 	public void installComponent(VComponentInfo componentInfo) {
 		String pkg = componentInfo.packageName;
-		String plugProcName = ComponentUtils.getProcessName(componentInfo);
+		String appProcName = ComponentUtils.getProcessName(componentInfo);
 
 		if (VAppService.getService().isAppInstalled(pkg)) {
-			VActivityService.StubInfo stubInfo = findStubInfo(plugProcName);
+			StubInfo stubInfo = findStubInfo(appProcName);
 			if (stubInfo == null) {
 				stubInfo = fetchFreeStubInfo(VActivityService.getService().getStubInfoMap().values());
 				if (stubInfo != null) {
 					launchComponentProcess(componentInfo, stubInfo);
 				} else {
-					XLog.e(TAG, "Unable to fetch free Stub to launch Process(%s/%s).", pkg, plugProcName);
+					XLog.e(TAG, "Unable to fetch free Stub to launch Process(%s/%s).", pkg, appProcName);
 				}
 			}
 		} else {
@@ -385,7 +391,7 @@ public class VProcessService extends IProcessManager.Stub {
 		}
 	}
 
-	public ProcessRecord findStubProcessRecord(VActivityService.StubInfo stubInfo) {
+	public ProcessRecord findStubProcessRecord(StubInfo stubInfo) {
 		if (stubInfo != null) {
 			String processName = stubInfo.processName;
 			for (ProcessRecord r : mProcessList.values()) {
@@ -397,12 +403,12 @@ public class VProcessService extends IProcessManager.Stub {
 		return null;
 	}
 
-	public boolean isStubProcessRunning(VActivityService.StubInfo stubInfo) {
+	public boolean isStubProcessRunning(StubInfo stubInfo) {
 		return findStubProcessRecord(stubInfo) != null;
 	}
 
-	public VActivityService.StubInfo fetchFreeStubInfo(Collection<VActivityService.StubInfo> stubInfos) {
-		for (VActivityService.StubInfo stubInfo : stubInfos) {
+	public StubInfo fetchFreeStubInfo(Collection<StubInfo> stubInfos) {
+		for (StubInfo stubInfo : stubInfos) {
 			if (!isStubProcessRunning(stubInfo)) {
 				return stubInfo;
 			}

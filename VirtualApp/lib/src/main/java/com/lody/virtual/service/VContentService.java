@@ -8,6 +8,8 @@ import android.text.TextUtils;
 
 import com.lody.virtual.helper.proto.VComponentInfo;
 import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.service.process.ProviderList;
+import com.lody.virtual.service.process.VProcessService;
 
 import java.util.List;
 

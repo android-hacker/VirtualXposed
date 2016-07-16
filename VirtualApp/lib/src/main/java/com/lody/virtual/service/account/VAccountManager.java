@@ -1,16 +1,39 @@
-package com.lody.virtual.service;
+package com.lody.virtual.service.account;
 
 import android.accounts.Account;
 import android.accounts.AuthenticatorDescription;
 import android.accounts.IAccountManagerResponse;
+import android.content.pm.ServiceInfo;
 import android.os.Bundle;
 import android.os.RemoteException;
+
+import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.service.IAccountManager;
 
 /**
  * @author Lody
  */
 
 public class VAccountManager extends IAccountManager.Stub {
+
+    private static final String TAG = VAccountManager.class.getSimpleName();
+
+    public class AuthRecord {
+        public AuthenticatorDescription description;
+        public ServiceInfo serviceInfo;
+
+        public AuthRecord(AuthenticatorDescription authenticatorDescription, ServiceInfo serviceInfo) {
+            this.description = authenticatorDescription;
+            this.serviceInfo = serviceInfo;
+        }
+    }
+
+    private static final VAccountManager sService = new VAccountManager();
+
+    public static VAccountManager getService() {
+        return sService;
+    }
+
     @Override
     public String getPassword(Account account) throws RemoteException {
         return null;
@@ -58,7 +81,17 @@ public class VAccountManager extends IAccountManager.Stub {
 
     @Override
     public boolean addAccountExplicitly(Account account, String password, Bundle extras) throws RemoteException {
+        if (!isValidAccount(account)) {
+            XLog.d(TAG, "addAccountExplicitly failed : invalid account.");
+            return false;
+        }
+        
+
         return false;
+    }
+
+    private boolean isValidAccount(Account account) {
+        return account != null && account.name != null && account.type != null;
     }
 
     @Override

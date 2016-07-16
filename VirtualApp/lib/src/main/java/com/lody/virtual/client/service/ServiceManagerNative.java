@@ -18,12 +18,13 @@ import com.lody.virtual.service.interfaces.IServiceFetcher;
  */
 public class ServiceManagerNative {
 
-	public static final String PACKAGE_MANAGER = "x-package-manager";
-	public static final String ACTIVITY_MANAGER = "x-activity-manager";
-	public static final String PLUGIN_MANAGER = "x-plugin-manager";
-	public static final String PROCESS_MANAGER = "x-process-manager";
-	public static final String SERVICE_MANAGER = "x-service-manager";
-	public static final String CONTENT_MANAGER = "x-content—manager";
+	public static final String PACKAGE_MANAGER = "package";
+	public static final String ACTIVITY_MANAGER = "activity";
+	public static final String PLUGIN_MANAGER = "app";
+	public static final String PROCESS_MANAGER = "process";
+	public static final String SERVICE_MANAGER = "service";
+	public static final String CONTENT_MANAGER = "content";
+	public static final String ACCOUNT_MANAGER = "account";
 	private static final String TAG = ServiceManagerNative.class.getSimpleName();
 	private static final String SERVICE_CP_AUTH = "virtual.service.BinderProvider";
 

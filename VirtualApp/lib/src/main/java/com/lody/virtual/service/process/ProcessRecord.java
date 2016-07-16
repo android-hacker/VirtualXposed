@@ -1,12 +1,4 @@
-package com.lody.virtual.service;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.lody.virtual.client.IVClient;
+package com.lody.virtual.service.process;
 
 import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
@@ -15,6 +7,17 @@ import android.app.IServiceConnection;
 import android.content.pm.ServiceInfo;
 import android.os.IBinder;
 import android.os.RemoteException;
+
+import com.lody.virtual.client.IVClient;
+import com.lody.virtual.service.am.ServiceRecord;
+import com.lody.virtual.service.am.StubInfo;
+import com.lody.virtual.service.am.VActivityService;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 final class ProcessRecord {
 	/**
@@ -28,7 +31,7 @@ final class ProcessRecord {
 	/**
 	 * 该插件对应的Stub
 	 */
-	public VActivityService.StubInfo stubInfo;
+	public StubInfo stubInfo;
 	/**
 	 * 该插件的appThread
 	 */

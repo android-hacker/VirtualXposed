@@ -13,6 +13,7 @@ import com.lody.virtual.helper.proto.Problem;
 import com.lody.virtual.helper.utils.FileIO;
 import com.lody.virtual.helper.utils.XLog;
 import com.lody.virtual.service.interfaces.IAppObserver;
+import com.lody.virtual.service.process.VProcessService;
 
 import java.io.File;
 import java.util.ArrayList;

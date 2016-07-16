@@ -22,6 +22,7 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.bundle.APKBundle;
 import com.lody.virtual.helper.bundle.IntentResolver;
 import com.lody.virtual.helper.proto.VParceledListSlice;
+import com.lody.virtual.service.process.VProcessService;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.lody.virtual.service;
+package com.lody.virtual.service.am;
 
 import android.app.ActivityManagerNative;
 import android.app.IServiceConnection;
@@ -19,6 +19,9 @@ import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.service.IServiceManager;
+import com.lody.virtual.service.VPackageService;
+import com.lody.virtual.service.process.VProcessService;
 import com.lody.virtual.service.interfaces.IServiceEnvironment;
 
 import java.util.Map;

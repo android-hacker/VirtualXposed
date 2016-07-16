@@ -1,4 +1,4 @@
-package com.lody.virtual.service;
+package com.lody.virtual.service.am;
 
 import android.app.ActivityManager;
 import android.content.ComponentName;
@@ -22,6 +22,8 @@ import com.lody.virtual.helper.proto.AppTaskInfo;
 import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.VRedirectActRequest;
 import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.service.IActivityManager;
+import com.lody.virtual.service.process.VProcessService;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,6 +52,7 @@ public class VActivityService extends IActivityManager.Stub {
 	public static VActivityService getService() {
 		return gService;
 	}
+
 
 	public void onCreate(Context context) {
 		PackageManager pm = context.getPackageManager();
@@ -160,22 +163,22 @@ public class VActivityService extends IActivityManager.Stub {
 
 	public ProviderInfo fetchRunningServiceRuntime(ServiceInfo serviceInfo) {
 		if (serviceInfo != null) {
-			String plugProcName = ComponentUtils.getProcessName(serviceInfo);
-			return fetchRunningServiceRuntime(plugProcName);
+			String appProcessName = ComponentUtils.getProcessName(serviceInfo);
+			return fetchRunningServiceRuntime(appProcessName);
 		}
 		return null;
 	}
 
-	public ProviderInfo fetchRunningServiceRuntime(String plugProcName) {
-		StubInfo stubInfo = fetchRunningStubInfo(plugProcName);
+	public ProviderInfo fetchRunningServiceRuntime(String appProcessName) {
+		StubInfo stubInfo = fetchRunningStubInfo(appProcessName);
 		if (stubInfo != null) {
 			return stubInfo.providerInfos.get(0);
 		}
 		return null;
 	}
 
-	public StubInfo fetchRunningStubInfo(String plugProcName) {
-		return VProcessService.getService().findStubInfo(plugProcName);
+	public StubInfo fetchRunningStubInfo(String appProcessName) {
+		return VProcessService.getService().findStubInfo(appProcessName);
 	}
 
 	public StubInfo findStubInfo(String stubProcName) {
@@ -258,29 +261,6 @@ public class VActivityService extends IActivityManager.Stub {
 		stack.trimTasks();
 	}
 
-	static class StubInfo {
-		String processName;
-		List<ActivityInfo> standardActivityInfos = new ArrayList<ActivityInfo>(1);
-		List<ProviderInfo> providerInfos = new ArrayList<ProviderInfo>(1);
-
-		public void verify() {
-			if (standardActivityInfos.isEmpty()) {
-				throw new IllegalStateException("Unable to find any StubActivity in " + processName);
-			}
-			if (providerInfos.isEmpty()) {
-				throw new IllegalStateException("Unable to find any StubProvider in " + processName);
-			}
-		}
-		public ActivityInfo fetchStubActivityInfo(ActivityInfo targetActInfo) {
-			return standardActivityInfos.get(0);
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			return o instanceof StubInfo && TextUtils.equals(((StubInfo) o).processName, processName);
-		}
-
-	}
 
 
 }
