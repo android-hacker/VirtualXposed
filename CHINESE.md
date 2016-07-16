@@ -16,7 +16,7 @@ VirtualApp允许你在App内创建一个虚拟空间，你可以在虚拟空间�
 背景
 ---
 
-VirtualApp诞生于2015年，经过一年的锤炼，才有了现在的`性`能和`兼容性`。
+VirtualApp诞生于2015年，经过一年的锤炼，才有了现在的`性能`和`兼容性`。
 
 讨论技术话题
 ----------
@@ -26,7 +26,7 @@ QQ Group: **553070909**
 快速开始
 ------
 
-**注意：** 编译和运行项目请关闭你的Instant run.
+**注意：** 编译和运行项目请关闭你的`Instant run`.
 
 1. VirtualApp 使用了 `@hide API`, 
 因此你必须使用我们的 `android.jar` 来替换你已有的那个 **(Android-SDK/platforms/android-23/{android.jar})**. 
