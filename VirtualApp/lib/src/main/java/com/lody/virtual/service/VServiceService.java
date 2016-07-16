@@ -28,11 +28,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Lody
  *
  */
-public class VServiceServiceImpl extends IServiceManager.Stub {
+public class VServiceService extends IServiceManager.Stub {
 
-	private static final String TAG = VServiceServiceImpl.class.getSimpleName();
+	private static final String TAG = VServiceService.class.getSimpleName();
 
-	private static final VServiceServiceImpl sService = new VServiceServiceImpl();
+	private static final VServiceService sService = new VServiceService();
 
 	private Map<IBinder, ServiceRecord> serviceConnectionMap = new ConcurrentHashMap<IBinder, ServiceRecord>();
 
@@ -49,14 +49,14 @@ public class VServiceServiceImpl extends IServiceManager.Stub {
 	}
 
 
-	public static VServiceServiceImpl getService() {
+	public static VServiceService getService() {
 		return sService;
 	}
 
 	private static ServiceInfo getServiceInfo(ComponentName service) {
 		if (service != null) {
 			try {
-				return VPackageServiceImpl.getService().getServiceInfo(service, 0);
+				return VPackageService.getService().getServiceInfo(service, 0);
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
@@ -90,10 +90,10 @@ public class VServiceServiceImpl extends IServiceManager.Stub {
 		if (serviceInfo == null) {
 			return service.getComponent();
 		}
-		ProviderInfo serviceEnv = VActivityServiceImpl.getService().fetchServiceRuntime(serviceInfo);
+		ProviderInfo serviceEnv = VActivityService.getService().fetchServiceRuntime(serviceInfo);
 		if (serviceEnv != null) {
 			String plugProcName = ComponentUtils.getProcessName(serviceInfo);
-			VProcessServiceImpl.getService().mapProcessName(serviceEnv.processName, plugProcName);
+			VProcessService.getService().mapProcessName(serviceEnv.processName, plugProcName);
 			IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
 			if (environment == null) {
 				return service.getComponent();
@@ -113,12 +113,12 @@ public class VServiceServiceImpl extends IServiceManager.Stub {
 		if (serviceInfo == null) {
 			return 0;
 		}
-		ProviderInfo serviceEnv = VActivityServiceImpl.getService().fetchRunningServiceRuntime(serviceInfo);
+		ProviderInfo serviceEnv = VActivityService.getService().fetchRunningServiceRuntime(serviceInfo);
 		if (serviceEnv == null) {
 			return 0;
 		}
 		String pluginProcessName = ComponentUtils.getProcessName(serviceInfo);
-		VProcessServiceImpl.getService().mapProcessName(serviceEnv.processName, pluginProcessName);
+		VProcessService.getService().mapProcessName(serviceEnv.processName, pluginProcessName);
 		IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
 		if (environment == null) {
 			return 0;
@@ -137,12 +137,12 @@ public class VServiceServiceImpl extends IServiceManager.Stub {
 			if (serviceInfo == null) {
 				return false;
 			}
-			ProviderInfo serviceEnv = VActivityServiceImpl.getService().fetchRunningServiceRuntime(serviceInfo);
+			ProviderInfo serviceEnv = VActivityService.getService().fetchRunningServiceRuntime(serviceInfo);
 			if (serviceEnv == null) {
 				return false;
 			}
 			String pluginProcessName = ComponentUtils.getProcessName(serviceInfo);
-			VProcessServiceImpl.getService().mapProcessName(serviceEnv.processName, pluginProcessName);
+			VProcessService.getService().mapProcessName(serviceEnv.processName, pluginProcessName);
 			IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
 			if (environment == null) {
 				return false;
@@ -181,10 +181,10 @@ public class VServiceServiceImpl extends IServiceManager.Stub {
 		if (serviceInfo == null) {
 			return 0;
 		}
-		ProviderInfo serviceEnv = VActivityServiceImpl.getService().fetchServiceRuntime(serviceInfo);
+		ProviderInfo serviceEnv = VActivityService.getService().fetchServiceRuntime(serviceInfo);
 		if (serviceEnv != null) {
 			String pluginProcessName = ComponentUtils.getProcessName(serviceInfo);
-			VProcessServiceImpl.getService().mapProcessName(serviceEnv.processName, pluginProcessName);
+			VProcessService.getService().mapProcessName(serviceEnv.processName, pluginProcessName);
 
 			IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
 			if (environment == null) {
@@ -229,12 +229,12 @@ public class VServiceServiceImpl extends IServiceManager.Stub {
 			return false;
 		}
 		ServiceInfo serviceInfo = r.serviceInfo;
-		ProviderInfo serviceEnv = VActivityServiceImpl.getService().fetchServiceRuntime(serviceInfo);
+		ProviderInfo serviceEnv = VActivityService.getService().fetchServiceRuntime(serviceInfo);
 		if (serviceEnv == null) {
 			return false;
 		}
 		String pluginProcessName = ComponentUtils.getProcessName(serviceInfo);
-		VProcessServiceImpl.getService().mapProcessName(serviceEnv.processName, pluginProcessName);
+		VProcessService.getService().mapProcessName(serviceEnv.processName, pluginProcessName);
 		IServiceEnvironment serviceEnvironment = getServiceEnvironment(serviceEnv);
 		if (serviceEnvironment == null) {
 			return false;

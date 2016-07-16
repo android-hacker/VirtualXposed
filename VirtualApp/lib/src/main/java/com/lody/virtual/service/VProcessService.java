@@ -33,9 +33,9 @@ import java.util.Set;
  *         维护和管理所有的插件进程，支持如下特征： 1、在插件进程创建后第一时间与PMS连接，在插件进程死亡时能够立刻知晓并采取相应措施。
  *         2、在进程剩余不多时自动杀死优先级最低的进程。
  */
-public class VProcessServiceImpl extends IProcessManager.Stub {
+public class VProcessService extends IProcessManager.Stub {
 
-	private static final String TAG = VProcessServiceImpl.class.getSimpleName();
+	private static final String TAG = VProcessService.class.getSimpleName();
 
 	private final char[] mProcessLock = new char[0];
 
@@ -43,7 +43,7 @@ public class VProcessServiceImpl extends IProcessManager.Stub {
 
 	private final RunningAppList mRunningAppList = new RunningAppList();
 
-	public static VProcessServiceImpl getService() {
+	public static VProcessService getService() {
 		return AppProcessManagerHolder.sMgr;
 	}
 
@@ -136,7 +136,7 @@ public class VProcessServiceImpl extends IProcessManager.Stub {
 	@Override
 	public boolean isAppProcess(String processName) {
 		if (!TextUtils.isEmpty(processName)) {
-			Set<String> processList = VActivityServiceImpl.getService().getStubProcessList();
+			Set<String> processList = VActivityService.getService().getStubProcessList();
 			return processList.contains(processName);
 		}
 		return false;
@@ -250,8 +250,8 @@ public class VProcessServiceImpl extends IProcessManager.Stub {
 				@Override
 				public void binderDied() {
 					synchronized (mProcessLock) {
-						VActivityServiceImpl.getService().processDied(pid);
-						VServiceServiceImpl.getService().processDied(pid);
+						VActivityService.getService().processDied(pid);
+						VServiceService.getService().processDied(pid);
 						removeProcessRecordLocked(pid);
 						cb.unlinkToDeath(this, 0);
 					}
@@ -338,7 +338,7 @@ public class VProcessServiceImpl extends IProcessManager.Stub {
 		return processRecord;
 	}
 
-	public VActivityServiceImpl.StubInfo findStubInfo(String appProcessName) {
+	public VActivityService.StubInfo findStubInfo(String appProcessName) {
 		ProcessRecord r = findRecord(appProcessName);
 		if (r != null) {
 			return r.stubInfo;
@@ -355,9 +355,9 @@ public class VProcessServiceImpl extends IProcessManager.Stub {
 		return null;
 	}
 
-	public void launchComponentProcess(ComponentInfo componentInfo, VActivityServiceImpl.StubInfo stubInfo) {
+	public void launchComponentProcess(ComponentInfo componentInfo, VActivityService.StubInfo stubInfo) {
 		if (componentInfo != null && stubInfo != null) {
-			VProcessServiceImpl.getService().mapProcessName(stubInfo.processName, componentInfo.processName);
+			VProcessService.getService().mapProcessName(stubInfo.processName, componentInfo.processName);
 			ProviderInfo env = stubInfo.providerInfos.get(0);
 			new ProviderCaller.Builder(VirtualCore.getCore().getContext(), env.authority)
 					.methodName(MethodConstants.INIT_PROCESS)
@@ -370,10 +370,10 @@ public class VProcessServiceImpl extends IProcessManager.Stub {
 		String pkg = componentInfo.packageName;
 		String plugProcName = ComponentUtils.getProcessName(componentInfo);
 
-		if (VAppServiceImpl.getService().isAppInstalled(pkg)) {
-			VActivityServiceImpl.StubInfo stubInfo = findStubInfo(plugProcName);
+		if (VAppService.getService().isAppInstalled(pkg)) {
+			VActivityService.StubInfo stubInfo = findStubInfo(plugProcName);
 			if (stubInfo == null) {
-				stubInfo = fetchFreeStubInfo(VActivityServiceImpl.getService().getStubInfoMap().values());
+				stubInfo = fetchFreeStubInfo(VActivityService.getService().getStubInfoMap().values());
 				if (stubInfo != null) {
 					launchComponentProcess(componentInfo, stubInfo);
 				} else {
@@ -385,7 +385,7 @@ public class VProcessServiceImpl extends IProcessManager.Stub {
 		}
 	}
 
-	public ProcessRecord findStubProcessRecord(VActivityServiceImpl.StubInfo stubInfo) {
+	public ProcessRecord findStubProcessRecord(VActivityService.StubInfo stubInfo) {
 		if (stubInfo != null) {
 			String processName = stubInfo.processName;
 			for (ProcessRecord r : mProcessList.values()) {
@@ -397,12 +397,12 @@ public class VProcessServiceImpl extends IProcessManager.Stub {
 		return null;
 	}
 
-	public boolean isStubProcessRunning(VActivityServiceImpl.StubInfo stubInfo) {
+	public boolean isStubProcessRunning(VActivityService.StubInfo stubInfo) {
 		return findStubProcessRecord(stubInfo) != null;
 	}
 
-	public VActivityServiceImpl.StubInfo fetchFreeStubInfo(Collection<VActivityServiceImpl.StubInfo> stubInfos) {
-		for (VActivityServiceImpl.StubInfo stubInfo : stubInfos) {
+	public VActivityService.StubInfo fetchFreeStubInfo(Collection<VActivityService.StubInfo> stubInfos) {
+		for (VActivityService.StubInfo stubInfo : stubInfos) {
 			if (!isStubProcessRunning(stubInfo)) {
 				return stubInfo;
 			}
@@ -423,7 +423,7 @@ public class VProcessServiceImpl extends IProcessManager.Stub {
 	}
 
 	private static final class AppProcessManagerHolder {
-		private static final VProcessServiceImpl sMgr = new VProcessServiceImpl();
+		private static final VProcessService sMgr = new VProcessService();
 	}
 
 }

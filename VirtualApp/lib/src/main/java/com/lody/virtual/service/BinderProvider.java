@@ -35,15 +35,15 @@ public final class BinderProvider extends BaseContentProvider {
 			return true;
 		}
 		AppFileSystem.getDefault();
-		VAppServiceImpl.getService().onCreate();
-		addService(ServiceManagerNative.PLUGIN_MANAGER, VAppServiceImpl.getService());
-		addService(ServiceManagerNative.PROCESS_MANAGER, VProcessServiceImpl.getService());
-		VPackageServiceImpl.getService().onCreate(context);
-		addService(ServiceManagerNative.PACKAGE_MANAGER, VPackageServiceImpl.getService());
-		VActivityServiceImpl.getService().onCreate(context);
-		addService(ServiceManagerNative.ACTIVITY_MANAGER, VActivityServiceImpl.getService());
-		addService(ServiceManagerNative.SERVICE_MANAGER, VServiceServiceImpl.getService());
-		addService(ServiceManagerNative.CONTENT_MANAGER, VContentServiceImpl.getService());
+		VAppService.getService().onCreate();
+		addService(ServiceManagerNative.PLUGIN_MANAGER, VAppService.getService());
+		addService(ServiceManagerNative.PROCESS_MANAGER, VProcessService.getService());
+		VPackageService.getService().onCreate(context);
+		addService(ServiceManagerNative.PACKAGE_MANAGER, VPackageService.getService());
+		VActivityService.getService().onCreate(context);
+		addService(ServiceManagerNative.ACTIVITY_MANAGER, VActivityService.getService());
+		addService(ServiceManagerNative.SERVICE_MANAGER, VServiceService.getService());
+		addService(ServiceManagerNative.CONTENT_MANAGER, VContentService.getService());
 		return true;
 	}
 

@@ -24,17 +24,17 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Lody
  *
  */
-public class VAppServiceImpl extends IAppManager.Stub {
+public class VAppService extends IAppManager.Stub {
 
-	private static final String TAG = VAppServiceImpl.class.getSimpleName();
+	private static final String TAG = VAppService.class.getSimpleName();
 
-	private static final VAppServiceImpl gService = new VAppServiceImpl();
+	private static final VAppService gService = new VAppService();
 	private final char[] mLock = new char[0];
 	private Map<String, AppInfo> mAppInfoCaches = new ConcurrentHashMap<String, AppInfo>(10);
 	private Map<String, APKBundle> mApkBundleCaches = new ConcurrentHashMap<String, APKBundle>(10);
 	private RemoteCallbackList<IAppObserver> remoteCallbackList = new RemoteCallbackList<IAppObserver>();
 
-	public static VAppServiceImpl getService() {
+	public static VAppService getService() {
 		return gService;
 	}
 
@@ -140,7 +140,7 @@ public class VAppServiceImpl extends IAppManager.Stub {
 	public boolean uninstallApp(String pkg) {
 		if (isAppInstalled(pkg)) {
 			synchronized (mLock) {
-				VProcessServiceImpl.getService().killAppByPkg(pkg);
+				VProcessService.getService().killAppByPkg(pkg);
 				removeAppLocked(pkg);
 				AppFileSystem.getDefault().deleteApp(pkg);
 				return true;

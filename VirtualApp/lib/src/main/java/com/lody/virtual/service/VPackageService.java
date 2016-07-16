@@ -31,12 +31,12 @@ import java.util.Map;
  * @author Lody
  *
  */
-public class VPackageServiceImpl extends IPackageManager.Stub {
+public class VPackageService extends IPackageManager.Stub {
 
-	private static final VPackageServiceImpl gService = new VPackageServiceImpl();
+	private static final VPackageService gService = new VPackageService();
 	private PackageManager mPM;
 
-	public static VPackageServiceImpl getService() {
+	public static VPackageService getService() {
 		return gService;
 	}
 
@@ -44,8 +44,8 @@ public class VPackageServiceImpl extends IPackageManager.Stub {
 		return VirtualCore.getCore().getContext();
 	}
 
-	private VAppServiceImpl getPMS() {
-		return VAppServiceImpl.getService();
+	private VAppService getPMS() {
+		return VAppService.getService();
 	}
 
 	public void onCreate(Context context) {
@@ -127,7 +127,7 @@ public class VPackageServiceImpl extends IPackageManager.Stub {
 
 	public ProviderInfo resolveContentProvider(String auth, int flags) {
 
-		Map<String, APKBundle> bundleMap = VAppServiceImpl.getService().getAllAPKBundles();
+		Map<String, APKBundle> bundleMap = VAppService.getService().getAllAPKBundles();
 		for (APKBundle bundle : bundleMap.values()) {
 			try {
 				PackageInfo packageInfo = bundle.getPackageInfo(PackageManager.GET_PROVIDERS | flags);
@@ -386,7 +386,7 @@ public class VPackageServiceImpl extends IPackageManager.Stub {
 	}
 
 	public String[] getPackagesForPid(int pid) {
-		return VProcessServiceImpl.getService().findRunningAppPkgByPid(pid);
+		return VProcessService.getService().findRunningAppPkgByPid(pid);
 	}
 
 	public List<IntentFilter> getReceiverIntentFilter(ActivityInfo info) {

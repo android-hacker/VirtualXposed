@@ -35,10 +35,10 @@ import java.util.Set;
  * @author Lody
  *
  */
-public class VActivityServiceImpl extends IActivityManager.Stub {
+public class VActivityService extends IActivityManager.Stub {
 
-	private static final VActivityServiceImpl gService = new VActivityServiceImpl();
-	private static final String TAG = VActivityServiceImpl.class.getSimpleName();
+	private static final VActivityService gService = new VActivityService();
+	private static final String TAG = VActivityService.class.getSimpleName();
 	private final List<ActivityInfo> stubActivityList = new ArrayList<ActivityInfo>();
 
 	private final Map<String, StubInfo> stubInfoMap = new HashMap<String, StubInfo>();
@@ -47,7 +47,7 @@ public class VActivityServiceImpl extends IActivityManager.Stub {
 	private ActivityManager am = (ActivityManager) VirtualCore.getCore().getContext()
 			.getSystemService(Context.ACTIVITY_SERVICE);
 
-	public static VActivityServiceImpl getService() {
+	public static VActivityService getService() {
 		return gService;
 	}
 
@@ -131,7 +131,7 @@ public class VActivityServiceImpl extends IActivityManager.Stub {
 
 		StubInfo selectStubInfo = fetchRunningStubInfo(targetProcessName);
 		if (selectStubInfo == null) {
-			selectStubInfo = VProcessServiceImpl.getService().fetchFreeStubInfo(stubInfoMap.values());
+			selectStubInfo = VProcessService.getService().fetchFreeStubInfo(stubInfoMap.values());
 		}
 		if (selectStubInfo == null) {
 			return null;
@@ -147,7 +147,7 @@ public class VActivityServiceImpl extends IActivityManager.Stub {
 		String targetProcessName = ComponentUtils.getProcessName(serviceInfo);
 		ProviderInfo runningEnv = fetchRunningServiceRuntime(targetProcessName);
 		if (runningEnv == null) {
-			StubInfo stubInfo = VProcessServiceImpl.getService().fetchFreeStubInfo(stubInfoMap.values());
+			StubInfo stubInfo = VProcessService.getService().fetchFreeStubInfo(stubInfoMap.values());
 			if (stubInfo != null) {
 				runningEnv = stubInfo.providerInfos.get(0);
 			}
@@ -175,7 +175,7 @@ public class VActivityServiceImpl extends IActivityManager.Stub {
 	}
 
 	public StubInfo fetchRunningStubInfo(String plugProcName) {
-		return VProcessServiceImpl.getService().findStubInfo(plugProcName);
+		return VProcessService.getService().findStubInfo(plugProcName);
 	}
 
 	public StubInfo findStubInfo(String stubProcName) {

@@ -10,7 +10,7 @@ import android.os.RemoteException;
  * @author Lody
  */
 
-public class VAccountManagerImpl extends IAccountManager.Stub {
+public class VAccountManager extends IAccountManager.Stub {
     @Override
     public String getPassword(Account account) throws RemoteException {
         return null;

@@ -28,7 +28,7 @@ final class ProcessRecord {
 	/**
 	 * 该插件对应的Stub
 	 */
-	public VActivityServiceImpl.StubInfo stubInfo;
+	public VActivityService.StubInfo stubInfo;
 	/**
 	 * 该插件的appThread
 	 */
@@ -65,7 +65,7 @@ final class ProcessRecord {
 		} catch (RemoteException e) {
 			// Ignore
 		}
-		stubInfo = VActivityServiceImpl.getService().findStubInfo(this.stubProcessName);
+		stubInfo = VActivityService.getService().findStubInfo(this.stubProcessName);
 	}
 
 	public ServiceRecord findServiceRecord(String name) {
