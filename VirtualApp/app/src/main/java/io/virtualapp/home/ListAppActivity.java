@@ -4,29 +4,24 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.PagerTabStrip;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ListView;
-
-import java.util.List;
 
 import io.virtualapp.R;
 import io.virtualapp.VCommends;
 import io.virtualapp.abs.ui.VActivity;
-import io.virtualapp.home.adapters.AppListAdapter;
-import io.virtualapp.home.models.AppModel;
+import io.virtualapp.home.adapters.AppPagerAdapter;
 
 /**
  * @author Lody
  */
-public class ListAppActivity extends VActivity implements ListAppContract.ListAppView {
+public class ListAppActivity extends VActivity {
 
-    private ListAppContract.ListAppPresenter mPresenter;
-
-    private View mLoadingView;
-    private ListView mListView;
-    private AppListAdapter mAdapter;
+    private ViewPager mViewPager;
+    private PagerTabStrip mPagerTabStrip;
 
     public static void gotoListApp(Activity activity) {
         Intent intent = new Intent(activity, ListAppActivity.class);
@@ -39,35 +34,11 @@ public class ListAppActivity extends VActivity implements ListAppContract.ListAp
         setContentView(R.layout.activity_list_app);
         ActionBar actionBar = getSupportActionBar();
         setupActionBar(actionBar);
-        mLoadingView = findViewById(R.id.app_progress_bar);
-        mListView = (ListView) findViewById(R.id.app_list);
-        mAdapter = new AppListAdapter(this);
-        mListView.setAdapter(mAdapter);
-        new ListAppPresenterImpl(this, this);
-        mPresenter.start();
-        mListView.setOnItemClickListener((parent, view, position, id) -> {
-            AppModel model = (AppModel) parent.getAdapter().getItem(position);
-            mPresenter.selectApp(model);
-        });
 
-    }
-
-    @Override
-    public void startLoading() {
-        mLoadingView.setVisibility(View.VISIBLE);
-        mListView.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void loadFinish(List<AppModel> models) {
-        mAdapter.setModels(models);
-        mLoadingView.setVisibility(View.GONE);
-        mListView.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void setPresenter(ListAppContract.ListAppPresenter presenter) {
-        this.mPresenter = presenter;
+        mViewPager = (ViewPager) findViewById(R.id.app_list_pager);
+        mPagerTabStrip = (PagerTabStrip) findViewById(R.id.app_pager_tap_strip);
+        mPagerTabStrip.setTabIndicatorColor(ContextCompat.getColor(this, R.color.colorAccent));
+        mViewPager.setAdapter(new AppPagerAdapter(getSupportFragmentManager()));
     }
 
     private void setupActionBar(ActionBar actionBar) {

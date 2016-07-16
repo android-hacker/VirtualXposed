@@ -1,7 +1,7 @@
 package io.virtualapp.abs.ui;
 
-import android.app.Fragment;
 import android.support.annotation.IdRes;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 
 import org.jdeferred.android.AndroidDeferredManager;
@@ -16,11 +16,11 @@ public class VActivity extends AppCompatActivity {
     }
 
     public Fragment findFragmentById(@IdRes int id) {
-        return getFragmentManager().findFragmentById(id);
+        return getSupportFragmentManager().findFragmentById(id);
     }
 
     public void replaceFragment(@IdRes int id, Fragment fragment) {
-        getFragmentManager().beginTransaction().replace(id, fragment).commit();
+        getSupportFragmentManager().beginTransaction().replace(id, fragment).commit();
     }
 
     public void destroy() {
