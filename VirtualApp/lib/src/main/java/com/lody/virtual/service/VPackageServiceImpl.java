@@ -15,11 +15,13 @@ import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.os.Build;
+import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.bundle.APKBundle;
 import com.lody.virtual.helper.bundle.IntentResolver;
+import com.lody.virtual.helper.proto.VParceledListSlice;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -227,8 +229,8 @@ public class VPackageServiceImpl extends IPackageManager.Stub {
 		return new ArrayList<ResolveInfo>(0);
 	}
 
-	public List<PackageInfo> getInstalledPackages(int flags) {
-		List<PackageInfo> installedPkgs = new ArrayList<PackageInfo>(getPMS().getAppCount());
+	public VParceledListSlice getInstalledPackages(int flags) {
+		List<Parcelable> installedPkgs = new ArrayList<Parcelable>(getPMS().getAppCount());
 		for (APKBundle bundle : getPMS().getAllAPKBundles().values()) {
 			try {
 				installedPkgs.add(bundle.getPackageInfo(flags));
@@ -236,7 +238,7 @@ public class VPackageServiceImpl extends IPackageManager.Stub {
 				e.printStackTrace();
 			}
 		}
-		return installedPkgs;
+		return new VParceledListSlice(installedPkgs);
 	}
 
 	public List<ApplicationInfo> getInstalledApplications(int flags) {

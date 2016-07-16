@@ -5,149 +5,194 @@ import android.os.IBinder;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.RemoteException;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * IPC时，单独传递一个List，可能会超过IPC_MAX,从而导致IPC数据传递失败， 本类实现了List分包传输。
+ * Transfer a large list of Parcelable objects across an IPC.  Splits into
+ * multiple transactions if needed.
+ *
+ * Caveat: for efficiency and security, all elements must be the same concrete type.
+ * In order to avoid writing the class name of each object, we must ensure that
+ * each object is the same type, or else unparceling then reparceling the data may yield
+ * a different result if the class name encoded in the Parcelable is a Base type.
+ * See b/17671747.
+ *
+ * @hide
  */
-public class VParceledListSlice implements Parcelable {
+public class VParceledListSlice<T extends Parcelable> implements Parcelable {
+	private static String TAG = "ParceledListSlice";
+	private static boolean DEBUG = false;
 
-	public static final Creator CREATOR = new Creator() {
-		public final VParceledListSlice createFromParcel(Parcel source) {
-			return new VParceledListSlice(source);
+	/*
+     * TODO get this number from somewhere else. For now set it to a quarter of
+     * the 1MB limit.
+     */
+	private static final int MAX_IPC_SIZE = IBinder.MAX_IPC_SIZE;
+
+	private final List<T> mList;
+
+	public VParceledListSlice(List<T> list) {
+		mList = list;
+	}
+
+	@SuppressWarnings("unchecked")
+	private VParceledListSlice(Parcel p, ClassLoader loader) {
+		final int N = p.readInt();
+		mList = new ArrayList<T>(N);
+		if (DEBUG) Log.d(TAG, "Retrieving " + N + " items");
+		if (N <= 0) {
+			return;
 		}
 
-		public final VParceledListSlice[] newArray(int size) {
-			return new VParceledListSlice[size];
-		}
-	};
-	private List<Parcelable> mList;
+		Parcelable.Creator<?> creator = p.readParcelableCreator(loader);
+		Class<?> listElementClass = null;
 
-	public VParceledListSlice(Parcel parcel) {
-		readFromParcel(parcel);
-	}
-
-	public VParceledListSlice(List<Parcelable> mList) {
-		this.mList = mList;
-	}
-
-	private static Parcelable newParcelable(Creator creator, Parcel parcel) {
-		return (Parcelable) creator.createFromParcel(parcel);
-	}
-
-	private static Creator getCreator(Parcel parcel) {
-		try {
-			return (Creator) Class.forName(parcel.readString()).getField("CREATOR").get(null);
-		} catch (Throwable e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	private static void compare(Class one, Class second) {
-		if (!second.equals(one)) {
-			throw new IllegalArgumentException(
-					"Can't unparcel type " + second.getName() + " in list of type " + one.getName());
-		}
-	}
-
-	public final List<Parcelable> getmList() {
-		return this.mList;
-	}
-
-	public final void readFromParcel(Parcel parcel) {
 		int i = 0;
-		int length = parcel.readInt();
-		this.mList = new ArrayList<Parcelable>(length);
-		if (length > 0) {
-			Creator b = getCreator(parcel);
-			Class cls = null;
-			while (i < length && parcel.readInt() != 0) {
-				Parcelable parcelable = newParcelable(b, parcel);
-				if (cls == null) {
-					cls = parcelable.getClass();
-				} else {
-					compare(cls, parcelable.getClass());
-				}
-				this.mList.add(parcelable);
+		while (i < N) {
+			if (p.readInt() == 0) {
+				break;
+			}
+
+			final T parcelable = p.readCreator(creator, loader);
+			if (listElementClass == null) {
+				listElementClass = parcelable.getClass();
+			} else {
+				verifySameType(listElementClass, parcelable.getClass());
+			}
+
+			mList.add(parcelable);
+
+			if (DEBUG) Log.d(TAG, "Read inline #" + i + ": " + mList.get(mList.size()-1));
+			i++;
+		}
+		if (i >= N) {
+			return;
+		}
+		final IBinder retriever = p.readStrongBinder();
+		while (i < N) {
+			if (DEBUG) Log.d(TAG, "Reading more @" + i + " of " + N + ": retriever=" + retriever);
+			Parcel data = Parcel.obtain();
+			Parcel reply = Parcel.obtain();
+			data.writeInt(i);
+			try {
+				retriever.transact(IBinder.FIRST_CALL_TRANSACTION, data, reply, 0);
+			} catch (RemoteException e) {
+				Log.w(TAG, "Failure retrieving array; only received " + i + " of " + N, e);
+				return;
+			}
+			while (i < N && reply.readInt() != 0) {
+				final T parcelable = reply.readCreator(creator, loader);
+				verifySameType(listElementClass, parcelable.getClass());
+
+				mList.add(parcelable);
+
+				if (DEBUG) Log.d(TAG, "Read extra #" + i + ": " + mList.get(mList.size()-1));
 				i++;
 			}
-			if (i < length) {
-				IBinder binder = parcel.readStrongBinder();
-				while (i < length) {
-					Parcel data = Parcel.obtain();
-					Parcel reply = Parcel.obtain();
-					data.writeInt(i);
-					try {
-						binder.transact(1, data, reply, 0);
-						while (i < length && reply.readInt() != 0) {
-							Parcelable newParcelable = newParcelable(b, reply);
-							compare(cls, newParcelable.getClass());
-							this.mList.add(newParcelable);
-							i++;
-						}
-						reply.recycle();
-						data.recycle();
-					} catch (RemoteException e) {
-						return;
-					}
-				}
-			}
+			reply.recycle();
+			data.recycle();
 		}
 	}
 
-	public final void setParcelables(List<Parcelable> list) {
-		this.mList = list;
+
+	@SuppressWarnings("unchecked")
+	public static final Parcelable.ClassLoaderCreator<VParceledListSlice> CREATOR =
+			new Parcelable.ClassLoaderCreator<VParceledListSlice>() {
+				public VParceledListSlice createFromParcel(Parcel in) {
+					return new VParceledListSlice(in, null);
+				}
+
+				@Override
+				public VParceledListSlice createFromParcel(Parcel in, ClassLoader loader) {
+					return new VParceledListSlice(in, loader);
+				}
+
+				public VParceledListSlice[] newArray(int size) {
+					return new VParceledListSlice[size];
+				}
+			};
+
+	private static void verifySameType(final Class<?> expected, final Class<?> actual) {
+		if (!actual.equals(expected)) {
+			throw new IllegalArgumentException("Can't unparcel type "
+					+ actual.getName() + " in list of type "
+					+ expected.getName());
+		}
 	}
 
+	public List<T> getList() {
+		return mList;
+	}
+
+	@Override
 	public int describeContents() {
 		int contents = 0;
-		for (int i = 0; i < mList.size(); i++) {
+		for (int i=0; i<mList.size(); i++) {
 			contents |= mList.get(i).describeContents();
 		}
 		return contents;
 	}
 
-	public void writeToParcel(Parcel parcel, final int flags) {
-		final int N = this.mList == null ? 0 : this.mList.size();
-		parcel.writeInt(N);
+	/**
+	 * Write this to another Parcel. Note that this discards the internal Parcel
+	 * and should not be used anymore. This is so we can pass this to a Binder
+	 * where we won't have a chance to call recycle on this.
+	 */
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		final int N = mList.size();
+		final int callFlags = flags;
+		dest.writeInt(N);
+		if (DEBUG) Log.d(TAG, "Writing " + N + " items");
 		if (N > 0) {
-			final Class listElementClass = ((Parcelable) this.mList.get(0)).getClass();
-			parcel.writeString(listElementClass.getName());
+			final Class<?> listElementClass = mList.get(0).getClass();
+			dest.writeParcelableCreator(mList.get(0));
 			int i = 0;
-			while (i < N && parcel.dataSize() < 131072) {
-				parcel.writeInt(1);
-				Parcelable parcelable = this.mList.get(i);
-				compare(listElementClass, parcelable.getClass());
-				parcelable.writeToParcel(parcel, flags);
+			while (i < N && dest.dataSize() < MAX_IPC_SIZE) {
+				dest.writeInt(1);
+
+				final T parcelable = mList.get(i);
+				verifySameType(listElementClass, parcelable.getClass());
+				parcelable.writeToParcel(dest, callFlags);
+
+				if (DEBUG) Log.d(TAG, "Wrote inline #" + i + ": " + mList.get(i));
 				i++;
 			}
 			if (i < N) {
-				parcel.writeInt(0);
-				parcel.writeStrongBinder(new Binder() {
-
-					protected final boolean onTransact(int code, Parcel data, Parcel reply, int flags)
+				dest.writeInt(0);
+				Binder retriever = new Binder() {
+					@Override
+					protected boolean onTransact(int code, Parcel data, Parcel reply, int flags)
 							throws RemoteException {
 						if (code != FIRST_CALL_TRANSACTION) {
 							return super.onTransact(code, data, reply, flags);
 						}
 						int i = data.readInt();
-						while (i < N && reply.dataSize() < 262144) {
+						if (DEBUG) Log.d(TAG, "Writing more @" + i + " of " + N);
+						while (i < N && reply.dataSize() < MAX_IPC_SIZE) {
 							reply.writeInt(1);
-							Parcelable parcelable = mList.get(i);
-							VParceledListSlice.compare(listElementClass, parcelable.getClass());
-							parcelable.writeToParcel(reply, code);
+
+							final T parcelable = mList.get(i);
+							verifySameType(listElementClass, parcelable.getClass());
+							parcelable.writeToParcel(reply, callFlags);
+
+							if (DEBUG) Log.d(TAG, "Wrote extra #" + i + ": " + mList.get(i));
 							i++;
 						}
 						if (i < N) {
+							if (DEBUG) Log.d(TAG, "Breaking @" + i + " of " + N);
 							reply.writeInt(0);
 						}
 						return true;
 					}
-				});
+				};
+				if (DEBUG) Log.d(TAG, "Breaking @" + i + " of " + N + ": retriever=" + retriever);
+				dest.writeStrongBinder(retriever);
 			}
 		}
 	}
+
 }
