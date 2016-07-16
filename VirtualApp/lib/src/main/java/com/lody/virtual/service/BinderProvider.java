@@ -9,9 +9,9 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.client.stub.KeepService;
 import com.lody.virtual.helper.ExtraConstants;
+import com.lody.virtual.helper.MethodConstants;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.component.BaseContentProvider;
-import com.lody.virtual.helper.utils.XLog;
 import com.lody.virtual.service.interfaces.IServiceFetcher;
 
 import java.util.HashMap;
@@ -49,7 +49,7 @@ public final class BinderProvider extends BaseContentProvider {
 
 	@Override
 	public Bundle call(String method, String arg, Bundle extras) {
-		if (method.equals("startup")) {
+		if (method.equals(MethodConstants.INIT_SERVICE)) {
 			// 确保ServiceContentProvider所在进程创建，因为一切插件服务都依赖这个桥梁。
 			return null;
 		} else {

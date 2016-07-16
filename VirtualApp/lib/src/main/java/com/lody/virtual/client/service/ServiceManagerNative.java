@@ -1,15 +1,16 @@
 package com.lody.virtual.client.service;
 
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.compat.BundleCompat;
-import com.lody.virtual.helper.utils.XLog;
-import com.lody.virtual.service.interfaces.IServiceFetcher;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.ExtraConstants;
+import com.lody.virtual.helper.MethodConstants;
+import com.lody.virtual.helper.compat.BundleCompat;
+import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.service.interfaces.IServiceFetcher;
 
 /**
  * @author Lody
@@ -73,7 +74,7 @@ public class ServiceManagerNative {
 	}
 
 	public static void startup(Context context) {
-		new ProviderCaller.Builder(context, SERVICE_CP_AUTH).methodName("startup").call();
+		new ProviderCaller.Builder(context, SERVICE_CP_AUTH).methodName(MethodConstants.INIT_SERVICE).call();
 	}
 
 }

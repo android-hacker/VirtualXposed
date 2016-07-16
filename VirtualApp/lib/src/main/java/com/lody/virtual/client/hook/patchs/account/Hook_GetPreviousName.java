@@ -9,22 +9,22 @@ import java.lang.reflect.Method;
 /**
  * @author Lody
  *
- * @see android.accounts.IAccountManager#getUserData(Account, String)
+ * @see android.accounts.IAccountManager#getPreviousName(Account)
  */
 
-public class Hook_GetUserData extends Hook<AccountManagerPatch> {
+public class Hook_GetPreviousName extends Hook<AccountManagerPatch> {
     /**
      * 这个构造器必须有,用于依赖注入.
      *
      * @param patchObject 注入对象
      */
-    public Hook_GetUserData(AccountManagerPatch patchObject) {
+    public Hook_GetPreviousName(AccountManagerPatch patchObject) {
         super(patchObject);
     }
 
     @Override
     public String getName() {
-        return "getUserData";
+        return "getPreviousName";
     }
 
     @Override

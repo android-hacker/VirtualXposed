@@ -50,7 +50,7 @@ public class AppRepository implements AppDataSource {
 	@Override
 	public Promise<List<AppModel>, Throwable, Void> getInstalledApps(Context context) {
 		return VUiKit.defer().when(() -> {
-			List<PackageInfo> pkgList = context.getPackageManager().getInstalledPackages(0);
+			List<PackageInfo> pkgList = VirtualCore.getCore().getUnHookPackageManager().getInstalledPackages(0);
 			List<AppModel> models = new ArrayList<>(pkgList.size());
             String hostPkg = VirtualCore.getCore().getHostPkg();
 			for (PackageInfo pkg : pkgList) {
