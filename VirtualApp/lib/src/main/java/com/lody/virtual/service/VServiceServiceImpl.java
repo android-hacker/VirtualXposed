@@ -68,7 +68,7 @@ public class VServiceServiceImpl extends IServiceManager.Stub {
 
 	public IServiceEnvironment getServiceEnvironment(ProviderInfo serviceEnv) {
 		Context context = VirtualCore.getCore().getContext();
-		Bundle bundle = new ProviderCaller.Builder(context, serviceEnv.authority).methodName("@").invoke();
+		Bundle bundle = new ProviderCaller.Builder(context, serviceEnv.authority).methodName("@").call();
 		if (bundle != null) {
 			IBinder binder = BundleCompat.getBinder(bundle, ExtraConstants.EXTRA_BINDER);
 			IServiceEnvironment env = IServiceEnvironment.Stub.asInterface(binder);

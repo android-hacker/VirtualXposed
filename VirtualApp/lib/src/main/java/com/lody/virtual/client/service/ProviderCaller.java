@@ -1,7 +1,5 @@
 package com.lody.virtual.client.service;
 
-import java.io.Serializable;
-
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
@@ -9,6 +7,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcelable;
+
+import java.io.Serializable;
 
 /**
  * @author Lody
@@ -53,6 +53,7 @@ public class ProviderCaller {
 					if (Build.VERSION.SDK_INT >= 18) {
 						bundle.putBinder(key, (IBinder) value);
 					} else {
+						//noinspection deprecation
 						bundle.putIBinder(key, (IBinder) value);
 					}
 				} else if (value instanceof Boolean) {
@@ -74,11 +75,8 @@ public class ProviderCaller {
 			return this;
 		}
 
-		public Bundle invoke() {
-			if (methodName == null) {
-				throw new IllegalArgumentException("MethodName must be set!");
-			}
-			return call(auth, context, methodName, arg, bundle);
+		public Bundle call() {
+			return ProviderCaller.call(auth, context, methodName, arg, bundle);
 		}
 
 	}

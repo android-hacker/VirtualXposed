@@ -1,18 +1,5 @@
 package com.lody.virtual.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
-import com.lody.virtual.client.IVClient;
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.service.ProviderCaller;
-import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.proto.VComponentInfo;
-import com.lody.virtual.helper.utils.ComponentUtils;
-import com.lody.virtual.helper.utils.XLog;
-
 import android.app.ActivityManagerNative;
 import android.app.ApplicationThreadNative;
 import android.app.IApplicationThread;
@@ -24,6 +11,20 @@ import android.os.IBinder;
 import android.os.Process;
 import android.os.RemoteException;
 import android.text.TextUtils;
+
+import com.lody.virtual.client.IVClient;
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.service.ProviderCaller;
+import com.lody.virtual.helper.ExtraConstants;
+import com.lody.virtual.helper.MethodConstants;
+import com.lody.virtual.helper.proto.VComponentInfo;
+import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.helper.utils.XLog;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Lody
@@ -356,8 +357,10 @@ public class VProcessServiceImpl extends IProcessManager.Stub {
 		if (componentInfo != null && stubInfo != null) {
 			VProcessServiceImpl.getService().mapProcessName(stubInfo.processName, componentInfo.processName);
 			ProviderInfo env = stubInfo.providerInfos.get(0);
-			new ProviderCaller.Builder(VirtualCore.getCore().getContext(), env.authority).methodName("enterProcess")
-					.addArg(ExtraConstants.EXTRA_PKG, componentInfo.packageName).invoke();
+			new ProviderCaller.Builder(VirtualCore.getCore().getContext(), env.authority)
+					.methodName(MethodConstants.INIT_PROCESS)
+					.addArg(ExtraConstants.EXTRA_PKG, componentInfo.packageName)
+					.call();
 		}
 	}
 
@@ -370,9 +373,7 @@ public class VProcessServiceImpl extends IProcessManager.Stub {
 			if (stubInfo == null) {
 				stubInfo = fetchFreeStubInfo(VActivityServiceImpl.getService().getStubInfoMap().values());
 				if (stubInfo != null) {
-					XLog.d(TAG, "Launching Process(%s/%s)...", pkg, plugProcName);
 					launchComponentProcess(componentInfo, stubInfo);
-					XLog.d(TAG, "Launch Process(%s/%s) finished.", pkg, plugProcName);
 				} else {
 					XLog.e(TAG, "Unable to fetch free Stub to launch Process(%s/%s).", pkg, plugProcName);
 				}

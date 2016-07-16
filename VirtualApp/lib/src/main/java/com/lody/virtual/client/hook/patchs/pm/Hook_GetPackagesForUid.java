@@ -30,7 +30,7 @@ import com.lody.virtual.client.hook.base.Hook;
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		return AppSandBox.getInstalledPackages();
-		// return method.invoke(who, args);
+		// return method.call(who, args);
 	}
 
 	@Override
