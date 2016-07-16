@@ -1,4 +1,4 @@
-package com.lody.virtual.service;
+package com.lody.virtual.service.am;
 
 import android.app.ActivityManagerNative;
 import android.app.IServiceConnection;
@@ -8,9 +8,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ServiceInfo;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.core.VirtualCore;
@@ -19,6 +19,9 @@ import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.service.IServiceManager;
+import com.lody.virtual.service.VPackageService;
+import com.lody.virtual.service.process.VProcessService;
 import com.lody.virtual.service.interfaces.IServiceEnvironment;
 
 import java.util.Map;
@@ -28,30 +31,35 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Lody
  *
  */
-public class VServiceServiceImpl extends IServiceManager.Stub {
+public class VServiceService extends IServiceManager.Stub {
 
-	private static final String TAG = VServiceServiceImpl.class.getSimpleName();
+	private static final String TAG = VServiceService.class.getSimpleName();
 
-	private static final VServiceServiceImpl sService = new VServiceServiceImpl();
+	private static final VServiceService sService = new VServiceService();
 
-	private Map<IBinder, ServiceInfo> serviceConnectionMap = new ConcurrentHashMap<IBinder, ServiceInfo>();
+	private Map<IBinder, ServiceRecord> serviceConnectionMap = new ConcurrentHashMap<IBinder, ServiceRecord>();
 
-	private RemoteCallbackList<IServiceConnection> remoteServiceConnections = new RemoteCallbackList<IServiceConnection>() {
-		@Override
-		public void onCallbackDied(IServiceConnection callback) {
-			super.onCallbackDied(callback);
-			serviceConnectionMap.remove(callback.asBinder());
+	private class ServiceRecord {
+		IBinder connection;
+		ServiceInfo serviceInfo;
+		int pid;
+
+		public ServiceRecord(IBinder connection, ServiceInfo serviceInfo, int pid) {
+			this.connection = connection;
+			this.serviceInfo = serviceInfo;
+			this.pid = pid;
 		}
-	};
+	}
 
-	public static VServiceServiceImpl getService() {
+
+	public static VServiceService getService() {
 		return sService;
 	}
 
 	private static ServiceInfo getServiceInfo(ComponentName service) {
 		if (service != null) {
 			try {
-				return VPackageServiceImpl.getService().getServiceInfo(service, 0);
+				return VPackageService.getService().getServiceInfo(service, 0);
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
@@ -85,10 +93,10 @@ public class VServiceServiceImpl extends IServiceManager.Stub {
 		if (serviceInfo == null) {
 			return service.getComponent();
 		}
-		ProviderInfo serviceEnv = VActivityServiceImpl.getService().fetchServiceRuntime(serviceInfo);
+		ProviderInfo serviceEnv = VActivityService.getService().fetchServiceRuntime(serviceInfo);
 		if (serviceEnv != null) {
 			String plugProcName = ComponentUtils.getProcessName(serviceInfo);
-			VProcessServiceImpl.getService().mapProcessName(serviceEnv.processName, plugProcName);
+			VProcessService.getService().mapProcessName(serviceEnv.processName, plugProcName);
 			IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
 			if (environment == null) {
 				return service.getComponent();
@@ -108,12 +116,12 @@ public class VServiceServiceImpl extends IServiceManager.Stub {
 		if (serviceInfo == null) {
 			return 0;
 		}
-		ProviderInfo serviceEnv = VActivityServiceImpl.getService().fetchRunningServiceRuntime(serviceInfo);
+		ProviderInfo serviceEnv = VActivityService.getService().fetchRunningServiceRuntime(serviceInfo);
 		if (serviceEnv == null) {
 			return 0;
 		}
 		String pluginProcessName = ComponentUtils.getProcessName(serviceInfo);
-		VProcessServiceImpl.getService().mapProcessName(serviceEnv.processName, pluginProcessName);
+		VProcessService.getService().mapProcessName(serviceEnv.processName, pluginProcessName);
 		IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
 		if (environment == null) {
 			return 0;
@@ -132,12 +140,12 @@ public class VServiceServiceImpl extends IServiceManager.Stub {
 			if (serviceInfo == null) {
 				return false;
 			}
-			ProviderInfo serviceEnv = VActivityServiceImpl.getService().fetchRunningServiceRuntime(serviceInfo);
+			ProviderInfo serviceEnv = VActivityService.getService().fetchRunningServiceRuntime(serviceInfo);
 			if (serviceEnv == null) {
 				return false;
 			}
 			String pluginProcessName = ComponentUtils.getProcessName(serviceInfo);
-			VProcessServiceImpl.getService().mapProcessName(serviceEnv.processName, pluginProcessName);
+			VProcessService.getService().mapProcessName(serviceEnv.processName, pluginProcessName);
 			IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
 			if (environment == null) {
 				return false;
@@ -176,10 +184,10 @@ public class VServiceServiceImpl extends IServiceManager.Stub {
 		if (serviceInfo == null) {
 			return 0;
 		}
-		ProviderInfo serviceEnv = VActivityServiceImpl.getService().fetchServiceRuntime(serviceInfo);
+		ProviderInfo serviceEnv = VActivityService.getService().fetchServiceRuntime(serviceInfo);
 		if (serviceEnv != null) {
 			String pluginProcessName = ComponentUtils.getProcessName(serviceInfo);
-			VProcessServiceImpl.getService().mapProcessName(serviceEnv.processName, pluginProcessName);
+			VProcessService.getService().mapProcessName(serviceEnv.processName, pluginProcessName);
 
 			IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
 			if (environment == null) {
@@ -193,8 +201,9 @@ public class VServiceServiceImpl extends IServiceManager.Stub {
 			}
 			if (result != 0) {
 				// bind Service Success
-				remoteServiceConnections.register(connection);
-				serviceConnectionMap.put(connection.asBinder(), serviceInfo);
+				IBinder connectionBinder = connection.asBinder();
+				serviceConnectionMap.put(connectionBinder,
+						new ServiceRecord(connectionBinder, serviceInfo, Binder.getCallingPid()));
 			}
 			return result;
 		}
@@ -218,16 +227,17 @@ public class VServiceServiceImpl extends IServiceManager.Stub {
 			return false;
 		}
 		IBinder connBinder = connection.asBinder();
-		ServiceInfo serviceInfo = serviceConnectionMap.get(connBinder);
-		if (serviceInfo == null) {
+		ServiceRecord r = serviceConnectionMap.get(connBinder);
+		if (r == null) {
 			return false;
 		}
-		ProviderInfo serviceEnv = VActivityServiceImpl.getService().fetchServiceRuntime(serviceInfo);
+		ServiceInfo serviceInfo = r.serviceInfo;
+		ProviderInfo serviceEnv = VActivityService.getService().fetchServiceRuntime(serviceInfo);
 		if (serviceEnv == null) {
 			return false;
 		}
 		String pluginProcessName = ComponentUtils.getProcessName(serviceInfo);
-		VProcessServiceImpl.getService().mapProcessName(serviceEnv.processName, pluginProcessName);
+		VProcessService.getService().mapProcessName(serviceEnv.processName, pluginProcessName);
 		IServiceEnvironment serviceEnvironment = getServiceEnvironment(serviceEnv);
 		if (serviceEnvironment == null) {
 			return false;
@@ -248,5 +258,13 @@ public class VServiceServiceImpl extends IServiceManager.Stub {
 	@Override
 	public void serviceDoneExecuting(IBinder token, int type, int startId, int res) throws RemoteException {
 
+	}
+
+	public void processDied(int pid) {
+		for (ServiceRecord r : serviceConnectionMap.values()) {
+			if (r.pid == pid) {
+				serviceConnectionMap.remove(r.connection);
+			}
+		}
 	}
 }

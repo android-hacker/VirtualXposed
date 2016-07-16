@@ -7,6 +7,9 @@ import java.lang.reflect.Method;
 
 /**
  * @author Lody
+ *
+ * @see android.accounts.IAccountManager#getAccounts(String, String)
+ *
  */
 
 public class Hook_GetAccountsForPackage extends Hook<AccountManagerPatch> {

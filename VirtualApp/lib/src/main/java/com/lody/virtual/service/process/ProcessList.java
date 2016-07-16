@@ -1,4 +1,4 @@
-package com.lody.virtual.service;
+package com.lody.virtual.service.process;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -9,6 +9,8 @@ import android.app.IServiceConnection;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
+
+import com.lody.virtual.service.am.ServiceRecord;
 
 /**
  * @author Lody

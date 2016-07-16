@@ -28,10 +28,11 @@ import com.lody.virtual.helper.utils.ComponentUtils;
 			}
 			// Create Redirect Request
 			VRedirectActRequest req = new VRedirectActRequest(targetActInfo, targetIntent.getFlags());
+			req.fromHost = !VirtualCore.getCore().isVAppProcess();
 			req.resultTo = resultTo;
 			// Get Request Result
 			VActRedirectResult result = LocalActivityManager.getInstance().redirectTargetActivity(req);
-			if (result == null || result.stubActInfo == null || result.intercepted) {
+			if (result == null || result.stubActInfo == null) {
 				return false;
 			}
 			ActivityInfo selectStubActInfo = result.stubActInfo;

@@ -1,7 +1,4 @@
-package com.lody.virtual.service;
-
-import java.util.ArrayList;
-import java.util.List;
+package com.lody.virtual.service.am;
 
 import android.app.IServiceConnection;
 import android.content.Intent;
@@ -9,13 +6,16 @@ import android.content.pm.ServiceInfo;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-class ServiceRecord {
+import java.util.ArrayList;
+import java.util.List;
+
+public class ServiceRecord {
 	public final List<ServiceBoundRecord> mBoundRecords = new ArrayList<>();
-	ServiceInfo serviceInfo;
-	IBinder token;
-	int startId;
-	IBinder binder;
-	boolean doRebind = false;
+	public ServiceInfo serviceInfo;
+	public IBinder token;
+	public int startId;
+	public IBinder binder;
+	public boolean doRebind = false;
 
 	public boolean hasSomeBound() {
 		return mBoundRecords.size() > 0;
@@ -113,7 +113,7 @@ class ServiceRecord {
 		return false;
 	}
 
-	static class ServiceBoundRecord {
+	public static class ServiceBoundRecord {
 		public List<IServiceConnection> connections = new ArrayList<>();
 		Intent intent;
 

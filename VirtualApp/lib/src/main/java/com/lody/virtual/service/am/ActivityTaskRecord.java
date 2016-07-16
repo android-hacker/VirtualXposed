@@ -1,4 +1,4 @@
-package com.lody.virtual.service;
+package com.lody.virtual.service.am;
 
 import android.content.ComponentName;
 import android.os.IBinder;
@@ -28,4 +28,9 @@ public class ActivityTaskRecord {
 		}
 		return new AppTaskInfo(taskId, baseActivity, topActivity);
 	}
+
+	public ActivityRecord topActivity() {
+		return activityList.getLast();
+	}
+
 }

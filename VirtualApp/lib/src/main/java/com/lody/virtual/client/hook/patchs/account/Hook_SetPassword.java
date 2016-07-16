@@ -9,22 +9,23 @@ import java.lang.reflect.Method;
 /**
  * @author Lody
  *
- * @see android.accounts.IAccountManager#getUserData(Account, String)
+ * @see android.accounts.IAccountManager#setPassword(Account, String)
+ *
  */
 
-public class Hook_GetUserData extends Hook<AccountManagerPatch> {
+public class Hook_SetPassword extends Hook<AccountManagerPatch> {
     /**
      * 这个构造器必须有,用于依赖注入.
      *
      * @param patchObject 注入对象
      */
-    public Hook_GetUserData(AccountManagerPatch patchObject) {
+    public Hook_SetPassword(AccountManagerPatch patchObject) {
         super(patchObject);
     }
 
     @Override
     public String getName() {
-        return "getUserData";
+        return "setPassword";
     }
 
     @Override

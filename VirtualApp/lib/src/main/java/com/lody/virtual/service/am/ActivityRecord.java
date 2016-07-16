@@ -1,4 +1,4 @@
-package com.lody.virtual.service;
+package com.lody.virtual.service.am;
 
 import android.content.pm.ActivityInfo;
 import android.os.IBinder;

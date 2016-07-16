@@ -15,11 +15,14 @@ import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.os.Build;
+import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.bundle.APKBundle;
 import com.lody.virtual.helper.bundle.IntentResolver;
+import com.lody.virtual.helper.proto.VParceledListSlice;
+import com.lody.virtual.service.process.VProcessService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,12 +32,12 @@ import java.util.Map;
  * @author Lody
  *
  */
-public class VPackageServiceImpl extends IPackageManager.Stub {
+public class VPackageService extends IPackageManager.Stub {
 
-	private static final VPackageServiceImpl gService = new VPackageServiceImpl();
+	private static final VPackageService gService = new VPackageService();
 	private PackageManager mPM;
 
-	public static VPackageServiceImpl getService() {
+	public static VPackageService getService() {
 		return gService;
 	}
 
@@ -42,8 +45,8 @@ public class VPackageServiceImpl extends IPackageManager.Stub {
 		return VirtualCore.getCore().getContext();
 	}
 
-	private VAppServiceImpl getPMS() {
-		return VAppServiceImpl.getService();
+	private VAppService getPMS() {
+		return VAppService.getService();
 	}
 
 	public void onCreate(Context context) {
@@ -125,7 +128,7 @@ public class VPackageServiceImpl extends IPackageManager.Stub {
 
 	public ProviderInfo resolveContentProvider(String auth, int flags) {
 
-		Map<String, APKBundle> bundleMap = VAppServiceImpl.getService().getAllAPKBundles();
+		Map<String, APKBundle> bundleMap = VAppService.getService().getAllAPKBundles();
 		for (APKBundle bundle : bundleMap.values()) {
 			try {
 				PackageInfo packageInfo = bundle.getPackageInfo(PackageManager.GET_PROVIDERS | flags);
@@ -227,8 +230,8 @@ public class VPackageServiceImpl extends IPackageManager.Stub {
 		return new ArrayList<ResolveInfo>(0);
 	}
 
-	public List<PackageInfo> getInstalledPackages(int flags) {
-		List<PackageInfo> installedPkgs = new ArrayList<PackageInfo>(getPMS().getAppCount());
+	public VParceledListSlice getInstalledPackages(int flags) {
+		List<Parcelable> installedPkgs = new ArrayList<Parcelable>(getPMS().getAppCount());
 		for (APKBundle bundle : getPMS().getAllAPKBundles().values()) {
 			try {
 				installedPkgs.add(bundle.getPackageInfo(flags));
@@ -236,7 +239,7 @@ public class VPackageServiceImpl extends IPackageManager.Stub {
 				e.printStackTrace();
 			}
 		}
-		return installedPkgs;
+		return new VParceledListSlice(installedPkgs);
 	}
 
 	public List<ApplicationInfo> getInstalledApplications(int flags) {
@@ -384,7 +387,7 @@ public class VPackageServiceImpl extends IPackageManager.Stub {
 	}
 
 	public String[] getPackagesForPid(int pid) {
-		return VProcessServiceImpl.getService().findRunningAppPkgByPid(pid);
+		return VProcessService.getService().findRunningAppPkgByPid(pid);
 	}
 
 	public List<IntentFilter> getReceiverIntentFilter(ActivityInfo info) {

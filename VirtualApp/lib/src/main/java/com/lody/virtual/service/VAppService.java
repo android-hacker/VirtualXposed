@@ -13,6 +13,7 @@ import com.lody.virtual.helper.proto.Problem;
 import com.lody.virtual.helper.utils.FileIO;
 import com.lody.virtual.helper.utils.XLog;
 import com.lody.virtual.service.interfaces.IAppObserver;
+import com.lody.virtual.service.process.VProcessService;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,17 +25,17 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Lody
  *
  */
-public class VAppServiceImpl extends IAppManager.Stub {
+public class VAppService extends IAppManager.Stub {
 
-	private static final String TAG = VAppServiceImpl.class.getSimpleName();
+	private static final String TAG = VAppService.class.getSimpleName();
 
-	private static final VAppServiceImpl gService = new VAppServiceImpl();
+	private static final VAppService gService = new VAppService();
 	private final char[] mLock = new char[0];
 	private Map<String, AppInfo> mAppInfoCaches = new ConcurrentHashMap<String, AppInfo>(10);
 	private Map<String, APKBundle> mApkBundleCaches = new ConcurrentHashMap<String, APKBundle>(10);
 	private RemoteCallbackList<IAppObserver> remoteCallbackList = new RemoteCallbackList<IAppObserver>();
 
-	public static VAppServiceImpl getService() {
+	public static VAppService getService() {
 		return gService;
 	}
 
@@ -85,11 +86,11 @@ public class VAppServiceImpl extends IAppManager.Stub {
 							if (nowPkgInfo.versionCode < newPkgInfo.versionCode) {
 								result.isUpdate = true;
 								updateAppLocked(bundle, appInfo);
-								break;
 							} else {
 								throw new IllegalStateException("Current APK Version is " + nowPkgInfo.versionCode
 										+ ", but New APK Version is " + newPkgInfo.versionCode);
 							}
+							break;
 						}
 						case InstallStrategy.TERMINATE_IF_EXIST : {
 							throw new IllegalStateException("This apk have installed, should not be install again.");
@@ -101,14 +102,6 @@ public class VAppServiceImpl extends IAppManager.Stub {
 				} else {
 					addAppLocked(bundle, appInfo);
 				}
-				// FIXME: 是不是需要把插件的资源解压出来放到 data目录/files?
-				// File assetFolder =
-				// AppFileSystem.getDefault().getAppAssetFolder(pkgName);
-				// assetFolder.mkdirs();
-				// File[] listFiles = assetFolder.listFiles();
-				// if (listFiles == null || listFiles.length == 0) {
-				// AssetFileUnpacker.unpack(apkFile, assetFolder);
-				// }
 				File libFolder = new File(appInfo.libDir);
 				libFolder.mkdirs();
 				if (NativeLibraryHelperCompat.copyNativeBinaries(apkFile, libFolder) < 0) {
@@ -138,6 +131,7 @@ public class VAppServiceImpl extends IAppManager.Stub {
 		String pkg = appInfo.packageName;
 		removeAppLocked(pkg);
 		addAppLocked(parser, appInfo);
+		VProcessService.getService().killAppByPkg(appInfo.packageName);
 	}
 
 	private void removeAppLocked(String pkg) {
@@ -148,7 +142,7 @@ public class VAppServiceImpl extends IAppManager.Stub {
 	public boolean uninstallApp(String pkg) {
 		if (isAppInstalled(pkg)) {
 			synchronized (mLock) {
-				VProcessServiceImpl.getService().killAppByPkg(pkg);
+				VProcessService.getService().killAppByPkg(pkg);
 				removeAppLocked(pkg);
 				AppFileSystem.getDefault().deleteApp(pkg);
 				return true;
