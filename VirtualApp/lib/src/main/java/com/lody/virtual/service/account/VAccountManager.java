@@ -10,8 +10,15 @@ import android.os.RemoteException;
 import com.lody.virtual.helper.utils.XLog;
 import com.lody.virtual.service.IAccountManager;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * @author Lody
+ *
+ * TODO: Implement Account & Sync System.
+ *
  */
 
 public class VAccountManager extends IAccountManager.Stub {
@@ -85,9 +92,17 @@ public class VAccountManager extends IAccountManager.Stub {
             XLog.d(TAG, "addAccountExplicitly failed : invalid account.");
             return false;
         }
-        
-
-        return false;
+        Set<String> keySet = extras.keySet();
+        Map<String, String> extra = new HashMap<>(keySet.size());
+        for (String key : keySet) {
+            String value = extras.getString(key);
+            if (value != null) {
+                extra.put(key, value);
+            }
+        }
+        AccountRecord r = new AccountRecord(account, extra);
+        // TODO: Insert data to Database
+        return true;
     }
 
     private boolean isValidAccount(Account account) {

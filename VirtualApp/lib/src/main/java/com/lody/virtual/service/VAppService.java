@@ -86,11 +86,11 @@ public class VAppService extends IAppManager.Stub {
 							if (nowPkgInfo.versionCode < newPkgInfo.versionCode) {
 								result.isUpdate = true;
 								updateAppLocked(bundle, appInfo);
-								break;
 							} else {
 								throw new IllegalStateException("Current APK Version is " + nowPkgInfo.versionCode
 										+ ", but New APK Version is " + newPkgInfo.versionCode);
 							}
+							break;
 						}
 						case InstallStrategy.TERMINATE_IF_EXIST : {
 							throw new IllegalStateException("This apk have installed, should not be install again.");
@@ -131,6 +131,7 @@ public class VAppService extends IAppManager.Stub {
 		String pkg = appInfo.packageName;
 		removeAppLocked(pkg);
 		addAppLocked(parser, appInfo);
+		VProcessService.getService().killAppByPkg(appInfo.packageName);
 	}
 
 	private void removeAppLocked(String pkg) {
