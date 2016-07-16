@@ -8,9 +8,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ServiceInfo;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.core.VirtualCore;
@@ -34,15 +34,20 @@ public class VServiceServiceImpl extends IServiceManager.Stub {
 
 	private static final VServiceServiceImpl sService = new VServiceServiceImpl();
 
-	private Map<IBinder, ServiceInfo> serviceConnectionMap = new ConcurrentHashMap<IBinder, ServiceInfo>();
+	private Map<IBinder, ServiceRecord> serviceConnectionMap = new ConcurrentHashMap<IBinder, ServiceRecord>();
 
-	private RemoteCallbackList<IServiceConnection> remoteServiceConnections = new RemoteCallbackList<IServiceConnection>() {
-		@Override
-		public void onCallbackDied(IServiceConnection callback) {
-			super.onCallbackDied(callback);
-			serviceConnectionMap.remove(callback.asBinder());
+	private class ServiceRecord {
+		IBinder connection;
+		ServiceInfo serviceInfo;
+		int pid;
+
+		public ServiceRecord(IBinder connection, ServiceInfo serviceInfo, int pid) {
+			this.connection = connection;
+			this.serviceInfo = serviceInfo;
+			this.pid = pid;
 		}
-	};
+	}
+
 
 	public static VServiceServiceImpl getService() {
 		return sService;
@@ -193,8 +198,9 @@ public class VServiceServiceImpl extends IServiceManager.Stub {
 			}
 			if (result != 0) {
 				// bind Service Success
-				remoteServiceConnections.register(connection);
-				serviceConnectionMap.put(connection.asBinder(), serviceInfo);
+				IBinder connectionBinder = connection.asBinder();
+				serviceConnectionMap.put(connectionBinder,
+						new ServiceRecord(connectionBinder, serviceInfo, Binder.getCallingPid()));
 			}
 			return result;
 		}
@@ -218,10 +224,11 @@ public class VServiceServiceImpl extends IServiceManager.Stub {
 			return false;
 		}
 		IBinder connBinder = connection.asBinder();
-		ServiceInfo serviceInfo = serviceConnectionMap.get(connBinder);
-		if (serviceInfo == null) {
+		ServiceRecord r = serviceConnectionMap.get(connBinder);
+		if (r == null) {
 			return false;
 		}
+		ServiceInfo serviceInfo = r.serviceInfo;
 		ProviderInfo serviceEnv = VActivityServiceImpl.getService().fetchServiceRuntime(serviceInfo);
 		if (serviceEnv == null) {
 			return false;
@@ -248,5 +255,13 @@ public class VServiceServiceImpl extends IServiceManager.Stub {
 	@Override
 	public void serviceDoneExecuting(IBinder token, int type, int startId, int res) throws RemoteException {
 
+	}
+
+	public void processDied(int pid) {
+		for (ServiceRecord r : serviceConnectionMap.values()) {
+			if (r.pid == pid) {
+				serviceConnectionMap.remove(r.connection);
+			}
+		}
 	}
 }

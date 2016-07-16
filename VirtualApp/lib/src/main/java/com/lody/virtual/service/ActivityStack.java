@@ -2,9 +2,8 @@ package com.lody.virtual.service;
 
 import android.os.IBinder;
 
-import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
+import java.util.ListIterator;
 
 /**
  * @author Lody
@@ -18,8 +17,16 @@ import java.util.List;
 
 /*package*/ class ActivityStack {
 
-	List<ActivityTaskRecord> tasks = Collections.synchronizedList(new LinkedList<ActivityTaskRecord>());
+	LinkedList<ActivityTaskRecord> tasks = new LinkedList<ActivityTaskRecord>();
 
+    public ActivityTaskRecord findTask(String affinity) {
+        for (ActivityTaskRecord task : tasks) {
+            if (affinity.equals(task.rootAffinity)) {
+                return task;
+            }
+        }
+        return null;
+    }
 	public ActivityTaskRecord findTask(IBinder activityToken) {
 		for (ActivityTaskRecord task : tasks) {
 			ActivityRecord r = task.activities.get(activityToken);
@@ -30,6 +37,16 @@ import java.util.List;
 		return null;
 	}
 
+    public ActivityRecord findRecord(IBinder activityToken) {
+        for (ActivityTaskRecord task : tasks) {
+            ActivityRecord r = task.activities.get(activityToken);
+            if (r != null) {
+                return r;
+            }
+        }
+        return null;
+    }
+
 	public ActivityTaskRecord findTask(int taskId) {
         for (ActivityTaskRecord task : tasks) {
             if (task.taskId == taskId) {
@@ -39,4 +56,13 @@ import java.util.List;
         return null;
     }
 
+    public void trimTasks() {
+        ListIterator<ActivityTaskRecord> iterator = tasks.listIterator();
+        while (iterator.hasNext()) {
+            ActivityTaskRecord task = iterator.next();
+            if (task.activities.isEmpty()) {
+                iterator.remove();
+            }
+        }
+    }
 }

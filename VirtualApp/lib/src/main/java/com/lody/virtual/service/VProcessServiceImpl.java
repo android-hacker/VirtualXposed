@@ -250,6 +250,8 @@ public class VProcessServiceImpl extends IProcessManager.Stub {
 				@Override
 				public void binderDied() {
 					synchronized (mProcessLock) {
+						VActivityServiceImpl.getService().processDied(pid);
+						VServiceServiceImpl.getService().processDied(pid);
 						removeProcessRecordLocked(pid);
 						cb.unlinkToDeath(this, 0);
 					}

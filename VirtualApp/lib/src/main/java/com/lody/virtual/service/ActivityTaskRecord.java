@@ -28,4 +28,9 @@ public class ActivityTaskRecord {
 		}
 		return new AppTaskInfo(taskId, baseActivity, topActivity);
 	}
+
+	public ActivityRecord topActivity() {
+		return activityList.getLast();
+	}
+
 }

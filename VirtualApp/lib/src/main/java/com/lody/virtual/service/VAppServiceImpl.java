@@ -101,14 +101,6 @@ public class VAppServiceImpl extends IAppManager.Stub {
 				} else {
 					addAppLocked(bundle, appInfo);
 				}
-				// FIXME: 是不是需要把插件的资源解压出来放到 data目录/files?
-				// File assetFolder =
-				// AppFileSystem.getDefault().getAppAssetFolder(pkgName);
-				// assetFolder.mkdirs();
-				// File[] listFiles = assetFolder.listFiles();
-				// if (listFiles == null || listFiles.length == 0) {
-				// AssetFileUnpacker.unpack(apkFile, assetFolder);
-				// }
 				File libFolder = new File(appInfo.libDir);
 				libFolder.mkdirs();
 				if (NativeLibraryHelperCompat.copyNativeBinaries(apkFile, libFolder) < 0) {
