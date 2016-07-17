@@ -31,10 +31,6 @@ public class Hook_UpdateAppPermission extends Hook<AccountManagerPatch> {
 
     @Override
     public Object onHook(Object who, Method method, Object... args) throws Throwable {
-        AccountUtils.replaceAccount(args);
-        if (args[1] instanceof String) {
-            args[1] = AccountUtils.ACCOUNT_TYPE;
-        }
         return method.invoke(who, args);
     }
 }

@@ -1,10 +1,14 @@
 package com.lody.virtual.client.hook.patchs.account;
 
+import com.lody.virtual.client.hook.base.Hook;
+
+import java.lang.reflect.Method;
+
 /**
  * @author Lody
  */
 
-public class Hook_AddAccountAsUser extends Hook_AddAccount {
+public class Hook_AddAccountAsUser extends Hook<AccountManagerPatch> {
     /**
      * 这个构造器必须有,用于依赖注入.
      *
@@ -17,5 +21,10 @@ public class Hook_AddAccountAsUser extends Hook_AddAccount {
     @Override
     public String getName() {
         return "addAccountAsUser";
+    }
+
+    @Override
+    public Object onHook(Object who, Method method, Object... args) throws Throwable {
+        return method.invoke(who, args);
     }
 }

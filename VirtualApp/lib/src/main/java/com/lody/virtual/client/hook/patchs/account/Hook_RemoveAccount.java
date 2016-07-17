@@ -30,7 +30,6 @@ public class Hook_RemoveAccount extends Hook<AccountManagerPatch> {
 
     @Override
     public Object onHook(Object who, Method method, Object... args) throws Throwable {
-        AccountUtils.replaceAccount(args);
         return method.invoke(who, args);
     }
 }

@@ -1,9 +1,6 @@
 package com.lody.virtual.client.hook.patchs.account;
 
-import android.accounts.Account;
-
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.hook.utils.HookUtils;
 
 import java.lang.reflect.Method;
 
@@ -30,15 +27,6 @@ import java.lang.reflect.Method;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		HookUtils.replaceLastAppPkg(args);
-		String accountType = (String) args[0];
-		if (!accountType.equals(AccountUtils.ACCOUNT_TYPE)) {
-			args[0] = AccountUtils.ACCOUNT_TYPE;
-		}
-		Account[] accounts = (Account[]) method.invoke(who, args);
-		for (Account account : accounts) {
-			AccountUtils.restoreAccount(account);
-		}
-		return accounts;
+		return method.invoke(who, args);
 	}
 }

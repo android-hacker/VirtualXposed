@@ -32,10 +32,6 @@ public class Hook_UpdateCredentials extends Hook<AccountManagerPatch> {
 
     @Override
     public Object onHook(Object who, Method method, Object... args) throws Throwable {
-        AccountUtils.replaceAccount(args);
-        if (args[2] instanceof String) {
-            args[2] = AccountUtils.ACCOUNT_TYPE;
-        }
         return method.invoke(who, args);
     }
 }

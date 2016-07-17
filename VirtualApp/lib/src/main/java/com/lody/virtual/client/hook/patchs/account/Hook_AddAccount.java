@@ -33,7 +33,6 @@ public class Hook_AddAccount extends Hook<AccountManagerPatch> {
 
     @Override
     public Object onHook(final Object who, Method method, Object... args) throws Throwable {
-
         return method.invoke(who, args);
     }
 }
