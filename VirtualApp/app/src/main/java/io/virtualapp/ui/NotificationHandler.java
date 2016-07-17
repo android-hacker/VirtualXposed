@@ -71,12 +71,21 @@ public class NotificationHandler implements INotificationHandler {
                 systemUi = context.createPackageContext("com.android.systemui", Context.CONTEXT_IGNORE_SECURITY);
             } catch (PackageManager.NameNotFoundException e) {
             }
-            notification_side_padding = getDimem(context, systemUi, "notification_side_padding", R.dimen.notification_side_padding);
+            //notification_row_min_height
+            //notification_row_max_height
+            if (Build.VERSION.SDK_INT <= 19) {
+                notification_side_padding = 0;
+            } else {
+                notification_side_padding = getDimem(context, systemUi, "notification_side_padding", R.dimen.notification_side_padding);
+            }
             notification_panel_width = getDimem(context, systemUi, "notification_panel_width", R.dimen.notification_panel_width);
             if (notification_panel_width <= 0) {
                 notification_panel_width = context.getResources().getDisplayMetrics().widthPixels;
             }
-            notification_min_height = getDimem(context, systemUi, "notification_min_height", R.dimen.notification_min_height);
+            notification_min_height = 0;// getDimem(context,systemUi, "notification_row_min_height", 0);
+            if (notification_min_height == 0) {
+                notification_min_height = getDimem(context, systemUi, "notification_min_height", R.dimen.notification_min_height);
+            }
             notification_max_height = getDimem(context, systemUi, "notification_max_height", R.dimen.notification_max_height);
             notification_mid_height = getDimem(context, systemUi, "notification_mid_height", R.dimen.notification_mid_height);
             notification_padding = getDimem(context, systemUi, "notification_padding", R.dimen.notification_padding);
@@ -90,14 +99,14 @@ public class NotificationHandler implements INotificationHandler {
     private int getDimem(Context context, Context sysContext, String name, int defId) {
         if (sysContext == null) {
             Log.w("kk", "get my");
-            return Math.round(context.getResources().getDimension(defId));
+            return defId == 0 ? 0 : Math.round(context.getResources().getDimension(defId));
         }
         int id = sysContext.getResources().getIdentifier(name, "dimen", "com.android.systemui");
         if (id != 0) {
             return Math.round(sysContext.getResources().getDimension(id));
         } else {
             Log.w("kk", "get my 2");
-            return Math.round(context.getResources().getDimension(defId));
+            return defId == 0 ? 0 : Math.round(context.getResources().getDimension(defId));
         }
     }
 
@@ -110,10 +119,12 @@ public class NotificationHandler implements INotificationHandler {
                 if (isPluginNotification(notification)) {
                     if (shouldBlock(notification)) {
                         //自定义布局通知栏
+                        Log.e("kk", "replaceNotification");
                         args[i] = replaceNotification(hostContext, packageName, notification);
                         return true;
                     } else {
                         //这里要修改通知。
+                        Log.e("kk", "replaceNotification");
                         hackNotification(notification);
                         return true;
                     }
@@ -259,44 +270,45 @@ public class NotificationHandler implements INotificationHandler {
                     builder.setLargeIcon(newIcon);
                 }
             }
-        } else {
-            if (!DRAW_NOTIFICATION) {
-                ApplicationInfo applicationInfo = null;
-                try {
-                    applicationInfo = VirtualCore.getCore().getPackageManager().getApplicationInfo(packageName, 0);
-                } catch (PackageManager.NameNotFoundException e) {
-                }
-                if (applicationInfo != null) {
-                    Drawable icon = VirtualCore.getCore().getPackageManager().getApplicationIcon(applicationInfo);
-                    CharSequence title = VirtualCore.getCore().getPackageManager().getApplicationLabel(applicationInfo);
-                    if (icon instanceof BitmapDrawable) {
-                        builder.setLargeIcon(((BitmapDrawable) icon).getBitmap());
-                    }
-                    builder.setContentTitle(title);
-                }
-            } else {
-                RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.custom_notification);
-                //TODO 绘制图片，遍历action这只内容
-                Bitmap bmp = null;
-                try {
-                    if (notification.contentView != null) {
-                        bmp = createBitmap(notification.contentView, false);
-                    } else {
-                        bmp = createBitmap(notification.bigContentView, true);
-                    }
-                } catch (PackageManager.NameNotFoundException e) {
-                }
-                remoteViews.setImageViewBitmap(R.id.im_main, bmp);
-                //TODO 区域点击
-                builder.setContent(remoteViews);
-            }
-            //com.android.internal.R.id.icon
+        }else{
             builder.setSmallIcon(context.getApplicationInfo().icon);
-            builder.setContentIntent(notification.contentIntent);
-            builder.setDeleteIntent(notification.deleteIntent);
-            builder.setFullScreenIntent(notification.fullScreenIntent,
-                    (notification.flags & Notification.FLAG_HIGH_PRIORITY) != 0);
         }
+        if (!DRAW_NOTIFICATION) {
+            ApplicationInfo applicationInfo = null;
+            try {
+                applicationInfo = VirtualCore.getCore().getPackageManager().getApplicationInfo(packageName, 0);
+            } catch (PackageManager.NameNotFoundException e) {
+            }
+            if (applicationInfo != null) {
+                Drawable icon = VirtualCore.getCore().getPackageManager().getApplicationIcon(applicationInfo);
+                CharSequence title = VirtualCore.getCore().getPackageManager().getApplicationLabel(applicationInfo);
+                if (icon instanceof BitmapDrawable) {
+                    builder.setLargeIcon(((BitmapDrawable) icon).getBitmap());
+                }
+                builder.setContentTitle(title);
+            }
+        } else {
+            RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.custom_notification);
+            //TODO 绘制图片，遍历action这只内容
+            Bitmap bmp = null;
+            try {
+                if (notification.contentView != null) {
+                    bmp = createBitmap(notification.contentView, false);
+                } else {
+                    bmp = createBitmap(notification.bigContentView, true);
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+            }
+            remoteViews.setImageViewBitmap(R.id.im_main, bmp);
+            //TODO 区域点击
+            builder.setContent(remoteViews);
+        }
+        //com.android.internal.R.id.icon
+        builder.setContentIntent(notification.contentIntent);
+        builder.setDeleteIntent(notification.deleteIntent);
+        builder.setFullScreenIntent(notification.fullScreenIntent,
+                (notification.flags & Notification.FLAG_HIGH_PRIORITY) != 0);
+
         Notification notification1;
         if (Build.VERSION.SDK_INT >= 16) {
             notification1 = builder.build();
@@ -320,7 +332,7 @@ public class NotificationHandler implements INotificationHandler {
         final Context context = VirtualCore.getCore().getContext().createPackageContext(aPackage, Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
 //        ViewGroup view = (ViewGroup) LayoutInflater.from(context).inflate(remoteViews.getLayoutId(), null);
         //TODO 需要适配
-        int sp =  notification_side_padding;// + notification_padding);
+        int sp = notification_side_padding;// + notification_padding);
         int width = notification_panel_width - sp * 2;
         int height = isBig ? notification_max_height : notification_min_height;
         FrameLayout frameLayout = new FrameLayout(context);
