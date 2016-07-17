@@ -5,8 +5,6 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.core.VirtualCore;
 
-import java.util.Map;
-
 /**
  * @author Lody
  */
@@ -14,7 +12,6 @@ import java.util.Map;
 public class VClientImpl extends IVClient.Stub {
 
 	private static final IVClient gClient = new VClientImpl();
-	private Map<IBinder, Object> activities;
 
 	public static IVClient getClient() {
 		return gClient;

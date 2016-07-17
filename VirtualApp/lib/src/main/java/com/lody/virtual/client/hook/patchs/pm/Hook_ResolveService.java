@@ -1,11 +1,12 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import java.lang.reflect.Method;
-
-import com.lody.virtual.client.local.LocalPackageManager;
-import com.lody.virtual.client.hook.base.Hook;
-
 import android.content.Intent;
+import android.content.pm.ResolveInfo;
+
+import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.local.LocalPackageManager;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -34,10 +35,13 @@ import android.content.Intent;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-
-		return LocalPackageManager.getInstance().resolveService((Intent) args[0], // intent
-				(String) args[1], // resolvedType
-				(Integer) args[2]// flags
-		);
+		Intent intent = (Intent) args[0];
+		String resolvedType = (String) args[1];
+		int flags = (int) args[2];
+		ResolveInfo resolveInfo = LocalPackageManager.getInstance().resolveService(intent, resolvedType, flags);
+		if (resolveInfo == null) {
+			resolveInfo = (ResolveInfo) method.invoke(who, args);
+		}
+		return resolveInfo;
 	}
 }

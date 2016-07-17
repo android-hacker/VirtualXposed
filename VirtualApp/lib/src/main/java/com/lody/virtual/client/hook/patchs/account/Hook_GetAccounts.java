@@ -1,14 +1,13 @@
 package com.lody.virtual.client.hook.patchs.account;
 
-import java.lang.reflect.Method;
-
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.hook.utils.HookUtils;
 
-import android.os.Build;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
+ *
+ * @see android.accounts.IAccountManager#getAccounts(String, String)
  */
 /* package */ class Hook_GetAccounts extends Hook<AccountManagerPatch> {
 	/**
@@ -28,9 +27,6 @@ import android.os.Build;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		if (Build.VERSION.SDK_INT >= 19) {
-			HookUtils.replaceLastAppPkg(args);
-		}
 		return method.invoke(who, args);
 	}
 }

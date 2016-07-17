@@ -51,26 +51,26 @@ public class AppSandBox {
 		return applications.get(pkg);
 	}
 
-	public static void install(String procName, AppInfo pluginInfo) {
+	public static void install(String procName, AppInfo appInfo) {
 		sInstalling = true;
-		if (installedApps.contains(pluginInfo.packageName)) {
+		if (installedApps.contains(appInfo.packageName)) {
 			return;
 		}
-		ApplicationInfo appInfo = pluginInfo.applicationInfo;
-		String pkg = pluginInfo.packageName;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.L && appInfo.targetSdkVersion < Build.VERSION_CODES.L) {
+		ApplicationInfo applicationInfo = appInfo.applicationInfo;
+		String pkg = appInfo.packageName;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.L && applicationInfo.targetSdkVersion < Build.VERSION_CODES.L) {
 			try {
-				Message.updateCheckRecycle(appInfo.targetSdkVersion);
+				Message.updateCheckRecycle(applicationInfo.targetSdkVersion);
 			} catch (Throwable e) {
 				// Ignore
 			}
 		}
-		VMRuntimeCompat.setTargetSdkVersion(appInfo.targetSdkVersion);
+		VMRuntimeCompat.setTargetSdkVersion(applicationInfo.targetSdkVersion);
 
-		LoadedApk loadedApk = createLoadedApk(pluginInfo);
+		LoadedApk loadedApk = createLoadedApk(appInfo);
 
-		Context appContext = createAppContext(appInfo);
-		RuntimeEnv.setCurrentProcessName(procName, pluginInfo);
+		Context appContext = createAppContext(applicationInfo);
+		RuntimeEnv.setCurrentProcessName(procName, appInfo);
 
 		File codeCacheDir;
 
@@ -100,7 +100,7 @@ public class AppSandBox {
 				}
 			}
 		}
-		if (appInfo.targetSdkVersion <= Build.VERSION_CODES.GINGERBREAD) {
+		if (applicationInfo.targetSdkVersion <= Build.VERSION_CODES.GINGERBREAD) {
 			StrictMode.ThreadPolicy.Builder builder = new StrictMode.ThreadPolicy.Builder(StrictMode.getThreadPolicy());
 			builder.permitNetwork();
 			StrictMode.setThreadPolicy(builder.build());
@@ -167,8 +167,8 @@ public class AppSandBox {
 				}
 			}
 		}
-		applications.put(pluginInfo.packageName, app);
-		installedApps.add(pluginInfo.packageName);
+		applications.put(appInfo.packageName, app);
+		installedApps.add(appInfo.packageName);
 		sInstalling = false;
 		XLog.d(TAG, "Application of Process(%s) have launched. ", RuntimeEnv.getCurrentProcessName());
 	}
@@ -196,7 +196,7 @@ public class AppSandBox {
 			outsideAppInfo = VirtualCore.getCore().getUnHookPackageManager().getApplicationInfo(appInfo.packageName,
 					PackageManager.GET_SHARED_LIBRARY_FILES);
 		} catch (PackageManager.NameNotFoundException e) {
-			e.printStackTrace();
+			// Ignore
 		}
 		if (outsideAppInfo != null) {
 			classLoader = new PathAppClassLoader(appInfo, outsideAppInfo);

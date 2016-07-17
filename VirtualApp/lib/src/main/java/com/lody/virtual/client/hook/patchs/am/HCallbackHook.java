@@ -1,6 +1,12 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Field;
+import android.app.ActivityThread;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.interfaces.Injectable;
@@ -10,13 +16,7 @@ import com.lody.virtual.helper.compat.ClassLoaderCompat;
 import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.utils.XLog;
 
-import android.app.ActivityThread;
-import android.content.ComponentName;
-import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.os.Build;
-import android.os.Handler;
-import android.os.Message;
+import java.lang.reflect.Field;
 
 /**
  * @author Lody
@@ -29,15 +29,14 @@ import android.os.Message;
  */
 public class HCallbackHook implements Handler.Callback, Injectable {
 
-	////////////////////////////////////////////////////////////////
-	////////////////// Copy from ActivityThread$H////////////////////
-	////////////////////////////////////////////////////////////////
 	public static final int LAUNCH_ACTIVITY = 100;
 
 	private static final String TAG = HCallbackHook.class.getSimpleName();
 	private static final HCallbackHook sCallback = new HCallbackHook();
 	private static Field f_h;
 	private static Field f_handleCallback;
+
+	private boolean calling = false;
 
 	static {
 		try {
@@ -74,7 +73,6 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 	private static Handler.Callback getHCallback() {
 		try {
 			Handler handler = getH();
-
 			return (Handler.Callback) f_handleCallback.get(handler);
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -84,22 +82,23 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 
 	@Override
 	public boolean handleMessage(Message msg) {
-		switch (msg.what) {
-			case LAUNCH_ACTIVITY : {
-				if (!handleLaunchActivity(msg)) {
-					return true;
+		if (!calling) {
+			calling = true;
+			try {
+				if (LAUNCH_ACTIVITY == msg.what) {
+					handleLaunchActivity(msg);
 				}
-				break;
+				if (otherCallback != null) {
+					return otherCallback.handleMessage(msg);
+				}
+			} finally {
+				calling = false;
 			}
 		}
-		if (true) {
-			return false;
-		}
-		// 向下调用兼容其它的插件化
-		return otherCallback != null && otherCallback.handleMessage(msg);
+		return false;
 	}
 
-	private boolean handleLaunchActivity(Message msg) {
+	private void handleLaunchActivity(Message msg) {
 		Object r = msg.obj;
 		// StubIntent
 
@@ -115,7 +114,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		AppInfo appInfo = VirtualCore.getCore().findApp(pkgName);
 
 		if (appInfo == null) {
-			return false;
+			return;
 		}
 		ClassLoader pluginClassLoader = appInfo.getClassLoader();
 		stubIntent.setExtrasClassLoader(pluginClassLoader);
@@ -127,9 +126,8 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		ActivityInfo targetActInfo = stubIntent.getParcelableExtra(ExtraConstants.EXTRA_TARGET_ACT_INFO);
 
 		if (stubActInfo == null || targetActInfo == null) {
-			return false;
+			return;
 		}
-
 		boolean error = false;
 		try {
 			targetIntent.putExtra(ExtraConstants.EXTRA_STUB_ACT_INFO, stubActInfo);
@@ -139,7 +137,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 			XLog.w(TAG, "Directly putExtra failed: %s.", e.getMessage());
 		}
 		if (error && Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-			// 4.4以下的设备会出现这个奇葩的问题(unParcel死活找不到类加载器),
+			// 4.4以下的设备会出现这个BUG(unParcel找不到类加载器),
 			// 只能通过注入Class.forName所使用的类加载器来解决了...
 			ClassLoader oldParent = ClassLoaderCompat.setParent(getClass().getClassLoader(), pluginClassLoader);
 			try {
@@ -153,8 +151,6 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 
 		ActivityRecordCompat.setIntent(r, targetIntent);
 		ActivityRecordCompat.setActivityInfo(r, targetActInfo);
-
-		return true;
 	}
 
 	@Override

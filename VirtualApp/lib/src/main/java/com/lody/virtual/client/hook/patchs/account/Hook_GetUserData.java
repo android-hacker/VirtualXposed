@@ -29,7 +29,6 @@ public class Hook_GetUserData extends Hook<AccountManagerPatch> {
 
     @Override
     public Object onHook(Object who, Method method, Object... args) throws Throwable {
-        //FIXME: Sha ka la ka
         return method.invoke(who, args);
     }
 }

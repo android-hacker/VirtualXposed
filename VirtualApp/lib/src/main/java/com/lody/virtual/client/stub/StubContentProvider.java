@@ -1,20 +1,21 @@
 package com.lody.virtual.client.stub;
 
-import com.lody.virtual.client.core.AppSandBox;
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.env.ServiceEnv;
-import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.compat.BundleCompat;
-import com.lody.virtual.helper.component.BaseContentProvider;
-import com.lody.virtual.helper.proto.AppInfo;
-import com.lody.virtual.service.interfaces.IServiceEnvironment;
-
 import android.app.IServiceConnection;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+
+import com.lody.virtual.client.core.AppSandBox;
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.ServiceEnv;
+import com.lody.virtual.helper.ExtraConstants;
+import com.lody.virtual.helper.MethodConstants;
+import com.lody.virtual.helper.compat.BundleCompat;
+import com.lody.virtual.helper.component.BaseContentProvider;
+import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.service.interfaces.IServiceEnvironment;
 
 /**
  * @author Lody
@@ -26,7 +27,7 @@ public abstract class StubContentProvider extends BaseContentProvider {
 
 	@Override
 	public Bundle call(String method, String arg, Bundle extras) {
-		if (method.equals("enterProcess")) {
+		if (method.equals(MethodConstants.INIT_PROCESS)) {
 			VirtualCore core = VirtualCore.getCore();
 			try {
 				while (core.getApplication() == null) {
@@ -47,7 +48,6 @@ public abstract class StubContentProvider extends BaseContentProvider {
 		}
 	}
 
-	@Deprecated
 	private static class ServiceEnvBinder extends IServiceEnvironment.Stub {
 
 		@Override

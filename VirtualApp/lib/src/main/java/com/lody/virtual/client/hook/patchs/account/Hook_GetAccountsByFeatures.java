@@ -1,12 +1,15 @@
 package com.lody.virtual.client.hook.patchs.account;
 
+import android.accounts.IAccountManagerResponse;
+
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.hook.utils.HookUtils;
 
 import java.lang.reflect.Method;
 
 /**
  * @author Lody
+ *
+ * @see android.accounts.IAccountManager#getAccountsByFeatures(IAccountManagerResponse, String, String[], String)
  */
 
 public class Hook_GetAccountsByFeatures extends Hook<AccountManagerPatch> {
@@ -26,7 +29,6 @@ public class Hook_GetAccountsByFeatures extends Hook<AccountManagerPatch> {
 
     @Override
     public Object onHook(Object who, Method method, Object... args) throws Throwable {
-        HookUtils.replaceLastAppPkg(args);
         return method.invoke(who, args);
     }
 }

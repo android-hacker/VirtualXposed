@@ -13,6 +13,8 @@ import android.content.IntentFilter;
 import android.content.pm.PermissionInfo;
 import android.content.pm.PermissionGroupInfo;
 
+import com.lody.virtual.helper.proto.VParceledListSlice;
+
 interface IPackageManager {
 
         String[] getPackagesForPid(int pid);
@@ -41,7 +43,7 @@ interface IPackageManager {
 
          List<ResolveInfo> queryIntentContentProviders(in Intent intent, String resolvedType, int flags);
 
-         List<PackageInfo> getInstalledPackages(int flags);
+         VParceledListSlice getInstalledPackages(int flags);
 
          List<ApplicationInfo> getInstalledApplications(int flags);
 

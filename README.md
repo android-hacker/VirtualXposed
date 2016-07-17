@@ -18,11 +18,6 @@ But as time goes on,
 the compatibility of it is getting better and better.
 in the end, it evolved into a `Virtual Container`.
 
-Join our group
---------------
-
-QQ Group: **553070909**
-
 
 Get started
 -----------

@@ -1,19 +1,22 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import java.lang.reflect.Method;
-import java.util.List;
-
-import com.lody.virtual.client.local.LocalPackageManager;
-import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.helper.compat.ParceledListSliceCompat;
-
 import android.content.pm.PackageInfo;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.local.LocalPackageManager;
+import com.lody.virtual.helper.compat.ParceledListSliceCompat;
+import com.lody.virtual.helper.proto.VParceledListSlice;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Lody
  *
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "WrongConstant"})
 /* package */ class Hook_GetInstalledPackages extends Hook<PackageManagerPatch> {
 	/**
 	 * 这个构造器必须有,用于依赖注入.
@@ -32,18 +35,19 @@ import android.content.pm.PackageInfo;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		if (true) {
-			return method.invoke(who, args);
-		}
 		int flags = (int) args[0];
-		List<PackageInfo> pkgInfos = LocalPackageManager.getInstance().getInstalledPackages(flags);
-		if (isMainProcess()) {
-			// noinspection WrongConstant
-			pkgInfos.addAll(getUnhookPM().getInstalledPackages(flags));
+		List<PackageInfo> packageInfos;
+		if (isAppProcess()) {
+			packageInfos = new ArrayList<PackageInfo>(VirtualCore.getCore().getAppCount());
+		} else {
+			packageInfos = VirtualCore.getCore().getUnHookPackageManager().getInstalledPackages(flags);
 		}
+		VParceledListSlice<PackageInfo> listSlice = LocalPackageManager.getInstance().getInstalledPackages(flags);
+		packageInfos.addAll(listSlice.getList());
 		if (ParceledListSliceCompat.isReturnParceledListSlice(method)) {
-			return ParceledListSliceCompat.create(pkgInfos);
+			return ParceledListSliceCompat.create(packageInfos);
+		} else {
+			return packageInfos;
 		}
-		return pkgInfos;
 	}
 }
