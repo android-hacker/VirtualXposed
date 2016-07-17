@@ -219,21 +219,42 @@ import java.util.Map;
     }
 
     public void builderNotificationIcon(Notification notification) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
-        android.graphics.drawable.Icon icon = notification.getSmallIcon();
-        if (icon != null) {
-            Bitmap bitmap = drawableToBitMap(icon.loadDrawable(VirtualCore.getCore().getContext()));
-            if (bitmap != null) {
-                android.graphics.drawable.Icon newIcon = android.graphics.drawable.Icon.createWithBitmap(bitmap);
-                notification.setSmallIcon(newIcon);
-            }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+//            final int icon = notification.icon;
+            notification.icon = VirtualCore.getCore().getContext().getApplicationInfo().icon;
+            //貌似得等通知栏显示后才能修改
+//            try {
+//                int id = Reflect.on("com.android.internal.R$id").get("icon");
+//                Resources resources = VirtualCore.getCore().getResources(notification.contentView.getPackage());
+//                Bitmap bitmap = drawableToBitMap(resources.getDrawable(icon));
+//                if (notification.contentView != null) {
+//                    notification.contentView.setImageViewBitmap(id, bitmap);
+//                    Log.i("kk", "set icon ok:"+bitmap);
+//                }else if(Build.VERSION.SDK_INT>=16 && notification.bigContentView!=null){
+//                    notification.bigContentView.setImageViewBitmap(id, bitmap);
+//                    Log.i("kk", "set icon ok");
+//                }
+//            } catch (Exception e) {
+//                Log.e("kk", "icon", e);
+//            }
+            return;
         }
-        android.graphics.drawable.Icon icon2 = notification.getLargeIcon();
-        if (icon2 != null) {
-            Bitmap bitmap = drawableToBitMap(icon2.loadDrawable(VirtualCore.getCore().getContext()));
-            if (bitmap != null) {
-                android.graphics.drawable.Icon newIcon = android.graphics.drawable.Icon.createWithBitmap(bitmap);
-                Reflect.on(notification).set("mLargeIcon",newIcon);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            android.graphics.drawable.Icon icon = notification.getSmallIcon();
+            if (icon != null) {
+                Bitmap bitmap = drawableToBitMap(icon.loadDrawable(VirtualCore.getCore().getContext()));
+                if (bitmap != null) {
+                    android.graphics.drawable.Icon newIcon = android.graphics.drawable.Icon.createWithBitmap(bitmap);
+                    notification.setSmallIcon(newIcon);
+                }
+            }
+            android.graphics.drawable.Icon icon2 = notification.getLargeIcon();
+            if (icon2 != null) {
+                Bitmap bitmap = drawableToBitMap(icon2.loadDrawable(VirtualCore.getCore().getContext()));
+                if (bitmap != null) {
+                    android.graphics.drawable.Icon newIcon = android.graphics.drawable.Icon.createWithBitmap(bitmap);
+                    Reflect.on(notification).set("mLargeIcon", newIcon);
+                }
             }
         }
     }
