@@ -5,6 +5,7 @@ import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.core.InstallStrategy;
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.bundle.APKBundle;
 import com.lody.virtual.helper.compat.NativeLibraryHelperCompat;
 import com.lody.virtual.helper.proto.AppInfo;
@@ -16,7 +17,9 @@ import com.lody.virtual.service.interfaces.IAppObserver;
 import com.lody.virtual.service.process.VProcessService;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,29 +48,46 @@ public class VAppService extends IAppManager.Stub {
 
 	public void preloadAllApps() {
 		XLog.d(TAG, "=============================================");
-		XLog.d(TAG, "=======>>>>> Start Scan App >>>===========");
-		List<File> pluginList = AppFileSystem.getDefault().getAllApps();
-		if (pluginList.isEmpty()) {
-			XLog.d(TAG, "=============>>> Empty >>>===============");
+		XLog.d(TAG, "==========$$$ Start Scan App $$$===========");
+		List<File> appList = AppFileSystem.getDefault().getAllApps();
+		if (appList.isEmpty()) {
+			XLog.d(TAG, "===============$$$ Empty $$$===================");
 		} else {
-			for (File plugin : pluginList) {
-				XLog.d(TAG, "=============>>> " + plugin.getPath());
-				InstallResult result = installApp(plugin.getPath(), InstallStrategy.IGNORE_NEW_VERSION);
-				if (!result.isSuccess) {
-					FileIO.deleteDir(plugin);
+			for (File app : appList) {
+				XLog.d(TAG, "=============>>> " + app.getPath());
+				if (!scan(app.getPath())) {
+					FileIO.deleteDir(app);
 				}
-				XLog.d(TAG, "=============>>> Install Result : %s.", result.isSuccess ? "Success" : "Failed");
 			}
 		}
 		XLog.d(TAG, "=============================================");
+		XLog.d(TAG, "=============================================");
 	}
 
+	public boolean scan(String apkPath) {
+		try {
+			File apkFile = new File(apkPath);
+			APKBundle bundle = new APKBundle(apkFile);
+			AppInfo appInfo = bundle.getAppInfo();
+			addAppLocked(bundle, appInfo, true);
+			return true;
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	@Override
 	public InstallResult installApp(String apkPath, int flags) {
+		return install(apkPath, flags, false);
+	}
+
+
+	public InstallResult install(String apkPath, int flags, boolean onlyScan) {
 		InstallResult result = new InstallResult();
 		try {
 			File apkFile = new File(apkPath);
 			APKBundle bundle = new APKBundle(apkFile);
-
 			AppInfo appInfo = bundle.getAppInfo();
 			String pkgName = bundle.getPackageName();
 			result.installedPackageName = pkgName;
@@ -93,18 +113,18 @@ public class VAppService extends IAppManager.Stub {
 							break;
 						}
 						case InstallStrategy.TERMINATE_IF_EXIST : {
-							throw new IllegalStateException("This apk have installed, should not be install again.");
+							throw new IllegalStateException("This apk have installed, should not be scan again.");
 						}
 						case InstallStrategy.IGNORE_NEW_VERSION : {
 							break;
 						}
 					}
 				} else {
-					addAppLocked(bundle, appInfo);
+					addAppLocked(bundle, appInfo, false);
 				}
 				File libFolder = new File(appInfo.libDir);
 				libFolder.mkdirs();
-				if (NativeLibraryHelperCompat.copyNativeBinaries(apkFile, libFolder) < 0) {
+				if (!onlyScan && NativeLibraryHelperCompat.copyNativeBinaries(apkFile, libFolder) < 0) {
 					throw new RuntimeException("Not support abi.");
 				}
 				notifyAppInstalled(pkgName);
@@ -121,16 +141,20 @@ public class VAppService extends IAppManager.Stub {
 		return result;
 	}
 
-	private void addAppLocked(APKBundle parser, AppInfo appInfo) {
+	private void addAppLocked(APKBundle bundle, AppInfo appInfo, boolean onlyScan) throws IOException {
 		String pkg = appInfo.packageName;
 		mAppInfoCaches.put(pkg, appInfo);
-		mApkBundleCaches.put(pkg, parser);
+		mApkBundleCaches.put(pkg, bundle);
+		if (!onlyScan && !VirtualCore.getCore().isOutsideInstalled(appInfo.packageName)) {
+			// If the app has installed, we needn't -copy-apk- and -dex-opt-
+			bundle.copyToPrivate();
+		}
 	}
 
-	private void updateAppLocked(APKBundle parser, AppInfo appInfo) {
+	private void updateAppLocked(APKBundle bundle, AppInfo appInfo) throws IOException {
 		String pkg = appInfo.packageName;
 		removeAppLocked(pkg);
-		addAppLocked(parser, appInfo);
+		addAppLocked(bundle, appInfo, false);
 		VProcessService.getService().killAppByPkg(appInfo.packageName);
 	}
 
@@ -175,6 +199,7 @@ public class VAppService extends IAppManager.Stub {
 		remoteCallbackList.finishBroadcast();
 	}
 
+	@Override
 	public void registerObserver(IAppObserver observer) {
 		try {
 			remoteCallbackList.register(observer);
@@ -183,6 +208,7 @@ public class VAppService extends IAppManager.Stub {
 		}
 	}
 
+	@Override
 	public void unregisterObserver(IAppObserver observer) {
 		try {
 			remoteCallbackList.unregister(observer);
@@ -196,7 +222,7 @@ public class VAppService extends IAppManager.Stub {
 	}
 
 	public Map<String, APKBundle> getAllAPKBundles() {
-		return this.mApkBundleCaches;
+		return Collections.unmodifiableMap(mApkBundleCaches);
 	}
 
 	public AppInfo findAppInfo(String pkg) {

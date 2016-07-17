@@ -3,7 +3,6 @@ package io.virtualapp.home.models;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Environment;
 
 import com.lody.virtual.client.core.InstallStrategy;
@@ -28,15 +27,15 @@ public class AppRepository implements AppDataSource {
 
     private static final Collator COLLATOR = Collator.getInstance(Locale.CHINA);
     private Context mContext;
-    private static List<String> sdCardScanPathes = new ArrayList<>();
+    private static List<String> sdCardScanPaths = new ArrayList<>();
 
     static {
         String sdCardPath = Environment.getExternalStorageDirectory().getAbsolutePath();
-        sdCardScanPathes.add(sdCardPath);
-        sdCardScanPathes.add(sdCardPath + File.separator + "wandoujia" + File.separator + "app");
-        sdCardScanPathes.add(sdCardPath + File.separator + "tencent" + File.separator + "tassistant" + File.separator + "apk");
-        sdCardScanPathes.add(sdCardPath + File.separator + "BaiduAsa9103056");
-        sdCardScanPathes.add(sdCardPath + File.separator + "360Download");
+        sdCardScanPaths.add(sdCardPath);
+        sdCardScanPaths.add(sdCardPath + File.separator + "wandoujia" + File.separator + "app");
+        sdCardScanPaths.add(sdCardPath + File.separator + "tencent" + File.separator + "tassistant" + File.separator + "apk");
+        sdCardScanPaths.add(sdCardPath + File.separator + "BaiduAsa9103056");
+        sdCardScanPaths.add(sdCardPath + File.separator + "360Download");
     }
 
     public AppRepository(Context context) {
@@ -70,7 +69,7 @@ public class AppRepository implements AppDataSource {
     @Override
     public Promise<List<AppModel>, Throwable, Void> getSdCardApps(Context context) {
         return VUiKit.defer().when(() -> {
-            return pkgInfosToAppModels(context, findAndParseAPKs(context, sdCardScanPathes));
+            return pkgInfosToAppModels(context, findAndParseAPKs(context, sdCardScanPaths));
         });
     }
 
@@ -85,7 +84,7 @@ public class AppRepository implements AppDataSource {
                 if (!f.getName().toLowerCase().endsWith(".apk")) continue;
                 PackageInfo pkgInfo = null;
                 try {
-                    pkgInfo = context.getPackageManager().getPackageArchiveInfo(f.getAbsolutePath(), PackageManager.GET_ACTIVITIES);
+                    pkgInfo = context.getPackageManager().getPackageArchiveInfo(f.getAbsolutePath(), 0);
                     pkgInfo.applicationInfo.sourceDir = f.getAbsolutePath();
                     pkgInfo.applicationInfo.publicSourceDir = f.getAbsolutePath();
                 } catch (Exception e) {
@@ -106,6 +105,9 @@ public class AppRepository implements AppDataSource {
                 continue;
             }
             if (isSystemApplication(pkg)) {
+                continue;
+            }
+            if (VirtualCore.getCore().isAppInstalled(pkg.packageName)) {
                 continue;
             }
             models.add(new AppModel(context, pkg));
