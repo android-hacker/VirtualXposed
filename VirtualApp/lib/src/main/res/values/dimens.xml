@@ -1,0 +1,15 @@
+<resources>
+    <!-- notification -->
+    <dimen name="match_parent">-1px</dimen>
+    <dimen name="standard_notification_panel_width">416dp
+    </dimen><!-- includes notification_side_padding on each side -->
+    <!-- Height of a small notification in the status bar -->
+    <dimen name="notification_min_height">64dp</dimen>
+    <dimen name="notification_side_padding">8dp</dimen>
+    <dimen name="notification_panel_width">-1dp</dimen>
+    <!-- Height of a large notification in the status bar -->
+    <dimen name="notification_max_height">256dp</dimen>
+    <dimen name="notification_padding">4dp</dimen>
+    <!-- Height of a medium notification in the status bar -->
+    <dimen name="notification_mid_height">128dp</dimen>
+</resources>

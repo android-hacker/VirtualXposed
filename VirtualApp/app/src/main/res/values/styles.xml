@@ -16,15 +16,4 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textAllCaps">false</item>
     </style>
-    <style name="notification_layout">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">0dp</item>
-        <item name="android:layout_weight">1</item>
-    </style>
-    <style name="notification_button">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_weight">1</item>
-    </style>
-
 </resources>

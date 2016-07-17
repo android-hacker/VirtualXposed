@@ -75,7 +75,6 @@ public final class VirtualCore {
 	private Set<String> hostProviderAuths = new HashSet<String>(5);
 	private PackageInfo hostPkgInfo;
 	private Map<ComponentName, ActivityInfo> activityInfoCache = new HashMap<ComponentName, ActivityInfo>();
-    private INotificationHandler mINotificationHandler;
 
 	private VirtualCore() {
 
@@ -118,14 +117,6 @@ public final class VirtualCore {
 		String extAction = packageName + "_" + className;
 		return String.format("%s.BRC_%s", getCore().getHostPkg(), extAction);
 	}
-
-    public INotificationHandler getINotificationHandler() {
-        return mINotificationHandler;
-    }
-
-    public void setINotificationHandler(INotificationHandler INotificationHandler) {
-        mINotificationHandler = INotificationHandler;
-    }
 
     public PackageInfo getHostPkgInfo() {
 		return hostPkgInfo;

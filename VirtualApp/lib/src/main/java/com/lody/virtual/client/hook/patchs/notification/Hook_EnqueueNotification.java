@@ -2,6 +2,7 @@ package com.lody.virtual.client.hook.patchs.notification;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.hook.patchs.notification.compat.NotificationHandler;
 
 import java.lang.reflect.Method;
 
@@ -29,10 +30,7 @@ import java.lang.reflect.Method;
         if (!VirtualCore.getCore().isHostPackageName(pkgName)) {
             args[0] = VirtualCore.getCore().getContext().getPackageName();
 //			return 0;
-            if (VirtualCore.getCore().getINotificationHandler() == null) {
-                return 0;
-            }
-            if (!VirtualCore.getCore().getINotificationHandler().dealNotification(getHostContext(), pkgName, args)) {
+            if (!NotificationHandler.getInstance().dealNotification(getHostContext(), pkgName, args)) {
                 return 0;
             }
         }
