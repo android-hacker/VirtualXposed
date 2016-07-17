@@ -18,8 +18,9 @@ import android.widget.RemoteViews;
 
 import com.lody.virtual.R;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.utils.OSUtils;
+import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.utils.Reflect;
+import com.lody.virtual.helper.utils.XLog;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -37,6 +38,7 @@ public class NotificationHandler {
     private int notification_padding;
     private final NotificationLayoutCompat mNotificationLayoutCompat;
     private final NotificationActionCompat mNotificationActionCompat;
+    private static final String TAG = NotificationHandler.class.getName();
 
     private void init(Context context) {
         mNotificationActionCompat.init(context);
@@ -237,6 +239,7 @@ public class NotificationHandler {
 //                builder.setContentTitle(title);
 //            }
 //        } else {
+
         RemoteViews contentView;
         //大通知栏
         boolean isBig;
@@ -251,6 +254,22 @@ public class NotificationHandler {
                 contentView = null;
             }
         }
+
+
+        //双开模式下,直接调用原来的
+        AppInfo appInfo = VirtualCore.getCore().findApp(packageName);
+
+        if (appInfo != null && appInfo.isInstalled() && contentView != null) {
+            try {
+                ApplicationInfo applicationInfo = VirtualCore.getCore().getUnHookPackageManager().getApplicationInfo(packageName, 0);
+                applicationInfo.packageName = VirtualCore.getCore().getHostPkg();
+                Reflect.on(contentView).set("mApplication", applicationInfo);
+                return notification;
+            } catch (Exception e) {
+                XLog.e(TAG, "error:" + e);
+            }
+        }
+
         Map<Integer, PendingIntent> clickIntents = getClickIntents(contentView);
         //如果就一个点击事件，没必要用复杂view
         int layoutId = (clickIntents == null || clickIntents.size() == 0) ?
@@ -259,6 +278,12 @@ public class NotificationHandler {
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), layoutId);
         //绘制图
         Bitmap bmp = createBitmap(inflationContext, contentView, isBig);
+        //测试用代码
+//        Canvas canvas=new Canvas(bmp);
+//        Paint paint=new Paint();
+//        paint.setStyle(Paint.Style.FILL_AND_STROKE);
+//        paint.setColor(Color.RED);
+//        canvas.drawRect(0,0,50,50,paint);
         remoteViews.setImageViewBitmap(R.id.im_main, bmp);
         builder.setContent(remoteViews);
 //        }
@@ -321,11 +346,11 @@ public class NotificationHandler {
             @Override
             public boolean onClickHandler(View view, PendingIntent pendingIntent, Intent fillInIntent) {
                 //点击事件得另外处理，采用天气通的区域点击
-                Log.i("kk", "click=" + pendingIntent.getIntent());
+                XLog.i(TAG, "click=" + pendingIntent.getIntent());
                 return super.onClickHandler(view, pendingIntent, fillInIntent);
             }
         });
-        Log.i("kk", "sp=" + sp + ",w=" + width + ",h=" + height);
+        XLog.i(TAG, "sp=" + sp + ",w=" + width + ",h=" + height);
         Bitmap bmp;
         View mCache;
         if (Build.VERSION.SDK_INT >= 23) {
