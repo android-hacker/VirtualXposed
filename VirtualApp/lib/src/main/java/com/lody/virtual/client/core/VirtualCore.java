@@ -118,7 +118,7 @@ public final class VirtualCore {
 		return String.format("%s.BRC_%s", getCore().getHostPkg(), extAction);
 	}
 
-	public PackageInfo getHostPkgInfo() {
+    public PackageInfo getHostPkgInfo() {
 		return hostPkgInfo;
 	}
 
