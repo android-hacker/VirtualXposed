@@ -6,10 +6,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import com.lody.virtual.helper.utils.OSUtils;
+
 /**
  * Created by 247321453 on 2016/7/17.
  */
 public class NotificationLayoutCompat {
+
+    public int getNotificationWidth(Context context, int width, int height) {
+//TODO 适配各种rom
+        if (OSUtils.isEMUI()) {
+            //华为emui
+            width = getEmuiNotificationWidth(context, width, height);
+        }
+        return width;
+    }
+
     /**
      * emui 3.0
      * @param context
@@ -17,7 +29,7 @@ public class NotificationLayoutCompat {
      * @param height
      * @return
      */
-    public int getEmuiNotificationWidth(Context context, int width, int height) {
+    private int getEmuiNotificationWidth(Context context, int width, int height) {
         try {
             Context systemUi = context.createPackageContext("com.android.systemui", Context.CONTEXT_IGNORE_SECURITY);
             int id = systemUi.getResources().getIdentifier("time_axis", "layout", "com.android.systemui");

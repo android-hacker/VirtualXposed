@@ -106,17 +106,26 @@ public class NotificationHandler {
             if (args[i] instanceof Notification) {
                 Notification notification = (Notification) args[i];//nobug
                 if (isPluginNotification(notification)) {
-                    if (mNotificationActionCompat.shouldBlock(notification)) {
-//                        //自定义布局通知栏
-////                        Log.e("kk", "replaceNotification");
+                    //双开模式，icon还是va的
+//                    if(VirtualCore.getCore().isOutsideInstalled(packageName))
+                    {
+//                        //双开模式，貌似icon不太对
+//                        notification.icon = hostContext.getApplicationInfo().icon;
+//                        //23的icon
+//                        mNotificationActionCompat.builderNotificationIcon(notification);
+//                    }else {
+
+                        //直接处理了
                         args[i] = replaceNotification(hostContext, packageName, notification);
-                        return true;
-                    } else {
-//                        //这里要修改原生的通知，是否也和上面一样的处理？
-////                        Log.e("kk", "hackNotification");
-                        mNotificationActionCompat.hackNotification(notification);
-                        return true;
+//                    if (mNotificationActionCompat.shouldBlock(notification)) {
+////                        //自定义布局通知栏
+//                        args[i] = replaceNotification(hostContext, packageName, notification);
+//                    } else {
+////                        //这里要修改原生的通知，是否也和上面一样的处理？
+//                        mNotificationActionCompat.hackNotification(notification);
+//                    }
                     }
+                    return true;
                 }
             }
         }
@@ -268,6 +277,7 @@ public class NotificationHandler {
         notification1.flags = notification.flags;
         return notification1;
     }
+
     /**
      * id和点击事件intent
      */
@@ -292,15 +302,6 @@ public class NotificationHandler {
         return map;
     }
 
-    private int getNotificationWidth(Context context, int width, int height) {
-//TODO 适配各种rom
-        if (OSUtils.isEMUI()) {
-            //华为emui
-            width = mNotificationLayoutCompat.getEmuiNotificationWidth(context, width, height);
-        }
-        return width;
-    }
-
     private Bitmap createBitmap(final Context context, RemoteViews remoteViews, boolean isBig) {
         if (remoteViews == null) return null;
         //notification_min_height 64
@@ -314,7 +315,7 @@ public class NotificationHandler {
         //TODO 需要适配
         int sp = (Build.VERSION.SDK_INT >= 21) ? notification_side_padding : 0;// + notification_padding);
         int height = isBig ? notification_max_height : notification_min_height;
-        int width = getNotificationWidth(context, notification_panel_width - sp * 2, height);
+        int width = mNotificationLayoutCompat.getNotificationWidth(context, notification_panel_width - sp * 2, height);
         ViewGroup frameLayout = new FrameLayout(context);
         View view1 = remoteViews.apply(context, frameLayout, new RemoteViews.OnClickHandler() {
             @Override

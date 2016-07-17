@@ -29,7 +29,6 @@ import java.lang.reflect.Method;
         String pkgName = (String) args[0];
         if (!VirtualCore.getCore().isHostPackageName(pkgName)) {
             args[0] = VirtualCore.getCore().getContext().getPackageName();
-//			return 0;
             if (!NotificationHandler.getInstance().dealNotification(getHostContext(), pkgName, args)) {
                 return 0;
             }

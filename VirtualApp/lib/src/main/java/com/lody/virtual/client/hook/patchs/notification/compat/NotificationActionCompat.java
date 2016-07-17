@@ -1,6 +1,5 @@
 package com.lody.virtual.client.hook.patchs.notification.compat;
 
-import android.annotation.TargetApi;
 import android.app.Notification;
 import android.content.Context;
 import android.content.res.Resources;
@@ -219,8 +218,28 @@ import java.util.Map;
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
-    public void builderNotificationIcon(Notification notification, Notification.Builder builder){
+    public void builderNotificationIcon(Notification notification) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
+        android.graphics.drawable.Icon icon = notification.getSmallIcon();
+        if (icon != null) {
+            Bitmap bitmap = drawableToBitMap(icon.loadDrawable(VirtualCore.getCore().getContext()));
+            if (bitmap != null) {
+                android.graphics.drawable.Icon newIcon = android.graphics.drawable.Icon.createWithBitmap(bitmap);
+                notification.setSmallIcon(newIcon);
+            }
+        }
+        android.graphics.drawable.Icon icon2 = notification.getLargeIcon();
+        if (icon2 != null) {
+            Bitmap bitmap = drawableToBitMap(icon2.loadDrawable(VirtualCore.getCore().getContext()));
+            if (bitmap != null) {
+                android.graphics.drawable.Icon newIcon = android.graphics.drawable.Icon.createWithBitmap(bitmap);
+                Reflect.on(notification).set("mLargeIcon",newIcon);
+            }
+        }
+    }
+
+    public void builderNotificationIcon(Notification notification, Notification.Builder builder) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
         android.graphics.drawable.Icon icon = notification.getSmallIcon();
         if (icon != null) {
             Bitmap bitmap = drawableToBitMap(icon.loadDrawable(VirtualCore.getCore().getContext()));
@@ -238,6 +257,7 @@ import java.util.Map;
             }
         }
     }
+
     public Bitmap drawableToBitMap(Drawable drawable) {
         if (drawable instanceof BitmapDrawable) {
             BitmapDrawable bitmapDrawable = ((BitmapDrawable) drawable);
