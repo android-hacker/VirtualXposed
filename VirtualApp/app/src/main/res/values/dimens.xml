@@ -12,4 +12,5 @@
     <dimen name="dp80">80dp</dimen>
     <dimen name="card_radius">5dp</dimen>
     <dimen name="dp16">16dp</dimen>
+
 </resources>

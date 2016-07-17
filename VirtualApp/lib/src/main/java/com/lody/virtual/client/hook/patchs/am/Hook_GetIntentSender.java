@@ -1,18 +1,17 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
+import android.app.ActivityManager;
+import android.content.Intent;
+import android.content.pm.ComponentInfo;
+import android.os.Bundle;
+import android.os.IBinder;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.helper.ExtraConstants;
 
-import android.app.ActivityManager;
-import android.app.PendingIntent;
-import android.content.Intent;
-import android.content.pm.ComponentInfo;
-import android.os.Bundle;
-import android.os.IBinder;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -44,9 +43,9 @@ import android.os.IBinder;
 		if (args[1] instanceof String && isAppPkg((String) args[1])) {
 			args[1] = getHostPkg();
 		}
-		if (true) {
-			return method.invoke(who, args);
-		}
+//		if (true) {
+//			return method.invoke(who, args);
+//		}
 		Object intentOrIntents = args[5];
 		int flags = (int) args[0];
 		boolean replaced = false;
@@ -71,7 +70,7 @@ import android.os.IBinder;
 		}
 		if (replaced) {
 			if (args.length > 7 && args[7] instanceof Integer) {
-				args[7] = PendingIntent.FLAG_UPDATE_CURRENT;
+			//	args[7] = PendingIntent.FLAG_UPDATE_CURRENT;
 			}
 			args[0] = ActivityManager.INTENT_SENDER_BROADCAST;
 		}

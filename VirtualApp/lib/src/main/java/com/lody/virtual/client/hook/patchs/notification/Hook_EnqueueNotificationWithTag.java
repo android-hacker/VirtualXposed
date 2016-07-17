@@ -1,15 +1,10 @@
 package com.lody.virtual.client.hook.patchs.notification;
 
-import java.lang.reflect.Method;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.hook.base.Hook;
-
 /**
  * @author Lody
  *
  */
-/* package */ class Hook_EnqueueNotificationWithTag extends Hook<NotificationManagerPatch> {
+/* package */ class Hook_EnqueueNotificationWithTag extends Hook_EnqueueNotification {
 	/**
 	 * 这个构造器必须有,用于依赖注入.
 	 *
@@ -23,14 +18,5 @@ import com.lody.virtual.client.hook.base.Hook;
 	@Override
 	public String getName() {
 		return "enqueueNotificationWithTag";
-	}
-
-	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		String pkgName = (String) args[0];
-		if (!VirtualCore.getCore().isHostPackageName(pkgName)) {
-			return 0;
-		}
-		return method.invoke(who, args);
 	}
 }
