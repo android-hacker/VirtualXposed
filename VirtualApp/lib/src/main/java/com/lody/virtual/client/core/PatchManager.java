@@ -98,9 +98,6 @@ public final class PatchManager {
 	}
 
 	private void injectInternal() throws Throwable {
-		if (VirtualCore.getCore().isServiceProcess()) {
-			return;
-		}
 		addPatch(new ActivityManagerPatch());
 		addPatch(new PackageManagerPatch());
 

@@ -10,6 +10,7 @@ import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.MethodConstants;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.service.ServiceCache;
 import com.lody.virtual.service.interfaces.IServiceFetcher;
 
 /**
@@ -39,6 +40,9 @@ public class ServiceManagerNative {
 	}
 
 	public static IBinder getService(String name) {
+		if (VirtualCore.getCore().isServiceProcess()) {
+			return ServiceCache.getService(name);
+		}
 		IServiceFetcher fetcher = getServiceFetcher();
 		if (fetcher != null) {
 			try {

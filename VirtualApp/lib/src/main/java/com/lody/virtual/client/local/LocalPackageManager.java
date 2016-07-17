@@ -34,7 +34,7 @@ public class LocalPackageManager {
 		return sMgr;
 	}
 
-	public IPackageManager getInterface() {
+	public synchronized IPackageManager getInterface() {
 		if (mRemote == null) {
 			synchronized (LocalPackageManager.class) {
 				if (mRemote == null) {

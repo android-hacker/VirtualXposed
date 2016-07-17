@@ -3,6 +3,7 @@ package com.lody.virtual.client.hook.patchs.account;
 import android.accounts.Account;
 
 import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.local.LocalAccountManager;
 
 import java.lang.reflect.Method;
 
@@ -14,6 +15,7 @@ import java.lang.reflect.Method;
  */
 
 public class Hook_SetPassword extends Hook<AccountManagerPatch> {
+
     /**
      * 这个构造器必须有,用于依赖注入.
      *
@@ -30,6 +32,9 @@ public class Hook_SetPassword extends Hook<AccountManagerPatch> {
 
     @Override
     public Object onHook(Object who, Method method, Object... args) throws Throwable {
-        return method.invoke(who, args);
+        Account account = (Account) args[0];
+        String password = (String) args[1];
+        LocalAccountManager.getInstance().setPassword(account, password);
+        return 0;
     }
 }

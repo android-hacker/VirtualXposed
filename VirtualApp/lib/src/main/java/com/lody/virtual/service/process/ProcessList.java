@@ -1,16 +1,16 @@
 package com.lody.virtual.service.process;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import android.app.IServiceConnection;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
 
 import com.lody.virtual.service.am.ServiceRecord;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Lody
@@ -53,9 +53,11 @@ public class ProcessList {
 	 *            Stub进程名
 	 */
 	public boolean isProcessRunning(String stubProcessName) {
-		for (ProcessRecord r : runningRecords.values()) {
-			if (TextUtils.equals(stubProcessName, r.stubProcessName)) {
-				return true;
+		synchronized (runningRecords) {
+			for (ProcessRecord r : runningRecords.values()) {
+				if (TextUtils.equals(stubProcessName, r.stubProcessName)) {
+					return true;
+				}
 			}
 		}
 		return false;
@@ -65,25 +67,29 @@ public class ProcessList {
 		stubProcesses.put(stubProcessName, pluginProcessName);
 	}
 
-	public void addRecord(int callingPid, ProcessRecord r) {
+	public synchronized void addRecord(int callingPid, ProcessRecord r) {
 		runningRecords.put(callingPid, r);
 	}
 
 	public ServiceRecord queryServiceRecord(IBinder token) {
-		for (ProcessRecord processRecord : runningRecords.values()) {
-			ServiceRecord record = processRecord.findServiceRecord(token);
-			if (record != null) {
-				return record;
+		synchronized (runningRecords) {
+			for (ProcessRecord processRecord : runningRecords.values()) {
+				ServiceRecord record = processRecord.findServiceRecord(token);
+				if (record != null) {
+					return record;
+				}
 			}
 		}
 		return null;
 	}
 
 	public ServiceRecord queryServiceRecord(IServiceConnection connection) {
-		for (ProcessRecord processRecord : runningRecords.values()) {
-			ServiceRecord serviceRecord = processRecord.findServiceRecord(connection);
-			if (serviceRecord != null) {
-				return serviceRecord;
+		synchronized (runningRecords) {
+			for (ProcessRecord processRecord : runningRecords.values()) {
+				ServiceRecord serviceRecord = processRecord.findServiceRecord(connection);
+				if (serviceRecord != null) {
+					return serviceRecord;
+				}
 			}
 		}
 		return null;

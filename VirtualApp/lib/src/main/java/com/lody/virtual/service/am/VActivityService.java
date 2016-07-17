@@ -27,11 +27,11 @@ import com.lody.virtual.service.process.VProcessService;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Lody
@@ -43,9 +43,9 @@ public class VActivityService extends IActivityManager.Stub {
 	private static final String TAG = VActivityService.class.getSimpleName();
 	private final List<ActivityInfo> stubActivityList = new ArrayList<ActivityInfo>();
 
-	private final Map<String, StubInfo> stubInfoMap = new HashMap<String, StubInfo>();
+	private final Map<String, StubInfo> stubInfoMap = new ConcurrentHashMap<>();
 	private final Set<String> stubProcessList = new HashSet<String>();
-	private ActivityStack stack = new ActivityStack();
+	private final ActivityStack stack = new ActivityStack();
 	private ActivityManager am = (ActivityManager) VirtualCore.getCore().getContext()
 			.getSystemService(Context.ACTIVITY_SERVICE);
 
@@ -225,15 +225,18 @@ public class VActivityService extends IActivityManager.Stub {
 		}
 	}
 
+	@Override
 	public AppTaskInfo getTaskInfo(int taskId) {
-		ActivityTaskRecord r = stack.findTask(taskId);
-		if (r != null) {
-			return r.toTaskInfo();
+		synchronized (stack) {
+			ActivityTaskRecord r = stack.findTask(taskId);
+			if (r != null) {
+				return r.toTaskInfo();
+			}
 		}
 		return null;
 	}
 
-	private int getTopTaskId() {
+	private synchronized int getTopTaskId() {
 		List<ActivityManager.RunningTaskInfo> taskInfos = am.getRunningTasks(1);
 		if (taskInfos.size() > 0) {
 			return taskInfos.get(0).id;

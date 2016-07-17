@@ -1,20 +1,25 @@
 package com.lody.virtual.client.hook.patchs.account;
 
 import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.local.LocalAccountManager;
 
 import java.lang.reflect.Method;
 
 /**
  * @author Lody
+ *
+ * @see android.accounts.IAccountManager#getAccountsByTypeForPackage(String, String, String)
+ *
  */
 
-public class Hook_GetAccountsByTypeForPackage extends Hook<AccountManagerPatch> {
+public class Hook_GetAccountTypeForPackage extends Hook<AccountManagerPatch> {
+
     /**
      * 这个构造器必须有,用于依赖注入.
      *
      * @param patchObject 注入对象
      */
-    public Hook_GetAccountsByTypeForPackage(AccountManagerPatch patchObject) {
+    public Hook_GetAccountTypeForPackage(AccountManagerPatch patchObject) {
         super(patchObject);
     }
 
@@ -25,6 +30,8 @@ public class Hook_GetAccountsByTypeForPackage extends Hook<AccountManagerPatch> 
 
     @Override
     public Object onHook(Object who, Method method, Object... args) throws Throwable {
-        return method.invoke(who, args);
+        String type = (String) args[0];
+        String packageName = (String) args[1];
+        return LocalAccountManager.getInstance().getAccounts(type);
     }
 }
