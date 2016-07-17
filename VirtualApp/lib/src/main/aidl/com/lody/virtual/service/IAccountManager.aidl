@@ -13,19 +13,15 @@ interface IAccountManager {
     String getPassword(in Account account);
     String getUserData(in Account account, String key);
     AuthenticatorDescription[] getAuthenticatorTypes(int userId);
-    Account[] getAccounts(String accountType, String opPackageName);
-    Account[] getAccountsForPackage(String packageName, int uid, String opPackageName);
-    Account[] getAccountsByTypeForPackage(String type, String packageName, String opPackageName);
-    Account[] getAccountsAsUser(String accountType, int userId, String opPackageName);
-    void hasFeatures(in IAccountManagerResponse response, in Account account, in String[] features,
-        String opPackageName);
+    Account[] getAccounts(String accountType);
+    Account[] getAccountsForPackage(String packageName, int uid);
+    Account[] getAccountsByTypeForPackage(String type, String packageName);
+    void hasFeatures(in IAccountManagerResponse response, in Account account, in String[] features);
     void getAccountsByFeatures(in IAccountManagerResponse response, String accountType,
-        in String[] features, String opPackageName);
+        in String[] features);
     boolean addAccountExplicitly(in Account account, String password, in Bundle extras);
     void removeAccount(in IAccountManagerResponse response, in Account account,
         boolean expectActivityLaunch);
-    void removeAccountAsUser(in IAccountManagerResponse response, in Account account,
-        boolean expectActivityLaunch, int userId);
     boolean removeAccountExplicitly(in Account account);
     void copyAccountToUser(in IAccountManagerResponse response, in Account account,
         int userFrom, int userTo);
@@ -43,9 +39,6 @@ interface IAccountManager {
     void addAccount(in IAccountManagerResponse response, String accountType,
         String authTokenType, in String[] requiredFeatures, boolean expectActivityLaunch,
         in Bundle options);
-    void addAccountAsUser(in IAccountManagerResponse response, String accountType,
-        String authTokenType, in String[] requiredFeatures, boolean expectActivityLaunch,
-        in Bundle options, int userId);
     void updateCredentials(in IAccountManagerResponse response, in Account account,
         String authTokenType, boolean expectActivityLaunch, in Bundle options);
     void editProperties(in IAccountManagerResponse response, String accountType,

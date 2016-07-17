@@ -12,7 +12,7 @@ import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.MethodConstants;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.component.BaseContentProvider;
-import com.lody.virtual.service.account.VAccountManager;
+import com.lody.virtual.service.account.VAccountService;
 import com.lody.virtual.service.am.VActivityService;
 import com.lody.virtual.service.am.VServiceService;
 import com.lody.virtual.service.interfaces.IServiceFetcher;
@@ -48,7 +48,8 @@ public final class BinderProvider extends BaseContentProvider {
 		addService(ServiceManagerNative.ACTIVITY_MANAGER, VActivityService.getService());
 		addService(ServiceManagerNative.SERVICE_MANAGER, VServiceService.getService());
 		addService(ServiceManagerNative.CONTENT_MANAGER, VContentService.getService());
-		addService(ServiceManagerNative.ACCOUNT_MANAGER, VAccountManager.getService());
+		VAccountService.systemReady(context);
+		addService(ServiceManagerNative.ACCOUNT_MANAGER, VAccountService.getService());
 		return true;
 	}
 
