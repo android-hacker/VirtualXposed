@@ -270,7 +270,7 @@ public class NotificationHandler implements INotificationHandler {
                     builder.setLargeIcon(newIcon);
                 }
             }
-        }else{
+        } else {
             builder.setSmallIcon(context.getApplicationInfo().icon);
         }
         if (!DRAW_NOTIFICATION) {
@@ -332,7 +332,7 @@ public class NotificationHandler implements INotificationHandler {
         final Context context = VirtualCore.getCore().getContext().createPackageContext(aPackage, Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
 //        ViewGroup view = (ViewGroup) LayoutInflater.from(context).inflate(remoteViews.getLayoutId(), null);
         //TODO 需要适配
-        int sp = notification_side_padding;// + notification_padding);
+        int sp = (Build.VERSION.SDK_INT >= 21) ? notification_side_padding : 0;// + notification_padding);
         int width = notification_panel_width - sp * 2;
         int height = isBig ? notification_max_height : notification_min_height;
         FrameLayout frameLayout = new FrameLayout(context);
@@ -375,17 +375,31 @@ public class NotificationHandler implements INotificationHandler {
         Log.i("kk", "sp=" + sp + ",w=" + width + ",h=" + height);
         //736
         //128
-        frameLayout.addView(view1);
-        frameLayout.setDrawingCacheEnabled(true);
-        frameLayout.buildDrawingCache(true);
-        if (!isBig) {
-            frameLayout.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST));
-            frameLayout.layout(0, 0, width, height);
+        Bitmap bmp;
+        if (Build.VERSION.SDK_INT >= 23) {
+            view1.setDrawingCacheEnabled(true);
+            view1.buildDrawingCache(true);
+            if (!isBig) {
+                view1.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST));
+                view1.layout(0, 0, width, height);
+            } else {
+                view1.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST));
+                view1.layout(0, 0, width, height);
+            }
+            bmp = view1.getDrawingCache();
         } else {
-            frameLayout.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST));
-            frameLayout.layout(0, 0, width, height);
+            frameLayout.addView(view1);
+            frameLayout.setDrawingCacheEnabled(true);
+            frameLayout.buildDrawingCache(true);
+            if (!isBig) {
+                frameLayout.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST));
+                frameLayout.layout(0, 0, width, height);
+            } else {
+                frameLayout.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST));
+                frameLayout.layout(0, 0, width, height);
+            }
+            bmp = frameLayout.getDrawingCache();
         }
-        Bitmap bmp = frameLayout.getDrawingCache();
         Log.i("kk", "bmp=" + bmp);
         return bmp;
     }
