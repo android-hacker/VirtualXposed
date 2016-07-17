@@ -21,7 +21,7 @@ public class ActivityTaskRecord {
 	ComponentName baseActivity;
 
 	public AppTaskInfo toTaskInfo() {
-		ActivityRecord top = activityList.getLast();
+		ActivityRecord top = activityList.isEmpty() ? null : activityList.getLast();
 		ComponentName topActivity = null;
 		if (top != null) {
 			topActivity = new ComponentName(top.activityInfo.packageName, top.activityInfo.name);
