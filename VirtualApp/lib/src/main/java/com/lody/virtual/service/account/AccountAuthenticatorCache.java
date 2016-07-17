@@ -5,7 +5,6 @@ import android.accounts.AuthenticatorDescription;
 import android.accounts.IAccountAuthenticator;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.pm.RegisteredServicesCache;
 import android.content.pm.XmlSerializerAndParser;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -25,8 +24,8 @@ import java.io.IOException;
  * are made available via the {@link RegisteredServicesCache#getServiceInfo} method.
  */
 /* package private */ class AccountAuthenticatorCache
-        extends RegisteredServicesCache<AuthenticatorDescription>
-        implements IAccountAuthenticatorCache {
+        extends RegisteredServicesCache<AuthenticatorDescription> {
+    private static final String TAG = "Account";
     private static final MySerializer sSerializer = new MySerializer();
 
     public AccountAuthenticatorCache(Context context) {

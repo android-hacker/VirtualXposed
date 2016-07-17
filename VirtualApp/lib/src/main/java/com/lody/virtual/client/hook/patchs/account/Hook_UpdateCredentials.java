@@ -5,6 +5,7 @@ import android.accounts.IAccountManagerResponse;
 import android.os.Bundle;
 
 import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.local.LocalAccountManager;
 
 import java.lang.reflect.Method;
 
@@ -16,6 +17,7 @@ import java.lang.reflect.Method;
  */
 
 public class Hook_UpdateCredentials extends Hook<AccountManagerPatch> {
+
     /**
      * 这个构造器必须有,用于依赖注入.
      *
@@ -32,6 +34,12 @@ public class Hook_UpdateCredentials extends Hook<AccountManagerPatch> {
 
     @Override
     public Object onHook(Object who, Method method, Object... args) throws Throwable {
-        return method.invoke(who, args);
+        IAccountManagerResponse response = (IAccountManagerResponse) args[0];
+        Account account = (Account) args[1];
+        String authTokenType = (String) args[2];
+        boolean expectActivityLaunch = (boolean) args[3];
+        Bundle options = (Bundle) args[4];
+        LocalAccountManager.getInstance().updateCredentials(response, account, authTokenType, expectActivityLaunch, options);
+        return 0;
     }
 }

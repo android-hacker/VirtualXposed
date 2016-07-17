@@ -1,14 +1,14 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
+import android.content.Intent;
+import android.content.pm.ResolveInfo;
+
+import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.local.LocalPackageManager;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.lody.virtual.client.local.LocalPackageManager;
-import com.lody.virtual.client.hook.base.Hook;
-
-import android.content.Intent;
-import android.content.pm.ResolveInfo;
 
 /**
  * @author Lody
@@ -36,20 +36,17 @@ import android.content.pm.ResolveInfo;
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 
 		List<ResolveInfo> result = (List<ResolveInfo>) method.invoke(who, args);
-
 		List<ResolveInfo> pluginResult = LocalPackageManager.getInstance().queryIntentServices((Intent) args[0],
 				(String) args[1], (Integer) args[2]);
 
-		if (result == null) {//貌似不会为null
+		if (result == null) {
 			result = new ArrayList<ResolveInfo>();
 		}
-
-		if (!result.isEmpty()) {//双开模式下返回系统获取的
+		if (!result.isEmpty()) {
 			return result;
 		}
 
-		if (pluginResult != null && !pluginResult.isEmpty()) {//如果系统没有安装,单开模式下返回从apk中解析的,一般情况下只有一个
-//            result.addAll(pluginResult);
+		if (pluginResult != null && !pluginResult.isEmpty()) {
 			return pluginResult;
 		}
 		return result;

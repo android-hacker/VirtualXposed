@@ -60,9 +60,11 @@ public class VProcessService extends IProcessManager.Stub {
 	 *            插件Pid
 	 */
 	public String[] findRunningAppPkgByPid(int pid) {
-		ProcessRecord record = mProcessList.getRecord(pid);
-		if (record != null) {
-			return record.runningAppPkgs.toArray(new String[record.runningAppPkgs.size()]);
+		synchronized (mProcessList) {
+			ProcessRecord record = mProcessList.getRecord(pid);
+			if (record != null) {
+				return record.runningAppPkgs.toArray(new String[record.runningAppPkgs.size()]);
+			}
 		}
 		return null;
 	}
@@ -70,18 +72,20 @@ public class VProcessService extends IProcessManager.Stub {
 	@Override
 	public void killApplicationProcess(String procName, int uid) {
 		boolean killed = false;
-		for (ProcessRecord r : mProcessList.values()) {
-			if (TextUtils.equals(procName, r.appProcessName)) {
-				killProcess(r);
-				killed = true;
-				break;
+		synchronized (mProcessList) {
+			for (ProcessRecord r : mProcessList.values()) {
+				if (TextUtils.equals(procName, r.appProcessName)) {
+					killProcess(r);
+					killed = true;
+					break;
+				}
 			}
-		}
-		if (!killed) {
-			try {
-				ActivityManagerNative.getDefault().killApplicationProcess(procName, Process.myUid());
-			} catch (RemoteException e) {
-				e.printStackTrace();
+			if (!killed) {
+				try {
+					ActivityManagerNative.getDefault().killApplicationProcess(procName, Process.myUid());
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -117,20 +121,24 @@ public class VProcessService extends IProcessManager.Stub {
 
 	@Override
 	public String getAppProcessName(int pid) throws RemoteException {
-		ProcessRecord r = mProcessList.getRecord(pid);
-		if (r == null) {
-			return null;
+		synchronized (mProcessList) {
+			ProcessRecord r = mProcessList.getRecord(pid);
+			if (r == null) {
+				return null;
+			}
+			return r.appProcessName;
 		}
-		return r.appProcessName;
 	}
 
 	@Override
 	public List<String> getProcessPkgList(int pid) throws RemoteException {
-		ProcessRecord r = mProcessList.getRecord(pid);
-		if (r == null) {
-			return null;
+		synchronized (mProcessList) {
+			ProcessRecord r = mProcessList.getRecord(pid);
+			if (r == null) {
+				return null;
+			}
+			return new ArrayList<String>(r.runningAppPkgs);
 		}
-		return new ArrayList<String>(r.runningAppPkgs);
 	}
 
 	/**
@@ -140,7 +148,7 @@ public class VProcessService extends IProcessManager.Stub {
 	 *            进程名
 	 */
 	@Override
-	public boolean isAppProcess(String processName) {
+	public synchronized boolean isAppProcess(String processName) {
 		if (!TextUtils.isEmpty(processName)) {
 			Set<String> processList = VActivityService.getService().getStubProcessList();
 			return processList.contains(processName);
@@ -177,8 +185,10 @@ public class VProcessService extends IProcessManager.Stub {
 	 *            进程名
 	 */
 	public boolean isSameProcess(int pid, String pluginProcessName) {
-		ProcessRecord r = mProcessList.getRecord(pid);
-		return r != null && r.appProcessName.equals(pluginProcessName);
+		synchronized (mProcessList) {
+			ProcessRecord r = mProcessList.getRecord(pid);
+			return r != null && r.appProcessName.equals(pluginProcessName);
+		}
 	}
 
 	/**
@@ -231,19 +241,19 @@ public class VProcessService extends IProcessManager.Stub {
 	 * @param pid
 	 *            插件Pid
 	 */
-	private void removeProcessRecordLocked(int pid) {
+	private synchronized void removeProcessRecordLocked(int pid) {
 		ProcessRecord r = mProcessList.getRecord(pid);
 		if (r.runningAppPkgs != null) {
 			for (String pkg : r.runningAppPkgs) {
-				RunningAppRecord plugin = mRunningAppList.getRecord(pkg);
-				if (plugin == null) {
+				RunningAppRecord app = mRunningAppList.getRecord(pkg);
+				if (app == null) {
 					continue;
 				}
-				if (plugin.isRunningOnPid(r.pid)) {
-					plugin.removePid(r.pid);
+				if (app.isRunningOnPid(r.pid)) {
+					app.removePid(r.pid);
 				}
-				if (plugin.runningPids.isEmpty()) {
-					mRunningAppList.pluginStopped(plugin.pkgName);
+				if (app.runningPids.isEmpty()) {
+					mRunningAppList.pluginStopped(app.pkgName);
 				}
 			}
 		}
@@ -310,7 +320,7 @@ public class VProcessService extends IProcessManager.Stub {
 	}
 
 	@Override
-	public void onEnterApp(String pkgName) {
+	public synchronized void onEnterApp(String pkgName) {
 		int pid = Binder.getCallingPid();
 		if (!TextUtils.isEmpty(pkgName)) {
 			ProcessRecord r = mProcessList.getRecord(pid);
@@ -353,9 +363,11 @@ public class VProcessService extends IProcessManager.Stub {
 	}
 
 	public ProcessRecord findRecord(String appProcessName) {
-		for (ProcessRecord r : mProcessList.values()) {
-			if (TextUtils.equals(appProcessName, r.appProcessName)) {
-				return r;
+		synchronized (mProcessList) {
+			for (ProcessRecord r : mProcessList.values()) {
+				if (TextUtils.equals(appProcessName, r.appProcessName)) {
+					return r;
+				}
 			}
 		}
 		return null;
@@ -394,9 +406,11 @@ public class VProcessService extends IProcessManager.Stub {
 	public ProcessRecord findStubProcessRecord(StubInfo stubInfo) {
 		if (stubInfo != null) {
 			String processName = stubInfo.processName;
-			for (ProcessRecord r : mProcessList.values()) {
-				if (TextUtils.equals(r.stubProcessName, processName)) {
-					return r;
+			synchronized (mProcessList) {
+				for (ProcessRecord r : mProcessList.values()) {
+					if (TextUtils.equals(r.stubProcessName, processName)) {
+						return r;
+					}
 				}
 			}
 		}

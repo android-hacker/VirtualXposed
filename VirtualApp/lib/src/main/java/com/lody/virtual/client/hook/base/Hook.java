@@ -1,12 +1,12 @@
 package com.lody.virtual.client.hook.base;
 
-import java.lang.reflect.Method;
+import android.content.Context;
+import android.content.pm.PackageManager;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.proto.AppInfo;
 
-import android.content.Context;
-import android.content.pm.PackageManager;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -76,6 +76,10 @@ public abstract class Hook<T extends PatchObject> {
 
 	protected final boolean isAppProcess() {
 		return VirtualCore.getCore().isVAppProcess();
+	}
+
+	protected final boolean isServiceProcess() {
+		return VirtualCore.getCore().isServiceProcess();
 	}
 
 	protected final boolean isMainProcess() {

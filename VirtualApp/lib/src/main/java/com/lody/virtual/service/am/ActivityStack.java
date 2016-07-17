@@ -17,46 +17,54 @@ import java.util.ListIterator;
 
 /*package*/ class ActivityStack {
 
-	LinkedList<ActivityTaskRecord> tasks = new LinkedList<ActivityTaskRecord>();
+	final LinkedList<ActivityTaskRecord> tasks = new LinkedList<ActivityTaskRecord>();
 
     public ActivityTaskRecord findTask(String affinity) {
-        for (ActivityTaskRecord task : tasks) {
-            if (affinity.equals(task.rootAffinity)) {
-                return task;
+        synchronized (tasks) {
+            for (ActivityTaskRecord task : tasks) {
+                if (affinity.equals(task.rootAffinity)) {
+                    return task;
+                }
             }
         }
         return null;
     }
 	public ActivityTaskRecord findTask(IBinder activityToken) {
-		for (ActivityTaskRecord task : tasks) {
-			ActivityRecord r = task.activities.get(activityToken);
-            if (r != null) {
-                return task;
+		synchronized (tasks) {
+            for (ActivityTaskRecord task : tasks) {
+                ActivityRecord r = task.activities.get(activityToken);
+                if (r != null) {
+                    return task;
+                }
             }
-		}
+        }
 		return null;
 	}
 
     public ActivityRecord findRecord(IBinder activityToken) {
-        for (ActivityTaskRecord task : tasks) {
-            ActivityRecord r = task.activities.get(activityToken);
-            if (r != null) {
-                return r;
+        synchronized (tasks) {
+            for (ActivityTaskRecord task : tasks) {
+                ActivityRecord r = task.activities.get(activityToken);
+                if (r != null) {
+                    return r;
+                }
             }
         }
         return null;
     }
 
 	public ActivityTaskRecord findTask(int taskId) {
-        for (ActivityTaskRecord task : tasks) {
-            if (task.taskId == taskId) {
-                return task;
+        synchronized (tasks) {
+            for (ActivityTaskRecord task : tasks) {
+                if (task.taskId == taskId) {
+                    return task;
+                }
             }
         }
         return null;
     }
 
-    public void trimTasks() {
+    public synchronized void trimTasks() {
         ListIterator<ActivityTaskRecord> iterator = tasks.listIterator();
         while (iterator.hasNext()) {
             ActivityTaskRecord task = iterator.next();

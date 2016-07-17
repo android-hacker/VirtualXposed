@@ -1,15 +1,15 @@
 package com.lody.virtual.helper.proto;
 
-import com.lody.virtual.client.core.AppSandBox;
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.compat.ActivityThreadCompat;
-
 import android.app.Application;
 import android.app.LoadedApk;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.lody.virtual.client.core.AppSandBox;
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.compat.ActivityThreadCompat;
 
 /**
  * @author Lody
@@ -90,7 +90,7 @@ public final class AppInfo implements Parcelable {
 		try {
 			return VirtualCore.getCore().getUnHookPackageManager().getPackageInfo(packageName, 0) != null;
 		} catch (PackageManager.NameNotFoundException e) {
-			e.printStackTrace();
+			// Ignore
 		}
 		return false;
 	}
