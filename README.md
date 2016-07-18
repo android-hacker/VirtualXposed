@@ -24,7 +24,12 @@ Get started
 
 1. VirtualApp use the `@hide API`, 
 so you must use our `android.jar` replace the old one **(Android-SDK/platforms/android-23/{android.jar})**. 
+Or add the following code to your Project build.gradle file
+```gradle
+allprojects {     repositories {         jcenter()     }
+    //android.jar     gradle.projectsEvaluated {         tasks.withType(JavaCompile) {             options.compilerArgs.add('-Xbootclasspath/p:../android.jar')         }     } }
 
+```
 2. Include the following attributes in your `AndroidManifest.xml`:
 ```xml
     <permission
@@ -113,3 +118,5 @@ About Author
 ------------
 
     Lody (imlody@foxmail.com)
+
+
