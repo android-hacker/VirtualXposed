@@ -194,7 +194,7 @@ public final class VirtualCore {
 			String pluginPkg = procName.split(":")[0];
 			AppInfo appInfo = VirtualCore.getCore().findApp(pluginPkg);
 			if (appInfo == null) {
-				throw new RuntimeException("Unable to find AppInfo :" + pluginPkg);
+				RuntimeEnv.exit();
 			}
 			if (isVAppProcess()) {
 				AppSandBox.install(procName, appInfo);
@@ -222,16 +222,9 @@ public final class VirtualCore {
 				RuntimeEnv.exit();
 				return;
 			}
-			String pkg = plugProcName.split(":")[0];
-			AppInfo info = findApp(pkg);
-			if (info == null) {
-				RuntimeEnv.exit();
-				return;
-			}
 			ServiceManagerNative.startup(context);
 			// 插件进程要向服务端报告，进程初始化完毕
 			LocalProcessManager.onAppProcessCreate(VClientImpl.getClient().asBinder());
-			notifyOnEnterApp(pkg);
 		}
 	}
 
