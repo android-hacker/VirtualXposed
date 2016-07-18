@@ -2,7 +2,6 @@ package com.lody.virtual.client.hook.patchs.notification.compat;
 
 import android.content.Context;
 import android.os.Build;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,14 +23,17 @@ public class NotificationLayoutCompat {
             //华为emui
             w = getEMUINotificationWidth(context, width, height);
         } else if (OSUtils.isMIUI()) {
-            Log.e("kk", "miui ver=" + OSUtils.getMIUIVersion());
-            if ("4".equals(OSUtils.getMIUIVersion())) {
-                padding = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 25f, context.getResources().getDisplayMetrics()));
+//            if ("4".equals(OSUtils.getMIUIVersion())) {
+            if (Build.VERSION.SDK_INT >= 21) {
+                padding = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, context.getResources().getDisplayMetrics()));
                 w = getMIUINotificationWidth(context, width - padding * 2, height);
             } else {
-                w = getMIUINotificationWidth(context, width, height);
+                padding = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 25f, context.getResources().getDisplayMetrics()));
+                w = getMIUINotificationWidth(context, width - padding * 2, height);
             }
-
+//            } else {
+//                w = getMIUINotificationWidth(context, width, height);
+//            }
         }
         return w;
     }

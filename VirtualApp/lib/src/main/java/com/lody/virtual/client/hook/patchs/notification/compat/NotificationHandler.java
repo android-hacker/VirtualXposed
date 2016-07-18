@@ -89,17 +89,18 @@ public class NotificationHandler {
     }
 
     private int getDimem(Context context, Context sysContext, String name, int defId) {
-        if (sysContext == null) {
-            Log.w("kk", "get my");
-            return defId == 0 ? 0 : Math.round(context.getResources().getDimension(defId));
+        if (sysContext != null) {
+            int id = sysContext.getResources().getIdentifier(name, "dimen", "com.android.systemui");
+            if (id != 0) {
+                try {
+                    int i = Math.round(sysContext.getResources().getDimension(id));
+                } catch (Exception e) {
+
+                }
+            }
         }
-        int id = sysContext.getResources().getIdentifier(name, "dimen", "com.android.systemui");
-        if (id != 0) {
-            return Math.round(sysContext.getResources().getDimension(id));
-        } else {
-            Log.w("kk", "get my 2");
-            return defId == 0 ? 0 : Math.round(context.getResources().getDimension(defId));
-        }
+        Log.w("kk", "get my 2");
+        return defId == 0 ? 0 : Math.round(context.getResources().getDimension(defId));
     }
 
     public void dealNotificationIcon(int iconId, String packageName, Object... args) throws Exception {
@@ -169,37 +170,39 @@ public class NotificationHandler {
         }
 
 
-        if (notification.contentView != null && !VirtualCore.getCore().isHostPackageName(notification.contentView.getPackage())) {
+        if (notification.contentView != null && !isHostPackageName(notification.contentView.getPackage())) {
             return true;
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            if (notification.tickerView != null && !VirtualCore.getCore().isHostPackageName(notification.tickerView.getPackage())) {
+            if (notification.tickerView != null && !isHostPackageName(notification.tickerView.getPackage())) {
                 return true;
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            if (notification.bigContentView != null && !VirtualCore.getCore().isHostPackageName(notification.bigContentView.getPackage())) {
+            if (notification.bigContentView != null && !isHostPackageName(notification.bigContentView.getPackage())) {
                 return true;
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (notification.headsUpContentView != null && !VirtualCore.getCore().isHostPackageName(notification.headsUpContentView.getPackage())) {
+            if (notification.headsUpContentView != null && !isHostPackageName(notification.headsUpContentView.getPackage())) {
                 return true;
             }
-            if (notification.publicVersion != null && notification.publicVersion.contentView != null && !VirtualCore.getCore().isHostPackageName(notification.publicVersion.contentView.getPackage())) {
+            if (notification.publicVersion != null && notification.publicVersion.contentView != null && !isHostPackageName(notification.publicVersion.contentView.getPackage())) {
                 return true;
             }
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+
+        {
             android.graphics.drawable.Icon icon = notification.getSmallIcon();
             if (icon != null) {
                 try {
                     Object mString1Obj = Reflect.on(icon).get("mString1");
                     if (mString1Obj instanceof String) {
                         String mString1 = ((String) mString1Obj);
-                        if (!VirtualCore.getCore().isHostPackageName(mString1)) {
+                        if (!isHostPackageName(mString1)) {
                             return true;
                         }
                     }
@@ -208,14 +211,16 @@ public class NotificationHandler {
             }
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+
+        {
             android.graphics.drawable.Icon icon = notification.getLargeIcon();
             if (icon != null) {
                 try {
                     Object mString1Obj = Reflect.on(icon).get("mString1");
                     if (mString1Obj instanceof String) {
                         String mString1 = ((String) mString1Obj);
-                        if (!VirtualCore.getCore().isHostPackageName(mString1)) {
+                        if (!isHostPackageName(mString1)) {
                             return true;
                         }
                     }
@@ -224,21 +229,31 @@ public class NotificationHandler {
             }
         }
 
-        try {
+        try
+
+        {
             Bundle mExtras = Reflect.on(notification).get("extras");
             for (String s : mExtras.keySet()) {
                 if (mExtras.get(s) != null && mExtras.get(s) instanceof ApplicationInfo) {
                     ApplicationInfo applicationInfo = (ApplicationInfo) mExtras.get(s);
                     if (applicationInfo != null) {
-                        return !VirtualCore.getCore().isHostPackageName(applicationInfo.packageName);
+                        return !isHostPackageName(applicationInfo.packageName);
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (
+                Exception e
+                )
+
+        {
             e.printStackTrace();
         }
 
         return false;
+    }
+
+    private boolean isHostPackageName(String pkg) {
+        return VirtualCore.getCore().isHostPackageName(pkg);
     }
 
     private Notification replaceNotification(Context context, String packageName, Notification notification, boolean systemId) throws PackageManager.NameNotFoundException {
@@ -298,8 +313,8 @@ public class NotificationHandler {
                     if (size > 0) {
                         remoteViews.setTextViewTextSize(R.id.time, TypedValue.COMPLEX_UNIT_PX, size);
                     }
-                    if(notificationCompat.getPaddingRight()>0){
-                        remoteViews.setViewPadding(R.id.time, 0,0,notificationCompat.getPaddingRight(),0);
+                    if (notificationCompat.getPaddingRight() >= 0) {
+                        remoteViews.setViewPadding(R.id.time, 0, 0, notificationCompat.getPaddingRight(), 0);
                     }
                 }
                 remoteViews.setLong(R.id.time, "setTime", notification.when);
@@ -344,7 +359,12 @@ public class NotificationHandler {
             while (iterable.hasNext()) {
                 Object object = iterable.next();
                 if (object != null) {
-                    String action = Reflect.on(object).call("getActionName").get();
+                    String action = null;
+                    try {
+                        action = Reflect.on(object).call("getActionName").get();
+                    } catch (Exception e) {
+                        action = object.getClass().getSimpleName();
+                    }
                     if ("SetOnClickPendingIntent".equalsIgnoreCase(action)) {
                         int id = Reflect.on(object).get("viewId");
                         PendingIntent intent = Reflect.on(object).get("pendingIntent");

@@ -25,7 +25,7 @@ public class NotificationCompat {
     float mSize;
     Notification mNotification;
     boolean mDateTime;
-    int paddingRight;
+    int paddingRight=-1;
 
     public NotificationCompat(Context context, NotificationActionCompat notificationActionCompat, Notification notification) {
         this.context = context;
@@ -59,7 +59,7 @@ public class NotificationCompat {
             if (tv != null) {
                 mColor = tv.getCurrentTextColor();
                 mSize = tv.getTextSize();
-                paddingRight = tv.getPaddingRight();
+                paddingRight = 0;
             }
         }
         //
