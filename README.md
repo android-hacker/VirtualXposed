@@ -22,15 +22,7 @@ in the end, it evolved into a `Virtual Container`.
 Get started
 -----------
 
-1. VirtualApp use the `@hide API`, 
-so you must use our `android.jar` replace the old one **(Android-SDK/platforms/android-23/{android.jar})**. 
-Or add the following code to your Project build.gradle file
-```gradle
-allprojects {     repositories {         jcenter()     }
-    //android.jar     gradle.projectsEvaluated {         tasks.withType(JavaCompile) {             options.compilerArgs.add('-Xbootclasspath/p:../android.jar')         }     } }
-
-```
-2. Include the following attributes in your `AndroidManifest.xml`:
+1. Include the following attributes in your `AndroidManifest.xml`:
 ```xml
     <permission
         android:name="com.lody.virtual.permission.VIRTUAL_BROADCAST"
@@ -60,9 +52,9 @@ allprojects {     repositories {         jcenter()     }
     <!--and so on-->
 ```
 
-3. Add **all permissions** your host and your plugins need to use.
+2. Add **all permissions** your host and your plugins need to use.
 
-4. Goto your Application and insert the following code:
+3. Goto your Application and insert the following code:
 ```java
     @Override
     protected void attachBaseContext(Context base) {
@@ -75,7 +67,7 @@ allprojects {     repositories {         jcenter()     }
     }
 ```
 
-5. For **Install a virtual App**, use this function:
+4. For **Install a virtual App**, use this function:
 ```java
     VirtualCore.getCore().installApp({APK PATH}, flags);
     
@@ -90,17 +82,17 @@ allprojects {     repositories {         jcenter()     }
     
 ```
 
-6. For **Launch a virtual App**, use this function:
+5. For **Launch a virtual App**, use this function:
 ```java
     VirtualCore.getCore().launchApp({PackageName});
 ```
 
-7. For **uninstall a virtual App**, use this function:
+6. For **uninstall a virtual App**, use this function:
 ```java
     VirtualCore.getCore().uninstallApp({PackageName});
 ```
 
-8. If you need to get the `details of App`, use this function:
+7. If you need to get the `details of App`, use this function:
 ```java
     VirtualCore.getCore().findApp({PackageName});
 ```
