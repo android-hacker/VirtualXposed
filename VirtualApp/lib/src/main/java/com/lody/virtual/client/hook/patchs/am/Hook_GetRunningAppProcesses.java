@@ -40,7 +40,10 @@ import java.util.List;
 			for (ActivityManager.RunningAppProcessInfo info : infoList) {
 				if (info.uid == myUid && LocalProcessManager.isAppPID(info.pid)) {
 					List<String> pkgList = LocalProcessManager.getProcessPkgList(info.pid);
-					info.processName = LocalProcessManager.getAppProcessName(info.pid);
+					String processName = LocalProcessManager.getAppProcessName(info.pid);
+					if (processName != null) {
+						info.processName = processName;
+					}
 					info.pkgList = pkgList.toArray(new String[pkgList.size()]);
 				}
 			}

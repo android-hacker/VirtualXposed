@@ -60,7 +60,9 @@ public class LocalActivityManager {
         //此处在使用LocalActivityManager启动Activity的时候是空的,因为走不到replaceIntent里,
         // 比如掌阅会崩溃,暂时从Activity里取,没调研兼容性=_=,先用着
         if (activityInfo == null) {
-            activityInfo = Reflect.on(activity).field("mActivityInfo").get();
+            try {
+                activityInfo = Reflect.on(activity).field("mActivityInfo").get();
+            }catch(Exception ex){}
         }
 
         IBinder token = activity.getActivityToken();

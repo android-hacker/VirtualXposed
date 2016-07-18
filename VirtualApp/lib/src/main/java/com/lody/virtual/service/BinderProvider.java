@@ -12,21 +12,17 @@ import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.MethodConstants;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.component.BaseContentProvider;
+import com.lody.virtual.service.account.AccountManagerService;
 import com.lody.virtual.service.am.VActivityService;
 import com.lody.virtual.service.am.VServiceService;
 import com.lody.virtual.service.interfaces.IServiceFetcher;
 import com.lody.virtual.service.process.VProcessService;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Lody
  *
  */
 public final class BinderProvider extends BaseContentProvider {
-
-	private final Map<String, IBinder> mServices = new HashMap<String, IBinder>();
 
 	private final ServiceFetcher mServiceFetcher = new ServiceFetcher();
 
@@ -47,9 +43,13 @@ public final class BinderProvider extends BaseContentProvider {
 		addService(ServiceManagerNative.ACTIVITY_MANAGER, VActivityService.getService());
 		addService(ServiceManagerNative.SERVICE_MANAGER, VServiceService.getService());
 		addService(ServiceManagerNative.CONTENT_MANAGER, VContentService.getService());
-//		VAccountService.systemReady(context);
-//		addService(ServiceManagerNative.ACCOUNT_MANAGER, VAccountService.getService());
+		AccountManagerService.systemReady(context);
+		addService(ServiceManagerNative.ACCOUNT_MANAGER, AccountManagerService.getSingleton());
 		return true;
+	}
+
+	private void addService(String name, IBinder service) {
+		ServiceCache.addService(name, service);
 	}
 
 	@Override
@@ -64,15 +64,12 @@ public final class BinderProvider extends BaseContentProvider {
 		}
 	}
 
-	private void addService(String name, IBinder service) {
-		mServices.put(name, service);
-	}
 
 	private class ServiceFetcher extends IServiceFetcher.Stub {
 		@Override
 		public IBinder getService(String name) throws RemoteException {
 			if (name != null) {
-				return mServices.get(name);
+				return ServiceCache.getService(name);
 			}
 			return null;
 		}
@@ -80,14 +77,14 @@ public final class BinderProvider extends BaseContentProvider {
 		@Override
 		public void addService(String name, IBinder service) throws RemoteException {
 			if (name != null && service != null) {
-				addService(name, service);
+				ServiceCache.addService(name, service);
 			}
 		}
 
 		@Override
 		public void removeService(String name) throws RemoteException {
 			if (name != null) {
-				mServices.remove(name);
+				ServiceCache.removeService(name);
 			}
 		}
 	}

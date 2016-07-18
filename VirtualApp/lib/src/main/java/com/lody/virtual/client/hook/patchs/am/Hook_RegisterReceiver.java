@@ -1,12 +1,5 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
-import java.util.WeakHashMap;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.hook.utils.HookUtils;
-
 import android.app.IApplicationThread;
 import android.content.ComponentName;
 import android.content.IIntentReceiver;
@@ -14,7 +7,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Process;
 import android.os.RemoteException;
+import android.os.UserHandle;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.hook.utils.HookUtils;
+
+import java.lang.reflect.Method;
+import java.util.WeakHashMap;
 
 /**
  * @author Lody
@@ -43,7 +45,15 @@ import android.os.RemoteException;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-
+		if (isServiceProcess()) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && args[args.length - 1] instanceof Integer) {
+				int userId = (int) args[args.length - 1];
+				if (userId == -1) {
+					args[args.length - 1] = UserHandle.getUserId(Process.myUid());
+				}
+			}
+			return method.invoke(who, args);
+		}
 		HookUtils.replaceFirstAppPkg(args);
 
 		final int indexOfRequiredPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
@@ -86,7 +96,7 @@ import android.os.RemoteException;
 
 					// @Override
 					public void performReceive(Intent intent, int resultCode, String data, Bundle extras,
-							boolean ordered, boolean sticky) throws android.os.RemoteException {
+							boolean ordered, boolean sticky) throws RemoteException {
 						this.performReceive(intent, resultCode, data, extras, ordered, sticky, 0);
 					}
 				};
@@ -100,6 +110,6 @@ import android.os.RemoteException;
 
 	@Override
 	public boolean isEnable() {
-		return isAppProcess();
+		return isAppProcess() || isServiceProcess();
 	}
 }
