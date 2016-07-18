@@ -1,11 +1,11 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
-
-import com.lody.virtual.client.local.LocalServiceManager;
-import com.lody.virtual.client.hook.base.Hook;
-
 import android.app.IServiceConnection;
+
+import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.local.LocalServiceManager;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -36,6 +36,6 @@ import android.app.IServiceConnection;
 
 	@Override
 	public boolean isEnable() {
-		return isAppProcess();
+		return isAppProcess() || isServiceProcess();
 	}
 }
