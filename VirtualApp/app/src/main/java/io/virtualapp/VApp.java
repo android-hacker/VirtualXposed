@@ -34,7 +34,6 @@ public class VApp extends Application {
         gDefault = this;
         super.onCreate();
 //        BlockCanary.install(this, new AppBlockCanaryContext()).start();
-        VirtualCore.getCore().handleApplication(this);
         if (VirtualCore.getCore().isMainProcess()) {
             Once.initialise(this);
         }

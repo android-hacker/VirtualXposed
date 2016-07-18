@@ -10,13 +10,13 @@ import java.util.List;
 public class StubInfo {
 	public String processName;
 	public List<ActivityInfo> standardActivityInfos = new ArrayList<ActivityInfo>(1);
-	public List<ProviderInfo> providerInfos = new ArrayList<ProviderInfo>(1);
+	public ProviderInfo providerInfo;
 
 		public void verify() {
 			if (standardActivityInfos.isEmpty()) {
 				throw new IllegalStateException("Unable to find any StubActivity in " + processName);
 			}
-			if (providerInfos.isEmpty()) {
+			if (providerInfo == null) {
 				throw new IllegalStateException("Unable to find any StubProvider in " + processName);
 			}
 		}

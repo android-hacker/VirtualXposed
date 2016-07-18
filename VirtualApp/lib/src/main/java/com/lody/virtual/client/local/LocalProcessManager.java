@@ -58,21 +58,6 @@ public class LocalProcessManager {
 		}
 	}
 
-	public static void mapProcessName(String stubProcessName, String pluginProcessName) {
-		try {
-			getService().mapProcessName(stubProcessName, pluginProcessName);
-		} catch (RemoteException e) {
-			RuntimeEnv.crash(e);
-		}
-	}
-
-	public static String getMapAppProcessName(String stubProcessName) {
-		try {
-			return getService().getMapAppProcessName(stubProcessName);
-		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
-		}
-	}
 
 	public static void dump() {
 		try {

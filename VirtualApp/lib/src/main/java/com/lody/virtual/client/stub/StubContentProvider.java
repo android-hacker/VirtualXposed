@@ -17,6 +17,8 @@ import com.lody.virtual.helper.component.BaseContentProvider;
 import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.service.interfaces.IServiceEnvironment;
 
+import java.util.concurrent.CountDownLatch;
+
 /**
  * @author Lody
  *
@@ -27,24 +29,32 @@ public abstract class StubContentProvider extends BaseContentProvider {
 
 	@Override
 	public Bundle call(String method, String arg, Bundle extras) {
-		if (method.equals(MethodConstants.INIT_PROCESS)) {
-			VirtualCore core = VirtualCore.getCore();
-			try {
-				while (core.getApplication() == null) {
-					Thread.sleep(50);
-				}
-				while (AppSandBox.isInstalling()) {
-					Thread.sleep(50);
-				}
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+		if (MethodConstants.INIT_PROCESS.equals(method)) {
+			initProcess(extras);
 			return null;
-		} else {
+		} else if (MethodConstants.GET_SERVICE_RUNTIME.equals(method)){
 			Bundle bundle = new Bundle();
 			BundleCompat.putBinder(bundle, ExtraConstants.EXTRA_BINDER, mServiceEnvBinder);
 			return bundle;
+		}
+		return null;
+	}
+
+	private void initProcess(Bundle extras) {
+		final String processName = extras.getString(ExtraConstants.EXTRA_PROCESS_NAME);
+		final String packageName = extras.getString(ExtraConstants.EXTRA_PKG);
+		final CountDownLatch lock = new CountDownLatch(1);
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				AppSandBox.install(processName, packageName);
+				lock.countDown();
+			}
+		}).start();
+		try {
+			lock.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 

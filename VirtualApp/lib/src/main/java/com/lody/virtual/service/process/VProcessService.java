@@ -3,7 +3,6 @@ package com.lody.virtual.service.process;
 import android.app.ActivityManagerNative;
 import android.app.ApplicationThreadNative;
 import android.app.IApplicationThread;
-import android.app.IServiceConnection;
 import android.content.pm.ComponentInfo;
 import android.content.pm.ProviderInfo;
 import android.os.Binder;
@@ -21,7 +20,6 @@ import com.lody.virtual.helper.proto.VComponentInfo;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.XLog;
 import com.lody.virtual.service.IProcessManager;
-import com.lody.virtual.service.am.ServiceRecord;
 import com.lody.virtual.service.VAppService;
 import com.lody.virtual.service.am.StubInfo;
 import com.lody.virtual.service.am.VActivityService;
@@ -90,29 +88,8 @@ public class VProcessService extends IProcessManager.Stub {
 		}
 	}
 
-	/**
-	 * 映射Stub进程名与插件进程名
-	 *
-	 * @param stubProcessName
-	 *            Stub进程名
-	 * @param pluginProcessName
-	 *            插件进程名
-	 */
-	@Override
-	public void mapProcessName(String stubProcessName, String pluginProcessName) {
-		mProcessList.map(stubProcessName, pluginProcessName);
-	}
 
-	/**
-	 * 根据Stub进程名取得插件进程名
-	 *
-	 * @param stubProcessName
-	 *            Stub进程名
-	 */
-	@Override
-	public String getMapAppProcessName(String stubProcessName) {
-		return mProcessList.getAppProcName(stubProcessName);
-	}
+
 
 	@Override
 	public boolean isAppPID(int pid) throws RemoteException {
@@ -311,7 +288,7 @@ public class VProcessService extends IProcessManager.Stub {
 				r.client = client;
 				r.appThread = appThread;
 				r.stubInfo.verify();
-				r.appProcessName = mProcessList.getAppProcName(r.stubProcessName);
+//				r.appProcessName =
 				mProcessList.addRecord(callingPid, r);
 			} else {
 				XLog.w(TAG, "Pid %d have been bound to PMS, should not be bound again, ignore.", callingPid);
@@ -373,13 +350,13 @@ public class VProcessService extends IProcessManager.Stub {
 		return null;
 	}
 
-	public void launchComponentProcess(ComponentInfo componentInfo, StubInfo stubInfo) {
+	private void launchComponentProcess(ComponentInfo componentInfo, StubInfo stubInfo) {
 		if (componentInfo != null && stubInfo != null) {
-			VProcessService.getService().mapProcessName(stubInfo.processName, componentInfo.processName);
-			ProviderInfo env = stubInfo.providerInfos.get(0);
+			ProviderInfo env = stubInfo.providerInfo;
 			new ProviderCaller.Builder(VirtualCore.getCore().getContext(), env.authority)
 					.methodName(MethodConstants.INIT_PROCESS)
 					.addArg(ExtraConstants.EXTRA_PKG, componentInfo.packageName)
+					.addArg(ExtraConstants.EXTRA_PROCESS_NAME, ComponentUtils.getProcessName(componentInfo))
 					.call();
 		}
 	}
@@ -403,9 +380,7 @@ public class VProcessService extends IProcessManager.Stub {
 		}
 	}
 
-	public ProcessRecord findStubProcessRecord(StubInfo stubInfo) {
-		if (stubInfo != null) {
-			String processName = stubInfo.processName;
+	public ProcessRecord findStubProcessRecord(String processName) {
 			synchronized (mProcessList) {
 				for (ProcessRecord r : mProcessList.values()) {
 					if (TextUtils.equals(r.stubProcessName, processName)) {
@@ -413,13 +388,13 @@ public class VProcessService extends IProcessManager.Stub {
 					}
 				}
 			}
-		}
 		return null;
 	}
 
 	public boolean isStubProcessRunning(StubInfo stubInfo) {
-		return findStubProcessRecord(stubInfo) != null;
+		return findStubProcessRecord(stubInfo.processName) != null;
 	}
+
 
 	public StubInfo fetchFreeStubInfo(Collection<StubInfo> stubInfos) {
 		for (StubInfo stubInfo : stubInfos) {
@@ -428,14 +403,6 @@ public class VProcessService extends IProcessManager.Stub {
 			}
 		}
 		return null;
-	}
-
-	public ServiceRecord queryServiceRecord(IBinder token) {
-		return mProcessList.queryServiceRecord(token);
-	}
-
-	public ServiceRecord findServiceRecord(IServiceConnection connection) {
-		return mProcessList.queryServiceRecord(connection);
 	}
 
 	public ProcessRecord findRecord(int pid) {

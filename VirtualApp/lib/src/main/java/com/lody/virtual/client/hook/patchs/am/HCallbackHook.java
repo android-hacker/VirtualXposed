@@ -8,12 +8,14 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 
+import com.lody.virtual.client.core.AppSandBox;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.interfaces.Injectable;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.compat.ActivityRecordCompat;
 import com.lody.virtual.helper.compat.ClassLoaderCompat;
 import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.XLog;
 
 import java.lang.reflect.Field;
@@ -101,24 +103,18 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 	private void handleLaunchActivity(Message msg) {
 		Object r = msg.obj;
 		// StubIntent
-
 		Intent stubIntent = ActivityRecordCompat.getIntent(r);
-
 		// TargetIntent
 		Intent targetIntent = stubIntent.getParcelableExtra(ExtraConstants.EXTRA_TARGET_INTENT);
 
 		ComponentName component = targetIntent.getComponent();
 		String pkgName = component.getPackageName();
 
-		// 匹配插件
 		AppInfo appInfo = VirtualCore.getCore().findApp(pkgName);
 
 		if (appInfo == null) {
 			return;
 		}
-		ClassLoader pluginClassLoader = appInfo.getClassLoader();
-		stubIntent.setExtrasClassLoader(pluginClassLoader);
-		targetIntent.setExtrasClassLoader(pluginClassLoader);
 
 		// StubActivityInfo
 		ActivityInfo stubActInfo = stubIntent.getParcelableExtra(ExtraConstants.EXTRA_STUB_ACT_INFO);
@@ -128,6 +124,12 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		if (stubActInfo == null || targetActInfo == null) {
 			return;
 		}
+		AppSandBox.install(ComponentUtils.getProcessName(targetActInfo), targetActInfo.packageName);
+
+		ClassLoader pluginClassLoader = appInfo.getClassLoader();
+
+		targetIntent.setExtrasClassLoader(pluginClassLoader);
+
 		boolean error = false;
 		try {
 			targetIntent.putExtra(ExtraConstants.EXTRA_STUB_ACT_INFO, stubActInfo);

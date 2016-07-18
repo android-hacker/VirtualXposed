@@ -94,7 +94,9 @@ public class VActivityService extends IActivityManager.Stub {
 					stubInfo.processName = processName;
 					stubInfoMap.put(processName, stubInfo);
 				}
-				stubInfo.providerInfos.add(providerInfo);
+				if (stubInfo.providerInfo == null) {
+					stubInfo.providerInfo = providerInfo;
+				}
 			}
 		}
 
@@ -140,6 +142,9 @@ public class VActivityService extends IActivityManager.Stub {
 			return null;
 		}
 		ActivityInfo stubActInfo = selectStubInfo.fetchStubActivityInfo(targetActInfo);
+		if (stubActInfo == null) {
+			return null;
+		}
 		return new VActRedirectResult(stubActInfo, resultFlags);
 	}
 
@@ -152,7 +157,7 @@ public class VActivityService extends IActivityManager.Stub {
 		if (runningEnv == null) {
 			StubInfo stubInfo = VProcessService.getService().fetchFreeStubInfo(stubInfoMap.values());
 			if (stubInfo != null) {
-				runningEnv = stubInfo.providerInfos.get(0);
+				runningEnv = stubInfo.providerInfo;
 			}
 		}
 		if (runningEnv != null) {
@@ -172,7 +177,7 @@ public class VActivityService extends IActivityManager.Stub {
 	public ProviderInfo fetchRunningServiceRuntime(String appProcessName) {
 		StubInfo stubInfo = fetchRunningStubInfo(appProcessName);
 		if (stubInfo != null) {
-			return stubInfo.providerInfos.get(0);
+			return stubInfo.providerInfo;
 		}
 		return null;
 	}

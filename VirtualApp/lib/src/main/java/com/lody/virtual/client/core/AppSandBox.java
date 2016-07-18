@@ -18,9 +18,11 @@ import android.renderscript.RenderScriptCacheDir;
 import android.text.TextUtils;
 import android.view.HardwareRenderer;
 
+import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.env.RuntimeEnv;
 import com.lody.virtual.client.hook.modifiers.ContextModifier;
 import com.lody.virtual.client.local.LocalPackageManager;
+import com.lody.virtual.client.local.LocalProcessManager;
 import com.lody.virtual.helper.compat.ActivityThreadCompat;
 import com.lody.virtual.helper.compat.VMRuntimeCompat;
 import com.lody.virtual.helper.loaders.PathAppClassLoader;
@@ -51,13 +53,17 @@ public class AppSandBox {
 		return applications.get(pkg);
 	}
 
-	public static void install(String procName, AppInfo appInfo) {
+	public static void install(String procName, String pkg) {
 		sInstalling = true;
-		if (installedApps.contains(appInfo.packageName)) {
+		if (installedApps.contains(pkg)) {
+			return;
+		}
+		LocalProcessManager.onAppProcessCreate(VClientImpl.getClient().asBinder());
+		AppInfo appInfo = VirtualCore.getCore().findApp(pkg);
+		if (appInfo == null) {
 			return;
 		}
 		ApplicationInfo applicationInfo = appInfo.applicationInfo;
-		String pkg = appInfo.packageName;
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.L && applicationInfo.targetSdkVersion < Build.VERSION_CODES.L) {
 			try {
 				Message.updateCheckRecycle(applicationInfo.targetSdkVersion);
@@ -167,6 +173,7 @@ public class AppSandBox {
 				}
 			}
 		}
+		LocalProcessManager.onEnterApp(pkg);
 		applications.put(appInfo.packageName, app);
 		installedApps.add(appInfo.packageName);
 		sInstalling = false;

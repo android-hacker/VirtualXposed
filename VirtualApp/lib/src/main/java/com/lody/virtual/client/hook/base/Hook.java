@@ -66,10 +66,6 @@ public abstract class Hook<T extends PatchObject> {
 		return VirtualCore.getCore().getContext();
 	}
 
-	protected final Context getHostApp() {
-		return VirtualCore.getCore().getApplication();
-	}
-
 	protected final AppInfo findAppInfo(String pkg) {
 		return VirtualCore.getCore().findApp(pkg);
 	}

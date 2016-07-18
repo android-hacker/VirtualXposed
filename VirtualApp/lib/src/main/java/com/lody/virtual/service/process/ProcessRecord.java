@@ -3,20 +3,14 @@ package com.lody.virtual.service.process;
 import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
 import android.app.IApplicationThread;
-import android.app.IServiceConnection;
-import android.content.pm.ServiceInfo;
-import android.os.IBinder;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.IVClient;
-import com.lody.virtual.service.am.ServiceRecord;
 import com.lody.virtual.service.am.StubInfo;
 import com.lody.virtual.service.am.VActivityService;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 final class ProcessRecord {
@@ -53,8 +47,6 @@ final class ProcessRecord {
 	 */
 	Set<String> runningAppPkgs = new HashSet<String>();
 
-	Map<String, ServiceRecord> servicesMap = new HashMap<String, ServiceRecord>();
-
 	public synchronized void updateStubProc(int pid) {
 		try {
 			List<ActivityManager.RunningAppProcessInfo> runningInfos = ActivityManagerNative.getDefault()
@@ -71,18 +63,6 @@ final class ProcessRecord {
 		stubInfo = VActivityService.getService().findStubInfo(this.stubProcessName);
 	}
 
-	public ServiceRecord findServiceRecord(String name) {
-		return servicesMap.get(name);
-	}
-
-	public ServiceRecord findServiceRecord(IBinder token) {
-		for (ServiceRecord r : servicesMap.values()) {
-			if (r.token == token) {
-				return r;
-			}
-		}
-		return null;
-	}
 
 	/**
 	 * 添加一个APK到该进程
@@ -103,24 +83,5 @@ final class ProcessRecord {
 	 */
 	public boolean isRunning(String pkgName) {
 		return runningAppPkgs.contains(pkgName);
-	}
-
-	public void addServiceRecord(ServiceRecord record) {
-		servicesMap.put(record.serviceInfo.name, record);
-	}
-
-	public void removeServiceRecord(ServiceInfo serviceInfo) {
-		servicesMap.remove(serviceInfo.name);
-	}
-
-	public ServiceRecord findServiceRecord(IServiceConnection connection) {
-		for (ServiceRecord r : servicesMap.values()) {
-			for (ServiceRecord.ServiceBoundRecord boundRecord : r.mBoundRecords) {
-				if (boundRecord.containsConnection(connection)) {
-					return r;
-				}
-			}
-		}
-		return null;
 	}
 }

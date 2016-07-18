@@ -25,6 +25,7 @@ public class VContentService extends IContentManager.Stub {
 
 	private final ProviderList mProviderList = new ProviderList();
 
+
 	public static VContentService getService() {
 		return sService;
 	}
@@ -46,11 +47,11 @@ public class VContentService extends IContentManager.Stub {
 		try {
 			XLog.d(TAG, "Installing %s...", providerInfo.authority);
 			VProcessService.getService().installComponent(VComponentInfo.wrap(providerInfo));
-			IActivityManager.ContentProviderHolder getResult = mProviderList.getHolder(auth);
-			if (getResult == null) {
+			IActivityManager.ContentProviderHolder result = mProviderList.getHolder(auth);
+			if (result == null) {
 				XLog.w(TAG, "Unable to getContentProvider : " + auth);
 			}
-			return getResult;
+			return result;
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
