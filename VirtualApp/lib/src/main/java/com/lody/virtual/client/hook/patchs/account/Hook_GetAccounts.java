@@ -31,7 +31,6 @@ public class Hook_GetAccounts extends Hook<AccountManagerPatch> {
     @Override
     public Object onHook(Object who, Method method, Object... args) throws Throwable {
         String accountType = (String) args[0];
-        LocalAccountManager.getInstance().getAccounts(accountType);
-        return null;
+        return LocalAccountManager.getInstance().getAccounts(accountType);
     }
 }

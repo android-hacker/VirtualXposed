@@ -1,8 +1,6 @@
 package com.lody.virtual.service.account;
 
 import android.accounts.AuthenticatorDescription;
-import android.content.pm.RegisteredServicesCache;
-import android.content.pm.RegisteredServicesCacheListener;
 import android.os.Handler;
 
 import java.io.FileDescriptor;
@@ -11,7 +9,7 @@ import java.util.Collection;
 
 /**
  * An interface to the Authenticator specialization of RegisteredServicesCache. The use of
- * this interface by the AccountManagerService makes it easier to unit test it.
+ * this interface by the VAccountService makes it easier to unit test it.
  * @hide
  */
 public interface IAccountAuthenticatorCache {
@@ -43,6 +41,5 @@ public interface IAccountAuthenticatorCache {
      * @param handler the {@link Handler} on which the notification will be posted. If null
      * the notification will be posted on the main thread.
      */
-    void setListener(RegisteredServicesCacheListener<AuthenticatorDescription> listener,
-                     Handler handler);
+    void setListener(com.lody.virtual.service.account.RegisteredServicesCacheListener<AuthenticatorDescription> listener, Handler handler);
 }

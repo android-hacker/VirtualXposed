@@ -21,6 +21,7 @@ import com.lody.virtual.client.hook.binders.HookAccountBinder;
 		Hook_SetUserData.class,
 		Hook_SetAuthToken.class,
 		Hook_GetAccounts.class,
+		Hook_GetAccountsAsUser.class,
 		Hook_GetAccountsByType.class,
 		Hook_GetAccountTypeForPackage.class,
 		Hook_HasFeatures.class,

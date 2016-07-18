@@ -18,7 +18,6 @@ import android.widget.RemoteViews;
 
 import com.lody.virtual.R;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.XLog;
 
@@ -102,36 +101,58 @@ public class NotificationHandler {
         }
     }
 
-    public boolean dealNotification(Context hostContext, String packageName, Object... args) throws Exception {
+    public void dealNotificationIcon(int iconId, String packageName, Object... args) throws Exception {
+        for (int i = 0; i < args.length; i++) {
+            if (args[i] instanceof Notification) {
+                Notification notification = (Notification) args[i];//nobug
+                final Context pluginContext = VirtualCore.getCore().getContext().createPackageContext(packageName, Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
+                args[i] = new NotificationCompat(pluginContext, mNotificationActionCompat, notification).getNotification();
+                break;
+            }
+        }
+    }
+
+    /***
+     * @param hostContext
+     * @param packageName
+     * @param args
+     * @return -1 失败，>=0是成功。>0是系统样式（通知栏的icon），0是自定义样式
+     * @throws Exception
+     */
+    public int dealNotification(Context hostContext, String packageName, Object... args) throws Exception {
         init(hostContext);
         for (int i = 0; i < args.length; i++) {
             if (args[i] instanceof Notification) {
                 Notification notification = (Notification) args[i];//nobug
-                if (isPluginNotification(notification)) {
-                    //双开模式，icon还是va的
+                //双开模式，icon还是va的
 //                    if(VirtualCore.getCore().isOutsideInstalled(packageName))
-                    {
+                {
 //                        //双开模式，貌似icon不太对
 //                        notification.icon = hostContext.getApplicationInfo().icon;
 //                        //23的icon
-//                        mNotificationActionCompat.builderNotificationIcon(notification);
+//                        mNotificationActionCompat.builderNotificationIcon(notification, notification.icon, VirtualCore.getCore().getResources(packageName));
+//                        return 0;
 //                    }else {
-
-                        //直接处理了
-                        args[i] = replaceNotification(hostContext, packageName, notification);
-//                    if (mNotificationActionCompat.shouldBlock(notification)) {
-////                        //自定义布局通知栏
-//                        args[i] = replaceNotification(hostContext, packageName, notification);
-//                    } else {
-////                        //这里要修改原生的通知，是否也和上面一样的处理？
-//                        mNotificationActionCompat.hackNotification(notification);
-//                    }
+                    //    args[i] = replaceNotification(hostContext, packageName, notification);
+                    Notification notification1 = replaceNotification(hostContext, packageName, notification);
+                    if (mNotificationActionCompat.shouldBlock(notification)) {
+//                        //自定义布局通知栏
+                        args[i] = notification1;
+                        return 0;
+                    } else {
+//                        //这里要修改原生的通知，是否也和上面一样的处理？
+                        final int icon = notification.icon;
+                        if (notification1 != null) {
+                            args[i] = notification1;
+                        } else {
+                            mNotificationActionCompat.hackNotification(notification);
+                        }
+                        return icon;
                     }
-                    return true;
                 }
             }
         }
-        return false;
+        return -1;
     }
 
     private boolean isPluginNotification(Notification notification) {
@@ -223,52 +244,28 @@ public class NotificationHandler {
         } else {
             builder.setSmallIcon(context.getApplicationInfo().icon);
         }
-//        if (!DRAW_NOTIFICATION) {
-//            //只是显示个简单通知栏
-//            ApplicationInfo applicationInfo = null;
-//            try {
-//                applicationInfo = VirtualCore.getCore().getPackageManager().getApplicationInfo(packageName, 0);
-//            } catch (PackageManager.NameNotFoundException e) {
-//            }
-//            if (applicationInfo != null) {
-//                Drawable icon = VirtualCore.getCore().getPackageManager().getApplicationIcon(applicationInfo);
-//                CharSequence title = VirtualCore.getCore().getPackageManager().getApplicationLabel(applicationInfo);
-//                if (icon instanceof BitmapDrawable) {
-//                    builder.setLargeIcon(((BitmapDrawable) icon).getBitmap());
-//                }
-//                builder.setContentTitle(title);
-//            }
-//        } else {
-
-        RemoteViews contentView;
+//        builder.setSmallIcon(context.getApplicationInfo().icon);
+        NotificationCompat notificationCompat = new NotificationCompat(inflationContext, mNotificationActionCompat, notification);
+        RemoteViews contentView = notificationCompat.getRemoteViews();
         //大通知栏
-        boolean isBig;
-        if (notification.contentView != null) {
-            isBig = false;
-            contentView = notification.contentView;
-        } else {
-            isBig = true;
-            if (Build.VERSION.SDK_INT >= 16) {
-                contentView = notification.bigContentView;
-            } else {
-                contentView = null;
-            }
+        boolean isBig = notificationCompat.isBigRemoteViews();
+        if (contentView == null) {
+            return null;
         }
 
-
-        //双开模式下,直接调用原来的
-        AppInfo appInfo = VirtualCore.getCore().findApp(packageName);
-
-        if (appInfo != null && appInfo.isInstalled() && contentView != null) {
-            try {
-                ApplicationInfo applicationInfo = VirtualCore.getCore().getUnHookPackageManager().getApplicationInfo(packageName, 0);
-                applicationInfo.packageName = VirtualCore.getCore().getHostPkg();
-                Reflect.on(contentView).set("mApplication", applicationInfo);
-                return notification;
-            } catch (Exception e) {
-                XLog.e(TAG, "error:" + e);
-            }
-        }
+//        //双开模式下,直接调用原来的
+//        AppInfo appInfo = VirtualCore.getCore().findApp(packageName);
+//
+//        if (appInfo != null && appInfo.isInstalled() && contentView != null) {
+//            try {
+//                ApplicationInfo applicationInfo = VirtualCore.getCore().getUnHookPackageManager().getApplicationInfo(packageName, 0);
+//                applicationInfo.packageName = VirtualCore.getCore().getHostPkg();
+//                Reflect.on(contentView).set("mApplication", applicationInfo);
+//                return notification;
+//            } catch (Exception e) {
+//                XLog.e(TAG, "error:" + e);
+//            }
+//        }
 
         Map<Integer, PendingIntent> clickIntents = getClickIntents(contentView);
         //如果就一个点击事件，没必要用复杂view
@@ -278,12 +275,9 @@ public class NotificationHandler {
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), layoutId);
         //绘制图
         Bitmap bmp = createBitmap(inflationContext, contentView, isBig);
-        //测试用代码
-//        Canvas canvas=new Canvas(bmp);
-//        Paint paint=new Paint();
-//        paint.setStyle(Paint.Style.FILL_AND_STROKE);
-//        paint.setColor(Color.RED);
-//        canvas.drawRect(0,0,50,50,paint);
+        if (bmp == null) {
+            Log.e("kk", "bmp is null,contentView=" + contentView);
+        }
         remoteViews.setImageViewBitmap(R.id.im_main, bmp);
         builder.setContent(remoteViews);
 //        }
@@ -292,7 +286,7 @@ public class NotificationHandler {
         builder.setDeleteIntent(notification.deleteIntent);
         builder.setFullScreenIntent(notification.fullScreenIntent,
                 (notification.flags & Notification.FLAG_HIGH_PRIORITY) != 0);
-
+        //icon
         Notification notification1;
         if (Build.VERSION.SDK_INT >= 16) {
             notification1 = builder.build();
@@ -307,6 +301,7 @@ public class NotificationHandler {
      * id和点击事件intent
      */
     private Map<Integer, PendingIntent> getClickIntents(RemoteViews remoteViews) {
+        if (remoteViews == null) return null;
         Object mActionsObj = Reflect.on(remoteViews).get("mActions");
         Map<Integer, PendingIntent> map = new HashMap<>();
         if (mActionsObj instanceof Collection) {
