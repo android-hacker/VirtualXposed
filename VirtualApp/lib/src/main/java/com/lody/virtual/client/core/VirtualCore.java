@@ -1,7 +1,6 @@
 package com.lody.virtual.client.core;
 
 import android.app.ActivityThread;
-import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -15,11 +14,9 @@ import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.os.Looper;
 import android.os.Messenger;
-import android.os.Process;
 import android.os.RemoteException;
 import android.text.TextUtils;
 
-import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.env.RuntimeEnv;
 import com.lody.virtual.client.local.LocalProcessManager;
@@ -59,7 +56,6 @@ public final class VirtualCore {
 	private ActivityThread mainThread;
 	private Context context;
 
-	private Application application;
 	private Object hostBindData;
 	/**
 	 * 主进程名
@@ -126,12 +122,9 @@ public final class VirtualCore {
 		return context;
 	}
 
-	public Application getApplication() {
-		return application;
-	}
 
 	public PackageManager getPackageManager() {
-		return application.getPackageManager();
+		return context.getPackageManager();
 	}
 
 	public String getHostPkg() {
@@ -178,7 +171,6 @@ public final class VirtualCore {
 			patchManager.checkEnv();
 			RuntimeEnv.init();
 			PatchManager.getInstance().fixContext(context);
-			startupInner();
 			isStartUp = true;
 		}
 	}
@@ -187,60 +179,26 @@ public final class VirtualCore {
 		return auth != null && hostProviderAuths.contains(auth);
 	}
 
-	public void handleApplication(Application application) {
-		this.application = application;
-		if (isVAppProcess()) {
-			String procName = LocalProcessManager.getAppProcessName(Process.myPid());
-			String pluginPkg = procName.split(":")[0];
-			AppInfo appInfo = VirtualCore.getCore().findApp(pluginPkg);
-			if (appInfo == null) {
-				throw new RuntimeException("Unable to find AppInfo :" + pluginPkg);
-			}
-			if (isVAppProcess()) {
-				AppSandBox.install(procName, appInfo);
-			}
-		}
-	}
 
 	public IAppManager getService() {
 		if (mService == null) {
 			synchronized (this) {
 				if (mService == null) {
 					mService = IAppManager.Stub
-							.asInterface(ServiceManagerNative.getService(ServiceManagerNative.PLUGIN_MANAGER));
+							.asInterface(ServiceManagerNative.getService(ServiceManagerNative.APP_MANAGER));
 				}
 			}
 		}
 		return mService;
 	}
 
-	private void startupInner() {
-		if (isVAppProcess()) {
-			// 在插件Application创建前伪装插件进程名
-			String plugProcName = LocalProcessManager.getMapAppProcessName(VirtualCore.getCore().getProcessName());
-			if (plugProcName == null) {
-				RuntimeEnv.exit();
-				return;
-			}
-			String pkg = plugProcName.split(":")[0];
-			AppInfo info = findApp(pkg);
-			if (info == null) {
-				RuntimeEnv.exit();
-				return;
-			}
-			ServiceManagerNative.startup(context);
-			// 插件进程要向服务端报告，进程初始化完毕
-			LocalProcessManager.onAppProcessCreate(VClientImpl.getClient().asBinder());
-			notifyOnEnterApp(pkg);
-		}
+
+	public void notifyOnEnterApp(String appPkg) {
+		LocalProcessManager.onEnterApp(appPkg);
 	}
 
-	public void notifyOnEnterApp(String pluginPkg) {
-		LocalProcessManager.onEnterApp(pluginPkg);
-	}
-
-	public void notifyOnEnterAppProcessName(String plugProcName) {
-		LocalProcessManager.onEnterAppProcessName(plugProcName);
+	public void notifyOnEnterAppProcessName(String appProcessName) {
+		LocalProcessManager.onEnterAppProcessName(appProcessName);
 	}
 
 	/**
@@ -448,7 +406,7 @@ public final class VirtualCore {
 
 	public boolean isOutsideInstalled(String packageName) {
 		try {
-			return unHookPackageManager.getPackageInfo(packageName, 0) != null;
+			return unHookPackageManager.getApplicationInfo(packageName, 0) != null;
 		} catch (PackageManager.NameNotFoundException e) {
 			// Ignore
 		}

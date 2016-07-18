@@ -11,9 +11,11 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.lody.virtual.client.core.AppSandBox;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.modifiers.ContextModifier;
 import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.utils.ComponentUtils;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -195,6 +197,7 @@ public class ServiceEnv {
 	}
 
 	private RunningServiceRecord createServiceRecord(AppInfo appInfo, ServiceInfo serviceInfo) throws Throwable {
+		AppSandBox.install(ComponentUtils.getProcessName(serviceInfo), serviceInfo.packageName);
 		RunningServiceRecord record = new RunningServiceRecord();
 		record.appInfo = appInfo;
 		record.serviceInfo = serviceInfo;

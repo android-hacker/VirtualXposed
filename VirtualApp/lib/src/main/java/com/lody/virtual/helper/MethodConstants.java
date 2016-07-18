@@ -10,4 +10,5 @@ public class MethodConstants {
 
     public static final String INIT_SERVICE = "VA|_initService_";
 
+    public static final String GET_SERVICE_RUNTIME = "VA|_getServiceRuntime_";
 }

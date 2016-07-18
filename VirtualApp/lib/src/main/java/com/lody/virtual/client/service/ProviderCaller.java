@@ -2,11 +2,17 @@ package com.lody.virtual.client.service;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.ComponentInfo;
+import android.content.pm.ProviderInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcelable;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.ExtraConstants;
+import com.lody.virtual.helper.utils.ComponentUtils;
 
 import java.io.Serializable;
 
@@ -20,6 +26,12 @@ public class ProviderCaller {
 		Uri uri = Uri.parse("content://" + auth);
 		ContentResolver contentResolver = context.getContentResolver();
 		return contentResolver.call(uri, methodName, arg, bundle);
+	}
+
+	public static void initProcess(ProviderInfo providerInfo, ComponentInfo componentInfo) {
+		new Builder(VirtualCore.getCore().getContext(), providerInfo.authority)
+				.addArg(ExtraConstants.EXTRA_PROCESS_NAME, ComponentUtils.getProcessName(componentInfo))
+				.addArg(ExtraConstants.EXTRA_PKG, componentInfo.packageName);
 	}
 
 	public static final class Builder {

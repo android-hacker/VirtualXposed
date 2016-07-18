@@ -15,10 +15,6 @@ interface IProcessManager {
 
     boolean isAppProcess(String processName);
 
-    void mapProcessName(String stubProcessName, String pluginProcessName);
-
-    String getMapAppProcessName(String stubProcessName);
-
     boolean isAppPID(int pid);
 
     String getAppProcessName(int pid);

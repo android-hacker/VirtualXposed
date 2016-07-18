@@ -29,4 +29,5 @@ public class ExtraConstants {
 	public static final String EXTRA_MESSENGER = "V.Extra.Messenger";
 
 	public static final String TYPE_INTENT_SENDER = "V.Type.IntentSender";
+	public static final java.lang.String EXTRA_PROCESS_NAME = "V.Extra.ProcessName";
 }
