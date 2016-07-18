@@ -16,6 +16,12 @@ allprojects {
     repositories {
         jcenter()
     }
+
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs.add('-Xbootclasspath/p:../android.jar')
+        }
+    }
 }
 
 task clean(type: Delete) {
