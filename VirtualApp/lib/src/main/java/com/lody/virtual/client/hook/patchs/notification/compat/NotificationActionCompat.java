@@ -10,6 +10,7 @@ import android.graphics.PixelFormat;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.lody.virtual.client.core.VirtualCore;
@@ -146,12 +147,9 @@ import java.util.Map;
                         Reflect.on(notification).set("mSmallIcon", newIcon);
                     }
                 }
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                android.graphics.drawable.Icon icon = notification.getLargeIcon();
-                if (icon != null) {
-                    Bitmap bitmap = drawableToBitMap(icon.loadDrawable(VirtualCore.getCore().getContext()));
+                android.graphics.drawable.Icon icon2 = notification.getLargeIcon();
+                if (icon2 != null) {
+                    Bitmap bitmap = drawableToBitMap(icon2.loadDrawable(VirtualCore.getCore().getContext()));
                     if (bitmap != null) {
                         android.graphics.drawable.Icon newIcon = android.graphics.drawable.Icon.createWithBitmap(bitmap);
                         Reflect.on(notification).set("mLargeIcon", newIcon);
@@ -218,25 +216,29 @@ import java.util.Map;
         }
     }
 
-    public void builderNotificationIcon(Notification notification) {
+    public void builderNotificationIcon(Notification notification, final int iconId, Resources resources) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-//            final int icon = notification.icon;
             notification.icon = VirtualCore.getCore().getContext().getApplicationInfo().icon;
             //貌似得等通知栏显示后才能修改
-//            try {
-//                int id = Reflect.on("com.android.internal.R$id").get("icon");
-//                Resources resources = VirtualCore.getCore().getResources(notification.contentView.getPackage());
-//                Bitmap bitmap = drawableToBitMap(resources.getDrawable(icon));
-//                if (notification.contentView != null) {
-//                    notification.contentView.setImageViewBitmap(id, bitmap);
-//                    Log.i("kk", "set icon ok:"+bitmap);
-//                }else if(Build.VERSION.SDK_INT>=16 && notification.bigContentView!=null){
-//                    notification.bigContentView.setImageViewBitmap(id, bitmap);
-//                    Log.i("kk", "set icon ok");
-//                }
-//            } catch (Exception e) {
-//                Log.e("kk", "icon", e);
-//            }
+            try {
+                int id = Reflect.on("com.android.internal.R$id").get("icon");
+                Bitmap bitmap = drawableToBitMap(resources.getDrawable(iconId));
+                if (notification.contentView != null) {
+                    notification.contentView.setImageViewBitmap(id, bitmap);
+                    Log.i("kk", "set icon ok:" + bitmap);
+                    if(Build.VERSION.SDK_INT>=19 && notification.extras!=null) {
+                        notification.extras.putBoolean("android.rebuild.contentView", false);
+                    }
+                } else if (Build.VERSION.SDK_INT >= 16 && notification.bigContentView != null) {
+                    notification.bigContentView.setImageViewBitmap(id, bitmap);
+                    if(Build.VERSION.SDK_INT>=19 && notification.extras!=null) {
+                        notification.extras.putBoolean("android.rebuild.contentView", false);
+                    }
+                    Log.i("kk", "set icon ok");
+                }
+            } catch (Exception e) {
+                Log.e("kk", "icon", e);
+            }
             return;
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
