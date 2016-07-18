@@ -18,7 +18,6 @@ import android.widget.RemoteViews;
 
 import com.lody.virtual.R;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.XLog;
 
@@ -107,7 +106,7 @@ public class NotificationHandler {
             if (args[i] instanceof Notification) {
                 Notification notification = (Notification) args[i];//nobug
                 final Context pluginContext = VirtualCore.getCore().getContext().createPackageContext(packageName, Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
-                args[i] = new NotificationCompat(pluginContext,mNotificationActionCompat, notification).getNotification();
+                args[i] = new NotificationCompat(pluginContext, mNotificationActionCompat, notification).getNotification();
                 break;
             }
         }
@@ -125,32 +124,30 @@ public class NotificationHandler {
         for (int i = 0; i < args.length; i++) {
             if (args[i] instanceof Notification) {
                 Notification notification = (Notification) args[i];//nobug
-                if (isPluginNotification(notification)) {
-                    //双开模式，icon还是va的
-                    if(VirtualCore.getCore().isOutsideInstalled(packageName))
-                    {
+                //双开模式，icon还是va的
+//                    if(VirtualCore.getCore().isOutsideInstalled(packageName))
+                {
 //                        //双开模式，貌似icon不太对
 //                        notification.icon = hostContext.getApplicationInfo().icon;
 //                        //23的icon
 //                        mNotificationActionCompat.builderNotificationIcon(notification, notification.icon, VirtualCore.getCore().getResources(packageName));
 //                        return 0;
 //                    }else {
-                        //    args[i] = replaceNotification(hostContext, packageName, notification);
-                        Notification notification1 = replaceNotification(hostContext, packageName, notification);
-                        if (mNotificationActionCompat.shouldBlock(notification)) {
+                    //    args[i] = replaceNotification(hostContext, packageName, notification);
+                    Notification notification1 = replaceNotification(hostContext, packageName, notification);
+                    if (mNotificationActionCompat.shouldBlock(notification)) {
 //                        //自定义布局通知栏
-                            args[i] = notification1;
-                            return 0;
-                        } else {
+                        args[i] = notification1;
+                        return 0;
+                    } else {
 //                        //这里要修改原生的通知，是否也和上面一样的处理？
-                            final int icon = notification.icon;
-                            if (notification1 != null) {
-                                args[i] = notification1;
-                            } else {
-                                mNotificationActionCompat.hackNotification(notification);
-                            }
-                            return icon;
+                        final int icon = notification.icon;
+                        if (notification1 != null) {
+                            args[i] = notification1;
+                        } else {
+                            mNotificationActionCompat.hackNotification(notification);
                         }
+                        return icon;
                     }
                 }
             }
@@ -256,20 +253,19 @@ public class NotificationHandler {
             return null;
         }
 
-
-        //双开模式下,直接调用原来的
-        AppInfo appInfo = VirtualCore.getCore().findApp(packageName);
-
-        if (appInfo != null && appInfo.isInstalled() && contentView != null) {
-            try {
-                ApplicationInfo applicationInfo = VirtualCore.getCore().getUnHookPackageManager().getApplicationInfo(packageName, 0);
-                applicationInfo.packageName = VirtualCore.getCore().getHostPkg();
-                Reflect.on(contentView).set("mApplication", applicationInfo);
-                return notification;
-            } catch (Exception e) {
-                XLog.e(TAG, "error:" + e);
-            }
-        }
+//        //双开模式下,直接调用原来的
+//        AppInfo appInfo = VirtualCore.getCore().findApp(packageName);
+//
+//        if (appInfo != null && appInfo.isInstalled() && contentView != null) {
+//            try {
+//                ApplicationInfo applicationInfo = VirtualCore.getCore().getUnHookPackageManager().getApplicationInfo(packageName, 0);
+//                applicationInfo.packageName = VirtualCore.getCore().getHostPkg();
+//                Reflect.on(contentView).set("mApplication", applicationInfo);
+//                return notification;
+//            } catch (Exception e) {
+//                XLog.e(TAG, "error:" + e);
+//            }
+//        }
 
         Map<Integer, PendingIntent> clickIntents = getClickIntents(contentView);
         //如果就一个点击事件，没必要用复杂view
