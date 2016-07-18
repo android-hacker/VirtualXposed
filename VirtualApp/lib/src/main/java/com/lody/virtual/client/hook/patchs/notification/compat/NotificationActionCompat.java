@@ -261,11 +261,11 @@ import java.util.Map;
         }
     }
 
-    public void builderNotificationIcon(Notification notification, Notification.Builder builder) {
+    public void builderNotificationIcon(Context context,Notification notification, Notification.Builder builder) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
         android.graphics.drawable.Icon icon = notification.getSmallIcon();
         if (icon != null) {
-            Bitmap bitmap = drawableToBitMap(icon.loadDrawable(VirtualCore.getCore().getContext()));
+            Bitmap bitmap = drawableToBitMap(icon.loadDrawable(context));
             if (bitmap != null) {
                 android.graphics.drawable.Icon newIcon = android.graphics.drawable.Icon.createWithBitmap(bitmap);
                 builder.setSmallIcon(newIcon);
@@ -273,7 +273,7 @@ import java.util.Map;
         }
         android.graphics.drawable.Icon icon2 = notification.getLargeIcon();
         if (icon2 != null) {
-            Bitmap bitmap = drawableToBitMap(icon2.loadDrawable(VirtualCore.getCore().getContext()));
+            Bitmap bitmap = drawableToBitMap(icon2.loadDrawable(context));
             if (bitmap != null) {
                 android.graphics.drawable.Icon newIcon = android.graphics.drawable.Icon.createWithBitmap(bitmap);
                 builder.setLargeIcon(newIcon);

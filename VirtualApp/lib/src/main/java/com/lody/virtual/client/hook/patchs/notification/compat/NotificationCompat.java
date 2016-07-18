@@ -4,8 +4,12 @@ import android.app.Notification;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.RemoteViews;
+import android.widget.TextView;
 
+import com.lody.virtual.helper.utils.OSUtils;
 import com.lody.virtual.helper.utils.Reflect;
 
 /**
@@ -17,12 +21,82 @@ public class NotificationCompat {
     RemoteViews mRemoteViews;
     boolean mBig;
     int iconId;
+    int mColor;
+    float mSize;
     Notification mNotification;
+    boolean mDateTime;
+    int paddingRight;
+
     public NotificationCompat(Context context, NotificationActionCompat notificationActionCompat, Notification notification) {
         this.context = context;
         this.iconId = notification.icon;
         this.mNotification = deal(notification, true);
         notificationActionCompat.builderNotificationIcon(mNotification, android.R.drawable.sym_def_app_icon, context.getResources());
+        findText();
+    }
+
+    public boolean hasDateTime() {
+        return mDateTime;
+    }
+
+    private void findText() {
+        RemoteViews remoteViews = getRemoteViews();
+        if (remoteViews == null) return;
+        View view = remoteViews.apply(context, null);
+        View v = view.findViewById(com.android.internal.R.id.time);
+        if (v == null) {
+            v = view.findViewById(com.android.internal.R.id.info);
+        } else {
+            mDateTime = true;
+        }
+        if (v != null && v instanceof TextView) {
+            TextView tv = (TextView) v;
+            mColor = tv.getCurrentTextColor();
+            mSize = tv.getTextSize();
+            paddingRight = tv.getPaddingRight();
+        } else {
+            TextView tv = findTextView(view);
+            if (tv != null) {
+                mColor = tv.getCurrentTextColor();
+                mSize = tv.getTextSize();
+                paddingRight = tv.getPaddingRight();
+            }
+        }
+        //
+        if (OSUtils.isMIUI()) {
+            mDateTime = true;
+        }
+    }
+
+    public int getPaddingRight() {
+        return paddingRight;
+    }
+
+    public int getColor() {
+        return mColor;
+    }
+
+    public float getSize() {
+        return mSize;
+    }
+
+    private TextView findTextView(View view) {
+        if (view instanceof ViewGroup) {
+            ViewGroup viewGroup = (ViewGroup) view;
+            int count = viewGroup.getChildCount();
+            for (int i = count - 1; i >= 0; i--) {
+                View v = viewGroup.getChildAt(i);
+                if (v instanceof TextView) {
+                    return (TextView) v;
+                } else if (v instanceof ViewGroup) {
+                    TextView tv = findTextView(v);
+                    if (tv != null) {
+                        return tv;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     public Notification getNotification() {

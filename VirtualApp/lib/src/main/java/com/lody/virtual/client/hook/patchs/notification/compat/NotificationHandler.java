@@ -3,13 +3,14 @@ package com.lody.virtual.client.hook.patchs.notification.compat;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
@@ -37,7 +38,7 @@ public class NotificationHandler {
     private int notification_padding;
     private final NotificationLayoutCompat mNotificationLayoutCompat;
     private final NotificationActionCompat mNotificationActionCompat;
-    private static final String TAG = NotificationHandler.class.getName();
+    private static final String TAG = NotificationHandler.class.getSimpleName();
 
     private void init(Context context) {
         mNotificationActionCompat.init(context);
@@ -124,30 +125,37 @@ public class NotificationHandler {
         for (int i = 0; i < args.length; i++) {
             if (args[i] instanceof Notification) {
                 Notification notification = (Notification) args[i];//nobug
-                //双开模式，icon还是va的
+                if (isPluginNotification(notification)) {
+                    //双开模式，icon还是va的
 //                    if(VirtualCore.getCore().isOutsideInstalled(packageName))
-                {
+                    {
 //                        //双开模式，貌似icon不太对
 //                        notification.icon = hostContext.getApplicationInfo().icon;
 //                        //23的icon
 //                        mNotificationActionCompat.builderNotificationIcon(notification, notification.icon, VirtualCore.getCore().getResources(packageName));
 //                        return 0;
 //                    }else {
-                    //    args[i] = replaceNotification(hostContext, packageName, notification);
-                    Notification notification1 = replaceNotification(hostContext, packageName, notification);
-                    if (mNotificationActionCompat.shouldBlock(notification)) {
+                        //    args[i] = replaceNotification(hostContext, packageName, notification);
+
+                        if (mNotificationActionCompat.shouldBlock(notification)) {
 //                        //自定义布局通知栏
-                        args[i] = notification1;
-                        return 0;
-                    } else {
-//                        //这里要修改原生的通知，是否也和上面一样的处理？
-                        final int icon = notification.icon;
-                        if (notification1 != null) {
+                            Notification notification1 = replaceNotification(hostContext, packageName, notification, false);
+                            if (notification1 == null) {
+                                return -1;
+                            }
                             args[i] = notification1;
+                            return 0;
                         } else {
-                            mNotificationActionCompat.hackNotification(notification);
+//                        //这里要修改原生的通知，是否也和上面一样的处理？
+                            final int icon = notification.icon;
+                            Notification notification1 = replaceNotification(hostContext, packageName, notification, true);
+                            if (notification1 != null) {
+                                args[i] = notification1;
+                            } else {
+                                mNotificationActionCompat.hackNotification(notification);
+                            }
+                            return icon;
                         }
-                        return icon;
                     }
                 }
             }
@@ -233,26 +241,25 @@ public class NotificationHandler {
         return false;
     }
 
-    private Notification replaceNotification(Context context, String packageName, Notification notification) throws PackageManager.NameNotFoundException {
-        final Context pluginContext = VirtualCore.getCore().getContext().createPackageContext(packageName, Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
-        Context inflationContext = new ContextWrapperCompat(context, pluginContext);
+    private Notification replaceNotification(Context context, String packageName, Notification notification, boolean systemId) throws PackageManager.NameNotFoundException {
+        final Context pluginContext = context.createPackageContext(packageName, Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
         //build
         Notification.Builder builder = new Notification.Builder(context);
         //icon
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            mNotificationActionCompat.builderNotificationIcon(notification, builder);
+            builder.setSmallIcon(context.getApplicationInfo().icon);
+            mNotificationActionCompat.builderNotificationIcon(pluginContext, notification, builder);
         } else {
             builder.setSmallIcon(context.getApplicationInfo().icon);
         }
 //        builder.setSmallIcon(context.getApplicationInfo().icon);
-        NotificationCompat notificationCompat = new NotificationCompat(inflationContext, mNotificationActionCompat, notification);
+        NotificationCompat notificationCompat = new NotificationCompat(pluginContext, mNotificationActionCompat, notification);
         RemoteViews contentView = notificationCompat.getRemoteViews();
         //大通知栏
         boolean isBig = notificationCompat.isBigRemoteViews();
         if (contentView == null) {
             return null;
         }
-
 //        //双开模式下,直接调用原来的
 //        AppInfo appInfo = VirtualCore.getCore().findApp(packageName);
 //
@@ -269,12 +276,39 @@ public class NotificationHandler {
 
         Map<Integer, PendingIntent> clickIntents = getClickIntents(contentView);
         //如果就一个点击事件，没必要用复杂view
-        int layoutId = (clickIntents == null || clickIntents.size() == 0) ?
-                R.layout.custom_notification_lite :
-                R.layout.custom_notification;
+        final int layoutId;
+        if (systemId) {
+            layoutId = R.layout.custom_notification_lite_datetime;
+        } else if (clickIntents == null || clickIntents.size() == 0) {
+            layoutId = R.layout.custom_notification_lite;
+        } else {
+            layoutId = R.layout.custom_notification;
+        }
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), layoutId);
+        if (systemId) {
+            if (notificationCompat.hasDateTime()) {
+                int color = notificationCompat.getColor();
+                float size = notificationCompat.getSize();
+                if (color != 0) {
+                    remoteViews.setTextColor(R.id.time, color);
+                } else {
+                    remoteViews.setTextColor(R.id.time, Color.GREEN);
+                }
+                if (Build.VERSION.SDK_INT >= 16) {
+                    if (size > 0) {
+                        remoteViews.setTextViewTextSize(R.id.time, TypedValue.COMPLEX_UNIT_PX, size);
+                    }
+                    if(notificationCompat.getPaddingRight()>0){
+                        remoteViews.setViewPadding(R.id.time, 0,0,notificationCompat.getPaddingRight(),0);
+                    }
+                }
+                remoteViews.setLong(R.id.time, "setTime", notification.when);
+            } else {
+                remoteViews.setViewVisibility(R.id.time, View.INVISIBLE);
+            }
+        }
         //绘制图
-        Bitmap bmp = createBitmap(inflationContext, contentView, isBig);
+        Bitmap bmp = createBitmap(pluginContext, contentView, isBig, systemId);
         if (bmp == null) {
             Log.e("kk", "bmp is null,contentView=" + contentView);
         }
@@ -322,7 +356,7 @@ public class NotificationHandler {
         return map;
     }
 
-    private Bitmap createBitmap(final Context context, RemoteViews remoteViews, boolean isBig) {
+    private Bitmap createBitmap(final Context context, RemoteViews remoteViews, boolean isBig, boolean systemId) {
         if (remoteViews == null) return null;
         //notification_min_height 64
         //notification_max_height 256
@@ -333,23 +367,20 @@ public class NotificationHandler {
         //notification_side_padding 8
         //notification_padding 4
         //TODO 需要适配
-        int sp = (Build.VERSION.SDK_INT >= 21) ? notification_side_padding : 0;// + notification_padding);
         int height = isBig ? notification_max_height : notification_min_height;
-        int width = mNotificationLayoutCompat.getNotificationWidth(context, notification_panel_width - sp * 2, height);
+        int width = mNotificationLayoutCompat.getNotificationWidth(context, notification_panel_width, height, notification_side_padding);
         ViewGroup frameLayout = new FrameLayout(context);
-        View view1 = remoteViews.apply(context, frameLayout, new RemoteViews.OnClickHandler() {
-            @Override
-            public boolean onClickHandler(View view, PendingIntent pendingIntent, Intent fillInIntent) {
-                //点击事件得另外处理，采用天气通的区域点击
-                XLog.i(TAG, "click=" + pendingIntent.getIntent());
-                return super.onClickHandler(view, pendingIntent, fillInIntent);
-            }
-        });
-        XLog.i(TAG, "sp=" + sp + ",w=" + width + ",h=" + height);
+        View view1 = remoteViews.apply(context, frameLayout);
+        XLog.i(TAG, "sp=" + notification_side_padding + ",w=" + width + ",h=" + height);
         Bitmap bmp;
         View mCache;
         if (Build.VERSION.SDK_INT >= 23) {
-            mCache = view1;
+            if (!systemId) {
+                mCache = view1;
+            } else {
+                mCache = frameLayout;
+                frameLayout.addView(view1);
+            }
         } else {
             mCache = frameLayout;
             frameLayout.addView(view1);
@@ -357,11 +388,11 @@ public class NotificationHandler {
         mCache.setDrawingCacheEnabled(true);
         mCache.buildDrawingCache(true);
         if (!isBig) {
-            frameLayout.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST));
-            frameLayout.layout(0, 0, width, height);
+            mCache.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST));
+            mCache.layout(0, 0, width, height);
         } else {
-            frameLayout.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST));
-            frameLayout.layout(0, 0, width, height);
+            mCache.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST));
+            mCache.layout(0, 0, width, height);
         }
         bmp = mCache.getDrawingCache();
         return bmp;
