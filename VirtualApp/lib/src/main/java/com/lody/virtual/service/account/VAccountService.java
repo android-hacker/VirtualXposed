@@ -79,10 +79,10 @@ import java.util.concurrent.atomic.AtomicReference;
  *    AccountManager accountManager = AccountManager.get(context);
  * @hide
  */
-public class AccountManagerService
+public class VAccountService
         extends IAccountManager.Stub
         implements RegisteredServicesCacheListener<AuthenticatorDescription> {
-    private static final String TAG = "AccountManagerService";
+    private static final String TAG = "VAccountService";
 
     private static final int TIMEOUT_DELAY_MS = 1000 * 60;
     private static final String DATABASE_NAME = "accounts.db";
@@ -98,7 +98,7 @@ public class AccountManagerService
     // Messages that can be sent on mHandler
     private static final int MESSAGE_TIMED_OUT = 3;
 
-    private final AccountAuthenticatorCache mAuthenticatorCache;
+    private final IAccountAuthenticatorCache mAuthenticatorCache;
     private final DatabaseHelper mOpenHelper;
 
     private static final String TABLE_ACCOUNTS = "accounts";
@@ -158,8 +158,8 @@ public class AccountManagerService
             new HashMap<Pair<Pair<Account, String>, Integer>, Integer>();
     private final HashMap<Account, Integer> mSigninRequiredNotificationIds =
             new HashMap<Account, Integer>();
-    private static AtomicReference<AccountManagerService> sThis =
-            new AtomicReference<AccountManagerService>();
+    private static AtomicReference<VAccountService> sThis =
+            new AtomicReference<VAccountService>();
 
     private static final Account[] EMPTY_ACCOUNT_ARRAY = new Account[]{};
 
@@ -181,22 +181,22 @@ public class AccountManagerService
     /**
      * This should only be called by system code. One should only call this after the service
      * has started.
-     * @return a reference to the AccountManagerService instance
+     * @return a reference to the VAccountService instance
      */
-    public static AccountManagerService getSingleton() {
+    public static VAccountService getSingleton() {
         return sThis.get();
     }
 
     public static void systemReady(Context context) {
-        new AccountManagerService(context);
+        new VAccountService(context);
     }
 
-    public AccountManagerService(Context context) {
+    public VAccountService(Context context) {
         this(context, context.getPackageManager(), new AccountAuthenticatorCache(context));
     }
 
-    public AccountManagerService(Context context, PackageManager packageManager,
-            AccountAuthenticatorCache authenticatorCache) {
+    public VAccountService(Context context, PackageManager packageManager,
+                           AccountAuthenticatorCache authenticatorCache) {
         mContext = context;
         mPackageManager = packageManager;
 
@@ -204,7 +204,7 @@ public class AccountManagerService
             mOpenHelper = new DatabaseHelper(mContext);
         }
 
-        mMessageThread = new HandlerThread("AccountManagerService");
+        mMessageThread = new HandlerThread("VAccountService");
         mMessageThread.start();
         mMessageHandler = new MessageHandler(mMessageThread.getLooper());
 
@@ -373,12 +373,12 @@ public class AccountManagerService
         }
         long identityToken = clearCallingIdentity();
         try {
-            Collection<com.lody.virtual.service.account.RegisteredServicesCache.ServiceInfo<AuthenticatorDescription>>
+            Collection<RegisteredServicesCache.ServiceInfo<AuthenticatorDescription>>
                     authenticatorCollection = mAuthenticatorCache.getAllServices();
             AuthenticatorDescription[] types =
                     new AuthenticatorDescription[authenticatorCollection.size()];
             int i = 0;
-            for (com.lody.virtual.service.account.RegisteredServicesCache.ServiceInfo<AuthenticatorDescription> authenticator
+            for (RegisteredServicesCache.ServiceInfo<AuthenticatorDescription> authenticator
                     : authenticatorCollection) {
                 types[i] = authenticator.type;
                 i++;
@@ -929,7 +929,7 @@ public class AccountManagerService
         if (account == null) throw new IllegalArgumentException("account is null");
         if (authTokenType == null) throw new IllegalArgumentException("authTokenType is null");
         checkBinderPermission(Manifest.permission.USE_CREDENTIALS);
-        com.lody.virtual.service.account.RegisteredServicesCache.ServiceInfo<AuthenticatorDescription> authenticatorInfo =
+        RegisteredServicesCache.ServiceInfo<AuthenticatorDescription> authenticatorInfo =
             mAuthenticatorCache.getServiceInfo(
                     AuthenticatorDescription.newKey(account.type));
         final boolean customTokens =
@@ -948,7 +948,7 @@ public class AccountManagerService
         if (notifyOnAuthFailure) {
             loginOptions.putBoolean(AccountManager.KEY_NOTIFY_ON_FAILURE, true);
         }
-        
+
         long identityToken = clearCallingIdentity();
         try {
             // if the caller has permission, do the peek. otherwise go the more expensive
@@ -1046,7 +1046,7 @@ public class AccountManagerService
         String subtitle = "";
         if (index > 0) {
             title = titleAndSubtitle.substring(0, index);
-            subtitle = titleAndSubtitle.substring(index + 1);            
+            subtitle = titleAndSubtitle.substring(index + 1);
         }
         n.setLatestEventInfo(mContext,
                 title, subtitle,
@@ -1055,7 +1055,7 @@ public class AccountManagerService
     }
 
     String getAccountLabel(String accountType) {
-        com.lody.virtual.service.account.RegisteredServicesCache.ServiceInfo<AuthenticatorDescription> serviceInfo =
+        RegisteredServicesCache.ServiceInfo<AuthenticatorDescription> serviceInfo =
             mAuthenticatorCache.getServiceInfo(
                     AuthenticatorDescription.newKey(accountType));
         if (serviceInfo == null) {
@@ -1655,7 +1655,7 @@ public class AccountManagerService
          * if no authenticator or the bind fails then return false, otherwise return true
          */
         private boolean bindToAuthenticator(String authenticatorType) {
-            com.lody.virtual.service.account.RegisteredServicesCache.ServiceInfo<AuthenticatorDescription> authenticatorInfo =
+            RegisteredServicesCache.ServiceInfo<AuthenticatorDescription> authenticatorInfo =
                     mAuthenticatorCache.getServiceInfo(
                             AuthenticatorDescription.newKey(authenticatorType));
             if (authenticatorInfo == null) {
@@ -1713,7 +1713,7 @@ public class AccountManagerService
     private class DatabaseHelper extends SQLiteOpenHelper {
 
         public DatabaseHelper(Context context) {
-            super(context, AccountManagerService.getDatabaseName(mContext), null, DATABASE_VERSION);
+            super(context, VAccountService.getDatabaseName(mContext), null, DATABASE_VERSION);
         }
 
         /**
@@ -1985,7 +1985,7 @@ public class AccountManagerService
     }
 
     private boolean hasAuthenticatorUid(String accountType, int callingUid) {
-        for (com.lody.virtual.service.account.RegisteredServicesCache.ServiceInfo<AuthenticatorDescription> serviceInfo :
+        for (RegisteredServicesCache.ServiceInfo<AuthenticatorDescription> serviceInfo :
                 mAuthenticatorCache.getAllServices()) {
             if (serviceInfo.type.type.equals(accountType)) {
                 return (serviceInfo.uid == callingUid) ||
@@ -2059,7 +2059,7 @@ public class AccountManagerService
     /**
      * Allow callers with the given uid permission to get credentials for account/authTokenType.
      * <p>
-     * Although this is public it can only be accessed via the AccountManagerService object
+     * Although this is public it can only be accessed via the VAccountService object
      * which is in the system. This means we don't need to protect it with permissions.
      * @hide
      */
@@ -2092,7 +2092,7 @@ public class AccountManagerService
      * Don't allow callers with the given uid permission to get credentials for
      * account/authTokenType.
      * <p>
-     * Although this is public it can only be accessed via the AccountManagerService object
+     * Although this is public it can only be accessed via the VAccountService object
      * which is in the system. This means we don't need to protect it with permissions.
      * @hide
      */

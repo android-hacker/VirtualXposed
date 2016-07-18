@@ -35,6 +35,11 @@ import java.util.List;
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 
+		if (isServiceProcess()) {
+			return LocalPackageManager.getInstance().queryIntentServices((Intent) args[0],
+					(String) args[1], (Integer) args[2]);
+		}
+
 		List<ResolveInfo> result = (List<ResolveInfo>) method.invoke(who, args);
 		List<ResolveInfo> pluginResult = LocalPackageManager.getInstance().queryIntentServices((Intent) args[0],
 				(String) args[1], (Integer) args[2]);

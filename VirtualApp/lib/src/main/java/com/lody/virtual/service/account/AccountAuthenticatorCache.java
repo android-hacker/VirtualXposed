@@ -24,7 +24,7 @@ import java.io.IOException;
  * are made available via the {@link RegisteredServicesCache#getServiceInfo} method.
  */
 /* package private */ class AccountAuthenticatorCache
-        extends RegisteredServicesCache<AuthenticatorDescription> {
+        extends RegisteredServicesCache<AuthenticatorDescription> implements IAccountAuthenticatorCache {
     private static final String TAG = "Account";
     private static final MySerializer sSerializer = new MySerializer();
 
@@ -72,4 +72,5 @@ import java.io.IOException;
             return AuthenticatorDescription.newKey(parser.getAttributeValue(null, "type"));
         }
     }
+
 }
