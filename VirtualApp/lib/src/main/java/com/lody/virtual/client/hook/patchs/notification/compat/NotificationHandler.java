@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.View.MeasureSpec;
@@ -39,6 +38,8 @@ public class NotificationHandler {
     private final NotificationLayoutCompat mNotificationLayoutCompat;
     private final NotificationActionCompat mNotificationActionCompat;
     private static final String TAG = NotificationHandler.class.getSimpleName();
+    /** 预编译 双开不处理 */
+    private static final boolean DOPEN_NOT_DEAL = false;
 
     private void init(Context context) {
         mNotificationActionCompat.init(context);
@@ -99,7 +100,7 @@ public class NotificationHandler {
                 }
             }
         }
-        Log.w("kk", "get my 2");
+        XLog.w(TAG, "use my dimen:" + name);
         return defId == 0 ? 0 : Math.round(context.getResources().getDimension(defId));
     }
 
@@ -128,35 +129,33 @@ public class NotificationHandler {
                 Notification notification = (Notification) args[i];//nobug
                 if (isPluginNotification(notification)) {
                     //双开模式，icon还是va的
-//                    if(VirtualCore.getCore().isOutsideInstalled(packageName))
-                    {
-//                        //双开模式，貌似icon不太对
-//                        notification.icon = hostContext.getApplicationInfo().icon;
-//                        //23的icon
-//                        mNotificationActionCompat.builderNotificationIcon(notification, notification.icon, VirtualCore.getCore().getResources(packageName));
-//                        return 0;
-//                    }else {
-                        //    args[i] = replaceNotification(hostContext, packageName, notification);
-
-                        if (mNotificationActionCompat.shouldBlock(notification)) {
-//                        //自定义布局通知栏
-                            Notification notification1 = replaceNotification(hostContext, packageName, notification, false);
-                            if (notification1 == null) {
-                                return -1;
-                            }
-                            args[i] = notification1;
+                    if (DOPEN_NOT_DEAL) {
+                        if (VirtualCore.getCore().isOutsideInstalled(packageName)) {
+                            //替换状态栏icon
+                            notification.icon = hostContext.getApplicationInfo().icon;
+                            //绘制icon
+                            mNotificationActionCompat.builderNotificationIcon(notification, notification.icon, VirtualCore.getCore().getResources(packageName));
                             return 0;
-                        } else {
-//                        //这里要修改原生的通知，是否也和上面一样的处理？
-                            final int icon = notification.icon;
-                            Notification notification1 = replaceNotification(hostContext, packageName, notification, true);
-                            if (notification1 != null) {
-                                args[i] = notification1;
-                            } else {
-                                mNotificationActionCompat.hackNotification(notification);
-                            }
-                            return icon;
                         }
+                    }
+                    if (mNotificationActionCompat.shouldBlock(notification)) {
+//                        //自定义布局通知栏
+                        Notification notification1 = replaceNotification(hostContext, packageName, notification, false);
+                        if (notification1 == null) {
+                            return -1;
+                        }
+                        args[i] = notification1;
+                        return 0;
+                    } else {
+//                        //这里要修改原生的通知，是否也和上面一样的处理？
+                        final int icon = notification.icon;
+                        Notification notification1 = replaceNotification(hostContext, packageName, notification, true);
+                        if (notification1 != null) {
+                            args[i] = notification1;
+                        } else {
+                            mNotificationActionCompat.hackNotification(notification);
+                        }
+                        return icon;
                     }
                 }
             }
@@ -260,14 +259,8 @@ public class NotificationHandler {
         final Context pluginContext = context.createPackageContext(packageName, Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
         //build
         Notification.Builder builder = new Notification.Builder(context);
-        //icon
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            builder.setSmallIcon(context.getApplicationInfo().icon);
-            mNotificationActionCompat.builderNotificationIcon(pluginContext, notification, builder);
-        } else {
-            builder.setSmallIcon(context.getApplicationInfo().icon);
-        }
-//        builder.setSmallIcon(context.getApplicationInfo().icon);
+        //插件的icon，绘制完成再替换成自己的
+        mNotificationActionCompat.builderNotificationIcon(pluginContext, notification, builder);
         NotificationCompat notificationCompat = new NotificationCompat(pluginContext, mNotificationActionCompat, notification);
         RemoteViews contentView = notificationCompat.getRemoteViews();
         //大通知栏
@@ -325,11 +318,14 @@ public class NotificationHandler {
         //绘制图
         Bitmap bmp = createBitmap(pluginContext, contentView, isBig, systemId);
         if (bmp == null) {
-            Log.e("kk", "bmp is null,contentView=" + contentView);
+            XLog.e(TAG, "bmp is null,contentView=" + contentView);
         }
         remoteViews.setImageViewBitmap(R.id.im_main, bmp);
         builder.setContent(remoteViews);
-//        }
+        //icon
+        if (Build.VERSION.SDK_INT < 23) {
+            builder.setSmallIcon(context.getApplicationInfo().icon);
+        }
         //com.android.internal.R.id.icon
         builder.setContentIntent(notification.contentIntent);
         builder.setDeleteIntent(notification.deleteIntent);

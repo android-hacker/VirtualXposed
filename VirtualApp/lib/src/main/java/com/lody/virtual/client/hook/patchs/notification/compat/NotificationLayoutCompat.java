@@ -15,7 +15,7 @@ import com.lody.virtual.helper.utils.OSUtils;
  * Created by 247321453 on 2016/7/17.
  */
 public class NotificationLayoutCompat {
-
+    private final static String TAG = NotificationLayoutCompat.class.getSimpleName();
     public int getNotificationWidth(Context context, int width, int height, int padding) {
 //TODO 适配各种rom
         int w = getWidth(width, padding);

@@ -11,11 +11,11 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.Reflect;
+import com.lody.virtual.helper.utils.XLog;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -31,27 +31,28 @@ import java.util.Map;
  */
 /*package*/ class NotificationActionCompat {
     private Map<Integer, String> sSystemLayoutResIds = new HashMap<Integer, String>(0);
+    private final static String TAG = NotificationActionCompat.class.getSimpleName();
 
     public boolean shouldBlock(Notification notification) {
         if (shouldBlockByRemoteViews(notification.contentView)) {
-//            Log.d("kk", "shouldBlock contentView:" + notification.contentView.getClass().getName());
+//            XLog.d(TAG, "shouldBlock contentView:" + notification.contentView.getClass().getName());
             return true;
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             if (shouldBlockByRemoteViews(notification.tickerView)) {
-//                Log.d("kk", "shouldBlock tickerView");
+//                XLog.d(TAG, "shouldBlock tickerView");
                 return true;
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             if (shouldBlockByRemoteViews(notification.bigContentView)) {
-//                Log.d("kk", "shouldBlock bigContentView");
+//                XLog.d(TAG, "shouldBlock bigContentView");
                 return true;
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (shouldBlockByRemoteViews(notification.headsUpContentView)) {
-//                Log.d("kk", "shouldBlock headsUpContentView");
+//                XLog.d(TAG, "shouldBlock headsUpContentView");
                 return true;
             }
         }
@@ -60,10 +61,10 @@ import java.util.Map;
 
     private boolean shouldBlockByRemoteViews(RemoteViews remoteViews) {
         if (remoteViews == null) {
-//            Log.d("kk", "shouldBlockByRemoteViews is null");
+//            XLog.d(TAG, "shouldBlockByRemoteViews is null");
             return false;
         } else if (sSystemLayoutResIds.containsKey(remoteViews.getLayoutId())) {
-//            Log.d("kk", "shouldBlockByRemoteViews is systemId");
+//            XLog.d(TAG, "shouldBlockByRemoteViews is systemId");
             return false;
         } else {
             return true;
@@ -161,7 +162,7 @@ import java.util.Map;
     }
 
     private void hackRemoteViews(RemoteViews remoteViews) throws IllegalAccessException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException {
-        if (remoteViews != null && !TextUtils.equals(getContext().getPackageName(), remoteViews.getPackage())){
+        if (remoteViews != null && !TextUtils.equals(getContext().getPackageName(), remoteViews.getPackage())) {
             Object mActionsObj = Reflect.on(remoteViews).get("mActions");
             if (mActionsObj instanceof Collection) {
                 Collection mActions = (Collection) mActionsObj;
@@ -226,7 +227,7 @@ import java.util.Map;
                 Bitmap bitmap = drawableToBitMap(resources.getDrawable(iconId));
                 if (notification.contentView != null) {
                     notification.contentView.setImageViewBitmap(id, bitmap);
-                    Log.i("kk", "set icon ok:" + bitmap);
+                    XLog.i(TAG, "set icon ok:" + bitmap);
                     if (Build.VERSION.SDK_INT >= 19 && notification.extras != null) {
                         notification.extras.putBoolean("android.rebuild.contentView", false);
                     }
@@ -235,10 +236,10 @@ import java.util.Map;
                     if (Build.VERSION.SDK_INT >= 19 && notification.extras != null) {
                         notification.extras.putBoolean("android.rebuild.contentView", false);
                     }
-                    Log.i("kk", "set icon ok");
+                    XLog.i(TAG, "set icon ok");
                 }
             } catch (Exception e) {
-                Log.e("kk", "icon", e);
+                XLog.e(TAG, "icon", e);
             }
             return;
         }
@@ -267,21 +268,25 @@ import java.util.Map;
     }
 
     public void builderNotificationIcon(Context context, Notification notification, Notification.Builder builder) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
-        android.graphics.drawable.Icon icon = notification.getSmallIcon();
-        if (icon != null) {
-            Bitmap bitmap = drawableToBitMap(icon.loadDrawable(context));
-            if (bitmap != null) {
-                android.graphics.drawable.Icon newIcon = android.graphics.drawable.Icon.createWithBitmap(bitmap);
-                builder.setSmallIcon(newIcon);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            builder.setSmallIcon(notification.icon);
+            builder.setLargeIcon(notification.largeIcon);
+        }else {
+            android.graphics.drawable.Icon icon = notification.getSmallIcon();
+            if (icon != null) {
+                Bitmap bitmap = drawableToBitMap(icon.loadDrawable(context));
+                if (bitmap != null) {
+                    android.graphics.drawable.Icon newIcon = android.graphics.drawable.Icon.createWithBitmap(bitmap);
+                    builder.setSmallIcon(newIcon);
+                }
             }
-        }
-        android.graphics.drawable.Icon icon2 = notification.getLargeIcon();
-        if (icon2 != null) {
-            Bitmap bitmap = drawableToBitMap(icon2.loadDrawable(context));
-            if (bitmap != null) {
-                android.graphics.drawable.Icon newIcon = android.graphics.drawable.Icon.createWithBitmap(bitmap);
-                builder.setLargeIcon(newIcon);
+            android.graphics.drawable.Icon icon2 = notification.getLargeIcon();
+            if (icon2 != null) {
+                Bitmap bitmap = drawableToBitMap(icon2.loadDrawable(context));
+                if (bitmap != null) {
+                    android.graphics.drawable.Icon newIcon = android.graphics.drawable.Icon.createWithBitmap(bitmap);
+                    builder.setLargeIcon(newIcon);
+                }
             }
         }
     }
