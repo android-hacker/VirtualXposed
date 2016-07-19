@@ -68,7 +68,7 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 
 	@Override
 	public void callActivityOnCreate(Activity activity, Bundle icicle) {
-		PatchManager.getInstance().fixContext(activity);
+		PatchManager.fixContext(activity);
 		String pkg = activity.getPackageName();
 		boolean isApp = VirtualCore.getCore().isAppInstalled(pkg);
 		if (isApp) {

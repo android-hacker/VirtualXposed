@@ -48,18 +48,25 @@ public class AppSandBox {
 	private static HashSet<String> installedApps = new HashSet<String>();
 	private static Map<String, Application> applicationMap = new HashMap<>();
 
+	private static String LAST_PKG;
+
 	private static boolean sInstalling = false;
 
 	public static Application getApplication(String pkg) {
 		return applicationMap.get(pkg);
 	}
 
+	public static String getLastPkg() {
+		return LAST_PKG;
+	}
 
 	public static void install(String procName, String pkg) {
 		sInstalling = true;
 		if (installedApps.contains(pkg)) {
 			return;
 		}
+		LAST_PKG = pkg;
+		PatchManager.fixAllSettings();
 		XLog.d(TAG, "Installing %s.", pkg);
 		LocalProcessManager.onAppProcessCreate(VClientImpl.getClient().asBinder());
 		AppInfo appInfo = VirtualCore.getCore().findApp(pkg);
@@ -183,9 +190,8 @@ public class AppSandBox {
 		XLog.d(TAG, "Application of Process(%s) have launched. ", RuntimeEnv.getCurrentProcessName());
 	}
 
-	public static boolean isInstalling() {
-		return sInstalling;
-	}
+
+
 
 	public static Context createAppContext(ApplicationInfo appInfo) {
 		Context context = VirtualCore.getCore().getContext();
