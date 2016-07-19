@@ -172,20 +172,20 @@ public class VServiceService extends IServiceManager.Stub {
 	public int bindService(IBinder caller, IBinder token, Intent service, String resolvedType,
 			IServiceConnection connection, int flags) {
 
+		int result = 0;
 		if (service == null || connection == null) {
-			return 0;
+			return result;
 		}
 		ServiceInfo serviceInfo = getServiceInfo(service);
 		if (serviceInfo == null) {
-			return 0;
+			return result;
 		}
 		ProviderInfo serviceEnv = VActivityService.getService().fetchServiceRuntime(serviceInfo);
 		if (serviceEnv != null) {
 			IServiceEnvironment environment = getServiceEnvironment(serviceInfo, serviceEnv);
 			if (environment == null) {
-				return 0;
+				return result;
 			}
-			int result = 0;
 			try {
 				result = environment.handleBindService(token, service, serviceInfo, connection);
 			} catch (RemoteException e) {
@@ -197,9 +197,8 @@ public class VServiceService extends IServiceManager.Stub {
 				serviceConnectionMap.put(connectionBinder,
 						new ServiceRecord(connectionBinder, serviceInfo, Binder.getCallingPid()));
 			}
-			return result;
 		}
-		return 0;
+		return result;
 	}
 
 	public void setServiceForeground(ComponentName componentName, IBinder token, int id, Notification notification,

@@ -1,5 +1,8 @@
 package com.lody.virtual.client.hook.patchs.am;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+
 import com.lody.virtual.client.hook.base.Hook;
 
 import java.lang.reflect.Method;
@@ -29,6 +32,15 @@ public class Hook_CheckPermission extends Hook<ActivityManagerPatch> {
 
     @Override
     public Object onHook(Object who, Method method, Object... args) throws Throwable {
+        String permission = (String) args[0];
+        if (Manifest.permission.ACCOUNT_MANAGER.equals(permission)) {
+            return PackageManager.PERMISSION_GRANTED;
+        }
         return method.invoke(who, args);
+    }
+
+    @Override
+    public boolean isEnable() {
+        return isAppProcess() || isServiceProcess();
     }
 }

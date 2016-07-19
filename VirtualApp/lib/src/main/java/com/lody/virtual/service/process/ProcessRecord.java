@@ -45,7 +45,7 @@ final class ProcessRecord {
 	/**
 	 * 运行在该进程的所有APK的包名
 	 */
-	Set<String> runningAppPkgs = new HashSet<String>();
+	final Set<String> runningAppPkgs = new HashSet<String>();
 
 	public synchronized void updateStubProc(int pid) {
 		try {
