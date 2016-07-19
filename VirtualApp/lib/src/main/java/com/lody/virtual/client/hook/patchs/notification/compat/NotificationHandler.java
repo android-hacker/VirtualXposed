@@ -325,7 +325,7 @@ public class NotificationHandler {
                     createView(context,remoteViews,isBig, false),
                     createView(pluginContext, contentView,isBig,false),
                     clickIntents)
-                    .set();
+                    .set(remoteViews);
         }
         //icon
         Notification notification1;
@@ -431,7 +431,7 @@ public class NotificationHandler {
         return mCache;
     }
 
-    private Bitmap createBitmap(final ContextWrapperCompat context, RemoteViews remoteViews, boolean isBig, boolean systemId) {
+    private Bitmap createBitmap(final Context context, RemoteViews remoteViews, boolean isBig, boolean systemId) {
         View mCache = createView(context, remoteViews, isBig, systemId);
         mCache.setDrawingCacheEnabled(true);
         mCache.buildDrawingCache();
