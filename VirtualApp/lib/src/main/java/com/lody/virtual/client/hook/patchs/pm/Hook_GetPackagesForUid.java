@@ -39,7 +39,6 @@ import java.util.List;
 		try {
 			List<String> pkgs = LocalProcessManager.getProcessPkgList(Process.myPid());
 			pluginPkgs.addAll(pkgs);
-			pluginPkgs.add("com.android.vending");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

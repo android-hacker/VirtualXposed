@@ -11,6 +11,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.os.Build;
+import android.os.Looper;
 import android.os.Message;
 import android.os.StrictMode;
 import android.renderscript.RenderScript;
@@ -37,6 +38,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author Lody
@@ -60,8 +62,31 @@ public class AppSandBox {
 		return LAST_PKG;
 	}
 
-	public static void install(String procName, String pkg) {
+	public static void install(final String procName, final String pkg) {
 		sInstalling = true;
+		if (Looper.myLooper() == Looper.getMainLooper()) {
+			installLocked(procName, pkg);
+		} else {
+			final CountDownLatch lock = new CountDownLatch(1);
+			RuntimeEnv.getUIHandler().post(new Runnable() {
+				@Override
+				public void run() {
+					installLocked(procName, pkg);
+					lock.countDown();
+				}
+			});
+			try {
+				lock.await();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+		}
+		sInstalling = false;
+		XLog.d(TAG, "Application of Process(%s) have launched. ", RuntimeEnv.getCurrentProcessName());
+	}
+
+	private static void installLocked(String procName, String pkg) {
 		if (installedApps.contains(pkg)) {
 			return;
 		}
@@ -186,11 +211,7 @@ public class AppSandBox {
 		LocalProcessManager.onEnterApp(pkg);
 		applicationMap.put(appInfo.packageName, app);
 		installedApps.add(appInfo.packageName);
-		sInstalling = false;
-		XLog.d(TAG, "Application of Process(%s) have launched. ", RuntimeEnv.getCurrentProcessName());
 	}
-
-
 
 
 	public static Context createAppContext(ApplicationInfo appInfo) {
