@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -279,6 +280,21 @@ public class VActivityService extends IActivityManager.Stub {
 		}
 
 		stack.trimTasks();
+	}
+
+	public ActivityInfo getCallingActivity(IBinder token) {
+		ActivityTaskRecord taskRecord = stack.findTask(token);
+		ListIterator<ActivityRecord> iterator = taskRecord.activityList.listIterator();
+		while (iterator.hasNext()) {
+			ActivityRecord r = iterator.next();
+			if (r.token == token) {
+				if (iterator.hasPrevious()) {
+					return r.activityInfo;
+				}
+				break;
+			}
+		}
+		return null;
 	}
 
 

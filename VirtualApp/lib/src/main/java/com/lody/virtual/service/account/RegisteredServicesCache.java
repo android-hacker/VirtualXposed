@@ -142,9 +142,7 @@ public abstract class RegisteredServicesCache<V> {
     }
 
     private void notifyListener(final V type, final boolean removed) {
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.d(TAG, "notifyListener: " + type + " is " + (removed ? "removed" : "added"));
-        }
+        Log.d(TAG, "notifyListener: " + type + " is " + (removed ? "removed" : "added"));
         RegisteredServicesCacheListener<V> listener;
         Handler handler; 
         synchronized (this) {
