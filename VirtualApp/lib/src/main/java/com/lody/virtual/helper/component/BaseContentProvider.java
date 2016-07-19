@@ -4,6 +4,7 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 
 /**
  * @author Lody
@@ -40,5 +41,10 @@ public abstract class BaseContentProvider extends ContentProvider {
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		return 0;
+	}
+
+	@Override
+	public Bundle call(String method, String arg, Bundle extras) {
+		return super.call(method, arg, extras);
 	}
 }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.os.Build;
 import android.os.ServiceManager;
+import android.provider.Settings;
 
 import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.delegate.AppInstrumentation;
@@ -172,7 +173,24 @@ public final class PatchManager {
 		}
 	}
 
-	public void fixContext(Context context) {
+
+	private static void fixSetting(Class<?> settingClass) {
+		try {
+			Reflect.on(settingClass)
+					.field("sNameValueCache")
+					.set("mContentProvider", null);
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void fixAllSettings() {
+		fixSetting(Settings.System.class);
+		fixSetting(Settings.Secure.class);
+		fixSetting(Settings.Global.class);
+	}
+
+	public static void fixContext(Context context) {
 		while (context instanceof ContextWrapper) {
 			context = ((ContextWrapper) context).getBaseContext();
 		}
