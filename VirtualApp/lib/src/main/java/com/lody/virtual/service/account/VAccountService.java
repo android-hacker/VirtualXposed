@@ -36,8 +36,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -165,7 +163,6 @@ public class VAccountService
 
     static {
         ACCOUNTS_CHANGED_INTENT = new Intent(AccountManager.LOGIN_ACCOUNTS_CHANGED_ACTION);
-        ACCOUNTS_CHANGED_INTENT.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY_BEFORE_BOOT);
     }
 
     private final Object mCacheLock = new Object();
@@ -310,11 +307,9 @@ public class VAccountService
     }
 
     public String getPassword(Account account) {
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "getPassword: " + account
-                    + ", caller's uid " + Binder.getCallingUid()
-                    + ", pid " + Binder.getCallingPid());
-        }
+        Log.v(TAG, "getPassword: " + account
+                + ", caller's uid " + Binder.getCallingUid()
+                + ", pid " + Binder.getCallingPid());
         if (account == null) throw new IllegalArgumentException("account is null");
         checkAuthenticateAccountsPermission(account);
 
@@ -348,12 +343,10 @@ public class VAccountService
     }
 
     public String getUserData(Account account, String key) {
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "getUserData: " + account
-                    + ", key " + key
-                    + ", caller's uid " + Binder.getCallingUid()
-                    + ", pid " + Binder.getCallingPid());
-        }
+        Log.v(TAG, "getUserData: " + account
+                + ", key " + key
+                + ", caller's uid " + Binder.getCallingUid()
+                + ", pid " + Binder.getCallingPid());
         if (account == null) throw new IllegalArgumentException("account is null");
         if (key == null) throw new IllegalArgumentException("key is null");
         checkAuthenticateAccountsPermission(account);
@@ -366,11 +359,9 @@ public class VAccountService
     }
 
     public AuthenticatorDescription[] getAuthenticatorTypes() {
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "getAuthenticatorTypes: "
-                    + "caller's uid " + Binder.getCallingUid()
-                    + ", pid " + Binder.getCallingPid());
-        }
+        Log.v(TAG, "getAuthenticatorTypes: "
+                + "caller's uid " + Binder.getCallingUid()
+                + ", pid " + Binder.getCallingPid());
         long identityToken = clearCallingIdentity();
         try {
             Collection<RegisteredServicesCache.ServiceInfo<AuthenticatorDescription>>
@@ -390,11 +381,9 @@ public class VAccountService
     }
 
     public boolean addAccount(Account account, String password, Bundle extras) {
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "addAccount: " + account
-                    + ", caller's uid " + Binder.getCallingUid()
-                    + ", pid " + Binder.getCallingPid());
-        }
+        Log.v(TAG, "addAccount: " + account
+                + ", caller's uid " + Binder.getCallingUid()
+                + ", pid " + Binder.getCallingPid());
         if (account == null) throw new IllegalArgumentException("account is null");
         checkAuthenticateAccountsPermission(account);
 
@@ -464,13 +453,11 @@ public class VAccountService
 
     public void hasFeatures(IAccountManagerResponse response,
             Account account, String[] features) {
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "hasFeatures: " + account
-                    + ", response " + response
-                    + ", features " + stringArrayToString(features)
-                    + ", caller's uid " + Binder.getCallingUid()
-                    + ", pid " + Binder.getCallingPid());
-        }
+        Log.v(TAG, "hasFeatures: " + account
+                + ", response " + response
+                + ", features " + stringArrayToString(features)
+                + ", caller's uid " + Binder.getCallingUid()
+                + ", pid " + Binder.getCallingPid());
         if (response == null) throw new IllegalArgumentException("response is null");
         if (account == null) throw new IllegalArgumentException("account is null");
         if (features == null) throw new IllegalArgumentException("features is null");
@@ -511,19 +498,15 @@ public class VAccountService
                         response.onError(AccountManager.ERROR_CODE_INVALID_RESPONSE, "null bundle");
                         return;
                     }
-                    if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                        Log.v(TAG, getClass().getSimpleName() + " calling onResult() on response "
-                                + response);
-                    }
+                    Log.v(TAG, getClass().getSimpleName() + " calling onResult() on response "
+                            + response);
                     final Bundle newResult = new Bundle();
                     newResult.putBoolean(AccountManager.KEY_BOOLEAN_RESULT,
                             result.getBoolean(AccountManager.KEY_BOOLEAN_RESULT, false));
                     response.onResult(newResult);
                 } catch (RemoteException e) {
                     // if the caller is dead then there is no one to care about remote exceptions
-                    if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                        Log.v(TAG, "failure while notifying response", e);
-                    }
+                    Log.v(TAG, "failure while notifying response", e);
                 }
             }
         }
@@ -536,12 +519,10 @@ public class VAccountService
     }
 
     public void removeAccount(IAccountManagerResponse response, Account account) {
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "removeAccount: " + account
-                    + ", response " + response
-                    + ", caller's uid " + Binder.getCallingUid()
-                    + ", pid " + Binder.getCallingPid());
-        }
+        Log.v(TAG, "removeAccount: " + account
+                + ", response " + response
+                + ", caller's uid " + Binder.getCallingUid()
+                + ", pid " + Binder.getCallingPid());
         if (response == null) throw new IllegalArgumentException("response is null");
         if (account == null) throw new IllegalArgumentException("account is null");
         checkManageAccountsPermission();
@@ -591,10 +572,8 @@ public class VAccountService
                 }
                 IAccountManagerResponse response = getResponseAndClose();
                 if (response != null) {
-                    if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                        Log.v(TAG, getClass().getSimpleName() + " calling onResult() on response "
-                                + response);
-                    }
+                    Log.v(TAG, getClass().getSimpleName() + " calling onResult() on response "
+                            + response);
                     Bundle result2 = new Bundle();
                     result2.putBoolean(AccountManager.KEY_BOOLEAN_RESULT, removalAllowed);
                     try {
@@ -619,11 +598,9 @@ public class VAccountService
     }
 
     public void invalidateAuthToken(String accountType, String authToken) {
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "invalidateAuthToken: accountType " + accountType
-                    + ", caller's uid " + Binder.getCallingUid()
-                    + ", pid " + Binder.getCallingPid());
-        }
+        Log.v(TAG, "invalidateAuthToken: accountType " + accountType
+                + ", caller's uid " + Binder.getCallingUid()
+                + ", pid " + Binder.getCallingPid());
         if (accountType == null) throw new IllegalArgumentException("accountType is null");
         if (authToken == null) throw new IllegalArgumentException("authToken is null");
         checkManageAccountsOrUseCredentialsPermissions();
@@ -706,12 +683,10 @@ public class VAccountService
     }
 
     public String peekAuthToken(Account account, String authTokenType) {
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "peekAuthToken: " + account
-                    + ", authTokenType " + authTokenType
-                    + ", caller's uid " + Binder.getCallingUid()
-                    + ", pid " + Binder.getCallingPid());
-        }
+        Log.v(TAG, "peekAuthToken: " + account
+                + ", authTokenType " + authTokenType
+                + ", caller's uid " + Binder.getCallingUid()
+                + ", pid " + Binder.getCallingPid());
         if (account == null) throw new IllegalArgumentException("account is null");
         if (authTokenType == null) throw new IllegalArgumentException("authTokenType is null");
         checkAuthenticateAccountsPermission(account);
@@ -724,12 +699,10 @@ public class VAccountService
     }
 
     public void setAuthToken(Account account, String authTokenType, String authToken) {
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "setAuthToken: " + account
-                    + ", authTokenType " + authTokenType
-                    + ", caller's uid " + Binder.getCallingUid()
-                    + ", pid " + Binder.getCallingPid());
-        }
+        Log.v(TAG, "setAuthToken: " + account
+                + ", authTokenType " + authTokenType
+                + ", caller's uid " + Binder.getCallingUid()
+                + ", pid " + Binder.getCallingPid());
         if (account == null) throw new IllegalArgumentException("account is null");
         if (authTokenType == null) throw new IllegalArgumentException("authTokenType is null");
         checkAuthenticateAccountsPermission(account);
@@ -742,11 +715,9 @@ public class VAccountService
     }
 
     public void setPassword(Account account, String password) {
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "setAuthToken: " + account
-                    + ", caller's uid " + Binder.getCallingUid()
-                    + ", pid " + Binder.getCallingPid());
-        }
+        Log.v(TAG, "setPassword: " + account
+                + ", caller's uid " + Binder.getCallingUid()
+                + ", pid " + Binder.getCallingPid());
         if (account == null) throw new IllegalArgumentException("account is null");
         checkAuthenticateAccountsPermission(account);
         long identityToken = clearCallingIdentity();
@@ -785,15 +756,13 @@ public class VAccountService
     private void sendAccountsChangedBroadcast() {
         Log.i(TAG, "the accounts changed, sending broadcast of "
                 + ACCOUNTS_CHANGED_INTENT.getAction());
-//        mContext.sendBroadcast(ACCOUNTS_CHANGED_INTENT);
+        mContext.sendBroadcast(ACCOUNTS_CHANGED_INTENT);
     }
 
     public void clearPassword(Account account) {
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "clearPassword: " + account
-                    + ", caller's uid " + Binder.getCallingUid()
-                    + ", pid " + Binder.getCallingPid());
-        }
+        Log.v(TAG, "clearPassword: " + account
+                + ", caller's uid " + Binder.getCallingUid()
+                + ", pid " + Binder.getCallingPid());
         if (account == null) throw new IllegalArgumentException("account is null");
         checkManageAccountsPermission();
         long identityToken = clearCallingIdentity();
@@ -805,12 +774,10 @@ public class VAccountService
     }
 
     public void setUserData(Account account, String key, String value) {
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "setUserData: " + account
-                    + ", key " + key
-                    + ", caller's uid " + Binder.getCallingUid()
-                    + ", pid " + Binder.getCallingPid());
-        }
+        Log.v(TAG, "setUserData: " + account
+                + ", key " + key
+                + ", caller's uid " + Binder.getCallingUid()
+                + ", pid " + Binder.getCallingPid());
         if (key == null) throw new IllegalArgumentException("key is null");
         if (account == null) throw new IllegalArgumentException("account is null");
         checkAuthenticateAccountsPermission(account);
@@ -860,35 +827,31 @@ public class VAccountService
         if (result == null) {
             Log.e(TAG, "the result is unexpectedly null", new Exception());
         }
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, getClass().getSimpleName() + " calling onResult() on response "
-                    + response);
-        }
+        Log.v(TAG, getClass().getSimpleName() + " calling onResult() on response "
+                + response);
         try {
             response.onResult(result);
         } catch (RemoteException e) {
             // if the caller is dead then there is no one to care about remote
             // exceptions
-            if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                Log.v(TAG, "failure while notifying response", e);
-            }
+            Log.v(TAG, "failure while notifying response", e);
         }
     }
 
-    void getAuthTokenLabel(final IAccountManagerResponse response,
-            final Account account, final String authTokenType) {
-        if (account == null) throw new IllegalArgumentException("account is null");
+    public void getAuthTokenLabel(IAccountManagerResponse response, final String accountType,
+                                  final String authTokenType)
+            throws RemoteException {
+        if (accountType == null) throw new IllegalArgumentException("accountType is null");
         if (authTokenType == null) throw new IllegalArgumentException("authTokenType is null");
 
-        checkBinderPermission(Manifest.permission.USE_CREDENTIALS);
-
+        clearCallingIdentity();
         long identityToken = clearCallingIdentity();
         try {
-            new Session(response, account.type, false,
+            new Session(response, accountType, false,
                     false /* stripAuthTokenFromResult */) {
                 protected String toDebugString(long now) {
                     return super.toDebugString(now) + ", getAuthTokenLabel"
-                            + ", " + account
+                            + ", " + accountType
                             + ", authTokenType " + authTokenType;
                 }
 
@@ -916,15 +879,13 @@ public class VAccountService
     public void getAuthToken(IAccountManagerResponse response, final Account account,
             final String authTokenType, final boolean notifyOnAuthFailure,
             final boolean expectActivityLaunch, Bundle loginOptionsIn) {
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "getAuthToken: " + account
-                    + ", response " + response
-                    + ", authTokenType " + authTokenType
-                    + ", notifyOnAuthFailure " + notifyOnAuthFailure
-                    + ", expectActivityLaunch " + expectActivityLaunch
-                    + ", caller's uid " + Binder.getCallingUid()
-                    + ", pid " + Binder.getCallingPid());
-        }
+        Log.v(TAG, "getAuthToken: " + account
+                + ", response " + response
+                + ", authTokenType " + authTokenType
+                + ", notifyOnAuthFailure " + notifyOnAuthFailure
+                + ", expectActivityLaunch " + expectActivityLaunch
+                + ", caller's uid " + Binder.getCallingUid()
+                + ", pid " + Binder.getCallingPid());
         if (response == null) throw new IllegalArgumentException("response is null");
         if (account == null) throw new IllegalArgumentException("account is null");
         if (authTokenType == null) throw new IllegalArgumentException("authTokenType is null");
@@ -968,7 +929,6 @@ public class VAccountService
             new Session(response, account.type, expectActivityLaunch,
                     false /* stripAuthTokenFromResult */) {
                 protected String toDebugString(long now) {
-                    if (loginOptions != null) loginOptions.keySet();
                     return super.toDebugString(now) + ", getAuthToken"
                             + ", " + account
                             + ", authTokenType " + authTokenType
@@ -1126,15 +1086,13 @@ public class VAccountService
     public void addAcount(final IAccountManagerResponse response, final String accountType,
                           final String authTokenType, final String[] requiredFeatures,
                           final boolean expectActivityLaunch, final Bundle optionsIn) {
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "addAccount: accountType " + accountType
-                    + ", response " + response
-                    + ", authTokenType " + authTokenType
-                    + ", requiredFeatures " + stringArrayToString(requiredFeatures)
-                    + ", expectActivityLaunch " + expectActivityLaunch
-                    + ", caller's uid " + Binder.getCallingUid()
-                    + ", pid " + Binder.getCallingPid());
-        }
+        Log.v(TAG, "addAccount: accountType " + accountType
+                + ", response " + response
+                + ", authTokenType " + authTokenType
+                + ", requiredFeatures " + stringArrayToString(requiredFeatures)
+                + ", expectActivityLaunch " + expectActivityLaunch
+                + ", caller's uid " + Binder.getCallingUid()
+                + ", pid " + Binder.getCallingPid());
         if (response == null) throw new IllegalArgumentException("response is null");
         if (accountType == null) throw new IllegalArgumentException("accountType is null");
         checkManageAccountsPermission();
@@ -1170,13 +1128,11 @@ public class VAccountService
 
     public void confirmCredentials(IAccountManagerResponse response,
             final Account account, final Bundle options, final boolean expectActivityLaunch) {
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "confirmCredentials: " + account
-                    + ", response " + response
-                    + ", expectActivityLaunch " + expectActivityLaunch
-                    + ", caller's uid " + Binder.getCallingUid()
-                    + ", pid " + Binder.getCallingPid());
-        }
+        Log.v(TAG, "confirmCredentials: " + account
+                + ", response " + response
+                + ", expectActivityLaunch " + expectActivityLaunch
+                + ", caller's uid " + Binder.getCallingUid()
+                + ", pid " + Binder.getCallingPid());
         if (response == null) throw new IllegalArgumentException("response is null");
         if (account == null) throw new IllegalArgumentException("account is null");
         checkManageAccountsPermission();
@@ -1200,14 +1156,12 @@ public class VAccountService
     public void updateCredentials(IAccountManagerResponse response, final Account account,
             final String authTokenType, final boolean expectActivityLaunch,
             final Bundle loginOptions) {
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "updateCredentials: " + account
-                    + ", response " + response
-                    + ", authTokenType " + authTokenType
-                    + ", expectActivityLaunch " + expectActivityLaunch
-                    + ", caller's uid " + Binder.getCallingUid()
-                    + ", pid " + Binder.getCallingPid());
-        }
+        Log.v(TAG, "updateCredentials: " + account
+                + ", response " + response
+                + ", authTokenType " + authTokenType
+                + ", expectActivityLaunch " + expectActivityLaunch
+                + ", caller's uid " + Binder.getCallingUid()
+                + ", pid " + Binder.getCallingPid());
         if (response == null) throw new IllegalArgumentException("response is null");
         if (account == null) throw new IllegalArgumentException("account is null");
         if (authTokenType == null) throw new IllegalArgumentException("authTokenType is null");
@@ -1234,13 +1188,11 @@ public class VAccountService
 
     public void editProperties(IAccountManagerResponse response, final String accountType,
             final boolean expectActivityLaunch) {
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "editProperties: accountType " + accountType
-                    + ", response " + response
-                    + ", expectActivityLaunch " + expectActivityLaunch
-                    + ", caller's uid " + Binder.getCallingUid()
-                    + ", pid " + Binder.getCallingPid());
-        }
+        Log.v(TAG, "editProperties: accountType " + accountType
+                + ", response " + response
+                + ", expectActivityLaunch " + expectActivityLaunch
+                + ", caller's uid " + Binder.getCallingUid()
+                + ", pid " + Binder.getCallingPid());
         if (response == null) throw new IllegalArgumentException("response is null");
         if (accountType == null) throw new IllegalArgumentException("accountType is null");
         checkManageAccountsPermission();
@@ -1297,10 +1249,8 @@ public class VAccountService
                 // mAuthenticator being set to null. If this happens then just abort.
                 // There is no need to send back a result or error in this case since
                 // that already happened when mAuthenticator was cleared.
-                if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                    Log.v(TAG, "checkAccount: aborting session since we are no longer"
-                            + " connected to the authenticator, " + toDebugString());
-                }
+                Log.v(TAG, "checkAccount: aborting session since we are no longer"
+                        + " connected to the authenticator, " + toDebugString());
                 return;
             }
             try {
@@ -1331,18 +1281,14 @@ public class VAccountService
                     for (int i = 0; i < accounts.length; i++) {
                         accounts[i] = mAccountsWithFeatures.get(i);
                     }
-                    if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                        Log.v(TAG, getClass().getSimpleName() + " calling onResult() on response "
-                                + response);
-                    }
+                    Log.v(TAG, getClass().getSimpleName() + " calling onResult() on response "
+                            + response);
                     Bundle result = new Bundle();
                     result.putParcelableArray(AccountManager.KEY_ACCOUNTS, accounts);
                     response.onResult(result);
                 } catch (RemoteException e) {
                     // if the caller is dead then there is no one to care about remote exceptions
-                    if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                        Log.v(TAG, "failure while notifying response", e);
-                    }
+                    Log.v(TAG, "failure while notifying response", e);
                 }
             }
         }
@@ -1355,11 +1301,9 @@ public class VAccountService
     }
 
     public Account[] getAccounts(String type) {
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "getAccounts: accountType " + type
-                    + ", caller's uid " + Binder.getCallingUid()
-                    + ", pid " + Binder.getCallingPid());
-        }
+        Log.v(TAG, "getAccounts: accountType " + type
+                + ", caller's uid " + Binder.getCallingUid()
+                + ", pid " + Binder.getCallingPid());
         checkReadAccountsPermission();
         long identityToken = clearCallingIdentity();
         try {
@@ -1373,13 +1317,11 @@ public class VAccountService
 
     public void getAccountsByFeatures(IAccountManagerResponse response,
             String type, String[] features) {
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "getAccounts: accountType " + type
-                    + ", response " + response
-                    + ", features " + stringArrayToString(features)
-                    + ", caller's uid " + Binder.getCallingUid()
-                    + ", pid " + Binder.getCallingPid());
-        }
+        Log.v(TAG, "getAccounts: accountType " + type
+                + ", response " + response
+                + ", features " + stringArrayToString(features)
+                + ", caller's uid " + Binder.getCallingUid()
+                + ", pid " + Binder.getCallingPid());
         if (response == null) throw new IllegalArgumentException("response is null");
         if (type == null) throw new IllegalArgumentException("accountType is null");
         checkReadAccountsPermission();
@@ -1511,9 +1453,7 @@ public class VAccountService
         }
 
         void bind() {
-            if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                Log.v(TAG, "initiating bind to authenticator type " + mAccountType);
-            }
+            Log.v(TAG, "initiating bind to authenticator type " + mAccountType);
             if (!bindToAuthenticator(mAccountType)) {
                 Log.d(TAG, "bind attempt failed for " + toDebugString());
                 onError(AccountManager.ERROR_CODE_REMOTE_EXCEPTION, "bind failure");
@@ -1554,10 +1494,8 @@ public class VAccountService
                     response.onError(AccountManager.ERROR_CODE_REMOTE_EXCEPTION,
                             "disconnected");
                 } catch (RemoteException e) {
-                    if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                        Log.v(TAG, "Session.onServiceDisconnected: "
-                                + "caught RemoteException while responding", e);
-                    }
+                    Log.v(TAG, "Session.onServiceDisconnected: "
+                            + "caught RemoteException while responding", e);
                 }
             }
         }
@@ -1571,10 +1509,8 @@ public class VAccountService
                     response.onError(AccountManager.ERROR_CODE_REMOTE_EXCEPTION,
                             "timeout");
                 } catch (RemoteException e) {
-                    if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                        Log.v(TAG, "Session.onTimedOut: caught RemoteException while responding",
-                                e);
-                    }
+                    Log.v(TAG, "Session.onTimedOut: caught RemoteException while responding",
+                            e);
                 }
             }
         }
@@ -1599,27 +1535,21 @@ public class VAccountService
             if (response != null) {
                 try {
                     if (result == null) {
-                        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                            Log.v(TAG, getClass().getSimpleName()
-                                    + " calling onError() on response " + response);
-                        }
+                        Log.v(TAG, getClass().getSimpleName()
+                                + " calling onError() on response " + response);
                         response.onError(AccountManager.ERROR_CODE_INVALID_RESPONSE,
                                 "null bundle returned");
                     } else {
                         if (mStripAuthTokenFromResult) {
                             result.remove(AccountManager.KEY_AUTHTOKEN);
                         }
-                        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                            Log.v(TAG, getClass().getSimpleName()
-                                    + " calling onResult() on response " + response);
-                        }
+                        Log.v(TAG, getClass().getSimpleName()
+                                + " calling onResult() on response " + response);
                         response.onResult(result);
                     }
                 } catch (RemoteException e) {
                     // if the caller is dead then there is no one to care about remote exceptions
-                    if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                        Log.v(TAG, "failure while notifying response", e);
-                    }
+                    Log.v(TAG, "failure while notifying response", e);
                 }
             }
         }
@@ -1632,21 +1562,15 @@ public class VAccountService
             mNumErrors++;
             IAccountManagerResponse response = getResponseAndClose();
             if (response != null) {
-                if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                    Log.v(TAG, getClass().getSimpleName()
-                            + " calling onError() on response " + response);
-                }
+                Log.v(TAG, getClass().getSimpleName()
+                        + " calling onError() on response " + response);
                 try {
                     response.onError(errorCode, errorMessage);
                 } catch (RemoteException e) {
-                    if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                        Log.v(TAG, "Session.onError: caught RemoteException while responding", e);
-                    }
+                    Log.v(TAG, "Session.onError: caught RemoteException while responding", e);
                 }
             } else {
-                if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                    Log.v(TAG, "Session.onError: already closed");
-                }
+                Log.v(TAG, "Session.onError: already closed");
             }
         }
 
@@ -1659,23 +1583,17 @@ public class VAccountService
                     mAuthenticatorCache.getServiceInfo(
                             AuthenticatorDescription.newKey(authenticatorType));
             if (authenticatorInfo == null) {
-                if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                    Log.v(TAG, "there is no authenticator for " + authenticatorType
-                            + ", bailing out");
-                }
+                Log.v(TAG, "there is no authenticator for " + authenticatorType
+                        + ", bailing out");
                 return false;
             }
 
             Intent intent = new Intent();
             intent.setAction(AccountManager.ACTION_AUTHENTICATOR_INTENT);
             intent.setComponent(authenticatorInfo.componentName);
-            if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                Log.v(TAG, "performing bindService to " + authenticatorInfo.componentName);
-            }
+            Log.v(TAG, "performing bindService to " + authenticatorInfo.componentName);
             if (!mContext.bindService(intent, this, Context.BIND_AUTO_CREATE)) {
-                if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                    Log.v(TAG, "bindService to " + authenticatorInfo.componentName + " failed");
-                }
+                Log.v(TAG, "bindService to " + authenticatorInfo.componentName + " failed");
                 return false;
             }
 
@@ -1801,7 +1719,7 @@ public class VAccountService
 
         @Override
         public void onOpen(SQLiteDatabase db) {
-            if (Log.isLoggable(TAG, Log.VERBOSE)) Log.v(TAG, "opened database " + DATABASE_NAME);
+            Log.v(TAG, "opened database " + DATABASE_NAME);
         }
     }
 
@@ -1888,9 +1806,7 @@ public class VAccountService
     private void doNotification(Account account, CharSequence message, Intent intent) {
         long identityToken = clearCallingIdentity();
         try {
-            if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                Log.v(TAG, "doNotification: " + message + " intent:" + intent);
-            }
+            Log.v(TAG, "doNotification: " + message + " intent:" + intent);
 
             if (intent.getComponent() != null &&
                     GrantCredentialsPermissionActivity.class.getName().equals(
@@ -1941,9 +1857,7 @@ public class VAccountService
 
         for (String perm : permissions) {
             if (mContext.checkCallingOrSelfPermission(perm) == PackageManager.PERMISSION_GRANTED) {
-                if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                    Log.v(TAG, "  caller uid " + uid + " has " + perm);
-                }
+                Log.v(TAG, "  caller uid " + uid + " has " + perm);
                 return;
             }
         }
@@ -1954,19 +1868,7 @@ public class VAccountService
     }
 
     private boolean inSystemImage(int callerUid) {
-        String[] packages = mPackageManager.getPackagesForUid(callerUid);
-        for (String name : packages) {
-            try {
-                PackageInfo packageInfo = mPackageManager.getPackageInfo(name, 0 /* flags */);
-                if (packageInfo != null
-                        && (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0) {
-                    return true;
-                }
-            } catch (PackageManager.NameNotFoundException e) {
-                return false;
-            }
-        }
-        return false;
+        return true;
     }
 
     private boolean permissionIsGranted(Account account, String authTokenType, int callerUid) {
@@ -1975,12 +1877,10 @@ public class VAccountService
                 && hasAuthenticatorUid(account.type, callerUid);
         final boolean hasExplicitGrants = account != null
                 && hasExplicitlyGrantedPermission(account, authTokenType);
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "checkGrantsOrCallingUidAgainstAuthenticator: caller uid "
-                    + callerUid + ", " + account
-                    + ": is authenticator? " + fromAuthenticator
-                    + ", has explicit permission? " + hasExplicitGrants);
-        }
+        Log.v(TAG, "checkGrantsOrCallingUidAgainstAuthenticator: caller uid "
+                + callerUid + ", " + account
+                + ": is authenticator? " + fromAuthenticator
+                + ", has explicit permission? " + hasExplicitGrants);
         return fromAuthenticator || hasExplicitGrants || inSystemImage;
     }
 
@@ -2033,9 +1933,7 @@ public class VAccountService
             Log.w(TAG, msg);
             throw new SecurityException(msg);
         }
-        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-            Log.v(TAG, "caller uid " + uid + " is the same as the authenticator's uid");
-        }
+        Log.v(TAG, "caller uid " + uid + " is the same as the authenticator's uid");
     }
 
     private void checkAuthenticateAccountsPermission(Account account) {

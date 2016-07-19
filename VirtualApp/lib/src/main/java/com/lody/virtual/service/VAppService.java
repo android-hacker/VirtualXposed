@@ -1,5 +1,6 @@
 package com.lody.virtual.service;
 
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
@@ -38,12 +39,15 @@ public class VAppService extends IAppManager.Stub {
 	private Map<String, APKBundle> mApkBundleCaches = new ConcurrentHashMap<String, APKBundle>(10);
 	private RemoteCallbackList<IAppObserver> remoteCallbackList = new RemoteCallbackList<IAppObserver>();
 
+	private String[] PRE_INSTALL_PKG = {"com.google.android.gsf", "com.google.android.gsf.login",
+			"com.google.android.gms", "com.android.vending"};
+
 	public static VAppService getService() {
 		return gService;
 	}
 
 	public void onCreate() {
-		 preloadAllApps();
+		preloadAllApps();
 	}
 
 	public void preloadAllApps() {
@@ -58,6 +62,19 @@ public class VAppService extends IAppManager.Stub {
 				if (!scan(app.getPath())) {
 					FileIO.deleteDir(app);
 				}
+			}
+		}
+		for (String pkg : PRE_INSTALL_PKG) {
+			if (isAppInstalled(pkg)) {
+				continue;
+			}
+			try {
+				ApplicationInfo applicationInfo = VirtualCore.getCore().getUnHookPackageManager()
+						.getApplicationInfo(pkg, 0);
+				String apkPath = applicationInfo.publicSourceDir;
+				installApp(apkPath, InstallStrategy.COMPARE_VERSION);
+			} catch (Throwable e) {
+				// Ignore
 			}
 		}
 		XLog.d(TAG, "=============================================");
@@ -81,7 +98,6 @@ public class VAppService extends IAppManager.Stub {
 	public InstallResult installApp(String apkPath, int flags) {
 		return install(apkPath, flags, false);
 	}
-
 
 	public InstallResult install(String apkPath, int flags, boolean onlyScan) {
 		InstallResult result = new InstallResult();
