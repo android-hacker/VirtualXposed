@@ -46,7 +46,9 @@ import java.lang.reflect.Field;
 		Hook_PublishContentProviders.class,
 		Hook_GetCurrentUser.class,
 		Hook_UnstableProviderDied.class,
+		Hook_GetCallingActivity.class,
 })
+
 public class ActivityManagerPatch extends PatchObject<IActivityManager, HookObject<IActivityManager>> {
 
 	public static IActivityManager getAMN() {

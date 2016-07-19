@@ -31,7 +31,11 @@ import java.lang.reflect.Method;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		return AppSandBox.getInstalledPackages().iterator().next();
+		String pkg = AppSandBox.getLastPkg();
+		if (pkg != null) {
+			return pkg;
+		}
+		return method.invoke(who, args);
 	}
 
 	@Override
