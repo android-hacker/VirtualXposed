@@ -3,6 +3,7 @@ package com.lody.virtual.client.hook.patchs.notification.compat;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 
 /**
@@ -10,6 +11,21 @@ import android.content.res.Resources;
  */
 public class ContextWrapperCompat extends ContextWrapper {
     private Context pluginContext;
+
+    public ContextWrapperCompat(Context base, String packageName) {
+        super(base);
+
+        try {
+            pluginContext = base.createPackageContext(packageName, Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
+        } catch (PackageManager.NameNotFoundException e) {
+            pluginContext = base;
+        }
+    }
+
+    @Override
+    public Context getBaseContext() {
+        return super.getBaseContext();
+    }
 
     public ContextWrapperCompat(Context base, Context inflationContext) {
         super(base);

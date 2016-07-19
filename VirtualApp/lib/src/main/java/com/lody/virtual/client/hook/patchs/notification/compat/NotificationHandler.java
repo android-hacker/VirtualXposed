@@ -256,7 +256,7 @@ public class NotificationHandler {
     }
 
     private Notification replaceNotification(Context context, String packageName, Notification notification, boolean systemId) throws PackageManager.NameNotFoundException {
-        final Context pluginContext = context.createPackageContext(packageName, Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
+        final ContextWrapperCompat pluginContext = new ContextWrapperCompat(context, packageName);
         //build
         Notification.Builder builder = new Notification.Builder(context);
         //插件的icon，绘制完成再替换成自己的
@@ -268,6 +268,12 @@ public class NotificationHandler {
         if (contentView == null) {
             return null;
         }
+        //icon
+        if (Build.VERSION.SDK_INT >= 23) {
+            mNotificationActionCompat.setNotificationIconImageView(context, contentView, notification.icon);
+        }
+        //通过id设置icon的view？
+
 //        //双开模式下,直接调用原来的
 //        AppInfo appInfo = VirtualCore.getCore().findApp(packageName);
 //
@@ -372,7 +378,7 @@ public class NotificationHandler {
         return map;
     }
 
-    private Bitmap createBitmap(final Context context, RemoteViews remoteViews, boolean isBig, boolean systemId) {
+    private Bitmap createBitmap(final ContextWrapperCompat context, RemoteViews remoteViews, boolean isBig, boolean systemId) {
         if (remoteViews == null) return null;
         //notification_min_height 64
         //notification_max_height 256

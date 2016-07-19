@@ -218,6 +218,31 @@ import java.util.Map;
         }
     }
 
+    public void setNotificationIconImageView(Context context, RemoteViews remoteViews, int icon) {
+        try {
+            Drawable drawable;
+            if (icon == 0) {
+                drawable = null;
+            } else if (Build.VERSION.SDK_INT >= 21) {
+                drawable = context.getResources().getDrawable(icon, context.getTheme());
+            } else {
+                drawable = context.getResources().getDrawable(icon);
+            }
+            if (drawable == null) {
+                XLog.w(TAG, "icon is null:" + icon);
+            } else {
+                Bitmap bitmap = drawableToBitMap(drawable);
+                int id = Reflect.on("com.android.internal.R$id").get("icon");
+                if (remoteViews != null) {
+                    remoteViews.setImageViewBitmap(id, bitmap);
+                    XLog.i(TAG, "set icon ok:" + bitmap);
+                }
+            }
+        } catch (Exception e) {
+            XLog.e(TAG, "icon", e);
+        }
+    }
+
     public void builderNotificationIcon(Notification notification, final int iconId, Resources resources) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             notification.icon = getContext().getApplicationInfo().icon;
@@ -271,7 +296,7 @@ import java.util.Map;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             builder.setSmallIcon(notification.icon);
             builder.setLargeIcon(notification.largeIcon);
-        }else {
+        } else {
             android.graphics.drawable.Icon icon = notification.getSmallIcon();
             if (icon != null) {
                 Bitmap bitmap = drawableToBitMap(icon.loadDrawable(context));
@@ -292,6 +317,9 @@ import java.util.Map;
     }
 
     public Bitmap drawableToBitMap(Drawable drawable) {
+        if (drawable == null) {
+            return null;
+        }
         if (drawable instanceof BitmapDrawable) {
             BitmapDrawable bitmapDrawable = ((BitmapDrawable) drawable);
             return bitmapDrawable.getBitmap();
