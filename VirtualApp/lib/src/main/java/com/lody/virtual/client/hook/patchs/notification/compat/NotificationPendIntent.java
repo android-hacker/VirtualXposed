@@ -2,10 +2,13 @@ package com.lody.virtual.client.hook.patchs.notification.compat;
 
 import android.app.PendingIntent;
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RemoteViews;
 import android.widget.TextView;
+
+import com.lody.virtual.helper.ExtraConstants;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -34,32 +37,37 @@ public class NotificationPendIntent {
                 View view = view2.findViewById(e.getKey());
                 if (view != null) {
                     Rect rect = new Rect();
-                    view.getBoundsOnScreen(rect);
+                    view.getHitRect(rect);
+                    Log.i("kk", view.getId() + ",rect=" + rect + ",intent=" + e.getValue().getIntent().getParcelableExtra(ExtraConstants.EXTRA_INTENT));
                     list.add(new RectInfo(rect, e.getValue()));
                 }
             }
             if (my instanceof ViewGroup) {
-                ViewGroup viewGroup = (ViewGroup) my;
-                int count = viewGroup.getChildCount();
-                for (int i = 0; i < count; i++) {
-                    View v = viewGroup.getChildAt(i);
-                    if (v instanceof ViewGroup) {
-                        //linearlayout
-                        ViewGroup v2 = (ViewGroup) v;
-                        int c = v2.getChildCount();
-                        for (int j = 0; j < c; j++) {
-                            View _v = v2.getChildAt(j);
-                            if (_v instanceof TextView) {
-                                //textview
-                                Rect rect = new Rect();
-                                _v.getBoundsOnScreen(rect);
-                                PendingIntent pendingIntent = findIntent(rect, list);
-                                if (pendingIntent != null) {
-                                    remoteViews.setOnClickPendingIntent(_v.getId(), pendingIntent);
-                                }
-                            }
-                        }
-                    }
+                setIntentByViewGroup(remoteViews, (ViewGroup) my, list);
+            }
+        }
+    }
+
+    private void setIntentByViewGroup(RemoteViews remoteViews, ViewGroup viewGroup, List<RectInfo> list) {
+        int count = viewGroup.getChildCount();
+        for (int i = 0; i < count; i++) {
+            View v = viewGroup.getChildAt(i);
+            if (v instanceof ViewGroup) {
+                //linearlayout
+                setIntentByViewGroup(remoteViews, (ViewGroup) v, list);
+            } else if (v instanceof TextView) {
+                //textview
+                Rect rect = new Rect();
+                v.getHitRect(rect);
+                rect.top += viewGroup.getTop();
+                rect.bottom += viewGroup.getTop();
+//                Log.d("kk", v.getId() + ",rect=" + rect);
+                PendingIntent pendingIntent = findIntent(rect, list);
+                if (pendingIntent != null) {
+                    Log.d("kk", v.getId() + " set click =" + pendingIntent.getIntent().getParcelableExtra(ExtraConstants.EXTRA_INTENT));
+                    remoteViews.setOnClickPendingIntent(v.getId(), pendingIntent);
+                } else {
+                    Log.w("kk", v.getId() + ",rect=" + rect);
                 }
             }
         }
@@ -72,6 +80,9 @@ public class NotificationPendIntent {
         for (RectInfo rectInfo : list) {
             int size = getOverlapArea(rect, rectInfo.rect);
             if (size > maxArea) {
+                if (size == 0) {
+                    Log.w("kk", "find two:" + rectInfo.rect);
+                }
                 maxArea = size;
                 maxIntent = rectInfo.mPendingIntent;
             }
@@ -79,31 +90,14 @@ public class NotificationPendIntent {
         return maxIntent;
     }
 
-    //是否相交
-    private boolean isOverlap(Rect rc1, Rect rc2) {
-        if (rc1.left + rc1.width() > rc2.left &&
-                rc2.left + rc2.width() > rc1.left &&
-                rc1.top + rc1.height() > rc2.top &&
-                rc2.top + rc2.height() > rc1.top
-                )
-            return true;
-        else
-            return false;
-    }
-
     private int getOverlapArea(Rect rect1, Rect rect2) {
-
-        if (!isOverlap(rect1, rect2)) {
-            //不重叠
-            return 0;
-        }
         //2个区域重叠的面积
         Rect rect = new Rect();
         rect.left = Math.max(rect1.left, rect2.left);
         rect.top = Math.max(rect1.top, rect2.top);
         rect.right = Math.min(rect1.right, rect2.right);
         rect.bottom = Math.min(rect1.bottom, rect2.bottom);
-        if (rect.left < rect.bottom && rect.right < rect.bottom) {
+        if (rect.left < rect.right && rect.top < rect.bottom) {
             return (rect.right - rect.left) * (rect.bottom - rect.top);
         }
         return 0;
