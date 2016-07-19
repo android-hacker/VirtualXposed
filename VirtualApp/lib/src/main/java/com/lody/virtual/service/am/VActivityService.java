@@ -135,6 +135,9 @@ public class VActivityService extends IActivityManager.Stub {
 			resultFlags |= Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
 			resultFlags |= Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET;
 		}
+//		if ((request.targetFlags & Intent.FLAG_ACTIVITY_NEW_TASK) != 0) {
+//			resultFlags |= Intent.FLAG_ACTIVITY_NEW_TASK;
+//		}
 
 		StubInfo selectStubInfo = fetchRunningStubInfo(targetProcessName);
 		if (selectStubInfo == null) {

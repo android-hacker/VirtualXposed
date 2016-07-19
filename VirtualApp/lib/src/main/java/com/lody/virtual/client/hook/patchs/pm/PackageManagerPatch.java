@@ -46,7 +46,7 @@ import java.lang.reflect.Field;
 		Hook_ClearPackagePreferredActivities.class, Hook_GetPreferredActivities.class,
 		Hook_ClearPackagePersistentPreferredActivities.class,
 
-		Hook_DeletePackage.class, Hook_GetPackageInstaller.class, Hook_AddOnPermissionsChangeListener.class,
+		Hook_DeletePackage.class, Hook_GetPackageInstaller.class,
 		Hook_AddOnPermissionsChangeListener.class, Hook_RemoveOnPermissionsChangeListener.class,
 
 })

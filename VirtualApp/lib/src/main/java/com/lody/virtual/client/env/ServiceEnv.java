@@ -125,7 +125,7 @@ public class ServiceEnv {
 		RunningServiceRecord record = getService(appInfo, serviceInfo, true);
 		if (record != null) {
 			// proxy of connection
-			connection = new ServiceConnectionImpl(connection);
+			connection = new ServiceConnectionImpl(appInfo.getApplication(), connection);
 
 			IBinder connBinder = connection.asBinder();
 			if (connBinder != null) {

@@ -1,18 +1,19 @@
 package com.lody.virtual.helper.compat;
 
-import java.lang.reflect.Method;
-import java.util.List;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.utils.Reflect;
-
 import android.app.ActivityThread;
+import android.app.Application;
 import android.app.LoadedApk;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ProviderInfo;
 import android.content.res.CompatibilityInfo;
 import android.os.Build;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.utils.Reflect;
+
+import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * @author Lody
@@ -68,5 +69,18 @@ public class ActivityThreadCompat {
 
 	public static Object getBoundApplication(ActivityThread mainThread) {
 		return Reflect.on(mainThread).get("mBoundApplication");
+	}
+
+	public static Application getCurrentApplication() {
+		Application application = null;
+		try {
+			application = ActivityThread.currentApplication();
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+		if (application == null) {
+			application = Reflect.on(VirtualCore.mainThread()).get("mInitialApplication");
+		}
+		return application;
 	}
 }

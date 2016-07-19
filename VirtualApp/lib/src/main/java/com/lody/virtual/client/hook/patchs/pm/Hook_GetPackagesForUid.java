@@ -1,9 +1,12 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import java.lang.reflect.Method;
+import android.os.Process;
 
 import com.lody.virtual.client.core.AppSandBox;
 import com.lody.virtual.client.hook.base.Hook;
+
+import java.lang.reflect.Method;
+import java.util.Set;
 
 /**
  * @author Lody
@@ -29,8 +32,13 @@ import com.lody.virtual.client.hook.base.Hook;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		return AppSandBox.getInstalledPackages();
-		// return method.call(who, args);
+		int uid = (int) args[0];
+		if (uid == Process.myUid()) {
+			Set<String> pkg = AppSandBox.getInstalledPackages();
+			pkg.add("com.android.vending");
+			return pkg.toArray(new String[pkg.size()]);
+		}
+		 return method.invoke(who, args);
 	}
 
 	@Override

@@ -2,33 +2,189 @@ package com.lody.virtual.client.env;
 
 import android.app.IServiceConnection;
 import android.content.ComponentName;
+import android.content.Context;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.os.IInterface;
 import android.os.RemoteException;
 
+import com.lody.virtual.client.hook.binders.StubBinder;
 import com.lody.virtual.helper.utils.XLog;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Lody
  */
 
-public class ServiceConnectionImpl extends IServiceConnection.Stub {
+class ServiceConnectionImpl extends IServiceConnection.Stub {
 
-    private static final String TAG = ServiceConnectionImpl.class.getSimpleName();
+	private static final String TAG = ServiceConnectionImpl.class.getSimpleName();
 
-    private IServiceConnection mConnection;
+	private static Map<String, ServiceFetcher> sHookSecondaryServiceMap = new HashMap<>();
 
-    public ServiceConnectionImpl(IServiceConnection connection) {
-        this.mConnection = connection;
+    private Context mContext;
+
+    private static void dumpCallingInfo(boolean hooked, Method method, Object[] args) {
+        StringBuilder stringBuilder = new StringBuilder(20);
+        stringBuilder.append(hooked ? "after-" : "before-");
+        stringBuilder.append("call ");
+        stringBuilder.append(method.getDeclaringClass().getName());
+        stringBuilder.append(".");
+        stringBuilder.append(method.getName());
+        stringBuilder.append("(");
+        if (args != null) {
+            for (Object arg : args) {
+                if (arg == null) {
+                    stringBuilder.append("null, ");
+                } else {
+                    stringBuilder.append(arg.getClass().getSimpleName());
+                    stringBuilder.append("(");
+                    stringBuilder.append(arg.toString());
+                    stringBuilder.append("), ");
+                }
+            }
+        }
+        stringBuilder.append(")");
+        XLog.d("Hook-SecondaryService", stringBuilder.toString());
     }
 
-    @Override
-    public void connected(ComponentName component, IBinder binder) throws RemoteException {
-        XLog.d(TAG, "Connect service %s / %s.", component.toShortString(), binder.getInterfaceDescriptor());
+	static {
+        sHookSecondaryServiceMap.put("com.google.android.auth.IAuthManagerService", new ServiceFetcher() {
+            @Override
+            public IBinder getService(final Context context, ClassLoader classLoader, IBinder binder) {
+                return new StubBinder(classLoader, binder) {
+                    @Override
+                    public InvocationHandler createHandler(Class<?> interfaceClass, final IInterface base) {
+                        return new InvocationHandler() {
+                            @Override
+                            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                                if (args != null && args.length > 0) {
+                                    dumpCallingInfo(false, method, args);
+                                    for (Object arg : args) {
+                                        if (arg instanceof Bundle) {
+                                            Bundle bundle = (Bundle) arg;
+                                            if (bundle.containsKey("androidPackageName")) {
+                                                bundle.putString("androidPackageName", context.getPackageName());
+                                            }
+                                            if (bundle.containsKey("clientPackageName")) {
+                                                bundle.putString("clientPackageName", context.getPackageName());
+                                            }
+                                        }
+                                    }
+                                    dumpCallingInfo(true, method, args);
+                                }
+                                return method.invoke(base, args);
+                            }
+                        };
+                    }
+                };
+            }
+        });
+
+        sHookSecondaryServiceMap.put("com.android.vending.billing.IInAppBillingService", new ServiceFetcher() {
+            @Override
+            public IBinder getService(final Context context, ClassLoader classLoader, IBinder binder) {
+                return new StubBinder(classLoader, binder) {
+                    @Override
+                    public InvocationHandler createHandler(Class<?> interfaceClass, final IInterface base) {
+                        return new InvocationHandler() {
+                            @Override
+                            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                                if (args != null && args.length > 0) {
+                                    dumpCallingInfo(false, method, args);
+                                }
+
+                                return method.invoke(base, args);
+                            }
+                        };
+                    }
+                };
+            }
+        });
+
+		sHookSecondaryServiceMap.put("com.google.android.gms.common.internal.IGmsServiceBroker", new ServiceFetcher() {
+			@Override
+			public IBinder getService(final Context context, ClassLoader classLoader, IBinder binder) {
+				return new StubBinder(classLoader, binder) {
+
+					@Override
+					public InvocationHandler createHandler(Class<?> interfaceClass, final IInterface base) {
+						return new InvocationHandler() {
+							@Override
+							public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                                dumpCallingInfo(false, method, args);
+								if (args != null && args.length > 0) {
+									String name = args[args.length - 1].getClass().getName();
+                                    if ("com.google.android.gms.common.internal.GetServiceRequest".equals(name) || "com.google.android.gms.common.internal.ValidateAccountRequest".equals(name)) {
+                                        args[args.length - 1] = modifyObject(args[args.length - 1]);
+                                    }
+                                    int i = 0;
+                                    while (i < args.length) {
+                                        if ((args[i] instanceof String) && context.getPackageName().equals(args[i])) {
+                                            args[i] = context.getPackageName();
+                                        }
+                                        i++;
+                                    }
+								}
+                                dumpCallingInfo(true, method, args);
+								return method.invoke(base, args);
+							}
+						};
+					}
+
+                    private Object modifyObject(Object object) {
+                        for (Field field : object.getClass().getDeclaredFields()) {
+                            field.setAccessible(true);
+                            if ((field.getModifiers() & 8) == 0) {
+                                try {
+                                    if (field.get(object) instanceof String) {
+                                        field.set(object, context.getPackageName());
+                                        break;
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                        return object;
+                    }
+				};
+			}
+		});
+	}
+
+	private IServiceConnection mConnection;
+
+	ServiceConnectionImpl(Context context, IServiceConnection connection) {
+        this.mContext = context;
+		this.mConnection = connection;
+	}
+
+	@Override
+	public void connected(ComponentName component, IBinder binder) throws RemoteException {
+        String description = binder.getInterfaceDescriptor();
+		XLog.d(TAG, "Connect service %s / %s.", component.toShortString(), description);
+        ServiceFetcher fetcher = sHookSecondaryServiceMap.get(description);
+        if (fetcher != null) {
+            IBinder res = fetcher.getService(mContext, mContext.getClassLoader(), binder);
+            if (res != null) {
+                binder = res;
+            }
+        }
         mConnection.connected(component, binder);
-    }
+	}
 
-    @Override
-    public IBinder asBinder() {
-        return mConnection.asBinder();
-    }
+	@Override
+	public IBinder asBinder() {
+		return mConnection.asBinder();
+	}
+
+	private interface ServiceFetcher {
+		IBinder getService(Context context, ClassLoader classLoader, IBinder binder);
+	}
 }

@@ -68,7 +68,11 @@ public class VServiceService extends IServiceManager.Stub {
 
 	private static ServiceInfo getServiceInfo(Intent service) {
 		if (service != null) {
-			return getServiceInfo(service.getComponent());
+			ServiceInfo serviceInfo = VirtualCore.getCore().resolveServiceInfo(service);
+			if (serviceInfo != null) {
+				service.setComponent(new ComponentName(serviceInfo.packageName, serviceInfo.name));
+				return serviceInfo;
+			}
 		}
 		return null;
 	}

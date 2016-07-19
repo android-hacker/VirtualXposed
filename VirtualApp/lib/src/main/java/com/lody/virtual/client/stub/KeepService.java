@@ -42,9 +42,11 @@ public class KeepService extends BaseService {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		int action = intent.getIntExtra(ExtraConstants.EXTRA_WHAT, -1);
-		if (action == ExtraConstants.WHAT_PENDING_INTENT) {
-			handlePendingIntent(intent);
+		if (intent != null) {
+			int action = intent.getIntExtra(ExtraConstants.EXTRA_WHAT, -1);
+			if (action == ExtraConstants.WHAT_PENDING_INTENT) {
+				handlePendingIntent(intent);
+			}
 		}
 		return START_STICKY;
 	}
@@ -59,12 +61,20 @@ public class KeepService extends BaseService {
 			case ActivityManager.INTENT_SENDER_ACTIVITY:
 			{
 				originIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				startActivity(originIntent);
+				try {
+					startActivity(originIntent);
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 				break;
 			}
 			case ActivityManager.INTENT_SENDER_SERVICE:
 			{
-				startService(originIntent);
+				try {
+					startService(originIntent);
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 				break;
 			}
 		}
