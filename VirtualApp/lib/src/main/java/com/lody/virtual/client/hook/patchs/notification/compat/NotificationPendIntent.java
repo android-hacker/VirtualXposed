@@ -8,8 +8,6 @@ import android.view.ViewGroup;
 import android.widget.RemoteViews;
 import android.widget.TextView;
 
-import com.lody.virtual.helper.ExtraConstants;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -38,7 +36,7 @@ public class NotificationPendIntent {
                 if (view != null) {
                     Rect rect = new Rect();
                     view.getHitRect(rect);
-                    Log.i("kk", view.getId() + ",rect=" + rect + ",intent=" + e.getValue().getIntent().getParcelableExtra(ExtraConstants.EXTRA_INTENT));
+//                    Log.i("kk", view.getId() + ",rect=" + rect + ",intent=" + e.getValue().getIntent().getParcelableExtra(ExtraConstants.EXTRA_INTENT));
                     list.add(new RectInfo(rect, e.getValue()));
                 }
             }
@@ -64,10 +62,10 @@ public class NotificationPendIntent {
 //                Log.d("kk", v.getId() + ",rect=" + rect);
                 PendingIntent pendingIntent = findIntent(rect, list);
                 if (pendingIntent != null) {
-                    Log.d("kk", v.getId() + " set click =" + pendingIntent.getIntent().getParcelableExtra(ExtraConstants.EXTRA_INTENT));
+//                    Log.d("kk", v.getId() + " set click =" + pendingIntent.getIntent().getParcelableExtra(ExtraConstants.EXTRA_INTENT));
                     remoteViews.setOnClickPendingIntent(v.getId(), pendingIntent);
                 } else {
-                    Log.w("kk", v.getId() + ",rect=" + rect);
+//                    Log.w("kk", v.getId() + ",rect=" + rect);
                 }
             }
         }
