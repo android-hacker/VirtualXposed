@@ -16,6 +16,9 @@ import jonathanfinerty.once.Once;
 public class VApp extends Application {
 
     private static VApp gDefault;
+    private String[] PRE_INSTALL_PKG = {
+            "com.google.android.gsf", "com.google.android.gsf.login", "com.google.android.gms", "com.android.vending"
+    };
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -40,21 +43,23 @@ public class VApp extends Application {
         if (VirtualCore.getCore().isMainProcess()) {
             Once.initialise(this);
         }
-        installGms();
+        preInstallPkgs();
     }
 
-    private void installGms() {
+    private void preInstallPkgs() {
         if (VirtualCore.getCore().isMainProcess()) {
-            String gmsPkg = "com.google.android.gms";
-            if (!VirtualCore.getCore().isAppInstalled(gmsPkg)) {
-                try {
-                    ApplicationInfo applicationInfo = getPackageManager().getApplicationInfo(gmsPkg, 0);
-                    String apkPath = applicationInfo.publicSourceDir;
-                    VirtualCore.getCore().installApp(apkPath, InstallStrategy.COMPARE_VERSION);
-                } catch (PackageManager.NameNotFoundException e) {
-                    // Ignore
+            for (String pkg : PRE_INSTALL_PKG) {
+                if (!VirtualCore.getCore().isAppInstalled(pkg)) {
+                    try {
+                        ApplicationInfo applicationInfo = getPackageManager().getApplicationInfo(pkg, 0);
+                        String apkPath = applicationInfo.publicSourceDir;
+                        VirtualCore.getCore().installApp(apkPath, InstallStrategy.COMPARE_VERSION);
+                    } catch (PackageManager.NameNotFoundException e) {
+                        // Ignore
+                    }
                 }
             }
+
         }
     }
 }
