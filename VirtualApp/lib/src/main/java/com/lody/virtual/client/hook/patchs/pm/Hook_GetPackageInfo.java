@@ -1,10 +1,14 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
+import android.os.Process;
 
 import com.lody.virtual.client.env.BlackList;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.LocalPackageManager;
+import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.utils.XLog;
 
 import java.lang.reflect.Method;
 
@@ -42,11 +46,17 @@ public final class Hook_GetPackageInfo extends Hook<PackageManagerPatch> {
 			return method.invoke(who, args);
 		}
 		if (BlackList.isBlackPkg(pkg)) {
-			// 隔离Gms
 			return null;
 		}
 		PackageInfo packageInfo = (PackageInfo) method.invoke(who, args);
 		if (packageInfo != null) {
+			AppInfo appInfo = findAppInfo(pkg);
+			if (appInfo != null) {
+				ApplicationInfo info = packageInfo.applicationInfo;
+				info.dataDir = appInfo.dataDir;
+				info.uid = Process.myUid();
+				info.nativeLibraryDir = appInfo.libDir;
+			}
 			return packageInfo;
 		}
 		return LocalPackageManager.getInstance().getPackageInfo(pkg, flags);

@@ -43,7 +43,7 @@ import java.util.Map;
  */
 public class AppSandBox {
 
-	private static final String TAG = "XAppSandBox";
+	private static final String TAG = AppSandBox.class.getSimpleName();
 	private static HashSet<String> installedApps = new HashSet<String>();
 	private static Map<String, Application> applications = new HashMap<String, Application>();
 
@@ -58,6 +58,7 @@ public class AppSandBox {
 		if (installedApps.contains(pkg)) {
 			return;
 		}
+		XLog.d(TAG, "Installing %s.", pkg);
 		LocalProcessManager.onAppProcessCreate(VClientImpl.getClient().asBinder());
 		AppInfo appInfo = VirtualCore.getCore().findApp(pkg);
 		if (appInfo == null) {

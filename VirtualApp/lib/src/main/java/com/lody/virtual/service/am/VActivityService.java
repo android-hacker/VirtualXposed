@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
+import android.util.Pair;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
@@ -28,6 +29,7 @@ import com.lody.virtual.service.process.VProcessService;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -258,14 +260,21 @@ public class VActivityService extends IActivityManager.Stub {
 	}
 
 	public synchronized void processDied(int pid) {
+		List<Pair<ActivityTaskRecord, ActivityRecord>> removeRecordList = new LinkedList<>();
 		for (ActivityTaskRecord task : stack.tasks) {
 			for (ActivityRecord r : task.activities.values()) {
 				if (r.pid == pid) {
-					task.activities.remove(r.token);
-					task.activityList.remove(r);
+					removeRecordList.add(Pair.create(task, r));
 				}
 			}
 		}
+		for (Pair<ActivityTaskRecord, ActivityRecord> pair : removeRecordList) {
+			ActivityTaskRecord taskRecord = pair.first;
+			ActivityRecord r = pair.second;
+			taskRecord.activities.remove(r.token);
+			taskRecord.activityList.remove(r);
+		}
+
 		stack.trimTasks();
 	}
 
