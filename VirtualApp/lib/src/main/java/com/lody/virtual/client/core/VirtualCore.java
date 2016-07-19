@@ -258,6 +258,7 @@ public final class VirtualCore {
 		}
 	}
 
+
 	public boolean isAppInstalled(String pkg) {
 		try {
 			return getService().isAppInstalled(pkg);

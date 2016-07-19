@@ -30,4 +30,7 @@ public class ExtraConstants {
 
 	public static final String TYPE_INTENT_SENDER = "V.Type.IntentSender";
 	public static final java.lang.String EXTRA_PROCESS_NAME = "V.Extra.ProcessName";
+	public static final String EXTRA_WHAT = "V。Extra.What";
+	public static final int WHAT_PENDING_INTENT = 5;
+
 }

@@ -36,6 +36,9 @@ public class Hook_CheckPermission extends Hook<ActivityManagerPatch> {
         if (Manifest.permission.ACCOUNT_MANAGER.equals(permission)) {
             return PackageManager.PERMISSION_GRANTED;
         }
+        if ("com.google.android.providers.settings.permission.WRITE_GSETTINGS".equals(permission)) {
+            return PackageManager.PERMISSION_GRANTED;
+        }
         return method.invoke(who, args);
     }
 

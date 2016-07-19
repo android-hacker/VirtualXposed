@@ -36,11 +36,10 @@ public class ServiceEnv {
 
 	private static final ServiceEnv sEnv = new ServiceEnv();
 
-	private final Map<String, RunningServiceRecord> mServices = new ConcurrentHashMap<String, RunningServiceRecord>();
-	private final Map<IBinder, RunningServiceRecord> mConns = new ConcurrentHashMap<IBinder, RunningServiceRecord>();
+	private final Map<String, RunningServiceRecord> mServices = new ConcurrentHashMap<>();
+	private final Map<IBinder, RunningServiceRecord> mConns = new ConcurrentHashMap<>();
 
 	private ServiceEnv() {
-		// Empty
 	}
 
 	public static ServiceEnv getEnv() {
@@ -107,10 +106,6 @@ public class ServiceEnv {
 					intent.setClassName(record.serviceInfo.packageName, record.serviceInfo.name);
 					result = record.service.onUnbind(intent);
 				}
-				// if (stopIfEmpty && record.connections.isEmpty()) {
-				// stopServiceTokenInner(record.appInfo, record.serviceInfo,
-				// -1);
-				// }
 				if (record.connections.isEmpty() && record.startCount == 0) {
 					mServices.remove(record.serviceInfo.name);
 					runOnUiThread(new Runnable() {
@@ -129,6 +124,9 @@ public class ServiceEnv {
 			IServiceConnection connection) {
 		RunningServiceRecord record = getService(appInfo, serviceInfo, true);
 		if (record != null) {
+			// proxy of connection
+			connection = new ServiceConnectionImpl(appInfo.getApplication(), connection);
+
 			IBinder connBinder = connection.asBinder();
 			if (connBinder != null) {
 				intent.setExtrasClassLoader(record.service.getClassLoader());
@@ -154,12 +152,6 @@ public class ServiceEnv {
 		if (record != null) {
 			if (startId == record.startId || startId == -1) {
 				record.startCount = 0;
-				// if (!record.connections.isEmpty()) {
-				// for (IBinder connection : record.connections) {
-				// unbindServiceInner(IServiceConnection.Stub.asInterface(connection),
-				// false);
-				// }
-				// }
 				if (record.connections.isEmpty()) {
 					mServices.remove(record.serviceInfo.name);
 					runOnUiThread(new Runnable() {
@@ -231,7 +223,7 @@ public class ServiceEnv {
 		AppInfo appInfo;
 		IBinder binder;
 		ServiceFakeBinder token;
-		Set<IBinder> connections = new HashSet<IBinder>(1);
+		Set<IBinder> connections = new HashSet<>();
 		ServiceInfo serviceInfo;
 		int startCount = 0;
 		int startId = 1;
@@ -240,5 +232,6 @@ public class ServiceEnv {
 		private RunningServiceRecord() {
 		}
 	}
+
 
 }
