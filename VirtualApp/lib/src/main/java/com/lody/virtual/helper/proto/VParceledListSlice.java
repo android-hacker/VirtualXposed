@@ -21,16 +21,21 @@ import java.util.List;
  * See b/17671747.
  *
  * @hide
+ *
+ * OpenSilk: Modified to remove the creator optimization which uses hidden apis.
+ * this means we write an extra string for every list item.
+ * Class verification left in place since the Base type issue still applies
  */
 public class VParceledListSlice<T extends Parcelable> implements Parcelable {
 	private static String TAG = "ParceledListSlice";
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 
 	/*
      * TODO get this number from somewhere else. For now set it to a quarter of
      * the 1MB limit.
      */
-	private static final int MAX_IPC_SIZE = IBinder.MAX_IPC_SIZE;
+	private static final int MAX_IPC_SIZE = 256 * 1024;
+	private static final int MAX_FIRST_IPC_SIZE = MAX_IPC_SIZE / 2;
 
 	private final List<T> mList;
 
@@ -38,7 +43,6 @@ public class VParceledListSlice<T extends Parcelable> implements Parcelable {
 		mList = list;
 	}
 
-	@SuppressWarnings("unchecked")
 	private VParceledListSlice(Parcel p, ClassLoader loader) {
 		final int N = p.readInt();
 		mList = new ArrayList<T>(N);
@@ -47,7 +51,7 @@ public class VParceledListSlice<T extends Parcelable> implements Parcelable {
 			return;
 		}
 
-		Parcelable.Creator<?> creator = p.readParcelableCreator(loader);
+		//Parcelable.Creator<T> creator = p.readParcelableCreator(loader);
 		Class<?> listElementClass = null;
 
 		int i = 0;
@@ -56,7 +60,8 @@ public class VParceledListSlice<T extends Parcelable> implements Parcelable {
 				break;
 			}
 
-			final T parcelable = p.readCreator(creator, loader);
+			//final T parcelable = p.readCreator(creator, loader);
+			final T parcelable = p.readParcelable(loader);
 			if (listElementClass == null) {
 				listElementClass = parcelable.getClass();
 			} else {
@@ -84,7 +89,8 @@ public class VParceledListSlice<T extends Parcelable> implements Parcelable {
 				return;
 			}
 			while (i < N && reply.readInt() != 0) {
-				final T parcelable = reply.readCreator(creator, loader);
+				//final T parcelable = reply.readCreator(creator, loader);
+				final T parcelable = reply.readParcelable(loader);
 				verifySameType(listElementClass, parcelable.getClass());
 
 				mList.add(parcelable);
@@ -96,24 +102,6 @@ public class VParceledListSlice<T extends Parcelable> implements Parcelable {
 			data.recycle();
 		}
 	}
-
-
-	@SuppressWarnings("unchecked")
-	public static final Parcelable.ClassLoaderCreator<VParceledListSlice> CREATOR =
-			new Parcelable.ClassLoaderCreator<VParceledListSlice>() {
-				public VParceledListSlice createFromParcel(Parcel in) {
-					return new VParceledListSlice(in, null);
-				}
-
-				@Override
-				public VParceledListSlice createFromParcel(Parcel in, ClassLoader loader) {
-					return new VParceledListSlice(in, loader);
-				}
-
-				public VParceledListSlice[] newArray(int size) {
-					return new VParceledListSlice[size];
-				}
-			};
 
 	private static void verifySameType(final Class<?> expected, final Class<?> actual) {
 		if (!actual.equals(expected)) {
@@ -149,14 +137,15 @@ public class VParceledListSlice<T extends Parcelable> implements Parcelable {
 		if (DEBUG) Log.d(TAG, "Writing " + N + " items");
 		if (N > 0) {
 			final Class<?> listElementClass = mList.get(0).getClass();
-			dest.writeParcelableCreator(mList.get(0));
+			//dest.writeParcelableCreator(mList.get(0));
 			int i = 0;
-			while (i < N && dest.dataSize() < MAX_IPC_SIZE) {
+			while (i < N && dest.dataSize() < MAX_FIRST_IPC_SIZE) {
 				dest.writeInt(1);
 
 				final T parcelable = mList.get(i);
 				verifySameType(listElementClass, parcelable.getClass());
-				parcelable.writeToParcel(dest, callFlags);
+				//parcelable.writeToParcel(dest, callFlags);
+				dest.writeParcelable(parcelable, callFlags);
 
 				if (DEBUG) Log.d(TAG, "Wrote inline #" + i + ": " + mList.get(i));
 				i++;
@@ -177,7 +166,8 @@ public class VParceledListSlice<T extends Parcelable> implements Parcelable {
 
 							final T parcelable = mList.get(i);
 							verifySameType(listElementClass, parcelable.getClass());
-							parcelable.writeToParcel(reply, callFlags);
+							//parcelable.writeToParcel(reply, callFlags);
+							reply.writeParcelable(parcelable, callFlags);
 
 							if (DEBUG) Log.d(TAG, "Wrote extra #" + i + ": " + mList.get(i));
 							i++;
@@ -195,4 +185,20 @@ public class VParceledListSlice<T extends Parcelable> implements Parcelable {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public static final Parcelable.ClassLoaderCreator<VParceledListSlice> CREATOR =
+			new Parcelable.ClassLoaderCreator<VParceledListSlice>() {
+				public VParceledListSlice createFromParcel(Parcel in) {
+					return new VParceledListSlice(in, null);
+				}
+
+				@Override
+				public VParceledListSlice createFromParcel(Parcel in, ClassLoader loader) {
+					return new VParceledListSlice(in, loader);
+				}
+
+				public VParceledListSlice[] newArray(int size) {
+					return new VParceledListSlice[size];
+				}
+			};
 }

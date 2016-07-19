@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Lody
@@ -43,21 +44,23 @@ import java.util.Map;
  */
 public class AppSandBox {
 
-	private static final String TAG = "XAppSandBox";
+	private static final String TAG = AppSandBox.class.getSimpleName();
 	private static HashSet<String> installedApps = new HashSet<String>();
-	private static Map<String, Application> applications = new HashMap<String, Application>();
+	private static Map<String, Application> applicationMap = new HashMap<>();
 
 	private static boolean sInstalling = false;
 
 	public static Application getApplication(String pkg) {
-		return applications.get(pkg);
+		return applicationMap.get(pkg);
 	}
+
 
 	public static void install(String procName, String pkg) {
 		sInstalling = true;
 		if (installedApps.contains(pkg)) {
 			return;
 		}
+		XLog.d(TAG, "Installing %s.", pkg);
 		LocalProcessManager.onAppProcessCreate(VClientImpl.getClient().asBinder());
 		AppInfo appInfo = VirtualCore.getCore().findApp(pkg);
 		if (appInfo == null) {
@@ -174,7 +177,7 @@ public class AppSandBox {
 			}
 		}
 		LocalProcessManager.onEnterApp(pkg);
-		applications.put(appInfo.packageName, app);
+		applicationMap.put(appInfo.packageName, app);
 		installedApps.add(appInfo.packageName);
 		sInstalling = false;
 		XLog.d(TAG, "Application of Process(%s) have launched. ", RuntimeEnv.getCurrentProcessName());
@@ -214,8 +217,8 @@ public class AppSandBox {
 		return loadedApk;
 	}
 
-	public static String[] getInstalledPackages() {
-		return installedApps.toArray(new String[installedApps.size()]);
+	public static Set<String> getInstalledPackages() {
+		return new HashSet<>(installedApps);
 	}
 
 }

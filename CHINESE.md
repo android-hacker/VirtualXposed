@@ -73,15 +73,6 @@ QQ Group: **553070909**
             e.printStackTrace();
         }
     }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        VirtualCore.getCore().handleApplication(this);
-        if (!VirtualCore.getCore().isVAppProcess()) {
-            // Do some thing...
-        }
-    }
 ```
 
 5. For **Install a virtual App**, use this function:

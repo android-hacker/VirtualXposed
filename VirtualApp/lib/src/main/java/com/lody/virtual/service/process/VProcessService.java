@@ -220,7 +220,7 @@ public class VProcessService extends IProcessManager.Stub {
 	 */
 	private synchronized void removeProcessRecordLocked(int pid) {
 		ProcessRecord r = mProcessList.getRecord(pid);
-		if (r.runningAppPkgs != null) {
+		if (r != null) {
 			for (String pkg : r.runningAppPkgs) {
 				RunningAppRecord app = mRunningAppList.getRecord(pkg);
 				if (app == null) {

@@ -43,7 +43,9 @@ import java.lang.reflect.Field;
 		Hook_SetPackageAskScreenCompat.class, Hook_GetPackageAskScreenCompat.class,
 		Hook_SetAppLockedVerifying.class,
 		Hook_CheckPermission.class,
-		Hook_PublishContentProviders.class,})
+		Hook_PublishContentProviders.class,
+		Hook_GetCurrentUser.class,
+})
 public class ActivityManagerPatch extends PatchObject<IActivityManager, HookObject<IActivityManager>> {
 
 	public static IActivityManager getAMN() {

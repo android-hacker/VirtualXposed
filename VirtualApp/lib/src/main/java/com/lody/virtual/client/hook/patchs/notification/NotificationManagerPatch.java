@@ -19,7 +19,8 @@ import java.lang.reflect.Field;
  * @see Toast
  */
 @Patch({Hook_EnqueueToast.class, Hook_CancelToast.class, Hook_CancelAllNotifications.class,
-		Hook_EnqueueNotificationWithTag.class, Hook_CancelNotificationWithTag.class,Hook_EnqueueNotificationWithTagPriority.class, Hook_EnqueueNotification.class})
+		Hook_EnqueueNotificationWithTag.class, Hook_CancelNotificationWithTag.class,
+		Hook_EnqueueNotificationWithTagPriority.class, Hook_EnqueueNotification.class})
 public class NotificationManagerPatch extends PatchObject<INotificationManager, HookObject<INotificationManager>> {
 
 	public static INotificationManager getNM() {

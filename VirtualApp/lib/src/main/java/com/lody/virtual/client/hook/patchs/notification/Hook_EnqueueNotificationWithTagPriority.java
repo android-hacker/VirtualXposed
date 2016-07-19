@@ -14,4 +14,9 @@ package com.lody.virtual.client.hook.patchs.notification;
     public Hook_EnqueueNotificationWithTagPriority(NotificationManagerPatch patchObject) {
         super(patchObject);
     }
+
+    @Override
+    public String getName() {
+        return "enqueueNotificationWithTagPriority";
+    }
 }

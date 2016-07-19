@@ -785,7 +785,7 @@ public class VAccountService
     private void sendAccountsChangedBroadcast() {
         Log.i(TAG, "the accounts changed, sending broadcast of "
                 + ACCOUNTS_CHANGED_INTENT.getAction());
-        mContext.sendBroadcast(ACCOUNTS_CHANGED_INTENT);
+//        mContext.sendBroadcast(ACCOUNTS_CHANGED_INTENT);
     }
 
     public void clearPassword(Account account) {

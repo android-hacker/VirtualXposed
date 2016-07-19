@@ -3,9 +3,6 @@ package com.lody.virtual.client.env;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.lody.virtual.client.env.Constants.GMS_PKG;
-import static com.lody.virtual.client.env.Constants.GOOGLE_PLAY_STORE_PKG;
-
 /**
  * @author Lody
  *
@@ -20,8 +17,6 @@ public final class BlackList {
 
 	static {
 		ACTION_BLACK_LIST.add("android.appwidget.action.APPWIDGET_UPDATE");
-		PKG_BLACK_LIST.add(GMS_PKG);
-		PKG_BLACK_LIST.add(GOOGLE_PLAY_STORE_PKG);
 	}
 
 	/**
