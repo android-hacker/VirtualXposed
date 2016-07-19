@@ -45,6 +45,7 @@ import java.lang.reflect.Field;
 		Hook_CheckPermission.class,
 		Hook_PublishContentProviders.class,
 		Hook_GetCurrentUser.class,
+		Hook_UnstableProviderDied.class,
 })
 public class ActivityManagerPatch extends PatchObject<IActivityManager, HookObject<IActivityManager>> {
 
