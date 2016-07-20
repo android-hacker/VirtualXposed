@@ -39,8 +39,11 @@ public class NotificationHandler {
     private final NotificationLayoutCompat mNotificationLayoutCompat;
     private final NotificationActionCompat mNotificationActionCompat;
     private static final String TAG = NotificationHandler.class.getSimpleName();
-    /** 预编译 双开不处理 */
-    private static final boolean DOPEN_NOT_DEAL = false;
+    /** 双开不处理 */
+    private static boolean DOPEN_NOT_DEAL = false;
+    /** 系统样式的通知栏不处理 */
+    private static boolean SYSTEM_NOTIFICATION = false;
+
 
     private void init(Context context) {
         mNotificationActionCompat.init(context);
@@ -110,7 +113,7 @@ public class NotificationHandler {
             if (args[i] instanceof Notification) {
                 Notification notification = (Notification) args[i];//nobug
                 final Context pluginContext = VirtualCore.getCore().getContext().createPackageContext(packageName, Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
-                args[i] = new NotificationCompat(pluginContext, mNotificationActionCompat, notification).getNotification();
+                args[i] = new RemoteViewsCompat(pluginContext, mNotificationActionCompat, notification).getNotification();
                 break;
             }
         }
@@ -148,13 +151,18 @@ public class NotificationHandler {
                         args[i] = notification1;
                         return 0;
                     } else {
-//                        //这里要修改原生的通知，是否也和上面一样的处理？
+                        //这里要修改原生的通知，是否也和上面一样的处理？
                         final int icon = notification.icon;
-                        Notification notification1 = replaceNotification(hostContext, packageName, notification, true);
-                        if (notification1 != null) {
-                            args[i] = notification1;
-                        } else {
+                        if (SYSTEM_NOTIFICATION) {
+                            //处理图片,icon,application
                             mNotificationActionCompat.hackNotification(notification);
+                        } else {
+                            Notification notification1 = replaceNotification(hostContext, packageName, notification, true);
+                            if (notification1 != null) {
+                                args[i] = notification1;
+                            } else {
+                                mNotificationActionCompat.hackNotification(notification);
+                            }
                         }
                         return icon;
                     }
@@ -249,18 +257,44 @@ public class NotificationHandler {
         return VirtualCore.getCore().isHostPackageName(pkg);
     }
 
+    /***
+     * 特殊情况：
+     * 1.app保留了上一个notification对象，下次用同一个对象更新。（理论上是会及时更新，待测试）
+     * 2.app保留了修改过的notification对象，下次用同一个对象更新。（把上一次的notification存起来，以及包名，下次的时候，获取这2个值，如果不为空，则提取mActions+旧notification=新notification）
+     *
+     * @param context      cxt
+     * @param packageName  通知栏包名
+     * @param notification 通知栏
+     * @param systemId     系统样式？
+     * @return
+     * @throws PackageManager.NameNotFoundException
+     */
     private Notification replaceNotification(Context context, String packageName, Notification notification, boolean systemId) throws PackageManager.NameNotFoundException {
+        NotificationEx notificationEx = null;
+        if (notification instanceof NotificationEx) {
+            //自己修改过的
+            notificationEx = (NotificationEx) notification;
+            packageName = notificationEx.getPackageName();
+            notification = notificationEx.getOrgVersion();
+            //假如对方对notificationEx做了处理？
+            //1.自定义布局的情况
+            //2.系统布局的情况
+        }
         final ContextWrapperCompat pluginContext = new ContextWrapperCompat(context, packageName);
         //build
         Notification.Builder builder = new Notification.Builder(context);
         //插件的icon，绘制完成再替换成自己的
         mNotificationActionCompat.builderNotificationIcon(pluginContext, notification, builder);
-        NotificationCompat notificationCompat = new NotificationCompat(pluginContext, mNotificationActionCompat, notification);
-        RemoteViews contentView = notificationCompat.getRemoteViews();
+        RemoteViewsCompat remoteViewsCompat = new RemoteViewsCompat(pluginContext, mNotificationActionCompat, notification);
+        RemoteViews contentView = remoteViewsCompat.getRemoteViews();
         //大通知栏
-        boolean isBig = notificationCompat.isBigRemoteViews();
+        boolean isBig = remoteViewsCompat.isBigRemoteViews();
         if (contentView == null) {
             return null;
+        }
+        //追加
+        if (notificationEx != null) {
+            notificationEx.appendActions(contentView);
         }
         //icon
         if (Build.VERSION.SDK_INT >= 23) {
@@ -279,7 +313,7 @@ public class NotificationHandler {
         }
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), layoutId);
         if (systemId) {
-            setDateTime(remoteViews, notificationCompat, notification.when);
+            setDateTime(remoteViews, remoteViewsCompat, notification.when);
         }
         //绘制图
         Bitmap bmp = createBitmap(pluginContext, contentView, isBig, systemId);
@@ -322,8 +356,8 @@ public class NotificationHandler {
             //clickIntents
             //2个View
             new NotificationPendIntent(
-                    createView(context,remoteViews,isBig, false),
-                    createView(pluginContext, contentView,isBig,false),
+                    createView(context, remoteViews, isBig, false),
+                    createView(pluginContext, contentView, isBig, false),
                     clickIntents)
                     .set(remoteViews);
         }
@@ -335,13 +369,13 @@ public class NotificationHandler {
             notification1 = builder.getNotification();
         }
         notification1.flags = notification.flags;
-        return notification1;
+        return new NotificationEx(packageName, notification1).setActionCount(remoteViews);
     }
 
-    private void setDateTime(RemoteViews remoteViews, NotificationCompat notificationCompat, long time) {
-        if (notificationCompat.hasDateTime()) {
-            int color = notificationCompat.getColor();
-            float size = notificationCompat.getSize();
+    private void setDateTime(RemoteViews remoteViews, RemoteViewsCompat remoteViewsCompat, long time) {
+        if (remoteViewsCompat.hasDateTime()) {
+            int color = remoteViewsCompat.getColor();
+            float size = remoteViewsCompat.getSize();
             if (color != 0) {
                 remoteViews.setTextColor(R.id.time, color);
             } else {
@@ -351,8 +385,8 @@ public class NotificationHandler {
                 if (size > 0) {
                     remoteViews.setTextViewTextSize(R.id.time, TypedValue.COMPLEX_UNIT_PX, size);
                 }
-                if (notificationCompat.getPaddingRight() >= 0) {
-                    remoteViews.setViewPadding(R.id.time, 0, 0, notificationCompat.getPaddingRight(), 0);
+                if (remoteViewsCompat.getPaddingRight() >= 0) {
+                    remoteViews.setViewPadding(R.id.time, 0, 0, remoteViewsCompat.getPaddingRight(), 0);
                 }
             }
             remoteViews.setLong(R.id.time, "setTime", time);

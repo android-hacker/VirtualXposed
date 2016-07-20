@@ -3,7 +3,6 @@ package com.lody.virtual.client.hook.patchs.notification.compat;
 import android.app.Notification;
 import android.content.Context;
 import android.os.Build;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RemoteViews;
@@ -16,7 +15,7 @@ import com.lody.virtual.helper.utils.Reflect;
  * Created by 247321453 on 2016/7/17.
  * contentview为空的情况处理
  */
-public class NotificationCompat {
+public class RemoteViewsCompat {
     Context context;
     RemoteViews mRemoteViews;
     boolean mBig;
@@ -27,7 +26,7 @@ public class NotificationCompat {
     boolean mDateTime;
     int paddingRight = -1;
 
-    public NotificationCompat(Context context, NotificationActionCompat notificationActionCompat, Notification notification) {
+    public RemoteViewsCompat(Context context, NotificationActionCompat notificationActionCompat, Notification notification) {
         this.context = context;
         this.iconId = notification.icon;
         this.mNotification = deal(notification, true);
@@ -108,6 +107,29 @@ public class NotificationCompat {
         return iconId;
     }
 
+    public static RemoteViews findRemoteViews(Notification notification) {
+        RemoteViews remoteViews = null;
+        if (notification.contentView != null) {
+            remoteViews = notification.contentView;
+        } else {
+            if (Build.VERSION.SDK_INT >= 16) {
+                if (notification.bigContentView != null) {
+                    remoteViews = notification.bigContentView;
+                }
+            }
+            if (remoteViews == null && Build.VERSION.SDK_INT >= 21) {
+                if (notification.publicVersion != null) {
+                    if (notification.publicVersion.contentView != null) {
+                        remoteViews = notification.publicVersion.contentView;
+                    } else if (notification.publicVersion.bigContentView != null) {
+                        remoteViews = notification.publicVersion.bigContentView;
+                    }
+                }
+            }
+        }
+        return remoteViews;
+    }
+
     private Notification deal(Notification notification, boolean first) {
         if (notification.contentView != null) {
             mRemoteViews = notification.contentView;
@@ -119,7 +141,6 @@ public class NotificationCompat {
                 }
             }
             if (mRemoteViews == null && Build.VERSION.SDK_INT >= 21) {
-                Log.i("kk", "notification.publicVersion=" + notification.publicVersion);
                 if (notification.publicVersion != null) {
                     if (notification.publicVersion.contentView != null) {
                         mRemoteViews = notification.publicVersion.contentView;
