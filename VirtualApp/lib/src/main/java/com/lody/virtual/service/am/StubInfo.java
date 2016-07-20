@@ -25,26 +25,25 @@ public class StubInfo {
 		}
 	/*package*/ ActivityInfo fetchStubActivityInfo(ActivityInfo targetInfo) {
 
-			boolean Window_windowIsTranslucent = false;
-			boolean Window_windowIsFloating = false;
+			boolean isTranslucent = false;
+			boolean isFloating = false;
 			try {
 				Reflect style = Reflect.on(com.android.internal.R.styleable.class);
 				int[] R_Styleable_Window = style.get("Window");
 				int R_Styleable_Window_windowIsTranslucent = style.get("Window_windowIsTranslucent");
 				int R_Styleable_Window_windowIsFloating = style.get("Window_windowIsFloating");
-				int R_Styleable_Window_windowShowWallpaper = style.get("Window_windowShowWallpaper");
 
 				AttributeCache.Entry ent = AttributeCache.instance().get(targetInfo.packageName, targetInfo.theme,
 						R_Styleable_Window);
 				if (ent != null && ent.array != null) {
-					Window_windowIsTranslucent = ent.array.getBoolean(R_Styleable_Window_windowIsTranslucent, false);
-					Window_windowIsFloating = ent.array.getBoolean(R_Styleable_Window_windowIsFloating, false);
+					isTranslucent = ent.array.getBoolean(R_Styleable_Window_windowIsTranslucent, false);
+					isFloating = ent.array.getBoolean(R_Styleable_Window_windowIsFloating, false);
 				}
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
 
-			boolean isDialogStyle = Window_windowIsTranslucent || Window_windowIsFloating;
+			boolean isDialogStyle = isTranslucent || isFloating;
 			if (isDialogStyle) {
 				return dialogActivityInfos.get(0);
 			} else {
