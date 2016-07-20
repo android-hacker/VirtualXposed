@@ -14,14 +14,17 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.FrameLayout;
 import android.widget.RemoteViews;
+import android.widget.TextView;
 
 import com.lody.virtual.R;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.XLog;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -39,8 +42,10 @@ public class NotificationHandler {
     private final NotificationLayoutCompat mNotificationLayoutCompat;
     private final NotificationActionCompat mNotificationActionCompat;
     private static final String TAG = NotificationHandler.class.getSimpleName();
-    /** 预编译 双开不处理 */
-    private static final boolean DOPEN_NOT_DEAL = false;
+    /** 双开不处理 */
+    public static boolean DOPEN_NOT_DEAL = false;
+    /** 系统样式的通知栏不处理 */
+    public static boolean SYSTEM_NOTIFICATION = false;
 
     private void init(Context context) {
         mNotificationActionCompat.init(context);
@@ -101,7 +106,7 @@ public class NotificationHandler {
                 }
             }
         }
-        XLog.w(TAG, "use my dimen:" + name);
+//        XLog.w(TAG, "use my dimen:" + name);
         return defId == 0 ? 0 : Math.round(context.getResources().getDimension(defId));
     }
 
@@ -110,7 +115,7 @@ public class NotificationHandler {
             if (args[i] instanceof Notification) {
                 Notification notification = (Notification) args[i];//nobug
                 final Context pluginContext = VirtualCore.getCore().getContext().createPackageContext(packageName, Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
-                args[i] = new NotificationCompat(pluginContext, mNotificationActionCompat, notification).getNotification();
+                args[i] = new RemoteViewsCompat(pluginContext, mNotificationActionCompat, notification).getNotification();
                 break;
             }
         }
@@ -125,10 +130,15 @@ public class NotificationHandler {
      */
     public int dealNotification(Context hostContext, String packageName, Object... args) throws Exception {
         init(hostContext);
+        int id = 0;
         for (int i = 0; i < args.length; i++) {
+            if (args[i] instanceof Integer) {
+                id = (Integer) args[i];
+            }
             if (args[i] instanceof Notification) {
                 Notification notification = (Notification) args[i];//nobug
                 if (isPluginNotification(notification)) {
+//                    XLog.d("kk", "deal id=" + id + ", " + notification);
                     //双开模式，icon还是va的
                     if (DOPEN_NOT_DEAL) {
                         if (VirtualCore.getCore().isOutsideInstalled(packageName)) {
@@ -148,16 +158,23 @@ public class NotificationHandler {
                         args[i] = notification1;
                         return 0;
                     } else {
-//                        //这里要修改原生的通知，是否也和上面一样的处理？
+                        //这里要修改原生的通知，是否也和上面一样的处理？
                         final int icon = notification.icon;
-                        Notification notification1 = replaceNotification(hostContext, packageName, notification, true);
-                        if (notification1 != null) {
-                            args[i] = notification1;
-                        } else {
+                        if (SYSTEM_NOTIFICATION) {
+                            //处理图片,icon,application
                             mNotificationActionCompat.hackNotification(notification);
+                        } else {
+                            Notification notification1 = replaceNotification(hostContext, packageName, notification, true);
+                            if (notification1 != null) {
+                                args[i] = notification1;
+                            } else {
+                                mNotificationActionCompat.hackNotification(notification);
+                            }
                         }
                         return icon;
                     }
+                } else {
+                    XLog.w("kk", "mod notification");
                 }
             }
         }
@@ -249,16 +266,21 @@ public class NotificationHandler {
         return VirtualCore.getCore().isHostPackageName(pkg);
     }
 
-    private Notification replaceNotification(Context context, String packageName, Notification notification, boolean systemId) throws PackageManager.NameNotFoundException {
+    /***
+     * @param context      cxt
+     * @param packageName  通知栏包名
+     * @param notification 通知栏
+     * @param systemId     系统样式？
+     * @return
+     * @throws PackageManager.NameNotFoundException
+     */
+    private Notification replaceNotification(Context context, String packageName, Notification notification, boolean systemId) throws PackageManager.NameNotFoundException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         final ContextWrapperCompat pluginContext = new ContextWrapperCompat(context, packageName);
         //build
-        Notification.Builder builder = new Notification.Builder(context);
-        //插件的icon，绘制完成再替换成自己的
-        mNotificationActionCompat.builderNotificationIcon(pluginContext, notification, builder);
-        NotificationCompat notificationCompat = new NotificationCompat(pluginContext, mNotificationActionCompat, notification);
-        RemoteViews contentView = notificationCompat.getRemoteViews();
+        RemoteViewsCompat remoteViewsCompat = new RemoteViewsCompat(pluginContext, mNotificationActionCompat, notification);
+        RemoteViews contentView = remoteViewsCompat.getRemoteViews();
         //大通知栏
-        boolean isBig = notificationCompat.isBigRemoteViews();
+        boolean isBig = remoteViewsCompat.isBigRemoteViews();
         if (contentView == null) {
             return null;
         }
@@ -279,69 +301,38 @@ public class NotificationHandler {
         }
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), layoutId);
         if (systemId) {
-            setDateTime(remoteViews, notificationCompat, notification.when);
+            setDateTime(remoteViews, remoteViewsCompat, notification.when);
         }
         //绘制图
-        Bitmap bmp = createBitmap(pluginContext, contentView, isBig, systemId);
+        final Bitmap bmp = createBitmap(pluginContext, contentView, isBig, systemId);
         if (bmp == null) {
             XLog.e(TAG, "bmp is null,contentView=" + contentView);
         }
         remoteViews.setImageViewBitmap(R.id.im_main, bmp);
-        builder.setContent(remoteViews);
-        //icon
-        if (Build.VERSION.SDK_INT < 23) {
-            builder.setSmallIcon(context.getApplicationInfo().icon);
-        }
-        if (Build.VERSION.SDK_INT >= 21) {
-            builder.setCategory(notification.category);
-            builder.setColor(notification.color);
-        }
-        if (Build.VERSION.SDK_INT >= 20) {
-            builder.setGroup(notification.getGroup());
-            builder.setGroupSummary(notification.isGroupSummary());
-            builder.setPriority(notification.priority);
-            builder.setSortKey(notification.getSortKey());
-        }
-        if (notification.sound != null) {
-            if (notification.defaults == 0) {
-                builder.setDefaults(Notification.DEFAULT_SOUND);//notification.defaults);
-            } else {
-                builder.setDefaults(Notification.DEFAULT_ALL);
-            }
-        }
-        builder.setLights(notification.ledARGB, notification.ledOnMS, notification.ledOffMS);
-        builder.setNumber(notification.number);
-        builder.setTicker(notification.tickerText);
-        //intent
-        builder.setContentIntent(notification.contentIntent);
-        builder.setDeleteIntent(notification.deleteIntent);
-        builder.setFullScreenIntent(notification.fullScreenIntent,
-                (notification.flags & Notification.FLAG_HIGH_PRIORITY) != 0);
+//        builder.setContent(remoteViews);
         //点击事件
         if (layoutId == R.layout.custom_notification) {
-            //clickIntents
             //2个View
             new NotificationPendIntent(
-                    createView(context,remoteViews,isBig, false),
-                    createView(pluginContext, contentView,isBig,false),
+                    createView(context, remoteViews, isBig, false),
+                    createView(pluginContext, contentView, isBig, false),
                     clickIntents)
                     .set(remoteViews);
         }
-        //icon
-        Notification notification1;
-        if (Build.VERSION.SDK_INT >= 16) {
-            notification1 = builder.build();
+        mNotificationActionCompat.hackNotification(notification);
+        Notification notification1 = RemoteViewsCompat.clone(pluginContext, notification);
+        if (Build.VERSION.SDK_INT >= 16 && isBig) {
+            notification1.bigContentView = remoteViews;
         } else {
-            notification1 = builder.getNotification();
+            notification1.contentView = remoteViews;
         }
-        notification1.flags = notification.flags;
         return notification1;
     }
 
-    private void setDateTime(RemoteViews remoteViews, NotificationCompat notificationCompat, long time) {
-        if (notificationCompat.hasDateTime()) {
-            int color = notificationCompat.getColor();
-            float size = notificationCompat.getSize();
+    private void setDateTime(RemoteViews remoteViews, RemoteViewsCompat remoteViewsCompat, long time) {
+        if (remoteViewsCompat.hasDateTime()) {
+            int color = remoteViewsCompat.getColor();
+            float size = remoteViewsCompat.getSize();
             if (color != 0) {
                 remoteViews.setTextColor(R.id.time, color);
             } else {
@@ -351,8 +342,8 @@ public class NotificationHandler {
                 if (size > 0) {
                     remoteViews.setTextViewTextSize(R.id.time, TypedValue.COMPLEX_UNIT_PX, size);
                 }
-                if (notificationCompat.getPaddingRight() >= 0) {
-                    remoteViews.setViewPadding(R.id.time, 0, 0, notificationCompat.getPaddingRight(), 0);
+                if (remoteViewsCompat.getPaddingRight() >= 0) {
+                    remoteViews.setViewPadding(R.id.time, 0, 0, remoteViewsCompat.getPaddingRight(), 0);
                 }
             }
             remoteViews.setLong(R.id.time, "setTime", time);
@@ -406,7 +397,7 @@ public class NotificationHandler {
         int width = mNotificationLayoutCompat.getNotificationWidth(context, notification_panel_width, height, notification_side_padding);
         ViewGroup frameLayout = new FrameLayout(context);
         View view1 = remoteViews.apply(context, frameLayout);
-        XLog.i(TAG, "sp=" + notification_side_padding + ",w=" + width + ",h=" + height);
+//        XLog.d(TAG, "sp=" + notification_side_padding + ",w=" + width + ",h=" + height);
         View mCache;
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.gravity = Gravity.CENTER_VERTICAL;
@@ -421,20 +412,99 @@ public class NotificationHandler {
             mCache = frameLayout;
             frameLayout.addView(view1, params);
         }
-        if (!isBig) {
-            mCache.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST));
-            mCache.layout(0, 0, width, height);
-        } else {
-            mCache.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST));
-            mCache.layout(0, 0, width, height);
+        if (view1 instanceof ViewGroup) {
+            fixTextView((ViewGroup) view1);
         }
+        if (!isBig) {
+            mCache.layout(0, 0, width, height);
+            mCache.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST));
+            mCache.layout(0, 0, mCache.getMeasuredWidth(), mCache.getMeasuredHeight());
+        } else {
+            mCache.layout(0, 0, width, height);
+            mCache.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST));
+            mCache.layout(0, 0, mCache.getMeasuredWidth(), mCache.getMeasuredHeight());
+        }
+        //打印actions
+//        logActions(remoteViews, view1);
         return mCache;
     }
+
+    private void fixTextView(ViewGroup viewGroup) {
+        int count = viewGroup.getChildCount();
+        for (int i = 0; i < count; i++) {
+            View v = viewGroup.getChildAt(i);
+            if (v instanceof TextView) {
+                TextView tv = (TextView) v;
+                if(isSingleLine(tv)){
+                    tv.setSingleLine(false);
+                    tv.setMaxLines(1);
+                }
+            } else if (v instanceof ViewGroup) {
+                fixTextView((ViewGroup) v);
+            }
+        }
+    }
+
+    private boolean isSingleLine(TextView textView) {
+        boolean singleLine = false;
+        try {
+            singleLine = Reflect.on(textView).get("mSingleLine");
+        } catch (Exception e) {
+            singleLine = (textView.getInputType() & EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE) != 0;
+        }
+        return singleLine;
+    }
+
+//    @SuppressWarnings("ResourceType")
+//    private void logActions(RemoteViews remoteViews, View view) {
+//        View test = view.findViewById(2131558602);
+//        if (test != null) {
+//            if (test instanceof TextView) {
+//                Rect rect = new Rect();
+//                test.getHitRect(rect);
+//                ((TextView) test).setText("hllo2222222222");
+//                ((TextView) test).setTextColor(Color.RED);
+//                ((TextView) test).setEllipsize(null);
+//                ((TextView) test).setSingleLine(false);
+//                ((TextView) test).setMaxLines(1);
+//                test.setBackgroundColor(Color.BLUE);
+//                XLog.i("kk", "find text 1:" + rect + ",text=" + ((TextView) test).getText());
+//            }
+//        }
+//        test = view.findViewById(2131558606);
+//        if (test != null) {
+//            if (test instanceof TextView) {
+//                Rect rect = new Rect();
+//                test.getHitRect(rect);
+//                ((TextView) test).setText("hello");
+//                XLog.i("kk", "find text 2:" + rect + ",text=" + ((TextView) test).getText());
+//            }
+//        }
+//
+//        try {
+//            Object mActionsObj = Reflect.on(remoteViews).get("mActions");
+//            if (mActionsObj instanceof Collection) {
+//                Collection mActions = (Collection) mActionsObj;
+//                Iterator iterable = mActions.iterator();
+//                while (iterable.hasNext()) {
+//                    Object o = iterable.next();
+//                    String action = Reflect.on(o).call("getActionName").get();
+//                    int viewId = Reflect.on(o).get("viewId");
+//                    if (action != null && action.startsWith("ReflectionActionsetText10")) {
+//                        XLog.d("kk", "set " + viewId + ",action=" + action + ",value=" + Reflect.on(o).get("value"));
+//                    }
+//                }
+//            }
+//        } catch (Exception e) {
+//
+//        }
+//    }
 
     private Bitmap createBitmap(final Context context, RemoteViews remoteViews, boolean isBig, boolean systemId) {
         View mCache = createView(context, remoteViews, isBig, systemId);
         mCache.setDrawingCacheEnabled(true);
         mCache.buildDrawingCache();
+        mCache.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
         return mCache.getDrawingCache();
     }
 }

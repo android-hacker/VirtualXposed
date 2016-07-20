@@ -13,7 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class NotificationPendIntent {
+class NotificationPendIntent {
     View my;
     View view2;
     Map<Integer, PendingIntent> clickIntents;
