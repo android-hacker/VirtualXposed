@@ -235,7 +235,7 @@ import java.util.Map;
                 int id = Reflect.on("com.android.internal.R$id").get("icon");
                 if (remoteViews != null) {
                     remoteViews.setImageViewBitmap(id, bitmap);
-                    XLog.i(TAG, "set icon ok:" + bitmap);
+//                    XLog.i(TAG, "set icon ok:" + bitmap);
                 }
             }
         } catch (Exception e) {
@@ -252,7 +252,7 @@ import java.util.Map;
                 Bitmap bitmap = drawableToBitMap(resources.getDrawable(iconId));
                 if (notification.contentView != null) {
                     notification.contentView.setImageViewBitmap(id, bitmap);
-                    XLog.i(TAG, "set icon ok:" + bitmap);
+//                    XLog.i(TAG, "set icon ok:" + bitmap);
                     if (Build.VERSION.SDK_INT >= 19 && notification.extras != null) {
                         notification.extras.putBoolean("android.rebuild.contentView", false);
                     }
@@ -261,7 +261,7 @@ import java.util.Map;
                     if (Build.VERSION.SDK_INT >= 19 && notification.extras != null) {
                         notification.extras.putBoolean("android.rebuild.contentView", false);
                     }
-                    XLog.i(TAG, "set icon ok");
+//                    XLog.i(TAG, "set icon ok");
                 }
             } catch (Exception e) {
                 XLog.e(TAG, "icon", e);

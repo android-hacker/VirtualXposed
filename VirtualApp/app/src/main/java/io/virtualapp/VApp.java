@@ -33,6 +33,10 @@ public class VApp extends Application {
     public void onCreate() {
         gDefault = this;
         super.onCreate();
+        //双开不处理
+//        NotificationHandler.DOPEN_NOT_DEAL = true;
+        //系统样式的通知栏不处理
+//        NotificationHandler.SYSTEM_NOTIFICATION = true;
 //        BlockCanary.install(this, new AppBlockCanaryContext()).start();
         if (VirtualCore.getCore().isMainProcess()) {
             Once.initialise(this);
