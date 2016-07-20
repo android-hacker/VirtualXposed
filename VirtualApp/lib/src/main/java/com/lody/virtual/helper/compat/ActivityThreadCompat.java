@@ -22,7 +22,6 @@ import java.util.List;
 public class ActivityThreadCompat {
 
 	public static LoadedApk getPackageInfoNoCheck(ApplicationInfo appInfo) {
-
 		ActivityThread mainThread = VirtualCore.mainThread();
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			try {

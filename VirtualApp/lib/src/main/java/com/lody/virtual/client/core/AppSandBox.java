@@ -108,10 +108,11 @@ public class AppSandBox {
 		}
 		VMRuntimeCompat.setTargetSdkVersion(applicationInfo.targetSdkVersion);
 
+		RuntimeEnv.setCurrentProcessName(procName, appInfo);
+
 		LoadedApk loadedApk = createLoadedApk(appInfo);
 
 		Context appContext = createAppContext(applicationInfo);
-		RuntimeEnv.setCurrentProcessName(procName, appInfo);
 
 		File codeCacheDir;
 
@@ -241,6 +242,12 @@ public class AppSandBox {
 			classLoader = new PathAppClassLoader(appInfo);
 		}
 		Reflect.on(loadedApk).set("mClassLoader", classLoader);
+		try {
+			//Fuck HUA-WEI phone
+			Reflect.on(loadedApk).set("mSecurityViolation", false);
+		} catch (Throwable e) {
+			// Ignore
+		}
 		return loadedApk;
 	}
 

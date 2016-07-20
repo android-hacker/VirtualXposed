@@ -322,7 +322,8 @@
         <!--Dialog-->
 
         <activity
-            android:name="com.lody.virtual.client.stub.StubActivity$C0"
+            android:theme="@android:style/Theme.Dialog"
+            android:name="com.lody.virtual.client.stub.StubActivity$C0_"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
             android:process=":p0"
             android:taskAffinity="com.lody.virtual.vt">

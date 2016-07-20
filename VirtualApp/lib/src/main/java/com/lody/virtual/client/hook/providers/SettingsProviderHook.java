@@ -44,7 +44,7 @@ public class SettingsProviderHook extends ExternalProviderHook {
 
     @Override
     protected void processArgs(Method method, Object... args) {
-        if (args.length > 0 && args[0] instanceof String) {
+        if (args != null && args.length > 0 && args[0] instanceof String) {
             String pkg = (String) args[0];
             if (VirtualCore.getCore().isAppInstalled(pkg)) {
                 args[0] = VirtualCore.getCore().getHostPkg();
