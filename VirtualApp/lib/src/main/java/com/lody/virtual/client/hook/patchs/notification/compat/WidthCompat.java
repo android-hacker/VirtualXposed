@@ -9,21 +9,23 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.helper.utils.OSUtils;
 
 /**
  * Created by 247321453 on 2016/7/17.
+ * 通知栏的宽度适配
  */
-class NotificationLayoutCompat {
-    private final static String TAG = NotificationLayoutCompat.class.getSimpleName();
+class WidthCompat {
+    private final static String TAG = WidthCompat.class.getSimpleName();
+
     public int getNotificationWidth(Context context, int width, int height, int padding) {
-//TODO 适配各种rom
-        int w = getWidth(width, padding);
-        if (OSUtils.isEMUI()) {
+        //默认
+        int w = getDefaultWidth(width, padding);
+        if (OSUtils.getInstance().isEmui()) {
             //华为emui
             w = getEMUINotificationWidth(context, width, height);
-        } else if (OSUtils.isMIUI()) {
-//            if ("4".equals(OSUtils.getMIUIVersion())) {
+        } else if (OSUtils.getInstance().isMiui()) {
             if (Build.VERSION.SDK_INT >= 21) {
                 padding = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, context.getResources().getDisplayMetrics()));
                 w = getMIUINotificationWidth(context, width - padding * 2, height);
@@ -31,14 +33,11 @@ class NotificationLayoutCompat {
                 padding = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 25f, context.getResources().getDisplayMetrics()));
                 w = getMIUINotificationWidth(context, width - padding * 2, height);
             }
-//            } else {
-//                w = getMIUINotificationWidth(context, width, height);
-//            }
         }
         return w;
     }
 
-    private int getWidth(int width, int padding) {
+    private int getDefaultWidth(int width, int padding) {
         if (Build.VERSION.SDK_INT >= 21)
             return width - padding * 2;
         return width;
@@ -49,22 +48,23 @@ class NotificationLayoutCompat {
         //adaptive
         //content
         try {
-            Context systemUi = context.createPackageContext("com.android.systemui", Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
-            int id = systemUi.getResources().getIdentifier("status_bar_notification_row", "layout", "com.android.systemui");
+            Context systemUi = context.createPackageContext(Constants.SYSTEMUI_PKG, Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
+            int layoutId = getSystemId(systemUi, "status_bar_notification_row", "layout");
             //status_bar_notification_row
-            if (id != 0) {
-                ViewGroup viewGroup = (ViewGroup) LayoutInflater.from(systemUi).inflate(id, null);
-                int lid = systemUi.getResources().getIdentifier("adaptive", "id", "com.android.systemui");
+            if (layoutId != 0) {
+                ViewGroup viewGroup = createViewGroup(systemUi, layoutId);
+
+                int lid = getSystemId(systemUi, "adaptive", "id");
                 if (lid == 0) {
-                    lid = systemUi.getResources().getIdentifier("content", "id", "com.android.systemui");
+                    lid = getSystemId(systemUi, "content", "id");
                 } else {
+                    //miui5的子view不存在的空指针
                     View child = viewGroup.findViewById(lid);
                     if (child != null && child instanceof ViewGroup) {
                         ((ViewGroup) child).addView(new View(systemUi));
                     }
                 }
-                viewGroup.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST), View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.AT_MOST));
-                viewGroup.layout(0, 0, width, height);
+                layout(viewGroup, width, height);
                 if (lid != 0) {
                     View child = viewGroup.findViewById(lid);
                     if (child != null) {
@@ -76,8 +76,6 @@ class NotificationLayoutCompat {
                         View child = viewGroup.getChildAt(i);
                         if (FrameLayout.class.isInstance(child) || "LatestItemView".equals(child.getClass().getName())
                                 || "SizeAdaptiveLayout".equals(child.getClass().getName())) {
-//                            child.setPadding(0,0,0,0);
-                            //  child.getRight()-child.getLeft();
                             return width - child.getLeft() - child.getPaddingLeft() - child.getPaddingRight();//(LinearLayout)child;
                         }
                     }
@@ -91,21 +89,15 @@ class NotificationLayoutCompat {
 
     /**
      * emui 3.0
-     *
-     * @param context
-     * @param width
-     * @param height
-     * @return
      */
     private int getEMUINotificationWidth(Context context, int width, int height) {
         try {
-            Context systemUi = context.createPackageContext("com.android.systemui", Context.CONTEXT_IGNORE_SECURITY);
-            int id = systemUi.getResources().getIdentifier("time_axis", "layout", "com.android.systemui");
-            if (id != 0) {
-                ViewGroup viewGroup = (ViewGroup) LayoutInflater.from(systemUi).inflate(id, null);
-                int lid = systemUi.getResources().getIdentifier("content_view_group", "id", "com.android.systemui");
-                viewGroup.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST), View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.AT_MOST));
-                viewGroup.layout(0, 0, width, height);
+            Context systemUi = context.createPackageContext(Constants.SYSTEMUI_PKG, Context.CONTEXT_IGNORE_SECURITY);
+            int layoutId = getSystemId(systemUi, "time_axis", "layout");
+            if (layoutId != 0) {
+                ViewGroup viewGroup = createViewGroup(systemUi, layoutId);
+                layout(viewGroup, width, height);
+                int lid = getSystemId(systemUi, "content_view_group", "id");
                 if (lid != 0) {
                     View child = viewGroup.findViewById(lid);
                     return width - child.getLeft() - child.getPaddingLeft() - child.getPaddingRight();
@@ -114,8 +106,8 @@ class NotificationLayoutCompat {
                     for (int i = 0; i < count; i++) {
                         View child = viewGroup.getChildAt(i);
                         if (LinearLayout.class.isInstance(child)) {
-//                            child.setPadding(0,0,0,0);
-                            return width - child.getLeft() - child.getPaddingLeft() - child.getPaddingRight();//(LinearLayout)child;
+                            //(LinearLayout)child;
+                            return width - child.getLeft() - child.getPaddingLeft() - child.getPaddingRight();
                         }
                     }
                 }
@@ -123,5 +115,22 @@ class NotificationLayoutCompat {
         } catch (Exception e) {
         }
         return width;
+    }
+
+    private int getSystemId(Context systemUi, String name, String type) {
+        return systemUi.getResources().getIdentifier(name, type, Constants.SYSTEMUI_PKG);
+    }
+
+    private ViewGroup createViewGroup(Context context, int layoutId) {
+        ViewGroup viewGroup = (ViewGroup) LayoutInflater.from(context).inflate(layoutId, null);
+        return viewGroup;
+    }
+
+    private void layout(View view, int width, int height) {
+        view.layout(0, 0, width, height);
+        view.measure(
+                View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST),
+                View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.AT_MOST));
+        view.layout(0, 0, width, height);
     }
 }

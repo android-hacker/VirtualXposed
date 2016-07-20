@@ -1,5 +1,7 @@
 package com.lody.virtual.client.hook.patchs.notification;
 
+import android.app.Notification;
+
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.patchs.notification.compat.NotificationHandler;
@@ -27,22 +29,25 @@ import java.lang.reflect.Method;
     @Override
     public Object onHook(Object who, Method method, Object... args) throws Throwable {
         String pkgName = (String) args[0];
+        boolean needDeal = false;
         if (!VirtualCore.getCore().isHostPackageName(pkgName)) {
-            args[0] = VirtualCore.getCore().getContext().getPackageName();
-            int rs = NotificationHandler.getInstance().dealNotification(getHostContext(), pkgName, args);
-            if (rs < 0) {
-                return 0;
+            args[0] = getHostPkg();
+            needDeal = true;
+        }
+        if (needDeal) {
+            for (int i = 0; i < args.length; i++) {
+                if (args[i] instanceof Notification) {
+                    Notification notification = (Notification) args[i];
+                    NotificationHandler.Result result = NotificationHandler.getInstance()
+                            .dealNotification(getHostContext(),notification, pkgName);
+                    if (result.code == NotificationHandler.RESULT_CODE_DONT_SHOW) {
+                        return 0;
+                    } else if (result.code == NotificationHandler.RESULT_CODE_REPLACE) {
+                        args[i] = result.notification;
+                    }
+                    break;
+                }
             }
-            //在miui没用
-//            if(rs > 0){
-//                //系统样式
-//                //先显示，再修改icon
-//                method.invoke(who, args);
-//                NotificationHandler.getInstance().dealNotificationIcon(rs, pkgName, args);
-//                //修改通知栏
-//                return method.invoke(who, args);
-//            }
-            //
         }
         return method.invoke(who, args);
     }
