@@ -153,7 +153,7 @@ public class AppSandBox {
 		try {
 			PackageInfo pkgInfo = VirtualCore.getPM().getPackageInfo(pkg, PackageManager.GET_PROVIDERS);
 			if (pkgInfo.providers != null) {
-				providers = new ArrayList<ProviderInfo>(pkgInfo.providers.length);
+				providers = new ArrayList<>(pkgInfo.providers.length);
 				for (ProviderInfo providerInfo : pkgInfo.providers) {
 					if (TextUtils.equals(procName, providerInfo.processName)) {
 						providers.add(providerInfo);
@@ -173,6 +173,7 @@ public class AppSandBox {
 		}
 		VirtualCore.mainThread().getInstrumentation().callApplicationOnCreate(app);
 		LocalPackageManager pm = LocalPackageManager.getInstance();
+
 
 		List<ActivityInfo> receivers = pm.getReceivers(pkg, 0);
 		for (ActivityInfo receiverInfo : receivers) {

@@ -1,5 +1,7 @@
 package com.lody.virtual.helper.compat;
 
+import android.os.Build;
+
 import com.lody.virtual.helper.utils.Reflect;
 
 /**
@@ -37,6 +39,16 @@ public class VMRuntimeCompat {
 			}
 		}
 		return false;
+	}
+
+	public static void registerAppInfo(String packageName, String dataDir, String processName) {
+		try {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				THE_ONE_MIRROR.call("registerAppInfo", packageName, dataDir, processName);
+			}
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
 	}
 
 }
