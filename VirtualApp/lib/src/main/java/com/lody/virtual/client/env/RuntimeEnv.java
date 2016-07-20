@@ -1,5 +1,7 @@
 package com.lody.virtual.client.env;
 
+import android.app.Instrumentation;
+import android.content.ComponentName;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
@@ -19,7 +21,7 @@ import com.lody.virtual.helper.utils.XLog;
  */
 public class RuntimeEnv {
 
-	/* package */ static Handler sUIHandler = null;
+	private static Handler sUIHandler = null;
 
 	private static String sCurrentProcessName;
 
@@ -38,7 +40,8 @@ public class RuntimeEnv {
 		sCurrentProcessName = processName;
 		Process.setArgV0(processName);
 		try {
-			// NOTE: 部分App,例如:支付宝, 会反射获取DdmHandleAppName.mAppName来直接拿到进程名
+			// NOTE:
+			// 部分App,例如 支付宝, 会反射获取DdmHandleAppName.mAppName来直接拿到进程名
 			Reflect.on("android.ddm.DdmHandleAppName").set("mAppName", processName);
 		} catch (Throwable e) {
 			// Ignore
@@ -47,6 +50,7 @@ public class RuntimeEnv {
 		AppBindDataCompat dataMirror = new AppBindDataCompat(VirtualCore.getHostBindData());
 		dataMirror.setAppInfo(appInfo.applicationInfo);
 		dataMirror.setInfo(appInfo.getLoadedApk());
+		dataMirror.setInstrumentationName(new ComponentName(appInfo.packageName, Instrumentation.class.getName()));
 		dataMirror.setProcessName(processName);
 	}
 

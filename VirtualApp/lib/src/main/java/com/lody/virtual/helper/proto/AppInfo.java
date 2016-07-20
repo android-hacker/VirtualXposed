@@ -88,7 +88,7 @@ public final class AppInfo implements Parcelable {
 
 	public boolean isInstalled() {
 		try {
-			return VirtualCore.getCore().getUnHookPackageManager().getPackageInfo(packageName, 0) != null;
+			return VirtualCore.getCore().getUnHookPackageManager().getApplicationInfo(packageName, 0) != null;
 		} catch (PackageManager.NameNotFoundException e) {
 			// Ignore
 		}

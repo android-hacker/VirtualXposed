@@ -1,5 +1,7 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
+import android.content.pm.ApplicationInfo;
+
 import com.lody.virtual.client.env.BlackList;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.LocalPackageManager;
@@ -37,6 +39,10 @@ import java.lang.reflect.Method;
 		if (BlackList.isBlackPkg(pkg)) {
 			// 隔离Gms
 			return null;
+		}
+		ApplicationInfo applicationInfo = (ApplicationInfo) method.invoke(who, args);
+		if (applicationInfo != null) {
+			return applicationInfo;
 		}
 		return LocalPackageManager.getInstance().getApplicationInfo(pkg, flags);
 	}

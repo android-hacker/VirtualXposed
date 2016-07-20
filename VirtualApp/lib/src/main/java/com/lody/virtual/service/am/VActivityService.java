@@ -23,6 +23,7 @@ import com.lody.virtual.helper.proto.AppTaskInfo;
 import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.VRedirectActRequest;
 import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.helper.utils.XLog;
 import com.lody.virtual.service.IActivityManager;
 import com.lody.virtual.service.process.VProcessService;
 
@@ -58,6 +59,7 @@ public class VActivityService extends IActivityManager.Stub {
 
 
 	public void onCreate(Context context) {
+		AttributeCache.init(context);
 		PackageManager pm = context.getPackageManager();
 		PackageInfo packageInfo = null;
 		try {
@@ -83,7 +85,12 @@ public class VActivityService extends IActivityManager.Stub {
 					stubInfo.processName = processName;
 					stubInfoMap.put(processName, stubInfo);
 				}
-				stubInfo.standardActivityInfos.add(activityInfo);
+				String name = activityInfo.name;
+				if (name.endsWith("_")) {
+					stubInfo.dialogActivityInfos.add(activityInfo);
+				} else {
+					stubInfo.standardActivityInfos.add(activityInfo);
+				}
 			}
 		}
 		ProviderInfo[] providerInfos = packageInfo.providers;
@@ -128,6 +135,7 @@ public class VActivityService extends IActivityManager.Stub {
 		if (request == null || request.targetActInfo == null) {
 			return null;
 		}
+		XLog.d(TAG, "Jump to " + request.targetActInfo.name);
 		int resultFlags = 0;
 		ActivityInfo targetActInfo = request.targetActInfo;
 		String targetProcessName = ComponentUtils.getProcessName(targetActInfo);
@@ -136,9 +144,6 @@ public class VActivityService extends IActivityManager.Stub {
 			resultFlags |= Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
 			resultFlags |= Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET;
 		}
-//		if ((request.targetFlags & Intent.FLAG_ACTIVITY_NEW_TASK) != 0) {
-//			resultFlags |= Intent.FLAG_ACTIVITY_NEW_TASK;
-//		}
 
 		StubInfo selectStubInfo = fetchRunningStubInfo(targetProcessName);
 		if (selectStubInfo == null) {
