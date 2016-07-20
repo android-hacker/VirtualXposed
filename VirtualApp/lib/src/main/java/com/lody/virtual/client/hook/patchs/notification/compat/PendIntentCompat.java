@@ -8,40 +8,61 @@ import android.view.ViewGroup;
 import android.widget.RemoteViews;
 import android.widget.TextView;
 
+import com.lody.virtual.helper.utils.Reflect;
+
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-class NotificationPendIntent {
-    View my;
-    View view2;
-    Map<Integer, PendingIntent> clickIntents;
+/***
+ * Remoteviews的点击事件
+ *
+ * @author 247321453
+ */
+class PendIntentCompat {
+    private RemoteViews mRemoteViews;
+    private Map<Integer, PendingIntent> clickIntents;
+    private boolean isBig;
 
-    public NotificationPendIntent(View my, View view2, Map<Integer, PendingIntent> clickIntents) {
-        this.my = my;
-        this.view2 = view2;
-        this.clickIntents = clickIntents;
+    public PendIntentCompat(RemoteViews mRemoteViews, boolean isBig) {
+        this.mRemoteViews = mRemoteViews;
+        this.isBig = isBig;
     }
 
-    public void set(RemoteViews remoteViews) {
-        if (clickIntents != null) {
+    public int findPendIntents() {
+        if (clickIntents == null) {
+            clickIntents = getClickIntents(mRemoteViews);
+        }
+        return clickIntents.size();
+    }
+
+    /***
+     *
+     * @param remoteViews 当前
+     * @param remoteview 当前remoteviews的view
+     * @param oldRemoteView 旧的view
+     */
+    public void setPendIntent(RemoteViews remoteViews,View remoteview,View oldRemoteView) {
+        if (findPendIntents() > 0) {
             //view2+clickIntents=>区域和事件
             Iterator<Map.Entry<Integer, PendingIntent>> set = clickIntents.entrySet().iterator();
             List<RectInfo> list = new ArrayList<>();
-            //id转为为区域
+            //区域对应点击事件
             while (set.hasNext()) {
                 Map.Entry<Integer, PendingIntent> e = set.next();
-                View view = view2.findViewById(e.getKey());
+                View view = oldRemoteView.findViewById(e.getKey());
                 if (view != null) {
                     Rect rect = new Rect();
                     view.getHitRect(rect);
-//                    Log.i("kk", view.getId() + ",rect=" + rect + ",intent=" + e.getValue().getIntent().getParcelableExtra(ExtraConstants.EXTRA_INTENT));
                     list.add(new RectInfo(rect, e.getValue()));
                 }
             }
-            if (my instanceof ViewGroup) {
-                setIntentByViewGroup(remoteViews, (ViewGroup) my, list);
+            //根据区域查找id，设置点击事件
+            if (remoteview instanceof ViewGroup) {
+                setIntentByViewGroup(remoteViews, (ViewGroup) remoteview, list);
             }
         }
     }
@@ -57,6 +78,7 @@ class NotificationPendIntent {
                 //textview
                 Rect rect = new Rect();
                 v.getHitRect(rect);
+                //height修正
                 rect.top += viewGroup.getTop();
                 rect.bottom += viewGroup.getTop();
 //                Log.d("kk", v.getId() + ",rect=" + rect);
@@ -64,8 +86,6 @@ class NotificationPendIntent {
                 if (pendingIntent != null) {
 //                    Log.d("kk", v.getId() + " set click =" + pendingIntent.getIntent().getParcelableExtra(ExtraConstants.EXTRA_INTENT));
                     remoteViews.setOnClickPendingIntent(v.getId(), pendingIntent);
-                } else {
-//                    Log.w("kk", v.getId() + ",rect=" + rect);
                 }
             }
         }
@@ -99,6 +119,44 @@ class NotificationPendIntent {
             return (rect.right - rect.left) * (rect.bottom - rect.top);
         }
         return 0;
+    }
+
+    /**
+     * id和点击事件intent
+     */
+    private Map<Integer, PendingIntent> getClickIntents(RemoteViews remoteViews) {
+        Map<Integer, PendingIntent> map = new HashMap<>();
+        if (remoteViews == null) return map;
+        Object mActionsObj = null;
+        try {
+            mActionsObj = Reflect.on(remoteViews).get("mActions");
+        } catch (Exception e) {
+
+        }
+        if (mActionsObj == null) {
+            return map;
+        }
+        if (mActionsObj instanceof Collection) {
+            Collection mActions = (Collection) mActionsObj;
+            Iterator iterable = mActions.iterator();
+            while (iterable.hasNext()) {
+                Object object = iterable.next();
+                if (object != null) {
+                    String action;
+                    try {
+                        action = Reflect.on(object).call("getActionName").get();
+                    } catch (Exception e) {
+                        action = object.getClass().getSimpleName();
+                    }
+                    if ("SetOnClickPendingIntent".equalsIgnoreCase(action)) {
+                        int id = Reflect.on(object).get("viewId");
+                        PendingIntent intent = Reflect.on(object).get("pendingIntent");
+                        map.put(id, intent);
+                    }
+                }
+            }
+        }
+        return map;
     }
 
     class RectInfo {

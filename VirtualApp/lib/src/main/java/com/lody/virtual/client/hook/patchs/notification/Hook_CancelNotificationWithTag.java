@@ -29,7 +29,7 @@ import java.lang.reflect.Method;
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		String pkgName = (String) args[0];
 		if (!VirtualCore.getCore().isHostPackageName(pkgName)) {
-            args[0] = VirtualCore.getCore().getContext().getPackageName();
+            args[0] = getHostPkg();
 		}
 		return method.invoke(who, args);
 	}

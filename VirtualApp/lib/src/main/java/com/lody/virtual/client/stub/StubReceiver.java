@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.hook.patchs.notification.compat.ContextWrapperCompat;
 
 public class StubReceiver extends BroadcastReceiver {
     BroadcastReceiver parent;
@@ -16,17 +15,6 @@ public class StubReceiver extends BroadcastReceiver {
     public StubReceiver(BroadcastReceiver parent, String packageName) {
         this.parent = parent;
         this.packageName = packageName;
-    }
-
-    private Context getProxyContext(Context context) {
-        if (proxy == null) {
-            synchronized (this) {
-                if (proxy == null) {
-                    proxy = new ContextWrapperCompat(context, packageName);
-                }
-            }
-        }
-        return proxy;
     }
 
     @Override
