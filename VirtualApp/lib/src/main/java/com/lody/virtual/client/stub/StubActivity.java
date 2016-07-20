@@ -88,4 +88,56 @@ public abstract class StubActivity extends Activity {
 	public static class C15 extends StubActivity {
 	}
 
+
+
+
+
+	public static class C0_ extends StubActivity {
+	}
+
+	public static class C1_ extends StubActivity {
+	}
+
+	public static class C2_ extends StubActivity {
+	}
+
+	public static class C3_ extends StubActivity {
+	}
+
+	public static class C4_ extends StubActivity {
+	}
+
+	public static class C5_ extends StubActivity {
+	}
+
+	public static class C6_ extends StubActivity {
+	}
+
+	public static class C7_ extends StubActivity {
+	}
+
+	public static class C8_ extends StubActivity {
+	}
+
+	public static class C9_ extends StubActivity {
+	}
+
+	public static class C10_ extends StubActivity {
+	}
+
+	public static class C11_ extends StubActivity {
+	}
+
+	public static class C12_ extends StubActivity {
+	}
+
+	public static class C13_ extends StubActivity {
+	}
+
+	public static class C14_ extends StubActivity {
+	}
+
+	public static class C15_ extends StubActivity {
+	}
+
 }

@@ -26,13 +26,11 @@ public final class ActivityModifier {
 
 	public static void fixActivity(Activity activity) {
 		Context baseContext = activity.getBaseContext();
-		// 这里不能直接调用 R 资源,要用反射,因为直接调用的话编译之后会被优化成直接赋值.
-
 		try {
-			Reflect styleableRef = Reflect.on(com.android.internal.R.styleable.class);
-			TypedArray typedArray = activity.obtainStyledAttributes((int[]) styleableRef.get("Window"));
+			Reflect styleable = Reflect.on(com.android.internal.R.styleable.class);
+			TypedArray typedArray = activity.obtainStyledAttributes((int[]) styleable.get("Window"));
 			if (typedArray != null) {
-				boolean showWallpaper = typedArray.getBoolean((Integer) styleableRef.get("Window_windowShowWallpaper"),
+				boolean showWallpaper = typedArray.getBoolean((Integer) styleable.get("Window_windowShowWallpaper"),
 						false);
 				if (showWallpaper) {
 					activity.getWindow().setBackgroundDrawable(WallpaperManager.getInstance(activity).getDrawable());

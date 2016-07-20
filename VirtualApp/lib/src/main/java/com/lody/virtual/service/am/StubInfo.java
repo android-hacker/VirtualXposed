@@ -4,12 +4,15 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.ProviderInfo;
 import android.text.TextUtils;
 
+import com.lody.virtual.helper.utils.Reflect;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class StubInfo {
 	public String processName;
-	public List<ActivityInfo> standardActivityInfos = new ArrayList<ActivityInfo>(1);
+	/*package*/ List<ActivityInfo> standardActivityInfos = new ArrayList<ActivityInfo>(1);
+	/*package*/ List<ActivityInfo> dialogActivityInfos = new ArrayList<ActivityInfo>(1);
 	public ProviderInfo providerInfo;
 
 		public void verify() {
@@ -20,8 +23,33 @@ public class StubInfo {
 				throw new IllegalStateException("Unable to find any StubProvider in " + processName);
 			}
 		}
-		public ActivityInfo fetchStubActivityInfo(ActivityInfo targetActInfo) {
-			return standardActivityInfos.get(0);
+	/*package*/ ActivityInfo fetchStubActivityInfo(ActivityInfo targetInfo) {
+
+			boolean Window_windowIsTranslucent = false;
+			boolean Window_windowIsFloating = false;
+			try {
+				Reflect style = Reflect.on(com.android.internal.R.styleable.class);
+				int[] R_Styleable_Window = style.get("Window");
+				int R_Styleable_Window_windowIsTranslucent = style.get("Window_windowIsTranslucent");
+				int R_Styleable_Window_windowIsFloating = style.get("Window_windowIsFloating");
+				int R_Styleable_Window_windowShowWallpaper = style.get("Window_windowShowWallpaper");
+
+				AttributeCache.Entry ent = AttributeCache.instance().get(targetInfo.packageName, targetInfo.theme,
+						R_Styleable_Window);
+				if (ent != null && ent.array != null) {
+					Window_windowIsTranslucent = ent.array.getBoolean(R_Styleable_Window_windowIsTranslucent, false);
+					Window_windowIsFloating = ent.array.getBoolean(R_Styleable_Window_windowIsFloating, false);
+				}
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
+
+			boolean isDialogStyle = Window_windowIsTranslucent || Window_windowIsFloating;
+			if (isDialogStyle) {
+				return dialogActivityInfos.get(0);
+			} else {
+				return standardActivityInfos.get(0);
+			}
 		}
 
 		@Override

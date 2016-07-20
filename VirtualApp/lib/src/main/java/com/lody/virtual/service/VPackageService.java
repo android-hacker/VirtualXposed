@@ -361,11 +361,6 @@ public class VPackageService extends IPackageManager.Stub {
 				e.printStackTrace();
 			}
 		}
-		try {
-			return mPM.getApplicationInfo(packageName, flags);
-		} catch (PackageManager.NameNotFoundException e) {
-			// Ignore
-		}
 		return null;
 	}
 
