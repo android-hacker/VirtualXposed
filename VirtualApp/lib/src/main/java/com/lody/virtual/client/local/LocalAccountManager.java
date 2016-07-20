@@ -107,4 +107,8 @@ public class LocalAccountManager {
     public void editProperties(IAccountManagerResponse response, String accountType, boolean expectActivityLaunch) throws RemoteException {
         getRemote().editProperties(response, accountType, expectActivityLaunch);
     }
+
+    public void getAuthTokenLabel(IAccountManagerResponse response, String authType, String authTokenType) throws RemoteException {
+        getRemote().getAuthTokenLabel(response, authType, authTokenType);
+    }
 }

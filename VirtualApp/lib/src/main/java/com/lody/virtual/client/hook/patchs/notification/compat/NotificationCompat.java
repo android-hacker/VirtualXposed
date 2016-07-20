@@ -25,7 +25,7 @@ public class NotificationCompat {
     float mSize;
     Notification mNotification;
     boolean mDateTime;
-    int paddingRight=-1;
+    int paddingRight = -1;
 
     public NotificationCompat(Context context, NotificationActionCompat notificationActionCompat, Notification notification) {
         this.context = context;
@@ -65,6 +65,7 @@ public class NotificationCompat {
         //
         if (OSUtils.isMIUI()) {
             mDateTime = true;
+            paddingRight = 0;
         }
     }
 

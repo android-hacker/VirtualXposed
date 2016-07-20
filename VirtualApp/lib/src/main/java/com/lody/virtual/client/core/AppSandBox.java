@@ -11,6 +11,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.os.Build;
+import android.os.Looper;
 import android.os.Message;
 import android.os.StrictMode;
 import android.renderscript.RenderScript;
@@ -37,6 +38,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author Lody
@@ -48,18 +50,48 @@ public class AppSandBox {
 	private static HashSet<String> installedApps = new HashSet<String>();
 	private static Map<String, Application> applicationMap = new HashMap<>();
 
+	private static String LAST_PKG;
+
 	private static boolean sInstalling = false;
 
 	public static Application getApplication(String pkg) {
 		return applicationMap.get(pkg);
 	}
 
+	public static String getLastPkg() {
+		return LAST_PKG;
+	}
 
-	public static void install(String procName, String pkg) {
+	public static void install(final String procName, final String pkg) {
 		sInstalling = true;
+		if (Looper.myLooper() == Looper.getMainLooper()) {
+			installLocked(procName, pkg);
+		} else {
+			final CountDownLatch lock = new CountDownLatch(1);
+			RuntimeEnv.getUIHandler().post(new Runnable() {
+				@Override
+				public void run() {
+					installLocked(procName, pkg);
+					lock.countDown();
+				}
+			});
+			try {
+				lock.await();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+		}
+		sInstalling = false;
+		XLog.d(TAG, "Application of Process(%s) have launched. ", RuntimeEnv.getCurrentProcessName());
+	}
+
+	private static void installLocked(String procName, String pkg) {
 		if (installedApps.contains(pkg)) {
 			return;
 		}
+		LAST_PKG = pkg;
+		PatchManager.fixAllSettings();
 		XLog.d(TAG, "Installing %s.", pkg);
 		LocalProcessManager.onAppProcessCreate(VClientImpl.getClient().asBinder());
 		AppInfo appInfo = VirtualCore.getCore().findApp(pkg);
@@ -179,13 +211,8 @@ public class AppSandBox {
 		LocalProcessManager.onEnterApp(pkg);
 		applicationMap.put(appInfo.packageName, app);
 		installedApps.add(appInfo.packageName);
-		sInstalling = false;
-		XLog.d(TAG, "Application of Process(%s) have launched. ", RuntimeEnv.getCurrentProcessName());
 	}
 
-	public static boolean isInstalling() {
-		return sInstalling;
-	}
 
 	public static Context createAppContext(ApplicationInfo appInfo) {
 		Context context = VirtualCore.getCore().getContext();

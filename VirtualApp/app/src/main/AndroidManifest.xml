@@ -300,6 +300,46 @@
                 android:value="Stub-User"/>
         </activity>
 
+        <activity
+            android:name="com.lody.virtual.client.stub.StubActivity$C6"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p6"
+            android:taskAffinity="com.lody.virtual.vt">
+            <meta-data
+                android:name="X-Identity"
+                android:value="Stub-User"/>
+        </activity>
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubActivity$C7"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p7"
+            android:taskAffinity="com.lody.virtual.vt">
+            <meta-data
+                android:name="X-Identity"
+                android:value="Stub-User"/>
+        </activity>
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubActivity$C8"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p8"
+            android:taskAffinity="com.lody.virtual.vt">
+            <meta-data
+                android:name="X-Identity"
+                android:value="Stub-User"/>
+        </activity>
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubActivity$C9"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p9"
+            android:taskAffinity="com.lody.virtual.vt">
+            <meta-data
+                android:name="X-Identity"
+                android:value="Stub-User"/>
+        </activity>
+
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C0"
@@ -363,6 +403,48 @@
                 android:name="X-Identity"
                 android:value="Stub-User"/>
         </provider>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C6"
+            android:authorities="virtual.client.stub.StubContentProvider6"
+            android:exported="false"
+            android:process=":p6">
+            <meta-data
+                android:name="X-Identity"
+                android:value="Stub-User"/>
+        </provider>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C7"
+            android:authorities="virtual.client.stub.StubContentProvider7"
+            android:exported="false"
+            android:process=":p7">
+            <meta-data
+                android:name="X-Identity"
+                android:value="Stub-User"/>
+        </provider>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C8"
+            android:authorities="virtual.client.stub.StubContentProvider8"
+            android:exported="false"
+            android:process=":p8">
+            <meta-data
+                android:name="X-Identity"
+                android:value="Stub-User"/>
+        </provider>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C9"
+            android:authorities="virtual.client.stub.StubContentProvider9"
+            android:exported="false"
+            android:process=":p9">
+            <meta-data
+                android:name="X-Identity"
+                android:value="Stub-User"/>
+        </provider>
+
+
 
     </application>
 

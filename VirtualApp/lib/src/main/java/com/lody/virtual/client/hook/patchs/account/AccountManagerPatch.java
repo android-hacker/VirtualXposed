@@ -43,6 +43,7 @@ import com.lody.virtual.client.hook.binders.HookAccountBinder;
 		Hook_ConfirmCredentialsAsUser.class,
 		Hook_UpdateCredentials.class,
 		Hook_RemoveAccountExplicitly.class,
+		Hook_GetAuthTokenLabel.class,
 
 })
 public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccountBinder> {

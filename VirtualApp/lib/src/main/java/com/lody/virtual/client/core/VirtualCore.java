@@ -170,7 +170,7 @@ public final class VirtualCore {
 			patchManager.injectAll();
 			patchManager.checkEnv();
 			RuntimeEnv.init();
-			PatchManager.getInstance().fixContext(context);
+			PatchManager.fixContext(context);
 			isStartUp = true;
 		}
 	}

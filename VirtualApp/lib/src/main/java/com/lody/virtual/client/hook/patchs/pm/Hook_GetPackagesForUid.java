@@ -2,11 +2,13 @@ package com.lody.virtual.client.hook.patchs.pm;
 
 import android.os.Process;
 
-import com.lody.virtual.client.core.AppSandBox;
 import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.local.LocalProcessManager;
 
 import java.lang.reflect.Method;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Lody
@@ -32,13 +34,27 @@ import java.util.Set;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		int uid = (int) args[0];
-		if (uid == Process.myUid()) {
-			Set<String> pkg = AppSandBox.getInstalledPackages();
-			pkg.add("com.android.vending");
-			return pkg.toArray(new String[pkg.size()]);
+		Object invokeResult = method.invoke(who, args);
+		List<String> pluginPkgs = new ArrayList<>();
+		try {
+			List<String> pkgs = LocalProcessManager.getProcessPkgList(Process.myPid());
+			pluginPkgs.addAll(pkgs);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		 return method.invoke(who, args);
+		List<String> originPkgs = new ArrayList<>();
+		if (invokeResult != null && invokeResult instanceof String[]) {
+			String[] pkgs = ((String[]) invokeResult);
+			Collections.addAll(originPkgs, pkgs);
+		}
+
+		if (originPkgs.size() == 1) {
+			return pluginPkgs.toArray(new String[pluginPkgs.size()]);
+		} else {
+			originPkgs.remove(getHostPkg());
+			pluginPkgs.addAll(originPkgs);
+			return pluginPkgs.toArray(new String[pluginPkgs.size()]);
+		}
 	}
 
 	@Override
