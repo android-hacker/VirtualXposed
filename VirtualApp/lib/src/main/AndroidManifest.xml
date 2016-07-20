@@ -334,6 +334,7 @@
         <activity
             android:theme="@android:style/Theme.Dialog"
             android:name="com.lody.virtual.client.stub.StubActivity$C1_"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
             android:process=":p1"
             android:taskAffinity="com.lody.virtual.vt">
             <meta-data
