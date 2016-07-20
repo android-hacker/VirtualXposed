@@ -330,7 +330,9 @@ public class IntentResolver {
 						ActivityInfo flagProviderInfo = packageParser
 								.getReceiverInfo(new ComponentName(receiver.packageName, receiver.name), flags);
 						ResolveInfo resolveInfo = newResolveInfo(flagProviderInfo, new IntentFilter());
-						resolveInfo.match = PackageManager.MATCH_ALL;
+						if (VERSION.SDK_INT >= VERSION_CODES.M) {
+							resolveInfo.match = PackageManager.MATCH_ALL;
+						}
 						resolveInfo.isDefault = true;
 						outList.add(resolveInfo);
 					}
@@ -385,7 +387,9 @@ public class IntentResolver {
 						ProviderInfo flagProviderInfo = packageParser
 								.getProviderInfo(new ComponentName(providerInfo.packageName, providerInfo.name), flags);
 						ResolveInfo resolveInfo = newResolveInfo(flagProviderInfo, new IntentFilter());
-						resolveInfo.match = PackageManager.MATCH_ALL;
+						if (VERSION.SDK_INT >= VERSION_CODES.M) {
+							resolveInfo.match = PackageManager.MATCH_ALL;
+						}
 						resolveInfo.isDefault = true;
 						outList.add(resolveInfo);
 					}

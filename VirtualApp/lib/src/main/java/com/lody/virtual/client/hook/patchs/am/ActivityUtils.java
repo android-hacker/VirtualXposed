@@ -6,7 +6,6 @@ import android.os.IBinder;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.local.LocalActivityManager;
-import com.lody.virtual.client.local.LocalProcessManager;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.VRedirectActRequest;
@@ -28,17 +27,17 @@ import com.lody.virtual.helper.utils.ComponentUtils;
 			}
 			// Create Redirect Request
 			VRedirectActRequest req = new VRedirectActRequest(targetActInfo, targetIntent.getFlags());
+			req.fromHost = !VirtualCore.getCore().isVAppProcess();
 			req.resultTo = resultTo;
 			// Get Request Result
 			VActRedirectResult result = LocalActivityManager.getInstance().redirectTargetActivity(req);
-			if (result == null || result.stubActInfo == null || result.intercepted) {
+			if (result == null || result.stubActInfo == null) {
 				return false;
 			}
 			ActivityInfo selectStubActInfo = result.stubActInfo;
 			// Target App's ProcessName
 			String plugProcName = ComponentUtils.getProcessName(targetActInfo);
 			// Mapping
-			LocalProcessManager.mapProcessName(selectStubActInfo.processName, plugProcName);
 			Intent stubIntent = new Intent();
 			stubIntent.setClassName(selectStubActInfo.packageName, selectStubActInfo.name);
 			stubIntent.setFlags(result.flags);

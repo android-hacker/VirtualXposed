@@ -16,6 +16,7 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.env.RuntimeEnv;
 import com.lody.virtual.client.service.ServiceManagerNative;
+import com.lody.virtual.helper.proto.VParceledListSlice;
 import com.lody.virtual.service.IPackageManager;
 
 import java.util.List;
@@ -33,7 +34,7 @@ public class LocalPackageManager {
 		return sMgr;
 	}
 
-	public IPackageManager getInterface() {
+	public synchronized IPackageManager getInterface() {
 		if (mRemote == null) {
 			synchronized (LocalPackageManager.class) {
 				if (mRemote == null) {
@@ -109,7 +110,7 @@ public class LocalPackageManager {
 		}
 	}
 
-	public List<PackageInfo> getInstalledPackages(int flags) {
+	public VParceledListSlice getInstalledPackages(int flags) {
 		try {
 			return getInterface().getInstalledPackages(flags);
 		} catch (RemoteException e) {

@@ -23,6 +23,7 @@ import com.lody.virtual.helper.utils.FileIO;
 import com.lody.virtual.service.AppFileSystem;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -84,27 +85,11 @@ public class APKBundle {
 	/////////////////////////
 	/////////////////////////
 
-    public APKBundle(File apkFile) throws Exception {
-        this(apkFile, false);
-    }
-
-	public APKBundle(File apkFile, boolean local) throws Exception {
+	public APKBundle(File apkFile) throws Exception {
 		this.mApkFile = apkFile;
 		mParser = PackageParserCompat.newParser();
 		mParser.parsePackage(apkFile, 0);
 		mPackageName = mParser.getPackageName();
-
-		if (!local && !VirtualCore.getCore().isOutsideInstalled(mPackageName)) {
-			File storeFile = AppFileSystem.getDefault().getAppApkFile(mPackageName);
-			File parentFolder = storeFile.getParentFile();
-			if (!parentFolder.exists()) {
-				parentFolder.mkdirs();
-			}
-			if (!storeFile.exists()) {
-				FileIO.copyFile(apkFile, storeFile);
-			}
-			this.mApkFile = storeFile;
-		}
 		mAppInfo = createAppInfo(this);
 		List<PackageParser.Activity> activities = mParser.getActivities();
 		for (PackageParser.Activity activity : activities) {
@@ -193,6 +178,7 @@ public class APKBundle {
 		File cacheFolder = fileSystem.getAppCacheFolder(pkg);
 
 		ensureFoldersCreated(dataFolder, libFolder, dvmCacheFolder, cacheFolder);
+
 		appInfo.dataDir = dataFolder.getPath();
 		appInfo.libDir = libFolder.getPath();
 		appInfo.cacheDir = cacheFolder.getPath();
@@ -207,6 +193,21 @@ public class APKBundle {
 				folder.mkdirs();
 			}
 		}
+	}
+
+	public void copyToPrivate() throws IOException {
+		File storeFile = AppFileSystem.getDefault().getAppApkFile(mPackageName);
+		File parentFolder = storeFile.getParentFile();
+		if (!parentFolder.exists()) {
+			// ensure the parent folder exist
+			parentFolder.mkdirs();
+		} else if (storeFile.exists()) {
+			// delete the exist one
+			storeFile.delete();
+		}
+		FileIO.copyFile(mApkFile, storeFile);
+		this.mApkFile = storeFile;
+		this.mAppInfo.apkPath = mApkFile.getPath();
 	}
 
 	public String getPackageName() {
@@ -407,9 +408,9 @@ public class APKBundle {
 		}
 		applicationInfo.name = fixComponentClassName(applicationInfo.name);
 		applicationInfo.publicSourceDir = mApkFile.getPath();
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB_MR1) {
-            applicationInfo.flags &= -ApplicationInfo.FLAG_STOPPED;
-        }
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB_MR1) {
+			applicationInfo.flags &= -ApplicationInfo.FLAG_STOPPED;
+		}
 		try {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 				applicationInfo.splitSourceDirs = new String[]{mApkFile.getPath()};

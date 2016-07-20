@@ -1,11 +1,11 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
+import android.os.IBinder;
 
 import com.lody.virtual.client.core.AppSandBox;
 import com.lody.virtual.client.hook.base.Hook;
 
-import android.os.IBinder;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -31,7 +31,11 @@ import android.os.IBinder;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		return AppSandBox.getInstalledPackages()[0];
+		String pkg = AppSandBox.getLastPkg();
+		if (pkg != null) {
+			return pkg;
+		}
+		return method.invoke(who, args);
 	}
 
 	@Override

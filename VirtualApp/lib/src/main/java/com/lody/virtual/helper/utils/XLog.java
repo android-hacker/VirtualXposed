@@ -34,4 +34,9 @@ public class XLog {
 		}
 	}
 
+	public static void v(String tag, String msg, Object... format) {
+		if (OPEN_LOG) {
+			Log.v(tag, String.format(msg, format));
+		}
+	}
 }

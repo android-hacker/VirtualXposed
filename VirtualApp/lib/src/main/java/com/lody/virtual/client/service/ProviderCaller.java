@@ -1,14 +1,20 @@
 package com.lody.virtual.client.service;
 
-import java.io.Serializable;
-
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.ComponentInfo;
+import android.content.pm.ProviderInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcelable;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.ExtraConstants;
+import com.lody.virtual.helper.utils.ComponentUtils;
+
+import java.io.Serializable;
 
 /**
  * @author Lody
@@ -20,6 +26,12 @@ public class ProviderCaller {
 		Uri uri = Uri.parse("content://" + auth);
 		ContentResolver contentResolver = context.getContentResolver();
 		return contentResolver.call(uri, methodName, arg, bundle);
+	}
+
+	public static void initProcess(ProviderInfo providerInfo, ComponentInfo componentInfo) {
+		new Builder(VirtualCore.getCore().getContext(), providerInfo.authority)
+				.addArg(ExtraConstants.EXTRA_PROCESS_NAME, ComponentUtils.getProcessName(componentInfo))
+				.addArg(ExtraConstants.EXTRA_PKG, componentInfo.packageName);
 	}
 
 	public static final class Builder {
@@ -53,6 +65,7 @@ public class ProviderCaller {
 					if (Build.VERSION.SDK_INT >= 18) {
 						bundle.putBinder(key, (IBinder) value);
 					} else {
+						//noinspection deprecation
 						bundle.putIBinder(key, (IBinder) value);
 					}
 				} else if (value instanceof Boolean) {
@@ -74,11 +87,8 @@ public class ProviderCaller {
 			return this;
 		}
 
-		public Bundle invoke() {
-			if (methodName == null) {
-				throw new IllegalArgumentException("MethodName must be set!");
-			}
-			return call(auth, context, methodName, arg, bundle);
+		public Bundle call() {
+			return ProviderCaller.call(auth, context, methodName, arg, bundle);
 		}
 
 	}

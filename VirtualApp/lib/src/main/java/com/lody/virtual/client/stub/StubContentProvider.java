@@ -1,20 +1,23 @@
 package com.lody.virtual.client.stub;
 
-import com.lody.virtual.client.core.AppSandBox;
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.env.ServiceEnv;
-import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.compat.BundleCompat;
-import com.lody.virtual.helper.component.BaseContentProvider;
-import com.lody.virtual.helper.proto.AppInfo;
-import com.lody.virtual.service.interfaces.IServiceEnvironment;
-
 import android.app.IServiceConnection;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+
+import com.lody.virtual.client.core.AppSandBox;
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.ServiceEnv;
+import com.lody.virtual.helper.ExtraConstants;
+import com.lody.virtual.helper.MethodConstants;
+import com.lody.virtual.helper.compat.BundleCompat;
+import com.lody.virtual.helper.component.BaseContentProvider;
+import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.service.interfaces.IServiceEnvironment;
+
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author Lody
@@ -26,28 +29,35 @@ public abstract class StubContentProvider extends BaseContentProvider {
 
 	@Override
 	public Bundle call(String method, String arg, Bundle extras) {
-		if (method.equals("enterProcess")) {
-			VirtualCore core = VirtualCore.getCore();
-			try {
-				while (core.getApplication() == null) {
-					Thread.sleep(50);
-				}
-				while (AppSandBox.isInstalling()) {
-					Thread.sleep(50);
-				}
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+		if (MethodConstants.INIT_PROCESS.equals(method)) {
+			initProcess(extras);
 			return null;
-		} else {
+		} else if (MethodConstants.GET_SERVICE_RUNTIME.equals(method)){
 			Bundle bundle = new Bundle();
 			BundleCompat.putBinder(bundle, ExtraConstants.EXTRA_BINDER, mServiceEnvBinder);
 			return bundle;
 		}
+		return null;
 	}
 
-	@Deprecated
+	private void initProcess(Bundle extras) {
+		final String processName = extras.getString(ExtraConstants.EXTRA_PROCESS_NAME);
+		final String packageName = extras.getString(ExtraConstants.EXTRA_PKG);
+		final CountDownLatch lock = new CountDownLatch(1);
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				AppSandBox.install(processName, packageName);
+				lock.countDown();
+			}
+		}).start();
+		try {
+			lock.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private static class ServiceEnvBinder extends IServiceEnvironment.Stub {
 
 		@Override

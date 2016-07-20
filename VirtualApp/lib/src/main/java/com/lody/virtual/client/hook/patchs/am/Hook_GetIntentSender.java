@@ -1,18 +1,18 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.env.Constants;
-import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.helper.ExtraConstants;
-
 import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.pm.ComponentInfo;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.IBinder;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.stub.KeepService;
+import com.lody.virtual.helper.ExtraConstants;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -44,9 +44,6 @@ import android.os.IBinder;
 		if (args[1] instanceof String && isAppPkg((String) args[1])) {
 			args[1] = getHostPkg();
 		}
-		if (true) {
-			return method.invoke(who, args);
-		}
 		Object intentOrIntents = args[5];
 		int flags = (int) args[0];
 		boolean replaced = false;
@@ -73,29 +70,22 @@ import android.os.IBinder;
 			if (args.length > 7 && args[7] instanceof Integer) {
 				args[7] = PendingIntent.FLAG_UPDATE_CURRENT;
 			}
-			args[0] = ActivityManager.INTENT_SENDER_BROADCAST;
+			args[0] = ActivityManager.INTENT_SENDER_SERVICE;
 		}
 		return method.invoke(who, args);
 	}
 
 	private Intent redirectIntentSender(int flags, Intent intent) {
-		ComponentInfo componentInfo = null;
-		switch (flags) {
-			case ActivityManager.INTENT_SENDER_ACTIVITY :
-				componentInfo = VirtualCore.getCore().resolveActivityInfo(intent);
-				break;
-			case ActivityManager.INTENT_SENDER_SERVICE :
-				componentInfo = VirtualCore.getCore().resolveServiceInfo(intent);
-				break;
-			case ActivityManager.INTENT_SENDER_BROADCAST :
-				// INTENT_SENDER_BROADCAST不需要处理
-				break;
-		}
-		if (componentInfo != null && isAppPkg(componentInfo.packageName)) {
-			Intent newIntent = new Intent(Constants.ACTION_DELEGATE_PENDING_INTENT);
-			newIntent.putExtra(ExtraConstants.EXTRA_INTENT, intent);
-			newIntent.putExtra(ExtraConstants.EXTRA_INTENT_TYPE, ExtraConstants.TYPE_INTENT_SENDER);
+		if (flags == ActivityManager.INTENT_SENDER_ACTIVITY
+				|| flags == ActivityManager.INTENT_SENDER_SERVICE) {
+			ActivityInfo activityInfo = VirtualCore.getCore().resolveActivityInfo(intent);
+			if (activityInfo == null || !isAppPkg(activityInfo.packageName)) {
+				return null;
+			}
+			Intent newIntent = new Intent(getHostContext(), KeepService.class);
 			newIntent.putExtra(ExtraConstants.EXTRA_FLAGS, flags);
+			newIntent.putExtra(ExtraConstants.EXTRA_INTENT, intent);
+			newIntent.putExtra(ExtraConstants.EXTRA_WHAT, ExtraConstants.WHAT_PENDING_INTENT);
 			return newIntent;
 		}
 		return null;

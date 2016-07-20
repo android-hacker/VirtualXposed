@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.os.Build;
 import android.os.ServiceManager;
+import android.provider.Settings;
 
 import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.delegate.AppInstrumentation;
@@ -13,8 +14,10 @@ import com.lody.virtual.client.hook.patchs.am.HCallbackHook;
 import com.lody.virtual.client.hook.patchs.appops.AppOpsManagerPatch;
 import com.lody.virtual.client.hook.patchs.appwidget.AppWidgetManagerPatch;
 import com.lody.virtual.client.hook.patchs.backup.BackupManagerPatch;
+import com.lody.virtual.client.hook.patchs.camera.CameraPatch;
 import com.lody.virtual.client.hook.patchs.clipboard.ClipBoardPatch;
 import com.lody.virtual.client.hook.patchs.display.DisplayManagerPatch;
+import com.lody.virtual.client.hook.patchs.dropbox.DropBoxManagerPatch;
 import com.lody.virtual.client.hook.patchs.graphics.GraphicsStatsPatch;
 import com.lody.virtual.client.hook.patchs.imms.MmsPatch;
 import com.lody.virtual.client.hook.patchs.input.InputMethodManagerPatch;
@@ -98,9 +101,6 @@ public final class PatchManager {
 	}
 
 	private void injectInternal() throws Throwable {
-		if (VirtualCore.getCore().isServiceProcess()) {
-			return;
-		}
 		addPatch(new ActivityManagerPatch());
 		addPatch(new PackageManagerPatch());
 
@@ -119,6 +119,7 @@ public final class PatchManager {
 			addPatch(new TelephonyRegistryPatch());
 			addPatch(new AppWidgetManagerPatch());
 			addPatch(new AccountManagerPatch());
+			addPatch(new DropBoxManagerPatch());
 
 			if (Build.VERSION.SDK_INT >= JELLY_BEAN_MR2) {
 				addPatch(new VibratorPatch());
@@ -137,6 +138,7 @@ public final class PatchManager {
 				addPatch(new SessionManagerPatch());
 				addPatch(new JobPatch());
 				addPatch(new RestrictionPatch());
+				addPatch(new CameraPatch());
 			}
 			if (Build.VERSION.SDK_INT >= KITKAT) {
 				addPatch(new AppOpsManagerPatch());
@@ -171,7 +173,24 @@ public final class PatchManager {
 		}
 	}
 
-	public void fixContext(Context context) {
+
+	private static void fixSetting(Class<?> settingClass) {
+		try {
+			Reflect.on(settingClass)
+					.field("sNameValueCache")
+					.set("mContentProvider", null);
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void fixAllSettings() {
+		fixSetting(Settings.System.class);
+		fixSetting(Settings.Secure.class);
+		fixSetting(Settings.Global.class);
+	}
+
+	public static void fixContext(Context context) {
 		while (context instanceof ContextWrapper) {
 			context = ((ContextWrapper) context).getBaseContext();
 		}

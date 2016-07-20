@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent" >
+
+    <ImageView
+        android:id="@+id/im_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            style="@style/notification_layout"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/btn_1"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_2"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_3"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_4"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_5"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_6"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_7"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_8"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_9"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_10"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_11"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_12"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_13"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_14"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_15"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_16"
+                style="@style/notification_button" />
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/notification_layout"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/btn_17"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_18"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_19"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_20"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_21"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_22"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_23"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_24"
+                style="@style/notification_button" />
+            <TextView
+                android:id="@+id/btn_25"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_26"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_27"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_28"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_29"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_30"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_31"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_32"
+                style="@style/notification_button" />
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/notification_layout"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/btn_33"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_34"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_35"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_36"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_37"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_38"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_39"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_40"
+                style="@style/notification_button" />
+            <TextView
+                android:id="@+id/btn_41"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_42"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_43"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_44"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_45"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_46"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_47"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_48"
+                style="@style/notification_button" />
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/notification_layout"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/btn_49"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_50"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_51"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_52"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_53"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_54"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_55"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_56"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_57"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_58"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_59"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_60"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_61"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_62"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_63"
+                style="@style/notification_button" />
+
+            <TextView
+                android:id="@+id/btn_64"
+                style="@style/notification_button" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

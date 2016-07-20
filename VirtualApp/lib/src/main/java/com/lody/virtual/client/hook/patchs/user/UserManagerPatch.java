@@ -1,14 +1,14 @@
 package com.lody.virtual.client.hook.patchs.user;
 
-import com.lody.virtual.client.hook.base.Patch;
-import com.lody.virtual.client.hook.base.PatchObject;
-import com.lody.virtual.client.hook.binders.HookUserBinder;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.os.IUserManager;
 import android.os.ServiceManager;
+
+import com.lody.virtual.client.hook.base.Patch;
+import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.binders.HookUserBinder;
 
 /**
  * @author Lody
@@ -20,7 +20,9 @@ import android.os.ServiceManager;
 		Hook_GetSerialNumberForUser.class, Hook_GetUserCount.class, Hook_GetUserForSerialNumber.class,
 		Hook_GetUserInfo.class, Hook_GetUserProfiles.class, Hook_GetUserRestrictions.class,
 		Hook_HasUserRestriction.class, Hook_IsUserRunning.class, Hook_IsUserRunningOrStopping.class,
-		Hook_SetApplicationRestrictions.class, Hook_SetRestrictionsChallenge.class,})
+		Hook_SetApplicationRestrictions.class, Hook_SetRestrictionsChallenge.class, Hook_GetDefaultGuestRestrictions.class,
+		Hook_GetUserIcon.class, Hook_RemoveRestrictions.class, Hook_GetProfileParent.class,
+})
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 public class UserManagerPatch extends PatchObject<IUserManager, HookUserBinder> {
 

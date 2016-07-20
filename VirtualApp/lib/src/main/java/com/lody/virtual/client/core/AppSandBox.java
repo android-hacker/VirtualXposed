@@ -11,6 +11,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.os.Build;
+import android.os.Looper;
 import android.os.Message;
 import android.os.StrictMode;
 import android.renderscript.RenderScript;
@@ -18,9 +19,11 @@ import android.renderscript.RenderScriptCacheDir;
 import android.text.TextUtils;
 import android.view.HardwareRenderer;
 
+import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.env.RuntimeEnv;
 import com.lody.virtual.client.hook.modifiers.ContextModifier;
 import com.lody.virtual.client.local.LocalPackageManager;
+import com.lody.virtual.client.local.LocalProcessManager;
 import com.lody.virtual.helper.compat.ActivityThreadCompat;
 import com.lody.virtual.helper.compat.VMRuntimeCompat;
 import com.lody.virtual.helper.loaders.PathAppClassLoader;
@@ -34,6 +37,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author Lody
@@ -41,36 +46,72 @@ import java.util.Map;
  */
 public class AppSandBox {
 
-	private static final String TAG = "XAppSandBox";
+	private static final String TAG = AppSandBox.class.getSimpleName();
 	private static HashSet<String> installedApps = new HashSet<String>();
-	private static Map<String, Application> applications = new HashMap<String, Application>();
+	private static Map<String, Application> applicationMap = new HashMap<>();
+
+	private static String LAST_PKG;
 
 	private static boolean sInstalling = false;
 
 	public static Application getApplication(String pkg) {
-		return applications.get(pkg);
+		return applicationMap.get(pkg);
 	}
 
-	public static void install(String procName, AppInfo pluginInfo) {
+	public static String getLastPkg() {
+		return LAST_PKG;
+	}
+
+	public static void install(final String procName, final String pkg) {
 		sInstalling = true;
-		if (installedApps.contains(pluginInfo.packageName)) {
+		if (Looper.myLooper() == Looper.getMainLooper()) {
+			installLocked(procName, pkg);
+		} else {
+			final CountDownLatch lock = new CountDownLatch(1);
+			RuntimeEnv.getUIHandler().post(new Runnable() {
+				@Override
+				public void run() {
+					installLocked(procName, pkg);
+					lock.countDown();
+				}
+			});
+			try {
+				lock.await();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+		}
+		sInstalling = false;
+		XLog.d(TAG, "Application of Process(%s) have launched. ", RuntimeEnv.getCurrentProcessName());
+	}
+
+	private static void installLocked(String procName, String pkg) {
+		if (installedApps.contains(pkg)) {
 			return;
 		}
-		ApplicationInfo appInfo = pluginInfo.applicationInfo;
-		String pkg = pluginInfo.packageName;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.L && appInfo.targetSdkVersion < Build.VERSION_CODES.L) {
+		LAST_PKG = pkg;
+		PatchManager.fixAllSettings();
+		XLog.d(TAG, "Installing %s.", pkg);
+		LocalProcessManager.onAppProcessCreate(VClientImpl.getClient().asBinder());
+		AppInfo appInfo = VirtualCore.getCore().findApp(pkg);
+		if (appInfo == null) {
+			return;
+		}
+		ApplicationInfo applicationInfo = appInfo.applicationInfo;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.L && applicationInfo.targetSdkVersion < Build.VERSION_CODES.L) {
 			try {
-				Message.updateCheckRecycle(appInfo.targetSdkVersion);
+				Message.updateCheckRecycle(applicationInfo.targetSdkVersion);
 			} catch (Throwable e) {
 				// Ignore
 			}
 		}
-		VMRuntimeCompat.setTargetSdkVersion(appInfo.targetSdkVersion);
+		VMRuntimeCompat.setTargetSdkVersion(applicationInfo.targetSdkVersion);
 
-		LoadedApk loadedApk = createLoadedApk(pluginInfo);
+		LoadedApk loadedApk = createLoadedApk(appInfo);
 
-		Context appContext = createAppContext(appInfo);
-		RuntimeEnv.setCurrentProcessName(procName, pluginInfo);
+		Context appContext = createAppContext(applicationInfo);
+		RuntimeEnv.setCurrentProcessName(procName, appInfo);
 
 		File codeCacheDir;
 
@@ -100,7 +141,7 @@ public class AppSandBox {
 				}
 			}
 		}
-		if (appInfo.targetSdkVersion <= Build.VERSION_CODES.GINGERBREAD) {
+		if (applicationInfo.targetSdkVersion <= Build.VERSION_CODES.GINGERBREAD) {
 			StrictMode.ThreadPolicy.Builder builder = new StrictMode.ThreadPolicy.Builder(StrictMode.getThreadPolicy());
 			builder.permitNetwork();
 			StrictMode.setThreadPolicy(builder.build());
@@ -167,15 +208,11 @@ public class AppSandBox {
 				}
 			}
 		}
-		applications.put(pluginInfo.packageName, app);
-		installedApps.add(pluginInfo.packageName);
-		sInstalling = false;
-		XLog.d(TAG, "Application of Process(%s) have launched. ", RuntimeEnv.getCurrentProcessName());
+		LocalProcessManager.onEnterApp(pkg);
+		applicationMap.put(appInfo.packageName, app);
+		installedApps.add(appInfo.packageName);
 	}
 
-	public static boolean isInstalling() {
-		return sInstalling;
-	}
 
 	public static Context createAppContext(ApplicationInfo appInfo) {
 		Context context = VirtualCore.getCore().getContext();
@@ -196,7 +233,7 @@ public class AppSandBox {
 			outsideAppInfo = VirtualCore.getCore().getUnHookPackageManager().getApplicationInfo(appInfo.packageName,
 					PackageManager.GET_SHARED_LIBRARY_FILES);
 		} catch (PackageManager.NameNotFoundException e) {
-			e.printStackTrace();
+			// Ignore
 		}
 		if (outsideAppInfo != null) {
 			classLoader = new PathAppClassLoader(appInfo, outsideAppInfo);
@@ -207,8 +244,8 @@ public class AppSandBox {
 		return loadedApk;
 	}
 
-	public static String[] getInstalledPackages() {
-		return installedApps.toArray(new String[installedApps.size()]);
+	public static Set<String> getInstalledPackages() {
+		return new HashSet<>(installedApps);
 	}
 
 }

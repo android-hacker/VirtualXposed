@@ -1,18 +1,18 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Field;
-
-import com.lody.virtual.client.hook.base.HookBinder;
-import com.lody.virtual.client.hook.base.HookObject;
-import com.lody.virtual.client.hook.base.Patch;
-import com.lody.virtual.client.hook.base.PatchObject;
-
 import android.app.ActivityManagerNative;
 import android.app.IActivityManager;
 import android.content.Context;
 import android.os.IBinder;
 import android.os.ServiceManager;
 import android.util.Singleton;
+
+import com.lody.virtual.client.hook.base.HookBinder;
+import com.lody.virtual.client.hook.base.HookObject;
+import com.lody.virtual.client.hook.base.Patch;
+import com.lody.virtual.client.hook.base.PatchObject;
+
+import java.lang.reflect.Field;
 
 /**
  * @author Lody
@@ -41,7 +41,14 @@ import android.util.Singleton;
 		Hook_CrashApplication.class,
 
 		Hook_SetPackageAskScreenCompat.class, Hook_GetPackageAskScreenCompat.class,
-		Hook_PublishContentProviders.class,})
+		Hook_SetAppLockedVerifying.class,
+		Hook_CheckPermission.class,
+		Hook_PublishContentProviders.class,
+		Hook_GetCurrentUser.class,
+		Hook_UnstableProviderDied.class,
+		Hook_GetCallingActivity.class,
+})
+
 public class ActivityManagerPatch extends PatchObject<IActivityManager, HookObject<IActivityManager>> {
 
 	public static IActivityManager getAMN() {

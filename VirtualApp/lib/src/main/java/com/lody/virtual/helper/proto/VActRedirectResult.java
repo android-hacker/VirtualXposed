@@ -10,38 +10,24 @@ import android.os.Parcelable;
  */
 public class VActRedirectResult implements Parcelable {
 
-	public static final Creator<VActRedirectResult> CREATOR = new Creator<VActRedirectResult>() {
-		@Override
-		public VActRedirectResult createFromParcel(Parcel source) {
-			return new VActRedirectResult(source);
-		}
-
-		@Override
-		public VActRedirectResult[] newArray(int size) {
-			return new VActRedirectResult[size];
-		}
-	};
 	public ActivityInfo stubActInfo;
 	/**
 	 * 已经拦截Activity的启动,转为其它的操作,比如onNewIntent...
 	 */
 	public boolean intercepted;
 	public int flags;
+	public boolean reopen;
 
 
-	public VActRedirectResult() {
+	public VActRedirectResult(boolean reopen) {
 		this.intercepted = true;
+		this.reopen = reopen;
 	}
 
 	public VActRedirectResult(ActivityInfo stubActInfo, int flags) {
+		this.intercepted = false;
 		this.stubActInfo = stubActInfo;
 		this.flags = flags;
-	}
-
-	protected VActRedirectResult(Parcel in) {
-		this.stubActInfo = in.readParcelable(ActivityInfo.class.getClassLoader());
-		this.intercepted = in.readByte() != 0;
-		this.flags = in.readInt();
 	}
 
 	@Override
@@ -54,5 +40,25 @@ public class VActRedirectResult implements Parcelable {
 		dest.writeParcelable(this.stubActInfo, flags);
 		dest.writeByte(this.intercepted ? (byte) 1 : (byte) 0);
 		dest.writeInt(this.flags);
+		dest.writeByte(this.reopen ? (byte) 1 : (byte) 0);
 	}
+
+	protected VActRedirectResult(Parcel in) {
+		this.stubActInfo = in.readParcelable(ActivityInfo.class.getClassLoader());
+		this.intercepted = in.readByte() != 0;
+		this.flags = in.readInt();
+		this.reopen = in.readByte() != 0;
+	}
+
+	public static final Creator<VActRedirectResult> CREATOR = new Creator<VActRedirectResult>() {
+		@Override
+		public VActRedirectResult createFromParcel(Parcel source) {
+			return new VActRedirectResult(source);
+		}
+
+		@Override
+		public VActRedirectResult[] newArray(int size) {
+			return new VActRedirectResult[size];
+		}
+	};
 }

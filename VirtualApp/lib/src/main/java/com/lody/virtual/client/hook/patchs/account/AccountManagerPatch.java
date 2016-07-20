@@ -11,12 +11,40 @@ import com.lody.virtual.client.hook.binders.HookAccountBinder;
 /**
  * @author Lody
  */
-@Patch({Hook_GetAccounts.class,
+@Patch({
+		Hook_AddAccount.class,
+		Hook_AddAccountAsUser.class,
+		Hook_AddAccountExplicitly.class,
+		Hook_RemoveAccount.class,
+		Hook_RemoveAccountAsUser.class,
+		Hook_InvalidateAuthToken.class,
+		Hook_PeekAuthToken.class,
+		Hook_SetPassword.class,
+		Hook_ClearPassword.class,
+		Hook_SetUserData.class,
+		Hook_SetAuthToken.class,
+		Hook_GetAccounts.class,
 		Hook_GetAccountsAsUser.class,
+		Hook_GetAccountsByType.class,
+		Hook_GetAccountTypeForPackage.class,
+		Hook_HasFeatures.class,
+		Hook_GetAuthToken.class,
+		Hook_GetUserData.class,
+		Hook_GetPassword.class,
 		Hook_GetAccountsByFeatures.class,
-		Hook_GetAccountsByTypeForPackage.class,
-		Hook_GetAccountsForPackage.class,
-        Hook_GetUserData.class,
+		Hook_GetSharedAccountsAsUser.class,
+		Hook_AddSharedAccountAsUser.class,
+		Hook_RemoveSharedAccountAsUser.class,
+		Hook_RenameSharedAccountAsUser.class,
+		Hook_CopyAccountToUser.class,
+		Hook_GetAuthenticatorTypes.class,
+		Hook_EditProperties.class,
+		Hook_ConfirmCredentials.class,
+		Hook_ConfirmCredentialsAsUser.class,
+		Hook_UpdateCredentials.class,
+		Hook_RemoveAccountExplicitly.class,
+		Hook_GetAuthTokenLabel.class,
+
 })
 public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccountBinder> {
 

@@ -23,6 +23,8 @@ public interface AppDataSource {
      */
     Promise<List<AppModel>, Throwable, Void> getInstalledApps(Context context);
 
+    Promise<List<AppModel>, Throwable, Void> getSdCardApps(Context context);
+
     void addVirtualApp(AppModel app) throws Throwable;
 
     void removeVirtualApp(AppModel app) throws Throwable;

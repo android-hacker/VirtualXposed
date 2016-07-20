@@ -17,20 +17,24 @@ public class ListAppPresenterImpl implements ListAppContract.ListAppPresenter {
     private ListAppContract.ListAppView mView;
     private AppDataSource mRepository;
 
-    public ListAppPresenterImpl(Activity activity, ListAppContract.ListAppView view) {
+    private int from;
+
+    public ListAppPresenterImpl(Activity activity, ListAppContract.ListAppView view, int fromWhere) {
         mActivity = activity;
         mView = view;
         mRepository = new AppRepository(activity);
         mView.setPresenter(this);
+        this.from = fromWhere;
     }
 
     @Override
     public void start() {
         mView.setPresenter(this);
         mView.startLoading();
-        mRepository
-                .getInstalledApps(mActivity)
-                .done(mView::loadFinish);
+        if (from == ListAppContract.SELECT_APP_FROM_SYSTEM)
+            mRepository.getInstalledApps(mActivity).done(mView::loadFinish);
+        else
+            mRepository.getSdCardApps(mActivity).done(mView::loadFinish);
     }
 
     @Override
