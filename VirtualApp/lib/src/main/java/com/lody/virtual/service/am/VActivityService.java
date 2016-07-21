@@ -36,6 +36,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Lody
@@ -43,7 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class VActivityService extends IActivityManager.Stub {
 
-	private static final VActivityService gService = new VActivityService();
+	private static final AtomicReference<VActivityService> sService = new AtomicReference<>();
 	private static final String TAG = VActivityService.class.getSimpleName();
 	private final List<ActivityInfo> stubActivityList = new ArrayList<ActivityInfo>();
 
@@ -54,8 +55,13 @@ public class VActivityService extends IActivityManager.Stub {
 			.getSystemService(Context.ACTIVITY_SERVICE);
 
 	public static VActivityService getService() {
-		return gService;
+		return sService.get();
 	}
+
+	public static void systemReady(Context context) {
+		new VActivityService().onCreate(context);
+	}
+
 
 
 	public void onCreate(Context context) {
@@ -109,6 +115,7 @@ public class VActivityService extends IActivityManager.Stub {
 				}
 			}
 		}
+		sService.set(this);
 
 	}
 

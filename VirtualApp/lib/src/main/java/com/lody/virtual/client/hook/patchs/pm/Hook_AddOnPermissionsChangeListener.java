@@ -8,16 +8,8 @@ import java.lang.reflect.Method;
  * @author Lody
  */
 
-public class Hook_AddOnPermissionsChangeListener extends Hook<PackageManagerPatch> {
+public class Hook_AddOnPermissionsChangeListener extends Hook {
 
-    /**
-     * 这个构造器必须有,用于依赖注入.
-     *
-     * @param patchObject 注入对象
-     */
-    public Hook_AddOnPermissionsChangeListener(PackageManagerPatch patchObject) {
-        super(patchObject);
-    }
 
     @Override
     public String getName() {

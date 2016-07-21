@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.core.VirtualCore;
@@ -22,19 +23,9 @@ import java.util.WeakHashMap;
  * @see android.app.IActivityManager#registerReceiver(IApplicationThread,
  *      String, IIntentReceiver, IntentFilter, String, int)
  */
-/* package */ class Hook_RegisterReceiver extends Hook<ActivityManagerPatch> {
+/* package */ class Hook_RegisterReceiver extends Hook {
 
-    private WeakHashMap<Object, IIntentReceiver.Stub> mProxyIIntentReceiver = new WeakHashMap<>();
-
-    /**
-     * 这个构造器必须有,用于依赖注入.
-     *
-     * @param patchObject
-     *            注入对象
-     */
-    public Hook_RegisterReceiver(ActivityManagerPatch patchObject) {
-        super(patchObject);
-    }
+    private WeakHashMap<IBinder, IIntentReceiver.Stub> mProxyIIntentReceiver = new WeakHashMap<>();
 
     @Override
     public String getName() {
@@ -57,7 +48,8 @@ import java.util.WeakHashMap;
         if (args != null && args.length > indexOfIIntentReceiver
                 && IIntentReceiver.class.isInstance(args[indexOfIIntentReceiver])) {
             final IIntentReceiver old = (IIntentReceiver) args[indexOfIIntentReceiver];
-            IIntentReceiver.Stub proxyIIntentReceiver = mProxyIIntentReceiver.get(old);
+            IBinder token = old.asBinder();
+            IIntentReceiver.Stub proxyIIntentReceiver = mProxyIIntentReceiver.get(token);
             if (proxyIIntentReceiver == null) {
                 proxyIIntentReceiver = new IIntentReceiver.Stub() {
                     @Override
@@ -67,7 +59,7 @@ import java.util.WeakHashMap;
                             String action = intent.getAction();
                             ComponentName oldComponent = VirtualCore.getOriginComponentName(action);
                             if (oldComponent != null) {
-                                intent.setComponent(oldComponent);
+                                        intent.setComponent(oldComponent);
                                 intent.setAction(null);
                             }
 
@@ -90,7 +82,7 @@ import java.util.WeakHashMap;
                         this.performReceive(intent, resultCode, data, extras, ordered, sticky, 0);
                     }
                 };
-                mProxyIIntentReceiver.put(old, proxyIIntentReceiver);
+                mProxyIIntentReceiver.put(token, proxyIIntentReceiver);
             }
             args[indexOfIIntentReceiver] = proxyIIntentReceiver;
         }

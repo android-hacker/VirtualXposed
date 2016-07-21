@@ -1,11 +1,11 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import java.lang.reflect.Method;
+import android.content.pm.IPackageDeleteObserver2;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 
-import android.content.pm.IPackageDeleteObserver2;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -14,16 +14,8 @@ import android.content.pm.IPackageDeleteObserver2;
  * @see android.content.pm.IPackageManager#deletePackage(String,
  *      IPackageDeleteObserver2, int, int)
  */
-/* package */ class Hook_DeletePackage extends Hook<PackageManagerPatch> {
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_DeletePackage(PackageManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_DeletePackage extends Hook {
+
 
 	@Override
 	public String getName() {

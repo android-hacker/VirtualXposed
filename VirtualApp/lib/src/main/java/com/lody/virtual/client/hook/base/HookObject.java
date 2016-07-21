@@ -143,7 +143,11 @@ public class HookObject<T> implements IHookObject<T> {
 			Hook hook = getHook(method.getName());
 			try {
 				if (hook != null && hook.isEnable()) {
-					return hook.onHook(mBaseObject, method, args);
+					if (hook.beforeHook(mBaseObject, method, args)) {
+						Object res = hook.onHook(mBaseObject, method, args);
+						res = hook.afterHook(mBaseObject, method, args, res);
+						return res;
+					}
 				}
 				return method.invoke(mBaseObject, args);
 			} catch (Throwable e) {

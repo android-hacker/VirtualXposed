@@ -22,6 +22,7 @@ import com.lody.virtual.client.hook.binders.HookUserBinder;
 		Hook_HasUserRestriction.class, Hook_IsUserRunning.class, Hook_IsUserRunningOrStopping.class,
 		Hook_SetApplicationRestrictions.class, Hook_SetRestrictionsChallenge.class, Hook_GetDefaultGuestRestrictions.class,
 		Hook_GetUserIcon.class, Hook_RemoveRestrictions.class, Hook_GetProfileParent.class,
+		Hook_SetDefaultGuestRestrictions.class,
 })
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 public class UserManagerPatch extends PatchObject<IUserManager, HookUserBinder> {

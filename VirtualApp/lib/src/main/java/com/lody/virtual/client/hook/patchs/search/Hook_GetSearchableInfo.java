@@ -1,12 +1,12 @@
 package com.lody.virtual.client.hook.patchs.search;
 
-import java.lang.reflect.Method;
+import android.content.ComponentName;
+import android.content.pm.ActivityInfo;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 
-import android.content.ComponentName;
-import android.content.pm.ActivityInfo;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -14,16 +14,7 @@ import android.content.pm.ActivityInfo;
  *
  * @see android.app.ISearchManager#getSearchableInfo(ComponentName)
  */
-/* package */ class Hook_GetSearchableInfo extends Hook<SearchManagerPatch> {
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_GetSearchableInfo(SearchManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_GetSearchableInfo extends Hook {
 
 	@Override
 	public String getName() {

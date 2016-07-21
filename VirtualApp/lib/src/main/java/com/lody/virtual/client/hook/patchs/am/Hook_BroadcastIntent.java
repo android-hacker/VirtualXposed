@@ -1,13 +1,5 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.env.Constants;
-import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.utils.BitmapUtils;
-
 import android.app.IApplicationThread;
 import android.content.ComponentName;
 import android.content.IIntentReceiver;
@@ -18,6 +10,14 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.Constants;
+import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.helper.ExtraConstants;
+import com.lody.virtual.helper.utils.BitmapUtils;
+
+import java.lang.reflect.Method;
+
 /**
  * @author Lody
  *
@@ -26,16 +26,7 @@ import android.text.TextUtils;
  *      Intent, String, IIntentReceiver, int, String, Bundle, String[], int,
  *      Bundle, boolean, boolean, int)
  */
-/* package */ class Hook_BroadcastIntent extends Hook<ActivityManagerPatch> {
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_BroadcastIntent(ActivityManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_BroadcastIntent extends Hook {
 
 	@Override
 	public String getName() {

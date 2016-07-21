@@ -17,16 +17,8 @@ import java.lang.reflect.Method;
                at com.android.internal.os.IDropBoxManagerService$Stub$Proxy.getNextEntry(IDropBoxManagerService.java:168)
                at android.os.DropBoxManager.getNextEntry(DropBoxManager.java:328)
  */
-public class Hook_GetNextEntry extends Hook<DropBoxManagerPatch> {
+public class Hook_GetNextEntry extends Hook {
 
-    /**
-     * 这个构造器必须有,用于依赖注入.
-     *
-     * @param patchObject 注入对象
-     */
-    public Hook_GetNextEntry(DropBoxManagerPatch patchObject) {
-        super(patchObject);
-    }
 
     @Override
     public String getName() {

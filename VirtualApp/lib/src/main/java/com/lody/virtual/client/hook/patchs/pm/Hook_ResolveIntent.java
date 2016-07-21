@@ -15,17 +15,7 @@ import java.lang.reflect.Method;
  *         原型: resolveIntent(Intent intent, String resolvedType, int flags, int
  *         userId)
  */
-/* package */ class Hook_ResolveIntent extends Hook<PackageManagerPatch> {
-
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_ResolveIntent(PackageManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_ResolveIntent extends Hook {
 
 	@Override
 	public String getName() {

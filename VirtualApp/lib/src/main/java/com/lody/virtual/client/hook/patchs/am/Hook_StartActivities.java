@@ -1,14 +1,14 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
-
-import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.helper.utils.ArrayIndex;
-
 import android.app.IApplicationThread;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
+
+import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.helper.utils.ArrayIndex;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -17,16 +17,7 @@ import android.os.IBinder;
  * @see android.app.IActivityManager#startActivities(IApplicationThread, String,
  *      Intent[], String[], IBinder, Bundle, int)
  */
-/* package */ class Hook_StartActivities extends Hook<ActivityManagerPatch> {
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_StartActivities(ActivityManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_StartActivities extends Hook {
 
 	@Override
 	public String getName() {

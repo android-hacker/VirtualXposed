@@ -14,16 +14,7 @@ import java.lang.reflect.Method;
  *         原型: public boolean stopServiceToken(ComponentName className, IBinder
  *         token, int startId)
  */
-/* package */ class Hook_StopServiceToken extends Hook<ActivityManagerPatch> {
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_StopServiceToken(ActivityManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_StopServiceToken extends Hook {
 
 	@Override
 	public String getName() {

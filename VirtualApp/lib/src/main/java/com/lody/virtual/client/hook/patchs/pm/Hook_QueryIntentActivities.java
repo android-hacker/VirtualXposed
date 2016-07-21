@@ -1,13 +1,13 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import java.lang.reflect.Method;
-import java.util.List;
-
-import com.lody.virtual.client.local.LocalPackageManager;
-import com.lody.virtual.client.hook.base.Hook;
-
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
+
+import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.local.LocalPackageManager;
+
+import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * @author Lody
@@ -19,17 +19,7 @@ import android.content.pm.ResolveInfo;
  *      resolvedType, int flags, int userId)
  */
 @SuppressWarnings("unchecked")
-/* package */ class Hook_QueryIntentActivities extends Hook<PackageManagerPatch> {
-
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_QueryIntentActivities(PackageManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_QueryIntentActivities extends Hook {
 
 	@Override
 	public String getName() {

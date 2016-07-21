@@ -34,7 +34,8 @@ import java.util.Set;
  * @author Lody
  *
  *         <p/>
- *         维护和管理所有的插件进程，支持如下特征： 1、在插件进程创建后第一时间与PMS连接，在插件进程死亡时能够立刻知晓并采取相应措施。
+ *         维护和管理所有的插件进程，支持如下特征：
+ *         1、在插件进程创建后第一时间与PMS连接，在插件进程死亡时能够立刻知晓并采取相应措施。
  *         2、在进程剩余不多时自动杀死优先级最低的进程。
  */
 public class VProcessService extends IProcessManager.Stub {
@@ -47,8 +48,10 @@ public class VProcessService extends IProcessManager.Stub {
 
 	private final RunningAppList mRunningAppList = new RunningAppList();
 
+	private static final VProcessService sMgr = new VProcessService();
+
 	public static VProcessService getService() {
-		return AppProcessManagerHolder.sMgr;
+		return sMgr;
 	}
 
 	/**
@@ -409,8 +412,5 @@ public class VProcessService extends IProcessManager.Stub {
 		return mProcessList.getRecord(pid);
 	}
 
-	private static final class AppProcessManagerHolder {
-		private static final VProcessService sMgr = new VProcessService();
-	}
 
 }

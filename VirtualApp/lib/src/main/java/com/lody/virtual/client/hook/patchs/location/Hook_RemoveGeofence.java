@@ -1,25 +1,15 @@
 package com.lody.virtual.client.hook.patchs.location;
 
-import java.lang.reflect.Method;
-
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.utils.HookUtils;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
  *
  */
-/* package */ class Hook_RemoveGeofence extends Hook<LocationManagerPatch> {
-
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_RemoveGeofence(LocationManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_RemoveGeofence extends Hook {
 
 	@Override
 	public String getName() {
