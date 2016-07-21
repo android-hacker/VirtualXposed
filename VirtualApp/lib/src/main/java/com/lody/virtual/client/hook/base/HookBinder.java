@@ -129,7 +129,6 @@ public abstract class HookBinder<Interface extends IInterface> implements IHookO
 			sCache.remove(name);
 			sCache.put(name, this);
 		} else {
-			// 不会发生
 			throw new IllegalStateException("ServiceManager is invisible.");
 		}
 	}
@@ -237,7 +236,11 @@ public abstract class HookBinder<Interface extends IInterface> implements IHookO
 			Hook hook = getHook(method.getName());
 			try {
 				if (hook != null && hook.isEnable()) {
-					return hook.onHook(mBaseObject, method, args);
+					if (hook.beforeHook(mBaseObject, method, args)) {
+						Object res = hook.onHook(mBaseObject, method, args);
+						res = hook.afterHook(mBaseObject, method, args, res);
+						return res;
+					}
 				}
 				return method.invoke(mBaseObject, args);
 			} catch (Throwable e) {

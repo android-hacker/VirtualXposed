@@ -1,32 +1,24 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
+import android.annotation.SuppressLint;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.helper.utils.ArrayIndex;
 
-import android.annotation.SuppressLint;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 
 /**
  * @author Lody
  *
  */
 @SuppressLint("PackageManagerGetSignatures")
-/* package */ class Hook_CheckSignatures extends Hook<PackageManagerPatch> {
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_CheckSignatures(PackageManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_CheckSignatures extends Hook {
+
 
 	@Override
 	public String getName() {

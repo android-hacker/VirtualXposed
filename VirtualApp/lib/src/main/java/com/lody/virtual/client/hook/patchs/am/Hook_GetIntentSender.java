@@ -21,17 +21,7 @@ import java.lang.reflect.Method;
  * @see android.app.ActivityManagerNative#getIntentSender(int, String, IBinder,
  *      String, int, Intent[], String[], int, Bundle, int)
  */
-/* package */ class Hook_GetIntentSender extends Hook<ActivityManagerPatch> {
-
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_GetIntentSender(ActivityManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_GetIntentSender extends Hook {
 
 	@Override
 	public String getName() {

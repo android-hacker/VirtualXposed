@@ -1,13 +1,13 @@
 package com.lody.virtual.client.hook.patchs.alerm;
 
-import java.lang.reflect.Method;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.os.WorkSource;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.helper.utils.ArrayIndex;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.os.WorkSource;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -20,16 +20,7 @@ import android.os.WorkSource;
  *      long interval, int flags, PendingIntent operation, WorkSource
  *      workSource, AlarmClockInfo alarmClock)
  */
-/* package */ class Hook_Set extends Hook<AlarmManagerPatch> {
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_Set(AlarmManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_Set extends Hook {
 
 	@Override
 	public String getName() {
@@ -37,11 +28,11 @@ import android.os.WorkSource;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public boolean beforeHook(Object who, Method method, Object... args) {
 		int index = ArrayIndex.indexOfFirst(args, WorkSource.class);
 		if (index >= 0) {
 			args[index] = null;
 		}
-		return method.invoke(who, args);
+		return true;
 	}
 }

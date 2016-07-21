@@ -16,16 +16,7 @@ import java.lang.reflect.Method;
  *
  */
 
-public class Hook_UpdateCredentials extends Hook<AccountManagerPatch> {
-
-    /**
-     * 这个构造器必须有,用于依赖注入.
-     *
-     * @param patchObject 注入对象
-     */
-    public Hook_UpdateCredentials(AccountManagerPatch patchObject) {
-        super(patchObject);
-    }
+public class Hook_UpdateCredentials extends Hook {
 
     @Override
     public String getName() {

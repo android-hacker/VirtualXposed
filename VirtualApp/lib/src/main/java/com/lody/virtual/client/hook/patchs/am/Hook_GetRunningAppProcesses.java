@@ -14,17 +14,7 @@ import java.util.List;
  *
  */
 @SuppressWarnings("unchecked")
-/* package */ class Hook_GetRunningAppProcesses extends Hook<ActivityManagerPatch> {
-
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_GetRunningAppProcesses(ActivityManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_GetRunningAppProcesses extends Hook {
 
 	@Override
 	public String getName() {

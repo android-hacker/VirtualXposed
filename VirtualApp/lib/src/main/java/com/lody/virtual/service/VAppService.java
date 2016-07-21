@@ -39,7 +39,7 @@ public class VAppService extends IAppManager.Stub {
 	private Map<String, APKBundle> mApkBundleCaches = new ConcurrentHashMap<String, APKBundle>(10);
 	private RemoteCallbackList<IAppObserver> remoteCallbackList = new RemoteCallbackList<IAppObserver>();
 
-	private String[] PRE_INSTALL_PKG = {"com.google.android.gsf", "com.google.android.gsf.login",
+	private static final String[] PRE_INSTALL_PKG = {"com.google.android.gsf", "com.google.android.gsf.login",
 			"com.google.android.gms", "com.android.vending"};
 
 	public static VAppService getService() {

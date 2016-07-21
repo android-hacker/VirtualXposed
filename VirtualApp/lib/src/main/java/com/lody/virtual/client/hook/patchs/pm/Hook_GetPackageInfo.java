@@ -16,17 +16,7 @@ import java.lang.reflect.Method;
  *         原型: public PackageInfo getPackageInfo(String packageName, int flags,
  *         int userId)
  */
-public final class Hook_GetPackageInfo extends Hook<PackageManagerPatch> {
-
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_GetPackageInfo(PackageManagerPatch patchObject) {
-		super(patchObject);
-	}
+public final class Hook_GetPackageInfo extends Hook {
 
 	@Override
 	public String getName() {

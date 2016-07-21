@@ -1,23 +1,14 @@
 package com.lody.virtual.client.hook.patchs.vibrator;
 
-import java.lang.reflect.Method;
-
 import com.lody.virtual.client.hook.base.Hook;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
  *
  */
-/* package */ class Hook_Vibrate extends Hook<VibratorPatch> {
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_Vibrate(VibratorPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_Vibrate extends Hook {
 
 	@Override
 	public String getName() {

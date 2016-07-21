@@ -18,16 +18,7 @@ import java.lang.reflect.Method;
  *         原型: public int stopService(IApplicationThread caller, Intent service,
  *         String resolvedType, int userId)
  */
-/* package */ class Hook_StopService extends Hook<ActivityManagerPatch> {
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_StopService(ActivityManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_StopService extends Hook {
 
 	@Override
 	public String getName() {

@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.core.VirtualCore;
@@ -24,19 +25,10 @@ import java.util.WeakHashMap;
  * @see android.app.IActivityManager#registerReceiver(IApplicationThread,
  * String, IIntentReceiver, IntentFilter, String, int)
  */
-/* package */ class Hook_RegisterReceiver extends Hook<ActivityManagerPatch> {
+/* package */ class Hook_RegisterReceiver extends Hook {
 
-    private WeakHashMap<Object, IIntentReceiver.Stub> mProxyIIntentReceiver = new WeakHashMap<>();
+    private WeakHashMap<IBinder, IIntentReceiver.Stub> mProxyIIntentReceiver = new WeakHashMap<>();
     private static final String TAG = "broadcast";
-
-    /**
-     * 这个构造器必须有,用于依赖注入.
-     *
-     * @param patchObject 注入对象
-     */
-    public Hook_RegisterReceiver(ActivityManagerPatch patchObject) {
-        super(patchObject);
-    }
 
     @Override
     public String getName() {
@@ -59,7 +51,7 @@ import java.util.WeakHashMap;
         if (args != null && args.length > indexOfIIntentReceiver
                 && IIntentReceiver.class.isInstance(args[indexOfIIntentReceiver])) {
             final IIntentReceiver old = (IIntentReceiver) args[indexOfIIntentReceiver];
-            //防止重复代理
+            //��ֹ�ظ�����
             boolean isMy = false;
             try {
                 Reflect.on(old).get("proxy");
@@ -104,13 +96,13 @@ import java.util.WeakHashMap;
                             this.performReceive(intent, resultCode, data, extras, ordered, sticky, 0);
                         }
                     };
-                    mProxyIIntentReceiver.put(old, proxyIIntentReceiver);
+                mProxyIIntentReceiver.put(token, proxyIIntentReceiver);
                 }
                 try {
                     XLog.d(TAG, "class=" + old.getClass());
                     WeakReference WeakReference_mDispatcher = Reflect.on(old).get("mDispatcher");
                     Object mDispatcher = WeakReference_mDispatcher.get();
-                    //设置关系
+                    //���ù�ϵ
                     Reflect.on(mDispatcher).set("mIIntentReceiver", proxyIIntentReceiver);
                     args[indexOfIIntentReceiver] = proxyIIntentReceiver;
                     XLog.d(TAG, "set proxy ok");

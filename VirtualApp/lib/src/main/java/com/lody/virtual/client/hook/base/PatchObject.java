@@ -1,11 +1,11 @@
 package com.lody.virtual.client.hook.base;
 
-import java.lang.reflect.Constructor;
+import android.os.Build;
 
 import com.lody.virtual.client.interfaces.IHookObject;
 import com.lody.virtual.client.interfaces.Injectable;
 
-import android.os.Build;
+import java.lang.reflect.Constructor;
 
 /**
  * @author Lody
@@ -70,17 +70,26 @@ public abstract class PatchObject<T, H extends IHookObject<T>> implements Inject
 		}
 	}
 
-	protected void addHook(Class<? extends Hook> hookType) {
+	private void addHook(Class<? extends Hook> hookType) {
 		try {
 			Constructor<?> constructor = hookType.getDeclaredConstructors()[0];
 			if (!constructor.isAccessible()) {
 				constructor.setAccessible(true);
 			}
-			Hook hook = (Hook) constructor.newInstance(this);
+			Hook hook;
+			if (constructor.getParameterTypes().length == 0) {
+				hook = (Hook) constructor.newInstance();
+			} else {
+				hook = (Hook) constructor.newInstance(this);
+			}
 			hookObject.addHook(hook);
 		} catch (Throwable e) {
 			throw new RuntimeException("Unable to instance Hook : " + hookType + " :" + e.getMessage());
 		}
+	}
+
+	public void addHook(Hook hook) {
+		hookObject.addHook(hook);
 	}
 
 	/**

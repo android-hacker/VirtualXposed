@@ -12,16 +12,7 @@ import java.lang.reflect.Method;
  *
  *         原型: public boolean unbindService(IServiceConnection connection)
  */
-/* package */ class Hook_UnbindService extends Hook<ActivityManagerPatch> {
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_UnbindService(ActivityManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_UnbindService extends Hook {
 
 	@Override
 	public String getName() {

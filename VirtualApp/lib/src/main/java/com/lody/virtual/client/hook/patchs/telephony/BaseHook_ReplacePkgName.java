@@ -1,25 +1,16 @@
 package com.lody.virtual.client.hook.patchs.telephony;
 
-import java.lang.reflect.Method;
-
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.utils.HookUtils;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
  *
  */
-/* package */ abstract class BaseHook_ReplacePkgName extends Hook<TelephonyPatch> {
+/* package */ abstract class BaseHook_ReplacePkgName extends Hook {
 
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public BaseHook_ReplacePkgName(TelephonyPatch patchObject) {
-		super(patchObject);
-	}
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {

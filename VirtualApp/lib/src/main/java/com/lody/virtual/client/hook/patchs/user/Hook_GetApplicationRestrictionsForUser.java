@@ -1,9 +1,9 @@
 package com.lody.virtual.client.hook.patchs.user;
 
-import java.lang.reflect.Method;
-
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.utils.HookUtils;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -11,16 +11,7 @@ import com.lody.virtual.client.hook.utils.HookUtils;
  *
  * @see android.os.IUserManager#getApplicationRestrictionsForUser(String, int)
  */
-/* package */ class Hook_GetApplicationRestrictionsForUser extends Hook<UserManagerPatch> {
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_GetApplicationRestrictionsForUser(UserManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_GetApplicationRestrictionsForUser extends Hook {
 
 	@Override
 	public String getName() {

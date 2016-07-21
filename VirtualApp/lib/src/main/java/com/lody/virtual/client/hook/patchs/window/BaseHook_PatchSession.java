@@ -1,26 +1,17 @@
 package com.lody.virtual.client.hook.patchs.window;
 
-import java.lang.reflect.Method;
+import android.view.IWindowSession;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.patchs.window.session.WindowSessionPatch;
 
-import android.view.IWindowSession;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
  *
  */
-/* package */ abstract class BaseHook_PatchSession extends Hook<WindowManagerPatch> {
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public BaseHook_PatchSession(WindowManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ abstract class BaseHook_PatchSession extends Hook {
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
