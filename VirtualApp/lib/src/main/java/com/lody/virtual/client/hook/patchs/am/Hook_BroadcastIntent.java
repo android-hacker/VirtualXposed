@@ -15,6 +15,7 @@ import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.utils.BitmapUtils;
+import com.lody.virtual.helper.utils.XLog;
 
 import java.lang.reflect.Method;
 
@@ -62,6 +63,7 @@ import java.lang.reflect.Method;
 				if (name.startsWith(".")) {
 					name = cn.getPackageName() + cn.getClassName();
 				}
+                XLog.d("broadcast", "action="+action+",cn="+cn);
 				intent.setComponent(null);
 				intent.setAction(VirtualCore.getReceiverAction(cn.getPackageName(), name));
 			}
