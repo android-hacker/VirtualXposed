@@ -16,20 +16,25 @@ import java.util.Arrays;
 
 public class SettingsProviderHook extends ExternalProviderHook {
 
+    private static final String TAG = SettingsProviderHook.class.getSimpleName();
+
     public SettingsProviderHook(Object base) {
         super(base);
     }
 
     @Override
     public Bundle call(Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
-        XLog.d("#########", "call %s", Arrays.toString(args));
+        XLog.d(TAG, "call %s", Arrays.toString(args));
         if (args[1] instanceof String) {
             String methodName = (String) args[1];
             if (methodName.endsWith("secure")) {
                try {
                    return super.call(method, args);
-               } catch (SecurityException e) {
-                   return null;
+               } catch (InvocationTargetException e) {
+                   if (e.getCause() instanceof SecurityException) {
+                       return null;
+                   }
+                   throw e;
                }
             }
         }
@@ -38,7 +43,7 @@ public class SettingsProviderHook extends ExternalProviderHook {
 
     @Override
     public Uri insert(Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
-        XLog.d("#########", "insert %s", Arrays.toString(args));
+        XLog.d(TAG, "insert %s", Arrays.toString(args));
         return super.insert(method, args);
     }
 

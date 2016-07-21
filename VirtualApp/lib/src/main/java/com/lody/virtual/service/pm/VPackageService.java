@@ -1,4 +1,4 @@
-package com.lody.virtual.service;
+package com.lody.virtual.service.pm;
 
 import android.annotation.TargetApi;
 import android.content.ComponentName;
@@ -22,6 +22,8 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.bundle.APKBundle;
 import com.lody.virtual.helper.bundle.IntentResolver;
 import com.lody.virtual.helper.proto.VParceledListSlice;
+import com.lody.virtual.service.IPackageManager;
+import com.lody.virtual.service.VAppService;
 import com.lody.virtual.service.process.VProcessService;
 
 import java.util.ArrayList;
@@ -397,4 +399,7 @@ public class VPackageService extends IPackageManager.Stub {
 		}
 		return null;
 	}
+
+
+
 }

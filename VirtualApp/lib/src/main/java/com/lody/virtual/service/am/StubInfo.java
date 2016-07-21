@@ -25,7 +25,7 @@ public class StubInfo {
 		}
 	/*package*/ ActivityInfo fetchStubActivityInfo(ActivityInfo targetInfo) {
 
-			boolean isTranslucent = false;
+//			boolean isTranslucent = false;
 			boolean isFloating = false;
 			try {
 				Reflect style = Reflect.on(com.android.internal.R.styleable.class);
@@ -36,14 +36,14 @@ public class StubInfo {
 				AttributeCache.Entry ent = AttributeCache.instance().get(targetInfo.packageName, targetInfo.theme,
 						R_Styleable_Window);
 				if (ent != null && ent.array != null) {
-					isTranslucent = ent.array.getBoolean(R_Styleable_Window_windowIsTranslucent, false);
+//					isTranslucent = ent.array.getBoolean(R_Styleable_Window_windowIsTranslucent, false);
 					isFloating = ent.array.getBoolean(R_Styleable_Window_windowIsFloating, false);
 				}
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
 
-			boolean isDialogStyle = isTranslucent || isFloating;
+			boolean isDialogStyle = isFloating;
 			if (isDialogStyle) {
 				return dialogActivityInfos.get(0);
 			} else {

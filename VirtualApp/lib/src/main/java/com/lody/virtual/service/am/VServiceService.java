@@ -20,7 +20,7 @@ import com.lody.virtual.helper.MethodConstants;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.utils.XLog;
 import com.lody.virtual.service.IServiceManager;
-import com.lody.virtual.service.VPackageService;
+import com.lody.virtual.service.pm.VPackageService;
 import com.lody.virtual.service.interfaces.IServiceEnvironment;
 
 import java.util.Map;

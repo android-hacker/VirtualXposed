@@ -16,6 +16,7 @@ import com.lody.virtual.service.account.VAccountService;
 import com.lody.virtual.service.am.VActivityService;
 import com.lody.virtual.service.am.VServiceService;
 import com.lody.virtual.service.interfaces.IServiceFetcher;
+import com.lody.virtual.service.pm.VPackageService;
 import com.lody.virtual.service.process.VProcessService;
 
 /**

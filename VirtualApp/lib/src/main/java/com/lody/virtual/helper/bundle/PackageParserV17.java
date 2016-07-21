@@ -1,11 +1,5 @@
 package com.lody.virtual.helper.bundle;
 
-import java.io.File;
-import java.lang.reflect.Method;
-import java.util.HashSet;
-
-import com.lody.virtual.helper.utils.Reflect;
-
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -13,8 +7,15 @@ import android.content.pm.PackageParser;
 import android.content.pm.PackageUserState;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ServiceInfo;
+import android.os.Build;
 import android.util.ArraySet;
 import android.util.DisplayMetrics;
+
+import com.lody.virtual.helper.utils.Reflect;
+
+import java.io.File;
+import java.lang.reflect.Method;
+import java.util.HashSet;
 
 /**
  * @author Lody
@@ -34,33 +35,33 @@ import android.util.DisplayMetrics;
 	}
 
 	@Override
-	public ActivityInfo generateActivityInfo(PackageParser.Activity activity, int flags) throws Exception {
+	public ActivityInfo generateActivityInfo(PackageParser.Activity activity, int flags) {
 		return PackageParser.generateActivityInfo(activity, flags, sUserState, mUid);
 	}
 
 	@Override
-	public ServiceInfo generateServiceInfo(PackageParser.Service service, int flags) throws Exception {
+	public ServiceInfo generateServiceInfo(PackageParser.Service service, int flags) {
 		return PackageParser.generateServiceInfo(service, flags, sUserState, mUid);
 	}
 
 	@Override
-	public ActivityInfo generateReceiverInfo(PackageParser.Activity receiver, int flags) throws Exception {
+	public ActivityInfo generateReceiverInfo(PackageParser.Activity receiver, int flags) {
 		return PackageParser.generateActivityInfo(receiver, flags, sUserState, mUid);
 	}
 
 	@Override
-	public ProviderInfo generateProviderInfo(PackageParser.Provider provider, int flags) throws Exception {
+	public ProviderInfo generateProviderInfo(PackageParser.Provider provider, int flags) {
 		return PackageParser.generateProviderInfo(provider, flags, sUserState, mUid);
 	}
 
 	@Override
-	public ApplicationInfo generateApplicationInfo(int flags) throws Exception {
+	public ApplicationInfo generateApplicationInfo(int flags) {
 		return PackageParser.generateApplicationInfo(mPackage, flags, sUserState, mUid);
 	}
 
 	@Override
 	public PackageInfo generatePackageInfo(int[] gids, int flags, long firstInstallTime, long lastUpdateTime,
-			HashSet<String> grantedPermissions) throws Exception {
+			HashSet<String> grantedPermissions) {
 
 		try {
 			return PackageParser.generatePackageInfo(mPackage, gids, flags, firstInstallTime, lastUpdateTime,
@@ -71,15 +72,22 @@ import android.util.DisplayMetrics;
 				Method m_generatePackageInfo = PackageParser.class.getDeclaredMethod("generatePackageInfo",
 						PackageParser.Package.class, int[].class, int.class, long.class, long.class, HashSet.class,
 						PackageUserState.class, int.class);
-				return (PackageInfo) m_generatePackageInfo.invoke(null, mPackage, gids, flags, firstInstallTime,
-						lastUpdateTime, grantedPermissions, sUserState, mUid);
+				try {
+					return (PackageInfo) m_generatePackageInfo.invoke(null, mPackage, gids, flags, firstInstallTime,
+							lastUpdateTime, grantedPermissions, sUserState, mUid);
+				} catch (Throwable err) {
+					// Ignore
+				}
 			} catch (NoSuchMethodException noError) {
-				ArraySet<String> grantedPermissionsArray = new ArraySet<String>(grantedPermissions);
-				return Reflect.on(PackageParser.class).call("generatePackageInfo", mPackage, gids, flags,
-						firstInstallTime, lastUpdateTime, grantedPermissionsArray, sUserState, mUid).get();
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+					ArraySet<String> grantedPermissionsArray = new ArraySet<String>(grantedPermissions);
+					return Reflect.on(PackageParser.class).call("generatePackageInfo", mPackage, gids, flags,
+							firstInstallTime, lastUpdateTime, grantedPermissionsArray, sUserState, mUid).get();
+				}
 
 			}
 
 		}
+		return null;
 	}
 }

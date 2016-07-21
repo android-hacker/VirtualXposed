@@ -1,5 +1,19 @@
 package com.lody.virtual.helper.bundle;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.utils.FileIO;
+import com.lody.virtual.service.AppFileSystem;
+
 import android.content.ComponentName;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
@@ -16,20 +30,6 @@ import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.os.Process;
 import android.text.TextUtils;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.proto.AppInfo;
-import com.lody.virtual.helper.utils.FileIO;
-import com.lody.virtual.service.AppFileSystem;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * @author Lody
