@@ -7,6 +7,8 @@ import java.lang.reflect.Method;
 /**
  * @author Lody
  *
+ *
+ *
  */
 /* package */ class Hook_GetPermissions extends Hook {
 
