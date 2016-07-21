@@ -51,65 +51,27 @@ import java.util.WeakHashMap;
         if (args != null && args.length > indexOfIIntentReceiver
                 && IIntentReceiver.class.isInstance(args[indexOfIIntentReceiver])) {
             final IIntentReceiver old = (IIntentReceiver) args[indexOfIIntentReceiver];
-            //·ÀÖ¹ÖØ¸´´úÀí
-            boolean isMy = false;
-            try {
-                Reflect.on(old).get("proxy");
-                XLog.w(TAG, "is proxy receiver");
-                isMy = true;
-            } catch (Exception e) {
-
-            }
-            if (!isMy) {
-                IIntentReceiver.Stub proxyIIntentReceiver = mProxyIIntentReceiver.get(old);
+            //é˜²æ­¢é‡å¤ä»£ç†
+            if(!ProxyIIntentReceiver.class.isInstance(old)) {
+                IBinder token = old.asBinder();
+                IIntentReceiver.Stub proxyIIntentReceiver = mProxyIIntentReceiver.get(token);
                 if (proxyIIntentReceiver == null) {
-                    proxyIIntentReceiver = new IIntentReceiver.Stub() {
-                        private boolean proxy;
-
-                        @Override
-                        public void performReceive(Intent intent, int resultCode, String data, Bundle extras,
-                                                   boolean ordered, boolean sticky, int sendingUser) throws RemoteException {
-                            try {
-                                String action = intent.getAction();
-                                ComponentName oldComponent = VirtualCore.getOriginComponentName(action);
-                                XLog.d(TAG, "performReceive:"+intent);
-                                if (oldComponent != null) {
-                                    intent.setComponent(oldComponent);
-                                    intent.setAction(null);
-                                }
-                                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
-                                    old.performReceive(intent, resultCode, data, extras, ordered, sticky, sendingUser);
-                                } else {
-                                    Method performReceive = old.getClass().getDeclaredMethod("performReceive", Intent.class,
-                                            int.class, String.class, Bundle.class, boolean.class, boolean.class);
-                                    performReceive.setAccessible(true);
-                                    performReceive.invoke(old, intent, resultCode, data, extras, ordered, sticky);
-                                }
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-
-                        // @Override
-                        public void performReceive(Intent intent, int resultCode, String data, Bundle extras,
-                                                   boolean ordered, boolean sticky) throws android.os.RemoteException {
-                            this.performReceive(intent, resultCode, data, extras, ordered, sticky, 0);
-                        }
-                    };
-                mProxyIIntentReceiver.put(token, proxyIIntentReceiver);
+                    proxyIIntentReceiver = new ProxyIIntentReceiver(old);
+                    mProxyIIntentReceiver.put(token, proxyIIntentReceiver);
                 }
                 try {
                     XLog.d(TAG, "class=" + old.getClass());
                     WeakReference WeakReference_mDispatcher = Reflect.on(old).get("mDispatcher");
                     Object mDispatcher = WeakReference_mDispatcher.get();
-                    //ÉèÖÃ¹ØÏµ
+                    //è®¾ç½®å…³ç³»
                     Reflect.on(mDispatcher).set("mIIntentReceiver", proxyIIntentReceiver);
                     args[indexOfIIntentReceiver] = proxyIIntentReceiver;
                     XLog.d(TAG, "set proxy ok");
                 } catch (Throwable e) {
-                    XLog.e(TAG, "test", e);
+                    XLog.e(TAG, "test" + e);
                 }
-//                args[indexOfIIntentReceiver] = proxyIIntentReceiver;
+            }else{
+                XLog.w(TAG, "is proxy");
             }
         }
         return method.invoke(who, args);
@@ -118,5 +80,45 @@ import java.util.WeakHashMap;
     @Override
     public boolean isEnable() {
         return isAppProcess();
+    }
+
+    static class ProxyIIntentReceiver extends IIntentReceiver.Stub {
+        IIntentReceiver old;
+
+        public ProxyIIntentReceiver(IIntentReceiver old) {
+            this.old = old;
+        }
+
+        @Override
+        public void performReceive(Intent intent, int resultCode, String data, Bundle extras,
+                                   boolean ordered, boolean sticky, int sendingUser)
+                throws RemoteException {
+            try {
+                String action = intent.getAction();
+                ComponentName oldComponent = VirtualCore.getOriginComponentName(action);
+                XLog.d(TAG, "performReceive:" + intent);
+                if (oldComponent != null) {
+                    intent.setComponent(oldComponent);
+                    intent.setAction(null);
+                }
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
+                    old.performReceive(intent, resultCode, data, extras, ordered, sticky, sendingUser);
+                } else {
+                    Method performReceive = old.getClass().getDeclaredMethod("performReceive", Intent.class,
+                            int.class, String.class, Bundle.class, boolean.class, boolean.class);
+                    performReceive.setAccessible(true);
+                    performReceive.invoke(old, intent, resultCode, data, extras, ordered, sticky);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        // @Override
+        public void performReceive(Intent intent, int resultCode, String data, Bundle extras,
+                                   boolean ordered, boolean sticky)
+                throws android.os.RemoteException {
+            this.performReceive(intent, resultCode, data, extras, ordered, sticky, 0);
+        }
     }
 }

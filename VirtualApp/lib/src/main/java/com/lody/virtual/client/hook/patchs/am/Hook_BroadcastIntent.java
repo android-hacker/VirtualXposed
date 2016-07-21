@@ -15,6 +15,7 @@ import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.utils.BitmapUtils;
+import com.lody.virtual.helper.utils.XLog;
 
 import java.lang.reflect.Method;
 
