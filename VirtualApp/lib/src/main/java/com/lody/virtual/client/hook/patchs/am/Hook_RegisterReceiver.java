@@ -8,12 +8,12 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.util.Log;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.utils.HookUtils;
 import com.lody.virtual.helper.utils.Reflect;
+import com.lody.virtual.helper.utils.XLog;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
@@ -27,6 +27,7 @@ import java.util.WeakHashMap;
 /* package */ class Hook_RegisterReceiver extends Hook<ActivityManagerPatch> {
 
     private WeakHashMap<Object, IIntentReceiver.Stub> mProxyIIntentReceiver = new WeakHashMap<>();
+    private static final String TAG = "broadcast";
 
     /**
      * 这个构造器必须有,用于依赖注入.
@@ -62,7 +63,7 @@ import java.util.WeakHashMap;
             boolean isMy = false;
             try {
                 Reflect.on(old).get("proxy");
-                Log.w("kk","is proxy receiver");
+                XLog.w(TAG, "is proxy receiver");
                 isMy = true;
             } catch (Exception e) {
 
@@ -79,11 +80,11 @@ import java.util.WeakHashMap;
                             try {
                                 String action = intent.getAction();
                                 ComponentName oldComponent = VirtualCore.getOriginComponentName(action);
+                                XLog.d(TAG, "performReceive:"+intent);
                                 if (oldComponent != null) {
                                     intent.setComponent(oldComponent);
                                     intent.setAction(null);
                                 }
-
                                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
                                     old.performReceive(intent, resultCode, data, extras, ordered, sticky, sendingUser);
                                 } else {
@@ -106,15 +107,15 @@ import java.util.WeakHashMap;
                     mProxyIIntentReceiver.put(old, proxyIIntentReceiver);
                 }
                 try {
-                    Log.d("kk", "class=" + old.getClass());
+                    XLog.d(TAG, "class=" + old.getClass());
                     WeakReference WeakReference_mDispatcher = Reflect.on(old).get("mDispatcher");
                     Object mDispatcher = WeakReference_mDispatcher.get();
                     //设置关系
                     Reflect.on(mDispatcher).set("mIIntentReceiver", proxyIIntentReceiver);
-                    Log.d("kk", "set proxy ok");
                     args[indexOfIIntentReceiver] = proxyIIntentReceiver;
+                    XLog.d(TAG, "set proxy ok");
                 } catch (Throwable e) {
-                    Log.e("kk", "test", e);
+                    XLog.e(TAG, "test", e);
                 }
 //                args[indexOfIIntentReceiver] = proxyIIntentReceiver;
             }
