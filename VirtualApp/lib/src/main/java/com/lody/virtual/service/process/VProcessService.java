@@ -291,7 +291,6 @@ public class VProcessService extends IProcessManager.Stub {
 				r.client = client;
 				r.appThread = appThread;
 				r.stubInfo.verify();
-//				r.appProcessName =
 				mProcessList.addRecord(callingPid, r);
 			} else {
 				XLog.w(TAG, "Pid %d have been bound to PMS, should not be bound again, ignore.", callingPid);
@@ -319,11 +318,11 @@ public class VProcessService extends IProcessManager.Stub {
 		}
 	}
 
-	public void onEnterAppProcessName(String pluginProcessName) {
+	public void onEnterAppProcessName(String appProcessName) {
 		int pid = Binder.getCallingPid();
 		ProcessRecord r = mProcessList.getRecord(pid);
 		if (r != null) {
-			r.appProcessName = pluginProcessName;
+			r.appProcessName = appProcessName;
 		}
 	}
 

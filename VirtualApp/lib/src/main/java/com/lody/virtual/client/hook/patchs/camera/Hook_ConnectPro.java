@@ -24,8 +24,9 @@ public class Hook_ConnectPro extends Hook {
     }
 
     @Override
-    public Object onHook(Object who, Method method, Object... args) throws Throwable {
+    public boolean beforeHook(Object who, Method method, Object... args) {
         HookUtils.replaceAppPkg(args);
-        return method.invoke(who, args);
+        return super.beforeHook(who, method, args);
     }
+
 }

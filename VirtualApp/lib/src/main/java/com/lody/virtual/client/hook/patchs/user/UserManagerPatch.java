@@ -6,8 +6,9 @@ import android.os.Build;
 import android.os.IUserManager;
 import android.os.ServiceManager;
 
-import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
+import com.lody.virtual.client.hook.base.ResultStaticHook;
 import com.lody.virtual.client.hook.binders.HookUserBinder;
 
 /**
@@ -16,14 +17,6 @@ import com.lody.virtual.client.hook.binders.HookUserBinder;
  *
  * @see IUserManager
  */
-@Patch({Hook_GetApplicationRestrictions.class, Hook_GetApplicationRestrictionsForUser.class,
-		Hook_GetSerialNumberForUser.class, Hook_GetUserCount.class, Hook_GetUserForSerialNumber.class,
-		Hook_GetUserInfo.class, Hook_GetUserProfiles.class, Hook_GetUserRestrictions.class,
-		Hook_HasUserRestriction.class, Hook_IsUserRunning.class, Hook_IsUserRunningOrStopping.class,
-		Hook_SetApplicationRestrictions.class, Hook_SetRestrictionsChallenge.class, Hook_GetDefaultGuestRestrictions.class,
-		Hook_GetUserIcon.class, Hook_RemoveRestrictions.class, Hook_GetProfileParent.class,
-		Hook_SetDefaultGuestRestrictions.class,
-})
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 public class UserManagerPatch extends PatchObject<IUserManager, HookUserBinder> {
 
@@ -35,6 +28,20 @@ public class UserManagerPatch extends PatchObject<IUserManager, HookUserBinder> 
 	@Override
 	public void inject() throws Throwable {
 		getHookObject().injectService(Context.USER_SERVICE);
+	}
+
+	@Override
+	protected void applyHooks() {
+		super.applyHooks();
+		addHook(new ReplaceCallingPkgHook("setApplicationRestrictions"));
+		addHook(new ReplaceCallingPkgHook("getApplicationRestrictions"));
+		addHook(new ReplaceCallingPkgHook("getApplicationRestrictionsForUser"));
+		addHook(new ResultStaticHook("getProfileParent", null));
+		addHook(new ResultStaticHook("getUserIcon", null));
+		addHook(new ResultStaticHook("getUserInfo", null));
+		addHook(new ResultStaticHook("getDefaultGuestRestrictions", null));
+		addHook(new ResultStaticHook("setDefaultGuestRestrictions", null));
+		addHook(new ResultStaticHook("removeRestrictions", null));
 	}
 
 	@Override

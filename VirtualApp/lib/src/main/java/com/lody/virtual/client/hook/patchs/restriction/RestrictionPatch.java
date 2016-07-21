@@ -1,20 +1,19 @@
 package com.lody.virtual.client.hook.patchs.restriction;
 
-import com.lody.virtual.client.hook.base.Patch;
-import com.lody.virtual.client.hook.base.PatchObject;
-import com.lody.virtual.client.hook.binders.HookRestrictionBinder;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.IRestrictionsManager;
 import android.os.Build;
 import android.os.ServiceManager;
 
+import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
+import com.lody.virtual.client.hook.binders.HookRestrictionBinder;
+
 /**
  * @author Lody
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-@Patch({Hook_NotifyPermissionResponse.class, Hook_RequestPermission.class, Hook_GetApplicationRestrictions.class,})
 public class RestrictionPatch extends PatchObject<IRestrictionsManager, HookRestrictionBinder> {
 
 	@Override
@@ -26,6 +25,14 @@ public class RestrictionPatch extends PatchObject<IRestrictionsManager, HookRest
 	public void inject() throws Throwable {
 		getHookObject().injectService(Context.RESTRICTIONS_SERVICE);
 
+	}
+
+	@Override
+	protected void applyHooks() {
+		super.applyHooks();
+		addHook(new ReplaceCallingPkgHook("getApplicationRestrictions"));
+		addHook(new ReplaceCallingPkgHook("notifyPermissionResponse"));
+		addHook(new ReplaceCallingPkgHook("requestPermission"));
 	}
 
 	@Override

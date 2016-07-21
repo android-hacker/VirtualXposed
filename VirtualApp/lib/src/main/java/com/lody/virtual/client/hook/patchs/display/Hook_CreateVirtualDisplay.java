@@ -19,13 +19,14 @@ import java.lang.reflect.Method;
 /* package */ class Hook_CreateVirtualDisplay extends Hook {
 
 	@Override
+	public boolean beforeHook(Object who, Method method, Object... args) {
+		HookUtils.replaceFirstAppPkg(args);
+		return super.beforeHook(who, method, args);
+	}
+
+	@Override
 	public String getName() {
 		return "createVirtualDisplay";
 	}
 
-	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		HookUtils.replaceFirstAppPkg(args);
-		return method.invoke(who, args);
-	}
 }
