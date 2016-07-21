@@ -1,11 +1,5 @@
 package com.lody.virtual.helper.bundle;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-
 import android.annotation.TargetApi;
 import android.content.ComponentName;
 import android.content.Context;
@@ -18,6 +12,12 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 public class IntentResolver {
 
@@ -501,9 +501,7 @@ public class IntentResolver {
 						ActivityInfo flagActivityInfo = packageParser
 								.getActivityInfo(new ComponentName(activityInfo.packageName, activityInfo.name), flags);
 						ResolveInfo resolveInfo = newResolveInfo(flagActivityInfo, new IntentFilter());
-						if (VERSION.SDK_INT >= VERSION_CODES.M) {
-							resolveInfo.match = PackageManager.MATCH_ALL;
-						}
+						resolveInfo.match = PackageManager.MATCH_ALL;
 						resolveInfo.isDefault = true;
 						outList.add(resolveInfo);
 					}

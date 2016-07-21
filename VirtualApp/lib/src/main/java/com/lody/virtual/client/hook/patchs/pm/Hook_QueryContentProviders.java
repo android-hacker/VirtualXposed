@@ -25,6 +25,6 @@ import java.lang.reflect.Method;
 	public boolean beforeHook(Object who, Method method, Object... args) {
 		return false;
 	}
-	
+
 
 }

@@ -1,8 +1,8 @@
 package com.lody.virtual.helper.bundle;
 
-import android.content.pm.PackageParser;
-
 import java.io.File;
+
+import android.content.pm.PackageParser;
 
 /**
  * @author Lody

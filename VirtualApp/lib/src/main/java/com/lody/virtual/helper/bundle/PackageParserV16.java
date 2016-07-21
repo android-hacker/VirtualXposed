@@ -21,35 +21,35 @@ import android.content.pm.ServiceInfo;
 	private int mEnabledState = 0;
 
 	@Override
-	public ActivityInfo generateActivityInfo(PackageParser.Activity activity, int flags) {
+	public ActivityInfo generateActivityInfo(PackageParser.Activity activity, int flags) throws Exception {
 
 		return Reflect.on(PackageParser.class)
 				.call("generateActivityInfo", activity, flags, mStopped, mEnabledState, mUid).get();
 	}
 
 	@Override
-	public ServiceInfo generateServiceInfo(PackageParser.Service service, int flags) {
+	public ServiceInfo generateServiceInfo(PackageParser.Service service, int flags) throws Exception {
 
 		return Reflect.on(PackageParser.class)
 				.call("generateServiceInfo", service, flags, mStopped, mEnabledState, mUid).get();
 	}
 
 	@Override
-	public ProviderInfo generateProviderInfo(PackageParser.Provider provider, int flags) {
+	public ProviderInfo generateProviderInfo(PackageParser.Provider provider, int flags) throws Exception {
 
 		return Reflect.on(PackageParser.class)
 				.call("generateProviderInfo", provider, flags, mStopped, mEnabledState, mUid).get();
 	}
 
 	@Override
-	public ApplicationInfo generateApplicationInfo(int flags) {
+	public ApplicationInfo generateApplicationInfo(int flags) throws Exception {
 		return Reflect.on(PackageParser.class)
 				.call("generateApplicationInfo", mPackage, flags, mStopped, mEnabledState, mUid).get();
 	}
 
 	@Override
 	public PackageInfo generatePackageInfo(int[] gids, int flags, long firstInstallTime, long lastUpdateTime,
-			HashSet<String> grantedPermissions) {
+			HashSet<String> grantedPermissions) throws Exception {
 
 		return Reflect.on(PackageParser.class).call("generatePackageInfo", mPackage, gids, flags, firstInstallTime,
 				lastUpdateTime, grantedPermissions, mStopped, mEnabledState, mUid).get();
