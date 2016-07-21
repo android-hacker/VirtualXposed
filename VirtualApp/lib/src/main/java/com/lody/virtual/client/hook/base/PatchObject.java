@@ -10,7 +10,6 @@ import java.lang.reflect.Constructor;
 /**
  * @author Lody
  *
- *         <p>
  *         所有注入器的基类,使用Patch注解来添加Hook.
  * @see Patch
  */
@@ -43,31 +42,33 @@ public abstract class PatchObject<T, H extends IHookObject<T>> implements Inject
 	 */
 	protected void applyHooks() {
 
-		if (hookObject != null) {
-			Class<? extends PatchObject> clazz = getClass();
-			Patch patch = clazz.getAnnotation(Patch.class);
-			int version = Build.VERSION.SDK_INT;
-			if (patch != null) {
-				Class<? extends Hook>[] hookTypes = patch.value();
-				for (Class<? extends Hook> hookType : hookTypes) {
-					ApiLimit apiLimit = hookType.getAnnotation(ApiLimit.class);
-					boolean needToAddHook = true;
-					if (apiLimit != null) {
-						int apiStart = apiLimit.start();
-						int apiEnd = apiLimit.end();
-						boolean highThanStart = apiStart == -1 || version > apiStart;
-						boolean lowThanEnd = apiEnd == -1 || version < apiEnd;
-						if (!highThanStart || !lowThanEnd) {
-							needToAddHook = false;
-						}
-					}
-					if (needToAddHook) {
-						addHook(hookType);
-					}
-				}
-
-			}
+		if (hookObject == null) {
+			return;
 		}
+
+		Class<? extends PatchObject> clazz = getClass();
+		Patch patch = clazz.getAnnotation(Patch.class);
+		int version = Build.VERSION.SDK_INT;
+		if (patch != null) {
+            Class<? extends Hook>[] hookTypes = patch.value();
+            for (Class<? extends Hook> hookType : hookTypes) {
+                ApiLimit apiLimit = hookType.getAnnotation(ApiLimit.class);
+                boolean needToAddHook = true;
+                if (apiLimit != null) {
+                    int apiStart = apiLimit.start();
+                    int apiEnd = apiLimit.end();
+                    boolean highThanStart = apiStart == -1 || version > apiStart;
+                    boolean lowThanEnd = apiEnd == -1 || version < apiEnd;
+                    if (!highThanStart || !lowThanEnd) {
+                        needToAddHook = false;
+                    }
+                }
+                if (needToAddHook) {
+                    addHook(hookType);
+                }
+            }
+
+        }
 	}
 
 	private void addHook(Class<? extends Hook> hookType) {
@@ -84,7 +85,7 @@ public abstract class PatchObject<T, H extends IHookObject<T>> implements Inject
 			}
 			hookObject.addHook(hook);
 		} catch (Throwable e) {
-			throw new RuntimeException("Unable to instance Hook : " + hookType + " :" + e.getMessage());
+			throw new RuntimeException("Unable to instance Hook : " + hookType + " : " + e.getMessage());
 		}
 	}
 
