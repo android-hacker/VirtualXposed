@@ -14,7 +14,6 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.utils.HookUtils;
 import com.lody.virtual.helper.utils.Reflect;
-import com.lody.virtual.helper.utils.XLog;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
@@ -28,7 +27,6 @@ import java.util.WeakHashMap;
 /* package */ class Hook_RegisterReceiver extends Hook {
 
     private WeakHashMap<IBinder, IIntentReceiver.Stub> mProxyIIntentReceiver = new WeakHashMap<>();
-    private static final String TAG = "broadcast";
 
     @Override
     public String getName() {
@@ -60,18 +58,14 @@ import java.util.WeakHashMap;
                     mProxyIIntentReceiver.put(token, proxyIIntentReceiver);
                 }
                 try {
-                    XLog.d(TAG, "class=" + old.getClass());
                     WeakReference WeakReference_mDispatcher = Reflect.on(old).get("mDispatcher");
                     Object mDispatcher = WeakReference_mDispatcher.get();
                     //设置关系
                     Reflect.on(mDispatcher).set("mIIntentReceiver", proxyIIntentReceiver);
                     args[indexOfIIntentReceiver] = proxyIIntentReceiver;
-                    XLog.d(TAG, "set proxy ok");
                 } catch (Throwable e) {
-                    XLog.e(TAG, "test" + e);
+                    e.printStackTrace();
                 }
-            }else{
-                XLog.w(TAG, "is proxy");
             }
         }
         return method.invoke(who, args);
@@ -82,10 +76,10 @@ import java.util.WeakHashMap;
         return isAppProcess();
     }
 
-    static class ProxyIIntentReceiver extends IIntentReceiver.Stub {
+    private static class ProxyIIntentReceiver extends IIntentReceiver.Stub {
         IIntentReceiver old;
 
-        public ProxyIIntentReceiver(IIntentReceiver old) {
+        ProxyIIntentReceiver(IIntentReceiver old) {
             this.old = old;
         }
 
@@ -96,7 +90,6 @@ import java.util.WeakHashMap;
             try {
                 String action = intent.getAction();
                 ComponentName oldComponent = VirtualCore.getOriginComponentName(action);
-                XLog.d(TAG, "performReceive:" + intent);
                 if (oldComponent != null) {
                     intent.setComponent(oldComponent);
                     intent.setAction(null);
