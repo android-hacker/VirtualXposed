@@ -25,6 +25,8 @@
             android:name=".home.ListAppActivity"
             android:theme="@style/AppListTheme"/>
 
+        <activity android:name=".home.LoadingActivity"/>
+
     </application>
 
 

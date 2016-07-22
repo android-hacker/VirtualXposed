@@ -30,7 +30,7 @@ public class Constants {
 	public static final String ACTION_UNINSTALL_SHORTCUT = "com.android.launcher.action.UNINSTALL_SHORTCUT";
 	public static String SHORTCUT_PROXY_ACTIVITY_NAME = ShortcutHandleActivity.class.getName();
 
-	public static final String GMS_PKG = "com.google.android.gms";
-	public static final String GOOGLE_PLAY_STORE_PKG = "com.android.vending";
     public static final String SYSTEMUI_PKG = "com.android.systemui";
+
+	public static final String FEATURE_FAKE_SIGNATURE = "fake-signature";
 }

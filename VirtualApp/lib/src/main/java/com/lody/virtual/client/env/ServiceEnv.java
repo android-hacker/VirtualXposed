@@ -209,7 +209,7 @@ public class ServiceEnv {
 		// Call attach
 		service.attach(base, VirtualCore.mainThread(), className, record.token, application,
 				ActivityManagerNative.getDefault());
-		// Call onCreate
+		// Call systemReady
 		service.onCreate();
 
 		return record;

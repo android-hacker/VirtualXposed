@@ -3,12 +3,15 @@ package com.lody.virtual.client.local;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.env.RuntimeEnv;
 import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.helper.ExtraConstants;
+import com.lody.virtual.helper.compat.ActivityManagerCompat;
+import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.proto.AppTaskInfo;
 import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.VRedirectActRequest;
@@ -57,12 +60,16 @@ public class LocalActivityManager {
             return null;
         }
         ActivityInfo activityInfo = intent.getParcelableExtra(ExtraConstants.EXTRA_TARGET_ACT_INFO);
-        //此处在使用LocalActivityManager启动Activity的时候是空的,因为走不到replaceIntent里,
-        // 比如掌阅会崩溃,暂时从Activity里取,没调研兼容性=_=,先用着
+
+        //NOTE:
+        // 此处在使用LocalActivityManager启动Activity的时候是空的,因为走不到replaceIntent里,
+        // 比如掌阅会崩溃,暂时从Activity里取,没调研兼容性=_=,先用着。
         if (activityInfo == null) {
             try {
-                activityInfo = Reflect.on(activity).field("mActivityInfo").get();
-            }catch(Exception ex){}
+                activityInfo = Reflect.on(activity).get("mActivityInfo");
+            } catch(Exception e){
+                e.printStackTrace();
+            }
         }
 
         IBinder token = activity.getActivityToken();
@@ -79,24 +86,39 @@ public class LocalActivityManager {
         return r;
     }
 
-    public LocalActivityRecord onActivityResumed(Activity activity) {
+    public void onActivityResumed(Activity activity) {
         IBinder token = activity.getActivityToken();
         try {
             getService().onActivityResumed(token);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-        return mActivities.get(token);
+        Intent intent = activity.getIntent();
+        Bundle bundle = intent.getBundleExtra(ExtraConstants.EXTRA_SENDER);
+        if (bundle != null) {
+            IBinder loadingPageToken = BundleCompat.getBinder(bundle, ExtraConstants.EXTRA_BINDER);
+            finishActivity(loadingPageToken);
+        }
     }
 
-    public LocalActivityRecord onActivityDestroy(Activity activity) {
+    private void finishActivity(final IBinder token) {
+        if (token != null) {
+            RuntimeEnv.getUIHandler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    ActivityManagerCompat.finishActivity(token, -1, null);
+                }
+            }, 1000L);
+        }
+    }
+
+    public void onActivityDestroy(Activity activity) {
         IBinder token = activity.getActivityToken();
         try {
             getService().onActivityDestroyed(token);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-        return mActivities.remove(token);
     }
 
     public AppTaskInfo getTaskInfo(int taskId) {

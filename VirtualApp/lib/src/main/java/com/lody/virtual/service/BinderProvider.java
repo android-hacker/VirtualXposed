@@ -35,7 +35,7 @@ public final class BinderProvider extends BaseContentProvider {
 			return true;
 		}
 		AppFileSystem.getDefault();
-		VAppService.getService().onCreate();
+		VAppService.getService().systemReady();
 		addService(ServiceManagerNative.APP_MANAGER, VAppService.getService());
 		addService(ServiceManagerNative.PROCESS_MANAGER, VProcessService.getService());
 		VPackageService.getService().onCreate(context);

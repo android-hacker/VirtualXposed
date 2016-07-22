@@ -14,11 +14,15 @@ import android.content.pm.PermissionInfo;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
+import android.content.pm.Signature;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.util.LruCache;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.helper.bundle.APKBundle;
 import com.lody.virtual.helper.bundle.IntentResolver;
 import com.lody.virtual.helper.proto.VParceledListSlice;
@@ -38,6 +42,7 @@ public class VPackageService extends IPackageManager.Stub {
 
 	private static final VPackageService gService = new VPackageService();
 	private PackageManager mPM;
+	private LruCache<String, Signature[]> mFakeSignatureCache = new LruCache<>(10);
 
 	public static VPackageService getService() {
 		return gService;
@@ -59,7 +64,20 @@ public class VPackageService extends IPackageManager.Stub {
 		try {
 			APKBundle bundle = getPMS().getAPKBundle(packageName);
 			if (bundle != null) {
-				return bundle.getPackageInfo(flags);
+				if ((flags & PackageManager.GET_SIGNATURES) != 0) {
+					Signature[] signatures = mFakeSignatureCache.get(packageName);
+					if (signatures == null) {
+						flags |= PackageManager.GET_META_DATA;
+						PackageInfo packageInfo = bundle.getPackageInfo(flags);
+						Bundle meta = packageInfo.applicationInfo.metaData;
+						if (meta != null && meta.containsKey(Constants.FEATURE_FAKE_SIGNATURE)) {
+							signatures = new Signature[] {new Signature(meta.getString(Constants.FEATURE_FAKE_SIGNATURE))};
+							mFakeSignatureCache.put(packageName, signatures);
+						}
+					}
+				} else {
+					return bundle.getPackageInfo(flags);
+				}
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -241,7 +259,7 @@ public class VPackageService extends IPackageManager.Stub {
 				e.printStackTrace();
 			}
 		}
-		return new VParceledListSlice(installedPkgs);
+		return new VParceledListSlice<>(installedPkgs);
 	}
 
 	public List<ApplicationInfo> getInstalledApplications(int flags) {

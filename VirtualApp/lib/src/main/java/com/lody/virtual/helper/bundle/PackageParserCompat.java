@@ -1,9 +1,5 @@
 package com.lody.virtual.helper.bundle;
 
-import java.io.File;
-import java.util.HashSet;
-import java.util.List;
-
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.InstrumentationInfo;
@@ -16,6 +12,10 @@ import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.os.Process;
 import android.os.UserHandle;
+
+import java.io.File;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * @author Lody

@@ -46,7 +46,7 @@ public class VAppService extends IAppManager.Stub {
 		return gService;
 	}
 
-	public void onCreate() {
+	public void systemReady() {
 		preloadAllApps();
 	}
 

@@ -115,7 +115,6 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		if (appInfo == null) {
 			return;
 		}
-
 		// StubActivityInfo
 		ActivityInfo stubActInfo = stubIntent.getParcelableExtra(ExtraConstants.EXTRA_STUB_ACT_INFO);
 		// TargetActivityInfo
@@ -150,10 +149,10 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 			}
 			ClassLoaderCompat.setParent(getClass().getClassLoader(), oldParent);
 		}
-
 		ActivityRecordCompat.setIntent(r, targetIntent);
 		ActivityRecordCompat.setActivityInfo(r, targetActInfo);
 	}
+
 
 	@Override
 	public void inject() throws Throwable {
