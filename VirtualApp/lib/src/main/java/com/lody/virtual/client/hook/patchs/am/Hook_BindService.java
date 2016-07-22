@@ -40,9 +40,9 @@ import java.lang.reflect.Method;
     ServiceInfo serviceInfo = VirtualCore.getCore().resolveServiceInfo(service);
     if (serviceInfo != null) {
       String pkgName = serviceInfo.packageName;
-//      if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.L ) {
-//        service.setComponent(new ComponentName(serviceInfo.packageName, serviceInfo.name));
-//      }
+      if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.L ) {
+        service.setComponent(new ComponentName(serviceInfo.packageName, serviceInfo.name));
+      }
       if (isAppPkg(pkgName)) {
         return LocalServiceManager.getInstance().bindService(caller.asBinder(), token, service, resolvedType,
                 connection, flags);
