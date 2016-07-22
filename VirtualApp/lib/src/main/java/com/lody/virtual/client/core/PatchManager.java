@@ -13,6 +13,7 @@ import com.lody.virtual.client.hook.patchs.am.ActivityManagerPatch;
 import com.lody.virtual.client.hook.patchs.am.HCallbackHook;
 import com.lody.virtual.client.hook.patchs.appops.AppOpsManagerPatch;
 import com.lody.virtual.client.hook.patchs.appwidget.AppWidgetManagerPatch;
+import com.lody.virtual.client.hook.patchs.audio.AudioManagerPatch;
 import com.lody.virtual.client.hook.patchs.backup.BackupManagerPatch;
 import com.lody.virtual.client.hook.patchs.camera.CameraPatch;
 import com.lody.virtual.client.hook.patchs.clipboard.ClipBoardPatch;
@@ -120,6 +121,7 @@ public final class PatchManager {
 			addPatch(new AppWidgetManagerPatch());
 			addPatch(new AccountManagerPatch());
 			addPatch(new DropBoxManagerPatch());
+			addPatch(new AudioManagerPatch());
 
 			if (Build.VERSION.SDK_INT >= JELLY_BEAN_MR2) {
 				addPatch(new VibratorPatch());

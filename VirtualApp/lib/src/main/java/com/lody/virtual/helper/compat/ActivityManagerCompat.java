@@ -4,7 +4,6 @@ import android.app.ActivityManagerNative;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
-import android.os.RemoteException;
 
 import com.lody.virtual.helper.utils.Reflect;
 

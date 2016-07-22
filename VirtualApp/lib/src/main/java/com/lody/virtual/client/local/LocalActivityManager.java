@@ -137,6 +137,14 @@ public class LocalActivityManager {
         }
     }
 
+    public String getPackageForToken(IBinder token) {
+        try {
+            return getService().getPackageForToken(token);
+        } catch (RemoteException e) {
+            return RuntimeEnv.crash(e);
+        }
+    }
+
     private static final class Holder {
         private static final LocalActivityManager sAM = new LocalActivityManager();
     }

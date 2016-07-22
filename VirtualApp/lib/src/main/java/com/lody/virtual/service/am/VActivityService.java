@@ -259,6 +259,15 @@ public class VActivityService extends IActivityManager.Stub {
 		return null;
 	}
 
+	@Override
+	public String getPackageForToken(IBinder token) {
+		ActivityRecord r = stack.findRecord(token);
+		if (r != null) {
+			return r.activityInfo.packageName;
+		}
+		return null;
+	}
+
 	private synchronized int getTopTaskId() {
 		List<ActivityManager.RunningTaskInfo> taskInfos = am.getRunningTasks(1);
 		if (taskInfos.size() > 0) {
