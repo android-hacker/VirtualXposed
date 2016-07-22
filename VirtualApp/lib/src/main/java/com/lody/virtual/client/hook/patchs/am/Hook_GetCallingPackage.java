@@ -2,8 +2,8 @@ package com.lody.virtual.client.hook.patchs.am;
 
 import android.os.IBinder;
 
-import com.lody.virtual.client.core.AppSandBox;
 import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.local.LocalActivityManager;
 
 import java.lang.reflect.Method;
 
@@ -22,7 +22,8 @@ import java.lang.reflect.Method;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		String pkg = AppSandBox.getLastPkg();
+		IBinder token = (IBinder) args[0];
+		String pkg = LocalActivityManager.getInstance().getPackageForToken(token);
 		if (pkg != null) {
 			return pkg;
 		}
