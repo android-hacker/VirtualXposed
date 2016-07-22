@@ -17,4 +17,6 @@ interface IServiceEnvironment {
     boolean handleUnbindService(in ServiceInfo serviceInfo, in IServiceConnection connection);
 
     int handleBindService(in IBinder token, in Intent service, in ServiceInfo serviceInfo, in IServiceConnection connection);
+
+    IBinder handlePeekService(in ServiceInfo service);
 }

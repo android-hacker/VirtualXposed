@@ -36,7 +36,7 @@ public class VServiceService extends IServiceManager.Stub {
 
 	private static final VServiceService sService = new VServiceService();
 
-	private Map<IBinder, ServiceRecord> serviceConnectionMap = new ConcurrentHashMap<IBinder, ServiceRecord>();
+	private Map<IBinder, ServiceRecord> serviceConnectionMap = new ConcurrentHashMap<>();
 
 	private class ServiceRecord {
 		IBinder connection;
@@ -159,9 +159,20 @@ public class VServiceService extends IServiceManager.Stub {
 	}
 
 	public IBinder peekService(Intent service, String resolvedType) {
+		ServiceInfo serviceInfo = getServiceInfo(service);
+		if (serviceInfo == null) {
+			return null;
+		}
+		ProviderInfo serviceEnv = VActivityService.getService().fetchRunningServiceRuntime(serviceInfo);
+		if (serviceEnv == null) {
+			return null;
+		}
+		IServiceEnvironment environment = getServiceEnvironment(serviceInfo, serviceEnv);
+		if (environment == null) {
+			return null;
+		}
 		try {
-			return ActivityManagerNative.getDefault().peekService(service, null,
-					VirtualCore.getCore().getHostPkg());
+			return environment.handlePeekService(serviceInfo);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -245,12 +256,12 @@ public class VServiceService extends IServiceManager.Stub {
 
 	@Override
 	public void unbindFinished(IBinder token, Intent service, boolean doRebind) throws RemoteException {
-
+		// nothing to do
 	}
 
 	@Override
 	public void serviceDoneExecuting(IBinder token, int type, int startId, int res) throws RemoteException {
-
+		// nothing to do
 	}
 
 	public void processDied(int pid) {

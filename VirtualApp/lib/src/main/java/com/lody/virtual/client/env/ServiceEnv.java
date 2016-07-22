@@ -215,6 +215,14 @@ public class ServiceEnv {
 		return record;
 	}
 
+	public IBinder handlePeekService(ServiceInfo serviceInfo) {
+		RunningServiceRecord r = mServices.get(serviceInfo.name);
+		if (r != null) {
+			return r.binder;
+		}
+		return null;
+	}
+
 	private static final class ServiceFakeBinder extends Binder {
 		// Empty
 	}
