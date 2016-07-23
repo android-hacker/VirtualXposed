@@ -25,7 +25,7 @@ public class LoadingActivity extends Activity {
         Intent intent = getIntent().getParcelableExtra(ExtraConstants.EXTRA_INTENT);
         VirtualCore.getCore().addLoadingPage(intent, this);
         if (intent != null) {
-            VUiKit.postDelayed(200, () -> startActivity(intent));
+            VUiKit.postDelayed(500, () -> startActivity(intent));
         }
     }
 
