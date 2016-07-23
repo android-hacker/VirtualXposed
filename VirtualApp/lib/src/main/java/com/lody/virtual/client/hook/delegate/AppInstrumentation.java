@@ -80,6 +80,9 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
                 info = r.activityInfo;
             }
             if (info != null) {
+				if (info.theme != 0) {
+					activity.setTheme(info.theme);
+				}
                 if (activity.getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                         && info.screenOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
                     activity.setRequestedOrientation(info.screenOrientation);

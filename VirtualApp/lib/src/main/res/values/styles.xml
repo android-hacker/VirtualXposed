@@ -10,4 +10,9 @@
         <item name="android:layout_weight">1</item>
     </style>
 
+    <style name="VATheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowDisablePreview">true</item>
+    </style>
+
 </resources>
