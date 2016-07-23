@@ -84,6 +84,10 @@ public class LocalActivityManager {
         return r;
     }
 
+    public LocalActivityRecord getActivityRecord(IBinder token) {
+        return mActivities.get(token);
+    }
+
     public void onActivityResumed(Activity activity) {
         IBinder token = activity.getActivityToken();
         try {
