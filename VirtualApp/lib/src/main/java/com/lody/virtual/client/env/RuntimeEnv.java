@@ -65,8 +65,7 @@ public class RuntimeEnv {
 
 	public static <T> T crash(RemoteException e) throws RuntimeException {
 		e.printStackTrace();
-		// 服务端挂了, 客户端活着也没用了...
-		 Process.killProcess(Process.myPid());
+		exit();
 		throw new RuntimeException(e);
 	}
 

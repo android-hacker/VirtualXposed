@@ -9,8 +9,8 @@ import android.os.Bundle;
 
 import com.lody.virtual.client.core.PatchManager;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.hook.modifiers.ActivityModifier;
-import com.lody.virtual.client.hook.modifiers.ContextModifier;
+import com.lody.virtual.client.fixer.ActivityFixer;
+import com.lody.virtual.client.fixer.ContextFixer;
 import com.lody.virtual.client.interfaces.Injectable;
 import com.lody.virtual.client.local.LocalActivityManager;
 import com.lody.virtual.client.local.LocalActivityRecord;
@@ -73,8 +73,8 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 		boolean isApp = VirtualCore.getCore().isAppInstalled(pkg);
 		if (isApp) {
             LocalActivityRecord r = LocalActivityManager.getInstance().onActivityCreate(activity);
-			ContextModifier.modifyContext(activity);
-			ActivityModifier.fixActivity(activity);
+			ContextFixer.fixContext(activity);
+			ActivityFixer.fixActivity(activity);
             ActivityInfo info = null;
             if (r != null) {
                 info = r.activityInfo;

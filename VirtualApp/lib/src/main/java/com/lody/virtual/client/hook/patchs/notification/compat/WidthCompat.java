@@ -48,7 +48,7 @@ class WidthCompat {
         //adaptive
         //content
         try {
-            Context systemUi = context.createPackageContext(Constants.SYSTEMUI_PKG, Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
+            Context systemUi = context.createPackageContext(Constants.SYSTEM_UI_PKG, Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
             int layoutId = getSystemId(systemUi, "status_bar_notification_row", "layout");
             //status_bar_notification_row
             if (layoutId != 0) {
@@ -92,7 +92,7 @@ class WidthCompat {
      */
     private int getEMUINotificationWidth(Context context, int width, int height) {
         try {
-            Context systemUi = context.createPackageContext(Constants.SYSTEMUI_PKG, Context.CONTEXT_IGNORE_SECURITY);
+            Context systemUi = context.createPackageContext(Constants.SYSTEM_UI_PKG, Context.CONTEXT_IGNORE_SECURITY);
             int layoutId = getSystemId(systemUi, "time_axis", "layout");
             if (layoutId != 0) {
                 ViewGroup viewGroup = createViewGroup(systemUi, layoutId);
@@ -118,7 +118,7 @@ class WidthCompat {
     }
 
     private int getSystemId(Context systemUi, String name, String type) {
-        return systemUi.getResources().getIdentifier(name, type, Constants.SYSTEMUI_PKG);
+        return systemUi.getResources().getIdentifier(name, type, Constants.SYSTEM_UI_PKG);
     }
 
     private ViewGroup createViewGroup(Context context, int layoutId) {

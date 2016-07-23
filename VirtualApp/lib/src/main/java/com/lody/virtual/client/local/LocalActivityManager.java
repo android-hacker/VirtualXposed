@@ -26,16 +26,14 @@ import java.util.Map;
  */
 public class LocalActivityManager {
 
+    private static final LocalActivityManager sAM = new LocalActivityManager();
+
     private IActivityManager service;
 
     private Map<IBinder, LocalActivityRecord> mActivities = new HashMap<IBinder, LocalActivityRecord>(6);
 
-    public Map<IBinder, LocalActivityRecord> getActivities() {
-        return mActivities;
-    }
-
     public static LocalActivityManager getInstance() {
-        return Holder.sAM;
+        return sAM;
     }
 
     public IActivityManager getService() {
@@ -114,6 +112,7 @@ public class LocalActivityManager {
 
     public void onActivityDestroy(Activity activity) {
         IBinder token = activity.getActivityToken();
+        mActivities.remove(token);
         try {
             getService().onActivityDestroyed(token);
         } catch (RemoteException e) {
@@ -145,7 +144,4 @@ public class LocalActivityManager {
         }
     }
 
-    private static final class Holder {
-        private static final LocalActivityManager sAM = new LocalActivityManager();
-    }
 }

@@ -21,7 +21,7 @@ import android.view.HardwareRenderer;
 
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.env.RuntimeEnv;
-import com.lody.virtual.client.hook.modifiers.ContextModifier;
+import com.lody.virtual.client.fixer.ContextFixer;
 import com.lody.virtual.client.local.LocalPackageManager;
 import com.lody.virtual.client.local.LocalProcessManager;
 import com.lody.virtual.helper.compat.ActivityThreadCompat;
@@ -167,7 +167,7 @@ public class AppSandBox {
 		Thread.currentThread().setContextClassLoader(classLoader);
 		Application app = loadedApk.makeApplication(false, null);
 		Reflect.on(VirtualCore.mainThread()).set("mInitialApplication", app);
-		ContextModifier.modifyContext(app.getBaseContext());
+		ContextFixer.fixContext(app.getBaseContext());
 		if (providers != null) {
 			ActivityThreadCompat.installContentProviders(app, providers);
 		}

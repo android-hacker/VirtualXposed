@@ -122,7 +122,7 @@ public class VActivityService extends IActivityManager.Stub {
 	private boolean isStubComponent(ComponentInfo componentInfo) {
 		Bundle metaData = componentInfo.metaData;
 		return metaData != null
-				&& TextUtils.equals(metaData.getString(Constants.X_META_KEY_IDENTITY), Constants.X_META_VALUE_STUB);
+				&& TextUtils.equals(metaData.getString(Constants.META_KEY_IDENTITY), Constants.META_VALUE_STUB);
 	}
 
 	public List<ActivityInfo> getStubActivityList() {

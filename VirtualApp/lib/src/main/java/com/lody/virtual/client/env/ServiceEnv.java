@@ -13,7 +13,7 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.core.AppSandBox;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.hook.modifiers.ContextModifier;
+import com.lody.virtual.client.fixer.ContextFixer;
 import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.utils.ComponentUtils;
 
@@ -203,8 +203,8 @@ public class ServiceEnv {
 		record.service = service;
 		Context base = application.createPackageContext(appInfo.packageName, Context.CONTEXT_INCLUDE_CODE);
 		// Fuck AppOps
-		ContextModifier.modifyContext(base);
-		ContextModifier.setOuterContext(base, service);
+		ContextFixer.fixContext(base);
+		ContextFixer.setOuterContext(base, service);
 
 		// Call attach
 		service.attach(base, VirtualCore.mainThread(), className, record.token, application,

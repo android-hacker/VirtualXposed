@@ -1,4 +1,4 @@
-package com.lody.virtual.client.hook.modifiers;
+package com.lody.virtual.client.fixer;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -19,9 +19,9 @@ import com.lody.virtual.helper.utils.Reflect;
  * @author Lody
  *
  */
-public final class ActivityModifier {
+public final class ActivityFixer {
 
-	private ActivityModifier() {
+	private ActivityFixer() {
 	}
 
 	public static void fixActivity(Activity activity) {

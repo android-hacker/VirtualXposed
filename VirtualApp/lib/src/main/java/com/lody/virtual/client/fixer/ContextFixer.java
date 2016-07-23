@@ -1,23 +1,23 @@
-package com.lody.virtual.client.hook.modifiers;
-
-import java.lang.reflect.Method;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.utils.Reflect;
-import com.lody.virtual.helper.utils.XLog;
+package com.lody.virtual.client.fixer;
 
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.os.Build;
 
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.utils.Reflect;
+import com.lody.virtual.helper.utils.XLog;
+
+import java.lang.reflect.Method;
+
 /**
  * @author Lody
  *
  */
-public class ContextModifier {
+public class ContextFixer {
 
-	private static final String TAG = ContextModifier.class.getSimpleName();
+	private static final String TAG = ContextFixer.class.getSimpleName();
 	private static Class<?> CONTEXT_IMPL_CLASS = null;
 	private static Method m_setOuterContext = null;
 
@@ -43,7 +43,7 @@ public class ContextModifier {
 	 * @param plugin
 	 *            插件Context
 	 */
-	public static void modifyContext(Context plugin) {
+	public static void fixContext(Context plugin) {
 		String pkgName = VirtualCore.getCore().getHostPkg();
 		Context context = plugin;
 		while (context instanceof ContextWrapper) {

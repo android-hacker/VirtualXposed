@@ -1,20 +1,22 @@
-package com.lody.virtual.client.hook.modifiers;
-
-import java.lang.reflect.Constructor;
-import java.util.HashMap;
-
-import com.lody.virtual.helper.utils.Reflect;
+package com.lody.virtual.client.fixer;
 
 import android.view.LayoutInflater;
 import android.view.View;
 
+import com.lody.virtual.helper.utils.Reflect;
+
+import java.lang.reflect.Constructor;
+import java.util.HashMap;
+
 /**
  * @author Lody
  *
+ * Clear the cache of LayoutInflater.
+ *
  */
-public class LayoutInflaterModifier {
+public class LayoutInflaterFixer {
 
-	static HashMap<String, Constructor<? extends View>> sConstructorMap = null;
+	private static HashMap<String, Constructor<? extends View>> sConstructorMap = null;
 
 	static {
 		try {

@@ -153,7 +153,7 @@ class RemoteViewsUtils {
 
     private int getDimem(Context context, Context sysContext, String name, int defId) {
         if (sysContext != null) {
-            int id = sysContext.getResources().getIdentifier(name, "dimen", Constants.SYSTEMUI_PKG);
+            int id = sysContext.getResources().getIdentifier(name, "dimen", Constants.SYSTEM_UI_PKG);
             if (id != 0) {
                 try {
                     return Math.round(sysContext.getResources().getDimension(id));
