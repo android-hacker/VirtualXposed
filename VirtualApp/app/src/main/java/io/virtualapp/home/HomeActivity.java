@@ -1,17 +1,26 @@
 package io.virtualapp.home;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Process;
 import android.support.annotation.Nullable;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.proto.AppInfo;
 import com.melnykov.fab.FloatingActionButton;
+import com.umeng.analytics.MobclickAgent;
 
 import java.util.List;
 
@@ -28,7 +37,7 @@ import io.virtualapp.widgets.showcase.MaterialShowcaseView;
 /**
  * @author Lody
  */
-public class HomeActivity extends VActivity implements HomeContract.HomeView  {
+public class HomeActivity extends VActivity implements HomeContract.HomeView {
 
     private HomeContract.HomePresenter mPresenter;
 
@@ -41,6 +50,11 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView  {
     private ExplosionField mExplosionField;
 
     private LaunchpadAdapter mAdapter;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
 
     public static void goHome(Context context) {
@@ -83,8 +97,37 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView  {
             mAppFab.getLocationInWindow(location);
             mPagerView.setBottomLine(location[1]);
         });
+
+        //友盟统计 modify by young
+        MobclickAgent.setDebugMode(true);
+        // SD
+        // K在统计Fragment时，需要关闭Activity自带的页面统计，
+        // 然后在每个页面中重新集成页面统计的代码(包括调用了 onResume 和 onPause 的Activity)。
+        MobclickAgent.openActivityDurationTrack(false);
+        // MobclickAgent.setAutoLocation(true);
+        // MobclickAgent.setSessionContinueMillis(1000);
+        // MobclickAgent.startWithConfigure(
+        // new UMAnalyticsConfig(mContext, "4f83c5d852701564c0000011", "Umeng", EScenarioType.E_UM_NORMAL));
+        MobclickAgent.setScenarioType(this, MobclickAgent.EScenarioType.E_UM_NORMAL);
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+
+        /**
+         * 事件统计
+         */
+        MobclickAgent.onEvent(this, "Hook", "xxxxxxxxxx");//Hook是标签，xxx是value
+
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        MobclickAgent.onPageEnd("HomeActivity");
+        MobclickAgent.onPause(this);
+    }
 
     @Override
     public void setPresenter(HomeContract.HomePresenter presenter) {
@@ -146,10 +189,26 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView  {
     @Override
     protected void onStop() {
         super.onStop();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Home Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app URL is correct.
+                Uri.parse("android-app://io.virtualapp.home/http/host/path")
+        );
+        AppIndex.AppIndexApi.end(client, viewAction);
         if (mOpeningAppDialog != null && mOpeningAppDialog.isShowing()) {
             mOpeningAppDialog.dismiss();
             mOpeningAppDialog = null;
         }
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.disconnect();
     }
 
     @Override
@@ -192,5 +251,60 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView  {
                 });
             }
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+
+            Hook();
+
+            return true;
+        }
+
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private void Hook() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setPositiveButton("退出应用", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                MobclickAgent.onKillProcess(HomeActivity.this);
+
+                int pid = Process.myPid();
+                Process.killProcess(pid);
+            }
+        });
+        builder.setNeutralButton("后退一下", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                finish();
+            }
+        });
+        builder.setNegativeButton("点错了", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+            }
+        });
+        builder.show();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Home Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app URL is correct.
+                Uri.parse("android-app://io.virtualapp.home/http/host/path")
+        );
+        AppIndex.AppIndexApi.start(client, viewAction);
     }
 }
