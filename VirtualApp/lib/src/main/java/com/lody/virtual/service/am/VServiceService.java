@@ -77,7 +77,7 @@ public class VServiceService extends IServiceManager.Stub {
 		return null;
 	}
 
-	private IServiceEnvironment getServiceEnvironment(ServiceInfo serviceInfo, ProviderInfo serviceEnv) {
+	private IServiceEnvironment getServiceEnvironment(ProviderInfo serviceEnv) {
 		Context context = VirtualCore.getCore().getContext();
 		Bundle bundle = new ProviderCaller.Builder(context, serviceEnv.authority)
 				.methodName(MethodConstants.GET_SERVICE_RUNTIME)
@@ -100,7 +100,7 @@ public class VServiceService extends IServiceManager.Stub {
 		}
 		ProviderInfo serviceEnv = VActivityService.getService().fetchServiceRuntime(serviceInfo);
 		if (serviceEnv != null) {
-			IServiceEnvironment environment = getServiceEnvironment(serviceInfo, serviceEnv);
+			IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
 			if (environment == null) {
 				return service.getComponent();
 			}
@@ -123,7 +123,7 @@ public class VServiceService extends IServiceManager.Stub {
 		if (serviceEnv == null) {
 			return 0;
 		}
-		IServiceEnvironment environment = getServiceEnvironment(serviceInfo, serviceEnv);
+		IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
 		if (environment == null) {
 			return 0;
 		}
@@ -145,7 +145,7 @@ public class VServiceService extends IServiceManager.Stub {
 			if (serviceEnv == null) {
 				return false;
 			}
-			IServiceEnvironment environment = getServiceEnvironment(serviceInfo, serviceEnv);
+			IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
 			if (environment == null) {
 				return false;
 			}
@@ -167,7 +167,7 @@ public class VServiceService extends IServiceManager.Stub {
 		if (serviceEnv == null) {
 			return null;
 		}
-		IServiceEnvironment environment = getServiceEnvironment(serviceInfo, serviceEnv);
+		IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
 		if (environment == null) {
 			return null;
 		}
@@ -197,7 +197,7 @@ public class VServiceService extends IServiceManager.Stub {
 		}
 		ProviderInfo serviceEnv = VActivityService.getService().fetchServiceRuntime(serviceInfo);
 		if (serviceEnv != null) {
-			IServiceEnvironment environment = getServiceEnvironment(serviceInfo, serviceEnv);
+			IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
 			if (environment == null) {
 				return result;
 			}
@@ -242,7 +242,7 @@ public class VServiceService extends IServiceManager.Stub {
 		if (serviceEnv == null) {
 			return false;
 		}
-		IServiceEnvironment serviceEnvironment = getServiceEnvironment(serviceInfo, serviceEnv);
+		IServiceEnvironment serviceEnvironment = getServiceEnvironment(serviceEnv);
 		if (serviceEnvironment == null) {
 			return false;
 		}

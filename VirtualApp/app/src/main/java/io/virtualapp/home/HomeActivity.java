@@ -1,20 +1,14 @@
 package io.virtualapp.home;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Process;
 import android.support.annotation.Nullable;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ProgressBar;
 
-import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.lody.virtual.client.core.VirtualCore;
@@ -236,42 +230,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
             }
         }
     }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-
-            Hook();
-
-            return true;
-        }
-
-        return super.onKeyDown(keyCode, event);
-    }
-
-    private void Hook() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setPositiveButton("退出应用", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                MobclickAgent.onKillProcess(HomeActivity.this);
-
-                int pid = Process.myPid();
-                Process.killProcess(pid);
-            }
-        });
-        builder.setNeutralButton("后退一下", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                finish();
-            }
-        });
-        builder.setNegativeButton("点错了", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-            }
-        });
-        builder.show();
-    }
-
+    
     @Override
     public void onStart() {
         super.onStart();
