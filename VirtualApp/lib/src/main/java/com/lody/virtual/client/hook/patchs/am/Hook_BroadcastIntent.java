@@ -29,6 +29,8 @@ import java.lang.reflect.Method;
  */
 /* package */ class Hook_BroadcastIntent extends Hook {
 
+	private static final String TAG = Hook_BroadcastIntent.class.getSimpleName();
+
 	@Override
 	public String getName() {
 		return "broadcastIntent";
@@ -40,10 +42,13 @@ import java.lang.reflect.Method;
 			Intent intent = (Intent) args[1];
 			handleIntent(intent);
 		}
-		if (args[7] instanceof String) {
+		Class<?> permissionType = method.getParameterTypes()[7];
+		if (permissionType == String.class) {
 			args[7] = VirtualCore.getPermissionBroadcast();
-		} else if (args[7] instanceof String[]) {
+		} else if (permissionType == String[].class) {
 			args[7] = new String[]{VirtualCore.getPermissionBroadcast()};
+		} else {
+			XLog.e(TAG, "replace permission failed.");
 		}
 		return method.invoke(who, args);
 	}

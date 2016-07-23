@@ -155,7 +155,7 @@ public class AppSandBox {
 			if (pkgInfo.providers != null) {
 				providers = new ArrayList<>(pkgInfo.providers.length);
 				for (ProviderInfo providerInfo : pkgInfo.providers) {
-					if (TextUtils.equals(procName, providerInfo.processName)) {
+					if (providerInfo.multiprocess || TextUtils.equals(procName, providerInfo.processName)) {
 						providers.add(providerInfo);
 					}
 				}

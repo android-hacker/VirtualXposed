@@ -38,9 +38,11 @@ import java.util.WeakHashMap;
 
         HookUtils.replaceFirstAppPkg(args);
 
-        final int indexOfRequiredPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
-                ? 4
-                : 3;
+        final int indexOfRequiredPermission;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
+            indexOfRequiredPermission = 4;
+        else indexOfRequiredPermission = 3;
+
         if (args != null && args.length > indexOfRequiredPermission
                 && args[indexOfRequiredPermission] instanceof String) {
             args[indexOfRequiredPermission] = VirtualCore.getPermissionBroadcast();
