@@ -121,12 +121,14 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
     }
 
 
+    String TAG = "HomeActivity";
     @Override
     protected void onResume() {
         super.onResume();
 
-        MobclickAgent.onPageEnd("HomeActivity");
-        MobclickAgent.onPause(this);
+        MobclickAgent.onPageStart(TAG);
+        MobclickAgent.onResume(this);
+        ;
     }
 
     @Override
@@ -187,28 +189,10 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Home Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://io.virtualapp.home/http/host/path")
-        );
-        AppIndex.AppIndexApi.end(client, viewAction);
-        if (mOpeningAppDialog != null && mOpeningAppDialog.isShowing()) {
-            mOpeningAppDialog.dismiss();
-            mOpeningAppDialog = null;
-        }
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.disconnect();
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd(TAG);
+        MobclickAgent.onPause(this);
     }
 
     @Override
@@ -291,20 +275,5 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
     @Override
     public void onStart() {
         super.onStart();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Home Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://io.virtualapp.home/http/host/path")
-        );
-        AppIndex.AppIndexApi.start(client, viewAction);
     }
 }
