@@ -15,7 +15,7 @@ import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.utils.BitmapUtils;
-import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Method;
 
@@ -48,7 +48,7 @@ import java.lang.reflect.Method;
 		} else if (permissionType == String[].class) {
 			args[7] = new String[]{VirtualCore.getPermissionBroadcast()};
 		} else {
-			XLog.e(TAG, "replace permission failed.");
+			VLog.e(TAG, "replace permission failed.");
 		}
 		return method.invoke(who, args);
 	}
@@ -68,7 +68,7 @@ import java.lang.reflect.Method;
 				if (name.startsWith(".")) {
 					name = cn.getPackageName() + cn.getClassName();
 				}
-                XLog.d("broadcast", "action="+action+",cn="+cn);
+                VLog.d("broadcast", "action="+action+",cn="+cn);
 				intent.setComponent(null);
 				intent.setAction(VirtualCore.getReceiverAction(cn.getPackageName(), name));
 			}

@@ -568,6 +568,6 @@ public class Reflect {
      *
      * @author Lody
      */
-    public static class NULL {
+    private static class NULL {
     }
 }

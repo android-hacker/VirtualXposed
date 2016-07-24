@@ -16,7 +16,7 @@ import android.widget.RemoteViews;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.Reflect;
-import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
@@ -115,7 +115,7 @@ import java.util.Iterator;
                 }
                 remoteViews.setImageViewBitmap(id, bitmap);
             } catch (Exception e) {
-                XLog.e("kk", "set icon " + e);
+                VLog.e("kk", "set icon " + e);
             }
         } else {
             try {
@@ -126,7 +126,7 @@ import java.util.Iterator;
                 }
                 remoteViews.setImageViewIcon(id, icon);
             } catch (Exception e) {
-                XLog.e("kk", "set icon 23 " + e);
+                VLog.e("kk", "set icon 23 " + e);
             }
         }
     }

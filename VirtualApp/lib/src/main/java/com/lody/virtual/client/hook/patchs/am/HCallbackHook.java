@@ -16,7 +16,7 @@ import com.lody.virtual.helper.compat.ActivityRecordCompat;
 import com.lody.virtual.helper.compat.ClassLoaderCompat;
 import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.utils.ComponentUtils;
-import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Field;
 
@@ -135,7 +135,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 			targetIntent.putExtra(ExtraConstants.EXTRA_TARGET_ACT_INFO, targetActInfo);
 		} catch (Throwable e) {
 			error = true;
-			XLog.w(TAG, "Directly putExtra failed: %s.", e.getMessage());
+			VLog.w(TAG, "Directly putExtra failed: %s.", e.getMessage());
 		}
 		if (error && Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
 			// 4.4以下的设备会出现这个BUG(unParcel找不到类加载器),
@@ -145,7 +145,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 				targetIntent.putExtra(ExtraConstants.EXTRA_STUB_ACT_INFO, stubActInfo);
 				targetIntent.putExtra(ExtraConstants.EXTRA_TARGET_ACT_INFO, targetActInfo);
 			} catch (Throwable e) {
-				XLog.w(TAG, "Secondly putExtra failed: %s.", e.getMessage());
+				VLog.w(TAG, "Secondly putExtra failed: %s.", e.getMessage());
 			}
 			ClassLoaderCompat.setParent(getClass().getClassLoader(), oldParent);
 		}
@@ -165,7 +165,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		Handler.Callback callback = getHCallback();
 		boolean envBad = callback != this;
 		if (envBad) {
-			XLog.d(TAG, "HCallback has bad, other callback = " + callback);
+			VLog.d(TAG, "HCallback has bad, other callback = " + callback);
 		}
 		return envBad;
 	}

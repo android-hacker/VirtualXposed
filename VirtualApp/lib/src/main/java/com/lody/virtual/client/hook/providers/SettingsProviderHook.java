@@ -4,7 +4,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -24,7 +24,7 @@ public class SettingsProviderHook extends ExternalProviderHook {
 
     @Override
     public Bundle call(Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
-        XLog.d(TAG, "call %s", Arrays.toString(args));
+        VLog.d(TAG, "call %s", Arrays.toString(args));
         if (args[1] instanceof String) {
             String methodName = (String) args[1];
             if (methodName.endsWith("secure")) {
@@ -43,7 +43,7 @@ public class SettingsProviderHook extends ExternalProviderHook {
 
     @Override
     public Uri insert(Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
-        XLog.d(TAG, "insert %s", Arrays.toString(args));
+        VLog.d(TAG, "insert %s", Arrays.toString(args));
         return super.insert(method, args);
     }
 

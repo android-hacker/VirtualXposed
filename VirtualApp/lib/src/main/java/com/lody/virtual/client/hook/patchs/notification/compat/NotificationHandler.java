@@ -9,7 +9,7 @@ import android.widget.RemoteViews;
 
 import com.lody.virtual.R;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -135,7 +135,7 @@ public class NotificationHandler {
         //绘制内容
         final Bitmap bmp = RemoteViewsUtils.getInstance().createBitmap(pluginContext, contentView, isBig, systemId);
         if (bmp == null) {
-            XLog.e(TAG, "bmp is null,contentView=" + contentView);
+            VLog.e(TAG, "bmp is null,contentView=" + contentView);
         }
         remoteViews.setImageViewBitmap(R.id.im_main, bmp);
         if (systemId) {

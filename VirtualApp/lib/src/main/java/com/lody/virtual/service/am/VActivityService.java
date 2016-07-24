@@ -23,7 +23,7 @@ import com.lody.virtual.helper.proto.AppTaskInfo;
 import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.VRedirectActRequest;
 import com.lody.virtual.helper.utils.ComponentUtils;
-import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.IActivityManager;
 import com.lody.virtual.service.process.VProcessService;
 
@@ -142,7 +142,7 @@ public class VActivityService extends IActivityManager.Stub {
 		if (request == null || request.targetActInfo == null) {
 			return null;
 		}
-		XLog.d(TAG, "Jump to " + request.targetActInfo.name);
+		VLog.d(TAG, "Jump to " + request.targetActInfo.name);
 		int resultFlags = 0;
 		ActivityInfo targetActInfo = request.targetActInfo;
 		String targetProcessName = ComponentUtils.getProcessName(targetActInfo);

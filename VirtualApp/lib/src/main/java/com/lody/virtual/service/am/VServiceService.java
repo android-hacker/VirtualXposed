@@ -18,7 +18,7 @@ import com.lody.virtual.client.service.ProviderCaller;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.MethodConstants;
 import com.lody.virtual.helper.compat.BundleCompat;
-import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.IServiceManager;
 import com.lody.virtual.service.pm.VPackageService;
 import com.lody.virtual.service.interfaces.IServiceEnvironment;
@@ -86,7 +86,7 @@ public class VServiceService extends IServiceManager.Stub {
 			IBinder binder = BundleCompat.getBinder(bundle, ExtraConstants.EXTRA_BINDER);
 			IServiceEnvironment env = IServiceEnvironment.Stub.asInterface(binder);
 			if (env == null) {
-				XLog.e(TAG, "Unable to fetch ServiceEnvironment for client(%s)", serviceEnv.authority);
+				VLog.e(TAG, "Unable to fetch ServiceEnvironment for client(%s)", serviceEnv.authority);
 			}
 			return env;
 		}

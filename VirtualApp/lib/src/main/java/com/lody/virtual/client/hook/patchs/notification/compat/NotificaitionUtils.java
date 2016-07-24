@@ -9,7 +9,7 @@ import android.widget.RemoteViews;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.Reflect;
-import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -168,7 +168,7 @@ import java.util.Map;
             notification1 = new Notification();
             Reflect.on(notification).call("cloneInto", notification1, true);
         } catch (Exception e) {
-            XLog.w("kk", "clone fail " + notification);
+            VLog.w("kk", "clone fail " + notification);
             notification1 = null;
         }
         if (notification1 == null) {

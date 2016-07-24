@@ -43,6 +43,7 @@ public final class BinderProvider extends BaseContentProvider {
 		VActivityService.systemReady(context);
 		addService(ServiceManagerNative.ACTIVITY_MANAGER, VActivityService.getService());
 		addService(ServiceManagerNative.SERVICE_MANAGER, VServiceService.getService());
+		VContentService.systemReady(context);
 		addService(ServiceManagerNative.CONTENT_MANAGER, VContentService.getService());
 		VAccountService.systemReady(context);
 		addService(ServiceManagerNative.ACCOUNT_MANAGER, VAccountService.getSingleton());

@@ -12,7 +12,7 @@ import com.lody.virtual.helper.compat.AppBindDataCompat;
 import com.lody.virtual.helper.compat.VMRuntimeCompat;
 import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.utils.Reflect;
-import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.helper.utils.VLog;
 
 /**
  * @author Lody
@@ -70,7 +70,7 @@ public class RuntimeEnv {
 	}
 
 	public static void exit() {
-		XLog.d(RuntimeEnv.class.getSimpleName(), "Exit Process : " + VirtualCore.getCore().getProcessName());
+		VLog.d(RuntimeEnv.class.getSimpleName(), "Exit Process : " + VirtualCore.getCore().getProcessName());
 		Process.killProcess(Process.myPid());
 		System.exit(0);
 	}

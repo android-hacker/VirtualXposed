@@ -19,7 +19,7 @@ public class OSUtils {
     private static final String KEY_MIUI_VERSION_NAME = "ro.miui.ui.version.name";
     private static final String KEY_MIUI_INTERNAL_STORAGE = "ro.miui.internal.storage";
 
-    static OSUtils sOSUtils;
+    private static OSUtils sOSUtils;
 
     public static OSUtils getInstance() {
         if (sOSUtils == null) {

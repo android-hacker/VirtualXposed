@@ -28,7 +28,7 @@ import java.util.List;
 		if (infoList != null) {
 			int myUid = Process.myUid();
 			for (ActivityManager.RunningAppProcessInfo info : infoList) {
-				if (info.uid == myUid && LocalProcessManager.isAppPID(info.pid)) {
+				if (info.uid == myUid && LocalProcessManager.isAppPid(info.pid)) {
 					List<String> pkgList = LocalProcessManager.getProcessPkgList(info.pid);
 					String processName = LocalProcessManager.getAppProcessName(info.pid);
 					if (processName != null) {

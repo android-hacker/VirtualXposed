@@ -7,7 +7,7 @@ import android.os.Build;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.Reflect;
-import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Method;
 
@@ -53,14 +53,14 @@ public class ContextFixer {
 		try {
 			ref.set("mBasePackageName", pkgName);
 		} catch (Throwable e) {
-			XLog.w(TAG, "Unable to found field:mBasePackageName in ContextImpl, ignore.");
+			VLog.w(TAG, "Unable to found field:mBasePackageName in ContextImpl, ignore.");
 		}
 
 		if (Build.VERSION.SDK_INT >= 19) {
 			try {
 				ref.set("mOpPackageName", pkgName);
 			} catch (Throwable e) {
-				XLog.d(TAG, "Unable to found field:mOpPackageName in ContextImpl, ignore.");
+				VLog.d(TAG, "Unable to found field:mOpPackageName in ContextImpl, ignore.");
 			}
 		}
 		if (Build.VERSION.SDK_INT >= 18) {
@@ -68,7 +68,7 @@ public class ContextFixer {
 				ContentResolver resolver = context.getContentResolver();
 				Reflect.on(resolver).set("mPackageName", pkgName);
 			} catch (Throwable e) {
-				XLog.d(TAG, "Unable to found field:mPackageName in ContentProvider, ignore.");
+				VLog.d(TAG, "Unable to found field:mPackageName in ContentProvider, ignore.");
 			}
 		}
 	}

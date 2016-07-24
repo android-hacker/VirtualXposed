@@ -6,7 +6,7 @@ import android.util.Log;
  * @author Lody
  *
  */
-public class XLog {
+public class VLog {
 
 	public static boolean OPEN_LOG = true;
 

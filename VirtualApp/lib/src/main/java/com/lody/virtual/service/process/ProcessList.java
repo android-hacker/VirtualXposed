@@ -13,33 +13,33 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ProcessList {
 
-	private final Map<Integer, ProcessRecord> runningRecords = new ConcurrentHashMap<Integer, ProcessRecord>();
+	private final Map<Integer, ProcessRecord> runningProcesses = new ConcurrentHashMap<Integer, ProcessRecord>();
 
 	public ProcessRecord getRecord(int pid) {
-		return runningRecords.get(pid);
+		return runningProcesses.get(pid);
 	}
 
 	public void removeRecord(int pid) {
-		runningRecords.remove(pid);
+		runningProcesses.remove(pid);
 	}
 
 	public Collection<ProcessRecord> values() {
-		return runningRecords.values();
+		return runningProcesses.values();
 	}
 
 	public boolean containPid(int pid) throws RemoteException {
-		return runningRecords.containsKey(pid);
+		return runningProcesses.containsKey(pid);
 	}
 
 	/**
-	 * 判断指定进程名的进程是否正在运行
+	 * Is the target stub process is running?
 	 *
 	 * @param stubProcessName
-	 *            Stub进程名
+	 *            Stub process name
 	 */
 	public boolean isProcessRunning(String stubProcessName) {
-		synchronized (runningRecords) {
-			for (ProcessRecord r : runningRecords.values()) {
+		synchronized (runningProcesses) {
+			for (ProcessRecord r : runningProcesses.values()) {
 				if (TextUtils.equals(stubProcessName, r.stubProcessName)) {
 					return true;
 				}
@@ -49,8 +49,8 @@ public class ProcessList {
 	}
 
 
-	public synchronized void addRecord(int callingPid, ProcessRecord r) {
-		runningRecords.put(callingPid, r);
+	public void addProcess(int callingPid, ProcessRecord r) {
+		runningProcesses.put(callingPid, r);
 	}
 
 }

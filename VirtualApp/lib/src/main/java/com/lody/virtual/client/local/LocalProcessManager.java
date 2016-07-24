@@ -107,9 +107,9 @@ public class LocalProcessManager {
 		}
 	}
 
-	public static boolean isAppPID(int pid) {
+	public static boolean isAppPid(int pid) {
 		try {
-			return getService().isAppPID(pid);
+			return getService().isAppPid(pid);
 		} catch (RemoteException e) {
 			return RuntimeEnv.crash(e);
 		}

@@ -7,7 +7,7 @@ import android.content.pm.Signature;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.helper.utils.ArrayIndex;
+import com.lody.virtual.helper.utils.ArrayUtils;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -40,14 +40,14 @@ import java.util.Arrays;
 				Signature[] one = pkgOne.signatures;
 				Signature[] two = pkgTwo.signatures;
 
-				if (ArrayIndex.isEmpty(one)) {
-					if (!ArrayIndex.isEmpty(two)) {
+				if (ArrayUtils.isEmpty(one)) {
+					if (!ArrayUtils.isEmpty(two)) {
 						return PackageManager.SIGNATURE_FIRST_NOT_SIGNED;
 					} else {
 						return PackageManager.SIGNATURE_NEITHER_SIGNED;
 					}
 				} else {
-					if (ArrayIndex.isEmpty(two)) {
+					if (ArrayUtils.isEmpty(two)) {
 						return PackageManager.SIGNATURE_SECOND_NOT_SIGNED;
 					} else {
 						// 走到了这里说明两个包的签名都在

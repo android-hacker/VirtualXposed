@@ -5,7 +5,6 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ComponentInfo;
-import android.content.pm.InstrumentationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageParser;
@@ -13,13 +12,13 @@ import android.content.pm.PermissionGroupInfo;
 import android.content.pm.PermissionInfo;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ServiceInfo;
-import android.os.Build;
-import android.os.Process;
 import android.text.TextUtils;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.fixer.ComponentFixer;
 import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.utils.FileIO;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.AppFileSystem;
 
 import java.io.File;
@@ -41,6 +40,8 @@ public class APKBundle {
 	private final String mPackageName;
 	private PackageParserCompat mParser;
 	private File mApkFile;
+
+	private static final String TAG = APKBundle.class.getSimpleName();
 
 	private AppInfo mAppInfo;
 
@@ -75,8 +76,6 @@ public class APKBundle {
 			ComponentNameComparator.sComparator);
 	private Map<ComponentName, ActivityInfo> mReceiversInfoCache = new TreeMap<ComponentName, ActivityInfo>(
 			ComponentNameComparator.sComparator);
-	private Map<ComponentName, InstrumentationInfo> mInstrumentationInfoCache = new TreeMap<ComponentName, InstrumentationInfo>(
-			ComponentNameComparator.sComparator);
 	private Map<ComponentName, PermissionGroupInfo> mPermissionGroupInfoCache = new TreeMap<ComponentName, PermissionGroupInfo>(
 			ComponentNameComparator.sComparator);
 	private Map<ComponentName, PermissionInfo> mPermissionsInfoCache = new TreeMap<ComponentName, PermissionInfo>(
@@ -96,8 +95,8 @@ public class APKBundle {
 			ComponentName componentName = new ComponentName(mPackageName, activity.className);
 			mActivityObjCache.put(componentName, activity);
 			ActivityInfo activityInfo = mParser.generateActivityInfo(activity, 0);
-			initApplicationInfo(activityInfo.applicationInfo);
-			initProcessName(activityInfo);
+			ComponentFixer.fixApplicationInfo(mAppInfo, activityInfo.applicationInfo);
+			initComponent(activityInfo);
 			mActivityInfoCache.put(componentName, activityInfo);
 			List<PackageParser.ActivityIntentInfo> filters = activity.intents;
 			mActivityIntentFilterCache.remove(componentName);
@@ -108,8 +107,8 @@ public class APKBundle {
 			ComponentName componentName = new ComponentName(mPackageName, service.className);
 			mServiceObjCache.put(componentName, service);
 			ServiceInfo serviceInfo = mParser.generateServiceInfo(service, 0);
-			initApplicationInfo(serviceInfo.applicationInfo);
-			initProcessName(serviceInfo);
+			ComponentFixer.fixApplicationInfo(mAppInfo, serviceInfo.applicationInfo);
+			initComponent(serviceInfo);
 			mServiceInfoCache.put(componentName, serviceInfo);
 			List<PackageParser.ServiceIntentInfo> filters = service.intents;
 			mServiceIntentFilterCache.remove(componentName);
@@ -120,8 +119,8 @@ public class APKBundle {
 			ComponentName componentName = new ComponentName(mPackageName, provider.className);
 			mProviderObjCache.put(componentName, provider);
 			ProviderInfo providerInfo = mParser.generateProviderInfo(provider, 0);
-			initApplicationInfo(providerInfo.applicationInfo);
-			initProcessName(providerInfo);
+			ComponentFixer.fixApplicationInfo(mAppInfo, providerInfo.applicationInfo);
+			initComponent(providerInfo);
 			mProviderInfoCache.put(componentName, providerInfo);
 			List<PackageParser.ProviderIntentInfo> filters = provider.intents;
 			mProviderIntentFilterCache.remove(componentName);
@@ -132,8 +131,8 @@ public class APKBundle {
 			ComponentName componentName = new ComponentName(mPackageName, receiver.className);
 			mReceiversObjCache.put(componentName, receiver);
 			ActivityInfo receiverInfo = mParser.generateActivityInfo(receiver, 0);
-			initApplicationInfo(receiverInfo.applicationInfo);
-			initProcessName(receiverInfo);
+			ComponentFixer.fixApplicationInfo(mAppInfo, receiverInfo.applicationInfo);
+			initComponent(receiverInfo);
 			mReceiversInfoCache.put(componentName, receiverInfo);
 			List<PackageParser.ActivityIntentInfo> filters = receiver.intents;
 			mReceiverIntentFilterCache.put(componentName, new ArrayList<IntentFilter>(filters));
@@ -153,6 +152,7 @@ public class APKBundle {
 			PermissionGroupInfo permissionGroupInfo = mParser.generatePermissionGroupInfo(permissionGroup, 0);
 			mPermissionGroupInfoCache.put(componentName, permissionGroupInfo);
 		}
+
 		List<String> requestedPermissions = mParser.getRequestedPermissions();
 		if (requestedPermissions != null && requestedPermissions.size() > 0) {
 			mRequestedPermissionsCache.addAll(requestedPermissions);
@@ -160,10 +160,11 @@ public class APKBundle {
 		mAppInfo.applicationInfo = getApplicationInfo(0);
 	}
 
-	private static void initProcessName(ComponentInfo componentInfo) {
+	private static void initComponent(ComponentInfo componentInfo) {
 		if (TextUtils.isEmpty(componentInfo.processName)) {
 			componentInfo.processName = componentInfo.packageName;
 		}
+		componentInfo.name = ComponentFixer.fixComponentClassName(componentInfo.packageName, componentInfo.name);
 	}
 
 	private static AppInfo createAppInfo(APKBundle bundle) throws Exception {
@@ -189,8 +190,8 @@ public class APKBundle {
 
 	private static void ensureFoldersCreated(File... folders) {
 		for (File folder : folders) {
-			if (!folder.exists()) {
-				folder.mkdirs();
+			if (!folder.exists() && !folder.mkdirs()) {
+				VLog.w(TAG, "warning: unable to create folder : " + folder.getPath());
 			}
 		}
 	}
@@ -198,12 +199,10 @@ public class APKBundle {
 	public void copyToPrivate() throws IOException {
 		File storeFile = AppFileSystem.getDefault().getAppApkFile(mPackageName);
 		File parentFolder = storeFile.getParentFile();
-		if (!parentFolder.exists()) {
-			// ensure the parent folder exist
-			parentFolder.mkdirs();
-		} else if (storeFile.exists()) {
-			// delete the exist one
-			storeFile.delete();
+		if (!parentFolder.exists() && !parentFolder.mkdirs()) {
+			throw new IOException("Unable to create folder : " + parentFolder.getPath());
+		} else if (storeFile.exists() && !storeFile.delete()) {
+			VLog.w(TAG, "warning: unable to delete file : " + storeFile.getPath());
 		}
 		FileIO.copyFile(mApkFile, storeFile);
 		this.mApkFile = storeFile;
@@ -238,8 +237,8 @@ public class APKBundle {
 		PackageParser.Activity activity = mActivityObjCache.get(className);
 		if (activity != null) {
 			ActivityInfo activityInfo = mParser.generateActivityInfo(activity, flags);
-			initApplicationInfo(activityInfo.applicationInfo);
-			initProcessName(activityInfo);
+			ComponentFixer.fixApplicationInfo(mAppInfo, activityInfo.applicationInfo);
+			initComponent(activityInfo);
 			return activityInfo;
 		}
 		return null;
@@ -249,8 +248,8 @@ public class APKBundle {
 		PackageParser.Service service = mServiceObjCache.get(className);;
 		if (service != null) {
 			ServiceInfo serviceInfo = mParser.generateServiceInfo(service, flags);
-			initApplicationInfo(serviceInfo.applicationInfo);
-			initProcessName(serviceInfo);
+			ComponentFixer.fixApplicationInfo(mAppInfo, serviceInfo.applicationInfo);
+			initComponent(serviceInfo);
 			return serviceInfo;
 		}
 		return null;
@@ -260,8 +259,8 @@ public class APKBundle {
 		PackageParser.Activity receiver = mReceiversObjCache.get(className);
 		if (receiver != null) {
 			ActivityInfo receiverInfo = mParser.generateReceiverInfo(receiver, flags);
-			initApplicationInfo(receiverInfo.applicationInfo);
-			initProcessName(receiverInfo);
+			ComponentFixer.fixApplicationInfo(mAppInfo, receiverInfo.applicationInfo);
+			initComponent(receiverInfo);
 			return receiverInfo;
 		}
 		return null;
@@ -271,8 +270,8 @@ public class APKBundle {
 		PackageParser.Provider provider = mProviderObjCache.get(className);
 		if (provider != null) {
 			ProviderInfo providerInfo = mParser.generateProviderInfo(provider, flags);
-			initApplicationInfo(providerInfo.applicationInfo);
-			initProcessName(providerInfo);
+			ComponentFixer.fixApplicationInfo(mAppInfo, providerInfo.applicationInfo);
+			initComponent(providerInfo);
 			return providerInfo;
 		}
 		return null;
@@ -280,7 +279,7 @@ public class APKBundle {
 
 	public ApplicationInfo getApplicationInfo(int flags) throws Exception {
 		ApplicationInfo applicationInfo = mParser.generateApplicationInfo(flags);
-		initApplicationInfo(applicationInfo);
+		ComponentFixer.fixApplicationInfo(mAppInfo, applicationInfo);
 		if (TextUtils.isEmpty(applicationInfo.processName)) {
 			applicationInfo.processName = applicationInfo.packageName;
 		}
@@ -363,78 +362,32 @@ public class APKBundle {
 		return new ArrayList<PermissionGroupInfo>(mPermissionGroupInfoCache.values());
 	}
 
-	public List<InstrumentationInfo> getInstrumentationInfos() {
-		return new ArrayList<InstrumentationInfo>(mInstrumentationInfoCache.values());
-	}
-
 	private void initPackageInfo(PackageInfo packageInfo) {
 		packageInfo.gids = mHostPkgInfo.gids;
-		initApplicationInfo(packageInfo.applicationInfo);
+		ComponentFixer.fixApplicationInfo(mAppInfo, packageInfo.applicationInfo);
 		if (packageInfo.activities != null) {
 			for (ActivityInfo activityInfo : packageInfo.activities) {
-				initApplicationInfo(activityInfo.applicationInfo);
+				ComponentFixer.fixApplicationInfo(mAppInfo, activityInfo.applicationInfo);
 			}
 		}
 		if (packageInfo.services != null) {
 			for (ServiceInfo serviceInfo : packageInfo.services) {
-				initApplicationInfo(serviceInfo.applicationInfo);
+				ComponentFixer.fixApplicationInfo(mAppInfo, serviceInfo.applicationInfo);
 			}
 		}
 		if (packageInfo.receivers != null) {
 			for (ActivityInfo receiverInfo : packageInfo.receivers) {
-				initApplicationInfo(receiverInfo.applicationInfo);
+				ComponentFixer.fixApplicationInfo(mAppInfo, receiverInfo.applicationInfo);
 			}
 		}
 		if (packageInfo.providers != null) {
 			for (ProviderInfo providerInfo : packageInfo.providers) {
-				initApplicationInfo(providerInfo.applicationInfo);
+				ComponentFixer.fixApplicationInfo(mAppInfo, providerInfo.applicationInfo);
 			}
 		}
 	}
 
-	private String fixComponentClassName(String className) {
-		if (className != null) {
-			if (className.charAt(0) == '.') {
-				return getPackageName() + className;
-			}
-			return className;
-		}
-		return null;
-	}
 
-	private void initApplicationInfo(ApplicationInfo applicationInfo) {
-		if (TextUtils.isEmpty(applicationInfo.processName)) {
-			applicationInfo.processName = applicationInfo.packageName;
-		}
-		applicationInfo.name = fixComponentClassName(applicationInfo.name);
-		applicationInfo.publicSourceDir = mApkFile.getPath();
-		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB_MR1) {
-			applicationInfo.flags &= -ApplicationInfo.FLAG_STOPPED;
-		}
-		try {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-				applicationInfo.splitSourceDirs = new String[]{mApkFile.getPath()};
-				applicationInfo.splitPublicSourceDirs = applicationInfo.splitSourceDirs;
-			}
-		} catch (Throwable e) {
-			// ignore
-		}
-		try {
-			if (applicationInfo.scanSourceDir == null) {
-				applicationInfo.scanSourceDir = applicationInfo.dataDir;
-			}
-			if (applicationInfo.scanPublicSourceDir == null) {
-				applicationInfo.scanPublicSourceDir = applicationInfo.dataDir;
-			}
-		} catch (Throwable e) {
-			// Ignore
-		}
-		applicationInfo.sourceDir = mApkFile.getPath();
-		applicationInfo.dataDir = mAppInfo.dataDir;
-		applicationInfo.enabled = true;
-		applicationInfo.nativeLibraryDir = mAppInfo.libDir;
-		applicationInfo.uid = Process.myUid();
-	}
 
 	public AppInfo getAppInfo() {
 		return mAppInfo;

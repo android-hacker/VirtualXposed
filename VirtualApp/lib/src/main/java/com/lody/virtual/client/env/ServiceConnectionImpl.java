@@ -10,7 +10,7 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.binders.StubBinder;
-import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
@@ -52,7 +52,7 @@ class ServiceConnectionImpl extends IServiceConnection.Stub {
             }
         }
         stringBuilder.append(")");
-        XLog.d("Hook-SecondaryService", stringBuilder.toString());
+        VLog.d("Hook-SecondaryService", stringBuilder.toString());
     }
 
 	static {
@@ -172,7 +172,7 @@ class ServiceConnectionImpl extends IServiceConnection.Stub {
 	@Override
 	public void connected(ComponentName component, IBinder binder) throws RemoteException {
         String description = binder.getInterfaceDescriptor();
-		XLog.d(TAG, "Connect service %s / %s.", component.toShortString(), description);
+		VLog.d(TAG, "Connect service %s / %s.", component.toShortString(), description);
         ServiceFetcher fetcher = sHookSecondaryServiceMap.get(description);
         if (fetcher != null) {
             IBinder res = fetcher.getService(mContext, mContext.getClassLoader(), binder);

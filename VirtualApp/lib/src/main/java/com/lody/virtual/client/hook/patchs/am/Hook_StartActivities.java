@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.helper.utils.ArrayIndex;
+import com.lody.virtual.helper.utils.ArrayUtils;
 
 import java.lang.reflect.Method;
 
@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		int intentArrayIndex = ArrayIndex.indexOfFirst(args, Intent[].class);
+		int intentArrayIndex = ArrayUtils.indexOfFirst(args, Intent[].class);
 		Intent[] intents = (Intent[]) args[intentArrayIndex];
 		for (int N = 0; N < intents.length; N++) {
 			ActivityUtils.replaceIntent(null, intents, N);

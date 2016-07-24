@@ -3,7 +3,7 @@ package com.lody.virtual.client.hook.patchs.window.session;
 import android.view.WindowManager;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.helper.utils.ArrayIndex;
+import com.lody.virtual.helper.utils.ArrayUtils;
 
 import java.lang.reflect.Method;
 
@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		if (cacheIndex == -1) {
-			cacheIndex = ArrayIndex.indexOfFirst(args, WindowManager.LayoutParams.class);
+			cacheIndex = ArrayUtils.indexOfFirst(args, WindowManager.LayoutParams.class);
 		}
 		if (cacheIndex != -1) {
 			WindowManager.LayoutParams attrs = (WindowManager.LayoutParams) args[cacheIndex];

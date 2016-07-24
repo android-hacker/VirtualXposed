@@ -44,14 +44,16 @@ import java.util.List;
 			String[] pkgs = ((String[]) invokeResult);
 			Collections.addAll(originPkgs, pkgs);
 		}
+		String[] res;
 
 		if (originPkgs.size() == 1) {
-			return pluginPkgs.toArray(new String[pluginPkgs.size()]);
+			res = pluginPkgs.toArray(new String[pluginPkgs.size()]);
 		} else {
 			originPkgs.remove(getHostPkg());
 			pluginPkgs.addAll(originPkgs);
-			return pluginPkgs.toArray(new String[pluginPkgs.size()]);
+			res = pluginPkgs.toArray(new String[pluginPkgs.size()]);
 		}
+		return res;
 	}
 
 	@Override

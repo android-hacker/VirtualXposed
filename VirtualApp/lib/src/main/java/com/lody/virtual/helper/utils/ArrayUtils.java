@@ -4,7 +4,7 @@ package com.lody.virtual.helper.utils;
  * @author Lody
  *
  */
-public class ArrayIndex {
+public class ArrayUtils {
 
 	public static int indexOfFirst(Object[] array, Class<?> type) {
 		if (!isEmpty(array)) {

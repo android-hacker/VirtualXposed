@@ -10,7 +10,7 @@ import android.os.ServiceManager;
 import android.text.TextUtils;
 
 import com.lody.virtual.client.interfaces.IHookObject;
-import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.io.FileDescriptor;
 import java.lang.reflect.Field;
@@ -151,7 +151,7 @@ public abstract class HookBinder<Interface extends IInterface> implements IHookO
 	public void addHook(Hook hook) {
 		if (hook != null && !TextUtils.isEmpty(hook.getName())) {
 			if (internalHookMapping.containsKey(hook.getName())) {
-				XLog.w(TAG, "Hook(%s) from class(%s) have been added, should not be add again.", hook.getName(),
+				VLog.w(TAG, "Hook(%s) from class(%s) have been added, should not be add again.", hook.getName(),
 						hook.getClass().getName());
 			}
 			internalHookMapping.put(hook.getName(), hook);

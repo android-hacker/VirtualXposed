@@ -13,7 +13,7 @@ import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.proto.InstallResult;
 import com.lody.virtual.helper.proto.Problem;
 import com.lody.virtual.helper.utils.FileIO;
-import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.interfaces.IAppObserver;
 import com.lody.virtual.service.process.VProcessService;
 
@@ -51,14 +51,14 @@ public class VAppService extends IAppManager.Stub {
 	}
 
 	public void preloadAllApps() {
-		XLog.d(TAG, "=============================================");
-		XLog.d(TAG, "==========$$$ Start Scan App $$$===========");
+		VLog.d(TAG, "=============================================");
+		VLog.d(TAG, "==========$$$ Start Scan App $$$===========");
 		List<File> appList = AppFileSystem.getDefault().getAllApps();
 		if (appList.isEmpty()) {
-			XLog.d(TAG, "===============$$$ Empty $$$===================");
+			VLog.d(TAG, "===============$$$ Empty $$$===================");
 		} else {
 			for (File app : appList) {
-				XLog.d(TAG, "=============>>> " + app.getPath());
+				VLog.d(TAG, "=============>>> " + app.getPath());
 				if (!scan(app.getPath())) {
 					FileIO.deleteDir(app);
 				}
@@ -77,8 +77,8 @@ public class VAppService extends IAppManager.Stub {
 				// Ignore
 			}
 		}
-		XLog.d(TAG, "=============================================");
-		XLog.d(TAG, "=============================================");
+		VLog.d(TAG, "=============================================");
+		VLog.d(TAG, "=============================================");
 	}
 
 	public boolean scan(String apkPath) {

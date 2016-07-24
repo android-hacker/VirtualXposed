@@ -16,7 +16,7 @@ import com.lody.virtual.R;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.helper.utils.Reflect;
-import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.helper.utils.VLog;
 
 class RemoteViewsUtils {
     private int notification_min_height, notification_max_height, notification_mid_height;
@@ -91,7 +91,7 @@ class RemoteViewsUtils {
         mCache.layout(0, 0, width, height);
         mCache.measure(View.MeasureSpec.makeMeasureSpec(width, mode), View.MeasureSpec.makeMeasureSpec(height, mode));
         mCache.layout(0, 0, width, height);
-        XLog.i("kk", "max=%d/%d, szie=%d/%d", width, height, mCache.getMeasuredWidth(), mCache.getMeasuredHeight());
+        VLog.i("kk", "max=%d/%d, szie=%d/%d", width, height, mCache.getMeasuredWidth(), mCache.getMeasuredHeight());
         //打印action
 //        logActions(remoteViews, view1);
         return mCache;
@@ -162,7 +162,7 @@ class RemoteViewsUtils {
                 }
             }
         }
-//        XLog.w(TAG, "use my dimen:" + name);
+//        VLog.w(TAG, "use my dimen:" + name);
         return defId == 0 ? 0 : Math.round(context.getResources().getDimension(defId));
     }
 

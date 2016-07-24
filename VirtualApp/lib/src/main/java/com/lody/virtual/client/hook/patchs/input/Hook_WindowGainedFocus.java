@@ -3,7 +3,7 @@ package com.lody.virtual.client.hook.patchs.input;
 import android.view.inputmethod.EditorInfo;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.helper.utils.ArrayIndex;
+import com.lody.virtual.helper.utils.ArrayUtils;
 
 import java.lang.reflect.Method;
 
@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		if (noEditorInfo == null) {
-			editorInfoIndex = ArrayIndex.indexOfFirst(args, EditorInfo.class);
+			editorInfoIndex = ArrayUtils.indexOfFirst(args, EditorInfo.class);
 			noEditorInfo = editorInfoIndex == -1;
 		}
 		if (!noEditorInfo) {

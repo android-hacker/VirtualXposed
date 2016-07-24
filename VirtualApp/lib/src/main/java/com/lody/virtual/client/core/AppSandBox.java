@@ -29,7 +29,7 @@ import com.lody.virtual.helper.compat.VMRuntimeCompat;
 import com.lody.virtual.helper.loaders.PathAppClassLoader;
 import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.utils.Reflect;
-import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -83,7 +83,7 @@ public class AppSandBox {
 
 		}
 		sInstalling = false;
-		XLog.d(TAG, "Application of Process(%s) have launched. ", RuntimeEnv.getCurrentProcessName());
+		VLog.d(TAG, "Application of Process(%s) have launched. ", RuntimeEnv.getCurrentProcessName());
 	}
 
 	private static void installLocked(String procName, String pkg) {
@@ -92,7 +92,7 @@ public class AppSandBox {
 		}
 		LAST_PKG = pkg;
 		PatchManager.fixAllSettings();
-		XLog.d(TAG, "Installing %s.", pkg);
+		VLog.d(TAG, "Installing %s.", pkg);
 		LocalProcessManager.onAppProcessCreate(VClientImpl.getClient().asBinder());
 		AppInfo appInfo = VirtualCore.getCore().findApp(pkg);
 		if (appInfo == null) {
