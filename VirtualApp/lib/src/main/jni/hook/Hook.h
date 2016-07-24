@@ -1,0 +1,38 @@
+//
+// Created by Xfast on 2016/7/21.
+//
+
+#ifndef NDK_HOOK_H
+#define NDK_HOOK_H
+
+
+#include <string>
+#include <map>
+#include <jni.h>
+#include <dlfcn.h>
+#include <stddef.h>
+#include <fcntl.h>
+#include <sys/syscall.h>
+
+#include "../MSHook/hook.h"
+#include "../helper/helper.h"
+
+
+#define HOOK_IO(func) hook_template("libc.so", #func, (void*) new_##func, (void**) &org_##func)
+
+#define HOOK_DEF(ret, func, ...) \
+  ret (*org_##func)(__VA_ARGS__); \
+  ret new_##func(__VA_ARGS__)
+
+
+namespace HOOK {
+    void hook();
+
+    void redirect(const char*org_path, const char*new_path);
+
+    const char *query(const char *org_path);
+
+    const char *restore(const char *redirected_path);
+}
+
+#endif //NDK_HOOK_H
