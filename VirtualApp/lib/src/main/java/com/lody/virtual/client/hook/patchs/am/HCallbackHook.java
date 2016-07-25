@@ -123,7 +123,8 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		if (stubActInfo == null || targetActInfo == null) {
 			return;
 		}
-		AppSandBox.install(ComponentUtils.getProcessName(targetActInfo), targetActInfo.packageName);
+		String processName = ComponentUtils.getProcessName(targetActInfo);
+		AppSandBox.install(processName, targetActInfo.packageName);
 
 		ClassLoader pluginClassLoader = appInfo.getClassLoader();
 

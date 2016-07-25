@@ -94,11 +94,6 @@ public class VPackageService extends IPackageManager.Stub {
 					return bundle.getActivityInfo(componentName, flags);
 				}
 			}
-			try {
-				return mPM.getActivityInfo(componentName, flags);
-			} catch (PackageManager.NameNotFoundException e) {
-				// Ignore
-			}
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
@@ -113,11 +108,6 @@ public class VPackageService extends IPackageManager.Stub {
 				if (bundle != null) {
 					return bundle.getReceiverInfo(componentName, flags);
 				}
-			}
-			try {
-				return mPM.getReceiverInfo(componentName, flags);
-			} catch (PackageManager.NameNotFoundException e) {
-				// Ignore
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -134,11 +124,6 @@ public class VPackageService extends IPackageManager.Stub {
 				if (bundle != null) {
 					return bundle.getServiceInfo(componentName, flags);
 				}
-			}
-			try {
-				return mPM.getServiceInfo(componentName, flags);
-			} catch (PackageManager.NameNotFoundException e) {
-				// Ignore
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -397,6 +382,14 @@ public class VPackageService extends IPackageManager.Stub {
 	}
 
 	public int checkPermission(String permName, String pkg) {
+		APKBundle bundle = getPMS().getAPKBundle(pkg);
+		try {
+			if (bundle.getPermissionInfo(new ComponentName(pkg, permName), 0) != null) {
+				return PackageManager.PERMISSION_GRANTED;
+            }
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		String hostPkg = VirtualCore.getCore().getHostPkg();
 		return mPM.checkPermission(permName, hostPkg);
 	}

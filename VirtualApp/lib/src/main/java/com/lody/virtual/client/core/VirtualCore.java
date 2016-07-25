@@ -245,7 +245,7 @@ public final class VirtualCore {
 
 	public void preOpt(String pkg) throws Exception {
 		AppInfo info = findApp(pkg);
-		if (info != null && !info.isInstalled()) {
+		if (info != null && !info.dependSystem) {
 			new DexAppClassLoader(info);
 		}
 	}

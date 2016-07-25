@@ -81,12 +81,12 @@ public class VAppService extends IAppManager.Stub {
 		VLog.d(TAG, "=============================================");
 	}
 
-	public boolean scan(String apkPath) {
+	private boolean scan(String apkPath) {
 		try {
 			File apkFile = new File(apkPath);
 			APKBundle bundle = new APKBundle(apkFile);
 			AppInfo appInfo = bundle.getAppInfo();
-			addAppLocked(bundle, appInfo, true);
+			addAppLocked(bundle, appInfo, true, true);
 			return true;
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -99,44 +99,46 @@ public class VAppService extends IAppManager.Stub {
 		return install(apkPath, flags, false);
 	}
 
-	public InstallResult install(String apkPath, int flags, boolean onlyScan) {
+	private InstallResult install(String apkPath, int flags, boolean onlyScan) {
 		InstallResult result = new InstallResult();
 		try {
 			File apkFile = new File(apkPath);
 			APKBundle bundle = new APKBundle(apkFile);
 			AppInfo appInfo = bundle.getAppInfo();
 			String pkgName = bundle.getPackageName();
-			result.installedPackageName = pkgName;
+			result.packageName = pkgName;
+			boolean dependSystem = false;
 
 			synchronized (mLock) {
+				if ((flags & InstallStrategy.DEPEND_SYSTEM_IF_EXIST) != 0) {
+					dependSystem = true;
+				}
+				appInfo.dependSystem = dependSystem;
 				if (mAppInfoCaches.containsKey(pkgName)) {
-					switch (flags) {
-						case InstallStrategy.UPDATE_IF_EXIST : {
-							updateAppLocked(bundle, appInfo);
+					if ((flags & InstallStrategy.UPDATE_IF_EXIST) != 0) {
+						updateAppLocked(bundle, appInfo, dependSystem);
+						result.isUpdate = true;
+					}
+					if ((flags & InstallStrategy.COMPARE_VERSION) != 0) {
+						PackageInfo nowPkgInfo = mApkBundleCaches.get(pkgName).getPackageInfo(0);
+						PackageInfo newPkgInfo = bundle.getPackageInfo(0);
+						if (nowPkgInfo.versionCode < newPkgInfo.versionCode) {
 							result.isUpdate = true;
-							break;
-						}
-						case InstallStrategy.COMPARE_VERSION : {
-							PackageInfo nowPkgInfo = mApkBundleCaches.get(pkgName).getPackageInfo(0);
-							PackageInfo newPkgInfo = bundle.getPackageInfo(0);
-							if (nowPkgInfo.versionCode < newPkgInfo.versionCode) {
-								result.isUpdate = true;
-								updateAppLocked(bundle, appInfo);
-							} else {
-								throw new IllegalStateException("Current APK Version is " + nowPkgInfo.versionCode
-										+ ", but New APK Version is " + newPkgInfo.versionCode);
-							}
-							break;
-						}
-						case InstallStrategy.TERMINATE_IF_EXIST : {
-							throw new IllegalStateException("This apk have installed, should not be scan again.");
-						}
-						case InstallStrategy.IGNORE_NEW_VERSION : {
-							break;
+							updateAppLocked(bundle, appInfo, dependSystem);
+						} else {
+							throw new IllegalStateException("Current APK Version is " + nowPkgInfo.versionCode
+									+ ", but New APK Version is " + newPkgInfo.versionCode);
 						}
 					}
+					if ((flags & InstallStrategy.TERMINATE_IF_EXIST) != 0) {
+						throw new IllegalStateException("This apk have installed, should not be scan again.");
+					}
+
+					if ((flags & InstallStrategy.IGNORE_NEW_VERSION) != 0) {
+						// Nothing to do
+					}
 				} else {
-					addAppLocked(bundle, appInfo, false);
+					addAppLocked(bundle, appInfo, false, dependSystem);
 				}
 				File libFolder = new File(appInfo.libDir);
 				libFolder.mkdirs();
@@ -149,28 +151,29 @@ public class VAppService extends IAppManager.Stub {
 		} catch (Throwable installError) {
 			result.isSuccess = false;
 			result.problem = new Problem(installError);
-			if (!(installError instanceof IllegalStateException) && result.installedPackageName != null) {
+			if (!(installError instanceof IllegalStateException) && result.packageName != null) {
 				// Clean up environment
-				uninstallApp(result.installedPackageName);
+				uninstallApp(result.packageName);
 			}
 		}
 		return result;
 	}
 
-	private void addAppLocked(APKBundle bundle, AppInfo appInfo, boolean onlyScan) throws IOException {
+	private void addAppLocked(APKBundle bundle, AppInfo appInfo, boolean onlyScan, boolean dependSystem) throws IOException {
 		String pkg = appInfo.packageName;
 		mAppInfoCaches.put(pkg, appInfo);
 		mApkBundleCaches.put(pkg, bundle);
-		if (!onlyScan && !VirtualCore.getCore().isOutsideInstalled(appInfo.packageName)) {
-			// If the app has installed, we needn't -copy-apk- and -dex-opt-
+		if (!onlyScan && !dependSystem) {
+			// If the app has installed,
+			// we needn't -copy-apk- and -dex-opt-
 			bundle.copyToPrivate();
 		}
 	}
 
-	private void updateAppLocked(APKBundle bundle, AppInfo appInfo) throws IOException {
+	private void updateAppLocked(APKBundle bundle, AppInfo appInfo, boolean dependSystem) throws IOException {
 		String pkg = appInfo.packageName;
 		removeAppLocked(pkg);
-		addAppLocked(bundle, appInfo, false);
+		addAppLocked(bundle, appInfo, false, dependSystem);
 		VProcessService.getService().killAppByPkg(appInfo.packageName);
 	}
 

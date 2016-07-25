@@ -2,8 +2,10 @@ package com.lody.virtual.client.hook.patchs.pm;
 
 import android.content.pm.PackageInfo;
 
+import com.lody.virtual.client.fixer.ComponentFixer;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.LocalPackageManager;
+import com.lody.virtual.helper.proto.AppInfo;
 
 import java.lang.reflect.Method;
 
@@ -29,6 +31,10 @@ public final class Hook_GetPackageInfo extends Hook {
 		int flags = (int) args[1];
 		PackageInfo packageInfo = (PackageInfo) method.invoke(who, args);
 		if (packageInfo != null) {
+			AppInfo appInfo = findAppInfo(pkg);
+			if (appInfo != null) {
+				ComponentFixer.fixApplicationInfo(appInfo, packageInfo.applicationInfo);
+			}
 			return packageInfo;
 		}
 		return LocalPackageManager.getInstance().getPackageInfo(pkg, flags);

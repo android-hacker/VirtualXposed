@@ -62,14 +62,14 @@ public class AppRepository implements AppDataSource {
     @Override
     public Promise<List<AppModel>, Throwable, Void> getInstalledApps(Context context) {
         return VUiKit.defer().when(() -> {
-            return pkgInfosToAppModels(context, context.getPackageManager().getInstalledPackages(0));
+            return pkgInfosToAppModels(context, context.getPackageManager().getInstalledPackages(0), true);
         });
     }
 
     @Override
     public Promise<List<AppModel>, Throwable, Void> getSdCardApps(Context context) {
         return VUiKit.defer().when(() -> {
-            return pkgInfosToAppModels(context, findAndParseAPKs(context, sdCardScanPaths));
+            return pkgInfosToAppModels(context, findAndParseAPKs(context, sdCardScanPaths), false);
         });
     }
 
@@ -97,7 +97,7 @@ public class AppRepository implements AppDataSource {
     }
 
 
-    private List<AppModel> pkgInfosToAppModels(Context context, List<PackageInfo> pkgList) {
+    private List<AppModel> pkgInfosToAppModels(Context context, List<PackageInfo> pkgList, boolean fastOpen) {
         List<AppModel> models = new ArrayList<>(pkgList.size());
         String hostPkg = VirtualCore.getCore().getHostPkg();
         for (PackageInfo pkg : pkgList) {
@@ -110,7 +110,9 @@ public class AppRepository implements AppDataSource {
             if (VirtualCore.getCore().isAppInstalled(pkg.packageName)) {
                 continue;
             }
-            models.add(new AppModel(context, pkg));
+            AppModel model = new AppModel(context, pkg);
+            model.fastOpen = fastOpen;
+            models.add(model);
         }
         Collections.sort(models, (lhs, rhs) -> COLLATOR.compare(lhs.name, rhs.name));
         return models;
@@ -119,7 +121,11 @@ public class AppRepository implements AppDataSource {
 
     @Override
     public void addVirtualApp(AppModel app) throws Throwable {
-        VirtualCore.getCore().installApp(app.path, InstallStrategy.COMPARE_VERSION);
+        int flags = InstallStrategy.COMPARE_VERSION;
+        if (app.fastOpen) {
+            flags |= InstallStrategy.DEPEND_SYSTEM_IF_EXIST;
+        }
+        VirtualCore.getCore().installApp(app.path, flags);
     }
 
     @Override
