@@ -3,7 +3,7 @@ package com.lody.virtual.client.hook.base;
 import android.text.TextUtils;
 
 import com.lody.virtual.client.interfaces.IHookObject;
-import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -58,7 +58,7 @@ public class HookObject<T> implements IHookObject<T> {
 	public void addHook(Hook hook) {
 		if (hook != null && !TextUtils.isEmpty(hook.getName())) {
 			if (internalHookMapping.containsKey(hook.getName())) {
-				XLog.w(TAG, "Hook(%s) from class(%s) have been added, can't add again.", hook.getName(),
+				VLog.w(TAG, "Hook(%s) from class(%s) have been added, can't add again.", hook.getName(),
 						hook.getClass().getName());
 			}
 			internalHookMapping.put(hook.getName(), hook);
@@ -143,7 +143,11 @@ public class HookObject<T> implements IHookObject<T> {
 			Hook hook = getHook(method.getName());
 			try {
 				if (hook != null && hook.isEnable()) {
-					return hook.onHook(mBaseObject, method, args);
+					if (hook.beforeHook(mBaseObject, method, args)) {
+						Object res = hook.onHook(mBaseObject, method, args);
+						res = hook.afterHook(mBaseObject, method, args, res);
+						return res;
+					}
 				}
 				return method.invoke(mBaseObject, args);
 			} catch (Throwable e) {

@@ -3,7 +3,6 @@ package com.lody.virtual.client.core;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.os.Build;
-import android.os.ServiceManager;
 import android.provider.Settings;
 
 import com.lody.virtual.client.hook.base.PatchObject;
@@ -13,6 +12,7 @@ import com.lody.virtual.client.hook.patchs.am.ActivityManagerPatch;
 import com.lody.virtual.client.hook.patchs.am.HCallbackHook;
 import com.lody.virtual.client.hook.patchs.appops.AppOpsManagerPatch;
 import com.lody.virtual.client.hook.patchs.appwidget.AppWidgetManagerPatch;
+import com.lody.virtual.client.hook.patchs.audio.AudioManagerPatch;
 import com.lody.virtual.client.hook.patchs.backup.BackupManagerPatch;
 import com.lody.virtual.client.hook.patchs.camera.CameraPatch;
 import com.lody.virtual.client.hook.patchs.clipboard.ClipBoardPatch;
@@ -25,6 +25,7 @@ import com.lody.virtual.client.hook.patchs.job.JobPatch;
 import com.lody.virtual.client.hook.patchs.location.LocationManagerPatch;
 import com.lody.virtual.client.hook.patchs.media.router.MediaRouterServicePatch;
 import com.lody.virtual.client.hook.patchs.media.session.SessionManagerPatch;
+import com.lody.virtual.client.hook.patchs.miui.security.MIUISecurityManagerPatch;
 import com.lody.virtual.client.hook.patchs.mount.MountServicePatch;
 import com.lody.virtual.client.hook.patchs.notification.NotificationManagerPatch;
 import com.lody.virtual.client.hook.patchs.phonesubinfo.PhoneSubInfoPatch;
@@ -105,6 +106,11 @@ public final class PatchManager {
 		addPatch(new PackageManagerPatch());
 
 		if (VirtualCore.getCore().isVAppProcess()) {
+			// ## Fuck the MIUI Security
+			if (MIUISecurityManagerPatch.needInject()) {
+				addPatch(new MIUISecurityManagerPatch());
+			}
+			// ## End
 			addPatch(HCallbackHook.getDefault());
 			addPatch(AppInstrumentation.getDefault());
 			addPatch(new NotificationManagerPatch());
@@ -120,6 +126,8 @@ public final class PatchManager {
 			addPatch(new AppWidgetManagerPatch());
 			addPatch(new AccountManagerPatch());
 			addPatch(new DropBoxManagerPatch());
+			addPatch(new AudioManagerPatch());
+			addPatch(new SearchManagerPatch());
 
 			if (Build.VERSION.SDK_INT >= JELLY_BEAN_MR2) {
 				addPatch(new VibratorPatch());
@@ -143,9 +151,6 @@ public final class PatchManager {
 			if (Build.VERSION.SDK_INT >= KITKAT) {
 				addPatch(new AppOpsManagerPatch());
 				addPatch(new MediaRouterServicePatch());
-			}
-			if (ServiceManager.getService(Context.SEARCH_SERVICE) != null) {
-				addPatch(new SearchManagerPatch());
 			}
 			if (Build.VERSION.SDK_INT >= LOLLIPOP_MR1) {
 				addPatch(new GraphicsStatsPatch());

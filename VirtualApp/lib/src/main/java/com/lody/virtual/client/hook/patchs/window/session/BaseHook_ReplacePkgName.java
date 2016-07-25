@@ -1,33 +1,24 @@
 package com.lody.virtual.client.hook.patchs.window.session;
 
-import java.lang.reflect.Method;
+import android.view.WindowManager;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.helper.utils.ArrayIndex;
+import com.lody.virtual.helper.utils.ArrayUtils;
 
-import android.view.WindowManager;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
  *
  */
-/* package */ abstract class BaseHook_ReplacePkgName extends Hook<WindowSessionPatch> {
+/* package */ abstract class BaseHook_ReplacePkgName extends Hook {
 
 	private int cacheIndex = -1;
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public BaseHook_ReplacePkgName(WindowSessionPatch patchObject) {
-		super(patchObject);
-	}
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		if (cacheIndex == -1) {
-			cacheIndex = ArrayIndex.indexOfFirst(args, WindowManager.LayoutParams.class);
+			cacheIndex = ArrayUtils.indexOfFirst(args, WindowManager.LayoutParams.class);
 		}
 		if (cacheIndex != -1) {
 			WindowManager.LayoutParams attrs = (WindowManager.LayoutParams) args[cacheIndex];

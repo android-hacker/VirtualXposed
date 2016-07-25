@@ -17,17 +17,7 @@ import static android.content.pm.PackageManager.GET_DISABLED_COMPONENTS;
  *         flags, int userId)
  *
  */
-/* package */ class Hook_GetActivityInfo extends Hook<PackageManagerPatch> {
-
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_GetActivityInfo(PackageManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_GetActivityInfo extends Hook {
 
 	@Override
 	public String getName() {

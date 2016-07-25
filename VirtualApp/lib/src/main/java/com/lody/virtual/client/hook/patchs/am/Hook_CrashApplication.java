@@ -1,8 +1,8 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
-
 import com.lody.virtual.client.hook.base.Hook;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -10,16 +10,7 @@ import com.lody.virtual.client.hook.base.Hook;
  *
  * @see android.app.IActivityManager#crashApplication(int, int, String, String)
  */
-/* package */ class Hook_CrashApplication extends Hook<ActivityManagerPatch> {
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_CrashApplication(ActivityManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_CrashApplication extends Hook {
 
 	@Override
 	public String getName() {

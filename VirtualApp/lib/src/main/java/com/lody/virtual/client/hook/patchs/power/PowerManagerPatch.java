@@ -1,13 +1,14 @@
 package com.lody.virtual.client.hook.patchs.power;
 
-import com.lody.virtual.client.hook.base.HookBinder;
-import com.lody.virtual.client.hook.base.Patch;
-import com.lody.virtual.client.hook.base.PatchObject;
-import com.lody.virtual.client.hook.binders.HookPowerBinder;
-
 import android.content.Context;
 import android.os.IPowerManager;
 import android.os.ServiceManager;
+
+import com.lody.virtual.client.hook.base.HookBinder;
+import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
+import com.lody.virtual.client.hook.base.ReplaceSequencePkgHook;
+import com.lody.virtual.client.hook.binders.HookPowerBinder;
 
 /**
  * @author Lody
@@ -15,7 +16,6 @@ import android.os.ServiceManager;
  *
  * @see IPowerManager
  */
-@Patch({Hook_AcquireWakeLock.class, Hook_AcquireWakeLockWithUid.class,})
 public class PowerManagerPatch extends PatchObject<IPowerManager, HookPowerBinder> {
 
 	@Override
@@ -27,6 +27,13 @@ public class PowerManagerPatch extends PatchObject<IPowerManager, HookPowerBinde
 	public void inject() throws Throwable {
 		HookBinder<IPowerManager> hookBinder = getHookObject();
 		hookBinder.injectService(Context.POWER_SERVICE);
+	}
+
+	@Override
+	protected void applyHooks() {
+		super.applyHooks();
+		addHook(new ReplaceSequencePkgHook("acquireWakeLock", 2));
+		addHook(new ReplaceLastPkgHook("acquireWakeLockWithUid"));
 	}
 
 	@Override

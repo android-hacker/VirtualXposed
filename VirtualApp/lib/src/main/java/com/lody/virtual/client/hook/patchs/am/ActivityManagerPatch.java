@@ -38,7 +38,7 @@ import java.lang.reflect.Field;
 		Hook_BroadcastIntent.class, Hook_GetCallingPackage.class, Hook_GrantUriPermissionFromOwner.class,
 		Hook_CheckGrantUriPermission.class, Hook_GetPersistedUriPermissions.class, Hook_KillApplicationProcess.class,
 		Hook_ForceStopPackage.class, Hook_AddPackageDependency.class, Hook_UpdateDeviceOwner.class,
-		Hook_CrashApplication.class,
+		Hook_CrashApplication.class, Hook_GetPackageForToken.class,
 
 		Hook_SetPackageAskScreenCompat.class, Hook_GetPackageAskScreenCompat.class,
 		Hook_SetAppLockedVerifying.class,

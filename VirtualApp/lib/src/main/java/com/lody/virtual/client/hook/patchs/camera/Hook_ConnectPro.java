@@ -15,16 +15,8 @@ import java.lang.reflect.Method;
  *
  */
 
-public class Hook_ConnectPro extends Hook<CameraPatch> {
+public class Hook_ConnectPro extends Hook {
 
-    /**
-     * 这个构造器必须有,用于依赖注入.
-     *
-     * @param patchObject 注入对象
-     */
-    public Hook_ConnectPro(CameraPatch patchObject) {
-        super(patchObject);
-    }
 
     @Override
     public String getName() {
@@ -32,8 +24,9 @@ public class Hook_ConnectPro extends Hook<CameraPatch> {
     }
 
     @Override
-    public Object onHook(Object who, Method method, Object... args) throws Throwable {
+    public boolean beforeHook(Object who, Method method, Object... args) {
         HookUtils.replaceAppPkg(args);
-        return method.invoke(who, args);
+        return super.beforeHook(who, method, args);
     }
+
 }

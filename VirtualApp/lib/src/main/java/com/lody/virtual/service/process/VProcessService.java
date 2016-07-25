@@ -18,7 +18,7 @@ import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.MethodConstants;
 import com.lody.virtual.helper.proto.VComponentInfo;
 import com.lody.virtual.helper.utils.ComponentUtils;
-import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.IProcessManager;
 import com.lody.virtual.service.VAppService;
 import com.lody.virtual.service.am.StubInfo;
@@ -34,7 +34,8 @@ import java.util.Set;
  * @author Lody
  *
  *         <p/>
- *         维护和管理所有的插件进程，支持如下特征： 1、在插件进程创建后第一时间与PMS连接，在插件进程死亡时能够立刻知晓并采取相应措施。
+ *         维护和管理所有的插件进程，支持如下特征：
+ *         1、在插件进程创建后第一时间与PMS连接，在插件进程死亡时能够立刻知晓并采取相应措施。
  *         2、在进程剩余不多时自动杀死优先级最低的进程。
  */
 public class VProcessService extends IProcessManager.Stub {
@@ -47,8 +48,10 @@ public class VProcessService extends IProcessManager.Stub {
 
 	private final RunningAppList mRunningAppList = new RunningAppList();
 
+	private static final VProcessService sMgr = new VProcessService();
+
 	public static VProcessService getService() {
-		return AppProcessManagerHolder.sMgr;
+		return sMgr;
 	}
 
 	/**
@@ -92,7 +95,7 @@ public class VProcessService extends IProcessManager.Stub {
 
 
 	@Override
-	public boolean isAppPID(int pid) throws RemoteException {
+	public boolean isAppPid(int pid) throws RemoteException {
 		return mProcessList.containPid(pid);
 	}
 
@@ -279,19 +282,18 @@ public class VProcessService extends IProcessManager.Stub {
 			ProcessRecord record = mProcessList.getRecord(callingPid);
 			if (record == null) {
 				ProcessRecord r = newProcessRecordLocked(callingPid, uid);
-				r.updateStubProc(callingPid);
+				r.updateStubProcess(callingPid);
 				if (r.stubProcessName == null || r.stubInfo == null) {
-					XLog.e(TAG, "Unable to find stubInfo from target AppProcess(%d).", callingPid);
+					VLog.e(TAG, "Unable to find stubInfo from target AppProcess(%d).", callingPid);
 					killProcess(r);
 					return;
 				}
 				r.client = client;
 				r.appThread = appThread;
 				r.stubInfo.verify();
-//				r.appProcessName =
-				mProcessList.addRecord(callingPid, r);
+				mProcessList.addProcess(callingPid, r);
 			} else {
-				XLog.w(TAG, "Pid %d have been bound to PMS, should not be bound again, ignore.", callingPid);
+				VLog.w(TAG, "Pid %d have been bound to PMS, should not be bound again, ignored.", callingPid);
 			}
 		}
 	}
@@ -302,7 +304,7 @@ public class VProcessService extends IProcessManager.Stub {
 		if (!TextUtils.isEmpty(pkgName)) {
 			ProcessRecord r = mProcessList.getRecord(pid);
 			if (r == null) {
-				XLog.w(TAG, "Enter plugin(%d/%s) but not found in record.", pid, pkgName);
+				VLog.w(TAG, "Enter plugin(%d/%s) but not found in record.", pid, pkgName);
 				return;
 			}
 			r.addPkg(pkgName);
@@ -316,11 +318,11 @@ public class VProcessService extends IProcessManager.Stub {
 		}
 	}
 
-	public void onEnterAppProcessName(String pluginProcessName) {
+	public void onEnterAppProcessName(String appProcessName) {
 		int pid = Binder.getCallingPid();
 		ProcessRecord r = mProcessList.getRecord(pid);
 		if (r != null) {
-			r.appProcessName = pluginProcessName;
+			r.appProcessName = appProcessName;
 		}
 	}
 
@@ -332,14 +334,14 @@ public class VProcessService extends IProcessManager.Stub {
 	}
 
 	public StubInfo findStubInfo(String appProcessName) {
-		ProcessRecord r = findRecord(appProcessName);
+		ProcessRecord r = findProcess(appProcessName);
 		if (r != null) {
 			return r.stubInfo;
 		}
 		return null;
 	}
 
-	public ProcessRecord findRecord(String appProcessName) {
+	public ProcessRecord findProcess(String appProcessName) {
 		synchronized (mProcessList) {
 			for (ProcessRecord r : mProcessList.values()) {
 				if (TextUtils.equals(appProcessName, r.appProcessName)) {
@@ -372,11 +374,11 @@ public class VProcessService extends IProcessManager.Stub {
 				if (stubInfo != null) {
 					launchComponentProcess(componentInfo, stubInfo);
 				} else {
-					XLog.e(TAG, "Unable to fetch free Stub to launch Process(%s/%s).", pkg, appProcName);
+					VLog.e(TAG, "Unable to fetch free Stub to launch Process(%s/%s).", pkg, appProcName);
 				}
 			}
 		} else {
-			XLog.e(TAG, "Install Component failed, plugin %s not installed?", pkg);
+			VLog.e(TAG, "Install Component failed, plugin %s not installed?", pkg);
 		}
 	}
 
@@ -405,12 +407,9 @@ public class VProcessService extends IProcessManager.Stub {
 		return null;
 	}
 
-	public ProcessRecord findRecord(int pid) {
+	public ProcessRecord findProcess(int pid) {
 		return mProcessList.getRecord(pid);
 	}
 
-	private static final class AppProcessManagerHolder {
-		private static final VProcessService sMgr = new VProcessService();
-	}
 
 }

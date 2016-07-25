@@ -1,11 +1,5 @@
 package com.lody.virtual.helper.bundle;
 
-import java.io.File;
-import java.lang.reflect.Method;
-import java.util.HashSet;
-
-import com.lody.virtual.helper.utils.Reflect;
-
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -15,6 +9,12 @@ import android.content.pm.ProviderInfo;
 import android.content.pm.ServiceInfo;
 import android.util.ArraySet;
 import android.util.DisplayMetrics;
+
+import com.lody.virtual.helper.utils.Reflect;
+
+import java.io.File;
+import java.lang.reflect.Method;
+import java.util.HashSet;
 
 /**
  * @author Lody

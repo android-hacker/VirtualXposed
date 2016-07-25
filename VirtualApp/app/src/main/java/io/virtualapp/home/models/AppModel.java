@@ -21,6 +21,7 @@ public class AppModel implements Parcelable {
     public String path;
     public String name;
     public Drawable icon;
+    public boolean fastOpen;
 
     public AppModel() {
         //For Database
@@ -43,36 +44,6 @@ public class AppModel implements Parcelable {
     }
 
 
-    protected AppModel(Parcel in) {
-        packageName = in.readString();
-        path = in.readString();
-        name = in.readString();
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(packageName);
-        dest.writeString(path);
-        dest.writeString(name);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Creator<AppModel> CREATOR = new Creator<AppModel>() {
-        @Override
-        public AppModel createFromParcel(Parcel in) {
-            return new AppModel(in);
-        }
-
-        @Override
-        public AppModel[] newArray(int size) {
-            return new AppModel[size];
-        }
-    };
-
     public void loadData(ApplicationInfo appInfo) {
         if (appInfo == null) {
             return;
@@ -89,4 +60,35 @@ public class AppModel implements Parcelable {
         }
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.packageName);
+        dest.writeString(this.path);
+        dest.writeString(this.name);
+        dest.writeByte(this.fastOpen ? (byte) 1 : (byte) 0);
+    }
+
+    protected AppModel(Parcel in) {
+        this.packageName = in.readString();
+        this.path = in.readString();
+        this.name = in.readString();
+        this.fastOpen = in.readByte() != 0;
+    }
+
+    public static final Creator<AppModel> CREATOR = new Creator<AppModel>() {
+        @Override
+        public AppModel createFromParcel(Parcel source) {
+            return new AppModel(source);
+        }
+
+        @Override
+        public AppModel[] newArray(int size) {
+            return new AppModel[size];
+        }
+    };
 }

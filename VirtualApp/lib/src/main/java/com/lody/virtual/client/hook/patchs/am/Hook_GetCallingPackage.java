@@ -2,8 +2,8 @@ package com.lody.virtual.client.hook.patchs.am;
 
 import android.os.IBinder;
 
-import com.lody.virtual.client.core.AppSandBox;
 import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.local.LocalActivityManager;
 
 import java.lang.reflect.Method;
 
@@ -13,16 +13,7 @@ import java.lang.reflect.Method;
  *
  * @see android.app.IActivityManager#getCallingPackage(IBinder)
  */
-/* package */ class Hook_GetCallingPackage extends Hook<ActivityManagerPatch> {
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_GetCallingPackage(ActivityManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_GetCallingPackage extends Hook {
 
 	@Override
 	public String getName() {
@@ -31,7 +22,8 @@ import java.lang.reflect.Method;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		String pkg = AppSandBox.getLastPkg();
+		IBinder token = (IBinder) args[0];
+		String pkg = LocalActivityManager.getInstance().getPackageForToken(token);
 		if (pkg != null) {
 			return pkg;
 		}

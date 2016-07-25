@@ -10,7 +10,7 @@ import com.lody.virtual.client.env.RuntimeEnv;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.MethodConstants;
 import com.lody.virtual.helper.compat.BundleCompat;
-import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.ServiceCache;
 import com.lody.virtual.service.interfaces.IServiceFetcher;
 
@@ -46,7 +46,7 @@ public class ServiceManagerNative {
 			@Override
 			public void binderDied() {
 				binder.unlinkToDeath(this, 0);
-				XLog.e(TAG, "Ops, the server has crashed.");
+				VLog.e(TAG, "Ops, the server has crashed.");
 				RuntimeEnv.exit();
 			}
 		};
@@ -69,7 +69,7 @@ public class ServiceManagerNative {
 				e.printStackTrace();
 			}
 		}
-		XLog.e(TAG, "GetService(%s) return null.", name);
+		VLog.e(TAG, "GetService(%s) return null.", name);
 		return null;
 	}
 

@@ -14,16 +14,8 @@ import java.lang.reflect.Method;
  *
  */
 
-public class Hook_ClearPassword extends Hook<AccountManagerPatch> {
+public class Hook_ClearPassword extends Hook {
 
-    /**
-     * 这个构造器必须有,用于依赖注入.
-     *
-     * @param patchObject 注入对象
-     */
-    public Hook_ClearPassword(AccountManagerPatch patchObject) {
-        super(patchObject);
-    }
 
     @Override
     public String getName() {

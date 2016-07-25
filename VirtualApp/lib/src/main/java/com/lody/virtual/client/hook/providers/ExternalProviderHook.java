@@ -4,9 +4,6 @@ import android.content.IContentProvider;
 import android.net.Uri;
 import android.os.Bundle;
 
-import com.lody.virtual.client.core.AppSandBox;
-import com.lody.virtual.client.core.VirtualCore;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -41,7 +38,7 @@ public class ExternalProviderHook implements InvocationHandler {
 		});
 	}
 
-	private Object mBase;
+	protected final Object mBase;
 
 	public ExternalProviderHook(Object base) {
 		this.mBase = base;
@@ -57,14 +54,10 @@ public class ExternalProviderHook implements InvocationHandler {
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		if (args != null && args.length > 0 && args[0] instanceof String) {
-			String pkg = (String) args[0];
-			if (VirtualCore.getCore().getHostPkg().equals(pkg)) {
-				String lastPkg = AppSandBox.getLastPkg();
-				if (lastPkg != null) {
-					args[0] = lastPkg;
-				}
-			}
+		try {
+			processArgs(method, args);
+		} catch (Throwable e) {
+			e.printStackTrace();
 		}
 		try {
 			String name = method.getName();
@@ -80,5 +73,9 @@ public class ExternalProviderHook implements InvocationHandler {
 			}
 			throw e;
 		}
+	}
+
+	protected void processArgs(Method method, Object... args) {
+
 	}
 }

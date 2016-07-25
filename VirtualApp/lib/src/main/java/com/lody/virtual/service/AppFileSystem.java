@@ -39,10 +39,7 @@ public class AppFileSystem {
 	private static final String FILES_DIR_NAME = "files";
 	private static final String PLUGIN_ROOT_DIR_NAME = "VApps";
 
-	private Context context;
-
 	private AppFileSystem() {
-		context = VirtualCore.getCore().getContext();
 		File rootDir = getAppRootDir();
 		rootDir.mkdirs();
 	}
@@ -113,7 +110,7 @@ public class AppFileSystem {
 	}
 
 	public File getAppRootDir() {
-		return context.getDir(PLUGIN_ROOT_DIR_NAME, Context.MODE_PRIVATE);
+		return VirtualCore.getCore().getContext().getDir(PLUGIN_ROOT_DIR_NAME, Context.MODE_PRIVATE);
 	}
 
 	public File getAppAssetFolder(String pkgName) {

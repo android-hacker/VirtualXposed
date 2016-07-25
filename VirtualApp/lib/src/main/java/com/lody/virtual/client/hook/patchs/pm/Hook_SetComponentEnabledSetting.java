@@ -13,16 +13,7 @@ import java.lang.reflect.Method;
  *
  *
  */
-/* package */ class Hook_SetComponentEnabledSetting extends Hook<PackageManagerPatch> {
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_SetComponentEnabledSetting(PackageManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_SetComponentEnabledSetting extends Hook {
 
 	@Override
 	public String getName() {

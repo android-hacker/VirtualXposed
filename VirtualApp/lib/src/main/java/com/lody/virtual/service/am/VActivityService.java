@@ -23,6 +23,7 @@ import com.lody.virtual.helper.proto.AppTaskInfo;
 import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.VRedirectActRequest;
 import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.IActivityManager;
 import com.lody.virtual.service.process.VProcessService;
 
@@ -35,6 +36,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Lody
@@ -42,7 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class VActivityService extends IActivityManager.Stub {
 
-	private static final VActivityService gService = new VActivityService();
+	private static final AtomicReference<VActivityService> sService = new AtomicReference<>();
 	private static final String TAG = VActivityService.class.getSimpleName();
 	private final List<ActivityInfo> stubActivityList = new ArrayList<ActivityInfo>();
 
@@ -53,11 +55,17 @@ public class VActivityService extends IActivityManager.Stub {
 			.getSystemService(Context.ACTIVITY_SERVICE);
 
 	public static VActivityService getService() {
-		return gService;
+		return sService.get();
+	}
+
+	public static void systemReady(Context context) {
+		new VActivityService().onCreate(context);
 	}
 
 
+
 	public void onCreate(Context context) {
+		AttributeCache.init(context);
 		PackageManager pm = context.getPackageManager();
 		PackageInfo packageInfo = null;
 		try {
@@ -83,7 +91,12 @@ public class VActivityService extends IActivityManager.Stub {
 					stubInfo.processName = processName;
 					stubInfoMap.put(processName, stubInfo);
 				}
-				stubInfo.standardActivityInfos.add(activityInfo);
+				String name = activityInfo.name;
+				if (name.endsWith("_")) {
+					stubInfo.dialogActivityInfos.add(activityInfo);
+				} else {
+					stubInfo.standardActivityInfos.add(activityInfo);
+				}
 			}
 		}
 		ProviderInfo[] providerInfos = packageInfo.providers;
@@ -102,13 +115,14 @@ public class VActivityService extends IActivityManager.Stub {
 				}
 			}
 		}
+		sService.set(this);
 
 	}
 
 	private boolean isStubComponent(ComponentInfo componentInfo) {
 		Bundle metaData = componentInfo.metaData;
 		return metaData != null
-				&& TextUtils.equals(metaData.getString(Constants.X_META_KEY_IDENTITY), Constants.X_META_VALUE_STUB);
+				&& TextUtils.equals(metaData.getString(Constants.META_KEY_IDENTITY), Constants.META_VALUE_STUB);
 	}
 
 	public List<ActivityInfo> getStubActivityList() {
@@ -128,6 +142,7 @@ public class VActivityService extends IActivityManager.Stub {
 		if (request == null || request.targetActInfo == null) {
 			return null;
 		}
+		VLog.d(TAG, "Jump to " + request.targetActInfo.name);
 		int resultFlags = 0;
 		ActivityInfo targetActInfo = request.targetActInfo;
 		String targetProcessName = ComponentUtils.getProcessName(targetActInfo);
@@ -136,9 +151,6 @@ public class VActivityService extends IActivityManager.Stub {
 			resultFlags |= Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
 			resultFlags |= Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET;
 		}
-//		if ((request.targetFlags & Intent.FLAG_ACTIVITY_NEW_TASK) != 0) {
-//			resultFlags |= Intent.FLAG_ACTIVITY_NEW_TASK;
-//		}
 
 		StubInfo selectStubInfo = fetchRunningStubInfo(targetProcessName);
 		if (selectStubInfo == null) {
@@ -243,6 +255,15 @@ public class VActivityService extends IActivityManager.Stub {
 			if (r != null) {
 				return r.toTaskInfo();
 			}
+		}
+		return null;
+	}
+
+	@Override
+	public String getPackageForToken(IBinder token) {
+		ActivityRecord r = stack.findRecord(token);
+		if (r != null) {
+			return r.activityInfo.packageName;
 		}
 		return null;
 	}

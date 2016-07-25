@@ -16,6 +16,7 @@ import com.lody.virtual.service.account.VAccountService;
 import com.lody.virtual.service.am.VActivityService;
 import com.lody.virtual.service.am.VServiceService;
 import com.lody.virtual.service.interfaces.IServiceFetcher;
+import com.lody.virtual.service.pm.VPackageService;
 import com.lody.virtual.service.process.VProcessService;
 
 /**
@@ -34,14 +35,15 @@ public final class BinderProvider extends BaseContentProvider {
 			return true;
 		}
 		AppFileSystem.getDefault();
-		VAppService.getService().onCreate();
+		VAppService.getService().systemReady();
 		addService(ServiceManagerNative.APP_MANAGER, VAppService.getService());
 		addService(ServiceManagerNative.PROCESS_MANAGER, VProcessService.getService());
 		VPackageService.getService().onCreate(context);
 		addService(ServiceManagerNative.PACKAGE_MANAGER, VPackageService.getService());
-		VActivityService.getService().onCreate(context);
+		VActivityService.systemReady(context);
 		addService(ServiceManagerNative.ACTIVITY_MANAGER, VActivityService.getService());
 		addService(ServiceManagerNative.SERVICE_MANAGER, VServiceService.getService());
+		VContentService.systemReady(context);
 		addService(ServiceManagerNative.CONTENT_MANAGER, VContentService.getService());
 		VAccountService.systemReady(context);
 		addService(ServiceManagerNative.ACCOUNT_MANAGER, VAccountService.getSingleton());

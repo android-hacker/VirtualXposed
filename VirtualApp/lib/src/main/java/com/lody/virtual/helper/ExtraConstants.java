@@ -24,13 +24,14 @@ public class ExtraConstants {
 	public static final String EXTRA_TARGET_ACT_INFO = "V.Extra.TargetActivityInfo";
 	public static final String EXTRA_STUB_ACT_INFO = "V.Extra.StubActivityInfo";
 	public static final String EXTRA_TARGET_URI = "V.Extra.TargetUri";
-	public static final String EXTRA_SINGLE_TOKEN = "V.Extra.SingleToken";
+	public static final String EXTRA_TOKEN = "V.Extra.SingleToken";
 	public static final String EXTRA_INTENT_TYPE = "V.Extra.Type";
 	public static final String EXTRA_MESSENGER = "V.Extra.Messenger";
 
 	public static final String TYPE_INTENT_SENDER = "V.Type.IntentSender";
 	public static final java.lang.String EXTRA_PROCESS_NAME = "V.Extra.ProcessName";
-	public static final String EXTRA_WHAT = "V。Extra.What";
+	public static final String EXTRA_WHAT = "V.Extra.What";
 	public static final int WHAT_PENDING_INTENT = 5;
 
+	public static final String EXTRA_SENDER = "V.Extra.Sender";
 }

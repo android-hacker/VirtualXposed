@@ -3,6 +3,7 @@ package com.lody.virtual.client.hook.patchs.am;
 import android.app.IActivityManager;
 import android.app.IApplicationThread;
 import android.content.IContentProvider;
+import android.os.IBinder;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
@@ -16,21 +17,11 @@ import java.lang.reflect.Proxy;
  * @author Lody
  *
  *
- * @see IActivityManager#getContentProvider(IApplicationThread, String, int,
- *      boolean) 原型: public ContentProviderHolder
- *      getContentProvider(IApplicationThread caller, String name)
+ * @see IActivityManager#getContentProvider(IApplicationThread, String, int, boolean)
+ * @see IActivityManager#getContentProviderExternal(String, int, IBinder)
+ *
  */
-/* package */ class Hook_GetContentProvider extends Hook<ActivityManagerPatch> {
-
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_GetContentProvider(ActivityManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_GetContentProvider extends Hook {
 
 	@Override
 	public String getName() {

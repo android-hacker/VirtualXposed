@@ -15,7 +15,7 @@ interface IProcessManager {
 
     boolean isAppProcess(String processName);
 
-    boolean isAppPID(int pid);
+    boolean isAppPid(int pid);
 
     String getAppProcessName(int pid);
 

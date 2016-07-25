@@ -16,20 +16,17 @@ import java.util.List;
  *
  * @see android.content.pm.IPackageManager#getPackagesForUid(int)
  */
-/* package */ class Hook_GetPackagesForUid extends Hook<PackageManagerPatch> {
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_GetPackagesForUid(PackageManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_GetPackagesForUid extends Hook {
 
 	@Override
 	public String getName() {
 		return "getPackagesForUid";
+	}
+
+	@Override
+	public boolean beforeHook(Object who, Method method, Object... args) {
+		int uid = (int) args[0];
+		return uid == Process.myUid();
 	}
 
 	@Override
@@ -47,14 +44,16 @@ import java.util.List;
 			String[] pkgs = ((String[]) invokeResult);
 			Collections.addAll(originPkgs, pkgs);
 		}
+		String[] res;
 
 		if (originPkgs.size() == 1) {
-			return pluginPkgs.toArray(new String[pluginPkgs.size()]);
+			res = pluginPkgs.toArray(new String[pluginPkgs.size()]);
 		} else {
 			originPkgs.remove(getHostPkg());
 			pluginPkgs.addAll(originPkgs);
-			return pluginPkgs.toArray(new String[pluginPkgs.size()]);
+			res = pluginPkgs.toArray(new String[pluginPkgs.size()]);
 		}
+		return res;
 	}
 
 	@Override

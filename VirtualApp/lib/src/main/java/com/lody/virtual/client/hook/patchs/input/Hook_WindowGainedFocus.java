@@ -1,11 +1,11 @@
 package com.lody.virtual.client.hook.patchs.input;
 
-import java.lang.reflect.Method;
+import android.view.inputmethod.EditorInfo;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.helper.utils.ArrayIndex;
+import com.lody.virtual.helper.utils.ArrayUtils;
 
-import android.view.inputmethod.EditorInfo;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -14,19 +14,10 @@ import android.view.inputmethod.EditorInfo;
  *         原型: public InputBindResult startInput(IInputMethodClient client,
  *         IInputContext inputContext, EditorInfo attribute, int controlFlags)
  */
-/* package */ class Hook_WindowGainedFocus extends Hook<InputMethodManagerPatch> {
+/* package */ class Hook_WindowGainedFocus extends Hook {
 
 	private Boolean noEditorInfo = null;
 	private int editorInfoIndex = -1;
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_WindowGainedFocus(InputMethodManagerPatch patchObject) {
-		super(patchObject);
-	}
 
 	@Override
 	public String getName() {
@@ -36,7 +27,7 @@ import android.view.inputmethod.EditorInfo;
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		if (noEditorInfo == null) {
-			editorInfoIndex = ArrayIndex.indexOfFirst(args, EditorInfo.class);
+			editorInfoIndex = ArrayUtils.indexOfFirst(args, EditorInfo.class);
 			noEditorInfo = editorInfoIndex == -1;
 		}
 		if (!noEditorInfo) {

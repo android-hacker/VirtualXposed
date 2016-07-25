@@ -8,12 +8,14 @@ import android.os.IBinder;
 import android.os.IInterface;
 import android.os.RemoteException;
 
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.binders.StubBinder;
-import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,7 +52,7 @@ class ServiceConnectionImpl extends IServiceConnection.Stub {
             }
         }
         stringBuilder.append(")");
-        XLog.d("Hook-SecondaryService", stringBuilder.toString());
+        VLog.d("Hook-SecondaryService", stringBuilder.toString());
     }
 
 	static {
@@ -98,7 +100,6 @@ class ServiceConnectionImpl extends IServiceConnection.Stub {
                                 if (args != null && args.length > 0) {
                                     dumpCallingInfo(false, method, args);
                                 }
-
                                 return method.invoke(base, args);
                             }
                         };
@@ -120,13 +121,16 @@ class ServiceConnectionImpl extends IServiceConnection.Stub {
                                 dumpCallingInfo(false, method, args);
 								if (args != null && args.length > 0) {
 									String name = args[args.length - 1].getClass().getName();
-                                    if ("com.google.android.gms.common.internal.GetServiceRequest".equals(name) || "com.google.android.gms.common.internal.ValidateAccountRequest".equals(name)) {
+                                    if ("com.google.android.gms.common.internal.GetServiceRequest".equals(name)
+                                            || "com.google.android.gms.common.internal.ValidateAccountRequest".equals(name)) {
                                         args[args.length - 1] = modifyObject(args[args.length - 1]);
                                     }
+                                    String hostPkg = VirtualCore.getCore().getHostPkg();
+                                    String pkg = context.getPackageName();
                                     int i = 0;
                                     while (i < args.length) {
-                                        if ((args[i] instanceof String) && context.getPackageName().equals(args[i])) {
-                                            args[i] = context.getPackageName();
+                                        if ((args[i] instanceof String) && hostPkg.equals(args[i])) {
+                                            args[i] = pkg;
                                         }
                                         i++;
                                     }
@@ -140,7 +144,7 @@ class ServiceConnectionImpl extends IServiceConnection.Stub {
                     private Object modifyObject(Object object) {
                         for (Field field : object.getClass().getDeclaredFields()) {
                             field.setAccessible(true);
-                            if ((field.getModifiers() & 8) == 0) {
+                            if ((field.getModifiers() & Modifier.STATIC) == 0) {
                                 try {
                                     if (field.get(object) instanceof String) {
                                         field.set(object, context.getPackageName());
@@ -168,7 +172,7 @@ class ServiceConnectionImpl extends IServiceConnection.Stub {
 	@Override
 	public void connected(ComponentName component, IBinder binder) throws RemoteException {
         String description = binder.getInterfaceDescriptor();
-		XLog.d(TAG, "Connect service %s / %s.", component.toShortString(), description);
+		VLog.d(TAG, "Connect service %s / %s.", component.toShortString(), description);
         ServiceFetcher fetcher = sHookSecondaryServiceMap.get(description);
         if (fetcher != null) {
             IBinder res = fetcher.getService(mContext, mContext.getClassLoader(), binder);

@@ -8,28 +8,39 @@ import com.lody.virtual.client.stub.ShortcutHandleActivity;
  */
 public class Constants {
 
-	public static final String X_META_KEY_IDENTITY = "X-Identity";
+	public static final String META_KEY_IDENTITY = "X-Identity";
 
-	public static final String X_META_VALUE_STUB = "Stub-User";
+	public static final String META_VALUE_STUB = "Stub-User";
 
 	/**
-	 * 服务端进程名
+	 * Server process name of VA
 	 */
 	public static final String SERVER_PROCESS_NAME = ":x";
 	/**
-	 * PendingIntent代理广播的Action
-	 */
-	public static final String ACTION_DELEGATE_PENDING_INTENT = "com.lody.virtual.action.DELEGATE_PENDING_INTENT";
-	/**
-	 * 安装Shortcut的广播
+	 * Install shortcut action
 	 */
 	public static final String ACTION_INSTALL_SHORTCUT = "com.android.launcher.action.INSTALL_SHORTCUT";
 	/**
-	 * 卸载Shortcut的广播
+	 * Uninstall shortcut action
 	 */
 	public static final String ACTION_UNINSTALL_SHORTCUT = "com.android.launcher.action.UNINSTALL_SHORTCUT";
+
+	/**
+	 * The activity who handle the shortcut.
+	 */
 	public static String SHORTCUT_PROXY_ACTIVITY_NAME = ShortcutHandleActivity.class.getName();
 
-	public static final String GMS_PKG = "com.google.android.gms";
-	public static final String GOOGLE_PLAY_STORE_PKG = "com.android.vending";
+	/**
+	 * Package name of System-UI.apk
+	 */
+    public static final String SYSTEM_UI_PKG = "com.android.systemui";
+
+	/**
+	 * If an apk declared the "fake-signature" attribute on its Application TAG,
+	 * we will use its signature instead of the real signature.
+	 *
+	 * For more detail, please see :
+	 * https://github.com/microg/android_packages_apps_GmsCore/blob/master/patches/android_frameworks_base-M.patch.
+	 */
+	public static final String FEATURE_FAKE_SIGNATURE = "fake-signature";
 }

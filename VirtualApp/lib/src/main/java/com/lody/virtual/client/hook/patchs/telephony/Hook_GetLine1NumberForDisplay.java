@@ -1,9 +1,9 @@
 package com.lody.virtual.client.hook.patchs.telephony;
 
-import java.lang.reflect.Method;
-
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -11,16 +11,7 @@ import com.lody.virtual.client.hook.base.Hook;
  *      String)
  */
 
-/* package */ class Hook_GetLine1NumberForDisplay extends Hook<TelephonyPatch> {
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_GetLine1NumberForDisplay(TelephonyPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_GetLine1NumberForDisplay extends Hook {
 
 	@Override
 	public String getName() {

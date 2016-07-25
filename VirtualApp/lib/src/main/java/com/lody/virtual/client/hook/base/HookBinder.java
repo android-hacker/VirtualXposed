@@ -10,7 +10,7 @@ import android.os.ServiceManager;
 import android.text.TextUtils;
 
 import com.lody.virtual.client.interfaces.IHookObject;
-import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.io.FileDescriptor;
 import java.lang.reflect.Field;
@@ -129,7 +129,6 @@ public abstract class HookBinder<Interface extends IInterface> implements IHookO
 			sCache.remove(name);
 			sCache.put(name, this);
 		} else {
-			// 不会发生
 			throw new IllegalStateException("ServiceManager is invisible.");
 		}
 	}
@@ -152,7 +151,7 @@ public abstract class HookBinder<Interface extends IInterface> implements IHookO
 	public void addHook(Hook hook) {
 		if (hook != null && !TextUtils.isEmpty(hook.getName())) {
 			if (internalHookMapping.containsKey(hook.getName())) {
-				XLog.w(TAG, "Hook(%s) from class(%s) have been added, should not be add again.", hook.getName(),
+				VLog.w(TAG, "Hook(%s) from class(%s) have been added, should not be add again.", hook.getName(),
 						hook.getClass().getName());
 			}
 			internalHookMapping.put(hook.getName(), hook);
@@ -237,7 +236,11 @@ public abstract class HookBinder<Interface extends IInterface> implements IHookO
 			Hook hook = getHook(method.getName());
 			try {
 				if (hook != null && hook.isEnable()) {
-					return hook.onHook(mBaseObject, method, args);
+					if (hook.beforeHook(mBaseObject, method, args)) {
+						Object res = hook.onHook(mBaseObject, method, args);
+						res = hook.afterHook(mBaseObject, method, args, res);
+						return res;
+					}
 				}
 				return method.invoke(mBaseObject, args);
 			} catch (Throwable e) {

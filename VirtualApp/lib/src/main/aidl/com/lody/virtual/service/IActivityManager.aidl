@@ -19,4 +19,6 @@ interface IActivityManager {
     ActivityInfo getCallingActivity(in IBinder token);
 
     AppTaskInfo getTaskInfo(int taskId);
+
+    String getPackageForToken(in IBinder token);
 }

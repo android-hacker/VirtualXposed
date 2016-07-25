@@ -7,6 +7,7 @@ import android.widget.Toast;
 import com.lody.virtual.client.hook.base.HookObject;
 import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
 
 import java.lang.reflect.Field;
 
@@ -30,6 +31,12 @@ public class NotificationManagerPatch extends PatchObject<INotificationManager, 
 	@Override
 	protected HookObject<INotificationManager> initHookObject() {
 		return new HookObject<INotificationManager>(getNM());
+	}
+
+	@Override
+	protected void applyHooks() {
+		super.applyHooks();
+		addHook(new ReplaceCallingPkgHook("removeEdgeNotification"));
 	}
 
 	@Override

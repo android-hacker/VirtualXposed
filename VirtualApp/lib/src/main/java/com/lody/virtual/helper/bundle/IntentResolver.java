@@ -501,7 +501,9 @@ public class IntentResolver {
 						ActivityInfo flagActivityInfo = packageParser
 								.getActivityInfo(new ComponentName(activityInfo.packageName, activityInfo.name), flags);
 						ResolveInfo resolveInfo = newResolveInfo(flagActivityInfo, new IntentFilter());
-						resolveInfo.match = PackageManager.MATCH_ALL;
+						if (VERSION.SDK_INT >= VERSION_CODES.M) {
+							resolveInfo.match = PackageManager.MATCH_ALL;
+						}
 						resolveInfo.isDefault = true;
 						outList.add(resolveInfo);
 					}

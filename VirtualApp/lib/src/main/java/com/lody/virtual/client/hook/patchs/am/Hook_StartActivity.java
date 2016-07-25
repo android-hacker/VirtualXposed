@@ -11,7 +11,7 @@ import com.lody.virtual.client.local.LocalActivityManager;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.VRedirectActRequest;
-import com.lody.virtual.helper.utils.ArrayIndex;
+import com.lody.virtual.helper.utils.ArrayUtils;
 import com.lody.virtual.helper.utils.ComponentUtils;
 
 import java.lang.reflect.Method;
@@ -20,17 +20,7 @@ import java.lang.reflect.Method;
  * @author Lody
  *
  */
-/* package */ class Hook_StartActivity extends Hook<ActivityManagerPatch> {
-
-	/**
-	 * 这个构造器必须有,用于依赖注入.
-	 *
-	 * @param patchObject
-	 *            注入对象
-	 */
-	public Hook_StartActivity(ActivityManagerPatch patchObject) {
-		super(patchObject);
-	}
+/* package */ class Hook_StartActivity extends Hook {
 
 	@Override
 	public String getName() {
@@ -39,7 +29,7 @@ import java.lang.reflect.Method;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		int intentIndex = ArrayIndex.indexOfFirst(args, Intent.class);
+		int intentIndex = ArrayUtils.indexOfFirst(args, Intent.class);
 		int resultToIndex;
 		if (Build.VERSION.SDK_INT <= 15) {
 			resultToIndex = 5;

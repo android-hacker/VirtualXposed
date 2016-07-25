@@ -9,9 +9,12 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.proto.AppInfo;
 import com.melnykov.fab.FloatingActionButton;
+import com.umeng.analytics.MobclickAgent;
 
 import java.util.List;
 
@@ -28,7 +31,7 @@ import io.virtualapp.widgets.showcase.MaterialShowcaseView;
 /**
  * @author Lody
  */
-public class HomeActivity extends VActivity implements HomeContract.HomeView  {
+public class HomeActivity extends VActivity implements HomeContract.HomeView {
 
     private HomeContract.HomePresenter mPresenter;
 
@@ -41,6 +44,11 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView  {
     private ExplosionField mExplosionField;
 
     private LaunchpadAdapter mAdapter;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
 
     public static void goHome(Context context) {
@@ -83,8 +91,39 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView  {
             mAppFab.getLocationInWindow(location);
             mPagerView.setBottomLine(location[1]);
         });
+
+        //友盟统计 modify by young
+        MobclickAgent.setDebugMode(true);
+        // SD
+        // K在统计Fragment时，需要关闭Activity自带的页面统计，
+        // 然后在每个页面中重新集成页面统计的代码(包括调用了 onResume 和 onPause 的Activity)。
+        MobclickAgent.openActivityDurationTrack(false);
+        // MobclickAgent.setAutoLocation(true);
+        // MobclickAgent.setSessionContinueMillis(1000);
+        // MobclickAgent.startWithConfigure(
+        // new UMAnalyticsConfig(mContext, "4f83c5d852701564c0000011", "Umeng", EScenarioType.E_UM_NORMAL));
+        MobclickAgent.setScenarioType(this, MobclickAgent.EScenarioType.E_UM_NORMAL);
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+
+        /**
+         * 事件统计
+         */
+        MobclickAgent.onEvent(this, "Hook", "xxxxxxxxxx");//Hook是标签，xxx是value
+
     }
 
+
+    String TAG = "HomeActivity";
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        MobclickAgent.onPageStart(TAG);
+        MobclickAgent.onResume(this);
+        ;
+    }
 
     @Override
     public void setPresenter(HomeContract.HomePresenter presenter) {
@@ -144,12 +183,10 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView  {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        if (mOpeningAppDialog != null && mOpeningAppDialog.isShowing()) {
-            mOpeningAppDialog.dismiss();
-            mOpeningAppDialog = null;
-        }
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd(TAG);
+        MobclickAgent.onPause(this);
     }
 
     @Override
@@ -192,5 +229,10 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView  {
                 });
             }
         }
+    }
+    
+    @Override
+    public void onStart() {
+        super.onStart();
     }
 }

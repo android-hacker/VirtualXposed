@@ -1,5 +1,7 @@
 package com.lody.virtual.client.env;
 
+import android.app.Instrumentation;
+import android.content.ComponentName;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
@@ -7,9 +9,10 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.compat.AppBindDataCompat;
+import com.lody.virtual.helper.compat.VMRuntimeCompat;
 import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.utils.Reflect;
-import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.helper.utils.VLog;
 
 /**
  * @author Lody
@@ -19,7 +22,7 @@ import com.lody.virtual.helper.utils.XLog;
  */
 public class RuntimeEnv {
 
-	/* package */ static Handler sUIHandler = null;
+	private static Handler sUIHandler = null;
 
 	private static String sCurrentProcessName;
 
@@ -38,15 +41,18 @@ public class RuntimeEnv {
 		sCurrentProcessName = processName;
 		Process.setArgV0(processName);
 		try {
-			// NOTE: 部分App,例如:支付宝, 会反射获取DdmHandleAppName.mAppName来直接拿到进程名
+			// NOTE:
+			// 部分App,例如 支付宝, 会反射获取DdmHandleAppName.mAppName来直接拿到进程名
 			Reflect.on("android.ddm.DdmHandleAppName").set("mAppName", processName);
 		} catch (Throwable e) {
 			// Ignore
 		}
+		VMRuntimeCompat.registerAppInfo(appInfo.packageName, appInfo.dataDir, processName);
 		VirtualCore.getCore().notifyOnEnterAppProcessName(sCurrentProcessName);
 		AppBindDataCompat dataMirror = new AppBindDataCompat(VirtualCore.getHostBindData());
 		dataMirror.setAppInfo(appInfo.applicationInfo);
 		dataMirror.setInfo(appInfo.getLoadedApk());
+		dataMirror.setInstrumentationName(new ComponentName(appInfo.packageName, Instrumentation.class.getName()));
 		dataMirror.setProcessName(processName);
 	}
 
@@ -59,13 +65,12 @@ public class RuntimeEnv {
 
 	public static <T> T crash(RemoteException e) throws RuntimeException {
 		e.printStackTrace();
-		// 服务端挂了, 客户端活着也没用了...
-		 Process.killProcess(Process.myPid());
+		exit();
 		throw new RuntimeException(e);
 	}
 
 	public static void exit() {
-		XLog.d(RuntimeEnv.class.getSimpleName(), "Exit Process : " + VirtualCore.getCore().getProcessName());
+		VLog.d(RuntimeEnv.class.getSimpleName(), "Exit Process : " + VirtualCore.getCore().getProcessName());
 		Process.killProcess(Process.myPid());
 		System.exit(0);
 	}

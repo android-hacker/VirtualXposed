@@ -113,6 +113,16 @@ public abstract class StubContentProvider extends BaseContentProvider {
 			}
 			return 0;
 		}
+
+		public IBinder handlePeekService(ServiceInfo serviceInfo) {
+			AppInfo appInfo = VirtualCore.getCore().findApp(serviceInfo.packageName);
+			if (appInfo == null) {
+				return null;
+			}
+			return ServiceEnv.getEnv().handlePeekService(serviceInfo);
+		}
+
+
 	}
 
 	public static class C0 extends StubContentProvider {

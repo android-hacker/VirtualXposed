@@ -18,9 +18,9 @@ import com.lody.virtual.client.service.ProviderCaller;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.MethodConstants;
 import com.lody.virtual.helper.compat.BundleCompat;
-import com.lody.virtual.helper.utils.XLog;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.IServiceManager;
-import com.lody.virtual.service.VPackageService;
+import com.lody.virtual.service.pm.VPackageService;
 import com.lody.virtual.service.interfaces.IServiceEnvironment;
 
 import java.util.Map;
@@ -36,7 +36,7 @@ public class VServiceService extends IServiceManager.Stub {
 
 	private static final VServiceService sService = new VServiceService();
 
-	private Map<IBinder, ServiceRecord> serviceConnectionMap = new ConcurrentHashMap<IBinder, ServiceRecord>();
+	private Map<IBinder, ServiceRecord> serviceConnectionMap = new ConcurrentHashMap<>();
 
 	private class ServiceRecord {
 		IBinder connection;
@@ -77,7 +77,7 @@ public class VServiceService extends IServiceManager.Stub {
 		return null;
 	}
 
-	private IServiceEnvironment getServiceEnvironment(ServiceInfo serviceInfo, ProviderInfo serviceEnv) {
+	private IServiceEnvironment getServiceEnvironment(ProviderInfo serviceEnv) {
 		Context context = VirtualCore.getCore().getContext();
 		Bundle bundle = new ProviderCaller.Builder(context, serviceEnv.authority)
 				.methodName(MethodConstants.GET_SERVICE_RUNTIME)
@@ -86,7 +86,7 @@ public class VServiceService extends IServiceManager.Stub {
 			IBinder binder = BundleCompat.getBinder(bundle, ExtraConstants.EXTRA_BINDER);
 			IServiceEnvironment env = IServiceEnvironment.Stub.asInterface(binder);
 			if (env == null) {
-				XLog.e(TAG, "Unable to fetch ServiceEnvironment for client(%s)", serviceEnv.authority);
+				VLog.e(TAG, "Unable to fetch ServiceEnvironment for client(%s)", serviceEnv.authority);
 			}
 			return env;
 		}
@@ -100,7 +100,7 @@ public class VServiceService extends IServiceManager.Stub {
 		}
 		ProviderInfo serviceEnv = VActivityService.getService().fetchServiceRuntime(serviceInfo);
 		if (serviceEnv != null) {
-			IServiceEnvironment environment = getServiceEnvironment(serviceInfo, serviceEnv);
+			IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
 			if (environment == null) {
 				return service.getComponent();
 			}
@@ -123,7 +123,7 @@ public class VServiceService extends IServiceManager.Stub {
 		if (serviceEnv == null) {
 			return 0;
 		}
-		IServiceEnvironment environment = getServiceEnvironment(serviceInfo, serviceEnv);
+		IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
 		if (environment == null) {
 			return 0;
 		}
@@ -145,7 +145,7 @@ public class VServiceService extends IServiceManager.Stub {
 			if (serviceEnv == null) {
 				return false;
 			}
-			IServiceEnvironment environment = getServiceEnvironment(serviceInfo, serviceEnv);
+			IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
 			if (environment == null) {
 				return false;
 			}
@@ -159,9 +159,20 @@ public class VServiceService extends IServiceManager.Stub {
 	}
 
 	public IBinder peekService(Intent service, String resolvedType) {
+		ServiceInfo serviceInfo = getServiceInfo(service);
+		if (serviceInfo == null) {
+			return null;
+		}
+		ProviderInfo serviceEnv = VActivityService.getService().fetchRunningServiceRuntime(serviceInfo);
+		if (serviceEnv == null) {
+			return null;
+		}
+		IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
+		if (environment == null) {
+			return null;
+		}
 		try {
-			return ActivityManagerNative.getDefault().peekService(service, null,
-					VirtualCore.getCore().getHostPkg());
+			return environment.handlePeekService(serviceInfo);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -186,7 +197,7 @@ public class VServiceService extends IServiceManager.Stub {
 		}
 		ProviderInfo serviceEnv = VActivityService.getService().fetchServiceRuntime(serviceInfo);
 		if (serviceEnv != null) {
-			IServiceEnvironment environment = getServiceEnvironment(serviceInfo, serviceEnv);
+			IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
 			if (environment == null) {
 				return result;
 			}
@@ -231,7 +242,7 @@ public class VServiceService extends IServiceManager.Stub {
 		if (serviceEnv == null) {
 			return false;
 		}
-		IServiceEnvironment serviceEnvironment = getServiceEnvironment(serviceInfo, serviceEnv);
+		IServiceEnvironment serviceEnvironment = getServiceEnvironment(serviceEnv);
 		if (serviceEnvironment == null) {
 			return false;
 		}
@@ -245,12 +256,12 @@ public class VServiceService extends IServiceManager.Stub {
 
 	@Override
 	public void unbindFinished(IBinder token, Intent service, boolean doRebind) throws RemoteException {
-
+		// nothing to do
 	}
 
 	@Override
 	public void serviceDoneExecuting(IBinder token, int type, int startId, int res) throws RemoteException {
-
+		// nothing to do
 	}
 
 	public void processDied(int pid) {
