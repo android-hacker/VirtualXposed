@@ -24,4 +24,9 @@ import java.lang.reflect.Method;
 		String pkgName = (String) args[1];
 		return LocalPackageManager.getInstance().checkPermission(permName, pkgName);
 	}
+
+	@Override
+	public boolean isEnable() {
+		return false;
+	}
 }
