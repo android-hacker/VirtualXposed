@@ -24,28 +24,30 @@ static inline void hook_template(const char *lib_so, const char *symbol, void *n
 }
 
 
+
+
+static inline bool startWith(const std::string &str, const std::string &prefix)
+{
+    return str.find(prefix) == 0;
+}
+
+
+static inline bool endWith(const std::string &str, const char &suffix) {
+    return *(str.end() - 1) == suffix;
+}
+
 static void add_pair(const char *_orig_path, const char *_new_path) {
     std::string origPath = std::string(_orig_path);
     std::string newPath = std::string(_new_path);
     IORedirectMap.insert(std::pair<std::string, std::string>(origPath, newPath));
-    RootIORedirectMap.insert(
-        std::pair<std::string, std::string>(
-         origPath.substr(0, origPath.length() - 1),
-         newPath.substr(0, newPath.length() - 1))
-         );
+    if (endWith(origPath, '/')) {
+        RootIORedirectMap.insert(
+                std::pair<std::string, std::string>(
+                        origPath.substr(0, origPath.length() - 1),
+                        newPath.substr(0, newPath.length() - 1))
+        );
+    }
 }
-
-
-bool startWith(const std::string &str, const std::string &prefix)
-{
-    return str.find(prefix) == 0 ? true : false;
-}
-
-
-bool endWith(const std::string &str, const char &suffix) {
-    return *(str.end() - 1) == suffix;
-}
-
 
 
 const char *match_redirected_path(const char *_path) {
