@@ -56,7 +56,7 @@ const char *match_redirected_path(const char *path) {
         }
 
         int lastIndex = k_org_path.rfind('/');
-        if (lastIndex == len - 1) {
+        if (lastIndex > 0 && lastIndex == len - 1) {
             _path = k_org_path.substr(0, len - 1).c_str();
         }
         if (_path != NULL && strcmp(path, _path) == 0) {
