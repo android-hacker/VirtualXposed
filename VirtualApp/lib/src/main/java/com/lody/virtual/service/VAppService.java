@@ -86,6 +86,9 @@ public class VAppService extends IAppManager.Stub {
 			File apkFile = new File(apkPath);
 			APKBundle bundle = new APKBundle(apkFile);
 			AppInfo appInfo = bundle.getAppInfo();
+			if (!AppFileSystem.getDefault().getAppApkFile(appInfo.packageName).exists()) {
+				appInfo.dependSystem = true;
+			}
 			addAppLocked(bundle, appInfo, true, true);
 			return true;
 		} catch (Throwable e) {
