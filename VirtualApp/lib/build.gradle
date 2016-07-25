@@ -9,6 +9,13 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
+        ndk {
+            moduleName "iohook"
+            cFlags '-std=c++11 -fexceptions -frtti -fpermissive'
+            stl "gnustl_static"
+            ldLibs "log"
+            abiFilters "armeabi"//, "x86"
+        }
     }
     buildTypes {
         release {
