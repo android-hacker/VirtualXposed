@@ -27,16 +27,22 @@ static void add_pair(const char *org_path, const char *new_path) {
     IORedirectMap.insert(std::pair<std::string, std::string>(std::string(org_path), std::string(new_path)));
 }
 
-static bool start_with(const char *str, std::string prefix, size_t len) {
-    LOGE("%s", str);
-    if (str == NULL || prefix.c_str() == NULL || len <= 0) {
+// path.startWith(org_path)
+static bool start_with(const char *path, std::string org_prefix, size_t len) {
+    LOGE("%s", path);
+    if (path == NULL || org_prefix.c_str() == NULL || len <= 0) {
         return false;
     }
-    LOGE("%s", str);
-    return strncmp(str, prefix.c_str(), len) == 0;
+    return strncmp(path, org_prefix.c_str(), len) == 0;
 }
 
+// case1.  redirect org: /sdcard  to new: /sdcard/dir1, then /sdcard/ match /sdcard == 'false' !
+// case2.  redirect org: /sdcard   to new: /sdcard/dir1 , then /sdcard2 match /sdcard/dir1/ == '?' !
+// caseall. match /sdcard & /sdcard/ but don't match /sdcarddddd
+
 const char *match_redirected_path(const char *path) {
+
+    const char* _path = NULL;
     const char *redirect_path = NULL;
     std::map<std::string, std::string>::iterator iterator;
     for (iterator = IORedirectMap.begin(); iterator != IORedirectMap.end(); iterator++) {
@@ -44,7 +50,19 @@ const char *match_redirected_path(const char *path) {
         std::string v_new_path = iterator->second;
         const char *v_org = k_org_path.c_str();
         unsigned int len = strlen(v_org);
-        if (len > 0 && start_with(path, k_org_path, (size_t) len)) {
+
+        if (len <= 0) {
+            continue;
+        }
+
+        int lastIndex = k_org_path.rfind('/');
+        if (lastIndex == len - 1) {
+            _path = k_org_path.substr(0, len - 1).c_str();
+        }
+        if (_path != NULL && strcmp(path, _path) == 0) {
+            return v_new_path.c_str();
+        }
+        if (start_with(path, k_org_path, (size_t) len)) {
             std::string newPath = std::string(path);
             newPath.replace(0, len, v_new_path.c_str());
             const char *str = newPath.c_str();
@@ -456,55 +474,60 @@ __END_DECLS
 
 
 
-void HOOK::hook() {
+void HOOK::hook(int api_level) {
     LOGI("Begin IO hooks...");
 
     if (true) {
         //通用型
         HOOK_IO(__getcwd);
-        HOOK_IO(__statfs64);
-        HOOK_IO(access);
-        HOOK_IO(chmod);
-        HOOK_IO(lchown);
         HOOK_IO(chdir);
-        HOOK_IO(rmdir);
-        HOOK_IO(chroot);
         HOOK_IO(truncate);
+        HOOK_IO(__statfs64);
+
+        HOOK_IO(lchown);
+
+        HOOK_IO(chroot);
         HOOK_IO(truncate64);
-        HOOK_IO(faccessat);
-        HOOK_IO(execve);
+//        HOOK_IO(execve);
+//        HOOK_IO(fork);
+//        HOOK_IO(vfork);
     }
-    if (true) {
+    if (api_level < ANDROID_L) {
         //xxx型
-        HOOK_IO(__open);
 //        HOOK_IO(fchmod);
-        HOOK_IO(chown);
-        HOOK_IO(stat);
 //        HOOK_IO(fstat);
-        HOOK_IO(mkdir);
-        HOOK_IO(rename);
-//        HOOK_IO(unlink); // samsung 6.0.1 64 跪了
-        HOOK_IO(readlink);
-//        HOOK_IO(symlink);
         HOOK_IO(link);
+        HOOK_IO(symlink);
+        HOOK_IO(readlink);
+        HOOK_IO(unlink);
+        HOOK_IO(rmdir);
+        HOOK_IO(rename);
+        HOOK_IO(mkdir);
+        HOOK_IO(stat);
+        HOOK_IO(lstat);
+        HOOK_IO(chown);
+        HOOK_IO(chmod);
+        HOOK_IO(access);
         HOOK_IO(utimes);
+        HOOK_IO(__open);
         HOOK_IO(mknod);
     }
-    if (true) {
+
+    if (api_level >= ANDROID_L) {
         ///xxxat型
-        HOOK_IO(__openat);
-        HOOK_IO(fchmodat);
-        HOOK_IO(fchownat);
-        HOOK_IO(lstat);
-        HOOK_IO(fstatat);
-        HOOK_IO(mkdirat);
-        HOOK_IO(renameat);
-        HOOK_IO(unlinkat);
-        HOOK_IO(readlinkat);
-        HOOK_IO(symlinkat);
         HOOK_IO(linkat);
+        HOOK_IO(symlinkat);
+        HOOK_IO(readlinkat);
+        HOOK_IO(unlinkat);
+        HOOK_IO(renameat);
+        HOOK_IO(mkdirat);
+        HOOK_IO(fchownat);
         HOOK_IO(utimensat);
+        HOOK_IO(__openat);
         HOOK_IO(mknodat);
+        HOOK_IO(fstatat);
+        HOOK_IO(fchmodat);
+        HOOK_IO(faccessat);
     }
 
     LOGI("End IO hooks SUCCESS!!!");

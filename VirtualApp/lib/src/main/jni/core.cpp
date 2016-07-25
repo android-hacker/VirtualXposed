@@ -4,12 +4,12 @@
 #include "core.h"
 
 
-void hook(JNIEnv *env, jclass jclazz) {
+void hook(JNIEnv *env, jclass jclazz, jint apiLevel) {
     static bool hasHooked = false;
     if (hasHooked) {
         return;
     }
-    HOOK::hook();
+    HOOK::hook(apiLevel);
     hasHooked = true;
 }
 
@@ -33,11 +33,11 @@ jstring restore(JNIEnv *env, jclass jclazz, jstring redirectedPath) {
 
 
 static JNINativeMethod gMethods[] = {
-        NATIVE_METHOD((void *) redirect, "redirect", "(Ljava/lang/String;Ljava/lang/String;)V"),
-        NATIVE_METHOD((void *) hook, "hook", "()V"),
+        NATIVE_METHOD((void *) redirect, "nativeRedirect", "(Ljava/lang/String;Ljava/lang/String;)V"),
+        NATIVE_METHOD((void *) hook,     "nativeHook",     "(I)V"),
         //...hum
-        NATIVE_METHOD((void *) query,   "getRedirectedPath",     "(Ljava/lang/String;)Ljava/lang/String;"),
-        NATIVE_METHOD((void *) restore, "restoreRedirectedPath", "(Ljava/lang/String;)Ljava/lang/String;"),
+        NATIVE_METHOD((void *) query,    "nativeGetRedirectedPath",     "(Ljava/lang/String;)Ljava/lang/String;"),
+        NATIVE_METHOD((void *) restore,  "nativeRestoreRedirectedPath", "(Ljava/lang/String;)Ljava/lang/String;"),
 //        NATIVE_METHOD((void *) reject,  "rejectPath",             "(Ljava/lang/String;)V"),
 };
 

@@ -39,7 +39,7 @@ extern "C" SubstrateMemoryRef SubstrateMemoryCreate(
 	if (size == 0)
 		return NULL;
 
-	int page(getpagesize());
+	int page(PAGE_SIZE/*getpagesize()*/);
 
 	uintptr_t base(reinterpret_cast<uintptr_t>(data) / page * page);
 	size_t width(

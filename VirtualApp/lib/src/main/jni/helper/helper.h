@@ -21,4 +21,7 @@
 
 #define JAVA_CLASS "com/lody/virtual/IOHook"
 
+#define ANDROID_L    21
+
+
 #endif //NDK_LOG_H

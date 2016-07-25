@@ -26,7 +26,7 @@
 
 
 namespace HOOK {
-    void hook();
+    void hook(int api_level);
 
     void redirect(const char*org_path, const char*new_path);
 
