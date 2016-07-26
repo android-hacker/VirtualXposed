@@ -101,6 +101,10 @@ public class AppSandBox {
 		if (appInfo == null) {
 			return;
 		}
+//		ADD: Virtual SD Card 
+//		IOHook.redirect("/sdcard/", "/sdcard/1/");
+//		IOHook.redirect("/storage/emulated/0/", "/storage/emulated/0/1/");
+//		IOHook.hook();
 		ApplicationInfo applicationInfo = appInfo.applicationInfo;
 		RuntimeEnv.setCurrentProcessName(procName, appInfo);
 
@@ -128,7 +132,11 @@ public class AppSandBox {
 		Reflect.on(VirtualCore.mainThread()).set("mInitialApplication", app);
 		ContextFixer.fixContext(app.getBaseContext());
 		if (providers != null) {
-			ActivityThreadCompat.installContentProviders(app, providers);
+			try {
+				ActivityThreadCompat.installContentProviders(app, providers);
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
 		}
 		VirtualCore.mainThread().getInstrumentation().callApplicationOnCreate(app);
 		LocalPackageManager pm = LocalPackageManager.getInstance();

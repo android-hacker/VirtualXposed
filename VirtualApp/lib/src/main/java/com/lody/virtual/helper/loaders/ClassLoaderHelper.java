@@ -2,6 +2,9 @@ package com.lody.virtual.helper.loaders;
 
 import com.lody.virtual.helper.proto.AppInfo;
 
+import java.io.File;
+import java.util.Arrays;
+
 import dalvik.system.PathClassLoader;
 
 /**
@@ -15,7 +18,11 @@ public class ClassLoaderHelper {
             return new PathClassLoader(appInfo.apkPath, appInfo.libDir, getRoot());
         } else {
             PathClassLoader classLoader = new PathClassLoader(".", appInfo.libDir, getRoot());
-            ClassLoaderInjectHelper.inject(classLoader, new DexAppClassLoader(appInfo));
+            try {
+                ClassLoaderInjectHelper.installDexes(classLoader, new File(appInfo.odexDir), Arrays.asList(new File(appInfo.apkPath)));
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
             return classLoader;
         }
     }
