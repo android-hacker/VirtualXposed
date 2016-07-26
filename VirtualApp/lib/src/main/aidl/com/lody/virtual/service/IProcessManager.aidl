@@ -2,6 +2,7 @@
 package com.lody.virtual.service;
 
 import com.lody.virtual.helper.proto.VComponentInfo;
+import com.lody.virtual.service.interfaces.IProcessObserver;
 
 interface IProcessManager {
 
@@ -29,6 +30,9 @@ interface IProcessManager {
 
     void dump();
 
+    void registerProcessObserver(in IProcessObserver observer);
+
+    void unregisterProcessObserver(in IProcessObserver observer);
 
 
 }
