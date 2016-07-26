@@ -8,6 +8,7 @@ import android.content.pm.ProviderInfo;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.Process;
+import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.text.TextUtils;
 
@@ -24,6 +25,7 @@ import com.lody.virtual.service.VAppService;
 import com.lody.virtual.service.am.StubInfo;
 import com.lody.virtual.service.am.VActivityService;
 import com.lody.virtual.service.am.VServiceService;
+import com.lody.virtual.service.interfaces.IProcessObserver;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,6 +47,8 @@ public class VProcessService extends IProcessManager.Stub {
 	private final char[] mProcessLock = new char[0];
 
 	private final ProcessList mProcessList = new ProcessList();
+
+	private RemoteCallbackList<IProcessObserver> mObserverList = new RemoteCallbackList<>();
 
 	private final RunningAppList mRunningAppList = new RunningAppList();
 
@@ -229,6 +233,15 @@ public class VProcessService extends IProcessManager.Stub {
 				if (app == null) {
 					continue;
 				}
+				int count = mObserverList.beginBroadcast();
+				for (int N = 0; N < count; N++) {
+					try {
+						mObserverList.getBroadcastItem(N).onProcessDied(pkg, r.appProcessName);
+					} catch (RemoteException e) {
+						e.printStackTrace();
+					}
+				}
+				mObserverList.finishBroadcast();
 				if (app.isRunningOnPid(r.pid)) {
 					app.removePid(r.pid);
 				}
@@ -304,9 +317,18 @@ public class VProcessService extends IProcessManager.Stub {
 		if (!TextUtils.isEmpty(pkgName)) {
 			ProcessRecord r = mProcessList.getRecord(pid);
 			if (r == null) {
-				VLog.w(TAG, "Enter plugin(%d/%s) but not found in record.", pid, pkgName);
+				VLog.w(TAG, "Enter app(%d/%s) but not found in record.", pid, pkgName);
 				return;
 			}
+			int count = mObserverList.beginBroadcast();
+			for (int N = 0; N < count; N++) {
+				try {
+					mObserverList.getBroadcastItem(N).onProcessCreated(pkgName, r.appProcessName);
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
+			}
+			mObserverList.finishBroadcast();
 			r.addPkg(pkgName);
 			RunningAppRecord runningAppRecord = mRunningAppList.getRecord(pkgName);
 			if (runningAppRecord == null) {
@@ -317,6 +339,27 @@ public class VProcessService extends IProcessManager.Stub {
 
 		}
 	}
+
+	public void registerProcessObserver(final IProcessObserver observer) {
+		try {
+			final IBinder binder = observer.asBinder();
+			binder.linkToDeath(new DeathRecipient() {
+                @Override
+                public void binderDied() {
+					mObserverList.unregister(observer);
+					binder.unlinkToDeath(this, 0);
+                }
+            }, 0);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+		mObserverList.register(observer);
+	}
+
+	public void unregisterProcessObserver(IProcessObserver observer) {
+		mObserverList.unregister(observer);
+	}
+
 
 	public void onEnterAppProcessName(String appProcessName) {
 		int pid = Binder.getCallingPid();
