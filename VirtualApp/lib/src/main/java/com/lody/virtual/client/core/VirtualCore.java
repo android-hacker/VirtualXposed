@@ -21,6 +21,7 @@ import android.text.TextUtils;
 
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.env.RuntimeEnv;
+import com.lody.virtual.client.local.LocalPackageManager;
 import com.lody.virtual.client.local.LocalProcessManager;
 import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.helper.ExtraConstants;
@@ -347,7 +348,7 @@ public final class VirtualCore {
 	public synchronized ActivityInfo resolveActivityInfo(Intent intent) {
 		ActivityInfo activityInfo = null;
 		if (intent.getComponent() == null) {
-			ResolveInfo resolveInfo = getPM().resolveActivity(intent, 0);
+			ResolveInfo resolveInfo = LocalPackageManager.getInstance().resolveIntent(intent, intent.getType(), 0);
 			if (resolveInfo != null && resolveInfo.activityInfo != null) {
 				activityInfo = resolveInfo.activityInfo;
 				intent.setClassName(activityInfo.packageName, activityInfo.name);
@@ -362,14 +363,10 @@ public final class VirtualCore {
 	public synchronized ActivityInfo resolveActivityInfo(ComponentName componentName) {
 		ActivityInfo activityInfo = activityInfoCache.get(componentName);
 		if (activityInfo == null) {
-			try {
-				activityInfo = getPM().getActivityInfo(componentName, 0);
+				activityInfo = LocalPackageManager.getInstance().getActivityInfo(componentName, 0);
 				if (activityInfo != null) {
 					activityInfoCache.put(componentName, activityInfo);
 				}
-			} catch (PackageManager.NameNotFoundException e) {
-				// Ignore
-			}
 		}
 		return activityInfo;
 	}
