@@ -17,11 +17,11 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.compat.IApplicationThreadCompat;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.service.IServiceManager;
-import com.lody.virtual.service.pm.VPackageService;
 import com.lody.virtual.service.process.ProcessRecord;
 import com.lody.virtual.service.process.VProcessService;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -37,7 +37,7 @@ public class VServiceService extends IServiceManager.Stub {
 
 	private static final VServiceService sService = new VServiceService();
 
-	private ArrayList<ServiceRecord> mHistory = new ArrayList<>();
+	private List<ServiceRecord> mHistory = Collections.synchronizedList(new ArrayList<ServiceRecord>());
 
 
 	private void addRecord(ServiceRecord r) {
@@ -76,28 +76,15 @@ public class VServiceService extends IServiceManager.Stub {
 		return sService;
 	}
 
-	private static ServiceInfo getServiceInfo(ComponentName service) {
-		if (service != null) {
-			try {
-				return VPackageService.getService().getServiceInfo(service, 0);
-			} catch (Throwable e) {
-				e.printStackTrace();
-			}
-		}
-		return null;
-	}
-
 	private static ServiceInfo getServiceInfo(Intent service) {
 		if (service != null) {
 			ServiceInfo serviceInfo = VirtualCore.getCore().resolveServiceInfo(service);
 			if (serviceInfo != null) {
-				service.setComponent(new ComponentName(serviceInfo.packageName, serviceInfo.name));
 				return serviceInfo;
 			}
 		}
 		return null;
 	}
-
 
 
 	@Override
@@ -134,13 +121,12 @@ public class VServiceService extends IServiceManager.Stub {
 			r.serviceInfo = serviceInfo;
 			IApplicationThreadCompat.scheduleCreateService(appThread, r.token, r.serviceInfo, 0);
 			addRecord(r);
-		} else {
-			if (scheduleServiceArgs) {
-				r.startId++;
-				boolean taskRemoved = serviceInfo.applicationInfo != null
-						&& serviceInfo.applicationInfo.targetSdkVersion < Build.VERSION_CODES.ECLAIR;
-				IApplicationThreadCompat.scheduleServiceArgs(appThread, r.token, taskRemoved, r.startId, 0, service);
-			}
+		}
+		if (scheduleServiceArgs) {
+			r.startId++;
+			boolean taskRemoved = serviceInfo.applicationInfo != null
+					&& serviceInfo.applicationInfo.targetSdkVersion < Build.VERSION_CODES.ECLAIR;
+			IApplicationThreadCompat.scheduleServiceArgs(appThread, r.token, taskRemoved, r.startId, 0, service);
 		}
 		return new ComponentName(serviceInfo.packageName, serviceInfo.name);
 	}
@@ -157,6 +143,9 @@ public class VServiceService extends IServiceManager.Stub {
 		}
 		if (!r.hasSomeBound()) {
 			IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+				mHistory.remove(r);
+			}
 		}
 		return 1;
 	}
@@ -169,6 +158,9 @@ public class VServiceService extends IServiceManager.Stub {
 		}
 		if (r.startId == startId) {
 			IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+				mHistory.remove(r);
+			}
 			return true;
 		}
 		return false;
@@ -223,6 +215,9 @@ public class VServiceService extends IServiceManager.Stub {
 		IApplicationThreadCompat.scheduleUnbindService(r.targetAppThread, r.token, intent);
 		if (r.startId <= 0 && r.getAllConnections().isEmpty()) {
 			IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+				mHistory.remove(r);
+			}
 		}
 		return true;
 	}

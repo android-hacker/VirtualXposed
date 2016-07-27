@@ -72,7 +72,7 @@ public class VAppService extends IAppManager.Stub {
 				ApplicationInfo applicationInfo = VirtualCore.getCore().getUnHookPackageManager()
 						.getApplicationInfo(pkg, 0);
 				String apkPath = applicationInfo.publicSourceDir;
-				installApp(apkPath, InstallStrategy.COMPARE_VERSION);
+				installApp(apkPath, InstallStrategy.COMPARE_VERSION | InstallStrategy.DEPEND_SYSTEM_IF_EXIST);
 			} catch (Throwable e) {
 				// Ignore
 			}

@@ -373,17 +373,9 @@ public final class VirtualCore {
 
 	public ServiceInfo resolveServiceInfo(Intent intent) {
 		ServiceInfo serviceInfo = null;
-		if (intent.getComponent() == null) {
-			ResolveInfo resolveInfo = getPM().resolveService(intent, 0);
-			if (resolveInfo != null && resolveInfo.serviceInfo != null) {
-				serviceInfo = resolveInfo.serviceInfo;
-			}
-		} else {
-			try {
-				serviceInfo = getPM().getServiceInfo(intent.getComponent(), 0);
-			} catch (PackageManager.NameNotFoundException e) {
-				// Ignore
-			}
+		ResolveInfo resolveInfo = LocalPackageManager.getInstance().resolveService(intent, intent.getType(), 0);
+		if (resolveInfo != null) {
+			serviceInfo = resolveInfo.serviceInfo;
 		}
 		return serviceInfo;
 	}
