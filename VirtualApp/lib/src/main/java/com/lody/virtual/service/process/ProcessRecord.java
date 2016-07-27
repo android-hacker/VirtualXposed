@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-final class ProcessRecord {
+public final class ProcessRecord {
 	/**
 	 * Real process name
 	 */
@@ -33,15 +33,15 @@ final class ProcessRecord {
 	/**
 	 * target process's Client object
 	 */
-	IVClient client;
+	public IVClient client;
 	/**
 	 * target process's pid
 	 */
-	int pid;
+	public int pid;
 	/**
 	 * target process's uid
 	 */
-	int uid;
+	public int uid;
 	/**
 	 * Running applications on target process
 	 */

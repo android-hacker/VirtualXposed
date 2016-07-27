@@ -15,9 +15,8 @@ import com.lody.virtual.helper.MethodConstants;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.component.BaseContentProvider;
 import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.interfaces.IServiceEnvironment;
-
-import java.util.concurrent.CountDownLatch;
 
 /**
  * @author Lody
@@ -43,19 +42,8 @@ public abstract class StubContentProvider extends BaseContentProvider {
 	private void initProcess(Bundle extras) {
 		final String processName = extras.getString(ExtraConstants.EXTRA_PROCESS_NAME);
 		final String packageName = extras.getString(ExtraConstants.EXTRA_PKG);
-		final CountDownLatch lock = new CountDownLatch(1);
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				AppSandBox.install(processName, packageName);
-				lock.countDown();
-			}
-		}).start();
-		try {
-			lock.await();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		VLog.d("###########", "initProcess-> pkg: %s, process: %s.", packageName, processName);
+		AppSandBox.install(processName, packageName);
 	}
 
 	private static class ServiceEnvBinder extends IServiceEnvironment.Stub {

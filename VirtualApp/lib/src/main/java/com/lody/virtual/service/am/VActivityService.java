@@ -25,6 +25,7 @@ import com.lody.virtual.helper.proto.VRedirectActRequest;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.IActivityManager;
+import com.lody.virtual.service.process.ProcessRecord;
 import com.lody.virtual.service.process.VProcessService;
 
 import java.util.ArrayList;
@@ -175,7 +176,7 @@ public class VActivityService extends IActivityManager.Stub {
 		return result;
 	}
 
-	public ProviderInfo fetchServiceRuntime(ServiceInfo serviceInfo) {
+	ProviderInfo fetchServiceRuntime(ServiceInfo serviceInfo) {
 		if (serviceInfo == null) {
 			return null;
 		}
@@ -193,7 +194,7 @@ public class VActivityService extends IActivityManager.Stub {
 		return null;
 	}
 
-	public ProviderInfo fetchRunningServiceRuntime(ServiceInfo serviceInfo) {
+	ProviderInfo fetchRunningServiceRuntime(ServiceInfo serviceInfo) {
 		if (serviceInfo != null) {
 			String appProcessName = ComponentUtils.getProcessName(serviceInfo);
 			return fetchRunningServiceRuntime(appProcessName);
@@ -201,7 +202,7 @@ public class VActivityService extends IActivityManager.Stub {
 		return null;
 	}
 
-	public ProviderInfo fetchRunningServiceRuntime(String appProcessName) {
+	private ProviderInfo fetchRunningServiceRuntime(String appProcessName) {
 		StubInfo stubInfo = fetchRunningStubInfo(appProcessName);
 		if (stubInfo != null) {
 			return stubInfo.providerInfo;
@@ -209,7 +210,7 @@ public class VActivityService extends IActivityManager.Stub {
 		return null;
 	}
 
-	public StubInfo fetchRunningStubInfo(String appProcessName) {
+	private StubInfo fetchRunningStubInfo(String appProcessName) {
 		return VProcessService.getService().findStubInfo(appProcessName);
 	}
 
@@ -293,7 +294,8 @@ public class VActivityService extends IActivityManager.Stub {
 		return stack.findTask(taskId);
 	}
 
-	public synchronized void processDied(int pid) {
+	public synchronized void processDied(ProcessRecord record) {
+		int pid = record.pid;
 		List<Pair<ActivityTaskRecord, ActivityRecord>> removeRecordList = new LinkedList<>();
 		for (ActivityTaskRecord task : stack.tasks) {
 			for (ActivityRecord r : task.activities.values()) {
