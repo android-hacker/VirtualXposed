@@ -23,6 +23,7 @@ import com.lody.virtual.service.process.VProcessService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 import static android.app.ActivityThread.SERVICE_DONE_EXECUTING_STOP;
 
@@ -284,16 +285,11 @@ public class VServiceService extends IServiceManager.Stub {
 
 
 	public void processDied(ProcessRecord record) {
-		for (ServiceRecord r : mHistory) {
+		ListIterator<ServiceRecord> iterator = mHistory.listIterator();
+		while (iterator.hasNext()) {
+			ServiceRecord r = iterator.next();
 			if (ComponentUtils.getProcessName(r.serviceInfo).equals(record.appProcessName)) {
-				for (IServiceConnection connection : r.getAllConnections()) {
-					try {
-						unbindService(connection);
-					} catch (RemoteException e) {
-						e.printStackTrace();
-					}
-				}
-				mHistory.remove(r);
+				iterator.remove();
 			}
 		}
 	}
