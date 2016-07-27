@@ -14,11 +14,9 @@ import com.lody.virtual.client.core.PatchManager;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.fixer.ActivityFixer;
 import com.lody.virtual.client.fixer.ContextFixer;
-import com.lody.virtual.client.hook.patchs.am.HCallbackHook;
 import com.lody.virtual.client.interfaces.Injectable;
 import com.lody.virtual.client.local.LocalActivityManager;
 import com.lody.virtual.client.local.LocalActivityRecord;
-import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Field;
 
@@ -125,10 +123,6 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 
     @Override
     public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token, Activity target, Intent intent, int requestCode, Bundle options) {
-        if (token == null) {
-            return super.execStartActivity(who, contextThread, HCallbackHook.token, target, intent, requestCode, options);
-        }
-
         return super.execStartActivity(who, contextThread, token, target, intent, requestCode, options);
     }
 }

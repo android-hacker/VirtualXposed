@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 
 import com.lody.virtual.client.core.AppSandBox;
@@ -17,7 +16,6 @@ import com.lody.virtual.helper.compat.ActivityRecordCompat;
 import com.lody.virtual.helper.compat.ClassLoaderCompat;
 import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.utils.ComponentUtils;
-import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Field;
@@ -102,12 +100,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
         return false;
     }
 
-    public static IBinder token = null;
-
     private void handleLaunchActivity(Message msg) {
-        if (token == null) {
-            token = Reflect.on(msg.obj).get("token");
-        }
         Object r = msg.obj;
         // StubIntent
         Intent stubIntent = ActivityRecordCompat.getIntent(r);

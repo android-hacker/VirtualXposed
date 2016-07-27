@@ -12,7 +12,6 @@ import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.VRedirectActRequest;
 import com.lody.virtual.helper.utils.ArrayUtils;
-import com.lody.virtual.helper.utils.ComponentUtils;
 
 import java.lang.reflect.Method;
 
@@ -25,6 +24,11 @@ import java.lang.reflect.Method;
 	@Override
 	public String getName() {
 		return "startActivity";
+	}
+
+	@Override
+	public boolean beforeHook(Object who, Method method, Object... args) {
+		return super.beforeHook(who, method, args);
 	}
 
 	@Override
@@ -60,9 +64,12 @@ import java.lang.reflect.Method;
 			if (result.intercepted) {
 				return 0;
 			}
+			// Workaround: issue #33 START
+			if (result.replaceToken != null) {
+				args[resultToIndex] = result.replaceToken;
+			}
+			// Workaround: issue #33 END
 			ActivityInfo selectStubActInfo = result.stubActInfo;
-			// Target App's ProcessName
-			String plugProcName = ComponentUtils.getProcessName(targetActInfo);
 			// Mapping
 			Intent stubIntent = new Intent();
 			stubIntent.setClassName(selectStubActInfo.packageName, selectStubActInfo.name);
@@ -74,5 +81,4 @@ import java.lang.reflect.Method;
 		}
 		return method.invoke(who, args);
 	}
-
 }

@@ -163,7 +163,16 @@ public class VActivityService extends IActivityManager.Stub {
 		if (stubActInfo == null) {
 			return null;
 		}
-		return new VActRedirectResult(stubActInfo, resultFlags);
+		VActRedirectResult result = new VActRedirectResult(stubActInfo, resultFlags);
+		// Workaround: issue #33 START
+		if (request.resultTo == null) {
+			ActivityTaskRecord r = getTopTask();
+			if (r != null) {
+				result.replaceToken = r.topActivity().token;
+			}
+		}
+		// Workaround: issue #33 END
+		return result;
 	}
 
 	public ProviderInfo fetchServiceRuntime(ServiceInfo serviceInfo) {

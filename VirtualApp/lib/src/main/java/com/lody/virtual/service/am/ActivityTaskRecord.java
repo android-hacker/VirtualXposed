@@ -33,4 +33,12 @@ public class ActivityTaskRecord {
 		return activityList.getLast();
 	}
 
+	public IBinder topActivityToken() {
+		ActivityRecord r = topActivity();
+		if (r != null) {
+			return r.token;
+		}
+		return null;
+	}
+
 }

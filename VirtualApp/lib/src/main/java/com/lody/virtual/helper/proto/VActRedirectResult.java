@@ -1,6 +1,7 @@
 package com.lody.virtual.helper.proto;
 
 import android.content.pm.ActivityInfo;
+import android.os.IBinder;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -17,6 +18,7 @@ public class VActRedirectResult implements Parcelable {
 	public boolean intercepted;
 	public int flags;
 	public boolean reopen;
+	public IBinder replaceToken;
 
 
 	public VActRedirectResult(boolean reopen) {
@@ -41,6 +43,7 @@ public class VActRedirectResult implements Parcelable {
 		dest.writeByte(this.intercepted ? (byte) 1 : (byte) 0);
 		dest.writeInt(this.flags);
 		dest.writeByte(this.reopen ? (byte) 1 : (byte) 0);
+		dest.writeStrongBinder(this.replaceToken);
 	}
 
 	protected VActRedirectResult(Parcel in) {
@@ -48,6 +51,7 @@ public class VActRedirectResult implements Parcelable {
 		this.intercepted = in.readByte() != 0;
 		this.flags = in.readInt();
 		this.reopen = in.readByte() != 0;
+		this.replaceToken = in.readStrongBinder();
 	}
 
 	public static final Creator<VActRedirectResult> CREATOR = new Creator<VActRedirectResult>() {
