@@ -11,8 +11,7 @@ android {
         versionName "1.0"
         ndk {
             moduleName "iohook"
-            cFlags '-std=c++11 -fexceptions -frtti -fpermissive'
-            stl "gnustl_static"
+            stl "stlport_static"
             ldLibs "log"
             abiFilters "armeabi"//, "x86"
         }

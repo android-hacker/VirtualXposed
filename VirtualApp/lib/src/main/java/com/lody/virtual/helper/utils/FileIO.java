@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
@@ -76,54 +77,34 @@ public class FileIO {
 		}
 	}
 
-	public static void copyFile(File source, File target) {
 
-		FileInputStream fi = null;
-		FileOutputStream fo = null;
+    public static void copyFile(File source, File target) {
+        try {
+        FileInputStream inputStream=new FileInputStream(source);
+        FileOutputStream outputStream=new FileOutputStream(target);
+        FileChannel iChannel=inputStream.getChannel();
+        FileChannel oChannel=outputStream.getChannel();
 
-		FileChannel in = null;
+        ByteBuffer buffer=ByteBuffer.allocate(1024);
+        while(true){
+            buffer.clear();
+            int r=iChannel.read(buffer);
+            if(r==-1) break;
+            buffer.limit(buffer.position());
+            buffer.position(0);
+            oChannel.write(buffer);
+        }
+        inputStream.close();
+        outputStream.close();
 
-		FileChannel out = null;
-
-		try {
-			fi = new FileInputStream(source);
-
-			fo = new FileOutputStream(target);
-
-			in = fi.getChannel();
-
-			out = fo.getChannel();
-
-			in.transferTo(0, in.size(), out);
-
-		} catch (IOException e) {
+        } catch (IOException e) {
 			e.printStackTrace();
-		} finally {
-			try {
-				if (fi != null) {
-					fi.close();
-				}
-
-				if (in != null) {
-					in.close();
-				}
-
-				if (fo != null) {
-					fo.close();
-				}
-
-				if (out != null) {
-					out.close();
-				}
-
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		}
-	}
+    }
+
 
 	/**
-     * 文件锁
+     * Lock the specified fle
      */
     public static class FileLock {
         private static FileLock singleton;

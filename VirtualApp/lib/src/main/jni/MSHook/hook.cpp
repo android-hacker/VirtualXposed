@@ -2,7 +2,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "util.h"
-#include "log.h"
+#include "Log.h"
 
 #include "Hooker.h"
 #include "hook.h"

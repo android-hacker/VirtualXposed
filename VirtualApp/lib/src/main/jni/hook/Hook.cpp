@@ -3,7 +3,8 @@
 //
 #include "Hook.h"
 
-static std::map<std::string/*org_path*/, std::string/*new_path*/> IORedirectMap;
+static std::map<std::string/*orig_path*/, std::string/*new_path*/> IORedirectMap;
+static std::map<std::string/*orig_path*/, std::string/*new_path*/> RootIORedirectMap;
 
 static inline void hook_template(const char *lib_so, const char *symbol, void *new_func, void **old_func) {
     LOGI("hook symbol=%s, new_func=%p, old_func=%p", symbol, new_func, *old_func);
@@ -23,57 +24,57 @@ static inline void hook_template(const char *lib_so, const char *symbol, void *n
 }
 
 
-static void add_pair(const char *org_path, const char *new_path) {
-    IORedirectMap.insert(std::pair<std::string, std::string>(std::string(org_path), std::string(new_path)));
+
+
+static inline bool startWith(const std::string &str, const std::string &prefix)
+{
+    return str.find(prefix) == 0;
 }
 
-// path.startWith(org_path)
-static bool start_with(const char *path, std::string org_prefix, size_t len) {
-    LOGE("%s", path);
-    if (path == NULL || org_prefix.c_str() == NULL || len <= 0) {
-        return false;
+
+static inline bool endWith(const std::string &str, const char &suffix) {
+    return *(str.end() - 1) == suffix;
+}
+
+static void add_pair(const char *_orig_path, const char *_new_path) {
+    std::string origPath = std::string(_orig_path);
+    std::string newPath = std::string(_new_path);
+    IORedirectMap.insert(std::pair<std::string, std::string>(origPath, newPath));
+    if (endWith(origPath, '/')) {
+        RootIORedirectMap.insert(
+                std::pair<std::string, std::string>(
+                        origPath.substr(0, origPath.length() - 1),
+                        newPath.substr(0, newPath.length() - 1))
+        );
     }
-    return strncmp(path, org_prefix.c_str(), len) == 0;
 }
 
-// case1.  redirect org: /sdcard  to new: /sdcard/dir1, then /sdcard/ match /sdcard == 'false' !
-// case2.  redirect org: /sdcard   to new: /sdcard/dir1 , then /sdcard2 match /sdcard/dir1/ == '?' !
-// caseall. match /sdcard & /sdcard/ but don't match /sdcarddddd
 
-const char *match_redirected_path(const char *path) {
-
-    const char* _path = NULL;
-    const char *redirect_path = NULL;
+const char *match_redirected_path(const char *_path) {
+    if (_path == NULL) {
+        return NULL;
+    }
+    std::string path(_path);
+    if (path.length() <= 1) {
+        return _path;
+    }
     std::map<std::string, std::string>::iterator iterator;
+    iterator = RootIORedirectMap.find(path);
+    if (iterator != RootIORedirectMap.end()) {
+        return strdup(iterator->second.c_str());
+    }
+
     for (iterator = IORedirectMap.begin(); iterator != IORedirectMap.end(); iterator++) {
-        std::string k_org_path = iterator->first;
-        std::string v_new_path = iterator->second;
-        const char *v_org = k_org_path.c_str();
-        unsigned int len = strlen(v_org);
-
-        if (len <= 0) {
-            continue;
-        }
-
-        int lastIndex = k_org_path.rfind('/');
-        if (lastIndex > 0 && lastIndex == len - 1) {
-            _path = k_org_path.substr(0, len - 1).c_str();
-        }
-        if (_path != NULL && strcmp(path, _path) == 0) {
-            return v_new_path.c_str();
-        }
-        if (start_with(path, k_org_path, (size_t) len)) {
-            std::string newPath = std::string(path);
-            newPath.replace(0, len, v_new_path.c_str());
-            const char *str = newPath.c_str();
-            char *new_path = strdup(str);
-            redirect_path = new_path == NULL ? path : new_path;
-            break;
+        std::string prefix = iterator->first;
+        std::string new_prefix = iterator->second;
+        if (startWith(path, prefix)) {
+            std::string new_path = new_prefix + path.substr(prefix.length(), path.length());
+            return strdup(new_path.c_str());
         }
     }
-    redirect_path = redirect_path == NULL ? path : redirect_path;
-    return redirect_path;
+    return _path;
 }
+
 
 void HOOK::redirect(const char *org_path, const char *new_path) {
     LOGI("native add redirect: from %s to %s", org_path, new_path);
@@ -90,23 +91,7 @@ const char *HOOK::query(const char *org_path) {
 
 
 const char *HOOK::restore(const char *path) {
-    const char *orginal_path = NULL;
-    std::map<std::string, std::string>::iterator iterator;
-    for (iterator = IORedirectMap.begin(); iterator != IORedirectMap.end(); iterator++) {
-        std::string k_org_path = iterator->first;
-        std::string v_new_path = iterator->second;
-        const char *v_new = v_new_path.c_str();
-        unsigned int len = strlen(v_new);
-        if (len > 0 && start_with(path, v_new_path, (size_t) len)) {
-            IORedirectMap.erase(k_org_path);
-            const char *str = k_org_path.c_str();
-            char *org_path = strdup(str);
-            orginal_path = org_path == NULL ? path : org_path;
-            break;
-        }
-    }
-    orginal_path = orginal_path == NULL ? path : orginal_path;
-    return orginal_path;
+
 }
 
 
@@ -434,8 +419,6 @@ HOOK_DEF(int, __getcwd, char *buf, size_t size) {
 
 // int __openat(int fd, const char *pathname, int flags, int mode);
 HOOK_DEF(int, __openat, int fd, const char *pathname, int flags, int mode) {
-    flags |= O_LARGEFILE;
-    mode = flags & O_CREAT > 0 ? mode : 0;
     const char *redirect_path = match_redirected_path(pathname);
     int ret = syscall(__NR_openat, fd, redirect_path, flags, mode);
     FREE(redirect_path, pathname);
@@ -443,8 +426,6 @@ HOOK_DEF(int, __openat, int fd, const char *pathname, int flags, int mode) {
 }
 // int __open(const char *pathname, int flags, int mode);
 HOOK_DEF(int, __open, const char *pathname, int flags, int mode) {
-    flags |= O_LARGEFILE;
-    mode = flags & O_CREAT > 0 ? mode : 0;
     const char *redirect_path = match_redirected_path(pathname);
     int ret = syscall(__NR_open, redirect_path, flags, mode);
     FREE(redirect_path, pathname);
