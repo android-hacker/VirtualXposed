@@ -19,6 +19,7 @@ import android.util.Pair;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
+import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.proto.AppTaskInfo;
 import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.VRedirectActRequest;
@@ -33,6 +34,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -178,6 +180,28 @@ public class VActivityService extends IActivityManager.Stub {
 					return new VActRedirectResult(r.token, processRecord.appThread.asBinder());
 				}
 			}
+
+			if (targetActInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_TASK) {
+				ActivityTaskRecord topTask = getTopTask();
+				if (topTask != null && topTask.isInTask(targetActInfo)) {
+					int size = topTask.size();
+					ActivityRecord top = null;
+					ListIterator<ActivityRecord> iterator = topTask.activityList.listIterator(size);
+					while (iterator.hasPrevious()) {
+						top = iterator.previous();
+						if (ComponentUtils.isSameComponent(top.activityInfo, targetActInfo)) {
+							break;
+						}
+						ActivityManagerCompat.finishActivity(top.token, -1, null);
+					}
+					if (top != null) {
+						ProcessRecord processRecord = VProcessService.getService().findProcess(top.pid);
+						// The top Activity is the target Activity
+						return new VActRedirectResult(top.token, processRecord.appThread.asBinder());
+					}
+				}
+			}
+
 
 			if (sourceRecord != null && sourceRecord.caller != null) {
 				if (sourceRecord.activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {

@@ -48,4 +48,16 @@ public class ActivityTaskRecord {
 		return top != null && ComponentUtils.isSameComponent(activityInfo, top.activityInfo);
 	}
 
+	public boolean isInTask(ActivityInfo activityInfo) {
+		for (ActivityRecord r : activityList) {
+			if (ComponentUtils.isSameComponent(r.activityInfo, activityInfo)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public int size() {
+		return activityList.size();
+	}
 }
