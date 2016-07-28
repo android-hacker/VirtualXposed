@@ -1,5 +1,14 @@
 [![VA banner](https://raw.githubusercontent.com/asLody/VirtualApp/master/banner.png)](https://github.com/asLody/VirtualApp)
 
+
+给`微商双开神器`的警告
+----------------------
+经过验证发现，`微商双开神器`将VirtualApp的`演示App`的界面改为绿色，并添加`微信支付`（售价28元），
+广州市比目网络科技有限公司的这一敛财行为，严重侵害了作者的利益。请在1个月内下架你们的产品。
+再次申明，VA可以使用于商业项目中，但这种赤裸裸的敛财行为，是严格禁止的。
+
+
+
 关于
 ---
 **VirtualApp**是一个**App虚拟引擎**的完整实现（简称`VA`）。

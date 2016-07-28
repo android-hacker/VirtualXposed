@@ -225,32 +225,34 @@ public class VProcessService extends IProcessManager.Stub {
 	 * @param pid
 	 *            插件Pid
 	 */
-	private synchronized void removeProcessRecordLocked(int pid) {
+	private synchronized ProcessRecord removeProcessRecordLocked(int pid) {
 		ProcessRecord r = mProcessList.getRecord(pid);
-		if (r != null) {
-			for (String pkg : r.runningAppPkgs) {
-				RunningAppRecord app = mRunningAppList.getRecord(pkg);
-				if (app == null) {
-					continue;
-				}
-				int count = mObserverList.beginBroadcast();
-				for (int N = 0; N < count; N++) {
-					try {
-						mObserverList.getBroadcastItem(N).onProcessDied(pkg, r.appProcessName);
-					} catch (RemoteException e) {
-						e.printStackTrace();
-					}
-				}
-				mObserverList.finishBroadcast();
-				if (app.isRunningOnPid(r.pid)) {
-					app.removePid(r.pid);
-				}
-				if (app.runningPids.isEmpty()) {
-					mRunningAppList.pluginStopped(app.pkgName);
-				}
-			}
+		if (r == null) {
+			return null;
 		}
+		for (String pkg : r.runningAppPkgs) {
+            RunningAppRecord app = mRunningAppList.getRecord(pkg);
+            if (app == null) {
+                continue;
+            }
+            int count = mObserverList.beginBroadcast();
+            for (int N = 0; N < count; N++) {
+                try {
+                    mObserverList.getBroadcastItem(N).onProcessDied(pkg, r.appProcessName);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+            mObserverList.finishBroadcast();
+            if (app.isRunningOnPid(r.pid)) {
+                app.removePid(r.pid);
+            }
+            if (app.runningPids.isEmpty()) {
+                mRunningAppList.pluginStopped(app.pkgName);
+            }
+        }
 		mProcessList.removeRecord(pid);
+		return r;
 	}
 
 	private void linkClientBinderDied(final int pid, final IBinder cb) {
@@ -259,9 +261,11 @@ public class VProcessService extends IProcessManager.Stub {
 				@Override
 				public void binderDied() {
 					synchronized (mProcessLock) {
-						VActivityService.getService().processDied(pid);
-						VServiceService.getService().processDied(pid);
-						removeProcessRecordLocked(pid);
+						ProcessRecord r = removeProcessRecordLocked(pid);
+						if (r != null) {
+							VActivityService.getService().processDied(r);
+							VServiceService.getService().processDied(r);
+						}
 						cb.unlinkToDeath(this, 0);
 					}
 				}
@@ -395,10 +399,9 @@ public class VProcessService extends IProcessManager.Stub {
 		return null;
 	}
 
-	private void launchComponentProcess(ComponentInfo componentInfo, StubInfo stubInfo) {
-		if (componentInfo != null && stubInfo != null) {
-			ProviderInfo env = stubInfo.providerInfo;
-			new ProviderCaller.Builder(VirtualCore.getCore().getContext(), env.authority)
+	public void launchComponentProcess(ComponentInfo componentInfo, ProviderInfo providerInfo) {
+		if (componentInfo != null && providerInfo != null) {
+			new ProviderCaller.Builder(VirtualCore.getCore().getContext(), providerInfo.authority)
 					.methodName(MethodConstants.INIT_PROCESS)
 					.addArg(ExtraConstants.EXTRA_PKG, componentInfo.packageName)
 					.addArg(ExtraConstants.EXTRA_PROCESS_NAME, ComponentUtils.getProcessName(componentInfo))
@@ -415,13 +418,13 @@ public class VProcessService extends IProcessManager.Stub {
 			if (stubInfo == null) {
 				stubInfo = fetchFreeStubInfo(VActivityService.getService().getStubInfoMap().values());
 				if (stubInfo != null) {
-					launchComponentProcess(componentInfo, stubInfo);
+					launchComponentProcess(componentInfo, stubInfo.providerInfo);
 				} else {
 					VLog.e(TAG, "Unable to fetch free Stub to launch Process(%s/%s).", pkg, appProcName);
 				}
 			}
 		} else {
-			VLog.e(TAG, "Install Component failed, plugin %s not installed?", pkg);
+			VLog.e(TAG, "Install Component failed, are you installed the app %s?", pkg);
 		}
 	}
 

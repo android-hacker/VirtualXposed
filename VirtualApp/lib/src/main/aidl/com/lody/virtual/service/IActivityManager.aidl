@@ -10,7 +10,7 @@ interface IActivityManager {
 
     VActRedirectResult redirectTargetActivity(in VRedirectActRequest request);
 
-    void onActivityCreated(in IBinder token, in ActivityInfo info, int taskId);
+    void onActivityCreated(in IBinder token, in ActivityInfo info, in ActivityInfo caller, int taskId);
 
     void onActivityResumed(in IBinder token);
 
@@ -21,4 +21,6 @@ interface IActivityManager {
     AppTaskInfo getTaskInfo(int taskId);
 
     String getPackageForToken(in IBinder token);
+
+    ActivityInfo getActivityInfo(in IBinder token);
 }

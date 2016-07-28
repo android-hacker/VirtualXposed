@@ -18,6 +18,7 @@ public class ExtraConstants {
 	public static final String EXTRA_PKG = "V.Extra.PackageName";
 	public static final String EXTRA_COMPONENT = "V.Extra.Component";
 
+	public static final String EXTRA_CALLER = "V.Extra.Caller";
 	public static final String EXTRA_TARGET_INTENT = "V.Extra.TargetIntent";
 	public static final String EXTRA_STUB_INTENT = "V.Extra.StubIntent";
 

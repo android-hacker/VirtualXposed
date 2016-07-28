@@ -104,6 +104,9 @@ public class AppSandBox {
 //		ADD: Virtual SD Card 
 //		IOHook.redirect("/sdcard/", "/sdcard/1/");
 //		IOHook.redirect("/storage/emulated/0/", "/storage/emulated/0/1/");
+		
+//		IOHook.redirect(String.format("/data/data/%s/", pkg), appInfo.dataDir + "/");
+//		IOHook.redirect(String.format("/data/user/0/%s/", pkg), appInfo.dataDir + "/");
 //		IOHook.hook();
 		ApplicationInfo applicationInfo = appInfo.applicationInfo;
 		RuntimeEnv.setCurrentProcessName(procName, appInfo);

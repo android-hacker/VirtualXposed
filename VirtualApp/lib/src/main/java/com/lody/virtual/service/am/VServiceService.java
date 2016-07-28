@@ -1,6 +1,6 @@
 package com.lody.virtual.service.am;
 
-import android.app.ActivityManagerNative;
+import android.app.IApplicationThread;
 import android.app.IServiceConnection;
 import android.app.Notification;
 import android.content.ComponentName;
@@ -9,22 +9,23 @@ import android.content.Intent;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ServiceInfo;
 import android.os.Binder;
-import android.os.Bundle;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.service.ProviderCaller;
-import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.MethodConstants;
-import com.lody.virtual.helper.compat.BundleCompat;
-import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.helper.compat.IApplicationThreadCompat;
+import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.service.IServiceManager;
-import com.lody.virtual.service.pm.VPackageService;
-import com.lody.virtual.service.interfaces.IServiceEnvironment;
+import com.lody.virtual.service.process.ProcessRecord;
+import com.lody.virtual.service.process.VProcessService;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.ListIterator;
+
+import static android.app.ActivityThread.SERVICE_DONE_EXECUTING_STOP;
 
 /**
  * @author Lody
@@ -36,18 +37,38 @@ public class VServiceService extends IServiceManager.Stub {
 
 	private static final VServiceService sService = new VServiceService();
 
-	private Map<IBinder, ServiceRecord> serviceConnectionMap = new ConcurrentHashMap<>();
+	private List<ServiceRecord> mHistory = Collections.synchronizedList(new ArrayList<ServiceRecord>());
 
-	private class ServiceRecord {
-		IBinder connection;
-		ServiceInfo serviceInfo;
-		int pid;
 
-		ServiceRecord(IBinder connection, ServiceInfo serviceInfo, int pid) {
-			this.connection = connection;
-			this.serviceInfo = serviceInfo;
-			this.pid = pid;
+	private void addRecord(ServiceRecord r) {
+		mHistory.add(r);
+	}
+
+	private ServiceRecord findRecord(ServiceInfo serviceInfo) {
+		for (ServiceRecord r : mHistory) {
+			if (ComponentUtils.isSameComponent(serviceInfo, r.serviceInfo)) {
+				return r;
+			}
 		}
+		return null;
+	}
+
+	private ServiceRecord findRecord(IServiceConnection connection) {
+		for (ServiceRecord r : mHistory) {
+			if (r.containConnection(connection)) {
+				return r;
+			}
+		}
+		return null;
+	}
+
+	private ServiceRecord findRecord(IBinder token) {
+		for (ServiceRecord r : mHistory) {
+			if (r.token == token) {
+				return r;
+			}
+		}
+		return null;
 	}
 
 
@@ -55,219 +76,215 @@ public class VServiceService extends IServiceManager.Stub {
 		return sService;
 	}
 
-	private static ServiceInfo getServiceInfo(ComponentName service) {
-		if (service != null) {
-			try {
-				return VPackageService.getService().getServiceInfo(service, 0);
-			} catch (Throwable e) {
-				e.printStackTrace();
-			}
-		}
-		return null;
-	}
-
 	private static ServiceInfo getServiceInfo(Intent service) {
 		if (service != null) {
 			ServiceInfo serviceInfo = VirtualCore.getCore().resolveServiceInfo(service);
 			if (serviceInfo != null) {
-				service.setComponent(new ComponentName(serviceInfo.packageName, serviceInfo.name));
 				return serviceInfo;
 			}
 		}
 		return null;
 	}
 
-	private IServiceEnvironment getServiceEnvironment(ProviderInfo serviceEnv) {
-		Context context = VirtualCore.getCore().getContext();
-		Bundle bundle = new ProviderCaller.Builder(context, serviceEnv.authority)
-				.methodName(MethodConstants.GET_SERVICE_RUNTIME)
-				.call();
-		if (bundle != null) {
-			IBinder binder = BundleCompat.getBinder(bundle, ExtraConstants.EXTRA_BINDER);
-			IServiceEnvironment env = IServiceEnvironment.Stub.asInterface(binder);
+
+	@Override
+	public ComponentName startService(IBinder caller, Intent service, String resolvedType) throws RemoteException {
+		return startServiceCommon(caller, service, resolvedType, true);
+	}
+
+	private ComponentName startServiceCommon(IBinder caller, Intent service, String resolvedType, boolean scheduleServiceArgs) {
+		ServiceInfo serviceInfo = getServiceInfo(service);
+		if (serviceInfo == null) {
+			return null;
+		}
+		String processName = ComponentUtils.getProcessName(serviceInfo);
+		ProviderInfo env = VActivityService.getService().fetchRunningServiceRuntime(serviceInfo);
+		if (env == null) {
+			env = VActivityService.getService().fetchServiceRuntime(serviceInfo);
 			if (env == null) {
-				VLog.e(TAG, "Unable to fetch ServiceEnvironment for client(%s)", serviceEnv.authority);
+				return null;
+			} else {
+				VProcessService.getService().launchComponentProcess(serviceInfo, env);
 			}
-			return env;
 		}
-		return null;
+		ProcessRecord processRecord = VProcessService.getService().findProcess(processName);
+		if (processRecord == null) {
+			return null;
+		}
+		IApplicationThread appThread = processRecord.appThread;
+		ServiceRecord r = findRecord(serviceInfo);
+		if (r == null) {
+			r = new ServiceRecord();
+			r.startId = 0;
+			r.targetAppThread = appThread;
+			r.token = new Binder();
+			r.serviceInfo = serviceInfo;
+			IApplicationThreadCompat.scheduleCreateService(appThread, r.token, r.serviceInfo, 0);
+			addRecord(r);
+		}
+		if (scheduleServiceArgs) {
+			r.startId++;
+			boolean taskRemoved = serviceInfo.applicationInfo != null
+					&& serviceInfo.applicationInfo.targetSdkVersion < Build.VERSION_CODES.ECLAIR;
+			IApplicationThreadCompat.scheduleServiceArgs(appThread, r.token, taskRemoved, r.startId, 0, service);
+		}
+		return new ComponentName(serviceInfo.packageName, serviceInfo.name);
 	}
 
-	public ComponentName startService(IBinder caller, Intent service, String resolvedType) {
+	@Override
+	public int stopService(IBinder caller, Intent service, String resolvedType) throws RemoteException {
 		ServiceInfo serviceInfo = getServiceInfo(service);
 		if (serviceInfo == null) {
-			return service.getComponent();
+			return 0;
 		}
-		ProviderInfo serviceEnv = VActivityService.getService().fetchServiceRuntime(serviceInfo);
-		if (serviceEnv != null) {
-			IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
-			if (environment == null) {
-				return service.getComponent();
-			}
-			try {
-				environment.handleStartService(service, serviceInfo);
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			}
-
+		ServiceRecord r = findRecord(serviceInfo);
+		if (r == null) {
+			return 0;
 		}
-		return service.getComponent();
+		if (!r.hasSomeBound()) {
+			IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+				mHistory.remove(r);
+			}
+		}
+		return 1;
 	}
 
-	public int stopService(IBinder caller, Intent service, String resolvedType) {
-		ServiceInfo serviceInfo = getServiceInfo(service);
-		if (serviceInfo == null) {
-			return 0;
+	@Override
+	public boolean stopServiceToken(ComponentName className, IBinder token, int startId) throws RemoteException {
+		ServiceRecord r = findRecord(token);
+		if (r == null) {
+			return false;
 		}
-		ProviderInfo serviceEnv = VActivityService.getService().fetchRunningServiceRuntime(serviceInfo);
-		if (serviceEnv == null) {
-			return 0;
-		}
-		IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
-		if (environment == null) {
-			return 0;
-		}
-		try {
-			environment.handleStopService(serviceInfo);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-		return 0;
-	}
-
-	public boolean stopServiceToken(ComponentName componentName, IBinder token, int startId) {
-		if (componentName != null && token != null) {
-			ServiceInfo serviceInfo = getServiceInfo(componentName);
-			if (serviceInfo == null) {
-				return false;
+		if (r.startId == startId) {
+			IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+				mHistory.remove(r);
 			}
-			ProviderInfo serviceEnv = VActivityService.getService().fetchRunningServiceRuntime(serviceInfo);
-			if (serviceEnv == null) {
-				return false;
-			}
-			IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
-			if (environment == null) {
-				return false;
-			}
-			try {
-				environment.handleStopServiceToken(token, serviceInfo, startId);
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			}
+			return true;
 		}
 		return false;
 	}
 
-	public IBinder peekService(Intent service, String resolvedType) {
+	@Override
+	public void setServiceForeground(ComponentName className, IBinder token, int id, Notification notification, boolean keepNotification) throws RemoteException {
+
+	}
+
+	@Override
+	public int bindService(IBinder caller, IBinder token, Intent service, String resolvedType, IServiceConnection connection, int flags) throws RemoteException {
+		ServiceInfo serviceInfo = getServiceInfo(service);
+		if (serviceInfo == null) {
+			return 0;
+		}
+		ServiceRecord r = findRecord(serviceInfo);
+		if (r == null) {
+			if ((flags & Context.BIND_AUTO_CREATE) != 0) {
+				startServiceCommon(caller, service, resolvedType, false);
+				r = findRecord(serviceInfo);
+			}
+		}
+		if (r == null) {
+			return 0;
+		}
+		if (r.binder != null && r.binder.isBinderAlive()) {
+			if (r.doRebind) {
+				IApplicationThreadCompat.scheduleBindService(r.targetAppThread, r.token, service, true, 0);
+			}
+			ComponentName componentName = new ComponentName(r.serviceInfo.packageName, r.serviceInfo.name);
+			try {
+				connection.connected(componentName, r.binder);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+			IApplicationThreadCompat.scheduleBindService(r.targetAppThread, r.token, service, r.doRebind, 0);
+		}
+		r.addToBoundIntent(service, connection);
+
+		return 1;
+	}
+
+	@Override
+	public boolean unbindService(IServiceConnection connection) throws RemoteException {
+		ServiceRecord r = findRecord(connection);
+		if (r == null) {
+			return false;
+		}
+		Intent intent = r.removedConnection(connection);
+		IApplicationThreadCompat.scheduleUnbindService(r.targetAppThread, r.token, intent);
+		if (r.startId <= 0 && r.getAllConnections().isEmpty()) {
+			IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+				mHistory.remove(r);
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public void unbindFinished(IBinder token, Intent service, boolean doRebind) throws RemoteException {
+		ServiceRecord r = findRecord(token);
+		if (r != null) {
+			r.doRebind = doRebind;
+		}
+	}
+
+	@Override
+	public void serviceDoneExecuting(IBinder token, int type, int startId, int res) throws RemoteException {
+		ServiceRecord r = findRecord(token);
+		if (r == null) {
+			return;
+		}
+		if (SERVICE_DONE_EXECUTING_STOP == type) {
+			mHistory.remove(r);
+		}
+	}
+
+	@Override
+	public IBinder peekService(Intent service, String resolvedType) throws RemoteException {
 		ServiceInfo serviceInfo = getServiceInfo(service);
 		if (serviceInfo == null) {
 			return null;
 		}
-		ProviderInfo serviceEnv = VActivityService.getService().fetchRunningServiceRuntime(serviceInfo);
-		if (serviceEnv == null) {
-			return null;
-		}
-		IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
-		if (environment == null) {
-			return null;
-		}
-		try {
-			return environment.handlePeekService(serviceInfo);
-		} catch (RemoteException e) {
-			e.printStackTrace();
+		ServiceRecord r = findRecord(serviceInfo);
+		if (r != null) {
+			return r.token;
 		}
 		return null;
 	}
 
 	@Override
 	public void publishService(IBinder token, Intent intent, IBinder service) throws RemoteException {
-
-	}
-
-	public int bindService(IBinder caller, IBinder token, Intent service, String resolvedType,
-			IServiceConnection connection, int flags) {
-
-		int result = 0;
-		if (service == null || connection == null) {
-			return result;
-		}
-		ServiceInfo serviceInfo = getServiceInfo(service);
-		if (serviceInfo == null) {
-			return result;
-		}
-		ProviderInfo serviceEnv = VActivityService.getService().fetchServiceRuntime(serviceInfo);
-		if (serviceEnv != null) {
-			IServiceEnvironment environment = getServiceEnvironment(serviceEnv);
-			if (environment == null) {
-				return result;
-			}
-			try {
-				result = environment.handleBindService(token, service, serviceInfo, connection);
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			}
-			if (result != 0) {
-				// bind Service Success
-				IBinder connectionBinder = connection.asBinder();
-				serviceConnectionMap.put(connectionBinder,
-						new ServiceRecord(connectionBinder, serviceInfo, Binder.getCallingPid()));
-			}
-		}
-		return result;
-	}
-
-	public void setServiceForeground(ComponentName componentName, IBinder token, int id, Notification notification,
-			boolean keepNotification) {
-		if (componentName != null && VirtualCore.getCore().isAppInstalled(componentName.getPackageName())) {
-			try {
-				ActivityManagerNative.getDefault().setServiceForeground(componentName, token, id, notification,
-						keepNotification);
-			} catch (Throwable e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	public boolean unbindService(IServiceConnection connection) {
-		if (connection == null) {
-			return false;
-		}
-		IBinder connBinder = connection.asBinder();
-		ServiceRecord r = serviceConnectionMap.get(connBinder);
+		ServiceRecord r = findRecord(token);
 		if (r == null) {
-			return false;
+			return;
 		}
-		ServiceInfo serviceInfo = r.serviceInfo;
-		ProviderInfo serviceEnv = VActivityService.getService().fetchServiceRuntime(serviceInfo);
-		if (serviceEnv == null) {
-			return false;
+		List<IServiceConnection> allConnections = r.getAllConnections();
+		if (allConnections.isEmpty()) {
+			return;
 		}
-		IServiceEnvironment serviceEnvironment = getServiceEnvironment(serviceEnv);
-		if (serviceEnvironment == null) {
-			return false;
+		for (IServiceConnection connection : allConnections) {
+			if (connection.asBinder().isBinderAlive()) {
+				ComponentName componentName = new ComponentName(r.serviceInfo.packageName, r.serviceInfo.name);
+				try {
+					connection.connected(componentName, service);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			} else {
+				allConnections.remove(connection);
+			}
 		}
-		try {
-			return serviceEnvironment.handleUnbindService(serviceInfo, connection);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-		return false;
 	}
 
-	@Override
-	public void unbindFinished(IBinder token, Intent service, boolean doRebind) throws RemoteException {
-		// nothing to do
-	}
 
-	@Override
-	public void serviceDoneExecuting(IBinder token, int type, int startId, int res) throws RemoteException {
-		// nothing to do
-	}
-
-	public void processDied(int pid) {
-		for (ServiceRecord r : serviceConnectionMap.values()) {
-			if (r.pid == pid) {
-				serviceConnectionMap.remove(r.connection);
+	public void processDied(ProcessRecord record) {
+		ListIterator<ServiceRecord> iterator = mHistory.listIterator();
+		while (iterator.hasNext()) {
+			ServiceRecord r = iterator.next();
+			if (ComponentUtils.getProcessName(r.serviceInfo).equals(record.appProcessName)) {
+				iterator.remove();
 			}
 		}
 	}

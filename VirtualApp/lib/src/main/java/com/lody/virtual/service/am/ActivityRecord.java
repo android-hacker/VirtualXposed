@@ -11,6 +11,7 @@ import android.os.IBinder;
 	int pid;
 	IBinder token;
 	ActivityInfo activityInfo;
+	ActivityInfo caller;
 
 	@Override
 	public boolean equals(Object o) {

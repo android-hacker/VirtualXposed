@@ -25,6 +25,7 @@ import com.lody.virtual.helper.proto.VRedirectActRequest;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.IActivityManager;
+import com.lody.virtual.service.process.ProcessRecord;
 import com.lody.virtual.service.process.VProcessService;
 
 import java.util.ArrayList;
@@ -32,7 +33,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,7 +50,7 @@ public class VActivityService extends IActivityManager.Stub {
 
 	private final Map<String, StubInfo> stubInfoMap = new ConcurrentHashMap<>();
 	private final Set<String> stubProcessList = new HashSet<String>();
-	private final ActivityStack stack = new ActivityStack();
+	private final ActivityStack mMainStack = new ActivityStack();
 	private ActivityManager am = (ActivityManager) VirtualCore.getCore().getContext()
 			.getSystemService(Context.ACTIVITY_SERVICE);
 
@@ -61,7 +61,6 @@ public class VActivityService extends IActivityManager.Stub {
 	public static void systemReady(Context context) {
 		new VActivityService().onCreate(context);
 	}
-
 
 
 	public void onCreate(Context context) {
@@ -143,13 +142,53 @@ public class VActivityService extends IActivityManager.Stub {
 			return null;
 		}
 		VLog.d(TAG, "Jump to " + request.targetActInfo.name);
+		int launchFlags = request.targetFlags;
 		int resultFlags = 0;
 		ActivityInfo targetActInfo = request.targetActInfo;
 		String targetProcessName = ComponentUtils.getProcessName(targetActInfo);
+		IBinder replaceToken = null;
 		if (request.fromHost) {
 			resultFlags |= Intent.FLAG_ACTIVITY_NEW_TASK;
 			resultFlags |= Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
 			resultFlags |= Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET;
+		} else {
+			String taskAffinity = ComponentUtils.getTaskAffinity(targetActInfo);
+			ActivityRecord sourceRecord = mMainStack.findRecord(request.resultTo);
+
+			if (targetActInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
+                ActivityTaskRecord inTask = mMainStack.findTask(taskAffinity);
+                if (inTask != null) {
+                    am.moveTaskToFront(inTask.taskId, 0);
+                    ActivityRecord r = inTask.topActivity();
+                    ProcessRecord processRecord = VProcessService.getService().findProcess(r.pid);
+                    // Only one Activity in the SingleInstance task
+                    return new VActRedirectResult(r.token, processRecord.appThread.asBinder());
+                } else {
+                    resultFlags |= Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
+                    resultFlags |= Intent.FLAG_ACTIVITY_NEW_TASK;
+                }
+            }
+
+			if (targetActInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_TOP) {
+				ActivityTaskRecord topTask = getTopTask();
+				if (topTask != null && topTask.isOnTop(targetActInfo)) {
+					ActivityRecord r = topTask.topActivity();
+					ProcessRecord processRecord = VProcessService.getService().findProcess(r.pid);
+					// The top Activity is the target Activity
+					return new VActRedirectResult(r.token, processRecord.appThread.asBinder());
+				}
+			}
+
+			if (sourceRecord != null && sourceRecord.caller != null) {
+				if (sourceRecord.activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
+					String comebackTaskAffinity = ComponentUtils.getTaskAffinity(sourceRecord.caller);
+					ActivityTaskRecord comebackTask = mMainStack.findTask(comebackTaskAffinity);
+					if (comebackTask != null) {
+						am.moveTaskToFront(comebackTask.taskId, 0);
+						replaceToken = comebackTask.topActivityToken();
+					}
+				}
+			}
 		}
 
 		StubInfo selectStubInfo = fetchRunningStubInfo(targetProcessName);
@@ -163,10 +202,20 @@ public class VActivityService extends IActivityManager.Stub {
 		if (stubActInfo == null) {
 			return null;
 		}
-		return new VActRedirectResult(stubActInfo, resultFlags);
+		VActRedirectResult result = new VActRedirectResult(stubActInfo, resultFlags);
+		// Workaround: issue #33 START
+		if (request.resultTo == null && replaceToken == null) {
+			ActivityTaskRecord r = getTopTask();
+			if (r != null) {
+				replaceToken = r.topActivity().token;
+			}
+		}
+		result.replaceToken = replaceToken;
+		// Workaround: issue #33 END
+		return result;
 	}
 
-	public ProviderInfo fetchServiceRuntime(ServiceInfo serviceInfo) {
+	ProviderInfo fetchServiceRuntime(ServiceInfo serviceInfo) {
 		if (serviceInfo == null) {
 			return null;
 		}
@@ -184,7 +233,7 @@ public class VActivityService extends IActivityManager.Stub {
 		return null;
 	}
 
-	public ProviderInfo fetchRunningServiceRuntime(ServiceInfo serviceInfo) {
+	ProviderInfo fetchRunningServiceRuntime(ServiceInfo serviceInfo) {
 		if (serviceInfo != null) {
 			String appProcessName = ComponentUtils.getProcessName(serviceInfo);
 			return fetchRunningServiceRuntime(appProcessName);
@@ -192,7 +241,7 @@ public class VActivityService extends IActivityManager.Stub {
 		return null;
 	}
 
-	public ProviderInfo fetchRunningServiceRuntime(String appProcessName) {
+	private ProviderInfo fetchRunningServiceRuntime(String appProcessName) {
 		StubInfo stubInfo = fetchRunningStubInfo(appProcessName);
 		if (stubInfo != null) {
 			return stubInfo.providerInfo;
@@ -200,7 +249,7 @@ public class VActivityService extends IActivityManager.Stub {
 		return null;
 	}
 
-	public StubInfo fetchRunningStubInfo(String appProcessName) {
+	private StubInfo fetchRunningStubInfo(String appProcessName) {
 		return VProcessService.getService().findStubInfo(appProcessName);
 	}
 
@@ -209,18 +258,19 @@ public class VActivityService extends IActivityManager.Stub {
 	}
 
 	@Override
-	public synchronized void onActivityCreated(IBinder token, ActivityInfo info, int taskId) {
-		ActivityTaskRecord task = stack.findTask(taskId);
+	public synchronized void onActivityCreated(IBinder token, ActivityInfo targetActInfo, ActivityInfo callerActInfo, int taskId) {
+		ActivityTaskRecord task = mMainStack.findTask(taskId);
 		if (task == null) {
 			task = new ActivityTaskRecord();
 			task.taskId = taskId;
-			task.rootAffinity = ComponentUtils.getTaskAffinity(info);
-			task.baseActivity = new ComponentName(info.packageName, info.name);
-			stack.tasks.add(task);
+			task.rootAffinity = ComponentUtils.getTaskAffinity(targetActInfo);
+			task.baseActivity = new ComponentName(targetActInfo.packageName, targetActInfo.name);
+			mMainStack.tasks.add(task);
 		}
 		ActivityRecord record = new ActivityRecord();
-		record.activityInfo = info;
+		record.activityInfo = targetActInfo;
 		record.token = token;
+		record.caller = callerActInfo;
 		record.pid = Binder.getCallingPid();
 		task.activityList.add(record);
 		task.activities.put(token, record);
@@ -228,7 +278,7 @@ public class VActivityService extends IActivityManager.Stub {
 
 	@Override
 	public synchronized void onActivityResumed(IBinder token) {
-		ActivityTaskRecord r = stack.findTask(token);
+		ActivityTaskRecord r = mMainStack.findTask(token);
 		if (r != null) {
 			ActivityRecord record = r.activities.get(token);
 			r.activityList.remove(record);
@@ -238,20 +288,20 @@ public class VActivityService extends IActivityManager.Stub {
 
 	@Override
 	public synchronized void onActivityDestroyed(IBinder token) {
-		ActivityTaskRecord r = stack.findTask(token);
+		ActivityTaskRecord r = mMainStack.findTask(token);
 		if (r != null) {
 			ActivityRecord record = r.activities.remove(token);
 			r.activityList.remove(record);
 			if (r.activityList.isEmpty()) {
-				stack.tasks.remove(r);
+				mMainStack.tasks.remove(r);
 			}
 		}
 	}
 
 	@Override
 	public AppTaskInfo getTaskInfo(int taskId) {
-		synchronized (stack) {
-			ActivityTaskRecord r = stack.findTask(taskId);
+		synchronized (mMainStack) {
+			ActivityTaskRecord r = mMainStack.findTask(taskId);
 			if (r != null) {
 				return r.toTaskInfo();
 			}
@@ -261,9 +311,9 @@ public class VActivityService extends IActivityManager.Stub {
 
 	@Override
 	public String getPackageForToken(IBinder token) {
-		ActivityRecord r = stack.findRecord(token);
+		ActivityRecord r = mMainStack.findRecord(token);
 		if (r != null) {
-			return r.activityInfo.packageName;
+			return r.caller != null ? r.caller.packageName : null;
 		}
 		return null;
 	}
@@ -281,12 +331,13 @@ public class VActivityService extends IActivityManager.Stub {
 		if (taskId == -1) {
 			return null;
 		}
-		return stack.findTask(taskId);
+		return mMainStack.findTask(taskId);
 	}
 
-	public synchronized void processDied(int pid) {
+	public synchronized void processDied(ProcessRecord record) {
+		int pid = record.pid;
 		List<Pair<ActivityTaskRecord, ActivityRecord>> removeRecordList = new LinkedList<>();
-		for (ActivityTaskRecord task : stack.tasks) {
+		for (ActivityTaskRecord task : mMainStack.tasks) {
 			for (ActivityRecord r : task.activities.values()) {
 				if (r.pid == pid) {
 					removeRecordList.add(Pair.create(task, r));
@@ -300,20 +351,25 @@ public class VActivityService extends IActivityManager.Stub {
 			taskRecord.activityList.remove(r);
 		}
 
-		stack.trimTasks();
+		mMainStack.trimTasks();
 	}
 
 	public ActivityInfo getCallingActivity(IBinder token) {
-		ActivityTaskRecord taskRecord = stack.findTask(token);
-		ListIterator<ActivityRecord> iterator = taskRecord.activityList.listIterator();
-		while (iterator.hasNext()) {
-			ActivityRecord r = iterator.next();
-			if (r.token == token) {
-				if (iterator.hasPrevious()) {
-					return r.activityInfo;
-				}
-				break;
-			}
+		ActivityRecord r = mMainStack.findRecord(token);
+		if (r != null) {
+			return r.caller;
+		}
+		return null;
+	}
+
+	@Override
+	public ActivityInfo getActivityInfo(IBinder token) {
+		if (token == null) {
+			return null;
+		}
+		ActivityRecord r = mMainStack.findRecord(token);
+		if (r != null) {
+			return r.activityInfo;
 		}
 		return null;
 	}
