@@ -105,8 +105,7 @@ public final class PatchManager {
 	private void injectInternal() throws Throwable {
 		addPatch(new ActivityManagerPatch());
 		addPatch(new PackageManagerPatch());
-		addPatch(new DropBoxManagerPatch());
-		
+
 		if (VirtualCore.getCore().isVAppProcess()) {
 			// ## Fuck the MIUI Security
 			if (MIUISecurityManagerPatch.needInject()) {
@@ -115,6 +114,8 @@ public final class PatchManager {
 			// ## End
 			addPatch(HCallbackHook.getDefault());
 			addPatch(AppInstrumentation.getDefault());
+			
+			addPatch(new DropBoxManagerPatch());
 			addPatch(new NotificationManagerPatch());
 			addPatch(new LocationManagerPatch());
 			addPatch(new WindowManagerPatch());

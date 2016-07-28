@@ -4,9 +4,14 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.os.Build;
+import android.os.DropBoxManager;
 
+import com.lody.virtual.client.core.PatchManager;
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.hook.binders.HookDropBoxBinder;
+import com.lody.virtual.client.hook.patchs.dropbox.DropBoxManagerPatch;
 import com.lody.virtual.helper.utils.Reflect;
+import com.lody.virtual.helper.utils.ReflectException;
 import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Method;
@@ -44,6 +49,15 @@ public class ContextFixer {
 	 *            插件Context
 	 */
 	public static void fixContext(Context plugin) {
+		DropBoxManager dm = (DropBoxManager) plugin.getSystemService(Context.DROPBOX_SERVICE);
+		HookDropBoxBinder boxBinder = PatchManager.getInstance().getHookObject(DropBoxManagerPatch.class);
+		if (boxBinder != null) {
+			try {
+				Reflect.on(dm).set("mService", boxBinder.getProxyObject());
+			} catch (ReflectException e) {
+				e.printStackTrace();
+			}
+		}
 		String pkgName = VirtualCore.getCore().getHostPkg();
 		Context context = plugin;
 		while (context instanceof ContextWrapper) {
