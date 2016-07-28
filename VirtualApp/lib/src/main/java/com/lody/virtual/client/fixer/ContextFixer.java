@@ -3,6 +3,7 @@ package com.lody.virtual.client.fixer;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.pm.ApplicationInfo;
 import android.os.Build;
 import android.os.DropBoxManager;
 
@@ -69,6 +70,25 @@ public class ContextFixer {
 		} catch (Throwable e) {
 			VLog.w(TAG, "Unable to found field:mBasePackageName in ContextImpl, ignore.");
 		}
+    
+    /**
+     * By : qiang.sheng
+     * TODO : fix摄像头不能调用的问题, 但不确定各版本之间的兼容性,先这么改着.
+     * */
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+      try {
+        Object mBoundApplication = Reflect.on(VirtualCore.getCore().mainThread()).get("mBoundApplication");
+        if (mBoundApplication != null) {
+          ApplicationInfo appInfo = Reflect.on(mBoundApplication).get("appInfo");
+          if (appInfo != null) {
+            Reflect.on(appInfo).set("packageName", VirtualCore.getCore().getHostPkg());
+          }
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
 
 		if (Build.VERSION.SDK_INT >= 19) {
 			try {
