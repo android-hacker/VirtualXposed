@@ -115,10 +115,9 @@ public class HCallbackHook implements Handler.Callback, Injectable {
         if (appInfo == null) {
             return;
         }
-        // StubActivityInfo
         ActivityInfo stubActInfo = stubIntent.getParcelableExtra(ExtraConstants.EXTRA_STUB_ACT_INFO);
-        // TargetActivityInfo
         ActivityInfo targetActInfo = stubIntent.getParcelableExtra(ExtraConstants.EXTRA_TARGET_ACT_INFO);
+        ActivityInfo callerActInfo = stubIntent.getParcelableExtra(ExtraConstants.EXTRA_CALLER);
 
         if (stubActInfo == null || targetActInfo == null) {
             return;
@@ -134,6 +133,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
         try {
             targetIntent.putExtra(ExtraConstants.EXTRA_STUB_ACT_INFO, stubActInfo);
             targetIntent.putExtra(ExtraConstants.EXTRA_TARGET_ACT_INFO, targetActInfo);
+            targetIntent.putExtra(ExtraConstants.EXTRA_CALLER, callerActInfo);
         } catch (Throwable e) {
             error = true;
             VLog.w(TAG, "Directly putExtra failed: %s.", e.getMessage());
@@ -145,6 +145,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
             try {
                 targetIntent.putExtra(ExtraConstants.EXTRA_STUB_ACT_INFO, stubActInfo);
                 targetIntent.putExtra(ExtraConstants.EXTRA_TARGET_ACT_INFO, targetActInfo);
+                targetIntent.putExtra(ExtraConstants.EXTRA_CALLER, callerActInfo);
             } catch (Throwable e) {
                 VLog.w(TAG, "Secondly putExtra failed: %s.", e.getMessage());
             }

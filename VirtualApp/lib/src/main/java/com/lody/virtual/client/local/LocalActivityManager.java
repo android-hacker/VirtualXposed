@@ -57,14 +57,15 @@ public class LocalActivityManager {
         if (intent == null) {
             return null;
         }
-        ActivityInfo activityInfo = intent.getParcelableExtra(ExtraConstants.EXTRA_TARGET_ACT_INFO);
+        ActivityInfo targetActInfo = intent.getParcelableExtra(ExtraConstants.EXTRA_TARGET_ACT_INFO);
+        ActivityInfo callerActInfo = intent.getParcelableExtra(ExtraConstants.EXTRA_CALLER);
 
         //NOTE:
         // 此处在使用LocalActivityManager启动Activity的时候是空的,因为走不到replaceIntent里,
         // 比如掌阅会崩溃,暂时从Activity里取,没调研兼容性=_=,先用着。
-        if (activityInfo == null) {
+        if (targetActInfo == null) {
             try {
-                activityInfo = Reflect.on(activity).get("mActivityInfo");
+                targetActInfo = Reflect.on(activity).get("mActivityInfo");
             } catch(Exception e){
                 e.printStackTrace();
             }
@@ -72,12 +73,12 @@ public class LocalActivityManager {
 
         IBinder token = activity.getActivityToken();
         LocalActivityRecord r = new LocalActivityRecord();
-        r.activityInfo = activityInfo;
+        r.activityInfo = targetActInfo;
         r.activity = activity;
         r.targetIntent = intent;
         mActivities.put(token, r);
         try {
-            getService().onActivityCreated(activity.getActivityToken(), activityInfo, activity.getTaskId());
+            getService().onActivityCreated(activity.getActivityToken(), targetActInfo, callerActInfo, activity.getTaskId());
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -148,4 +149,11 @@ public class LocalActivityManager {
         }
     }
 
+    public ActivityInfo getActivityInfo(IBinder token) {
+        try {
+            return getService().getActivityInfo(token);
+        } catch (RemoteException e) {
+            return RuntimeEnv.crash(e);
+        }
+    }
 }

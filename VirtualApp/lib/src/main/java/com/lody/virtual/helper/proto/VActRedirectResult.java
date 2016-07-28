@@ -12,22 +12,17 @@ import android.os.Parcelable;
 public class VActRedirectResult implements Parcelable {
 
 	public ActivityInfo stubActInfo;
-	/**
-	 * 已经拦截Activity的启动,转为其它的操作,比如onNewIntent...
-	 */
-	public boolean intercepted;
 	public int flags;
-	public boolean reopen;
 	public IBinder replaceToken;
+	public IBinder newIntentToken;
+	public IBinder targetClient;
 
-
-	public VActRedirectResult(boolean reopen) {
-		this.intercepted = true;
-		this.reopen = reopen;
+	public VActRedirectResult(IBinder newIntentToken, IBinder targetClient) {
+		this.newIntentToken = newIntentToken;
+		this.targetClient = targetClient;
 	}
 
 	public VActRedirectResult(ActivityInfo stubActInfo, int flags) {
-		this.intercepted = false;
 		this.stubActInfo = stubActInfo;
 		this.flags = flags;
 	}
@@ -40,18 +35,18 @@ public class VActRedirectResult implements Parcelable {
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeParcelable(this.stubActInfo, flags);
-		dest.writeByte(this.intercepted ? (byte) 1 : (byte) 0);
 		dest.writeInt(this.flags);
-		dest.writeByte(this.reopen ? (byte) 1 : (byte) 0);
 		dest.writeStrongBinder(this.replaceToken);
+		dest.writeStrongBinder(this.newIntentToken);
+		dest.writeStrongBinder(this.targetClient);
 	}
 
 	protected VActRedirectResult(Parcel in) {
 		this.stubActInfo = in.readParcelable(ActivityInfo.class.getClassLoader());
-		this.intercepted = in.readByte() != 0;
 		this.flags = in.readInt();
-		this.reopen = in.readByte() != 0;
 		this.replaceToken = in.readStrongBinder();
+		this.newIntentToken = in.readStrongBinder();
+		this.targetClient = in.readStrongBinder();
 	}
 
 	public static final Creator<VActRedirectResult> CREATOR = new Creator<VActRedirectResult>() {

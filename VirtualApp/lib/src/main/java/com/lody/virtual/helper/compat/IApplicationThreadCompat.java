@@ -8,7 +8,10 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.android.internal.content.ReferrerIntent;
+
 import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * @author Lody
@@ -90,6 +93,15 @@ public class IApplicationThreadCompat {
     public static void scheduleStopService(IApplicationThread appThread, IBinder token) {
         try {
             appThread.scheduleStopService(token);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void scheduleNewIntent(IApplicationThread appThread, List intents, IBinder token) {
+        try {
+            //noinspection unchecked
+            appThread.scheduleNewIntent((List<ReferrerIntent>) intents, token);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
