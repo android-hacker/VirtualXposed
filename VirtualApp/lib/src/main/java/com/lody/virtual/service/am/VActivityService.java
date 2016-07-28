@@ -154,21 +154,31 @@ public class VActivityService extends IActivityManager.Stub {
 		} else {
 			String taskAffinity = ComponentUtils.getTaskAffinity(targetActInfo);
 			ActivityRecord sourceRecord = mMainStack.findRecord(request.resultTo);
-			if ((launchFlags & Intent.FLAG_ACTIVITY_NEW_TASK) != 0) {
-				ActivityTaskRecord inTask = mMainStack.findTask(taskAffinity);
-				if (targetActInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
-					if (inTask != null) {
-						am.moveTaskToFront(inTask.taskId, 0);
-						ActivityRecord r = inTask.topActivity();
-						ProcessRecord processRecord = VProcessService.getService().findProcess(r.pid);
-						// Only one Activity in the SingleInstance task
-						return new VActRedirectResult(r.token, processRecord.appThread.asBinder());
-					} else {
-						resultFlags |= Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
-						resultFlags |= Intent.FLAG_ACTIVITY_NEW_TASK;
-					}
+
+			if (targetActInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
+                ActivityTaskRecord inTask = mMainStack.findTask(taskAffinity);
+                if (inTask != null) {
+                    am.moveTaskToFront(inTask.taskId, 0);
+                    ActivityRecord r = inTask.topActivity();
+                    ProcessRecord processRecord = VProcessService.getService().findProcess(r.pid);
+                    // Only one Activity in the SingleInstance task
+                    return new VActRedirectResult(r.token, processRecord.appThread.asBinder());
+                } else {
+                    resultFlags |= Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
+                    resultFlags |= Intent.FLAG_ACTIVITY_NEW_TASK;
+                }
+            }
+
+			if (targetActInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_TOP) {
+				ActivityTaskRecord topTask = getTopTask();
+				if (topTask != null && topTask.isOnTop(targetActInfo)) {
+					ActivityRecord r = topTask.topActivity();
+					ProcessRecord processRecord = VProcessService.getService().findProcess(r.pid);
+					// The top Activity is the target Activity
+					return new VActRedirectResult(r.token, processRecord.appThread.asBinder());
 				}
 			}
+
 			if (sourceRecord != null && sourceRecord.caller != null) {
 				if (sourceRecord.activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
 					String comebackTaskAffinity = ComponentUtils.getTaskAffinity(sourceRecord.caller);
