@@ -8,6 +8,7 @@ import android.provider.Settings;
 import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.delegate.AppInstrumentation;
 import com.lody.virtual.client.hook.patchs.account.AccountManagerPatch;
+import com.lody.virtual.client.hook.patchs.alerm.AlarmManagerPatch;
 import com.lody.virtual.client.hook.patchs.am.ActivityManagerPatch;
 import com.lody.virtual.client.hook.patchs.am.HCallbackHook;
 import com.lody.virtual.client.hook.patchs.appops.AppOpsManagerPatch;
@@ -104,7 +105,8 @@ public final class PatchManager {
 	private void injectInternal() throws Throwable {
 		addPatch(new ActivityManagerPatch());
 		addPatch(new PackageManagerPatch());
-
+		addPatch(new DropBoxManagerPatch());
+		
 		if (VirtualCore.getCore().isVAppProcess()) {
 			// ## Fuck the MIUI Security
 			if (MIUISecurityManagerPatch.needInject()) {
@@ -125,9 +127,9 @@ public final class PatchManager {
 			addPatch(new TelephonyRegistryPatch());
 			addPatch(new AppWidgetManagerPatch());
 			addPatch(new AccountManagerPatch());
-			addPatch(new DropBoxManagerPatch());
 			addPatch(new AudioManagerPatch());
 			addPatch(new SearchManagerPatch());
+			addPatch(new AlarmManagerPatch());
 
 			if (Build.VERSION.SDK_INT >= JELLY_BEAN_MR2) {
 				addPatch(new VibratorPatch());
