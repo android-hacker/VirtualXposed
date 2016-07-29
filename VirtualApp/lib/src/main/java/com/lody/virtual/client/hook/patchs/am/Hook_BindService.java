@@ -1,5 +1,6 @@
 package com.lody.virtual.client.hook.patchs.am;
 
+import android.app.Application;
 import android.app.IApplicationThread;
 import android.app.IServiceConnection;
 import android.content.ComponentName;
@@ -8,7 +9,9 @@ import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.os.IBinder;
 
+import com.lody.virtual.client.core.AppSandBox;
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.HackServiceConnection;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.LocalServiceManager;
 
@@ -44,6 +47,8 @@ import java.lang.reflect.Method;
         service.setComponent(new ComponentName(serviceInfo.packageName, serviceInfo.name));
       }
       if (isAppPkg(pkgName)) {
+        Application application = AppSandBox.getApplication(pkgName);
+        connection = new HackServiceConnection(application, connection);
         return LocalServiceManager.getInstance().bindService(caller.asBinder(), token, service, resolvedType,
                 connection, flags);
       }

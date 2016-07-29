@@ -23,9 +23,9 @@ import java.util.Map;
  * @author Lody
  */
 
-class ServiceConnectionImpl extends IServiceConnection.Stub {
+public class HackServiceConnection extends IServiceConnection.Stub {
 
-	private static final String TAG = ServiceConnectionImpl.class.getSimpleName();
+	private static final String TAG = HackServiceConnection.class.getSimpleName();
 
 	private static Map<String, ServiceFetcher> sHookSecondaryServiceMap = new HashMap<>();
 
@@ -164,21 +164,24 @@ class ServiceConnectionImpl extends IServiceConnection.Stub {
 
 	private IServiceConnection mConnection;
 
-	ServiceConnectionImpl(Context context, IServiceConnection connection) {
+	public HackServiceConnection(Context context, IServiceConnection connection) {
         this.mContext = context;
 		this.mConnection = connection;
 	}
 
 	@Override
 	public void connected(ComponentName component, IBinder binder) throws RemoteException {
-        String description = binder.getInterfaceDescriptor();
-		VLog.d(TAG, "Connect service %s / %s.", component.toShortString(), description);
-        ServiceFetcher fetcher = sHookSecondaryServiceMap.get(description);
-        if (fetcher != null) {
-            IBinder res = fetcher.getService(mContext, mContext.getClassLoader(), binder);
-            if (res != null) {
-                binder = res;
+        try {
+            String description = binder.getInterfaceDescriptor();
+            ServiceFetcher fetcher = sHookSecondaryServiceMap.get(description);
+            if (fetcher != null) {
+                IBinder res = fetcher.getService(mContext, mContext.getClassLoader(), binder);
+                if (res != null) {
+                    binder = res;
+                }
             }
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
         mConnection.connected(component, binder);
 	}
