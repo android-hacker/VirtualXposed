@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest package="io.virtualapp"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+          xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
 
     <application
         android:name=".VApp"
@@ -28,18 +29,71 @@
         <activity android:name=".home.LoadingActivity"/>
 
 
+        <!-- lib -->
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C0"
+            android:authorities="${applicationId}.virtual.client.stub.StubContentProvider0"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C1"
+            android:authorities="${applicationId}.virtual.client.stub.StubContentProvider1"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C2"
+            android:authorities="${applicationId}.virtual.client.stub.StubContentProvider2"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C3"
+            android:authorities="${applicationId}.virtual.client.stub.StubContentProvider3"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C4"
+            android:authorities="${applicationId}.virtual.client.stub.StubContentProvider4"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C5"
+            android:authorities="${applicationId}.virtual.client.stub.StubContentProvider5"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C6"
+            android:authorities="${applicationId}.virtual.client.stub.StubContentProvider6"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C7"
+            android:authorities="${applicationId}.virtual.client.stub.StubContentProvider7"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C8"
+            android:authorities="${applicationId}.virtual.client.stub.StubContentProvider8"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C9"
+            android:authorities="${applicationId}.virtual.client.stub.StubContentProvider9"
+            tools:replace="android:authorities"/>
+        <!-- lib -->
+
+
         <meta-data
             android:name="UMENG_APPKEY"
-            android:value="5792f68f67e58e08ee000ee1" >
+            android:value="5792f68f67e58e08ee000ee1">
         </meta-data>
         <meta-data
             android:name="UMENG_CHANNEL"
-            android:value="Umeng" >
+            android:value="Umeng">
         </meta-data><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
      App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
         <meta-data
             android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
+            android:value="@integer/google_play_services_version"/>
     </application>
 
 
