@@ -2,6 +2,7 @@ package com.lody.virtual.service;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
+import android.os.Debug;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 
@@ -39,8 +40,14 @@ public class VAppService extends IAppManager.Stub {
 	private Map<String, APKBundle> mApkBundleCaches = new ConcurrentHashMap<String, APKBundle>(10);
 	private RemoteCallbackList<IAppObserver> remoteCallbackList = new RemoteCallbackList<IAppObserver>();
 
-	private static final String[] PRE_INSTALL_PKG = {"com.google.android.gsf", "com.google.android.gsf.login",
-			"com.google.android.gms", "com.android.vending"};
+	private static final String[] PRE_INSTALL_PKG = {
+//			"com.google.android.gsf",
+//			"com.google.android.gsf.login",
+//			"com.google.android.gms",
+//			"com.android.vending",
+//			"com.google.android.backuptransport",
+//			"com.google.android.backup"
+	};
 
 	public static VAppService getService() {
 		return gService;
@@ -65,6 +72,7 @@ public class VAppService extends IAppManager.Stub {
 			}
 		}
 		for (String pkg : PRE_INSTALL_PKG) {
+			Debug.waitForDebugger();
 			if (isAppInstalled(pkg)) {
 				continue;
 			}

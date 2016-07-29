@@ -66,7 +66,7 @@ public class VProcessService extends IProcessManager.Stub {
 	 */
 	public String[] findRunningAppPkgByPid(int pid) {
 		synchronized (mProcessList) {
-			ProcessRecord record = mProcessList.getRecord(pid);
+			ProcessRecord record = mProcessList.findProcess(pid);
 			if (record != null) {
 				return record.runningAppPkgs.toArray(new String[record.runningAppPkgs.size()]);
 			}
@@ -106,7 +106,7 @@ public class VProcessService extends IProcessManager.Stub {
 	@Override
 	public String getAppProcessName(int pid) throws RemoteException {
 		synchronized (mProcessList) {
-			ProcessRecord r = mProcessList.getRecord(pid);
+			ProcessRecord r = mProcessList.findProcess(pid);
 			if (r == null) {
 				return null;
 			}
@@ -117,7 +117,7 @@ public class VProcessService extends IProcessManager.Stub {
 	@Override
 	public List<String> getProcessPkgList(int pid) throws RemoteException {
 		synchronized (mProcessList) {
-			ProcessRecord r = mProcessList.getRecord(pid);
+			ProcessRecord r = mProcessList.findProcess(pid);
 			if (r == null) {
 				return null;
 			}
@@ -170,7 +170,7 @@ public class VProcessService extends IProcessManager.Stub {
 	 */
 	public boolean isSameProcess(int pid, String pluginProcessName) {
 		synchronized (mProcessList) {
-			ProcessRecord r = mProcessList.getRecord(pid);
+			ProcessRecord r = mProcessList.findProcess(pid);
 			return r != null && r.appProcessName.equals(pluginProcessName);
 		}
 	}
@@ -226,7 +226,7 @@ public class VProcessService extends IProcessManager.Stub {
 	 *            插件Pid
 	 */
 	private synchronized ProcessRecord removeProcessRecordLocked(int pid) {
-		ProcessRecord r = mProcessList.getRecord(pid);
+		ProcessRecord r = mProcessList.findProcess(pid);
 		if (r == null) {
 			return null;
 		}
@@ -296,7 +296,7 @@ public class VProcessService extends IProcessManager.Stub {
 		}
 		linkClientBinderDied(callingPid, clientBinder);
 		synchronized (mProcessLock) {
-			ProcessRecord record = mProcessList.getRecord(callingPid);
+			ProcessRecord record = mProcessList.findProcess(callingPid);
 			if (record == null) {
 				ProcessRecord r = newProcessRecordLocked(callingPid, uid);
 				r.updateStubProcess(callingPid);
@@ -319,7 +319,7 @@ public class VProcessService extends IProcessManager.Stub {
 	public synchronized void onEnterApp(String pkgName) {
 		int pid = Binder.getCallingPid();
 		if (!TextUtils.isEmpty(pkgName)) {
-			ProcessRecord r = mProcessList.getRecord(pid);
+			ProcessRecord r = mProcessList.findProcess(pid);
 			if (r == null) {
 				VLog.w(TAG, "Enter app(%d/%s) but not found in record.", pid, pkgName);
 				return;
@@ -367,7 +367,7 @@ public class VProcessService extends IProcessManager.Stub {
 
 	public void onEnterAppProcessName(String appProcessName) {
 		int pid = Binder.getCallingPid();
-		ProcessRecord r = mProcessList.getRecord(pid);
+		ProcessRecord r = mProcessList.findProcess(pid);
 		if (r != null) {
 			r.appProcessName = appProcessName;
 		}
@@ -399,16 +399,8 @@ public class VProcessService extends IProcessManager.Stub {
 		return null;
 	}
 
-	public void launchComponentProcess(ComponentInfo componentInfo, ProviderInfo providerInfo) {
-		if (componentInfo != null && providerInfo != null) {
-			new ProviderCaller.Builder(VirtualCore.getCore().getContext(), providerInfo.authority)
-					.methodName(MethodConstants.INIT_PROCESS)
-					.addArg(ExtraConstants.EXTRA_PKG, componentInfo.packageName)
-					.addArg(ExtraConstants.EXTRA_PROCESS_NAME, ComponentUtils.getProcessName(componentInfo))
-					.call();
-		}
-	}
 
+	@Override
 	public void installComponent(VComponentInfo componentInfo) {
 		String pkg = componentInfo.packageName;
 		String appProcName = ComponentUtils.getProcessName(componentInfo);
@@ -428,6 +420,16 @@ public class VProcessService extends IProcessManager.Stub {
 		}
 	}
 
+	public void launchComponentProcess(ComponentInfo componentInfo, ProviderInfo providerInfo) {
+		if (componentInfo != null && providerInfo != null) {
+			new ProviderCaller.Builder(VirtualCore.getCore().getContext(), providerInfo.authority)
+					.methodName(MethodConstants.INIT_PROCESS)
+					.addArg(ExtraConstants.EXTRA_PKG, componentInfo.packageName)
+					.addArg(ExtraConstants.EXTRA_PROCESS_NAME, ComponentUtils.getProcessName(componentInfo))
+					.call();
+		}
+	}
+
 	public ProcessRecord findStubProcessRecord(String processName) {
 			synchronized (mProcessList) {
 				for (ProcessRecord r : mProcessList.values()) {
@@ -439,7 +441,7 @@ public class VProcessService extends IProcessManager.Stub {
 		return null;
 	}
 
-	public boolean isStubProcessRunning(StubInfo stubInfo) {
+	private boolean isStubProcessRunning(StubInfo stubInfo) {
 		return findStubProcessRecord(stubInfo.processName) != null;
 	}
 
@@ -454,7 +456,7 @@ public class VProcessService extends IProcessManager.Stub {
 	}
 
 	public ProcessRecord findProcess(int pid) {
-		return mProcessList.getRecord(pid);
+		return mProcessList.findProcess(pid);
 	}
 
 

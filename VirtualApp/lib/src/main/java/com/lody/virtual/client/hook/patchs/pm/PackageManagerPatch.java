@@ -8,6 +8,7 @@ import com.lody.virtual.client.hook.base.HookBinder;
 import com.lody.virtual.client.hook.base.HookObject;
 import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.ResultStaticHook;
 import com.lody.virtual.client.interfaces.IHookObject;
 
 import java.lang.reflect.Field;
@@ -59,6 +60,13 @@ public final class PackageManagerPatch extends PatchObject<IPackageManager, Hook
 	@Override
 	protected HookObject<IPackageManager> initHookObject() {
 		return new HookObject<IPackageManager>(getPM());
+	}
+
+	@Override
+	protected void applyHooks() {
+		super.applyHooks();
+		addHook(new ResultStaticHook("addPermissionAsync", true));
+		addHook(new ResultStaticHook("addPermission", true));
 	}
 
 	@Override
