@@ -153,7 +153,11 @@ public class NotificationHandler {
         Notification notification1 = NotificaitionUtils.clone(pluginContext, notification);
         if (Build.VERSION.SDK_INT >= 16 && isBig) {
             notification1.bigContentView = remoteViews;
+            notification1.contentView = null;
         } else {
+            if (Build.VERSION.SDK_INT >= 16) {
+                notification1.bigContentView = null;
+            }
             notification1.contentView = remoteViews;
         }
         ResourcesCompat.getInstance().fixNotificationIcon(notification1);
