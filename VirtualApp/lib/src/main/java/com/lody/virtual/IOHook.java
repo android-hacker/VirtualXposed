@@ -2,10 +2,15 @@ package com.lody.virtual;
 
 import android.os.Build;
 
+import com.lody.virtual.helper.utils.VLog;
+
 /**
  * Created by Xfast on 2016/7/21.
  */
 public class IOHook {
+
+    private static final String TAG = IOHook.class.getSimpleName();
+
     private static boolean sLoaded;
 
     static {
@@ -13,7 +18,7 @@ public class IOHook {
             System.loadLibrary("iohook");
             sLoaded = true;
         } catch (Throwable e) {
-            e.printStackTrace();
+            VLog.e(TAG, VLog.getStackTraceString(e));
         }
     }
 
@@ -21,7 +26,7 @@ public class IOHook {
         try {
             return nativeGetRedirectedPath(orgPath);
         } catch (Throwable e) {
-            e.printStackTrace();
+            VLog.e(TAG, VLog.getStackTraceString(e));
         }
         return null;
     }
@@ -30,7 +35,7 @@ public class IOHook {
         try {
             return nativeRestoreRedirectedPath(orgPath);
         } catch (Throwable e) {
-            e.printStackTrace();
+            VLog.e(TAG, VLog.getStackTraceString(e));
         }
         return null;
     }
@@ -39,7 +44,7 @@ public class IOHook {
         try {
             nativeRedirect(orgPath, newPath);
         } catch (Throwable e) {
-            e.printStackTrace();
+            VLog.e(TAG, VLog.getStackTraceString(e));
         }
     }
 
@@ -47,20 +52,28 @@ public class IOHook {
         try {
             nativeHook(Build.VERSION.SDK_INT);
         } catch (Throwable e) {
-            e.printStackTrace();
+            VLog.e(TAG, VLog.getStackTraceString(e));
         }
     }
+
+    /**
+     * this is called by JNI.
+     * @param pid killed pid
+     * @param signal signal
+     */
+    public static void onKillProcess(int pid, int signal) {
+        VLog.e(TAG, "onKillProcess: pid=" + pid + ", signal=" + signal);
+        if (pid == android.os.Process.myPid()) {
+            VLog.e(TAG, VLog.getStackTraceString(new Throwable()));
+        }
+    }
+
 
     //    private static native void nativeRejectPath(String path);
 
     private static native String nativeRestoreRedirectedPath(String redirectedPath);
 
     private static native String nativeGetRedirectedPath(String orgPath);
-
-
-    public static boolean init() {
-        return sLoaded;
-    }
 
     private static native void nativeRedirect(String orgPath, String newPath);
 

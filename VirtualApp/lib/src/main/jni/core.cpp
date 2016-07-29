@@ -4,6 +4,9 @@
 #include "core.h"
 
 
+JavaVM *g_vm;
+jclass g_jclass;
+
 void hook(JNIEnv *env, jclass jclazz, jint apiLevel) {
     static bool hasHooked = false;
     if (hasHooked) {
@@ -42,13 +45,13 @@ static JNINativeMethod gMethods[] = {
 };
 
 
+
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv *env;
     if (vm->GetEnv((void **) &env, JNI_VERSION_1_4) != JNI_OK) {
         LOGE("GetEnv() FAILED!!!");
         return JNI_ERR;
     }
-
     jclass javaClass = env->FindClass(JAVA_CLASS);
     if (javaClass == NULL) {
         LOGE("unable to find class: %s", JAVA_CLASS);
@@ -59,8 +62,9 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
         LOGE("register methods FAILED!!!");
         return JNI_ERR;
     }
+    g_vm = vm;
+    g_jclass = (jclass) env->NewGlobalRef(javaClass);
     env->DeleteLocalRef(javaClass);
-
     LOGI("JavaVM::GetEnv() SUCCESS!");
     return JNI_VERSION_1_4;
 }

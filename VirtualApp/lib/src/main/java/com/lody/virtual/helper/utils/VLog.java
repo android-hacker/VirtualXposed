@@ -39,4 +39,8 @@ public class VLog {
 			Log.v(tag, String.format(msg, format));
 		}
 	}
+
+	public static String getStackTraceString(Throwable tr) {
+		return Log.getStackTraceString(tr);
+	}
 }
