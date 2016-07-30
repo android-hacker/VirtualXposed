@@ -21,7 +21,7 @@ import com.lody.virtual.helper.proto.VComponentInfo;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.IProcessManager;
-import com.lody.virtual.service.VAppService;
+import com.lody.virtual.service.pm.VAppService;
 import com.lody.virtual.service.am.StubInfo;
 import com.lody.virtual.service.am.VActivityService;
 import com.lody.virtual.service.am.VServiceService;

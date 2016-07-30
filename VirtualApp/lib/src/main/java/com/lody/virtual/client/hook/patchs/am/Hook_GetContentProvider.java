@@ -10,6 +10,7 @@ import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.providers.ExternalProviderHook;
 import com.lody.virtual.client.local.LocalContentManager;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
@@ -36,7 +37,14 @@ import java.lang.reflect.Proxy;
 			holder = LocalContentManager.getDefault().getContentProvider(name);
 		}
 		if (holder == null) {
-			holder = (IActivityManager.ContentProviderHolder) method.invoke(who, args);
+			try {
+				holder = (IActivityManager.ContentProviderHolder) method.invoke(who, args);
+			} catch (InvocationTargetException e) {
+				if (e.getCause() instanceof SecurityException) {
+					return null;
+				}
+				throw e.getCause();
+			}
 		}
 		ExternalProviderHook.HookFetcher fetcher = ExternalProviderHook.fetchHook(name);
 		if (fetcher != null) {
@@ -45,7 +53,6 @@ import java.lang.reflect.Proxy;
 			holder.provider = (IContentProvider) Proxy.newProxyInstance(provider.getClass().getClassLoader(),
 					new Class[]{IContentProvider.class}, hook);
 		}
-
 		return holder;
 	}
 

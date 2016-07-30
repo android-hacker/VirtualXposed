@@ -89,7 +89,7 @@ public class AppSandBox {
 		return sInstalling;
 	}
 
-	private static void installLocked(String procName, String pkg) {
+	private static void installLocked(String processName, String pkg) {
 		if (installedApps.contains(pkg)) {
 			return;
 		}
@@ -109,25 +109,27 @@ public class AppSandBox {
 //		IOHook.redirect(String.format("/data/user/0/%s/", pkg), appInfo.dataDir + "/");
 //		IOHook.hook();
 		ApplicationInfo applicationInfo = appInfo.applicationInfo;
-		RuntimeEnv.setCurrentProcessName(procName, appInfo);
+		RuntimeEnv.setCurrentProcessName(processName, appInfo);
 
 		LoadedApk loadedApk = createLoadedApk(appInfo);
 		setupRuntime(applicationInfo);
 
 		List<ProviderInfo> providers = null;
+		PackageInfo pkgInfo;
 
 		try {
-			PackageInfo pkgInfo = VirtualCore.getPM().getPackageInfo(pkg, PackageManager.GET_PROVIDERS);
-			if (pkgInfo.providers != null) {
-				providers = new ArrayList<>(pkgInfo.providers.length);
-				for (ProviderInfo providerInfo : pkgInfo.providers) {
-					if (providerInfo.enabled && providerInfo.multiprocess || TextUtils.equals(procName, providerInfo.processName)) {
-						providers.add(providerInfo);
-					}
+			pkgInfo = VirtualCore.getPM().getPackageInfo(pkg,
+					PackageManager.GET_PROVIDERS | PackageManager.GET_RECEIVERS);
+		} catch (PackageManager.NameNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+		if (pkgInfo.providers != null) {
+			providers = new ArrayList<>(pkgInfo.providers.length);
+			for (ProviderInfo providerInfo : pkgInfo.providers) {
+				if (TextUtils.equals(processName, providerInfo.processName)) {
+					providers.add(providerInfo);
 				}
 			}
-		} catch (PackageManager.NameNotFoundException e) {
-			e.printStackTrace();
 		}
 		ClassLoader classLoader = loadedApk.getClassLoader();
 		Thread.currentThread().setContextClassLoader(classLoader);
@@ -144,9 +146,12 @@ public class AppSandBox {
 		VirtualCore.mainThread().getInstrumentation().callApplicationOnCreate(app);
 		LocalPackageManager pm = LocalPackageManager.getInstance();
 		
-		List<ActivityInfo> receivers = pm.getReceivers(pkg, 0);
+		ActivityInfo[] receivers = pkgInfo.receivers;
+		if (receivers == null) {
+			receivers = new ActivityInfo[0];
+		}
 		for (ActivityInfo receiverInfo : receivers) {
-			if (TextUtils.equals(receiverInfo.processName, procName)) {
+			if (TextUtils.equals(receiverInfo.processName, processName)) {
 				List<IntentFilter> filters = pm.getReceiverIntentFilter(receiverInfo);
 				if (filters != null && filters.size() > 0) {
 					for (IntentFilter filter : filters) {

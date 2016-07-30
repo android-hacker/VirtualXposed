@@ -2,6 +2,7 @@ package com.lody.virtual.client.hook.patchs.notification;
 
 import android.app.INotificationManager;
 import android.app.NotificationManager;
+import android.os.Build;
 import android.widget.Toast;
 
 import com.lody.virtual.client.hook.base.HookObject;
@@ -19,7 +20,7 @@ import java.lang.reflect.Field;
  * @see NotificationManager
  * @see Toast
  */
-@Patch({Hook_EnqueueToast.class, Hook_CancelToast.class, Hook_CancelAllNotifications.class,
+@Patch({Hook_CancelAllNotifications.class,
 		Hook_EnqueueNotificationWithTag.class, Hook_CancelNotificationWithTag.class,
 		Hook_EnqueueNotificationWithTagPriority.class, Hook_EnqueueNotification.class})
 public class NotificationManagerPatch extends PatchObject<INotificationManager, HookObject<INotificationManager>> {
@@ -36,7 +37,12 @@ public class NotificationManagerPatch extends PatchObject<INotificationManager, 
 	@Override
 	protected void applyHooks() {
 		super.applyHooks();
-		addHook(new ReplaceCallingPkgHook("removeEdgeNotification"));
+		addHook(new ReplaceCallingPkgHook("enqueueToast"));
+		addHook(new ReplaceCallingPkgHook("cancelToast"));
+		addHook(new ReplaceCallingPkgHook("areNotificationsEnabledForPackage"));
+		if ("samsung".equalsIgnoreCase(Build.BRAND)) {
+			addHook(new ReplaceCallingPkgHook("removeEdgeNotification"));
+		}
 	}
 
 	@Override
