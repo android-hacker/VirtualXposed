@@ -136,6 +136,7 @@ public class NotificationHandler {
         final Bitmap bmp = RemoteViewsUtils.getInstance().createBitmap(pluginContext, contentView, isBig, systemId);
         if (bmp == null) {
             VLog.e(TAG, "bmp is null,contentView=" + contentView);
+            return null;
         }
         remoteViews.setImageViewBitmap(R.id.im_main, bmp);
         if (systemId) {

@@ -42,7 +42,15 @@ class RemoteViewsUtils {
     }
 
     public Bitmap createBitmap(final Context context, RemoteViews remoteViews, boolean isBig, boolean systemId) {
-        View mCache = createView(context, remoteViews, isBig, systemId);
+        View mCache = null;
+        try {
+            mCache = createView(context, remoteViews, isBig, systemId);
+        } catch (Throwable throwable) {
+
+        }
+        if (mCache == null) {
+            return null;
+        }
         mCache.setDrawingCacheEnabled(true);
         mCache.buildDrawingCache();
         mCache.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
