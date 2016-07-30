@@ -72,7 +72,8 @@ public class LocalPackageManager {
 
 	public List<ApplicationInfo> getInstalledApplications(int flags) {
 		try {
-			return getInterface().getInstalledApplications(flags);
+			//noinspection unchecked
+			return getInterface().getInstalledApplications(flags).getList();
 		} catch (RemoteException e) {
 			return RuntimeEnv.crash(e);
 		}
@@ -182,14 +183,6 @@ public class LocalPackageManager {
 		}
 	}
 
-	public List<ActivityInfo> getReceivers(String packageName, int flags) {
-		try {
-			return getInterface().getReceivers(packageName, flags);
-		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
-		}
-	}
-
 	public List<IntentFilter> getReceiverIntentFilter(ActivityInfo info) {
 		try {
 			return getInterface().getReceiverIntentFilter(info);
@@ -222,9 +215,9 @@ public class LocalPackageManager {
 		}
 	}
 
-	public String[] getPackagesForPid(int pid) {
+	public boolean activitySupportsIntent(ComponentName component, Intent intent, String resolvedType) {
 		try {
-			return getInterface().getPackagesForPid(pid);
+			return getInterface().activitySupportsIntent(component, intent, resolvedType);
 		} catch (RemoteException e) {
 			return RuntimeEnv.crash(e);
 		}

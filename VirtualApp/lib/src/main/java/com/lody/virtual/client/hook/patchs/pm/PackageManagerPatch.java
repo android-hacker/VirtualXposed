@@ -48,7 +48,9 @@ import java.lang.reflect.Field;
 		Hook_ClearPackagePersistentPreferredActivities.class,
 		Hook_GetPermissionGroupInfo.class,
 		Hook_DeletePackage.class, Hook_GetPackageInstaller.class,
-		Hook_AddOnPermissionsChangeListener.class, Hook_RemoveOnPermissionsChangeListener.class,
+		Hook_AddOnPermissionsChangeListener.class,
+		Hook_RemoveOnPermissionsChangeListener.class,
+		Hook_ActivitySupportsIntent.class,
 
 })
 public final class PackageManagerPatch extends PatchObject<IPackageManager, HookObject<IPackageManager>> {

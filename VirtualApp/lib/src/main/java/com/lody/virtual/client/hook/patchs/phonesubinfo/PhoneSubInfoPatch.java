@@ -1,24 +1,17 @@
 package com.lody.virtual.client.hook.patchs.phonesubinfo;
 
-import com.android.internal.telephony.IPhoneSubInfo;
-import com.lody.virtual.client.hook.base.Patch;
-import com.lody.virtual.client.hook.base.PatchObject;
-import com.lody.virtual.client.hook.binders.HookPhoneSubInfoBinder;
-
 import android.os.ServiceManager;
+
+import com.android.internal.telephony.IPhoneSubInfo;
+import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
+import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
+import com.lody.virtual.client.hook.binders.HookPhoneSubInfoBinder;
 
 /**
  * @author Lody
  *
  */
-@Patch({Hook_GetDeviceId.class, Hook_GetDeviceSvn.class, Hook_GetDeviceSvnUsingSubId.class, Hook_GetGroupIdLevel1.class,
-		Hook_GetGroupIdLevel1ForSubscriber.class, Hook_GetIccSerialNumber.class,
-		Hook_GetIccSerialNumberForSubscriber.class, Hook_GetImeiForSubscriber.class, Hook_GetLine1AlphaTag.class,
-		Hook_GetLine1AlphaTagForSubscriber.class, Hook_GetLine1Number.class, Hook_GetLine1NumberForSubscriber.class,
-		Hook_GetMsisdn.class, Hook_GetMsisdnForSubscriber.class, Hook_GetNaiForSubscriber.class,
-		Hook_GetSubscriberId.class, Hook_GetSubscriberIdForSubscriber.class, Hook_GetVoiceMailAlphaTag.class,
-		Hook_GetVoiceMailAlphaTagForSubscriber.class, Hook_GetVoiceMailNumber.class,
-		Hook_GetVoiceMailNumberForSubscriber.class,})
 public class PhoneSubInfoPatch extends PatchObject<IPhoneSubInfo, HookPhoneSubInfoBinder> {
 	@Override
 	protected HookPhoneSubInfoBinder initHookObject() {
@@ -28,6 +21,34 @@ public class PhoneSubInfoPatch extends PatchObject<IPhoneSubInfo, HookPhoneSubIn
 	@Override
 	public void inject() throws Throwable {
 		getHookObject().injectService("iphonesubinfo");
+	}
+
+	@Override
+	protected void applyHooks() {
+		super.applyHooks();
+		addHook(new ReplaceLastPkgHook("getNaiForSubscriber"));
+		addHook(new ReplaceLastPkgHook("getImeiForSubscriber"));
+		addHook(new ReplaceCallingPkgHook("getDeviceSvn"));
+		addHook(new ReplaceLastPkgHook("getDeviceSvnUsingSubId"));
+		addHook(new ReplaceCallingPkgHook("getSubscriberId"));
+		addHook(new ReplaceLastPkgHook("getSubscriberIdForSubscriber"));
+		addHook(new ReplaceCallingPkgHook("getGroupIdLevel1"));
+		addHook(new ReplaceLastPkgHook("getGroupIdLevel1ForSubscriber"));
+		addHook(new ReplaceCallingPkgHook("getLine1Number"));
+		addHook(new ReplaceLastPkgHook("getLine1NumberForSubscriber"));
+		addHook(new ReplaceCallingPkgHook("getLine1AlphaTag"));
+		addHook(new ReplaceLastPkgHook("getLine1AlphaTagForSubscriber"));
+		addHook(new ReplaceCallingPkgHook("getMsisdn"));
+		addHook(new ReplaceLastPkgHook("getMsisdnForSubscriber"));
+		addHook(new ReplaceCallingPkgHook("getVoiceMailNumber"));
+		addHook(new ReplaceLastPkgHook("getVoiceMailNumberForSubscriber"));
+		addHook(new ReplaceCallingPkgHook("getVoiceMailAlphaTag"));
+		addHook(new ReplaceLastPkgHook("getVoiceMailAlphaTagForSubscriber"));
+
+		//The following method maybe need to fake
+		addHook(new ReplaceCallingPkgHook("getDeviceId"));
+		addHook(new ReplaceCallingPkgHook("getIccSerialNumber"));
+
 	}
 
 	@Override

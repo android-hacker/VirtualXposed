@@ -88,6 +88,10 @@ public final class VirtualCore {
 		return gCore;
 	}
 
+	public int[] getGids() {
+		return hostPkgInfo.gids;
+	}
+
 	public static PackageManager getPM() {
 		return getCore().getPackageManager();
 	}
