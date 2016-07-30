@@ -221,9 +221,11 @@ public class VAppService extends IAppManager.Stub {
 	}
 
 	public AppInfo findAppInfo(String pkg) {
-		if (pkg != null) {
-			return PackageCache.sAppInfos.get(pkg);
+		synchronized (PackageCache.class) {
+			if (pkg != null) {
+				return PackageCache.sAppInfos.get(pkg);
+			}
+			return null;
 		}
-		return null;
 	}
 }
