@@ -13,6 +13,7 @@ import android.content.IntentFilter;
 import android.content.pm.PermissionInfo;
 import android.content.pm.PermissionGroupInfo;
 
+import com.lody.virtual.helper.proto.ReceiverInfo;
 import com.lody.virtual.helper.proto.VParceledListSlice;
 
 interface IPackageManager {
@@ -59,6 +60,9 @@ interface IPackageManager {
 
          ApplicationInfo getApplicationInfo(in String packageName, int flags);
 
-         List<IntentFilter> getReceiverIntentFilter(in ActivityInfo info);
+         VParceledListSlice queryContentProviders(in String processName, int flags);
 
+         List<ReceiverInfo> queryReceivers(in String processName, int flags);
+
+         List<IntentFilter> getReceiverIntentFilter(in ActivityInfo info);
 }

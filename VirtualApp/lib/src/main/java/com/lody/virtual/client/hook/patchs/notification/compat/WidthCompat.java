@@ -122,8 +122,12 @@ class WidthCompat {
     }
 
     private ViewGroup createViewGroup(Context context, int layoutId) {
-        ViewGroup viewGroup = (ViewGroup) LayoutInflater.from(context).inflate(layoutId, null);
-        return viewGroup;
+        try {
+            return (ViewGroup) LayoutInflater.from(context).inflate(layoutId, null);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        return new FrameLayout(context);
     }
 
     private void layout(View view, int width, int height) {
