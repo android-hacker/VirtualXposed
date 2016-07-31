@@ -17,12 +17,12 @@ import java.util.Map;
  *
  */
 
-public class ExternalProviderHook implements InvocationHandler {
+public class ProviderHook implements InvocationHandler {
 
 	private static final Map<String, HookFetcher> PROVIDER_MAP = new HashMap<>();
 
 	public interface HookFetcher {
-		ExternalProviderHook fetch(IContentProvider provider);
+		ProviderHook fetch(IContentProvider provider);
 	}
 
 	public static HookFetcher fetchHook(String authority) {
@@ -32,7 +32,7 @@ public class ExternalProviderHook implements InvocationHandler {
 	static {
 		PROVIDER_MAP.put("settings", new HookFetcher() {
 			@Override
-			public ExternalProviderHook fetch(IContentProvider provider) {
+			public ProviderHook fetch(IContentProvider provider) {
 				return new SettingsProviderHook(provider);
 			}
 		});
@@ -40,7 +40,7 @@ public class ExternalProviderHook implements InvocationHandler {
 
 	protected final Object mBase;
 
-	public ExternalProviderHook(Object base) {
+	public ProviderHook(Object base) {
 		this.mBase = base;
 	}
 
