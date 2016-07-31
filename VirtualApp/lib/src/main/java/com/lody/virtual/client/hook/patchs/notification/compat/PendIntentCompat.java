@@ -25,11 +25,9 @@ import java.util.Map;
 class PendIntentCompat {
     private RemoteViews mRemoteViews;
     private Map<Integer, PendingIntent> clickIntents;
-    private boolean isBig;
 
-    public PendIntentCompat(RemoteViews mRemoteViews, boolean isBig) {
+    public PendIntentCompat(RemoteViews mRemoteViews) {
         this.mRemoteViews = mRemoteViews;
-        this.isBig = isBig;
     }
 
     public int findPendIntents() {

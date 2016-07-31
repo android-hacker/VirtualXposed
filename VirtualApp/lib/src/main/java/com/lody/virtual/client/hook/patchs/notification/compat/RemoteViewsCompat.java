@@ -13,8 +13,8 @@ import android.widget.RemoteViews;
 class RemoteViewsCompat {
     private Context context;
     private RemoteViews mRemoteViews;
-    private boolean mBig;
-    private  Notification mNotification;
+    private RemoteViews mBigRemoteViews;
+    private Notification mNotification;
     private int paddingRight = -1;
 
     public RemoteViewsCompat(Context context, Notification notification) {
@@ -29,25 +29,24 @@ class RemoteViewsCompat {
     private Notification checkNotNull(Notification notification, boolean first) {
         if (notification.contentView != null) {
             mRemoteViews = notification.contentView;
-        } else {
-            if (Build.VERSION.SDK_INT >= 16) {
-                if (notification.bigContentView != null) {
-                    mBig = true;
-                    mRemoteViews = notification.bigContentView;
-                }
+        }
+        if (Build.VERSION.SDK_INT >= 16) {
+            if (notification.bigContentView != null) {
+                mBigRemoteViews = notification.bigContentView;
             }
-            if (mRemoteViews == null && Build.VERSION.SDK_INT >= 21) {
-                if (notification.publicVersion != null) {
-                    if (notification.publicVersion.contentView != null) {
-                        mRemoteViews = notification.publicVersion.contentView;
-                    } else if (notification.publicVersion.bigContentView != null) {
-                        mBig = true;
-                        mRemoteViews = notification.publicVersion.bigContentView;
-                    }
+        }
+        if (Build.VERSION.SDK_INT >= 21 && (mRemoteViews == null && mBigRemoteViews == null)) {
+            if (notification.publicVersion != null) {
+                if (notification.publicVersion.contentView != null) {
+                    mRemoteViews = notification.publicVersion.contentView;
+                }
+                if (notification.publicVersion.bigContentView != null) {
+                    mBigRemoteViews = notification.publicVersion.bigContentView;
                 }
             }
         }
-        if (first && mRemoteViews == null) {
+        if (first && (mRemoteViews == null && mBigRemoteViews == null)) {
+            //都为空
             Notification my = NotificaitionUtils.clone(context, notification);
             return checkNotNull(my, false);
             //自己去读取信息绘制
@@ -60,7 +59,7 @@ class RemoteViewsCompat {
         return mRemoteViews;
     }
 
-    public boolean isBigRemoteViews() {
-        return mBig;
+    public RemoteViews getBigRemoteViews() {
+        return mBigRemoteViews;
     }
 }
