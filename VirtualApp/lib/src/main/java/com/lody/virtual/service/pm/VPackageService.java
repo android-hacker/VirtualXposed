@@ -35,6 +35,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Lody
@@ -45,7 +46,7 @@ public class VPackageService extends IPackageManager.Stub {
 	static final String TAG = "PackageManager";
 
 	private static final boolean DEBUG_SHOW_INFO = false;
-	private static final VPackageService gService = new VPackageService();
+	private static final AtomicReference<VPackageService> gService = new AtomicReference<>();
 	private static final Comparator<ResolveInfo> mResolvePrioritySorter = new Comparator<ResolveInfo>() {
 		public int compare(ResolveInfo r1, ResolveInfo r2) {
 			int v1 = r1.priority;
@@ -88,8 +89,18 @@ public class VPackageService extends IPackageManager.Stub {
 
 	private int[] mGids;
 
+	public static void systemReady() {
+		int[] gids = VirtualCore.getCore().getGids();
+		VPackageService instance = new VPackageService(gids);
+		gService.set(instance);
+	}
+
+	public VPackageService(int[] gids) {
+		this.mGids = gids;
+	}
+
 	public static VPackageService getService() {
-		return gService;
+		return gService.get();
 	}
 
 
@@ -105,9 +116,6 @@ public class VPackageService extends IPackageManager.Stub {
 		return VAppService.getService();
 	}
 
-	public void onCreate(Context context) {
-		this.mGids = VirtualCore.getCore().getGids();
-	}
 
 	public void analyzePackageLocked(AppInfo appInfo, PackageParser.Package pkg) {
 		int N = pkg.activities.size();

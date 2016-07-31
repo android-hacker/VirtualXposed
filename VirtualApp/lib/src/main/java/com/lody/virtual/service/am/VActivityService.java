@@ -139,7 +139,13 @@ public class VActivityService extends IActivityManager.Stub {
 	}
 
 	@Override
-	public synchronized VActRedirectResult redirectTargetActivity(final VRedirectActRequest request) throws RemoteException {
+	public VActRedirectResult redirectTargetActivity(final VRedirectActRequest request) throws RemoteException {
+		synchronized (stubInfoMap) {
+			return redirectTargetActivityLocked(request);
+		}
+	}
+
+	private VActRedirectResult redirectTargetActivityLocked(VRedirectActRequest request) {
 		if (request == null || request.targetActInfo == null) {
 			return null;
 		}
@@ -157,19 +163,23 @@ public class VActivityService extends IActivityManager.Stub {
 			String taskAffinity = ComponentUtils.getTaskAffinity(targetActInfo);
 			ActivityRecord sourceRecord = mMainStack.findRecord(request.resultTo);
 
+			if ((launchFlags & Intent.FLAG_ACTIVITY_CLEAR_TASK) != 0) {
+				am.removeTask(0);
+			}
+
 			if (targetActInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
-                ActivityTaskRecord inTask = mMainStack.findTask(taskAffinity);
-                if (inTask != null) {
-                    am.moveTaskToFront(inTask.taskId, 0);
-                    ActivityRecord r = inTask.topActivity();
-                    ProcessRecord processRecord = VProcessService.getService().findProcess(r.pid);
-                    // Only one Activity in the SingleInstance task
-                    return new VActRedirectResult(r.token, processRecord.appThread.asBinder());
-                } else {
-                    resultFlags |= Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
-                    resultFlags |= Intent.FLAG_ACTIVITY_NEW_TASK;
-                }
-            }
+				ActivityTaskRecord inTask = mMainStack.findTask(taskAffinity);
+				if (inTask != null) {
+					am.moveTaskToFront(inTask.taskId, 0);
+					ActivityRecord r = inTask.topActivity();
+					ProcessRecord processRecord = VProcessService.getService().findProcess(r.pid);
+					// Only one Activity in the SingleInstance task
+					return new VActRedirectResult(r.token, processRecord.appThread.asBinder());
+				} else {
+					resultFlags |= Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
+					resultFlags |= Intent.FLAG_ACTIVITY_NEW_TASK;
+				}
+			}
 
 			if (targetActInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_TOP) {
 				ActivityTaskRecord topTask = getTopTask();
@@ -182,6 +192,7 @@ public class VActivityService extends IActivityManager.Stub {
 			}
 
 			if (targetActInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_TASK) {
+				resultFlags |= Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT;
 				ActivityTaskRecord topTask = getTopTask();
 				if (topTask != null && topTask.isInTask(targetActInfo)) {
 					int size = topTask.size();
@@ -206,10 +217,12 @@ public class VActivityService extends IActivityManager.Stub {
 			if (sourceRecord != null && sourceRecord.caller != null) {
 				if (sourceRecord.activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
 					String comebackTaskAffinity = ComponentUtils.getTaskAffinity(sourceRecord.caller);
-					ActivityTaskRecord comebackTask = mMainStack.findTask(comebackTaskAffinity);
-					if (comebackTask != null) {
-						am.moveTaskToFront(comebackTask.taskId, 0);
-						replaceToken = comebackTask.topActivityToken();
+					synchronized (mMainStack) {
+						ActivityTaskRecord comebackTask = mMainStack.findTask(comebackTaskAffinity);
+						if (comebackTask != null) {
+							am.moveTaskToFront(comebackTask.taskId, 0);
+							replaceToken = comebackTask.topActivityToken();
+						}
 					}
 				}
 			}
@@ -240,19 +253,21 @@ public class VActivityService extends IActivityManager.Stub {
 	}
 
 	ProviderInfo fetchServiceRuntime(ServiceInfo serviceInfo) {
-		if (serviceInfo == null) {
-			return null;
-		}
-		String targetProcessName = ComponentUtils.getProcessName(serviceInfo);
-		ProviderInfo runningEnv = fetchRunningServiceRuntime(targetProcessName);
-		if (runningEnv == null) {
-			StubInfo stubInfo = VProcessService.getService().fetchFreeStubInfo(stubInfoMap.values());
-			if (stubInfo != null) {
-				runningEnv = stubInfo.providerInfo;
+		synchronized (stubInfoMap) {
+			if (serviceInfo == null) {
+				return null;
 			}
-		}
-		if (runningEnv != null) {
-			return runningEnv;
+			String targetProcessName = ComponentUtils.getProcessName(serviceInfo);
+			ProviderInfo runningEnv = fetchRunningServiceRuntime(targetProcessName);
+			if (runningEnv == null) {
+				StubInfo stubInfo = VProcessService.getService().fetchFreeStubInfo(stubInfoMap.values());
+				if (stubInfo != null) {
+					runningEnv = stubInfo.providerInfo;
+				}
+			}
+			if (runningEnv != null) {
+				return runningEnv;
+			}
 		}
 		return null;
 	}

@@ -387,21 +387,23 @@ public class VProcessService extends IProcessManager.Stub {
 
 	@Override
 	public void installComponent(VComponentInfo componentInfo) {
-		String pkg = componentInfo.packageName;
-		String appProcName = ComponentUtils.getProcessName(componentInfo);
+		synchronized (VProcessService.class) {
+			String pkg = componentInfo.packageName;
+			String appProcName = ComponentUtils.getProcessName(componentInfo);
 
-		if (VAppService.getService().isAppInstalled(pkg)) {
-			StubInfo stubInfo = findStubInfo(appProcName);
-			if (stubInfo == null) {
-				stubInfo = fetchFreeStubInfo(VActivityService.getService().getStubInfoMap().values());
-				if (stubInfo != null) {
-					launchComponentProcess(componentInfo, stubInfo.providerInfo);
-				} else {
-					VLog.e(TAG, "Unable to fetch free Stub to launch Process(%s/%s).", pkg, appProcName);
+			if (VAppService.getService().isAppInstalled(pkg)) {
+				StubInfo stubInfo = findStubInfo(appProcName);
+				if (stubInfo == null) {
+					stubInfo = fetchFreeStubInfo(VActivityService.getService().getStubInfoMap().values());
+					if (stubInfo != null) {
+						launchComponentProcess(componentInfo, stubInfo.providerInfo);
+					} else {
+						VLog.e(TAG, "Unable to fetch free Stub to launch Process(%s/%s).", pkg, appProcName);
+					}
 				}
+			} else {
+				VLog.e(TAG, "Install Component failed, are you installed the app %s?", pkg);
 			}
-		} else {
-			VLog.e(TAG, "Install Component failed, are you installed the app %s?", pkg);
 		}
 	}
 
