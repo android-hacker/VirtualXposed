@@ -182,7 +182,7 @@ public class VPackageService extends IPackageManager.Stub {
 		int N = pkg.activities.size();
 		for (int i = 0; i < N; i++) {
 			PackageParser.Activity a = pkg.activities.get(i);
-			mActivities.addActivity(a, "activity");
+			mActivities.removeActivity(a, "activity");
 		}
 		N = pkg.services.size();
 		for (int i = 0; i < N; i++) {
