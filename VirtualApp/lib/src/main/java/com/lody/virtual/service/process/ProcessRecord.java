@@ -47,6 +47,11 @@ public final class ProcessRecord {
 	 */
 	final Set<String> runningAppPkgs = new HashSet<String>();
 
+	public ProcessRecord(int pid, int uid) {
+		this.pid = pid;
+		this.uid = uid;
+	}
+
 	/*package*/ synchronized void updateStubProcess(int pid) {
 		try {
 			List<ActivityManager.RunningAppProcessInfo> runningInfos = ActivityManagerNative.getDefault()
@@ -74,7 +79,6 @@ public final class ProcessRecord {
 		return !runningAppPkgs.contains(pkgName) && runningAppPkgs.add(pkgName);
 
 	}
-
 	/**
 	 * 该进程是否正在运行指定包名的插件
 	 *

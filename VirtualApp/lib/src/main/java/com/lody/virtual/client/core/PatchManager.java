@@ -157,7 +157,9 @@ public final class PatchManager {
 			}
 			if (Build.VERSION.SDK_INT >= LOLLIPOP_MR1) {
 				addPatch(new GraphicsStatsPatch());
+//				addPatch(new SubPatch());
 			}
+
 		}
 	}
 
