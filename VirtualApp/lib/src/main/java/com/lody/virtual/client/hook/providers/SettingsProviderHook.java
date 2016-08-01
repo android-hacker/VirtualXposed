@@ -14,7 +14,7 @@ import java.util.Arrays;
  * @author Lody
  */
 
-public class SettingsProviderHook extends ExternalProviderHook {
+public class SettingsProviderHook extends ProviderHook {
 
     private static final String TAG = SettingsProviderHook.class.getSimpleName();
 

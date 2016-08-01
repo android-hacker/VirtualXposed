@@ -448,6 +448,21 @@ HOOK_DEF(int ,execve, const char *pathname, char *const argv[], char *const envp
     return ret;
 }
 
+// int kill(pid_t pid, int sig);
+HOOK_DEF(int ,kill, pid_t pid, int sig) {
+    LOGE(",,, kill, pid=%d, sig=%d", pid, sig);
+    extern JavaVM *g_vm;
+    extern jclass g_jclass;
+    JNIEnv *env = NULL;
+    g_vm->GetEnv((void **) &env, JNI_VERSION_1_4);
+    g_vm->AttachCurrentThread(&env, NULL);
+    jmethodID  method = env->GetStaticMethodID(g_jclass, JAVA_CALLBACK__ON_KILL_PROCESS, JAVA_CALLBACK__ON_KILL_PROCESS_SIGNATURE);
+    env->CallStaticVoidMethod(g_jclass, method, pid, sig);
+    LOGE(",,, kill, Done ! callbacked to Java");
+    int ret = syscall(__NR_kill, pid, sig);
+    return ret;
+}
+
 __END_DECLS
 // end IO hooks
 
@@ -458,21 +473,23 @@ __END_DECLS
 void HOOK::hook(int api_level) {
     LOGI("Begin IO hooks...");
 
-    if (true) {
-        //通用型
-        HOOK_IO(__getcwd);
-        HOOK_IO(chdir);
-        HOOK_IO(truncate);
-        HOOK_IO(__statfs64);
+    //通用型
+    HOOK_IO(__getcwd);
+    HOOK_IO(chdir);
+    HOOK_IO(truncate);
+    HOOK_IO(__statfs64);
 
-        HOOK_IO(lchown);
+    HOOK_IO(lchown);
 
-        HOOK_IO(chroot);
-        HOOK_IO(truncate64);
-//        HOOK_IO(execve);
-//        HOOK_IO(fork);
-//        HOOK_IO(vfork);
-    }
+    HOOK_IO(chroot);
+    HOOK_IO(truncate64);
+    HOOK_IO(kill);
+//    HOOK_IO(execve);
+//    HOOK_IO(strncmp);
+//    HOOK_IO(strstr);
+//    HOOK_IO(fork);
+//    HOOK_IO(vfork);
+
     if (api_level < ANDROID_L) {
         //xxx型
 //        HOOK_IO(fchmod);

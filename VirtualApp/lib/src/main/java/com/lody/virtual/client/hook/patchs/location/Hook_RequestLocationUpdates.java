@@ -1,24 +1,38 @@
 package com.lody.virtual.client.hook.patchs.location;
 
+import android.app.PendingIntent;
+import android.location.ILocationListener;
+import android.location.LocationRequest;
+import android.os.Build;
+
+import com.lody.virtual.client.hook.base.ApiLimit;
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.hook.utils.HookUtils;
 
 import java.lang.reflect.Method;
 
 /**
  * @author Lody
  *
+ * @see android.location.ILocationManager#requestLocationUpdates(LocationRequest, ILocationListener, PendingIntent, String)
+ *
  */
-/* package */ class Hook_RequestLocationUpdates extends Hook {
+@ApiLimit(start = Build.VERSION_CODES.M)
+public class Hook_RequestLocationUpdates extends Hook {
+    @Override
+    public String getName() {
+        return "requestLocationUpdates";
+    }
 
-	@Override
-	public String getName() {
-		return "requestLocationUpdates";
-	}
-
-	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		HookUtils.replaceFirstAppPkg(args);
-		return method.invoke(who, args);
-	}
+    @Override
+    public boolean beforeHook(Object who, Method method, Object... args) {
+        if (args[0] instanceof LocationRequest) {
+            LocationRequest request = (LocationRequest) args[0];
+            try {
+                request.setHideFromAppOps(false);
+            } catch (Throwable e) {
+                // Ignore
+            }
+        }
+        return super.beforeHook(who, method, args);
+    }
 }

@@ -13,11 +13,10 @@ import android.content.IntentFilter;
 import android.content.pm.PermissionInfo;
 import android.content.pm.PermissionGroupInfo;
 
+import com.lody.virtual.helper.proto.ReceiverInfo;
 import com.lody.virtual.helper.proto.VParceledListSlice;
 
 interface IPackageManager {
-
-        String[] getPackagesForPid(int pid);
 
         int checkPermission(String permName, String pkgName);
 
@@ -25,6 +24,8 @@ interface IPackageManager {
 
         ActivityInfo getActivityInfo(in ComponentName componentName, int flags);
 
+        boolean activitySupportsIntent(in ComponentName component, in Intent intent,
+                                           										  in String resolvedType);
          ActivityInfo getReceiverInfo(in ComponentName componentName, int flags);
 
          ServiceInfo getServiceInfo(in ComponentName componentName, int flags);
@@ -45,7 +46,7 @@ interface IPackageManager {
 
          VParceledListSlice getInstalledPackages(int flags);
 
-         List<ApplicationInfo> getInstalledApplications(int flags);
+         VParceledListSlice getInstalledApplications(int flags);
 
          PermissionInfo getPermissionInfo(in String name, int flags);
 
@@ -59,8 +60,9 @@ interface IPackageManager {
 
          ApplicationInfo getApplicationInfo(in String packageName, int flags);
 
-         List<ActivityInfo> getReceivers(in String packageName ,int flags);
+         VParceledListSlice queryContentProviders(in String processName, int flags);
+
+         List<ReceiverInfo> queryReceivers(in String processName, int flags);
 
          List<IntentFilter> getReceiverIntentFilter(in ActivityInfo info);
-
 }

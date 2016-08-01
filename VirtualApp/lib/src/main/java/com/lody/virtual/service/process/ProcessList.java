@@ -15,7 +15,7 @@ public class ProcessList {
 
 	private final Map<Integer, ProcessRecord> runningProcesses = new ConcurrentHashMap<Integer, ProcessRecord>();
 
-	public ProcessRecord getRecord(int pid) {
+	public ProcessRecord findProcess(int pid) {
 		return runningProcesses.get(pid);
 	}
 

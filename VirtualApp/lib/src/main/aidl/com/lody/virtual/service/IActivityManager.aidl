@@ -4,6 +4,7 @@ package com.lody.virtual.service;
 import com.lody.virtual.helper.proto.VRedirectActRequest;
 import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.AppTaskInfo;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 
 interface IActivityManager {

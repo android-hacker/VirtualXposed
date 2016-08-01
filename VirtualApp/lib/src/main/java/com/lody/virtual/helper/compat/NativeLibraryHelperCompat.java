@@ -1,19 +1,19 @@
 package com.lody.virtual.helper.compat;
 
-import java.io.File;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import android.annotation.TargetApi;
+import android.os.Build;
 
 import com.android.internal.content.NativeLibraryHelper;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
 
-import android.annotation.TargetApi;
-import android.os.Build;
+import java.io.File;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public class NativeLibraryHelperCompat {
 
@@ -25,7 +25,6 @@ public class NativeLibraryHelperCompat {
 		} else {
 			return copyNativeBinariesBeforeL(apkFile, sharedLibraryDir);
 		}
-
 	}
 
 	private static int copyNativeBinariesBeforeL(File apkFile, File sharedLibraryDir) {

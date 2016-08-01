@@ -112,7 +112,7 @@ public class NotificationHandler {
         if (pluginContext == null) {
             return null;
         }
-        //获取需要绘制的remoteviews
+        //获取需要绘制的RemoteViews
         RemoteViewsCompat remoteViewsCompat = new RemoteViewsCompat(pluginContext, notification);
         RemoteViews contentView = remoteViewsCompat.getRemoteViews();
         if (contentView == null) {
@@ -129,7 +129,7 @@ public class NotificationHandler {
         } else {
             layoutId = R.layout.custom_notification;
         }
-        //remoteviews创建
+        //RemoteViews创建
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), layoutId);
         ResourcesCompat.getInstance().fixIconImage(pluginContext, contentView, notification);
         //绘制内容
@@ -153,7 +153,11 @@ public class NotificationHandler {
         Notification notification1 = NotificaitionUtils.clone(pluginContext, notification);
         if (Build.VERSION.SDK_INT >= 16 && isBig) {
             notification1.bigContentView = remoteViews;
+            notification1.contentView = null;
         } else {
+            if (Build.VERSION.SDK_INT >= 16) {
+                notification1.bigContentView = null;
+            }
             notification1.contentView = remoteViews;
         }
         ResourcesCompat.getInstance().fixNotificationIcon(notification1);
@@ -166,6 +170,7 @@ public class NotificationHandler {
             pluginContext = base.createPackageContext(packageName,
                     Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
         } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
         }
         return pluginContext;
     }

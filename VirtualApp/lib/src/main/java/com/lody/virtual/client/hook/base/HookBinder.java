@@ -70,7 +70,6 @@ public abstract class HookBinder<Interface extends IInterface> implements IHookO
 			this.mBaseObject = createInterface(baseBinder);
 			mProxyObject = (Interface) Proxy.newProxyInstance(mBaseObject.getClass().getClassLoader(),
 					mBaseObject.getClass().getInterfaces(), new HookHandler());
-
 		}
 	}
 

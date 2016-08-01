@@ -29,12 +29,6 @@ import java.lang.reflect.Method;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		String path;
-		if (args.length == 1) {
-			path = (String) args[0];
-		} else {
-			path = (String) args[1];
-		}
 		try {
 			return super.onHook(who, method, args);
 		} catch (InvocationTargetException e) {
@@ -42,10 +36,13 @@ import java.lang.reflect.Method;
 				throw e.getCause();
 			}
 		}
-		File file = new File(path);
-		if (!file.exists()) {
-			file.mkdirs();
+		String path;
+		if (args.length == 1) {
+			path = (String) args[0];
+		} else {
+			path = (String) args[1];
 		}
-		return file.exists() ? 0 : -1;
+		File file = new File(path);
+		return file.exists() && file.mkdirs() ? 0 : -1;
 	}
 }

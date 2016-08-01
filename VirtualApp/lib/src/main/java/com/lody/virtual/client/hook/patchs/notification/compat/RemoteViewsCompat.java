@@ -7,7 +7,7 @@ import android.widget.RemoteViews;
 
 /**
  * Created by 247321453 on 2016/7/17.
- * contentview为空的情况处理
+ * ContentView 为空的情况处理
  * 处理系统样式的通知栏的时间显示
  */
 class RemoteViewsCompat {

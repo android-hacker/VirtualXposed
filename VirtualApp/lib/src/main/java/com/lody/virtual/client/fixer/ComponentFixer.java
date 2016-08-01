@@ -1,6 +1,7 @@
 package com.lody.virtual.client.fixer;
 
 import android.content.pm.ApplicationInfo;
+import android.content.pm.ComponentInfo;
 import android.os.Build;
 import android.os.Process;
 import android.text.TextUtils;
@@ -51,5 +52,15 @@ public class ComponentFixer {
             return className;
         }
         return null;
+    }
+
+    public static void fixComponentInfo(AppInfo appInfo, ComponentInfo info) {
+        if (info != null) {
+            if (TextUtils.isEmpty(info.processName)) {
+                info.processName = info.packageName;
+            }
+            fixApplicationInfo(appInfo, info.applicationInfo);
+            info.name = fixComponentClassName(info.packageName, info.name);
+        }
     }
 }
