@@ -235,7 +235,7 @@ public class VActivityService extends IActivityManager.Stub {
 				// Finish : B, C, D
 				// onNewIntent : A
 				ActivityTaskRecord task = mMainStack.findTask(taskAffinity);
-				if (task != null && task.size() >= 2 && task.isInTask(targetActInfo) && !task.isOnTop(targetActInfo)) {
+				if (task != null && task.isInTask(targetActInfo) && !task.isOnTop(targetActInfo)) {
 					List<ActivityRecord> activityList = task.activityList;
 					ListIterator<ActivityRecord> iterator = activityList.listIterator();
 					while (iterator.hasNext()) {
