@@ -230,9 +230,8 @@ public class VActivityService extends IActivityManager.Stub {
 				resultFlags |= Intent.FLAG_ACTIVITY_NO_USER_ACTION;
 			}
 			if ((launchFlags & Intent.FLAG_ACTIVITY_CLEAR_TOP) != 0) {
-				resultFlags |= ~Intent.FLAG_ACTIVITY_REORDER_TO_FRONT;
 				ActivityTaskRecord task = mMainStack.findTask(taskAffinity);
-				if (task.isInTask(targetActInfo)) {
+				if (task.isInTask(targetActInfo) && !task.isOnTop(targetActInfo)) {
 					List<ActivityRecord> activityList = task.activityList;
 					// A -> B -> C -> D
 					// D -> A (FLAG_ACTIVITY_CLEAR_TOP)
