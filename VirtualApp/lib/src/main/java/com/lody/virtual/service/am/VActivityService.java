@@ -230,12 +230,12 @@ public class VActivityService extends IActivityManager.Stub {
 				resultFlags |= Intent.FLAG_ACTIVITY_NO_USER_ACTION;
 			}
 			if ((launchFlags & Intent.FLAG_ACTIVITY_CLEAR_TOP) != 0) {
-				// A -> B -> C -> D
-				// D -> A (FLAG_ACTIVITY_CLEAR_TOP)
-				// Finish : B, C, D
-				// onNewIntent : A
 				ActivityTaskRecord task = mMainStack.findTask(taskAffinity);
-				if (task != null && task.isInTask(targetActInfo) && !task.isOnTop(targetActInfo)) {
+				if (task != null && task.isInTask(targetActInfo)) {
+					if (task.isOnTop(targetActInfo)) {
+						ActivityManagerCompat.finishActivity(task.topActivityToken(), -1, null);
+						return new VActRedirectResult();
+					}
 					List<ActivityRecord> activityList = task.activityList;
 					ListIterator<ActivityRecord> iterator = activityList.listIterator();
 					while (iterator.hasNext()) {
