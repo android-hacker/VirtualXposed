@@ -222,6 +222,11 @@ public class VPackageService extends IPackageManager.Stub {
 
 	@Override
 	public int checkPermission(String permName, String pkgName) {
+		if ("android.permission.INTERACT_ACROSS_USERS".equals(permName)
+				|| "android.permission.INTERACT_ACROSS_USERS_FULL".equals(permName)) {
+			return PackageManager.PERMISSION_DENIED;
+		}
+
 		return PackageManager.PERMISSION_GRANTED;
 	}
 

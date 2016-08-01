@@ -1,6 +1,7 @@
 package com.lody.virtual.client.core;
 
 import android.app.Application;
+import android.app.IActivityManager;
 import android.app.LoadedApk;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -20,6 +21,7 @@ import android.view.HardwareRenderer;
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.env.RuntimeEnv;
 import com.lody.virtual.client.fixer.ContextFixer;
+import com.lody.virtual.client.local.LocalContentManager;
 import com.lody.virtual.client.local.LocalPackageManager;
 import com.lody.virtual.client.local.LocalProcessManager;
 import com.lody.virtual.helper.compat.ActivityThreadCompat;
@@ -31,6 +33,7 @@ import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -92,19 +95,23 @@ public class AppSandBox {
 		LoadedApk loadedApk = createLoadedApk(appInfo);
 		setupRuntime(applicationInfo);
 
-		List<ProviderInfo> providers = pm.queryContentProviders(processName, 0);
-
 		ClassLoader classLoader = loadedApk.getClassLoader();
 		Thread.currentThread().setContextClassLoader(classLoader);
 
 		Application app = loadedApk.makeApplication(false, null);
 		Reflect.on(VirtualCore.mainThread()).set("mInitialApplication", app);
 		ContextFixer.fixContext(app.getBaseContext());
-		try {
-            ActivityThreadCompat.installContentProviders(app, providers);
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
+		// Install ContentProviders
+		List<ProviderInfo> providers = pm.queryContentProviders(processName, 0);
+		List<IActivityManager.ContentProviderHolder> holders = new ArrayList<>(providers.size());
+		for (ProviderInfo info : providers) {
+			IActivityManager.ContentProviderHolder holder = ActivityThreadCompat.installProvider(app, info);
+			if (holder != null) {
+				holders.add(holder);
+			}
+		}
+		LocalContentManager.getDefault().publishContentProviders(holders);
+		// Application => onCreate()
 		VirtualCore.mainThread().getInstrumentation().callApplicationOnCreate(app);
 
 		List<ReceiverInfo> receiverInfos = pm.queryReceivers(processName, 0);

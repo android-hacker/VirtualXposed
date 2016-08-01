@@ -21,6 +21,7 @@ import android.text.TextUtils;
 
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.env.RuntimeEnv;
+import com.lody.virtual.client.fixer.ContextFixer;
 import com.lody.virtual.client.local.LocalPackageManager;
 import com.lody.virtual.client.local.LocalProcessManager;
 import com.lody.virtual.client.service.ServiceManagerNative;
@@ -177,7 +178,7 @@ public final class VirtualCore {
 			patchManager.injectAll();
 			patchManager.checkEnv();
 			RuntimeEnv.init();
-			PatchManager.fixContext(context);
+			ContextFixer.fixContext(context);
 			isStartUp = true;
 		}
 	}

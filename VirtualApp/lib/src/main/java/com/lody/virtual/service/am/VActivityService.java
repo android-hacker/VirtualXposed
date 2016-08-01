@@ -226,8 +226,33 @@ public class VActivityService extends IActivityManager.Stub {
 					}
 				}
 			}
+			if ((launchFlags & Intent.FLAG_ACTIVITY_NO_USER_ACTION) != 0) {
+				resultFlags |= Intent.FLAG_ACTIVITY_NO_USER_ACTION;
+			}
+			if ((launchFlags & Intent.FLAG_ACTIVITY_CLEAR_TOP) != 0) {
+				resultFlags |= ~Intent.FLAG_ACTIVITY_REORDER_TO_FRONT;
+				ActivityTaskRecord task = mMainStack.findTask(taskAffinity);
+				if (task.isInTask(targetActInfo)) {
+					List<ActivityRecord> activityList = task.activityList;
+					// A -> B -> C -> D
+					// D -> A (FLAG_ACTIVITY_CLEAR_TOP)
+					// Finish : B, C, D
+					// onNewIntent : A
+					ListIterator<ActivityRecord> iterator = activityList.listIterator();
+					while (iterator.hasNext()) {
+						ActivityRecord current = iterator.next();
+						if (ComponentUtils.isSameComponent(current.activityInfo, targetActInfo)) {
+							while (iterator.hasNext()) {
+								ActivityRecord afterCurrent = iterator.next();
+								ActivityManagerCompat.finishActivity(afterCurrent.token, -1, null);
+							}
+							ProcessRecord processRecord = VProcessService.getService().findProcess(current.pid);
+							return new VActRedirectResult(current.token, processRecord.appThread.asBinder());
+						}
+					}
+				}
+			}
 		}
-
 		StubInfo selectStubInfo = fetchRunningStubInfo(targetProcessName);
 		if (selectStubInfo == null) {
 			selectStubInfo = VProcessService.getService().fetchFreeStubInfo(stubInfoMap.values());

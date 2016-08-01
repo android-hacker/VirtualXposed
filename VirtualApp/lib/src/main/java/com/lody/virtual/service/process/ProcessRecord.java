@@ -47,6 +47,8 @@ public final class ProcessRecord {
 	 */
 	final Set<String> runningAppPkgs = new HashSet<String>();
 
+	String initialPackage;
+
 	public ProcessRecord(int pid, int uid) {
 		this.pid = pid;
 		this.uid = uid;
@@ -76,9 +78,19 @@ public final class ProcessRecord {
 	 *            apk的包名
 	 */
 	/*package*/ synchronized boolean addPkg(String pkgName) {
-		return !runningAppPkgs.contains(pkgName) && runningAppPkgs.add(pkgName);
-
+		if( !runningAppPkgs.contains(pkgName))  {
+			runningAppPkgs.add(pkgName);
+			if (initialPackage == null) {
+				initialPackage = pkgName;
+			}
+		}
+		return false;
 	}
+
+	public String getInitialPackage() {
+		return initialPackage;
+	}
+
 	/**
 	 * 该进程是否正在运行指定包名的插件
 	 *
