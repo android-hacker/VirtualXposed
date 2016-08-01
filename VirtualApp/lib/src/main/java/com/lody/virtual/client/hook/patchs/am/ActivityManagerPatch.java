@@ -48,6 +48,7 @@ import java.lang.reflect.Field;
 		Hook_UnstableProviderDied.class,
 		Hook_GetCallingActivity.class,
 		Hook_FinishActivity.class,
+		Hook_GetServices.class,
 })
 
 public class ActivityManagerPatch extends PatchObject<IActivityManager, HookObject<IActivityManager>> {
