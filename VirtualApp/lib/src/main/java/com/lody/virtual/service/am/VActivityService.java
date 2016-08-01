@@ -230,13 +230,13 @@ public class VActivityService extends IActivityManager.Stub {
 				resultFlags |= Intent.FLAG_ACTIVITY_NO_USER_ACTION;
 			}
 			if ((launchFlags & Intent.FLAG_ACTIVITY_CLEAR_TOP) != 0) {
+				// A -> B -> C -> D
+				// D -> A (FLAG_ACTIVITY_CLEAR_TOP)
+				// Finish : B, C, D
+				// onNewIntent : A
 				ActivityTaskRecord task = mMainStack.findTask(taskAffinity);
-				if (task.isInTask(targetActInfo) && !task.isOnTop(targetActInfo)) {
+				if (task != null && task.size() >= 2 && task.isInTask(targetActInfo) && !task.isOnTop(targetActInfo)) {
 					List<ActivityRecord> activityList = task.activityList;
-					// A -> B -> C -> D
-					// D -> A (FLAG_ACTIVITY_CLEAR_TOP)
-					// Finish : B, C, D
-					// onNewIntent : A
 					ListIterator<ActivityRecord> iterator = activityList.listIterator();
 					while (iterator.hasNext()) {
 						ActivityRecord current = iterator.next();
