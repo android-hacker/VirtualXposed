@@ -24,6 +24,11 @@ public final class Hook_GetPackageInfo extends Hook {
 	}
 
 	@Override
+	public boolean beforeHook(Object who, Method method, Object... args) {
+		return args != null && args[0] != null;
+	}
+
+	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		String pkg = (String) args[0];
 		int flags = (int) args[1];

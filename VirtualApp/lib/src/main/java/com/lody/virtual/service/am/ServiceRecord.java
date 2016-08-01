@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ServiceRecord {
+	public long activeSince;
+	public long lastActivityTime;
+	public int pid;
 	public final List<ServiceBoundRecord> mBoundRecords = new ArrayList<>();
 	public ServiceInfo serviceInfo;
 	public IBinder token;
@@ -30,6 +33,10 @@ public class ServiceRecord {
 			}
 		}
 		return false;
+	}
+
+	public int getClientCount() {
+		return mBoundRecords.size();
 	}
 
 

@@ -16,6 +16,7 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.env.RuntimeEnv;
 import com.lody.virtual.client.service.ServiceManagerNative;
+import com.lody.virtual.helper.proto.ReceiverInfo;
 import com.lody.virtual.helper.proto.VParceledListSlice;
 import com.lody.virtual.service.IPackageManager;
 
@@ -218,6 +219,24 @@ public class LocalPackageManager {
 	public boolean activitySupportsIntent(ComponentName component, Intent intent, String resolvedType) {
 		try {
 			return getInterface().activitySupportsIntent(component, intent, resolvedType);
+		} catch (RemoteException e) {
+			return RuntimeEnv.crash(e);
+		}
+	}
+
+	public List<ProviderInfo> queryContentProviders(String processName, int flags) {
+		try {
+			//noinspection unchecked
+			return getInterface().queryContentProviders(processName, flags).getList();
+		} catch (RemoteException e) {
+			return RuntimeEnv.crash(e);
+		}
+	}
+
+	public List<ReceiverInfo> queryReceivers(String processName, int flags) {
+		try {
+			//noinspection unchecked
+			return getInterface().queryReceivers(processName, flags);
 		} catch (RemoteException e) {
 			return RuntimeEnv.crash(e);
 		}

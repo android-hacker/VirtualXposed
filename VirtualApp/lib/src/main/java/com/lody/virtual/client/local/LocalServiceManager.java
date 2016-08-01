@@ -1,5 +1,6 @@
 package com.lody.virtual.client.local;
 
+import android.app.ActivityManager;
 import android.app.IServiceConnection;
 import android.app.Notification;
 import android.content.ComponentName;
@@ -10,6 +11,8 @@ import android.os.RemoteException;
 import com.lody.virtual.client.env.RuntimeEnv;
 import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.service.IServiceManager;
+
+import java.util.List;
 
 /**
  * @author Lody
@@ -115,6 +118,15 @@ public class LocalServiceManager {
 			getService().serviceDoneExecuting(token, type, startId, res);
 		} catch (RemoteException e) {
 			e.printStackTrace();
+		}
+	}
+
+	public List<ActivityManager.RunningServiceInfo> getServices(int maxNum, int flags) {
+		try {
+			//noinspection unchecked
+			return getService().getServices(maxNum, flags).getList();
+		} catch (RemoteException e) {
+			return RuntimeEnv.crash(e);
 		}
 	}
 }

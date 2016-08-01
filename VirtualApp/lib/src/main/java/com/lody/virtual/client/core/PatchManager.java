@@ -1,7 +1,5 @@
 package com.lody.virtual.client.core;
 
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.os.Build;
 import android.provider.Settings;
 
@@ -197,18 +195,6 @@ public final class PatchManager {
 			fixSetting(Settings.Global.class);
 		} catch (Throwable e) {
 			// No class def
-		}
-	}
-
-	public static void fixContext(Context context) {
-		while (context instanceof ContextWrapper) {
-			context = ((ContextWrapper) context).getBaseContext();
-		}
-		try {
-			Reflect.on(context).set("mPackageManager", null);
-			context.getPackageManager();
-		} catch (Throwable e) {
-			// Ignore
 		}
 	}
 
