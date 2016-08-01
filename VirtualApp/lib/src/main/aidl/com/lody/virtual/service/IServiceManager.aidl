@@ -6,6 +6,7 @@ import android.app.Notification;
 import android.app.IServiceConnection;
 import android.content.ComponentName;
 
+import com.lody.virtual.helper.proto.VParceledListSlice;
 
 interface IServiceManager {
 
@@ -30,5 +31,7 @@ interface IServiceManager {
     IBinder peekService(in Intent service, String resolvedType);
 
     void publishService(in IBinder token, in Intent intent, in IBinder service);
+
+    VParceledListSlice getServices(int maxNum, int flags);
 
 }

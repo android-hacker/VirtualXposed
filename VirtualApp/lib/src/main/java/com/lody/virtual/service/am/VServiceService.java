@@ -1,5 +1,6 @@
 package com.lody.virtual.service.am;
 
+import android.app.ActivityManager;
 import android.app.IApplicationThread;
 import android.app.IServiceConnection;
 import android.app.Notification;
@@ -11,10 +12,13 @@ import android.content.pm.ServiceInfo;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.Process;
 import android.os.RemoteException;
+import android.os.SystemClock;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.compat.IApplicationThreadCompat;
+import com.lody.virtual.helper.proto.VParceledListSlice;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.service.IServiceManager;
 import com.lody.virtual.service.process.ProcessRecord;
@@ -37,7 +41,7 @@ public class VServiceService extends IServiceManager.Stub {
 
 	private static final VServiceService sService = new VServiceService();
 
-	private List<ServiceRecord> mHistory = Collections.synchronizedList(new ArrayList<ServiceRecord>());
+	private final List<ServiceRecord> mHistory = Collections.synchronizedList(new ArrayList<ServiceRecord>());
 
 
 	private void addRecord(ServiceRecord r) {
@@ -115,13 +119,16 @@ public class VServiceService extends IServiceManager.Stub {
 		ServiceRecord r = findRecord(serviceInfo);
 		if (r == null) {
 			r = new ServiceRecord();
+			r.pid = processRecord.pid;
 			r.startId = 0;
+			r.activeSince = SystemClock.elapsedRealtime();
 			r.targetAppThread = appThread;
 			r.token = new Binder();
 			r.serviceInfo = serviceInfo;
 			IApplicationThreadCompat.scheduleCreateService(appThread, r.token, r.serviceInfo, 0);
 			addRecord(r);
 		}
+		r.lastActivityTime = SystemClock.uptimeMillis();
 		if (scheduleServiceArgs) {
 			r.startId++;
 			boolean taskRemoved = serviceInfo.applicationInfo != null
@@ -200,6 +207,7 @@ public class VServiceService extends IServiceManager.Stub {
 		} else {
 			IApplicationThreadCompat.scheduleBindService(r.targetAppThread, r.token, service, r.doRebind, 0);
 		}
+		r.lastActivityTime = SystemClock.uptimeMillis();
 		r.addToBoundIntent(service, connection);
 
 		return 1;
@@ -286,6 +294,30 @@ public class VServiceService extends IServiceManager.Stub {
 			if (ComponentUtils.getProcessName(r.serviceInfo).equals(record.appProcessName)) {
 				iterator.remove();
 			}
+		}
+	}
+
+	@Override
+	public VParceledListSlice<ActivityManager.RunningServiceInfo> getServices(int maxNum, int flags) {
+		synchronized (mHistory) {
+			int myUid = Process.myUid();
+			List<ActivityManager.RunningServiceInfo> services = new ArrayList<>(mHistory.size());
+			for (ServiceRecord r : mHistory) {
+				ActivityManager.RunningServiceInfo info = new ActivityManager.RunningServiceInfo();
+				info.uid = myUid;
+				info.pid = r.pid;
+				ProcessRecord processRecord = VProcessService.getService().findProcess(r.pid);
+				if (processRecord != null) {
+					info.process = processRecord.appProcessName;
+					info.clientPackage = processRecord.getInitialPackage();
+				}
+				info.activeSince = r.activeSince;
+				info.lastActivityTime = r.lastActivityTime;
+				info.clientCount = r.getClientCount();
+				info.service = ComponentUtils.toComponentName(r.serviceInfo);
+				info.started = r.startId > 0;
+			}
+			return new VParceledListSlice<>(services);
 		}
 	}
 }

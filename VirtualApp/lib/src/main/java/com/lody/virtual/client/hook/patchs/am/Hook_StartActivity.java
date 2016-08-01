@@ -16,7 +16,6 @@ import com.lody.virtual.helper.compat.IApplicationThreadCompat;
 import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.VRedirectActRequest;
 import com.lody.virtual.helper.utils.ArrayUtils;
-import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -66,12 +65,12 @@ import java.util.Collections;
 		req.resultTo = resultTo;
 		// Get Request Result
 		VActRedirectResult result = LocalActivityManager.getInstance().redirectTargetActivity(req);
-		if (result == null) {
+		if (result == null || result.justReturn) {
             return 0;
         }
 		if (result.newIntentToken != null) {
 			IApplicationThread appThread = ApplicationThreadNative.asInterface(result.targetClient);
-			if (Build.VERSION.SDK_INT >= 22) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
 				ReferrerIntent referrerIntent = new ReferrerIntent(targetIntent, packageName);
 				IApplicationThreadCompat.scheduleNewIntent(appThread,
 						Collections.singletonList(referrerIntent),
@@ -110,8 +109,4 @@ import java.util.Collections;
 		return method.invoke(who, args);
 	}
 
-	@Override
-	public Object afterHook(Object who, Method method, Object[] args, Object result) throws Throwable {
-		return super.afterHook(who, method, args, result);
-	}
 }

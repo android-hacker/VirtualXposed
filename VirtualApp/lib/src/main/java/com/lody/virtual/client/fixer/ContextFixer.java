@@ -3,7 +3,6 @@ package com.lody.virtual.client.fixer;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.content.pm.ApplicationInfo;
 import android.os.Build;
 import android.os.DropBoxManager;
 
@@ -46,11 +45,23 @@ public class ContextFixer {
 	/**
 	 * Fuck AppOps
 	 *
-	 * @param plugin
+	 * @param context
 	 *            插件Context
 	 */
-	public static void fixContext(Context plugin) {
-		DropBoxManager dm = (DropBoxManager) plugin.getSystemService(Context.DROPBOX_SERVICE);
+	public static void fixContext(Context context) {
+		while (context instanceof ContextWrapper) {
+			context = ((ContextWrapper) context).getBaseContext();
+		}
+		try {
+			Reflect.on(context).set("mPackageManager", null);
+			context.getPackageManager();
+		} catch (Throwable e) {
+			// Ignore
+		}
+		if (!VirtualCore.getCore().isVAppProcess()) {
+			return;
+		}
+		DropBoxManager dm = (DropBoxManager) context.getSystemService(Context.DROPBOX_SERVICE);
 		HookDropBoxBinder boxBinder = PatchManager.getInstance().getHookObject(DropBoxManagerPatch.class);
 		if (boxBinder != null) {
 			try {
@@ -60,44 +71,21 @@ public class ContextFixer {
 			}
 		}
 		String pkgName = VirtualCore.getCore().getHostPkg();
-		Context context = plugin;
-		while (context instanceof ContextWrapper) {
-			context = ((ContextWrapper) context).getBaseContext();
-		}
 		Reflect ref = Reflect.on(context);
 		try {
 			ref.set("mBasePackageName", pkgName);
 		} catch (Throwable e) {
 			VLog.w(TAG, "Unable to found field:mBasePackageName in ContextImpl, ignore.");
 		}
-    
-    /**
-     * By : qiang.sheng
-     * TODO : fix摄像头不能调用的问题, 但不确定各版本之间的兼容性,先这么改着.
-     * */
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-      try {
-        Object mBoundApplication = Reflect.on(VirtualCore.getCore().mainThread()).get("mBoundApplication");
-        if (mBoundApplication != null) {
-          ApplicationInfo appInfo = Reflect.on(mBoundApplication).get("appInfo");
-          if (appInfo != null) {
-            Reflect.on(appInfo).set("packageName", VirtualCore.getCore().getHostPkg());
-          }
-        }
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-    }
 
-
-		if (Build.VERSION.SDK_INT >= 19) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 			try {
 				ref.set("mOpPackageName", pkgName);
 			} catch (Throwable e) {
 				VLog.d(TAG, "Unable to found field:mOpPackageName in ContextImpl, ignore.");
 			}
 		}
-		if (Build.VERSION.SDK_INT >= 18) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
 			try {
 				ContentResolver resolver = context.getContentResolver();
 				Reflect.on(resolver).set("mPackageName", pkgName);

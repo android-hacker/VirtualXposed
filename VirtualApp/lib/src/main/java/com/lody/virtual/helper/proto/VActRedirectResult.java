@@ -16,6 +16,11 @@ public class VActRedirectResult implements Parcelable {
 	public IBinder replaceToken;
 	public IBinder newIntentToken;
 	public IBinder targetClient;
+	public boolean justReturn;
+
+	public VActRedirectResult() {
+		justReturn = true;
+	}
 
 	public VActRedirectResult(IBinder newIntentToken, IBinder targetClient) {
 		this.newIntentToken = newIntentToken;
@@ -39,6 +44,7 @@ public class VActRedirectResult implements Parcelable {
 		dest.writeStrongBinder(this.replaceToken);
 		dest.writeStrongBinder(this.newIntentToken);
 		dest.writeStrongBinder(this.targetClient);
+		dest.writeByte((byte) (justReturn ? 1 : 0));
 	}
 
 	protected VActRedirectResult(Parcel in) {
@@ -47,6 +53,7 @@ public class VActRedirectResult implements Parcelable {
 		this.replaceToken = in.readStrongBinder();
 		this.newIntentToken = in.readStrongBinder();
 		this.targetClient = in.readStrongBinder();
+		this.justReturn = in.readByte() == 1;
 	}
 
 	public static final Creator<VActRedirectResult> CREATOR = new Creator<VActRedirectResult>() {

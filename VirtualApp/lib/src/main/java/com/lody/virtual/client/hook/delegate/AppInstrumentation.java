@@ -10,7 +10,6 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 
-import com.lody.virtual.client.core.PatchManager;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.fixer.ActivityFixer;
 import com.lody.virtual.client.fixer.ContextFixer;
@@ -71,7 +70,6 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 
     @Override
     public void callActivityOnCreate(Activity activity, Bundle icicle) {
-        PatchManager.fixContext(activity);
         String pkg = activity.getPackageName();
         boolean isApp = VirtualCore.getCore().isAppInstalled(pkg);
         if (isApp) {

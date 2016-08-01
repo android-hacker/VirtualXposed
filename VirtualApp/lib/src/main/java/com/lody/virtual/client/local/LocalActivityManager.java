@@ -86,7 +86,7 @@ public class LocalActivityManager {
     }
 
     public LocalActivityRecord getActivityRecord(IBinder token) {
-        return mActivities.get(token);
+        return token == null ? null : mActivities.get(token);
     }
 
     public void onActivityResumed(Activity activity) {
