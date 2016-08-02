@@ -6,5 +6,5 @@ package com.lody.virtual.client.filter;
  * TODO:
  */
 public class ServiceEnv {
-  public static String IntentFilter = "IntentFilter";
+  public static String IntentFilter = IntentFilter.class.getSimpleName();
 }

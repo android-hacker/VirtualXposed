@@ -1,14 +1,16 @@
 package com.lody.virtual.client.filter;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.service.ProviderCaller;
 import com.lody.virtual.helper.compat.BundleCompat;
+import com.lody.virtual.helper.component.BaseContentProvider;
 import com.lody.virtual.helper.utils.Reflect;
-import com.lody.virtual.helper.utils.VLog;
 
 import java.util.HashMap;
 
@@ -18,6 +20,7 @@ import java.util.HashMap;
  * TODO:
  */
 public class ServiceContentProvider extends BaseContentProvider {
+  public static Context context;
   public static String author = "com.virtual.service";
   public static HashMap<String, IBinder> mServiceCache = new HashMap<String, IBinder>();
 
@@ -30,6 +33,7 @@ public class ServiceContentProvider extends BaseContentProvider {
 
   @Override
   public boolean onCreate() {
+    context = getContext();
     putService(IntentFilter.class);
     return super.onCreate();
   }
@@ -59,12 +63,8 @@ public class ServiceContentProvider extends BaseContentProvider {
   }
 
   public static IBinder getBinder(String serviceName) {
-    Bundle intentFilterBundle = ServiceContentProvider.Builder()
-            .context(VirtualCore.getCore().getContext())
-            .author(ServiceContentProvider.author)
-            .method(serviceName)
-            .args(null)
-            .call();
+    Bundle intentFilterBundle = ProviderCaller.call(ServiceContentProvider.author,
+            VirtualCore.getCore().getContext(), serviceName, null, null);
 
 
     IBinder intentFilterBinder = null;
