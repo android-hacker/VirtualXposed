@@ -10,16 +10,16 @@ import android.os.RemoteException;
 
 import com.android.internal.content.ReferrerIntent;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.filter.IIntentFilter;
-import com.lody.virtual.client.filter.ServiceContentProvider;
-import com.lody.virtual.client.filter.ServiceEnv;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.LocalActivityManager;
+import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.compat.IApplicationThreadCompat;
 import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.VRedirectActRequest;
 import com.lody.virtual.helper.utils.ArrayUtils;
+import com.lody.virtual.service.filter.IntentFilterService;
+import com.lody.virtual.service.interfaces.IIntentFilterObserver;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -54,7 +54,6 @@ import java.util.Collections;
     }
     IBinder resultTo = (IBinder) args[resultToIndex];
     args[intentIndex] = filterIntent((Intent) args[intentIndex]);
-
     final Intent targetIntent = (Intent) args[intentIndex];
     ActivityInfo targetActInfo = VirtualCore.getCore().resolveActivityInfo(targetIntent);
     if (targetActInfo == null) {
@@ -115,17 +114,13 @@ import java.util.Collections;
   }
 
   public Intent filterIntent(Intent intent) {
-    IBinder intentFilterBinder = ServiceContentProvider.getBinder(ServiceEnv.IntentFilter);
-
-    if (intentFilterBinder != null) {
-      IIntentFilter intentFilter = IIntentFilter.Stub.asInterface(intentFilterBinder);
-
-      if (intentFilter != null) {
-        try {
-          return new Intent(intentFilter.filter(intent));
-        } catch (RemoteException e) {
-          e.printStackTrace();
-        }
+    IBinder intentFilterBinder = ServiceManagerNative.getService(ServiceManagerNative.INTENT_FILTER_MANAGER);
+    IIntentFilterObserver intentFilter = IntentFilterService.getService(intentFilterBinder);
+    if (intentFilter != null) {
+      try {
+        return new Intent(intentFilter.filter(intent));
+      } catch (RemoteException e) {
+        e.printStackTrace();
       }
     }
 

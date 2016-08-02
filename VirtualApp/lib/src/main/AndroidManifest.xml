@@ -221,12 +221,6 @@
             android:exported="false"
             android:process=":x"/>
 
-        <provider
-            android:name=".client.filter.ServiceContentProvider"
-            android:authorities="com.virtual.service"
-            android:process=":services">
-        </provider>
-
         <activity
             android:name="com.lody.virtual.client.stub.StubActivity$C0"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
