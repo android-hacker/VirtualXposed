@@ -47,21 +47,15 @@ public class ContextFixer {
 
 	private static native boolean hookNativeMethod(Object method, String packageName);
 
-	/**
-	 * Fuck AppOps
-	 *
-	 * @param context
-	 *            插件Context
-	 */
-	public static void fixContext(Context context) {
+	public static void fixCamera() {
 		try {
-			Method native_setup = null;
+			Method native_setup;
 			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 				native_setup = Reflect.on(Camera.class).exactMethod("native_setup",
 						new Class[]{Object.class, int.class, int.class, String.class});
 			} else {
 				native_setup = Reflect.on(Camera.class).exactMethod("native_setup",
-				new Class[]{Object.class, int.class, String.class});
+						new Class[]{Object.class, int.class, String.class});
 			}
 			if(native_setup != null) {
 				hookNativeMethod(native_setup, VirtualCore.getCore().getHostPkg());
@@ -69,7 +63,14 @@ public class ContextFixer {
 		} catch (NoSuchMethodException e) {
 			e.printStackTrace();
 		}
-
+	}
+	/**
+	 * Fuck AppOps
+	 *
+	 * @param context
+	 *            插件Context
+	 */
+	public static void fixContext(Context context) {
 		while (context instanceof ContextWrapper) {
 			context = ((ContextWrapper) context).getBaseContext();
 		}

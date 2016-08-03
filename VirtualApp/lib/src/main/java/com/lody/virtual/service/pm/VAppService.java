@@ -176,7 +176,7 @@ public class VAppService extends IAppManager.Stub {
 				VProcessService.getService().killAppByPkg(pkg);
 				FileIO.deleteDir(AppFileSystem.getDefault().getAppPackageFolder(pkg));
 				PackageCache.remove(pkg);
-				notifyAppUnnstalled(pkg);
+				notifyAppUninstalled(pkg);
 				return true;
 			}
 		}
@@ -207,7 +207,7 @@ public class VAppService extends IAppManager.Stub {
 		remoteCallbackList.finishBroadcast();
 	}
 
-	private void notifyAppUnnstalled(String pkgName) {
+	private void notifyAppUninstalled(String pkgName) {
 		int N = remoteCallbackList.beginBroadcast();
 		while (N-- > 0) {
 			try {

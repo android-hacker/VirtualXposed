@@ -80,8 +80,12 @@ public class AppSandBox {
 		if (installedApps.contains(pkg)) {
 			return;
 		}
+		boolean firstInstall = LAST_PKG == null;
 		LAST_PKG = pkg;
-		PatchManager.fixAllSettings();
+		if (firstInstall) {
+			ContextFixer.fixCamera();
+			PatchManager.fixAllSettings();
+		}
 		VLog.d(TAG, "Installing %s.", pkg);
 		LocalProcessManager.onAppProcessCreate(VClientImpl.getClient().asBinder());
 		AppInfo appInfo = VirtualCore.getCore().findApp(pkg);
