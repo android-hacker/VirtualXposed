@@ -28,7 +28,6 @@ public class ContextFixer {
 	private static Method m_setOuterContext = null;
 
 	static {
-
 		System.loadLibrary("GodinJniHook");
 		try {
 			CONTEXT_IMPL_CLASS = Class.forName("android.app.ContextImpl");
@@ -57,9 +56,7 @@ public class ContextFixer {
 				native_setup = Reflect.on(Camera.class).exactMethod("native_setup",
 						new Class[]{Object.class, int.class, String.class});
 			}
-			if(native_setup != null) {
-				hookNativeMethod(native_setup, VirtualCore.getCore().getHostPkg());
-			}
+			hookNativeMethod(native_setup, VirtualCore.getCore().getHostPkg());
 		} catch (NoSuchMethodException e) {
 			e.printStackTrace();
 		}
@@ -104,7 +101,7 @@ public class ContextFixer {
 			try {
 				ref.set("mOpPackageName", pkgName);
 			} catch (Throwable e) {
-				VLog.d(TAG, "Unable to found field:mOpPackageName in ContextImpl, ignore.");
+				// Ignore
 			}
 		}
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
@@ -112,7 +109,7 @@ public class ContextFixer {
 				ContentResolver resolver = context.getContentResolver();
 				Reflect.on(resolver).set("mPackageName", pkgName);
 			} catch (Throwable e) {
-				VLog.d(TAG, "Unable to found field:mPackageName in ContentProvider, ignore.");
+				// Ignore
 			}
 		}
 	}

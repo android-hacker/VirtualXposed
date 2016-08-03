@@ -13,6 +13,7 @@ import android.content.pm.ProviderInfo;
 import android.os.Build;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Process;
 import android.os.StrictMode;
 import android.renderscript.RenderScript;
 import android.renderscript.RenderScriptCacheDir;
@@ -86,6 +87,7 @@ public class AppSandBox {
 			ContextFixer.fixCamera();
 			PatchManager.fixAllSettings();
 		}
+		VLog.d(TAG, "Process [%d] [%s -> %s] has started.", Process.myPid(), VirtualCore.getCore().getProcessName(), processName);
 		VLog.d(TAG, "Installing %s.", pkg);
 		LocalProcessManager.onAppProcessCreate(VClientImpl.getClient().asBinder());
 		AppInfo appInfo = VirtualCore.getCore().findApp(pkg);
@@ -182,13 +184,13 @@ public class AppSandBox {
 				try {
 					RenderScriptCacheDir.setupDiskCache(codeCacheDir);
 				} catch (Throwable e) {
-					e.printStackTrace();
+					// Ignore
 				}
 			} else if (Build.VERSION.SDK_INT >= 16) {
 				try {
 					Reflect.on(RenderScript.class).call("setupDiskCache", codeCacheDir);
 				} catch (Throwable e) {
-					e.printStackTrace();
+					// Ignore
 				}
 			}
 		}
