@@ -152,6 +152,7 @@ public abstract class HookBinder<Interface extends IInterface> implements IHookO
 			if (internalHookMapping.containsKey(hook.getName())) {
 				VLog.w(TAG, "Hook(%s) from class(%s) have been added, should not be add again.", hook.getName(),
 						hook.getClass().getName());
+				return;
 			}
 			internalHookMapping.put(hook.getName(), hook);
 		}
