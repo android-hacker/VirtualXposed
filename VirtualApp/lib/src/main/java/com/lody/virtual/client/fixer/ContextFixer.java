@@ -3,6 +3,7 @@ package com.lody.virtual.client.fixer;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.hardware.Camera;
 import android.os.Build;
 import android.os.DropBoxManager;
 
@@ -27,6 +28,8 @@ public class ContextFixer {
 	private static Method m_setOuterContext = null;
 
 	static {
+
+		System.loadLibrary("GodinJniHook");
 		try {
 			CONTEXT_IMPL_CLASS = Class.forName("android.app.ContextImpl");
 		} catch (ClassNotFoundException e) {
@@ -42,6 +45,25 @@ public class ContextFixer {
 		}
 	}
 
+	private static native boolean hookNativeMethod(Object method, String packageName);
+
+	public static void fixCamera() {
+		try {
+			Method native_setup;
+			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				native_setup = Reflect.on(Camera.class).exactMethod("native_setup",
+						new Class[]{Object.class, int.class, int.class, String.class});
+			} else {
+				native_setup = Reflect.on(Camera.class).exactMethod("native_setup",
+						new Class[]{Object.class, int.class, String.class});
+			}
+			if(native_setup != null) {
+				hookNativeMethod(native_setup, VirtualCore.getCore().getHostPkg());
+			}
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		}
+	}
 	/**
 	 * Fuck AppOps
 	 *
