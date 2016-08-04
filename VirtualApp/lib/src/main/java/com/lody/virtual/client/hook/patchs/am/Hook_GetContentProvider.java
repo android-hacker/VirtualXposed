@@ -5,7 +5,6 @@ import android.app.IApplicationThread;
 import android.content.IContentProvider;
 import android.os.IBinder;
 
-import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.providers.ProviderHook;
 import com.lody.virtual.client.local.LocalContentManager;
@@ -32,10 +31,7 @@ import java.lang.reflect.Proxy;
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		String name = (String) args[getProviderNameIndex()];
-		IActivityManager.ContentProviderHolder holder = null;
-		if (!VirtualCore.getCore().isHostProvider(name)) {
-			holder = LocalContentManager.getDefault().getContentProvider(name);
-		}
+		IActivityManager.ContentProviderHolder holder = LocalContentManager.getDefault().getContentProvider(name);
 		if (holder == null) {
 			try {
 				holder = (IActivityManager.ContentProviderHolder) method.invoke(who, args);

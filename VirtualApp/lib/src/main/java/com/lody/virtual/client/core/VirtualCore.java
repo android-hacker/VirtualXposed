@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.res.AssetManager;
@@ -35,10 +34,8 @@ import com.lody.virtual.service.IAppManager;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Lody
@@ -73,7 +70,6 @@ public final class VirtualCore {
 	private ProcessType processType;
 	private IAppManager mService;
 	private boolean isStartUp;
-	private Set<String> hostProviderAuths = new HashSet<String>(5);
 	private PackageInfo hostPkgInfo;
 	private Map<ComponentName, ActivityInfo> activityInfoCache = new HashMap<ComponentName, ActivityInfo>();
 
@@ -153,12 +149,6 @@ public final class VirtualCore {
 			hostBindData = ActivityThreadCompat.getBoundApplication(mainThread);
 			unHookPackageManager = context.getPackageManager();
 			hostPkgInfo = unHookPackageManager.getPackageInfo(context.getPackageName(), PackageManager.GET_PROVIDERS);
-			ProviderInfo[] hostProviders = hostPkgInfo.providers;
-			if (hostProviders != null) {
-				for (ProviderInfo info : hostProviders) {
-					hostProviderAuths.add(info.authority);
-				}
-			}
 			// Host包名
 			pkgName = context.getPackageName();
 			// 主进程名
@@ -183,9 +173,6 @@ public final class VirtualCore {
 		}
 	}
 
-	public boolean isHostProvider(String auth) {
-		return auth != null && hostProviderAuths.contains(auth);
-	}
 
 	public IAppManager getService() {
 		if (mService == null) {
