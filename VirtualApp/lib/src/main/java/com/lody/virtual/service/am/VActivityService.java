@@ -164,7 +164,12 @@ public class VActivityService extends IActivityManager.Stub {
 			ActivityRecord sourceRecord = mMainStack.findRecord(request.resultTo);
 
 			if ((launchFlags & Intent.FLAG_ACTIVITY_CLEAR_TASK) != 0) {
-				am.removeTask(0);
+				ActivityTaskRecord task = mMainStack.findTask(taskAffinity);
+				if (task != null) {
+					for (ActivityRecord r : task.activityList) {
+						ActivityManagerCompat.finishActivity(r.token, -1, null);
+					}
+				}
 			}
 
 			if (targetActInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {

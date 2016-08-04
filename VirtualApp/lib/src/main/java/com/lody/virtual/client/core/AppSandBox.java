@@ -180,7 +180,7 @@ public class AppSandBox {
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 				try {
 					RenderScriptCacheDir.setupDiskCache(codeCacheDir);
 				} catch (Throwable e) {
