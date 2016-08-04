@@ -9,7 +9,6 @@ import android.widget.RemoteViews;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.Reflect;
-import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -50,28 +49,28 @@ import java.util.Map;
     }
 
     public static boolean isCustomNotification(Notification notification) {
-        if (shouldBlockByRemoteViews(notification.contentView)) {
+        if (isCustomNotification(notification.contentView)) {
             return true;
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            if (shouldBlockByRemoteViews(notification.tickerView)) {
+            if (isCustomNotification(notification.tickerView)) {
                 return true;
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            if (shouldBlockByRemoteViews(notification.bigContentView)) {
+            if (isCustomNotification(notification.bigContentView)) {
                 return true;
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (shouldBlockByRemoteViews(notification.headsUpContentView)) {
+            if (isCustomNotification(notification.headsUpContentView)) {
                 return true;
             }
         }
         return false;
     }
 
-    private static boolean shouldBlockByRemoteViews(RemoteViews remoteViews) {
+    public static boolean isCustomNotification(RemoteViews remoteViews) {
         if (remoteViews == null) {
             return false;
         } else if (sSystemLayoutResIds.containsKey(remoteViews.getLayoutId())) {
@@ -164,13 +163,14 @@ import java.util.Map;
     public static Notification clone(Context context, Notification notification) {
         //插件的icon，绘制完成再替换成自己的
         Notification notification1 = null;
-        try {
-            notification1 = new Notification();
-            Reflect.on(notification).call("cloneInto", notification1, true);
-        } catch (Exception e) {
-            VLog.w("kk", "clone fail " + notification);
-            notification1 = null;
-        }
+        //TODO 貌似克隆有问题
+//        try {
+//            notification1 = new Notification();
+//            Reflect.on(notification).call("cloneInto", notification1, true);
+//        } catch (Exception e) {
+//            VLog.w("kk", "clone fail " + notification);
+//            notification1 = null;
+//        }
         if (notification1 == null) {
             final Notification.Builder builder = new Notification.Builder(context);
             if (Build.VERSION.SDK_INT < 23) {
@@ -209,8 +209,12 @@ import java.util.Map;
             }
             notification1.flags = notification.flags;
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            notification1.extras.putParcelable("android.rebuild.applicationInfo", context.getApplicationInfo());
+        }
         return notification1;
     }
+
     private static boolean isHostPackageName(String pkg) {
         return VirtualCore.getCore().isHostPackageName(pkg);
     }
