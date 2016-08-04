@@ -7,12 +7,6 @@ import java.util.ListIterator;
 
 /**
  * @author Lody
- *
- *         实验发现: 1、SingleInstance 永远独占一个Task。
- *
- *         2、添加 Intent.FLAG_ACTIVITY_MULTIPLE_TASK 标志后, 启动的Activity永远在新创建的Task中。
- *
- *
  */
 
 /*package*/ class ActivityStack {

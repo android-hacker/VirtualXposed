@@ -352,8 +352,10 @@ public class VActivityService extends IActivityManager.Stub {
 			ActivityTaskRecord r = mMainStack.findTask(token);
 			if (r != null) {
 				ActivityRecord record = r.activities.get(token);
-				r.activityList.remove(record);
-				r.activityList.addLast(record);
+				if (r.activityList.peekLast() != record) {
+					r.activityList.remove(record);
+					r.activityList.addLast(record);
+				}
 			}
 		}
 	}
