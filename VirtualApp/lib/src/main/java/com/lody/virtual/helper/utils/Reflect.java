@@ -381,7 +381,7 @@ public class Reflect {
         }
     }
 
-    private Method exactMethod(String name, Class<?>[] types) throws NoSuchMethodException {
+    public Method exactMethod(String name, Class<?>[] types) throws NoSuchMethodException {
         Class<?> type = type();
 
         try {

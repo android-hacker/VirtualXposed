@@ -20,9 +20,7 @@ public abstract class PatchObject<T, H extends IHookObject<T>> implements Inject
 	protected T baseObject;
 
 	public PatchObject() {
-		this.hookObject = initHookObject();
-		applyHooks();
-		afterHookApply(hookObject);
+		this(null);
 	}
 
 	public PatchObject(T baseObject) {

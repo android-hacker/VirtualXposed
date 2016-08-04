@@ -19,6 +19,7 @@ import com.lody.virtual.service.process.VProcessService;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Lody
@@ -28,12 +29,12 @@ public class VAppService extends IAppManager.Stub {
 
 	private static final String TAG = VAppService.class.getSimpleName();
 
-	private static final VAppService gService = new VAppService();
+	private static final AtomicReference<VAppService> gService = new AtomicReference<>();
 
 	private RemoteCallbackList<IAppObserver> remoteCallbackList = new RemoteCallbackList<IAppObserver>();
 
 	public static VAppService getService() {
-		return gService;
+		return gService.get();
 	}
 
 	private static void ensureFoldersCreated(File... folders) {
@@ -51,8 +52,10 @@ public class VAppService extends IAppManager.Stub {
 		return parser.parsePackage(apk, apk.getPath(), metrics, flags);
 	}
 
-	public void systemReady() {
-		preloadAllApps();
+	public static void systemReady() {
+		VAppService instance = new VAppService();
+		gService.set(instance);
+		instance.preloadAllApps();
 	}
 
 	public void preloadAllApps() {
@@ -147,6 +150,7 @@ public class VAppService extends IAppManager.Stub {
 		appInfo.cacheDir = cacheFolder.getPath();
 		appInfo.odexDir = dvmCacheFolder.getPath();
 		PackageCache.put(pkg, appInfo);
+		notifyAppInstalled(pkg.packageName);
 		res.isSuccess = true;
 		return res;
 	}
@@ -172,6 +176,7 @@ public class VAppService extends IAppManager.Stub {
 				VProcessService.getService().killAppByPkg(pkg);
 				FileIO.deleteDir(AppFileSystem.getDefault().getAppPackageFolder(pkg));
 				PackageCache.remove(pkg);
+				notifyAppUninstalled(pkg);
 				return true;
 			}
 		}
@@ -202,6 +207,18 @@ public class VAppService extends IAppManager.Stub {
 		remoteCallbackList.finishBroadcast();
 	}
 
+	private void notifyAppUninstalled(String pkgName) {
+		int N = remoteCallbackList.beginBroadcast();
+		while (N-- > 0) {
+			try {
+				remoteCallbackList.getBroadcastItem(N).onRemoveApp(pkgName);
+			} catch (RemoteException e) {
+				// Ignore
+			}
+		}
+		remoteCallbackList.finishBroadcast();
+	}
+
 	@Override
 	public void registerObserver(IAppObserver observer) {
 		try {
@@ -221,9 +238,11 @@ public class VAppService extends IAppManager.Stub {
 	}
 
 	public AppInfo findAppInfo(String pkg) {
-		if (pkg != null) {
-			return PackageCache.sAppInfos.get(pkg);
+		synchronized (PackageCache.class) {
+			if (pkg != null) {
+				return PackageCache.sAppInfos.get(pkg);
+			}
+			return null;
 		}
-		return null;
 	}
 }

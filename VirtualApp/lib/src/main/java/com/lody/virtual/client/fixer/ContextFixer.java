@@ -3,7 +3,7 @@ package com.lody.virtual.client.fixer;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.content.pm.ApplicationInfo;
+import android.hardware.Camera;
 import android.os.Build;
 import android.os.DropBoxManager;
 
@@ -28,6 +28,7 @@ public class ContextFixer {
 	private static Method m_setOuterContext = null;
 
 	static {
+		System.loadLibrary("GodinJniHook");
 		try {
 			CONTEXT_IMPL_CLASS = Class.forName("android.app.ContextImpl");
 		} catch (ClassNotFoundException e) {
@@ -43,14 +44,43 @@ public class ContextFixer {
 		}
 	}
 
+	private static native boolean hookNativeMethod(Object method, String packageName);
+
+	public static void fixCamera() {
+		try {
+			Method native_setup;
+			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				native_setup = Reflect.on(Camera.class).exactMethod("native_setup",
+						new Class[]{Object.class, int.class, int.class, String.class});
+			} else {
+				native_setup = Reflect.on(Camera.class).exactMethod("native_setup",
+						new Class[]{Object.class, int.class, String.class});
+			}
+			hookNativeMethod(native_setup, VirtualCore.getCore().getHostPkg());
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		}
+	}
 	/**
 	 * Fuck AppOps
 	 *
-	 * @param plugin
+	 * @param context
 	 *            插件Context
 	 */
-	public static void fixContext(Context plugin) {
-		DropBoxManager dm = (DropBoxManager) plugin.getSystemService(Context.DROPBOX_SERVICE);
+	public static void fixContext(Context context) {
+		while (context instanceof ContextWrapper) {
+			context = ((ContextWrapper) context).getBaseContext();
+		}
+		try {
+			Reflect.on(context).set("mPackageManager", null);
+			context.getPackageManager();
+		} catch (Throwable e) {
+			// Ignore
+		}
+		if (!VirtualCore.getCore().isVAppProcess()) {
+			return;
+		}
+		DropBoxManager dm = (DropBoxManager) context.getSystemService(Context.DROPBOX_SERVICE);
 		HookDropBoxBinder boxBinder = PatchManager.getInstance().getHookObject(DropBoxManagerPatch.class);
 		if (boxBinder != null) {
 			try {
@@ -60,49 +90,26 @@ public class ContextFixer {
 			}
 		}
 		String pkgName = VirtualCore.getCore().getHostPkg();
-		Context context = plugin;
-		while (context instanceof ContextWrapper) {
-			context = ((ContextWrapper) context).getBaseContext();
-		}
 		Reflect ref = Reflect.on(context);
 		try {
 			ref.set("mBasePackageName", pkgName);
 		} catch (Throwable e) {
 			VLog.w(TAG, "Unable to found field:mBasePackageName in ContextImpl, ignore.");
 		}
-    
-    /**
-     * By : qiang.sheng
-     * TODO : fix摄像头不能调用的问题, 但不确定各版本之间的兼容性,先这么改着.
-     * */
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-      try {
-        Object mBoundApplication = Reflect.on(VirtualCore.getCore().mainThread()).get("mBoundApplication");
-        if (mBoundApplication != null) {
-          ApplicationInfo appInfo = Reflect.on(mBoundApplication).get("appInfo");
-          if (appInfo != null) {
-            Reflect.on(appInfo).set("packageName", VirtualCore.getCore().getHostPkg());
-          }
-        }
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-    }
 
-
-		if (Build.VERSION.SDK_INT >= 19) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 			try {
 				ref.set("mOpPackageName", pkgName);
 			} catch (Throwable e) {
-				VLog.d(TAG, "Unable to found field:mOpPackageName in ContextImpl, ignore.");
+				// Ignore
 			}
 		}
-		if (Build.VERSION.SDK_INT >= 18) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
 			try {
 				ContentResolver resolver = context.getContentResolver();
 				Reflect.on(resolver).set("mPackageName", pkgName);
 			} catch (Throwable e) {
-				VLog.d(TAG, "Unable to found field:mPackageName in ContentProvider, ignore.");
+				// Ignore
 			}
 		}
 	}

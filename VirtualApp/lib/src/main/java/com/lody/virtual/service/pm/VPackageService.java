@@ -24,7 +24,9 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.fixer.ComponentFixer;
 import com.lody.virtual.helper.compat.ObjectsCompat;
 import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.proto.ReceiverInfo;
 import com.lody.virtual.helper.proto.VParceledListSlice;
+import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.IPackageManager;
 
@@ -35,6 +37,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Lody
@@ -45,7 +48,7 @@ public class VPackageService extends IPackageManager.Stub {
 	static final String TAG = "PackageManager";
 
 	private static final boolean DEBUG_SHOW_INFO = false;
-	private static final VPackageService gService = new VPackageService();
+	private static final AtomicReference<VPackageService> gService = new AtomicReference<>();
 	private static final Comparator<ResolveInfo> mResolvePrioritySorter = new Comparator<ResolveInfo>() {
 		public int compare(ResolveInfo r1, ResolveInfo r2) {
 			int v1 = r1.priority;
@@ -72,6 +75,15 @@ public class VPackageService extends IPackageManager.Stub {
 			return 0;
 		}
 	};
+	private static final Comparator<ProviderInfo> mProviderInitOrderSorter =
+			new Comparator<ProviderInfo>() {
+				public int compare(ProviderInfo p1, ProviderInfo p2) {
+					final int v1 = p1.initOrder;
+					final int v2 = p2.initOrder;
+					return (v1 > v2) ? -1 : ((v1 < v2) ? 1 : 0);
+				}
+			};
+
 	final ActivityIntentResolver mActivities = new ActivityIntentResolver();
 	final ServiceIntentResolver mServices = new ServiceIntentResolver();
 	final ActivityIntentResolver mReceivers = new ActivityIntentResolver();
@@ -88,10 +100,19 @@ public class VPackageService extends IPackageManager.Stub {
 
 	private int[] mGids;
 
-	public static VPackageService getService() {
-		return gService;
+	public VPackageService(int[] gids) {
+		this.mGids = gids;
 	}
 
+	public static void systemReady() {
+		int[] gids = VirtualCore.getCore().getGids();
+		VPackageService instance = new VPackageService(gids);
+		gService.set(instance);
+	}
+
+	public static VPackageService getService() {
+		return gService.get();
+	}
 
 	private static boolean isSystemApp(ApplicationInfo info) {
 		return info != null && (info.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
@@ -103,10 +124,6 @@ public class VPackageService extends IPackageManager.Stub {
 
 	private VAppService getPMS() {
 		return VAppService.getService();
-	}
-
-	public void onCreate(Context context) {
-		this.mGids = VirtualCore.getCore().getGids();
 	}
 
 	public void analyzePackageLocked(AppInfo appInfo, PackageParser.Package pkg) {
@@ -130,7 +147,7 @@ public class VPackageService extends IPackageManager.Stub {
 		}
 
 		N = pkg.providers.size();
-		for (int i=0; i<N; i++) {
+		for (int i = 0; i < N; i++) {
 			PackageParser.Provider p = pkg.providers.get(i);
 			ComponentFixer.fixComponentInfo(appInfo, p.info);
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -142,6 +159,7 @@ public class VPackageService extends IPackageManager.Stub {
 					mProvidersByAuthority.put(name, p);
 				}
 			}
+			mProvidersByComponent.put(p.getComponentName(), p);
 		}
 
 		N = pkg.permissions.size();
@@ -164,7 +182,7 @@ public class VPackageService extends IPackageManager.Stub {
 		int N = pkg.activities.size();
 		for (int i = 0; i < N; i++) {
 			PackageParser.Activity a = pkg.activities.get(i);
-			mActivities.addActivity(a, "activity");
+			mActivities.removeActivity(a, "activity");
 		}
 		N = pkg.services.size();
 		for (int i = 0; i < N; i++) {
@@ -178,17 +196,16 @@ public class VPackageService extends IPackageManager.Stub {
 		}
 
 		N = pkg.providers.size();
-		for (int i=0; i<N; i++) {
+		for (int i = 0; i < N; i++) {
 			PackageParser.Provider p = pkg.providers.get(i);
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 				mProviders.removeProvider(p);
 			}
 			String names[] = p.info.authority.split(";");
 			for (String name : names) {
-				if (!mProvidersByAuthority.containsKey(name)) {
-					mProvidersByAuthority.remove(name);
-				}
+				mProvidersByAuthority.remove(name);
 			}
+			mProvidersByComponent.remove(p.getComponentName());
 		}
 
 		N = pkg.permissions.size();
@@ -205,6 +222,11 @@ public class VPackageService extends IPackageManager.Stub {
 
 	@Override
 	public int checkPermission(String permName, String pkgName) {
+		if ("android.permission.INTERACT_ACROSS_USERS".equals(permName)
+				|| "android.permission.INTERACT_ACROSS_USERS_FULL".equals(permName)) {
+			return PackageManager.PERMISSION_DENIED;
+		}
+
 		return PackageManager.PERMISSION_GRANTED;
 	}
 
@@ -249,16 +271,15 @@ public class VPackageService extends IPackageManager.Stub {
 	}
 
 	@Override
-	public boolean activitySupportsIntent(ComponentName component, Intent intent,
-										  String resolvedType) {
+	public boolean activitySupportsIntent(ComponentName component, Intent intent, String resolvedType) {
 		synchronized (mPackages) {
 			PackageParser.Activity a = mActivities.mActivities.get(component);
 			if (a == null) {
 				return false;
 			}
-			for (int i=0; i<a.intents.size(); i++) {
-				if (a.intents.get(i).match(intent.getAction(), resolvedType, intent.getScheme(),
-						intent.getData(), intent.getCategories(), TAG) >= 0) {
+			for (int i = 0; i < a.intents.size(); i++) {
+				if (a.intents.get(i).match(intent.getAction(), resolvedType, intent.getScheme(), intent.getData(),
+						intent.getCategories(), TAG) >= 0) {
 					return true;
 				}
 			}
@@ -416,6 +437,27 @@ public class VPackageService extends IPackageManager.Stub {
 	}
 
 	@Override
+	public List<ReceiverInfo> queryReceivers(String processName, int flags) {
+		ArrayList<ReceiverInfo> finalList = new ArrayList<>(3);
+		synchronized (mPackages) {
+			for (PackageParser.Activity a : mReceivers.mActivities.values()) {
+				if (a.info.processName.equals(processName)) {
+					ActivityInfo receiverInfo = PackageParser.generateActivityInfo(a, flags);
+					if (receiverInfo != null) {
+						ComponentName component = ComponentUtils.toComponentName(receiverInfo);
+						IntentFilter[] filters = null;
+						if (a.intents != null) {
+							filters = a.intents.toArray(new IntentFilter[a.intents.size()]);
+						}
+						finalList.add(new ReceiverInfo(component, filters, receiverInfo.permission));
+					}
+				}
+			}
+		}
+		return finalList;
+	}
+
+	@Override
 	public ResolveInfo resolveService(Intent intent, String resolvedType, int flags) {
 		List<ResolveInfo> query = queryIntentServices(intent, resolvedType, flags);
 		if (query != null) {
@@ -494,11 +536,27 @@ public class VPackageService extends IPackageManager.Stub {
 			}
 			final PackageParser.Package pkg = mPackages.get(pkgName);
 			if (pkg != null) {
-				return mProviders.queryIntentForPackage(
-						intent, resolvedType, flags, pkg.providers);
+				return mProviders.queryIntentForPackage(intent, resolvedType, flags, pkg.providers);
 			}
 			return null;
 		}
+	}
+
+	@Override
+	public VParceledListSlice<ProviderInfo> queryContentProviders(String processName, int flags) {
+		ArrayList<ProviderInfo> finalList = new ArrayList<>(3);
+		// reader
+		synchronized (mPackages) {
+			for (PackageParser.Provider p : mProvidersByComponent.values()) {
+				if (p.info.processName.equals(processName)) {
+					finalList.add(PackageParser.generateProviderInfo(p, flags));
+				}
+			}
+		}
+		if (!finalList.isEmpty()) {
+			Collections.sort(finalList, mProviderInitOrderSorter);
+		}
+		return new VParceledListSlice<>(finalList);
 	}
 
 	@Override
@@ -607,37 +665,48 @@ public class VPackageService extends IPackageManager.Stub {
 		return null;
 	}
 
-	final class ActivityIntentResolver
-			extends IntentResolver<PackageParser.ActivityIntentInfo, ResolveInfo> {
-		public List<ResolveInfo> queryIntent(Intent intent, String resolvedType,
-											 boolean defaultOnly) {
+	@Override
+	public boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
+		try {
+			return super.onTransact(code, data, reply, flags);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	final class ActivityIntentResolver extends IntentResolver<PackageParser.ActivityIntentInfo, ResolveInfo> {
+		// Keys are String (activity class name), values are Activity.
+		private final HashMap<ComponentName, PackageParser.Activity> mActivities = new HashMap<>();
+		private int mFlags;
+
+		public List<ResolveInfo> queryIntent(Intent intent, String resolvedType, boolean defaultOnly) {
 			mFlags = defaultOnly ? PackageManager.MATCH_DEFAULT_ONLY : 0;
 			return super.queryIntent(intent, resolvedType, defaultOnly);
 		}
 
 		public List<ResolveInfo> queryIntent(Intent intent, String resolvedType, int flags) {
 			mFlags = flags;
-			return super.queryIntent(intent, resolvedType,
-					(flags & PackageManager.MATCH_DEFAULT_ONLY) != 0);
+			return super.queryIntent(intent, resolvedType, (flags & PackageManager.MATCH_DEFAULT_ONLY) != 0);
 		}
 
-		public List<ResolveInfo> queryIntentForPackage(Intent intent, String resolvedType,
-													   int flags, ArrayList<PackageParser.Activity> packageActivities) {
+		public List<ResolveInfo> queryIntentForPackage(Intent intent, String resolvedType, int flags,
+				ArrayList<PackageParser.Activity> packageActivities) {
 			if (packageActivities == null) {
 				return null;
 			}
 			mFlags = flags;
-			final boolean defaultOnly = (flags&PackageManager.MATCH_DEFAULT_ONLY) != 0;
+			final boolean defaultOnly = (flags & PackageManager.MATCH_DEFAULT_ONLY) != 0;
 			final int N = packageActivities.size();
-			ArrayList<PackageParser.ActivityIntentInfo[]> listCut =
-					new ArrayList<PackageParser.ActivityIntentInfo[]>(N);
+			ArrayList<PackageParser.ActivityIntentInfo[]> listCut = new ArrayList<PackageParser.ActivityIntentInfo[]>(
+					N);
 
 			ArrayList<PackageParser.ActivityIntentInfo> intentFilters;
 			for (int i = 0; i < N; ++i) {
 				intentFilters = packageActivities.get(i).intents;
 				if (intentFilters != null && intentFilters.size() > 0) {
-					PackageParser.ActivityIntentInfo[] array =
-							new PackageParser.ActivityIntentInfo[intentFilters.size()];
+					PackageParser.ActivityIntentInfo[] array = new PackageParser.ActivityIntentInfo[intentFilters
+							.size()];
 					intentFilters.toArray(array);
 					listCut.add(array);
 				}
@@ -649,18 +718,17 @@ public class VPackageService extends IPackageManager.Stub {
 			final boolean systemApp = isSystemApp(a.info.applicationInfo);
 			mActivities.put(a.getComponentName(), a);
 			if (DEBUG_SHOW_INFO)
-				Log.v(
-						TAG, "  " + type + " " +
-								(a.info.nonLocalizedLabel != null ? a.info.nonLocalizedLabel : a.info.name) + ":");
+				Log.v(TAG, "  " + type + " "
+						+ (a.info.nonLocalizedLabel != null ? a.info.nonLocalizedLabel : a.info.name) + ":");
 			if (DEBUG_SHOW_INFO)
 				Log.v(TAG, "    Class=" + a.info.name);
 			final int NI = a.intents.size();
-			for (int j=0; j<NI; j++) {
+			for (int j = 0; j < NI; j++) {
 				PackageParser.ActivityIntentInfo intent = a.intents.get(j);
 				if (!systemApp && intent.getPriority() > 0 && "activity".equals(type)) {
 					intent.setPriority(0);
-					Log.w(TAG, "Package " + a.info.applicationInfo.packageName + " has activity "
-							+ a.className + " with priority > 0, forcing to 0");
+					Log.w(TAG, "Package " + a.info.applicationInfo.packageName + " has activity " + a.className
+							+ " with priority > 0, forcing to 0");
 				}
 				if (DEBUG_SHOW_INFO) {
 					Log.v(TAG, "    IntentFilter:");
@@ -674,12 +742,11 @@ public class VPackageService extends IPackageManager.Stub {
 			mActivities.remove(a.getComponentName());
 			if (DEBUG_SHOW_INFO) {
 				Log.v(TAG, "  " + type + " "
-						+ (a.info.nonLocalizedLabel != null ? a.info.nonLocalizedLabel
-						: a.info.name) + ":");
+						+ (a.info.nonLocalizedLabel != null ? a.info.nonLocalizedLabel : a.info.name) + ":");
 				Log.v(TAG, "    Class=" + a.info.name);
 			}
 			final int NI = a.intents.size();
-			for (int j=0; j<NI; j++) {
+			for (int j = 0; j < NI; j++) {
 				PackageParser.ActivityIntentInfo intent = a.intents.get(j);
 				if (DEBUG_SHOW_INFO) {
 					Log.v(TAG, "    IntentFilter:");
@@ -690,13 +757,11 @@ public class VPackageService extends IPackageManager.Stub {
 		}
 
 		@Override
-		protected boolean allowFilterResult(
-				PackageParser.ActivityIntentInfo filter, List<ResolveInfo> dest) {
+		protected boolean allowFilterResult(PackageParser.ActivityIntentInfo filter, List<ResolveInfo> dest) {
 			ActivityInfo filterAi = filter.activity.info;
-			for (int i=dest.size()-1; i>=0; i--) {
+			for (int i = dest.size() - 1; i >= 0; i--) {
 				ActivityInfo destAi = dest.get(i).activityInfo;
-				if (destAi.name == filterAi.name
-						&& destAi.packageName == filterAi.packageName) {
+				if (destAi.name == filterAi.name && destAi.packageName == filterAi.packageName) {
 					return false;
 				}
 			}
@@ -714,14 +779,12 @@ public class VPackageService extends IPackageManager.Stub {
 		}
 
 		@Override
-		protected boolean isPackageForFilter(String packageName,
-											 PackageParser.ActivityIntentInfo info) {
+		protected boolean isPackageForFilter(String packageName, PackageParser.ActivityIntentInfo info) {
 			return packageName.equals(info.activity.owner.packageName);
 		}
 
 		@Override
-		protected ResolveInfo newResult(PackageParser.ActivityIntentInfo info,
-										int match) {
+		protected ResolveInfo newResult(PackageParser.ActivityIntentInfo info, int match) {
 			final PackageParser.Activity activity = info.activity;
 			ActivityInfo ai = PackageParser.generateActivityInfo(activity, mFlags);
 			if (ai == null) {
@@ -729,13 +792,13 @@ public class VPackageService extends IPackageManager.Stub {
 			}
 			final ResolveInfo res = new ResolveInfo();
 			res.activityInfo = ai;
-			if ((mFlags&PackageManager.GET_RESOLVED_FILTER) != 0) {
+			if ((mFlags & PackageManager.GET_RESOLVED_FILTER) != 0) {
 				res.filter = info;
 			}
 			res.priority = info.getPriority();
 			res.preferredOrder = activity.owner.mPreferredOrder;
-			//System.out.println("Result: " + res.activityInfo.className +
-			//                   " = " + res.priority);
+			// System.out.println("Result: " + res.activityInfo.className +
+			// " = " + res.priority);
 			res.match = match;
 			res.isDefault = info.hasDefault;
 			res.labelRes = info.labelRes;
@@ -751,10 +814,9 @@ public class VPackageService extends IPackageManager.Stub {
 		}
 
 		@Override
-		protected void dumpFilter(PrintWriter out, String prefix,
-								  PackageParser.ActivityIntentInfo filter) {
-			out.print(prefix); out.print(
-					Integer.toHexString(System.identityHashCode(filter.activity)));
+		protected void dumpFilter(PrintWriter out, String prefix, PackageParser.ActivityIntentInfo filter) {
+			out.print(prefix);
+			out.print(Integer.toHexString(System.identityHashCode(filter.activity)));
 			out.print(' ');
 			filter.activity.printComponentShortName(out);
 			out.print(" filter ");
@@ -767,55 +829,50 @@ public class VPackageService extends IPackageManager.Stub {
 		}
 
 		protected void dumpFilterLabel(PrintWriter out, String prefix, Object label, int count) {
-			PackageParser.Activity activity = (PackageParser.Activity)label;
-			out.print(prefix); out.print(
-					Integer.toHexString(System.identityHashCode(activity)));
+			PackageParser.Activity activity = (PackageParser.Activity) label;
+			out.print(prefix);
+			out.print(Integer.toHexString(System.identityHashCode(activity)));
 			out.print(' ');
 			activity.printComponentShortName(out);
 			if (count > 1) {
-				out.print(" ("); out.print(count); out.print(" filters)");
+				out.print(" (");
+				out.print(count);
+				out.print(" filters)");
 			}
 			out.println();
 		}
-
-		// Keys are String (activity class name), values are Activity.
-		private final HashMap<ComponentName, PackageParser.Activity> mActivities
-				= new HashMap<>();
-		private int mFlags;
 	}
 
+	private final class ServiceIntentResolver extends IntentResolver<PackageParser.ServiceIntentInfo, ResolveInfo> {
+		// Keys are String (activity class name), values are Activity.
+		private final HashMap<ComponentName, PackageParser.Service> mServices = new HashMap<>();
+		private int mFlags;
 
-	private final class ServiceIntentResolver
-			extends IntentResolver<PackageParser.ServiceIntentInfo, ResolveInfo> {
-		public List<ResolveInfo> queryIntent(Intent intent, String resolvedType,
-											 boolean defaultOnly) {
+		public List<ResolveInfo> queryIntent(Intent intent, String resolvedType, boolean defaultOnly) {
 			mFlags = defaultOnly ? PackageManager.MATCH_DEFAULT_ONLY : 0;
 			return super.queryIntent(intent, resolvedType, defaultOnly);
 		}
 
 		public List<ResolveInfo> queryIntent(Intent intent, String resolvedType, int flags) {
 			mFlags = flags;
-			return super.queryIntent(intent, resolvedType,
-					(flags & PackageManager.MATCH_DEFAULT_ONLY) != 0);
+			return super.queryIntent(intent, resolvedType, (flags & PackageManager.MATCH_DEFAULT_ONLY) != 0);
 		}
 
-		public List<ResolveInfo> queryIntentForPackage(Intent intent, String resolvedType,
-													   int flags, ArrayList<PackageParser.Service> packageServices) {
+		public List<ResolveInfo> queryIntentForPackage(Intent intent, String resolvedType, int flags,
+				ArrayList<PackageParser.Service> packageServices) {
 			if (packageServices == null) {
 				return null;
 			}
 			mFlags = flags;
-			final boolean defaultOnly = (flags&PackageManager.MATCH_DEFAULT_ONLY) != 0;
+			final boolean defaultOnly = (flags & PackageManager.MATCH_DEFAULT_ONLY) != 0;
 			final int N = packageServices.size();
-			ArrayList<PackageParser.ServiceIntentInfo[]> listCut =
-					new ArrayList<PackageParser.ServiceIntentInfo[]>(N);
+			ArrayList<PackageParser.ServiceIntentInfo[]> listCut = new ArrayList<PackageParser.ServiceIntentInfo[]>(N);
 
 			ArrayList<PackageParser.ServiceIntentInfo> intentFilters;
 			for (int i = 0; i < N; ++i) {
 				intentFilters = packageServices.get(i).intents;
 				if (intentFilters != null && intentFilters.size() > 0) {
-					PackageParser.ServiceIntentInfo[] array =
-							new PackageParser.ServiceIntentInfo[intentFilters.size()];
+					PackageParser.ServiceIntentInfo[] array = new PackageParser.ServiceIntentInfo[intentFilters.size()];
 					intentFilters.toArray(array);
 					listCut.add(array);
 				}
@@ -826,14 +883,12 @@ public class VPackageService extends IPackageManager.Stub {
 		public final void addService(PackageParser.Service s) {
 			mServices.put(s.getComponentName(), s);
 			if (DEBUG_SHOW_INFO) {
-				Log.v(TAG, "  "
-						+ (s.info.nonLocalizedLabel != null
-						? s.info.nonLocalizedLabel : s.info.name) + ":");
+				Log.v(TAG, "  " + (s.info.nonLocalizedLabel != null ? s.info.nonLocalizedLabel : s.info.name) + ":");
 				Log.v(TAG, "    Class=" + s.info.name);
 			}
 			final int NI = s.intents.size();
 			int j;
-			for (j=0; j<NI; j++) {
+			for (j = 0; j < NI; j++) {
 				PackageParser.ServiceIntentInfo intent = s.intents.get(j);
 				if (DEBUG_SHOW_INFO) {
 					Log.v(TAG, "    IntentFilter:");
@@ -846,13 +901,12 @@ public class VPackageService extends IPackageManager.Stub {
 		public final void removeService(PackageParser.Service s) {
 			mServices.remove(s.getComponentName());
 			if (DEBUG_SHOW_INFO) {
-				Log.v(TAG, "  " + (s.info.nonLocalizedLabel != null
-						? s.info.nonLocalizedLabel : s.info.name) + ":");
+				Log.v(TAG, "  " + (s.info.nonLocalizedLabel != null ? s.info.nonLocalizedLabel : s.info.name) + ":");
 				Log.v(TAG, "    Class=" + s.info.name);
 			}
 			final int NI = s.intents.size();
 			int j;
-			for (j=0; j<NI; j++) {
+			for (j = 0; j < NI; j++) {
 				PackageParser.ServiceIntentInfo intent = s.intents.get(j);
 				if (DEBUG_SHOW_INFO) {
 					Log.v(TAG, "    IntentFilter:");
@@ -863,10 +917,9 @@ public class VPackageService extends IPackageManager.Stub {
 		}
 
 		@Override
-		protected boolean allowFilterResult(
-				PackageParser.ServiceIntentInfo filter, List<ResolveInfo> dest) {
+		protected boolean allowFilterResult(PackageParser.ServiceIntentInfo filter, List<ResolveInfo> dest) {
 			ServiceInfo filterSi = filter.service.info;
-			for (int i=dest.size()-1; i>=0; i--) {
+			for (int i = dest.size() - 1; i >= 0; i--) {
 				ServiceInfo destAi = dest.get(i).serviceInfo;
 				if (ObjectsCompat.equals(destAi.name, filterSi.name)
 						&& ObjectsCompat.equals(destAi.packageName, filterSi.packageName)) {
@@ -887,14 +940,12 @@ public class VPackageService extends IPackageManager.Stub {
 		}
 
 		@Override
-		protected boolean isPackageForFilter(String packageName,
-											 PackageParser.ServiceIntentInfo info) {
+		protected boolean isPackageForFilter(String packageName, PackageParser.ServiceIntentInfo info) {
 			return packageName.equals(info.service.owner.packageName);
 		}
 
 		@Override
-		protected ResolveInfo newResult(PackageParser.ServiceIntentInfo filter,
-										int match) {
+		protected ResolveInfo newResult(PackageParser.ServiceIntentInfo filter, int match) {
 			final PackageParser.Service service = filter.service;
 			ServiceInfo si = PackageParser.generateServiceInfo(service, mFlags);
 			if (si == null) {
@@ -902,7 +953,7 @@ public class VPackageService extends IPackageManager.Stub {
 			}
 			final ResolveInfo res = new ResolveInfo();
 			res.serviceInfo = si;
-			if ((mFlags&PackageManager.GET_RESOLVED_FILTER) != 0) {
+			if ((mFlags & PackageManager.GET_RESOLVED_FILTER) != 0) {
 				res.filter = filter;
 			}
 			res.priority = filter.getPriority();
@@ -922,10 +973,9 @@ public class VPackageService extends IPackageManager.Stub {
 		}
 
 		@Override
-		protected void dumpFilter(PrintWriter out, String prefix,
-								  PackageParser.ServiceIntentInfo filter) {
-			out.print(prefix); out.print(
-					Integer.toHexString(System.identityHashCode(filter.service)));
+		protected void dumpFilter(PrintWriter out, String prefix, PackageParser.ServiceIntentInfo filter) {
+			out.print(prefix);
+			out.print(Integer.toHexString(System.identityHashCode(filter.service)));
 			out.print(' ');
 			filter.service.printComponentShortName(out);
 			out.print(" filter ");
@@ -938,56 +988,50 @@ public class VPackageService extends IPackageManager.Stub {
 		}
 
 		protected void dumpFilterLabel(PrintWriter out, String prefix, Object label, int count) {
-			PackageParser.Service service = (PackageParser.Service)label;
-			out.print(prefix); out.print(
-					Integer.toHexString(System.identityHashCode(service)));
+			PackageParser.Service service = (PackageParser.Service) label;
+			out.print(prefix);
+			out.print(Integer.toHexString(System.identityHashCode(service)));
 			out.print(' ');
 			service.printComponentShortName(out);
 			if (count > 1) {
-				out.print(" ("); out.print(count); out.print(" filters)");
+				out.print(" (");
+				out.print(count);
+				out.print(" filters)");
 			}
 			out.println();
 		}
-
-		// Keys are String (activity class name), values are Activity.
-		private final HashMap<ComponentName, PackageParser.Service> mServices
-				= new HashMap<>();
-		private int mFlags;
 	}
 
+	private final class ProviderIntentResolver extends IntentResolver<PackageParser.ProviderIntentInfo, ResolveInfo> {
+		private final HashMap<ComponentName, PackageParser.Provider> mProviders = new HashMap<>();
+		private int mFlags;
 
-
-	private final class ProviderIntentResolver
-			extends IntentResolver<PackageParser.ProviderIntentInfo, ResolveInfo> {
-		public List<ResolveInfo> queryIntent(Intent intent, String resolvedType,
-											 boolean defaultOnly) {
+		public List<ResolveInfo> queryIntent(Intent intent, String resolvedType, boolean defaultOnly) {
 			mFlags = defaultOnly ? PackageManager.MATCH_DEFAULT_ONLY : 0;
 			return super.queryIntent(intent, resolvedType, defaultOnly);
 		}
 
 		public List<ResolveInfo> queryIntent(Intent intent, String resolvedType, int flags) {
 			mFlags = flags;
-			return super.queryIntent(intent, resolvedType,
-					(flags & PackageManager.MATCH_DEFAULT_ONLY) != 0);
+			return super.queryIntent(intent, resolvedType, (flags & PackageManager.MATCH_DEFAULT_ONLY) != 0);
 		}
 
-		public List<ResolveInfo> queryIntentForPackage(Intent intent, String resolvedType,
-													   int flags, ArrayList<PackageParser.Provider> packageProviders) {
+		public List<ResolveInfo> queryIntentForPackage(Intent intent, String resolvedType, int flags,
+				ArrayList<PackageParser.Provider> packageProviders) {
 			if (packageProviders == null) {
 				return null;
 			}
 			mFlags = flags;
 			final boolean defaultOnly = (flags & PackageManager.MATCH_DEFAULT_ONLY) != 0;
 			final int N = packageProviders.size();
-			ArrayList<PackageParser.ProviderIntentInfo[]> listCut =
-					new ArrayList<>(N);
+			ArrayList<PackageParser.ProviderIntentInfo[]> listCut = new ArrayList<>(N);
 
 			ArrayList<PackageParser.ProviderIntentInfo> intentFilters;
 			for (int i = 0; i < N; ++i) {
 				intentFilters = packageProviders.get(i).intents;
 				if (intentFilters != null && intentFilters.size() > 0) {
-					PackageParser.ProviderIntentInfo[] array =
-							new PackageParser.ProviderIntentInfo[intentFilters.size()];
+					PackageParser.ProviderIntentInfo[] array = new PackageParser.ProviderIntentInfo[intentFilters
+							.size()];
 					intentFilters.toArray(array);
 					listCut.add(array);
 				}
@@ -1003,9 +1047,7 @@ public class VPackageService extends IPackageManager.Stub {
 
 			mProviders.put(p.getComponentName(), p);
 			if (DEBUG_SHOW_INFO) {
-				Log.v(TAG, "  "
-						+ (p.info.nonLocalizedLabel != null
-						? p.info.nonLocalizedLabel : p.info.name) + ":");
+				Log.v(TAG, "  " + (p.info.nonLocalizedLabel != null ? p.info.nonLocalizedLabel : p.info.name) + ":");
 				Log.v(TAG, "    Class=" + p.info.name);
 			}
 			final int NI = p.intents.size();
@@ -1023,8 +1065,7 @@ public class VPackageService extends IPackageManager.Stub {
 		public final void removeProvider(PackageParser.Provider p) {
 			mProviders.remove(p.getComponentName());
 			if (DEBUG_SHOW_INFO) {
-				Log.v(TAG, "  " + (p.info.nonLocalizedLabel != null
-						? p.info.nonLocalizedLabel : p.info.name) + ":");
+				Log.v(TAG, "  " + (p.info.nonLocalizedLabel != null ? p.info.nonLocalizedLabel : p.info.name) + ":");
 				Log.v(TAG, "    Class=" + p.info.name);
 			}
 			final int NI = p.intents.size();
@@ -1041,8 +1082,7 @@ public class VPackageService extends IPackageManager.Stub {
 
 		@TargetApi(Build.VERSION_CODES.KITKAT)
 		@Override
-		protected boolean allowFilterResult(
-				PackageParser.ProviderIntentInfo filter, List<ResolveInfo> dest) {
+		protected boolean allowFilterResult(PackageParser.ProviderIntentInfo filter, List<ResolveInfo> dest) {
 			ProviderInfo filterPi = filter.provider.info;
 			for (int i = dest.size() - 1; i >= 0; i--) {
 				ProviderInfo destPi = dest.get(i).providerInfo;
@@ -1065,15 +1105,13 @@ public class VPackageService extends IPackageManager.Stub {
 		}
 
 		@Override
-		protected boolean isPackageForFilter(String packageName,
-											 PackageParser.ProviderIntentInfo info) {
+		protected boolean isPackageForFilter(String packageName, PackageParser.ProviderIntentInfo info) {
 			return packageName.equals(info.provider.owner.packageName);
 		}
 
 		@TargetApi(Build.VERSION_CODES.KITKAT)
 		@Override
-		protected ResolveInfo newResult(PackageParser.ProviderIntentInfo filter,
-										int match) {
+		protected ResolveInfo newResult(PackageParser.ProviderIntentInfo filter, int match) {
 			final PackageParser.Provider provider = filter.provider;
 			ProviderInfo pi = PackageParser.generateProviderInfo(provider, mFlags);
 			if (pi == null) {
@@ -1101,11 +1139,9 @@ public class VPackageService extends IPackageManager.Stub {
 		}
 
 		@Override
-		protected void dumpFilter(PrintWriter out, String prefix,
-								  PackageParser.ProviderIntentInfo filter) {
+		protected void dumpFilter(PrintWriter out, String prefix, PackageParser.ProviderIntentInfo filter) {
 			out.print(prefix);
-			out.print(
-					Integer.toHexString(System.identityHashCode(filter.provider)));
+			out.print(Integer.toHexString(System.identityHashCode(filter.provider)));
 			out.print(' ');
 			filter.provider.printComponentShortName(out);
 			out.print(" filter ");
@@ -1118,29 +1154,17 @@ public class VPackageService extends IPackageManager.Stub {
 		}
 
 		protected void dumpFilterLabel(PrintWriter out, String prefix, Object label, int count) {
-			PackageParser.Provider provider = (PackageParser.Provider)label;
-			out.print(prefix); out.print(
-					Integer.toHexString(System.identityHashCode(provider)));
+			PackageParser.Provider provider = (PackageParser.Provider) label;
+			out.print(prefix);
+			out.print(Integer.toHexString(System.identityHashCode(provider)));
 			out.print(' ');
 			provider.printComponentShortName(out);
 			if (count > 1) {
-				out.print(" ("); out.print(count); out.print(" filters)");
+				out.print(" (");
+				out.print(count);
+				out.print(" filters)");
 			}
 			out.println();
-		}
-
-		private final HashMap<ComponentName, PackageParser.Provider> mProviders
-				= new HashMap<>();
-		private int mFlags;
-	}
-
-	@Override
-	public boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
-		try {
-			return super.onTransact(code, data, reply, flags);
-		} catch (Throwable e) {
-			e.printStackTrace();
-			throw e;
 		}
 	}
 }

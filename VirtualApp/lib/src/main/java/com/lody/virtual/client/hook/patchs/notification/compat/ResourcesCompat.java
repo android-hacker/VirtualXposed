@@ -91,9 +91,9 @@ import java.util.Iterator;
                     Reflect.on(notification).call("setSmallIcon", newIcon);
                 }
             }
-            android.graphics.drawable.Icon icon2 = notification.getLargeIcon();
-            if (icon2 != null) {
-                Bitmap bitmap = drawableToBitMap(icon2.loadDrawable(getContext()));
+            android.graphics.drawable.Icon largeIcon = notification.getLargeIcon();
+            if (largeIcon != null) {
+                Bitmap bitmap = drawableToBitMap(largeIcon.loadDrawable(getContext()));
                 if (bitmap != null) {
                     android.graphics.drawable.Icon newIcon = android.graphics.drawable.Icon.createWithBitmap(bitmap);
                     Reflect.on(notification).call("mLargeIcon", newIcon);
@@ -115,7 +115,7 @@ import java.util.Iterator;
                 }
                 remoteViews.setImageViewBitmap(id, bitmap);
             } catch (Exception e) {
-                VLog.e("kk", "set icon " + e);
+                e.printStackTrace();
             }
         } else {
             try {
@@ -144,9 +144,9 @@ import java.util.Iterator;
                     builder.setSmallIcon(newIcon);
                 }
             }
-            android.graphics.drawable.Icon icon2 = notification.getLargeIcon();
-            if (icon2 != null) {
-                Bitmap bitmap = drawableToBitMap(icon2.loadDrawable(context));
+            android.graphics.drawable.Icon largeIcon = notification.getLargeIcon();
+            if (largeIcon != null) {
+                Bitmap bitmap = drawableToBitMap(largeIcon.loadDrawable(context));
                 if (bitmap != null) {
                     android.graphics.drawable.Icon newIcon = android.graphics.drawable.Icon.createWithBitmap(bitmap);
                     builder.setLargeIcon(newIcon);
@@ -170,6 +170,7 @@ import java.util.Iterator;
                             TextViewDrawableActionClass = Class.forName(RemoteViews.class.getName() + "$TextViewDrawableAction");
                         }
                     } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
                     }
                     Class ReflectionActionClass = Class.forName(RemoteViews.class.getName() + "$ReflectionAction");
                     while (iterable.hasNext()) {

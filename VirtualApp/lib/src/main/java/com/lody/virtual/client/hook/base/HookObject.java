@@ -60,6 +60,7 @@ public class HookObject<T> implements IHookObject<T> {
 			if (internalHookMapping.containsKey(hook.getName())) {
 				VLog.w(TAG, "Hook(%s) from class(%s) have been added, can't add again.", hook.getName(),
 						hook.getClass().getName());
+				return;
 			}
 			internalHookMapping.put(hook.getName(), hook);
 		}

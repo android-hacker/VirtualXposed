@@ -81,10 +81,8 @@ class PendIntentCompat {
                 //height修正
                 rect.top += viewGroup.getTop();
                 rect.bottom += viewGroup.getTop();
-//                Log.d("kk", v.getId() + ",rect=" + rect);
                 PendingIntent pendingIntent = findIntent(rect, list);
                 if (pendingIntent != null) {
-//                    Log.d("kk", v.getId() + " set click =" + pendingIntent.getIntent().getParcelableExtra(ExtraConstants.EXTRA_INTENT));
                     remoteViews.setOnClickPendingIntent(v.getId(), pendingIntent);
                 }
             }
@@ -99,7 +97,7 @@ class PendIntentCompat {
             int size = getOverlapArea(rect, rectInfo.rect);
             if (size > maxArea) {
                 if (size == 0) {
-                    Log.w("kk", "find two:" + rectInfo.rect);
+                    Log.w("PendingIntentCompat", "find two:" + rectInfo.rect);
                 }
                 maxArea = size;
                 maxIntent = rectInfo.mPendingIntent;
@@ -131,26 +129,24 @@ class PendIntentCompat {
         try {
             mActionsObj = Reflect.on(remoteViews).get("mActions");
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
         if (mActionsObj == null) {
             return map;
         }
         if (mActionsObj instanceof Collection) {
             Collection mActions = (Collection) mActionsObj;
-            Iterator iterable = mActions.iterator();
-            while (iterable.hasNext()) {
-                Object object = iterable.next();
-                if (object != null) {
+            for (Object one : mActions) {
+                if (one != null) {
                     String action;
                     try {
-                        action = Reflect.on(object).call("getActionName").get();
+                        action = Reflect.on(one).call("getActionName").get();
                     } catch (Exception e) {
-                        action = object.getClass().getSimpleName();
+                        action = one.getClass().getSimpleName();
                     }
                     if ("SetOnClickPendingIntent".equalsIgnoreCase(action)) {
-                        int id = Reflect.on(object).get("viewId");
-                        PendingIntent intent = Reflect.on(object).get("pendingIntent");
+                        int id = Reflect.on(one).get("viewId");
+                        PendingIntent intent = Reflect.on(one).get("pendingIntent");
                         map.put(id, intent);
                     }
                 }
