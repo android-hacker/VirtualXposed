@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -47,7 +48,12 @@ class RemoteViewsUtils {
         try {
             mCache = createView(context, remoteViews, isBig, systemId);
         } catch (Throwable throwable) {
+            try {
+                //apply失败后,根据布局id创建view
+                mCache = LayoutInflater.from(context).inflate(remoteViews.getLayoutId(), null);
+            }catch (Throwable e){
 
+            }
         }
         if (mCache == null) {
             return null;
