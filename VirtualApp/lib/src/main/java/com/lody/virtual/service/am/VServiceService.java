@@ -49,30 +49,36 @@ public class VServiceService extends IServiceManager.Stub {
 	}
 
 	private ServiceRecord findRecord(ServiceInfo serviceInfo) {
-		for (ServiceRecord r : mHistory) {
-			if (ComponentUtils.isSameComponent(serviceInfo, r.serviceInfo)) {
-				return r;
+		synchronized (mHistory) {
+			for (ServiceRecord r : mHistory) {
+				if (ComponentUtils.isSameComponent(serviceInfo, r.serviceInfo)) {
+					return r;
+				}
 			}
+			return null;
 		}
-		return null;
 	}
 
 	private ServiceRecord findRecord(IServiceConnection connection) {
-		for (ServiceRecord r : mHistory) {
-			if (r.containConnection(connection)) {
-				return r;
+		synchronized (mHistory) {
+			for (ServiceRecord r : mHistory) {
+				if (r.containConnection(connection)) {
+					return r;
+				}
 			}
+			return null;
 		}
-		return null;
 	}
 
 	private ServiceRecord findRecord(IBinder token) {
-		for (ServiceRecord r : mHistory) {
-			if (r.token == token) {
-				return r;
+		synchronized (mHistory) {
+			for (ServiceRecord r : mHistory) {
+				if (r.token == token) {
+					return r;
+				}
 			}
+			return null;
 		}
-		return null;
 	}
 
 

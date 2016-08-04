@@ -16,6 +16,9 @@ import com.lody.virtual.client.fixer.ContextFixer;
 import com.lody.virtual.client.interfaces.Injectable;
 import com.lody.virtual.client.local.LocalActivityManager;
 import com.lody.virtual.client.local.LocalActivityRecord;
+import com.lody.virtual.helper.ExtraConstants;
+import com.lody.virtual.helper.compat.ActivityManagerCompat;
+import com.lody.virtual.helper.compat.BundleCompat;
 
 import java.lang.reflect.Field;
 
@@ -101,6 +104,12 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
             LocalActivityManager.getInstance().onActivityResumed(activity);
         }
         super.callActivityOnResume(activity);
+        Intent intent = activity.getIntent();
+        Bundle bundle = intent.getBundleExtra(ExtraConstants.EXTRA_SENDER);
+        if (bundle != null) {
+            IBinder loadingPageToken = BundleCompat.getBinder(bundle, ExtraConstants.EXTRA_BINDER);
+            ActivityManagerCompat.finishActivity(loadingPageToken, -1, null);
+        }
     }
 
     @Override

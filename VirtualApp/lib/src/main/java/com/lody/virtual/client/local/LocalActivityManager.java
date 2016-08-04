@@ -3,15 +3,12 @@ package com.lody.virtual.client.local;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.env.RuntimeEnv;
 import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.compat.ActivityManagerCompat;
-import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.proto.AppTaskInfo;
 import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.VRedirectActRequest;
@@ -95,23 +92,6 @@ public class LocalActivityManager {
             getService().onActivityResumed(token);
         } catch (RemoteException e) {
             e.printStackTrace();
-        }
-        Intent intent = activity.getIntent();
-        Bundle bundle = intent.getBundleExtra(ExtraConstants.EXTRA_SENDER);
-        if (bundle != null) {
-            IBinder loadingPageToken = BundleCompat.getBinder(bundle, ExtraConstants.EXTRA_BINDER);
-            finishActivity(loadingPageToken);
-        }
-    }
-
-    private void finishActivity(final IBinder token) {
-        if (token != null) {
-            RuntimeEnv.getUIHandler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    ActivityManagerCompat.finishActivity(token, -1, null);
-                }
-            }, 1000L);
         }
     }
 

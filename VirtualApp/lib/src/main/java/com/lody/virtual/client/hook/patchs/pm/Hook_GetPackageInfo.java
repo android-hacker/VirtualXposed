@@ -4,6 +4,7 @@ import android.content.pm.PackageInfo;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.LocalPackageManager;
+import com.lody.virtual.helper.utils.ComponentUtils;
 
 import java.lang.reflect.Method;
 /**
@@ -36,7 +37,13 @@ public final class Hook_GetPackageInfo extends Hook {
 		if (packageInfo != null) {
 			return packageInfo;
 		}
-		return method.invoke(who, args);
+		packageInfo = (PackageInfo) method.invoke(who, args);
+		if (packageInfo != null) {
+			if (getHostPkg().equals(packageInfo.packageName) || ComponentUtils.isSystemApp(packageInfo)) {
+				return packageInfo;
+			}
+		}
+		return null;
 	}
 
 }
