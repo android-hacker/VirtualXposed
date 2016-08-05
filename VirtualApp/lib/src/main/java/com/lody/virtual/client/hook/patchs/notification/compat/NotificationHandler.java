@@ -3,13 +3,10 @@ package com.lody.virtual.client.hook.patchs.notification.compat;
 import android.app.Notification;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.widget.RemoteViews;
 
-import com.lody.virtual.R;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -70,14 +67,14 @@ public class NotificationHandler {
         if (DOPEN_NOT_DEAL) {
             if (VirtualCore.getCore().isOutsideInstalled(packageName)) {
                 //双开模式，直接替换icon
-                ResourcesCompat.getInstance().fixNotificationIcon(notification);
+                ResourcesCompat.getInstance().fixNotificationIcon(context, notification);
                 result.code = RESULT_CODE_DEAL_OK;
                 return result;
             }
         }
         if (NotificaitionUtils.isCustomNotification(notification)) {
             //自定义样式
-            Notification notification1 = replaceNotification(context, packageName, notification, false);
+            Notification notification1 = replaceNotification(context, packageName, notification);
             if (notification1 != null) {
                 result.code = RESULT_CODE_REPLACE;
                 result.notification = notification1;
@@ -87,10 +84,12 @@ public class NotificationHandler {
         } else {
             //系统样式
             if (!SYSTEM_NOTIFICATION_NOT_DEAL) {
-                Notification notification1 = replaceNotification(context, packageName, notification, true);
+                Notification notification1 = replaceNotification(context, packageName, notification);
                 if (notification1 != null) {
                     result.code = RESULT_CODE_REPLACE;
                     result.notification = notification1;
+                }else {
+                    result.code = RESULT_CODE_DONT_SHOW;
                 }
             }
         }
@@ -107,60 +106,29 @@ public class NotificationHandler {
      * @return
      * @throws PackageManager.NameNotFoundException
      */
-    private Notification replaceNotification(Context context, String packageName, Notification notification, boolean systemId) throws PackageManager.NameNotFoundException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    private Notification replaceNotification(Context context, String packageName, Notification notification) throws PackageManager.NameNotFoundException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Context pluginContext = getContext(context, packageName);
         if (pluginContext == null) {
             return null;
         }
-        //获取需要绘制的RemoteViews
+        //获取需要绘制的remoteviews
         RemoteViewsCompat remoteViewsCompat = new RemoteViewsCompat(pluginContext, notification);
-        RemoteViews contentView = remoteViewsCompat.getRemoteViews();
-        if (contentView == null) {
-            return null;
-        }
-        //大通知栏?
-        boolean isBig = remoteViewsCompat.isBigRemoteViews();
-        PendIntentCompat pendIntentCompat = new PendIntentCompat(contentView, isBig);
-        //布局选择优化
-        final int layoutId;
-        if (pendIntentCompat.findPendIntents() <= 0) {
-            //如果就一个点击事件，没必要用复杂view
-            layoutId = R.layout.custom_notification_lite;
-        } else {
-            layoutId = R.layout.custom_notification;
-        }
-        //RemoteViews创建
-        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), layoutId);
-        ResourcesCompat.getInstance().fixIconImage(pluginContext, contentView, notification);
-        //绘制内容
-        final Bitmap bmp = RemoteViewsUtils.getInstance().createBitmap(pluginContext, contentView, isBig, systemId);
-        if (bmp == null) {
-            VLog.e(TAG, "bmp is null,contentView=" + contentView);
-        }
-        remoteViews.setImageViewBitmap(R.id.im_main, bmp);
-        if (systemId) {
-            //   setDateTime(remoteViews, remoteViewsCompat, notification.when);
-        }
-        //点击事件
-        if (layoutId == R.layout.custom_notification) {
-            pendIntentCompat.setPendIntent(
-                    remoteViews,
-                    RemoteViewsUtils.getInstance().createView(context, remoteViews, isBig, false),
-                    RemoteViewsUtils.getInstance().createView(pluginContext, contentView, isBig, false)
-            );
-        }
-//        ResourcesCompat.getInstance().fixNotificationResource(notification);
+        ///clone and set
         Notification notification1 = NotificaitionUtils.clone(pluginContext, notification);
-        if (Build.VERSION.SDK_INT >= 16 && isBig) {
-            notification1.bigContentView = remoteViews;
-            notification1.contentView = null;
-        } else {
-            if (Build.VERSION.SDK_INT >= 16) {
-                notification1.bigContentView = null;
-            }
-            notification1.contentView = remoteViews;
+        if (Build.VERSION.SDK_INT >= 16) {
+            RemoteViews oldBigContentViews = remoteViewsCompat.getBigRemoteViews();
+            ResourcesCompat.getInstance().fixIconImage(pluginContext, oldBigContentViews, notification);
+            RemoteViews bigContentViews = RemoteViewsUtils.getInstance().createViews(context, pluginContext, oldBigContentViews, true);
+            notification1.bigContentView = bigContentViews;
         }
-        ResourcesCompat.getInstance().fixNotificationIcon(notification1);
+
+        RemoteViews oldContentView = remoteViewsCompat.getRemoteViews();
+        ResourcesCompat.getInstance().fixIconImage(pluginContext, oldContentView, notification);
+        RemoteViews contentViews = RemoteViewsUtils.getInstance().createViews(context, pluginContext, oldContentView, false);
+        notification1.contentView = contentViews;
+        ///TODO 其他contentViews？
+        ResourcesCompat.getInstance().fixNotificationIcon(context, notification1);
+//        ResourcesCompat.getInstance().fixNotificationResource(notification1);
         return notification1;
     }
 
@@ -170,7 +138,6 @@ public class NotificationHandler {
             pluginContext = base.createPackageContext(packageName,
                     Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
         }
         return pluginContext;
     }

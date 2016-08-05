@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -25,6 +26,7 @@ class RemoteViewsUtils {
     private int notification_padding;
     private final WidthCompat mWidthCompat;
     private static RemoteViewsUtils sRemoteViewsUtils;
+    private static final String TAG = RemoteViewsUtils.class.getSimpleName();
 
     public static RemoteViewsUtils getInstance() {
         if (sRemoteViewsUtils == null) {
@@ -42,7 +44,20 @@ class RemoteViewsUtils {
     }
 
     public Bitmap createBitmap(final Context context, RemoteViews remoteViews, boolean isBig, boolean systemId) {
-        View mCache = createView(context, remoteViews, isBig, systemId);
+        View mCache = null;
+        try {
+            mCache = createView(context, remoteViews, isBig, systemId);
+        } catch (Throwable throwable) {
+            try {
+                //apply失败后,根据布局id创建view
+                mCache = LayoutInflater.from(context).inflate(remoteViews.getLayoutId(), null);
+            }catch (Throwable e){
+
+            }
+        }
+        if (mCache == null) {
+            return null;
+        }
         mCache.setDrawingCacheEnabled(true);
         mCache.buildDrawingCache();
         mCache.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
@@ -121,6 +136,42 @@ class RemoteViewsUtils {
             singleLine = (textView.getInputType() & EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE) != 0;
         }
         return singleLine;
+    }
+
+    public RemoteViews createViews(Context context, Context pluginContext, RemoteViews contentView,
+                                   boolean isBig) {
+        if (contentView == null) return null;
+        //系统布局？
+        final boolean systemId = NotificaitionUtils.isCustomNotification(contentView);
+        final PendIntentCompat pendIntentCompat = new PendIntentCompat(contentView);
+        //根据点击时间选择布局(优化)
+        final int layoutId;
+        if (pendIntentCompat.findPendIntents() <= 0) {
+            //如果就一个点击事件，没必要用复杂view
+            layoutId = R.layout.custom_notification_lite;
+        } else {
+            layoutId = R.layout.custom_notification;
+        }
+        //代理view创建
+        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), layoutId);
+        //目标显示的内容绘制成bitmap
+        final Bitmap bmp = RemoteViewsUtils.getInstance().createBitmap(pluginContext, contentView, isBig, systemId);
+        if (bmp == null) {
+            VLog.e(TAG, "bmp is null,contentView=" + contentView);
+            //出错也显示空白的，要不改为系统布局？
+//            return null;
+        }
+        remoteViews.setImageViewBitmap(R.id.im_main, bmp);
+        //点击事件
+        if (layoutId == R.layout.custom_notification) {
+            //根据旧view的点击事件，设置区域点击事件
+            pendIntentCompat.setPendIntent(
+                    remoteViews,
+                    RemoteViewsUtils.getInstance().createView(context, remoteViews, isBig, systemId),
+                    RemoteViewsUtils.getInstance().createView(pluginContext, contentView, isBig, systemId)
+            );
+        }
+        return remoteViews;
     }
 
     private void init(Context context) {
