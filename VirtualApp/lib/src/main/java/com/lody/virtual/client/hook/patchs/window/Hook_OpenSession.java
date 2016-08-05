@@ -6,7 +6,6 @@ package com.lody.virtual.client.hook.patchs.window;
  */
 /* package */ class Hook_OpenSession extends BaseHook_PatchSession {
 
-
 	@Override
 	public String getName() {
 		return "openSession";

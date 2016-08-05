@@ -1,12 +1,12 @@
 package com.lody.virtual.client.hook.patchs.phonesubinfo;
 
-import android.os.ServiceManager;
-
 import com.android.internal.telephony.IPhoneSubInfo;
 import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
 import com.lody.virtual.client.hook.binders.HookPhoneSubInfoBinder;
+
+import android.os.ServiceManager;
 
 /**
  * @author Lody
@@ -45,7 +45,7 @@ public class PhoneSubInfoPatch extends PatchObject<IPhoneSubInfo, HookPhoneSubIn
 		addHook(new ReplaceCallingPkgHook("getVoiceMailAlphaTag"));
 		addHook(new ReplaceLastPkgHook("getVoiceMailAlphaTagForSubscriber"));
 
-		//The following method maybe need to fake
+		// The following method maybe need to fake
 		addHook(new ReplaceCallingPkgHook("getDeviceId"));
 		addHook(new ReplaceCallingPkgHook("getIccSerialNumber"));
 

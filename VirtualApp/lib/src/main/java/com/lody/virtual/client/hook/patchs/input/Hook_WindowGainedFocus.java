@@ -1,11 +1,11 @@
 package com.lody.virtual.client.hook.patchs.input;
 
-import android.view.inputmethod.EditorInfo;
+import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.helper.utils.ArrayUtils;
 
-import java.lang.reflect.Method;
+import android.view.inputmethod.EditorInfo;
 
 /**
  * @author Lody

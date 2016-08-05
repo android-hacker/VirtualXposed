@@ -1,12 +1,12 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import android.content.pm.PackageInfo;
+import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.LocalPackageManager;
 import com.lody.virtual.helper.utils.ComponentUtils;
 
-import java.lang.reflect.Method;
+import android.content.pm.PackageInfo;
 /**
  * @author Lody
  *
@@ -17,7 +17,6 @@ import java.lang.reflect.Method;
  *         int userId)
  */
 public final class Hook_GetPackageInfo extends Hook {
-
 
 	@Override
 	public String getName() {

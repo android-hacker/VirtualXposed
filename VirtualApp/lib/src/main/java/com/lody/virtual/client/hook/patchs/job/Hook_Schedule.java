@@ -1,14 +1,14 @@
 package com.lody.virtual.client.hook.patchs.job;
 
-import android.annotation.TargetApi;
-import android.app.job.JobInfo;
-import android.os.Build;
-
-import com.lody.virtual.client.hook.base.Hook;
+import static android.app.job.JobScheduler.RESULT_FAILURE;
 
 import java.lang.reflect.Method;
 
-import static android.app.job.JobScheduler.RESULT_FAILURE;
+import com.lody.virtual.client.hook.base.Hook;
+
+import android.annotation.TargetApi;
+import android.app.job.JobInfo;
+import android.os.Build;
 
 /**
  * @author Lody

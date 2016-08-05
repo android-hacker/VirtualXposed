@@ -1,5 +1,13 @@
 package com.lody.virtual.client.local;
 
+import java.util.List;
+
+import com.lody.virtual.client.env.RuntimeEnv;
+import com.lody.virtual.client.service.ServiceManagerNative;
+import com.lody.virtual.helper.proto.ReceiverInfo;
+import com.lody.virtual.helper.proto.VParceledListSlice;
+import com.lody.virtual.service.IPackageManager;
+
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -13,14 +21,6 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.os.IBinder;
 import android.os.RemoteException;
-
-import com.lody.virtual.client.env.RuntimeEnv;
-import com.lody.virtual.client.service.ServiceManagerNative;
-import com.lody.virtual.helper.proto.ReceiverInfo;
-import com.lody.virtual.helper.proto.VParceledListSlice;
-import com.lody.virtual.service.IPackageManager;
-
-import java.util.List;
 
 /**
  * @author Lody
@@ -73,7 +73,7 @@ public class LocalPackageManager {
 
 	public List<ApplicationInfo> getInstalledApplications(int flags) {
 		try {
-			//noinspection unchecked
+			// noinspection unchecked
 			return getInterface().getInstalledApplications(flags).getList();
 		} catch (RemoteException e) {
 			return RuntimeEnv.crash(e);
@@ -226,7 +226,7 @@ public class LocalPackageManager {
 
 	public List<ProviderInfo> queryContentProviders(String processName, int flags) {
 		try {
-			//noinspection unchecked
+			// noinspection unchecked
 			return getInterface().queryContentProviders(processName, flags).getList();
 		} catch (RemoteException e) {
 			return RuntimeEnv.crash(e);
@@ -235,7 +235,7 @@ public class LocalPackageManager {
 
 	public List<ReceiverInfo> queryReceivers(String processName, int flags) {
 		try {
-			//noinspection unchecked
+			// noinspection unchecked
 			return getInterface().queryReceivers(processName, flags);
 		} catch (RemoteException e) {
 			return RuntimeEnv.crash(e);

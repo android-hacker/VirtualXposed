@@ -1,5 +1,25 @@
 package com.lody.virtual.client.core;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+
+import com.lody.virtual.client.VClientImpl;
+import com.lody.virtual.client.env.RuntimeEnv;
+import com.lody.virtual.client.fixer.ContextFixer;
+import com.lody.virtual.client.local.LocalContentManager;
+import com.lody.virtual.client.local.LocalPackageManager;
+import com.lody.virtual.client.local.LocalProcessManager;
+import com.lody.virtual.helper.compat.ActivityThreadCompat;
+import com.lody.virtual.helper.compat.VMRuntimeCompat;
+import com.lody.virtual.helper.loaders.ClassLoaderHelper;
+import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.proto.ReceiverInfo;
+import com.lody.virtual.helper.utils.Reflect;
+
 import android.app.Application;
 import android.app.IActivityManager;
 import android.app.LoadedApk;
@@ -17,26 +37,6 @@ import android.os.StrictMode;
 import android.renderscript.RenderScript;
 import android.renderscript.RenderScriptCacheDir;
 import android.view.HardwareRenderer;
-
-import com.lody.virtual.client.VClientImpl;
-import com.lody.virtual.client.env.RuntimeEnv;
-import com.lody.virtual.client.fixer.ContextFixer;
-import com.lody.virtual.client.local.LocalContentManager;
-import com.lody.virtual.client.local.LocalPackageManager;
-import com.lody.virtual.client.local.LocalProcessManager;
-import com.lody.virtual.helper.compat.ActivityThreadCompat;
-import com.lody.virtual.helper.compat.VMRuntimeCompat;
-import com.lody.virtual.helper.loaders.ClassLoaderHelper;
-import com.lody.virtual.helper.proto.AppInfo;
-import com.lody.virtual.helper.proto.ReceiverInfo;
-import com.lody.virtual.helper.utils.Reflect;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * @author Lody
@@ -195,7 +195,6 @@ public class AppSandBox {
 		}
 	}
 
-
 	private static Context createAppContext(ApplicationInfo appInfo) {
 		Context context = VirtualCore.getCore().getContext();
 		try {
@@ -224,6 +223,5 @@ public class AppSandBox {
 		}
 		return null;
 	}
-
 
 }

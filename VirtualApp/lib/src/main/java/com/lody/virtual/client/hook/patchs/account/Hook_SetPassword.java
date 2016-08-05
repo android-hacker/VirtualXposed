@@ -1,11 +1,11 @@
 package com.lody.virtual.client.hook.patchs.account;
 
-import android.accounts.Account;
+import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.LocalAccountManager;
 
-import java.lang.reflect.Method;
+import android.accounts.Account;
 
 /**
  * @author Lody
@@ -16,16 +16,16 @@ import java.lang.reflect.Method;
 
 public class Hook_SetPassword extends Hook {
 
-    @Override
-    public String getName() {
-        return "setPassword";
-    }
+	@Override
+	public String getName() {
+		return "setPassword";
+	}
 
-    @Override
-    public Object onHook(Object who, Method method, Object... args) throws Throwable {
-        Account account = (Account) args[0];
-        String password = (String) args[1];
-        LocalAccountManager.getInstance().setPassword(account, password);
-        return 0;
-    }
+	@Override
+	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		Account account = (Account) args[0];
+		String password = (String) args[1];
+		LocalAccountManager.getInstance().setPassword(account, password);
+		return 0;
+	}
 }

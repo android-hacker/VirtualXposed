@@ -1,11 +1,11 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import android.app.IServiceConnection;
+import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.LocalServiceManager;
 
-import java.lang.reflect.Method;
+import android.app.IServiceConnection;
 
 /**
  * @author Lody

@@ -1,16 +1,16 @@
 package com.lody.virtual.helper.compat;
 
+import java.lang.reflect.Constructor;
+import java.util.List;
+
+import com.lody.virtual.helper.utils.Reflect;
+
 import android.app.LoadedApk;
 import android.content.ComponentName;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ProviderInfo;
 import android.content.res.CompatibilityInfo;
 import android.content.res.Configuration;
-
-import com.lody.virtual.helper.utils.Reflect;
-
-import java.lang.reflect.Constructor;
-import java.util.List;
 
 /**
  * @author Lody

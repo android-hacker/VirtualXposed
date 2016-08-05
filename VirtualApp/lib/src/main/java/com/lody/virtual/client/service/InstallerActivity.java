@@ -11,47 +11,45 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 /**
- * Class:
- * Created by andy on 16-8-3.
- * TODO:
+ * Class: Created by andy on 16-8-3. TODO:
  */
 public class InstallerActivity extends Activity {
-  public static String installScheme = "file://";
-  public static String uninstallScheme = "package:";
+	public static String installScheme = "file://";
+	public static String uninstallScheme = "package:";
 
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 
-    Intent intent = getIntent();
-    if (intent == null || intent.getAction() == null || intent.getDataString() == null)
-      finish();
+		Intent intent = getIntent();
+		if (intent == null || intent.getAction() == null || intent.getDataString() == null) {
+			finish();
+			return;
+		}
 
-    String action = intent.getAction();
-    String data = intent.getDataString();
-    if (ServiceManagerNative.ACTION_INSTALL_PACKAGE.equals(action)) {
-      try {
-        final String apkPath = URLDecoder.decode(data.substring(installScheme.length()), "utf-8");
-        installVirtualApp(apkPath);
-      } catch (UnsupportedEncodingException e) {
-        e.printStackTrace();
-      } catch (Throwable throwable) {
-        throwable.printStackTrace();
-      }
-    } else if (ServiceManagerNative.ACTION_UNINSTALL_PACKAGE.equals(action)) {
-      final String packageName = intent.getDataString().substring(uninstallScheme.length());
-      unInstallVirtualApp(packageName);
-    }
+		String action = intent.getAction();
+		String data = intent.getDataString();
+		if (ServiceManagerNative.ACTION_INSTALL_PACKAGE.equals(action)) {
+			try {
+				final String apkPath = URLDecoder.decode(data.substring(installScheme.length()), "utf-8");
+				installVirtualApp(apkPath);
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
+		} else if (ServiceManagerNative.ACTION_UNINSTALL_PACKAGE.equals(action)) {
+			final String packageName = intent.getDataString().substring(uninstallScheme.length());
+			unInstallVirtualApp(packageName);
+		}
 
-    finish();
-  }
+		finish();
+	}
 
-  public void installVirtualApp(String path) throws Throwable {
-    int flags = InstallStrategy.UPDATE_IF_EXIST;
-    VirtualCore.getCore().installApp(path, flags);
-  }
+	public void installVirtualApp(String path) throws Throwable {
+		int flags = InstallStrategy.UPDATE_IF_EXIST;
+		VirtualCore.getCore().installApp(path, flags);
+	}
 
-  public void unInstallVirtualApp(String packageName) {
-    VirtualCore.getCore().uninstallApp(packageName);
-  }
+	public void unInstallVirtualApp(String packageName) {
+		VirtualCore.getCore().uninstallApp(packageName);
+	}
 }

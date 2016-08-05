@@ -1,5 +1,20 @@
 package com.lody.virtual.service.am;
 
+import static android.app.ActivityThread.SERVICE_DONE_EXECUTING_STOP;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.ListIterator;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.compat.IApplicationThreadCompat;
+import com.lody.virtual.helper.proto.VParceledListSlice;
+import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.service.IServiceManager;
+import com.lody.virtual.service.process.ProcessRecord;
+import com.lody.virtual.service.process.VProcessService;
+
 import android.app.ActivityManager;
 import android.app.IApplicationThread;
 import android.app.IServiceConnection;
@@ -16,21 +31,6 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
 
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.compat.IApplicationThreadCompat;
-import com.lody.virtual.helper.proto.VParceledListSlice;
-import com.lody.virtual.helper.utils.ComponentUtils;
-import com.lody.virtual.service.IServiceManager;
-import com.lody.virtual.service.process.ProcessRecord;
-import com.lody.virtual.service.process.VProcessService;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.ListIterator;
-
-import static android.app.ActivityThread.SERVICE_DONE_EXECUTING_STOP;
-
 /**
  * @author Lody
  *
@@ -43,6 +43,19 @@ public class VServiceService extends IServiceManager.Stub {
 
 	private final List<ServiceRecord> mHistory = Collections.synchronizedList(new ArrayList<ServiceRecord>());
 
+	public static VServiceService getService() {
+		return sService;
+	}
+
+	private static ServiceInfo getServiceInfo(Intent service) {
+		if (service != null) {
+			ServiceInfo serviceInfo = VirtualCore.getCore().resolveServiceInfo(service);
+			if (serviceInfo != null) {
+				return serviceInfo;
+			}
+		}
+		return null;
+	}
 
 	private void addRecord(ServiceRecord r) {
 		mHistory.add(r);
@@ -81,28 +94,13 @@ public class VServiceService extends IServiceManager.Stub {
 		}
 	}
 
-
-	public static VServiceService getService() {
-		return sService;
-	}
-
-	private static ServiceInfo getServiceInfo(Intent service) {
-		if (service != null) {
-			ServiceInfo serviceInfo = VirtualCore.getCore().resolveServiceInfo(service);
-			if (serviceInfo != null) {
-				return serviceInfo;
-			}
-		}
-		return null;
-	}
-
-
 	@Override
 	public ComponentName startService(IBinder caller, Intent service, String resolvedType) throws RemoteException {
 		return startServiceCommon(caller, service, resolvedType, true);
 	}
 
-	private ComponentName startServiceCommon(IBinder caller, Intent service, String resolvedType, boolean scheduleServiceArgs) {
+	private ComponentName startServiceCommon(IBinder caller, Intent service, String resolvedType,
+			boolean scheduleServiceArgs) {
 		ServiceInfo serviceInfo = getServiceInfo(service);
 		if (serviceInfo == null) {
 			return null;
@@ -180,12 +178,14 @@ public class VServiceService extends IServiceManager.Stub {
 	}
 
 	@Override
-	public void setServiceForeground(ComponentName className, IBinder token, int id, Notification notification, boolean keepNotification) throws RemoteException {
+	public void setServiceForeground(ComponentName className, IBinder token, int id, Notification notification,
+			boolean keepNotification) throws RemoteException {
 
 	}
 
 	@Override
-	public int bindService(IBinder caller, IBinder token, Intent service, String resolvedType, IServiceConnection connection, int flags) throws RemoteException {
+	public int bindService(IBinder caller, IBinder token, Intent service, String resolvedType,
+			IServiceConnection connection, int flags) throws RemoteException {
 		ServiceInfo serviceInfo = getServiceInfo(service);
 		if (serviceInfo == null) {
 			return 0;
@@ -291,7 +291,6 @@ public class VServiceService extends IServiceManager.Stub {
 			}
 		}
 	}
-
 
 	public void processDied(ProcessRecord record) {
 		ListIterator<ServiceRecord> iterator = mHistory.listIterator();

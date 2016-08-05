@@ -1,13 +1,13 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import android.app.ActivityManager;
+import java.lang.reflect.Method;
+import java.util.List;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.LocalActivityManager;
 import com.lody.virtual.helper.proto.AppTaskInfo;
 
-import java.lang.reflect.Method;
-import java.util.List;
+import android.app.ActivityManager;
 
 /**
  * @author Lody

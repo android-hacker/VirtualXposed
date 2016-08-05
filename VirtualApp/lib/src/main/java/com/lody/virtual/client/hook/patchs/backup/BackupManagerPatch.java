@@ -1,14 +1,14 @@
 package com.lody.virtual.client.hook.patchs.backup;
 
-import android.app.backup.BackupManager;
-import android.app.backup.IBackupManager;
-import android.content.Context;
-import android.os.ServiceManager;
-
 import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.base.ResultStaticHook;
 import com.lody.virtual.client.hook.binders.HookBackupManagerBinder;
 import com.lody.virtual.helper.utils.Reflect;
+
+import android.app.backup.BackupManager;
+import android.app.backup.IBackupManager;
+import android.content.Context;
+import android.os.ServiceManager;
 
 /**
  * @author Lody
@@ -29,7 +29,6 @@ public class BackupManagerPatch extends PatchObject<IBackupManager, HookBackupMa
 		getHookObject().injectService(Context.BACKUP_SERVICE);
 		Reflect.on(BackupManager.class).set("sService", null);
 	}
-
 
 	@Override
 	protected void applyHooks() {
@@ -54,7 +53,6 @@ public class BackupManagerPatch extends PatchObject<IBackupManager, HookBackupMa
 		addHook(new ResultStaticHook("hasBackupPassword", false));
 		addHook(new ResultStaticHook("beginRestoreSession", null));
 	}
-
 
 	@Override
 	public boolean isEnvBad() {

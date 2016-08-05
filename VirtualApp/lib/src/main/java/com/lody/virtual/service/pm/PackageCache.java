@@ -1,9 +1,9 @@
 package com.lody.virtual.service.pm;
 
-import com.lody.virtual.helper.proto.AppInfo;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.lody.virtual.helper.proto.AppInfo;
 
 /**
  * @author Lody

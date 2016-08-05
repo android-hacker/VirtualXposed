@@ -1,11 +1,11 @@
 package com.lody.virtual.client.stub;
 
+import com.lody.virtual.helper.ExtraConstants;
+
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-
-import com.lody.virtual.helper.ExtraConstants;
 
 /**
  * @author Lody
@@ -33,8 +33,8 @@ public class ReceiverDelegate extends BroadcastReceiver {
 			switch (flags) {
 				case ActivityManager.INTENT_SENDER_ACTIVITY :
 					try {
-                        //非activity的context得加这个
-                        senderIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+						// 非activity的context得加这个
+						senderIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 						context.startActivity(senderIntent);
 					} catch (Throwable e) {
 						// Ignore

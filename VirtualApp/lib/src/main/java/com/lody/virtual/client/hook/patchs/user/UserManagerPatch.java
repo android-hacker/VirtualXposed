@@ -1,15 +1,15 @@
 package com.lody.virtual.client.hook.patchs.user;
 
+import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
+import com.lody.virtual.client.hook.base.ResultStaticHook;
+import com.lody.virtual.client.hook.binders.HookUserBinder;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.os.IUserManager;
 import android.os.ServiceManager;
-
-import com.lody.virtual.client.hook.base.PatchObject;
-import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
-import com.lody.virtual.client.hook.base.ResultStaticHook;
-import com.lody.virtual.client.hook.binders.HookUserBinder;
 
 /**
  * @author Lody

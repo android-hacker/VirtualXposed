@@ -1,11 +1,11 @@
 package com.lody.virtual.service.process;
 
-import android.os.RemoteException;
-import android.text.TextUtils;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import android.os.RemoteException;
+import android.text.TextUtils;
 
 /**
  * @author Lody
@@ -47,7 +47,6 @@ public class ProcessList {
 		}
 		return false;
 	}
-
 
 	public void addProcess(int callingPid, ProcessRecord r) {
 		runningProcesses.put(callingPid, r);

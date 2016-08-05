@@ -1,5 +1,14 @@
 package com.lody.virtual.client.hook.patchs.am;
 
+import java.lang.reflect.Method;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.Constants;
+import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.helper.ExtraConstants;
+import com.lody.virtual.helper.utils.BitmapUtils;
+import com.lody.virtual.helper.utils.VLog;
+
 import android.app.IApplicationThread;
 import android.content.ComponentName;
 import android.content.IIntentReceiver;
@@ -9,15 +18,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.env.Constants;
-import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.utils.BitmapUtils;
-import com.lody.virtual.helper.utils.VLog;
-
-import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -68,7 +68,7 @@ import java.lang.reflect.Method;
 				if (name.startsWith(".")) {
 					name = cn.getPackageName() + cn.getClassName();
 				}
-                VLog.d("broadcast", "action="+action+",cn="+cn);
+				VLog.d("broadcast", "action=" + action + ",cn=" + cn);
 				intent.setComponent(null);
 				intent.setAction(VirtualCore.getReceiverAction(cn.getPackageName(), name));
 			}

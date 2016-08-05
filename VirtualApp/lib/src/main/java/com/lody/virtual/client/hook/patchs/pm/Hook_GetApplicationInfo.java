@@ -1,12 +1,12 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import android.content.pm.ApplicationInfo;
+import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.LocalPackageManager;
 import com.lody.virtual.helper.utils.ComponentUtils;
 
-import java.lang.reflect.Method;
+import android.content.pm.ApplicationInfo;
 
 /**
  * @author Lody

@@ -1,16 +1,16 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import android.app.IApplicationThread;
-import android.content.ComponentName;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
+import java.lang.reflect.Method;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.LocalServiceManager;
 
-import java.lang.reflect.Method;
+import android.app.IApplicationThread;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 
 /**
  * @author Lody

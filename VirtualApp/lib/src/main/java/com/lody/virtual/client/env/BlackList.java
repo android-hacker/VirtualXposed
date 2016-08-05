@@ -14,7 +14,6 @@ public final class BlackList {
 	private static final List<String> ACTION_BLACK_LIST = new ArrayList<String>(1);
 	private static final List<String> PKG_BLACK_LIST = new ArrayList<String>(2);
 
-
 	static {
 		ACTION_BLACK_LIST.add("android.appwidget.action.APPWIDGET_UPDATE");
 	}

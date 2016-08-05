@@ -1,12 +1,12 @@
 package com.lody.virtual.client.hook.patchs.account;
 
-import android.accounts.IAccountManagerResponse;
-import android.os.Bundle;
+import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.LocalAccountManager;
 
-import java.lang.reflect.Method;
+import android.accounts.IAccountManagerResponse;
+import android.os.Bundle;
 
 /**
  * @author Lody
@@ -17,7 +17,6 @@ import java.lang.reflect.Method;
  */
 
 public class Hook_AddAccountAsUser extends Hook {
-
 
 	@Override
 	public String getName() {

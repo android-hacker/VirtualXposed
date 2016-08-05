@@ -1,5 +1,11 @@
 package com.lody.virtual.client.service;
 
+import java.io.Serializable;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.ExtraConstants;
+import com.lody.virtual.helper.utils.ComponentUtils;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.ComponentInfo;
@@ -9,12 +15,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcelable;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.utils.ComponentUtils;
-
-import java.io.Serializable;
 
 /**
  * @author Lody
@@ -65,7 +65,7 @@ public class ProviderCaller {
 					if (Build.VERSION.SDK_INT >= 18) {
 						bundle.putBinder(key, (IBinder) value);
 					} else {
-						//noinspection deprecation
+						// noinspection deprecation
 						bundle.putIBinder(key, (IBinder) value);
 					}
 				} else if (value instanceof Boolean) {

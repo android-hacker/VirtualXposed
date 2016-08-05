@@ -1,14 +1,14 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import android.content.Intent;
-import android.content.pm.ResolveInfo;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.LocalPackageManager;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import android.content.Intent;
+import android.content.pm.ResolveInfo;
 
 /**
  * @author Lody
@@ -26,8 +26,8 @@ import java.util.List;
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 
 		if (isServiceProcess()) {
-			return LocalPackageManager.getInstance().queryIntentServices((Intent) args[0],
-					(String) args[1], (Integer) args[2]);
+			return LocalPackageManager.getInstance().queryIntentServices((Intent) args[0], (String) args[1],
+					(Integer) args[2]);
 		}
 
 		List<ResolveInfo> result = (List<ResolveInfo>) method.invoke(who, args);

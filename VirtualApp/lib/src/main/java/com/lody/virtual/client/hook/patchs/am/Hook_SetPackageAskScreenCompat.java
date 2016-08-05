@@ -1,10 +1,10 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import android.os.Build;
+import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
 
-import java.lang.reflect.Method;
+import android.os.Build;
 
 /**
  * @author Lody

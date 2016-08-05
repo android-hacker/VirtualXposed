@@ -1,11 +1,11 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
+import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
 
-import java.lang.reflect.Method;
+import android.Manifest;
+import android.content.pm.PackageManager;
 
 /**
  * @author Lody
@@ -16,25 +16,25 @@ import java.lang.reflect.Method;
 
 public class Hook_CheckPermission extends Hook {
 
-    @Override
-    public String getName() {
-        return "checkPermission";
-    }
+	@Override
+	public String getName() {
+		return "checkPermission";
+	}
 
-    @Override
-    public Object onHook(Object who, Method method, Object... args) throws Throwable {
-        String permission = (String) args[0];
-        if (Manifest.permission.ACCOUNT_MANAGER.equals(permission)) {
-            return PackageManager.PERMISSION_GRANTED;
-        }
-        if ("com.google.android.providers.settings.permission.WRITE_GSETTINGS".equals(permission)) {
-            return PackageManager.PERMISSION_GRANTED;
-        }
-        return method.invoke(who, args);
-    }
+	@Override
+	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		String permission = (String) args[0];
+		if (Manifest.permission.ACCOUNT_MANAGER.equals(permission)) {
+			return PackageManager.PERMISSION_GRANTED;
+		}
+		if ("com.google.android.providers.settings.permission.WRITE_GSETTINGS".equals(permission)) {
+			return PackageManager.PERMISSION_GRANTED;
+		}
+		return method.invoke(who, args);
+	}
 
-    @Override
-    public boolean isEnable() {
-        return isAppProcess() || isServiceProcess();
-    }
+	@Override
+	public boolean isEnable() {
+		return isAppProcess() || isServiceProcess();
+	}
 }

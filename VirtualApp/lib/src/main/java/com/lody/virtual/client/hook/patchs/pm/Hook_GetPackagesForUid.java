@@ -1,14 +1,14 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import android.os.Process;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.helper.proto.AppInfo;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import android.os.Process;
 
 /**
  * @author Lody

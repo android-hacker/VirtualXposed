@@ -1,19 +1,23 @@
 package com.lody.virtual.service.process;
 
-import android.app.ActivityManager;
-import android.app.ActivityManagerNative;
-import android.app.IApplicationThread;
-import android.os.RemoteException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import com.lody.virtual.client.IVClient;
 import com.lody.virtual.service.am.StubInfo;
 import com.lody.virtual.service.am.VActivityService;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import android.app.ActivityManager;
+import android.app.ActivityManagerNative;
+import android.app.IApplicationThread;
+import android.os.RemoteException;
 
 public final class ProcessRecord {
+	/**
+	 * Running applications on target process
+	 */
+	final Set<String> runningAppPkgs = new HashSet<String>();
 	/**
 	 * Real process name
 	 */
@@ -42,11 +46,6 @@ public final class ProcessRecord {
 	 * target process's uid
 	 */
 	public int uid;
-	/**
-	 * Running applications on target process
-	 */
-	final Set<String> runningAppPkgs = new HashSet<String>();
-
 	String initialPackage;
 
 	public ProcessRecord(int pid, int uid) {
@@ -54,7 +53,7 @@ public final class ProcessRecord {
 		this.uid = uid;
 	}
 
-	/*package*/ synchronized void updateStubProcess(int pid) {
+	/* package */ synchronized void updateStubProcess(int pid) {
 		try {
 			List<ActivityManager.RunningAppProcessInfo> runningInfos = ActivityManagerNative.getDefault()
 					.getRunningAppProcesses();
@@ -70,15 +69,14 @@ public final class ProcessRecord {
 		stubInfo = VActivityService.getService().findStubInfo(this.stubProcessName);
 	}
 
-
 	/**
 	 * 添加一个APK到该进程
 	 *
 	 * @param pkgName
 	 *            apk的包名
 	 */
-	/*package*/ synchronized boolean addPkg(String pkgName) {
-		if( !runningAppPkgs.contains(pkgName))  {
+	/* package */ synchronized boolean addPkg(String pkgName) {
+		if (!runningAppPkgs.contains(pkgName)) {
 			runningAppPkgs.add(pkgName);
 			if (initialPackage == null) {
 				initialPackage = pkgName;

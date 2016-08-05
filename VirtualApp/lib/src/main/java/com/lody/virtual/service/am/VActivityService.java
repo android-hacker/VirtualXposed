@@ -1,5 +1,28 @@
 package com.lody.virtual.service.am;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.Constants;
+import com.lody.virtual.helper.compat.ActivityManagerCompat;
+import com.lody.virtual.helper.proto.AppTaskInfo;
+import com.lody.virtual.helper.proto.VActRedirectResult;
+import com.lody.virtual.helper.proto.VRedirectActRequest;
+import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.service.IActivityManager;
+import com.lody.virtual.service.process.ProcessRecord;
+import com.lody.virtual.service.process.VProcessService;
+
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -16,29 +39,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Pair;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.env.Constants;
-import com.lody.virtual.helper.compat.ActivityManagerCompat;
-import com.lody.virtual.helper.proto.AppTaskInfo;
-import com.lody.virtual.helper.proto.VActRedirectResult;
-import com.lody.virtual.helper.proto.VRedirectActRequest;
-import com.lody.virtual.helper.utils.ComponentUtils;
-import com.lody.virtual.helper.utils.VLog;
-import com.lody.virtual.service.IActivityManager;
-import com.lody.virtual.service.process.ProcessRecord;
-import com.lody.virtual.service.process.VProcessService;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Lody
@@ -63,7 +63,6 @@ public class VActivityService extends IActivityManager.Stub {
 	public static void systemReady(Context context) {
 		new VActivityService().onCreate(context);
 	}
-
 
 	public void onCreate(Context context) {
 		AttributeCache.init(context);
@@ -217,7 +216,6 @@ public class VActivityService extends IActivityManager.Stub {
 					}
 				}
 			}
-
 
 			if (sourceRecord != null && sourceRecord.caller != null) {
 				if (sourceRecord.activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
@@ -458,7 +456,5 @@ public class VActivityService extends IActivityManager.Stub {
 			return null;
 		}
 	}
-
-
 
 }

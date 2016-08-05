@@ -1,11 +1,11 @@
 package com.lody.virtual.client.hook.base;
 
-import android.os.Build;
+import java.lang.reflect.Constructor;
 
 import com.lody.virtual.client.interfaces.IHookObject;
 import com.lody.virtual.client.interfaces.Injectable;
 
-import java.lang.reflect.Constructor;
+import android.os.Build;
 
 /**
  * @author Lody
@@ -48,25 +48,25 @@ public abstract class PatchObject<T, H extends IHookObject<T>> implements Inject
 		Patch patch = clazz.getAnnotation(Patch.class);
 		int version = Build.VERSION.SDK_INT;
 		if (patch != null) {
-            Class<? extends Hook>[] hookTypes = patch.value();
-            for (Class<? extends Hook> hookType : hookTypes) {
-                ApiLimit apiLimit = hookType.getAnnotation(ApiLimit.class);
-                boolean needToAddHook = true;
-                if (apiLimit != null) {
-                    int apiStart = apiLimit.start();
-                    int apiEnd = apiLimit.end();
-                    boolean highThanStart = apiStart == -1 || version > apiStart;
-                    boolean lowThanEnd = apiEnd == -1 || version < apiEnd;
-                    if (!highThanStart || !lowThanEnd) {
-                        needToAddHook = false;
-                    }
-                }
-                if (needToAddHook) {
-                    addHook(hookType);
-                }
-            }
+			Class<? extends Hook>[] hookTypes = patch.value();
+			for (Class<? extends Hook> hookType : hookTypes) {
+				ApiLimit apiLimit = hookType.getAnnotation(ApiLimit.class);
+				boolean needToAddHook = true;
+				if (apiLimit != null) {
+					int apiStart = apiLimit.start();
+					int apiEnd = apiLimit.end();
+					boolean highThanStart = apiStart == -1 || version > apiStart;
+					boolean lowThanEnd = apiEnd == -1 || version < apiEnd;
+					if (!highThanStart || !lowThanEnd) {
+						needToAddHook = false;
+					}
+				}
+				if (needToAddHook) {
+					addHook(hookType);
+				}
+			}
 
-        }
+		}
 	}
 
 	private void addHook(Class<? extends Hook> hookType) {

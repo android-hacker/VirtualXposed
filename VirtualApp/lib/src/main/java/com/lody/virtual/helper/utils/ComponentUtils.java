@@ -51,13 +51,11 @@ public class ComponentUtils {
 	}
 
 	public static boolean isSystemApp(PackageInfo packageInfo) {
-		return packageInfo != null
-				&& packageInfo.applicationInfo != null
+		return packageInfo != null && packageInfo.applicationInfo != null
 				&& (ApplicationInfo.FLAG_SYSTEM & packageInfo.applicationInfo.flags) != 0;
 	}
 
 	public static boolean isSystemApp(ApplicationInfo applicationInfo) {
-		return applicationInfo != null
-				&& (ApplicationInfo.FLAG_SYSTEM & applicationInfo.flags) != 0;
+		return applicationInfo != null && (ApplicationInfo.FLAG_SYSTEM & applicationInfo.flags) != 0;
 	}
 }

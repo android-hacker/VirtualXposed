@@ -1,7 +1,13 @@
 package com.lody.virtual.client.core;
 
-import android.os.Build;
-import android.provider.Settings;
+import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR1;
+import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR2;
+import static android.os.Build.VERSION_CODES.KITKAT;
+import static android.os.Build.VERSION_CODES.LOLLIPOP;
+import static android.os.Build.VERSION_CODES.LOLLIPOP_MR1;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.delegate.AppInstrumentation;
@@ -43,14 +49,8 @@ import com.lody.virtual.client.interfaces.IHookObject;
 import com.lody.virtual.client.interfaces.Injectable;
 import com.lody.virtual.helper.utils.Reflect;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR1;
-import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR2;
-import static android.os.Build.VERSION_CODES.KITKAT;
-import static android.os.Build.VERSION_CODES.LOLLIPOP;
-import static android.os.Build.VERSION_CODES.LOLLIPOP_MR1;
+import android.os.Build;
+import android.provider.Settings;
 
 /**
  * @author Lody
@@ -71,6 +71,20 @@ public final class PatchManager {
 	 */
 	public static PatchManager getInstance() {
 		return PatchManagerHolder.sPatchManager;
+	}
+
+	private static void fixSetting(Class<?> settingClass) {
+		Reflect.on(settingClass).field("sNameValueCache").set("mContentProvider", null);
+	}
+
+	public static void fixAllSettings() {
+		try {
+			fixSetting(Settings.System.class);
+			fixSetting(Settings.Secure.class);
+			fixSetting(Settings.Global.class);
+		} catch (Throwable e) {
+			// No class def
+		}
 	}
 
 	public void checkEnv() throws Throwable {
@@ -113,7 +127,7 @@ public final class PatchManager {
 			// ## End
 			addPatch(HCallbackHook.getDefault());
 			addPatch(AppInstrumentation.getDefault());
-			
+
 			addPatch(new DropBoxManagerPatch());
 			addPatch(new NotificationManagerPatch());
 			addPatch(new LocationManagerPatch());
@@ -182,23 +196,6 @@ public final class PatchManager {
 		}
 	}
 
-
-	private static void fixSetting(Class<?> settingClass) {
-		Reflect.on(settingClass)
-				.field("sNameValueCache")
-				.set("mContentProvider", null);
-	}
-
-	public static void fixAllSettings() {
-		try {
-			fixSetting(Settings.System.class);
-			fixSetting(Settings.Secure.class);
-			fixSetting(Settings.Global.class);
-		} catch (Throwable e) {
-			// No class def
-		}
-	}
-
 	public <T extends Injectable, H extends IHookObject> H getHookObject(Class<T> patchClass) {
 		T patch = findPatch(patchClass);
 		if (patch != null && patch instanceof PatchObject) {
@@ -207,7 +204,6 @@ public final class PatchManager {
 		}
 		return null;
 	}
-
 
 	private static final class PatchManagerHolder {
 		private static PatchManager sPatchManager = new PatchManager();

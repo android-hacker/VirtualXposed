@@ -1,11 +1,11 @@
 package com.lody.virtual.client.stub;
 
-import android.os.Bundle;
-
 import com.lody.virtual.client.core.AppSandBox;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.MethodConstants;
 import com.lody.virtual.helper.component.BaseContentProvider;
+
+import android.os.Bundle;
 
 /**
  * @author Lody

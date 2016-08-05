@@ -1,16 +1,16 @@
 package com.lody.virtual.client.hook.binders;
 
-import android.os.IBinder;
-import android.os.IInterface;
-import android.os.Parcel;
-import android.os.RemoteException;
-import android.util.Pair;
-
 import java.io.FileDescriptor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
+
+import android.os.IBinder;
+import android.os.IInterface;
+import android.os.Parcel;
+import android.os.RemoteException;
+import android.util.Pair;
 
 /**
  * @author Lody
@@ -51,24 +51,21 @@ public abstract class StubBinder implements IBinder {
 					return null;
 				}
 				InvocationHandler handler = createHandler(res.first, res.second);
-				mInterface = (IInterface) Proxy.newProxyInstance(mClassLoader, new Class[] {res.first}, handler);
+				mInterface = (IInterface) Proxy.newProxyInstance(mClassLoader, new Class[]{res.first}, handler);
 			}
 		}
 		return mInterface;
 
 	}
 
-
 	public abstract InvocationHandler createHandler(Class<?> interfaceClass, IInterface iInterface);
 
-
-
-    /**
-     * Anti Proguard
-     *
-     *  Search the AidlClass.Stub.asInterface(IBinder) method.
-     *
-     */
+	/**
+	 * Anti Proguard
+	 *
+	 * Search the AidlClass.Stub.asInterface(IBinder) method.
+	 *
+	 */
 	private Pair<Class<?>, IInterface> getStubInterface(IBinder binder, StackTraceElement[] stackTraceElements) {
 		for (int i = 1; i < stackTraceElements.length; i++) {
 			StackTraceElement stackTraceElement = stackTraceElements[i];

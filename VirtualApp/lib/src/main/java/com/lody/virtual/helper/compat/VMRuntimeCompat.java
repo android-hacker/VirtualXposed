@@ -1,8 +1,8 @@
 package com.lody.virtual.helper.compat;
 
-import android.os.Build;
-
 import com.lody.virtual.helper.utils.Reflect;
+
+import android.os.Build;
 
 /**
  * @author Lody

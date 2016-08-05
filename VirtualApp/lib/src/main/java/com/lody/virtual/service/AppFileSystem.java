@@ -1,21 +1,21 @@
 package com.lody.virtual.service;
 
-import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.FileIO;
 import com.lody.virtual.helper.utils.VLog;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 
 /**
  * @author Lody
  *
- *  VA File System.
+ *         VA File System.
  *
  */
 public class AppFileSystem {

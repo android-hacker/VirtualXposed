@@ -6,15 +6,16 @@ import android.accounts.IAccountManagerResponse;
 /**
  * @author Lody
  *
- * @see android.accounts.IAccountManager#removeAccountAsUser(IAccountManagerResponse, Account, boolean, int)
+ * @see android.accounts.IAccountManager#removeAccountAsUser(IAccountManagerResponse,
+ *      Account, boolean, int)
  *
  */
 
 public class Hook_RemoveAccountAsUser extends Hook_RemoveAccount {
 
-    @Override
-    public String getName() {
-        return "removeAccountAsUser";
-    }
+	@Override
+	public String getName() {
+		return "removeAccountAsUser";
+	}
 
 }

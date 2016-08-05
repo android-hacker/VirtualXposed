@@ -1,11 +1,7 @@
 package com.lody.virtual.service;
 
-import android.app.IActivityManager;
-import android.content.Context;
-import android.content.pm.ProviderInfo;
-import android.os.IBinder;
-import android.os.RemoteException;
-import android.text.TextUtils;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.lody.virtual.helper.proto.VComponentInfo;
 import com.lody.virtual.helper.utils.VLog;
@@ -13,8 +9,12 @@ import com.lody.virtual.service.pm.VPackageService;
 import com.lody.virtual.service.process.ProviderList;
 import com.lody.virtual.service.process.VProcessService;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import android.app.IActivityManager;
+import android.content.Context;
+import android.content.pm.ProviderInfo;
+import android.os.IBinder;
+import android.os.RemoteException;
+import android.text.TextUtils;
 
 /**
  * @author Lody

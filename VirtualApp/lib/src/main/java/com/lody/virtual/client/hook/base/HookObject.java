@@ -1,16 +1,16 @@
 package com.lody.virtual.client.hook.base;
 
-import android.text.TextUtils;
-
-import com.lody.virtual.client.interfaces.IHookObject;
-import com.lody.virtual.helper.utils.VLog;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.lody.virtual.client.interfaces.IHookObject;
+import com.lody.virtual.helper.utils.VLog;
+
+import android.text.TextUtils;
 
 /**
  * @author Lody

@@ -6,9 +6,8 @@ package com.lody.virtual.client.hook.patchs.notification;
  */
 /* package */ class Hook_EnqueueNotificationWithTagPriority extends Hook_EnqueueNotificationWithTag {
 
-
-    @Override
-    public String getName() {
-        return "enqueueNotificationWithTagPriority";
-    }
+	@Override
+	public String getName() {
+		return "enqueueNotificationWithTagPriority";
+	}
 }

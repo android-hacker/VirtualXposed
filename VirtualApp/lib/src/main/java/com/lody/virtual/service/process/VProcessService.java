@@ -1,16 +1,9 @@
 package com.lody.virtual.service.process;
 
-import android.app.ActivityManagerNative;
-import android.app.ApplicationThreadNative;
-import android.app.IApplicationThread;
-import android.content.pm.ComponentInfo;
-import android.content.pm.ProviderInfo;
-import android.os.Binder;
-import android.os.IBinder;
-import android.os.Process;
-import android.os.RemoteCallbackList;
-import android.os.RemoteException;
-import android.text.TextUtils;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 import com.lody.virtual.client.IVClient;
 import com.lody.virtual.client.core.VirtualCore;
@@ -27,10 +20,17 @@ import com.lody.virtual.service.am.VServiceService;
 import com.lody.virtual.service.interfaces.IProcessObserver;
 import com.lody.virtual.service.pm.VAppService;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import android.app.ActivityManagerNative;
+import android.app.ApplicationThreadNative;
+import android.app.IApplicationThread;
+import android.content.pm.ComponentInfo;
+import android.content.pm.ProviderInfo;
+import android.os.Binder;
+import android.os.IBinder;
+import android.os.Process;
+import android.os.RemoteCallbackList;
+import android.os.RemoteException;
+import android.text.TextUtils;
 
 /**
  * @author Lody

@@ -1,10 +1,8 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import android.app.IActivityManager;
-import android.app.IApplicationThread;
-import android.content.IContentProvider;
-import android.content.pm.ProviderInfo;
-import android.os.IBinder;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 import com.lody.virtual.client.env.RuntimeEnv;
 import com.lody.virtual.client.hook.base.Hook;
@@ -13,15 +11,18 @@ import com.lody.virtual.client.local.LocalContentManager;
 import com.lody.virtual.client.local.LocalPackageManager;
 import com.lody.virtual.helper.utils.ComponentUtils;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import android.app.IActivityManager;
+import android.app.IApplicationThread;
+import android.content.IContentProvider;
+import android.content.pm.ProviderInfo;
+import android.os.IBinder;
 
 /**
  * @author Lody
  *
  *
- * @see IActivityManager#getContentProvider(IApplicationThread, String, int, boolean)
+ * @see IActivityManager#getContentProvider(IApplicationThread, String, int,
+ *      boolean)
  * @see IActivityManager#getContentProviderExternal(String, int, IBinder)
  *
  */
@@ -42,9 +43,7 @@ import java.lang.reflect.Proxy;
 		if (holder == null) {
 			try {
 				holder = (IActivityManager.ContentProviderHolder) method.invoke(who, args);
-				if (holder != null
-						&& holder.info != null
-						&& !ComponentUtils.isSystemApp(holder.info.applicationInfo)
+				if (holder != null && holder.info != null && !ComponentUtils.isSystemApp(holder.info.applicationInfo)
 						&& !getHostPkg().equals(holder.info.packageName)) {
 					holder = null;
 				}
@@ -70,7 +69,8 @@ import java.lang.reflect.Proxy;
 
 	private boolean willBlock(String name) {
 		ProviderInfo providerInfo = LocalPackageManager.getInstance().resolveContentProvider(name, 0);
-		return providerInfo != null && ComponentUtils.getProcessName(providerInfo).equals(RuntimeEnv.getCurrentProcessName());
+		return providerInfo != null
+				&& ComponentUtils.getProcessName(providerInfo).equals(RuntimeEnv.getCurrentProcessName());
 	}
 
 	public int getProviderNameIndex() {

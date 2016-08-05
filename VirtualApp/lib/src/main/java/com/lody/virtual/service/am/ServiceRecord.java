@@ -1,5 +1,8 @@
 package com.lody.virtual.service.am;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.IApplicationThread;
 import android.app.IServiceConnection;
 import android.content.Intent;
@@ -7,14 +10,11 @@ import android.content.pm.ServiceInfo;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ServiceRecord {
+	public final List<ServiceBoundRecord> mBoundRecords = new ArrayList<>();
 	public long activeSince;
 	public long lastActivityTime;
 	public int pid;
-	public final List<ServiceBoundRecord> mBoundRecords = new ArrayList<>();
 	public ServiceInfo serviceInfo;
 	public IBinder token;
 	public int startId;
@@ -38,7 +38,6 @@ public class ServiceRecord {
 	public int getClientCount() {
 		return mBoundRecords.size();
 	}
-
 
 	List<IServiceConnection> getAllConnections() {
 		List<IServiceConnection> list = new ArrayList<>();

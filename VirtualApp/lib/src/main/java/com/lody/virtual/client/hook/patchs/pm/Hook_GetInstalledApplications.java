@@ -1,14 +1,14 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
+import java.lang.reflect.Method;
+import java.util.List;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.LocalPackageManager;
 import com.lody.virtual.helper.compat.ParceledListSliceCompat;
 
-import java.lang.reflect.Method;
-import java.util.List;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 
 /**
  * @author Lody
@@ -28,7 +28,7 @@ import java.util.List;
 		List<ApplicationInfo> appInfos = LocalPackageManager.getInstance().getInstalledApplications(flags);
 		if (isMainProcess()) {
 			PackageManager hostPM = getUnhookPM();
-			//noinspection WrongConstant
+			// noinspection WrongConstant
 			appInfos.addAll(hostPM.getInstalledApplications(flags));
 		}
 		if (ParceledListSliceCompat.isReturnParceledListSlice(method)) {

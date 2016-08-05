@@ -26,15 +26,15 @@ public class InstallResult implements Parcelable {
 	public InstallResult() {
 	}
 
+	protected InstallResult(Parcel in) {
+		this.isSuccess = in.readByte() != 0;
+		this.packageName = in.readString();
+	}
+
 	public static InstallResult makeFailure(String error) {
 		InstallResult res = new InstallResult();
 		res.error = error;
 		return res;
-	}
-
-	protected InstallResult(Parcel in) {
-		this.isSuccess = in.readByte() != 0;
-		this.packageName = in.readString();
 	}
 
 	@Override

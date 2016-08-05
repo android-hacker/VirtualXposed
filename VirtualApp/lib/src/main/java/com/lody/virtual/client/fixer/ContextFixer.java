@@ -1,11 +1,6 @@
 package com.lody.virtual.client.fixer;
 
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.hardware.Camera;
-import android.os.Build;
-import android.os.DropBoxManager;
+import java.lang.reflect.Method;
 
 import com.lody.virtual.client.core.PatchManager;
 import com.lody.virtual.client.core.VirtualCore;
@@ -16,7 +11,12 @@ import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.ReflectException;
 import com.lody.virtual.helper.utils.VLog;
 
-import java.lang.reflect.Method;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.hardware.Camera;
+import android.os.Build;
+import android.os.DropBoxManager;
 
 /**
  * @author Lody
@@ -50,7 +50,7 @@ public class ContextFixer {
 	public static void fixCamera() {
 		try {
 			Method native_setup;
-			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 				native_setup = Reflect.on(Camera.class).exactMethod("native_setup",
 						new Class[]{Object.class, int.class, int.class, String.class});
 			} else {

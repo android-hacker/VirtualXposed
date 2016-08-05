@@ -1,11 +1,11 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import android.os.IBinder;
+import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.LocalActivityManager;
 
-import java.lang.reflect.Method;
+import android.os.IBinder;
 
 /**
  * @author Lody

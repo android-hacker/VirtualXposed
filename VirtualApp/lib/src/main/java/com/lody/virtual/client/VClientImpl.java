@@ -1,9 +1,9 @@
 package com.lody.virtual.client;
 
+import com.lody.virtual.client.core.VirtualCore;
+
 import android.os.IBinder;
 import android.os.RemoteException;
-
-import com.lody.virtual.client.core.VirtualCore;
 
 /**
  * @author Lody

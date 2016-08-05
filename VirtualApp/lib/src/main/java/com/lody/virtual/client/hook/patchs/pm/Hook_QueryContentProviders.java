@@ -1,9 +1,9 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
+import java.lang.reflect.Method;
+
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.LocalPackageManager;
-
-import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -11,7 +11,8 @@ import java.lang.reflect.Method;
  *         <p/>
  *         Android 4.4+
  *
- *         @see android.content.pm.IPackageManager#queryContentProviders(String, int, int)
+ * @see android.content.pm.IPackageManager#queryContentProviders(String, int,
+ *      int)
  *
  */
 @SuppressWarnings("unchecked")

@@ -1,8 +1,6 @@
 package com.lody.virtual.client.local;
 
-import android.content.pm.ComponentInfo;
-import android.os.IBinder;
-import android.os.RemoteException;
+import java.util.List;
 
 import com.lody.virtual.client.env.RuntimeEnv;
 import com.lody.virtual.client.service.ServiceManagerNative;
@@ -10,7 +8,9 @@ import com.lody.virtual.helper.proto.VComponentInfo;
 import com.lody.virtual.service.IProcessManager;
 import com.lody.virtual.service.interfaces.IProcessObserver;
 
-import java.util.List;
+import android.content.pm.ComponentInfo;
+import android.os.IBinder;
+import android.os.RemoteException;
 
 /**
  * @author Lody
@@ -58,7 +58,6 @@ public class LocalProcessManager {
 			return RuntimeEnv.crash(e);
 		}
 	}
-
 
 	public static void dump() {
 		try {

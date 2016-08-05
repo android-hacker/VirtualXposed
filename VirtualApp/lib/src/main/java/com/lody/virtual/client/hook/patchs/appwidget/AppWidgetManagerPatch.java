@@ -1,14 +1,14 @@
 package com.lody.virtual.client.hook.patchs.appwidget;
 
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.os.Build;
-import android.os.ServiceManager;
-
 import com.android.internal.appwidget.IAppWidgetService;
 import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.base.ResultStaticHook;
 import com.lody.virtual.client.hook.binders.HookAppWidgetBinder;
+
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.os.Build;
+import android.os.ServiceManager;
 
 /**
  * @author Lody
@@ -60,7 +60,6 @@ public class AppWidgetManagerPatch extends PatchObject<IAppWidgetService, HookAp
 		addHook(new ResultStaticHook("getAppWidgetIds", new int[0]));
 		addHook(new ResultStaticHook("isBoundWidgetPackage", false));
 	}
-
 
 	@Override
 	public boolean isEnvBad() {

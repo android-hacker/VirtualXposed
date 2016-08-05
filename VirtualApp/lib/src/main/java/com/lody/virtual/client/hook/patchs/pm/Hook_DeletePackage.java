@@ -1,11 +1,11 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import android.content.pm.IPackageDeleteObserver2;
+import java.lang.reflect.Method;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 
-import java.lang.reflect.Method;
+import android.content.pm.IPackageDeleteObserver2;
 
 /**
  * @author Lody
@@ -15,7 +15,6 @@ import java.lang.reflect.Method;
  *      IPackageDeleteObserver2, int, int)
  */
 /* package */ class Hook_DeletePackage extends Hook {
-
 
 	@Override
 	public String getName() {

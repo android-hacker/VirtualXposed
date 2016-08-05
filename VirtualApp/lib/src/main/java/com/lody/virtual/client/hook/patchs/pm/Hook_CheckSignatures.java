@@ -1,16 +1,16 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import android.annotation.SuppressLint;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.helper.utils.ArrayUtils;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
+import android.annotation.SuppressLint;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 
 /**
  * @author Lody
@@ -18,7 +18,6 @@ import java.util.Arrays;
  */
 @SuppressLint("PackageManagerGetSignatures")
 /* package */ class Hook_CheckSignatures extends Hook {
-
 
 	@Override
 	public String getName() {

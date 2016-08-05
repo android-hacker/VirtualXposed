@@ -1,18 +1,18 @@
 package com.lody.virtual.client.env;
 
-import android.app.Instrumentation;
-import android.content.ComponentName;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Process;
-import android.os.RemoteException;
-
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.compat.AppBindDataCompat;
 import com.lody.virtual.helper.compat.VMRuntimeCompat;
 import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
+
+import android.app.Instrumentation;
+import android.content.ComponentName;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Process;
+import android.os.RemoteException;
 
 /**
  * @author Lody

@@ -8,19 +8,19 @@ import java.lang.reflect.Method;
 
 public class ResultStaticHook extends StaticHook {
 
-    Object mResult;
+	Object mResult;
 
-    public ResultStaticHook(String name, Object result) {
-        super(name);
-        mResult = result;
-    }
+	public ResultStaticHook(String name, Object result) {
+		super(name);
+		mResult = result;
+	}
 
-    public Object getResult() {
-        return mResult;
-    }
+	public Object getResult() {
+		return mResult;
+	}
 
-    @Override
-    public Object onHook(Object who, Method method, Object... args) throws Throwable {
-        return mResult;
-    }
+	@Override
+	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		return mResult;
+	}
 }

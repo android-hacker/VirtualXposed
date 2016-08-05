@@ -1,13 +1,13 @@
 package com.lody.virtual.client.stub;
 
+import com.lody.virtual.client.core.PatchManager;
+import com.lody.virtual.client.hook.patchs.am.HCallbackHook;
+import com.lody.virtual.helper.ExtraConstants;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
-
-import com.lody.virtual.client.core.PatchManager;
-import com.lody.virtual.client.hook.patchs.am.HCallbackHook;
-import com.lody.virtual.helper.ExtraConstants;
 
 /**
  * @author Lody
@@ -25,8 +25,7 @@ public abstract class StubActivity extends Activity {
 			if (DEBUG) {
 				Toast.makeText(this, "Ops...", Toast.LENGTH_SHORT).show();
 			}
-		}
-		else {
+		} else {
 			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 			// Fix : ActivityThread$mH
 			try {
@@ -87,10 +86,6 @@ public abstract class StubActivity extends Activity {
 
 	public static class C15 extends StubActivity {
 	}
-
-
-
-
 
 	public static class C0_ extends StubActivity {
 	}
