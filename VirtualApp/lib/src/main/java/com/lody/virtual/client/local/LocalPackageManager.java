@@ -242,4 +242,11 @@ public class LocalPackageManager {
 		}
 	}
 
+	public List<String> querySharedPackages(String packageName) {
+		try {
+			return getInterface().querySharedPackages(packageName);
+		} catch (RemoteException e) {
+			return RuntimeEnv.crash(e);
+		}
+	}
 }

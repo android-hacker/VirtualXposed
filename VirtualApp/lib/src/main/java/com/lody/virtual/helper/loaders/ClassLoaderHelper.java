@@ -13,11 +13,22 @@ import dalvik.system.PathClassLoader;
 
 public class ClassLoaderHelper {
 
-    public static PathClassLoader create(AppInfo appInfo) {
+    public static class AppClassLoader extends PathClassLoader {
+
+        public AppClassLoader(String dexPath, ClassLoader parent) {
+            super(dexPath, parent);
+        }
+
+        public AppClassLoader(String dexPath, String libraryPath, ClassLoader parent) {
+            super(dexPath, libraryPath, parent);
+        }
+    }
+
+    public static AppClassLoader create(AppInfo appInfo) {
         if (appInfo.dependSystem) {
-            return new PathClassLoader(appInfo.apkPath, appInfo.libDir, getRoot());
+            return new AppClassLoader(appInfo.apkPath, appInfo.libDir, getRoot());
         } else {
-            PathClassLoader classLoader = new PathClassLoader(".", appInfo.libDir, getRoot());
+            AppClassLoader classLoader = new AppClassLoader(".", appInfo.libDir, getRoot());
             try {
                 ClassLoaderInjectHelper.installDexes(classLoader, new File(appInfo.odexDir), Collections.singletonList(new File(appInfo.apkPath)));
             } catch (Throwable e) {

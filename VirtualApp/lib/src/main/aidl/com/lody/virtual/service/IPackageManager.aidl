@@ -64,5 +64,7 @@ interface IPackageManager {
 
          List<ReceiverInfo> queryReceivers(in String processName, int flags);
 
+         List<String> querySharedPackages(in String packageName);
+
          List<IntentFilter> getReceiverIntentFilter(in ActivityInfo info);
 }

@@ -3,13 +3,14 @@ package com.lody.virtual.client.hook.patchs.am;
 import java.lang.reflect.Method;
 
 /**
- * @author Lody
+ * Class:
+ * Created by andy on 16-8-3.
+ * TODO:
  */
-/* package */ class Hook_StartActivityAsCaller extends Hook_StartActivity {
-
+public class Hook_StartActivityAndWait extends Hook_BaseStartActivity {
   @Override
   public String getName() {
-    return "startActivityAsCaller";
+    return "startActivityAndWait";
   }
 
   @Override

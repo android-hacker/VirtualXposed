@@ -26,19 +26,31 @@ public class ServiceManagerNative {
   public static final String SERVICE_MANAGER = "service";
   public static final String CONTENT_MANAGER = "content";
   public static final String ACCOUNT_MANAGER = "account";
+  public static final String RECEIVER_MANAGER = "receiver";
   public static final String INTENT_FILTER_MANAGER = "intent_filter";
   private static final String TAG = ServiceManagerNative.class.getSimpleName();
   private static final String SERVICE_CP_AUTH = "virtual.service.BinderProvider";
 
-  public static IServiceFetcher getServiceFetcher() {
-    Context context = VirtualCore.getCore().getContext();
-    Bundle response = new ProviderCaller.Builder(context, SERVICE_CP_AUTH).methodName("@").call();
-    if (response != null) {
-      IBinder binder = BundleCompat.getBinder(response, ExtraConstants.EXTRA_BINDER);
-      linkBinderDied(binder);
-      return IServiceFetcher.Stub.asInterface(binder);
+
+  public static String ACTION_INSTALL_PACKAGE = "android.intent.action.VIRTUAL_INSTALL_PACKAGE";
+  public static String ACTION_UNINSTALL_PACKAGE = "android.intent.action.VIRTUAL_UNINSTALL_PACKAGE";
+
+  public static String ACTION_PACKAGE_ADDED = "android.intent.action.VIRTUAL_PACKAGE_ADDED";
+  public static String ACTION_PACKAGE_REMOVE = "android.intent.action.VIRTUAL_PACKAGE_REMOVE";
+
+  private static IServiceFetcher sFetcher;
+
+  public synchronized static IServiceFetcher getServiceFetcher() {
+    if (sFetcher == null) {
+      Context context = VirtualCore.getCore().getContext();
+      Bundle response = new ProviderCaller.Builder(context, SERVICE_CP_AUTH).methodName("@").call();
+      if (response != null) {
+        IBinder binder = BundleCompat.getBinder(response, ExtraConstants.EXTRA_BINDER);
+        linkBinderDied(binder);
+        sFetcher = IServiceFetcher.Stub.asInterface(binder);
+      }
     }
-    return null;
+    return sFetcher;
   }
 
   private static void linkBinderDied(final IBinder binder) {

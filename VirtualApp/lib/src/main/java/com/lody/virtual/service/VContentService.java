@@ -37,7 +37,7 @@ class VContentService extends IContentManager.Stub {
 	}
 
 	@Override
-	public IActivityManager.ContentProviderHolder getContentProvider(String auth) {
+	public synchronized IActivityManager.ContentProviderHolder getContentProvider(String auth) {
 		if (TextUtils.isEmpty(auth)) {
 			return null;
 		}

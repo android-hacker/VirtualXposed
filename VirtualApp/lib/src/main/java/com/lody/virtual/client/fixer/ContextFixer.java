@@ -11,6 +11,7 @@ import com.lody.virtual.client.core.PatchManager;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.binders.HookDropBoxBinder;
 import com.lody.virtual.client.hook.patchs.dropbox.DropBoxManagerPatch;
+import com.lody.virtual.client.hook.patchs.graphics.GraphicsStatsPatch;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.ReflectException;
 import com.lody.virtual.helper.utils.VLog;
@@ -68,6 +69,7 @@ public class ContextFixer {
 	 *            插件Context
 	 */
 	public static void fixContext(Context context) {
+		PatchManager.getInstance().checkEnv(GraphicsStatsPatch.class);
 		while (context instanceof ContextWrapper) {
 			context = ((ContextWrapper) context).getBaseContext();
 		}

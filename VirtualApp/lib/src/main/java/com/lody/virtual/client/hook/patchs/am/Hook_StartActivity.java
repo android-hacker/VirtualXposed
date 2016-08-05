@@ -6,20 +6,16 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.IBinder;
-import android.os.RemoteException;
 
 import com.android.internal.content.ReferrerIntent;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.LocalActivityManager;
-import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.compat.IApplicationThreadCompat;
 import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.VRedirectActRequest;
 import com.lody.virtual.helper.utils.ArrayUtils;
-import com.lody.virtual.service.filter.IntentFilterService;
-import com.lody.virtual.service.interfaces.IIntentFilterObserver;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -27,7 +23,7 @@ import java.util.Collections;
 /**
  * @author Lody
  */
-/* package */ class Hook_StartActivity extends Hook {
+/* package */ class Hook_StartActivity extends Hook_BaseStartActivity {
 
   @Override
   public String getName() {
@@ -41,6 +37,7 @@ import java.util.Collections;
 
   @Override
   public Object onHook(Object who, Method method, Object... args) throws Throwable {
+    super.onHook(who, method, args);
     int intentIndex = ArrayUtils.indexOfFirst(args, Intent.class);
     int resultToIndex;
     if (Build.VERSION.SDK_INT <= 15) {
@@ -53,8 +50,8 @@ import java.util.Collections;
       resultToIndex = 4;
     }
     IBinder resultTo = (IBinder) args[resultToIndex];
-    args[intentIndex] = filterIntent((Intent) args[intentIndex]);
     final Intent targetIntent = (Intent) args[intentIndex];
+    VLog.i("Andy", "startActivity -> 0 %s", targetIntent);
     ActivityInfo targetActInfo = VirtualCore.getCore().resolveActivityInfo(targetIntent);
     if (targetActInfo == null) {
       return method.invoke(who, args);
@@ -111,20 +108,6 @@ import java.util.Collections;
     }
     args[intentIndex] = stubIntent;
     return method.invoke(who, args);
-  }
-
-  public Intent filterIntent(Intent intent) {
-    IBinder intentFilterBinder = ServiceManagerNative.getService(ServiceManagerNative.INTENT_FILTER_MANAGER);
-    IIntentFilterObserver intentFilter = IntentFilterService.getService(intentFilterBinder);
-    if (intentFilter != null) {
-      try {
-        return new Intent(intentFilter.filter(intent));
-      } catch (RemoteException e) {
-        e.printStackTrace();
-      }
-    }
-
-    return intent;
   }
 
   @Override
