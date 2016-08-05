@@ -26,9 +26,18 @@ public class ServiceManagerNative {
   public static final String SERVICE_MANAGER = "service";
   public static final String CONTENT_MANAGER = "content";
   public static final String ACCOUNT_MANAGER = "account";
+  public static final String RECEIVER_MANAGER = "receiver";
   public static final String INTENT_FILTER_MANAGER = "intent_filter";
   private static final String TAG = ServiceManagerNative.class.getSimpleName();
   private static final String SERVICE_CP_AUTH = "virtual.service.BinderProvider";
+
+
+  public static String ACTION_INSTALL_PACKAGE = "android.intent.action.VIRTUAL_INSTALL_PACKAGE";
+  public static String ACTION_UNINSTALL_PACKAGE = "android.intent.action.VIRTUAL_UNINSTALL_PACKAGE";
+
+  public static String ACTION_PACKAGE_ADDED = "android.intent.action.VIRTUAL_PACKAGE_ADDED";
+  public static String ACTION_PACKAGE_REMOVE = "android.intent.action.VIRTUAL_PACKAGE_REMOVE";
+
 
   public static IServiceFetcher getServiceFetcher() {
     Context context = VirtualCore.getCore().getContext();

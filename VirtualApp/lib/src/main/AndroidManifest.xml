@@ -215,6 +215,34 @@
             android:name="com.lody.virtual.client.stub.KeepService"
             android:process=":x"/>
 
+        <activity
+            android:name=".client.service.InstallerActivity"
+            android:allowTaskReparenting="true"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:excludeFromRecents="false"
+            android:exported="false"
+            android:hardwareAccelerated="true"
+            android:label="@string/virtual_installer"
+            android:noHistory="true"
+            android:screenOrientation="portrait"
+            android:taskAffinity=":PInstaller"
+            android:theme="@android:style/Theme.NoDisplay">
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIRTUAL_INSTALL_PACKAGE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+
+                <data android:scheme="file"/>
+                <data android:mimeType="application/vnd.android.package-archive"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIRTUAL_UNINSTALL_PACKAGE"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="package"/>
+            </intent-filter>
+        </activity>
+
         <provider
             android:name="com.lody.virtual.service.BinderProvider"
             android:authorities="virtual.service.BinderProvider"
