@@ -9,6 +9,7 @@ import android.widget.RemoteViews;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.Reflect;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -163,14 +164,14 @@ import java.util.Map;
     public static Notification clone(Context context, Notification notification) {
         //插件的icon，绘制完成再替换成自己的
         Notification notification1 = null;
-        //TODO 貌似克隆有问题
-//        try {
-//            notification1 = new Notification();
-//            Reflect.on(notification).call("cloneInto", notification1, true);
-//        } catch (Exception e) {
-//            VLog.w("kk", "clone fail " + notification);
-//            notification1 = null;
-//        }
+        //TODO 貌似克隆有问题,icon不对，如果不克隆，就得去找出title和contentText
+        try {
+            notification1 = new Notification();
+            Reflect.on(notification).call("cloneInto", notification1, true);
+        } catch (Exception e) {
+            VLog.w("kk", "clone fail " + notification);
+            notification1 = null;
+        }
         if (notification1 == null) {
             final Notification.Builder builder = new Notification.Builder(context);
             if (Build.VERSION.SDK_INT < 23) {

@@ -92,7 +92,7 @@ class WidthCompat {
      */
     private int getEMUINotificationWidth(Context context, int width, int height) {
         try {
-            Context systemUi = context.createPackageContext(Constants.SYSTEM_UI_PKG, Context.CONTEXT_IGNORE_SECURITY);
+            Context systemUi = context.createPackageContext(Constants.SYSTEM_UI_PKG, Context.CONTEXT_IGNORE_SECURITY| Context.CONTEXT_INCLUDE_CODE);
             int layoutId = getSystemId(systemUi, "time_axis", "layout");
             if (layoutId != 0) {
                 ViewGroup viewGroup = createViewGroup(systemUi, layoutId);

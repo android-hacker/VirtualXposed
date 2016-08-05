@@ -115,6 +115,7 @@ public class NotificationHandler {
         RemoteViewsCompat remoteViewsCompat = new RemoteViewsCompat(pluginContext, notification);
         ///clone and set
         Notification notification1 = NotificaitionUtils.clone(pluginContext, notification);
+        //貌似没啥用
         if (Build.VERSION.SDK_INT >= 16) {
             RemoteViews oldBigContentViews = remoteViewsCompat.getBigRemoteViews();
             ResourcesCompat.getInstance().fixIconImage(pluginContext, oldBigContentViews, notification);

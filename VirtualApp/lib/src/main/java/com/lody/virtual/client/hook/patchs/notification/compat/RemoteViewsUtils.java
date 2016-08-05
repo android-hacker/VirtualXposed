@@ -66,10 +66,11 @@ class RemoteViewsUtils {
 
     public View createView(final Context context, RemoteViews remoteViews, boolean isBig, boolean systemId) {
         if (remoteViews == null) return null;
-        init(VirtualCore.getCore().getContext());
+        Context base  = VirtualCore.getCore().getContext();
+        init(base);
         //TODO 需要适配
         int height = isBig ? notification_max_height : notification_min_height;
-        int width = mWidthCompat.getNotificationWidth(context, notification_panel_width, height, notification_side_padding);
+        int width = mWidthCompat.getNotificationWidth(base, notification_panel_width, height, notification_side_padding);
         ViewGroup frameLayout = new FrameLayout(context);
         View view1 = remoteViews.apply(context, frameLayout);
         View mCache;
