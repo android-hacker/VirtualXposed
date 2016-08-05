@@ -3,6 +3,12 @@ package com.lody.virtual.client.hook.patchs.notification.compat;
 import android.app.Notification;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.PixelFormat;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.RemoteViews;
@@ -169,8 +175,13 @@ import java.util.Map;
             notification1 = new Notification();
             Reflect.on(notification).call("cloneInto", notification1, true);
         } catch (Exception e) {
-            VLog.w("kk", "clone fail " + notification);
-            notification1 = null;
+            VLog.w("kk", "clone 1 fail " + notification, e);
+            try {
+                notification1 = Reflect.on(notification).call("clone").get();
+            } catch (Exception e1) {
+                notification1 = null;
+                VLog.w("kk", "clone 2 fail " + notification, e1);
+            }
         }
         if (notification1 == null) {
             final Notification.Builder builder = new Notification.Builder(context);
@@ -202,7 +213,7 @@ import java.util.Map;
             builder.setDeleteIntent(notification.deleteIntent);
             builder.setFullScreenIntent(notification.fullScreenIntent,
                     (notification.flags & Notification.FLAG_HIGH_PRIORITY) != 0);
-            ResourcesCompat.getInstance().fixNotificationIcon(context, notification, builder);
+            fixNotificationIcon(context, notification, builder);
             if (Build.VERSION.SDK_INT >= 16) {
                 notification1 = builder.build();
             } else {
@@ -218,5 +229,101 @@ import java.util.Map;
 
     private static boolean isHostPackageName(String pkg) {
         return VirtualCore.getCore().isHostPackageName(pkg);
+    }
+
+    public static void fixNotificationIcon(Context context, Notification notification) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            notification.icon = context.getApplicationInfo().icon;
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            android.graphics.drawable.Icon icon = notification.getSmallIcon();
+            if (icon != null) {
+                Bitmap bitmap = drawableToBitMap(icon.loadDrawable(context));
+                if (bitmap != null) {
+                    android.graphics.drawable.Icon newIcon = android.graphics.drawable.Icon.createWithBitmap(bitmap);
+                    Reflect.on(notification).set("mSmallIcon", newIcon);
+                }
+            }
+            android.graphics.drawable.Icon icon2 = notification.getLargeIcon();
+            if (icon2 != null) {
+                Bitmap bitmap = drawableToBitMap(icon2.loadDrawable(context));
+                if (bitmap != null) {
+                    android.graphics.drawable.Icon newIcon = android.graphics.drawable.Icon.createWithBitmap(bitmap);
+                    Reflect.on(notification).set("mLargeIcon", newIcon);
+                }
+            }
+        }
+    }
+
+    public static void fixIconImage(Context pluginContext, RemoteViews remoteViews, Notification notification) {
+        if (remoteViews == null) return;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            try {
+                int iconId = notification.icon;
+                int id = Reflect.on("com.android.internal.R$id").get("icon");
+                Bitmap bitmap;
+                if (Build.VERSION.SDK_INT >= 21) {
+                    bitmap = drawableToBitMap(pluginContext.getResources().getDrawable(iconId, pluginContext.getTheme()));
+                } else {
+                    bitmap = drawableToBitMap(pluginContext.getResources().getDrawable(iconId));
+                }
+                remoteViews.setImageViewBitmap(id, bitmap);
+            } catch (Exception e) {
+                VLog.e("kk", "set icon " + e);
+            }
+        } else {
+            try {
+                int id = Reflect.on("com.android.internal.R$id").get("icon");
+                Icon icon = notification.getLargeIcon();
+                if (icon == null) {
+                    icon = notification.getSmallIcon();
+                }
+                remoteViews.setImageViewIcon(id, icon);
+            } catch (Exception e) {
+                VLog.e("kk", "set icon 23 " + e);
+            }
+        }
+    }
+
+    public static void fixNotificationIcon(Context context, Notification notification, Notification.Builder builder) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            builder.setSmallIcon(notification.icon);
+            builder.setLargeIcon(notification.largeIcon);
+        } else {
+            android.graphics.drawable.Icon icon = notification.getSmallIcon();
+            if (icon != null) {
+                Bitmap bitmap = drawableToBitMap(icon.loadDrawable(context));
+                if (bitmap != null) {
+                    android.graphics.drawable.Icon newIcon = android.graphics.drawable.Icon.createWithBitmap(bitmap);
+                    builder.setSmallIcon(newIcon);
+                }
+            }
+            android.graphics.drawable.Icon icon2 = notification.getLargeIcon();
+            if (icon2 != null) {
+                Bitmap bitmap = drawableToBitMap(icon2.loadDrawable(context));
+                if (bitmap != null) {
+                    android.graphics.drawable.Icon newIcon = android.graphics.drawable.Icon.createWithBitmap(bitmap);
+                    builder.setLargeIcon(newIcon);
+                }
+            }
+        }
+    }
+
+    private static Bitmap drawableToBitMap(Drawable drawable) {
+        if (drawable == null) {
+            return null;
+        }
+        if (drawable instanceof BitmapDrawable) {
+            BitmapDrawable bitmapDrawable = ((BitmapDrawable) drawable);
+            return bitmapDrawable.getBitmap();
+        } else {
+            Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), drawable.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565);
+            Canvas canvas = new Canvas(bitmap);
+            drawable.setBounds(0, 0, drawable.getIntrinsicWidth(),
+                    drawable.getIntrinsicHeight());
+            drawable.draw(canvas);
+            return bitmap;
+        }
     }
 }
