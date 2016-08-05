@@ -8,6 +8,7 @@ import android.os.IBinder;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.providers.ProviderHook;
 import com.lody.virtual.client.local.LocalContentManager;
+import com.lody.virtual.helper.utils.ComponentUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -35,12 +36,21 @@ import java.lang.reflect.Proxy;
 		if (holder == null) {
 			try {
 				holder = (IActivityManager.ContentProviderHolder) method.invoke(who, args);
+				if (holder != null
+						&& holder.info != null
+						&& !ComponentUtils.isSystemApp(holder.info.applicationInfo)
+						&& !getHostPkg().equals(holder.info.packageName)) {
+					holder = null;
+				}
 			} catch (InvocationTargetException e) {
 				if (e.getCause() instanceof SecurityException) {
 					return null;
 				}
 				throw e.getCause();
 			}
+		}
+		if (holder == null) {
+			return null;
 		}
 		ProviderHook.HookFetcher fetcher = ProviderHook.fetchHook(name);
 		if (fetcher != null) {

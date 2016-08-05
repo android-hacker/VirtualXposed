@@ -39,7 +39,7 @@ class ClassLoaderInjectHelper {
             try {
                 return ClassLoaderInjectHelper.makePathElements(files, optimizedDirectory, null);
             } catch (Exception e) {
-                Log.i(ClassLoaderInjectHelper.TAG, "makePathElements1", e);
+                e.printStackTrace();
                 return (Object[]) ClassLoaderInjectHelper.findMethod(dexPathList, "makeDexElements", ArrayList.class, File.class).invoke(dexPathList, files, optimizedDirectory);
             }
         }
@@ -55,7 +55,7 @@ class ClassLoaderInjectHelper {
             ClassLoaderInjectHelper.expandFieldArray(dexPathList, "dexElements", makeDexElements(dexPathList, new ArrayList<>(additionalClassPathEntries), optimizedDirectory, suppressedExceptions));
             if (suppressedExceptions.size() > 0) {
                 for (IOException suppressedException : suppressedExceptions) {
-                    Log.w(ClassLoaderInjectHelper.TAG, "Exception in makeDexElement", suppressedException);
+                    suppressedException.printStackTrace();
                 }
                 Field suppressedExceptionsField = ClassLoaderInjectHelper.findField(loader, "dexElementsSuppressedExceptions");
                 IOException[] dexElementsSuppressedExceptions = (IOException[]) suppressedExceptionsField.get(loader);
@@ -75,7 +75,7 @@ class ClassLoaderInjectHelper {
             try {
                 return ClassLoaderInjectHelper.makePathElements(files, optimizedDirectory, suppressedExceptions);
             } catch (Exception e) {
-                Log.i(ClassLoaderInjectHelper.TAG, "makePathElements1", e);
+                e.printStackTrace();
                 return (Object[]) ClassLoaderInjectHelper.findMethod(dexPathList, "makeDexElements", ArrayList.class, File.class, ArrayList.class).invoke(dexPathList, files, optimizedDirectory, suppressedExceptions);
             }
         }
@@ -91,7 +91,7 @@ class ClassLoaderInjectHelper {
             ClassLoaderInjectHelper.expandFieldArray(dexPathList, "dexElements", makeDexElements(dexPathList, new ArrayList<>(additionalClassPathEntries), optimizedDirectory, suppressedExceptions));
             if (suppressedExceptions.size() > 0) {
                 for (IOException suppressedException : suppressedExceptions) {
-                    Log.w(ClassLoaderInjectHelper.TAG, "Exception in makeDexElement", suppressedException);
+                   suppressedException.printStackTrace();
                 }
                 Field suppressedExceptionsField = ClassLoaderInjectHelper.findField(loader, "dexElementsSuppressedExceptions");
                 IOException[] dexElementsSuppressedExceptions = (IOException[]) suppressedExceptionsField.get(loader);
@@ -111,7 +111,7 @@ class ClassLoaderInjectHelper {
             try {
                 return ClassLoaderInjectHelper.makePathElements(files, optimizedDirectory, suppressedExceptions);
             } catch (Exception e) {
-                Log.i(ClassLoaderInjectHelper.TAG, "makePathElements1", e);
+                e.printStackTrace();
                 return (Object[]) ClassLoaderInjectHelper.findMethod(dexPathList, "makePathElements", List.class, File.class, List.class).invoke(dexPathList, files, optimizedDirectory, suppressedExceptions);
             }
         }

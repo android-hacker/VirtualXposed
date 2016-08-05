@@ -214,6 +214,10 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
             mPresenter.addApp(model);
             AppInfo info = VirtualCore.getCore().findApp(model.packageName);
             if (info != null) {
+                if (info.dependSystem) {
+                    mPresenter.dataChanged();
+                    return;
+                }
                 model.context = this;
                 ProgressDialog dialog = ProgressDialog.show(this, "Please wait", "Optimizing new Virtual App...");
                 VUiKit.defer().when(() -> {
