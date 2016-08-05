@@ -38,16 +38,19 @@ public class ServiceManagerNative {
   public static String ACTION_PACKAGE_ADDED = "android.intent.action.VIRTUAL_PACKAGE_ADDED";
   public static String ACTION_PACKAGE_REMOVE = "android.intent.action.VIRTUAL_PACKAGE_REMOVE";
 
+  private static IServiceFetcher sFetcher;
 
-  public static IServiceFetcher getServiceFetcher() {
-    Context context = VirtualCore.getCore().getContext();
-    Bundle response = new ProviderCaller.Builder(context, SERVICE_CP_AUTH).methodName("@").call();
-    if (response != null) {
-      IBinder binder = BundleCompat.getBinder(response, ExtraConstants.EXTRA_BINDER);
-      linkBinderDied(binder);
-      return IServiceFetcher.Stub.asInterface(binder);
+  public synchronized static IServiceFetcher getServiceFetcher() {
+    if (sFetcher == null) {
+      Context context = VirtualCore.getCore().getContext();
+      Bundle response = new ProviderCaller.Builder(context, SERVICE_CP_AUTH).methodName("@").call();
+      if (response != null) {
+        IBinder binder = BundleCompat.getBinder(response, ExtraConstants.EXTRA_BINDER);
+        linkBinderDied(binder);
+        sFetcher = IServiceFetcher.Stub.asInterface(binder);
+      }
     }
-    return null;
+    return sFetcher;
   }
 
   private static void linkBinderDied(final IBinder binder) {

@@ -17,6 +17,7 @@ import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.RemoteException;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.LogPrinter;
 
@@ -665,6 +666,23 @@ public class VPackageService extends IPackageManager.Stub {
 		return null;
 	}
 
+	@Override
+	public List<String> querySharedPackages(String packageName) {
+		synchronized (mPackages) {
+			PackageParser.Package p = mPackages.get(packageName);
+			if (p == null || p.mSharedUserId == null) {
+				//noinspection unchecked
+				return Collections.EMPTY_LIST;
+			}
+			ArrayList<String> list = new ArrayList<>();
+			for (PackageParser.Package one : mPackages.values()) {
+				if (TextUtils.equals(one.mSharedUserId, p.mSharedUserId)) {
+					list.add(one.packageName);
+				}
+			}
+			return list;
+		}
+	}
 	@Override
 	public boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
 		try {

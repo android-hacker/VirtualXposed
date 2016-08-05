@@ -3,11 +3,14 @@ package com.lody.virtual.client.hook.patchs.am;
 import android.app.IActivityManager;
 import android.app.IApplicationThread;
 import android.content.IContentProvider;
+import android.content.pm.ProviderInfo;
 import android.os.IBinder;
 
+import com.lody.virtual.client.env.RuntimeEnv;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.providers.ProviderHook;
 import com.lody.virtual.client.local.LocalContentManager;
+import com.lody.virtual.client.local.LocalPackageManager;
 import com.lody.virtual.helper.utils.ComponentUtils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -32,6 +35,9 @@ import java.lang.reflect.Proxy;
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		String name = (String) args[getProviderNameIndex()];
+		if (willBlock(name)) {
+			return null;
+		}
 		IActivityManager.ContentProviderHolder holder = LocalContentManager.getDefault().getContentProvider(name);
 		if (holder == null) {
 			try {
@@ -60,6 +66,11 @@ import java.lang.reflect.Proxy;
 					new Class[]{IContentProvider.class}, hook);
 		}
 		return holder;
+	}
+
+	private boolean willBlock(String name) {
+		ProviderInfo providerInfo = LocalPackageManager.getInstance().resolveContentProvider(name, 0);
+		return providerInfo != null && ComponentUtils.getProcessName(providerInfo).equals(RuntimeEnv.getCurrentProcessName());
 	}
 
 	public int getProviderNameIndex() {

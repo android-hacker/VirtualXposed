@@ -13,7 +13,6 @@ import android.content.pm.ProviderInfo;
 import android.os.Build;
 import android.os.Looper;
 import android.os.Message;
-import android.os.Process;
 import android.os.StrictMode;
 import android.renderscript.RenderScript;
 import android.renderscript.RenderScriptCacheDir;
@@ -31,12 +30,10 @@ import com.lody.virtual.helper.loaders.ClassLoaderHelper;
 import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.proto.ReceiverInfo;
 import com.lody.virtual.helper.utils.Reflect;
-import com.lody.virtual.helper.utils.VLog;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -48,7 +45,6 @@ import java.util.concurrent.CountDownLatch;
 public class AppSandBox {
 
 	private static final String TAG = AppSandBox.class.getSimpleName();
-	private static HashSet<String> installedApps = new HashSet<String>();
 	private static Map<String, Application> applicationMap = new HashMap<>();
 
 	private static String LAST_PKG;
@@ -78,17 +74,14 @@ public class AppSandBox {
 	}
 
 	private static void installLocked(String processName, String pkg) {
-		if (installedApps.contains(pkg)) {
-			return;
-		}
 		boolean firstInstall = LAST_PKG == null;
 		LAST_PKG = pkg;
-		if (firstInstall) {
-			ContextFixer.fixCamera();
-			PatchManager.fixAllSettings();
+		if (!firstInstall) {
+			createLoadedApk(VirtualCore.getCore().findApp(pkg));
+			return;
 		}
-		VLog.d(TAG, "Process [%d] [%s -> %s] has started.", Process.myPid(), VirtualCore.getCore().getProcessName(), processName);
-		VLog.d(TAG, "Installing %s.", pkg);
+		ContextFixer.fixCamera();
+		PatchManager.fixAllSettings();
 		LocalProcessManager.onAppProcessCreate(VClientImpl.getClient().asBinder());
 		AppInfo appInfo = VirtualCore.getCore().findApp(pkg);
 		if (appInfo == null) {
@@ -97,8 +90,10 @@ public class AppSandBox {
 		LocalPackageManager pm = LocalPackageManager.getInstance();
 		ApplicationInfo applicationInfo = appInfo.applicationInfo;
 		RuntimeEnv.setCurrentProcessName(processName, appInfo);
-
 		LoadedApk loadedApk = createLoadedApk(appInfo);
+		for (String sharedPkg : pm.querySharedPackages(pkg)) {
+			createLoadedApk(VirtualCore.getCore().findApp(sharedPkg));
+		}
 		setupRuntime(applicationInfo);
 
 		ClassLoader classLoader = loadedApk.getClassLoader();
@@ -124,7 +119,6 @@ public class AppSandBox {
 		installReceivers(app, receiverInfos);
 		LocalProcessManager.onEnterApp(pkg);
 		applicationMap.put(appInfo.packageName, app);
-		installedApps.add(appInfo.packageName);
 	}
 
 	private static void installReceivers(Context app, List<ReceiverInfo> receivers) {
@@ -213,16 +207,22 @@ public class AppSandBox {
 	}
 
 	private static LoadedApk createLoadedApk(AppInfo appInfo) {
-		ApplicationInfo applicationInfo = appInfo.applicationInfo;
-		LoadedApk loadedApk = ActivityThreadCompat.getPackageInfoNoCheck(applicationInfo);
-		ClassLoader classLoader = ClassLoaderHelper.create(appInfo);
-		Reflect.on(loadedApk).set("mClassLoader", classLoader);
-		try {
-			Reflect.on(loadedApk).set("mSecurityViolation", false);
-		} catch (Throwable e) {
-			// Ignore
+		if (appInfo != null) {
+			ApplicationInfo applicationInfo = appInfo.applicationInfo;
+			LoadedApk loadedApk = ActivityThreadCompat.getPackageInfoNoCheck(applicationInfo);
+			ClassLoader classLoader = ClassLoaderHelper.create(appInfo);
+
+			if (!(loadedApk.getClassLoader() instanceof ClassLoaderHelper.AppClassLoader)) {
+				Reflect.on(loadedApk).set("mClassLoader", classLoader);
+			}
+			try {
+				Reflect.on(loadedApk).set("mSecurityViolation", false);
+			} catch (Throwable e) {
+				// Ignore
+			}
+			return loadedApk;
 		}
-		return loadedApk;
+		return null;
 	}
 
 
