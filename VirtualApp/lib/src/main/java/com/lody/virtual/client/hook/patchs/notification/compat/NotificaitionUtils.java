@@ -27,6 +27,7 @@ import java.util.Map;
  */
 /* package */ class NotificaitionUtils {
     private static Map<Integer, String> sSystemLayoutResIds = new HashMap<Integer, String>(0);
+    private static final String TAG = NotificaitionUtils.class.getSimpleName();
 
     static {
         init();
@@ -171,64 +172,101 @@ import java.util.Map;
         //插件的icon，绘制完成再替换成自己的
         Notification notification1 = null;
         //TODO 貌似克隆有问题,icon不对，如果不克隆，就得去找出title和contentText
+//        try {
+//            notification1 = new Notification();
+//            Reflect.on(notification).call("cloneInto", notification1, true);
+//        } catch (Exception e) {
+//            VLog.w("kk", "clone 1 fail " + notification, e);
+//            try {
+//                notification1 = Reflect.on(notification).call("clone").get();
+//            } catch (Exception e1) {
+//                notification1 = null;
+//                VLog.w("kk", "clone 2 fail " + notification, e1);
+//            }
+//        }
+//        if (notification1 == null) {
+        Notification.Builder builder = null;
+
         try {
-            notification1 = new Notification();
-            Reflect.on(notification).call("cloneInto", notification1, true);
+            builder = Reflect.on(Notification.Builder.class).create(context, notification).get();
         } catch (Exception e) {
-            VLog.w("kk", "clone 1 fail " + notification, e);
-            try {
-                notification1 = Reflect.on(notification).call("clone").get();
-            } catch (Exception e1) {
-                notification1 = null;
-                VLog.w("kk", "clone 2 fail " + notification, e1);
+            if (builder == null) {
+                builder = createBuilder(context, notification);
+            }
+            VLog.w(TAG, "clone" + VLog.getStackTraceString(e));
+        }
+        fixNotificationIcon(context, notification, builder);
+        if (Build.VERSION.SDK_INT >= 16) {
+            notification1 = builder.build();
+        } else {
+            notification1 = builder.getNotification();
+        }
+        notification1.flags = notification.flags;
+        notification1.icon = notification.icon;
+        ///
+        if (notification1.contentView == null) {
+            notification1.contentView = notification.contentView;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            if (notification1.bigContentView == null) {
+                notification1.bigContentView = notification.bigContentView;
             }
         }
-        if (notification1 == null) {
-            final Notification.Builder builder = new Notification.Builder(context);
-            if (Build.VERSION.SDK_INT < 23) {
-                builder.setSmallIcon(context.getApplicationInfo().icon);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.L) {
+            notification1.publicVersion = notification.publicVersion;
+            if (notification1.headsUpContentView == null) {
+                notification1.headsUpContentView = notification.headsUpContentView;
             }
-            if (Build.VERSION.SDK_INT >= 21) {
-                builder.setCategory(notification.category);
-                builder.setColor(notification.color);
-            }
-            if (Build.VERSION.SDK_INT >= 20) {
-                builder.setGroup(notification.getGroup());
-                builder.setGroupSummary(notification.isGroupSummary());
-                builder.setPriority(notification.priority);
-                builder.setSortKey(notification.getSortKey());
-            }
-            if (notification.sound != null) {
-                if (notification.defaults == 0) {
-                    builder.setDefaults(Notification.DEFAULT_SOUND);//notification.defaults);
-                } else {
-                    builder.setDefaults(Notification.DEFAULT_ALL);
-                }
-            }
-            builder.setLights(notification.ledARGB, notification.ledOnMS, notification.ledOffMS);
-            builder.setNumber(notification.number);
-            builder.setTicker(notification.tickerText);
-            //intent
-            builder.setContentIntent(notification.contentIntent);
-            builder.setDeleteIntent(notification.deleteIntent);
-            builder.setFullScreenIntent(notification.fullScreenIntent,
-                    (notification.flags & Notification.FLAG_HIGH_PRIORITY) != 0);
-            fixNotificationIcon(context, notification, builder);
-            if (Build.VERSION.SDK_INT >= 16) {
-                notification1 = builder.build();
-            } else {
-                notification1 = builder.getNotification();
-            }
-            notification1.flags = notification.flags;
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            notification1.extras.putParcelable("android.rebuild.applicationInfo", context.getApplicationInfo());
-        }
+//        }
         return notification1;
     }
 
     private static boolean isHostPackageName(String pkg) {
         return VirtualCore.getCore().isHostPackageName(pkg);
+    }
+
+    private static Notification.Builder createBuilder(Context context, Notification notification) {
+        Notification.Builder builder = new Notification.Builder(context);
+        if (Build.VERSION.SDK_INT < 23) {
+            builder.setSmallIcon(context.getApplicationInfo().icon);
+            builder.setLargeIcon(notification.largeIcon);
+        } else {
+            builder.setSmallIcon(notification.getSmallIcon());
+            builder.setLargeIcon(notification.getLargeIcon());
+        }
+        if (Build.VERSION.SDK_INT >= 21) {
+            builder.setCategory(notification.category);
+            builder.setColor(notification.color);
+        }
+        if (Build.VERSION.SDK_INT >= 20) {
+            builder.setGroup(notification.getGroup());
+            builder.setGroupSummary(notification.isGroupSummary());
+            builder.setPriority(notification.priority);
+            builder.setSortKey(notification.getSortKey());
+        }
+        if (notification.sound != null) {
+            if (notification.defaults == 0) {
+                builder.setDefaults(Notification.DEFAULT_SOUND);//notification.defaults);
+            } else {
+                builder.setDefaults(Notification.DEFAULT_ALL);
+            }
+        }
+        builder.setLights(notification.ledARGB, notification.ledOnMS, notification.ledOffMS);
+        builder.setNumber(notification.number);
+        builder.setTicker(notification.tickerText);
+        //intent
+        builder.setContentIntent(notification.contentIntent);
+        builder.setDeleteIntent(notification.deleteIntent);
+        builder.setFullScreenIntent(notification.fullScreenIntent,
+                (notification.flags & Notification.FLAG_HIGH_PRIORITY) != 0);
+        //6.0以下是有contentviews
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            builder.setContentTitle(notification.extras.getString(Notification.EXTRA_TITLE));
+            builder.setContentText(notification.extras.getString(Notification.EXTRA_TEXT));
+            builder.setSubText(notification.extras.getString(Notification.EXTRA_SUB_TEXT));
+        }
+        return builder;
     }
 
     public static void fixNotificationIcon(Context context, Notification notification) {
@@ -261,6 +299,9 @@ import java.util.Map;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             try {
                 int iconId = notification.icon;
+                if (iconId == 0) {
+                    iconId = pluginContext.getApplicationInfo().icon;
+                }
                 int id = Reflect.on("com.android.internal.R$id").get("icon");
                 Bitmap bitmap;
                 if (Build.VERSION.SDK_INT >= 21) {
@@ -270,7 +311,7 @@ import java.util.Map;
                 }
                 remoteViews.setImageViewBitmap(id, bitmap);
             } catch (Exception e) {
-                VLog.e("kk", "set icon " + e);
+                VLog.w("notification", "set notification icon " + VLog.getStackTraceString(e));
             }
         } else {
             try {
@@ -280,6 +321,10 @@ import java.util.Map;
                     icon = notification.getSmallIcon();
                 }
                 remoteViews.setImageViewIcon(id, icon);
+//                Bitmap bitmap = drawableToBitMap(icon.loadDrawable(pluginContext));
+//                if (bitmap != null) {
+//                    remoteViews.setImageViewBitmap(id, bitmap);
+//                }
             } catch (Exception e) {
                 VLog.e("kk", "set icon 23 " + e);
             }

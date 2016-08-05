@@ -61,10 +61,10 @@ public class NotificationHandler {
 
     public Result dealNotification(Context context, Notification notification, String packageName) throws Exception {
         Result result = new Result(RESULT_CODE_DONT_DEAL, null);
-        if (!NotificaitionUtils.isPluginNotification(notification)) {
-            //不是插件的通知栏
-            return result;
-        }
+//        if (!NotificaitionUtils.isPluginNotification(notification)) {
+//            //不是插件的通知栏
+//            return result;
+//        }
         if (DOPEN_NOT_DEAL) {
             if (VirtualCore.getCore().isOutsideInstalled(packageName)) {
                 //双开模式，直接替换icon
@@ -100,18 +100,26 @@ public class NotificationHandler {
         RemoteViewsCompat remoteViewsCompat = new RemoteViewsCompat(pluginContext, notification);
         ///clone and set
         Notification notification1 = NotificaitionUtils.clone(pluginContext, notification);
+        //
+        if (Build.VERSION.SDK_INT >= 21) {
+            RemoteViews oldHeadsUpContentView = remoteViewsCompat.getHeadsUpContentView();
+            NotificaitionUtils.fixIconImage(pluginContext, oldHeadsUpContentView, notification);
+            notification1.headsUpContentView = RemoteViewsUtils.getInstance().createViews(context, pluginContext, oldHeadsUpContentView, false);
+        }
+        //
         if (Build.VERSION.SDK_INT >= 16) {
             RemoteViews oldBigContentViews = remoteViewsCompat.getBigRemoteViews();
-            //貌似没啥用
             NotificaitionUtils.fixIconImage(pluginContext, oldBigContentViews, notification);
             notification1.bigContentView = RemoteViewsUtils.getInstance().createViews(context, pluginContext, oldBigContentViews, true);
         }
-
+        //
         RemoteViews oldContentView = remoteViewsCompat.getRemoteViews();
         NotificaitionUtils.fixIconImage(pluginContext, oldContentView, notification);
         notification1.contentView = RemoteViewsUtils.getInstance().createViews(context, pluginContext, oldContentView, false);
+
         NotificaitionUtils.fixNotificationIcon(context, notification1);
         return notification1;
+
     }
 
     private Context getContext(Context base, String packageName) {

@@ -51,7 +51,7 @@ class RemoteViewsUtils {
             try {
                 //apply失败后,根据布局id创建view
                 mCache = LayoutInflater.from(context).inflate(remoteViews.getLayoutId(), null);
-            }catch (Throwable e){
+            } catch (Throwable e) {
 
             }
         }
@@ -66,7 +66,7 @@ class RemoteViewsUtils {
 
     public View createView(final Context context, RemoteViews remoteViews, boolean isBig, boolean systemId) {
         if (remoteViews == null) return null;
-        Context base  = VirtualCore.getCore().getContext();
+        Context base = VirtualCore.getCore().getContext();
         init(base);
         //TODO 需要适配
         int height = isBig ? notification_max_height : notification_min_height;
@@ -80,6 +80,18 @@ class RemoteViewsUtils {
         } else {
             params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
+//        if (systemId) {
+//            Log.i("kk", "find icon");
+//            View icon = view1.findViewById(com.android.internal.R.id.icon);
+//            if (icon != null) {
+//                icon.setVisibility(View.INVISIBLE);
+//                Log.w("kk", "find icon");
+//            } else {
+//                Log.w("kk", "no find icon");
+//            }
+//        } else {
+//            Log.i("kk", "no is systemid:" + remoteViews.getLayoutId());
+//        }
         params.gravity = Gravity.CENTER_VERTICAL;
         mCache = frameLayout;
         frameLayout.addView(view1, params);
@@ -107,7 +119,7 @@ class RemoteViewsUtils {
         mCache.layout(0, 0, width, height);
         mCache.measure(View.MeasureSpec.makeMeasureSpec(width, mode), View.MeasureSpec.makeMeasureSpec(height, mode));
         mCache.layout(0, 0, width, height);
-        VLog.i("kk", "max=%d/%d, szie=%d/%d", width, height, mCache.getMeasuredWidth(), mCache.getMeasuredHeight());
+        VLog.i(TAG, "notification:systemId=" + systemId + ",max=%d/%d, szie=%d/%d", width, height, mCache.getMeasuredWidth(), mCache.getMeasuredHeight());
         //打印action
 //        logActions(remoteViews, view1);
         return mCache;
@@ -141,9 +153,11 @@ class RemoteViewsUtils {
 
     public RemoteViews createViews(Context context, Context pluginContext, RemoteViews contentView,
                                    boolean isBig) {
-        if (contentView == null) return null;
+        if (contentView == null){
+            return null;
+        }
         //系统布局？
-        final boolean systemId = NotificaitionUtils.isCustomNotification(contentView);
+        final boolean systemId = !NotificaitionUtils.isCustomNotification(contentView);
         final PendIntentCompat pendIntentCompat = new PendIntentCompat(contentView);
         //根据点击时间选择布局(优化)
         final int layoutId;
