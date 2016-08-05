@@ -7,6 +7,7 @@ import android.os.Build;
 import android.widget.RemoteViews;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -60,42 +61,26 @@ public class NotificationHandler {
 
     public Result dealNotification(Context context, Notification notification, String packageName) throws Exception {
         Result result = new Result(RESULT_CODE_DONT_DEAL, null);
-        if (!NotificaitionUtils.isPluginNotification(notification)) {
-            //不是插件的通知栏
-            return result;
-        }
+//        if (!NotificaitionUtils.isPluginNotification(notification)) {
+//            //不是插件的通知栏
+//            return result;
+//        }
         if (DOPEN_NOT_DEAL) {
             if (VirtualCore.getCore().isOutsideInstalled(packageName)) {
                 //双开模式，直接替换icon
-                ResourcesCompat.getInstance().fixNotificationIcon(context, notification);
+                NotificaitionUtils.fixNotificationIcon(context, notification);
                 result.code = RESULT_CODE_DEAL_OK;
                 return result;
             }
         }
-        if (NotificaitionUtils.isCustomNotification(notification)) {
-            //自定义样式
-            Notification notification1 = replaceNotification(context, packageName, notification);
-            if (notification1 != null) {
-                result.code = RESULT_CODE_REPLACE;
-                result.notification = notification1;
-            } else {
-                result.code = RESULT_CODE_DONT_SHOW;
-            }
+        //自定义样式
+        Notification notification1 = replaceNotification(context, packageName, notification);
+        if (notification1 != null) {
+            result.code = RESULT_CODE_REPLACE;
+            result.notification = notification1;
         } else {
-            //系统样式
-            if (!SYSTEM_NOTIFICATION_NOT_DEAL) {
-                Notification notification1 = replaceNotification(context, packageName, notification);
-                if (notification1 != null) {
-                    result.code = RESULT_CODE_REPLACE;
-                    result.notification = notification1;
-                }else {
-                    result.code = RESULT_CODE_DONT_SHOW;
-                }
-            }
-        }
-        if (result.code != RESULT_CODE_DONT_SHOW && result.notification == null) {
-            ResourcesCompat.getInstance().fixNotificationResource(notification);
-            result.code = RESULT_CODE_DEAL_OK;
+            result.code = RESULT_CODE_DONT_SHOW;
+            VLog.w(TAG, "dont show notification:" + notification);
         }
         return result;
     }
@@ -115,22 +100,26 @@ public class NotificationHandler {
         RemoteViewsCompat remoteViewsCompat = new RemoteViewsCompat(pluginContext, notification);
         ///clone and set
         Notification notification1 = NotificaitionUtils.clone(pluginContext, notification);
-        //貌似没啥用
+        //
+        if (Build.VERSION.SDK_INT >= 21) {
+            RemoteViews oldHeadsUpContentView = remoteViewsCompat.getHeadsUpContentView();
+            NotificaitionUtils.fixIconImage(pluginContext, oldHeadsUpContentView, notification);
+            notification1.headsUpContentView = RemoteViewsUtils.getInstance().createViews(context, pluginContext, oldHeadsUpContentView, false);
+        }
+        //
         if (Build.VERSION.SDK_INT >= 16) {
             RemoteViews oldBigContentViews = remoteViewsCompat.getBigRemoteViews();
-            ResourcesCompat.getInstance().fixIconImage(pluginContext, oldBigContentViews, notification);
-            RemoteViews bigContentViews = RemoteViewsUtils.getInstance().createViews(context, pluginContext, oldBigContentViews, true);
-            notification1.bigContentView = bigContentViews;
+            NotificaitionUtils.fixIconImage(pluginContext, oldBigContentViews, notification);
+            notification1.bigContentView = RemoteViewsUtils.getInstance().createViews(context, pluginContext, oldBigContentViews, true);
         }
-
+        //
         RemoteViews oldContentView = remoteViewsCompat.getRemoteViews();
-        ResourcesCompat.getInstance().fixIconImage(pluginContext, oldContentView, notification);
-        RemoteViews contentViews = RemoteViewsUtils.getInstance().createViews(context, pluginContext, oldContentView, false);
-        notification1.contentView = contentViews;
-        ///TODO 其他contentViews？
-        ResourcesCompat.getInstance().fixNotificationIcon(context, notification1);
-//        ResourcesCompat.getInstance().fixNotificationResource(notification1);
+        NotificaitionUtils.fixIconImage(pluginContext, oldContentView, notification);
+        notification1.contentView = RemoteViewsUtils.getInstance().createViews(context, pluginContext, oldContentView, false);
+
+        NotificaitionUtils.fixNotificationIcon(context, notification1);
         return notification1;
+
     }
 
     private Context getContext(Context base, String packageName) {

@@ -5,6 +5,8 @@ import android.content.Context;
 import android.os.Build;
 import android.widget.RemoteViews;
 
+import com.lody.virtual.helper.utils.VLog;
+
 /**
  * Created by 247321453 on 2016/7/17.
  * ContentView 为空的情况处理
@@ -14,6 +16,7 @@ class RemoteViewsCompat {
     private Context context;
     private RemoteViews mRemoteViews;
     private RemoteViews mBigRemoteViews;
+    private RemoteViews mHeadsUpContentView;
     private Notification mNotification;
     private int paddingRight = -1;
 
@@ -35,13 +38,17 @@ class RemoteViewsCompat {
                 mBigRemoteViews = notification.bigContentView;
             }
         }
-        if (Build.VERSION.SDK_INT >= 21 && (mRemoteViews == null && mBigRemoteViews == null)) {
+        if (Build.VERSION.SDK_INT >= 21) {
+            mHeadsUpContentView = notification.headsUpContentView;
             if (notification.publicVersion != null) {
-                if (notification.publicVersion.contentView != null) {
+                if (mRemoteViews == null && notification.publicVersion.contentView != null) {
                     mRemoteViews = notification.publicVersion.contentView;
                 }
-                if (notification.publicVersion.bigContentView != null) {
+                if (mBigRemoteViews == null && notification.publicVersion.bigContentView != null) {
                     mBigRemoteViews = notification.publicVersion.bigContentView;
+                }
+                if (mHeadsUpContentView == null) {
+                    mHeadsUpContentView = notification.publicVersion.headsUpContentView;
                 }
             }
         }
@@ -56,10 +63,17 @@ class RemoteViewsCompat {
     }
 
     public RemoteViews getRemoteViews() {
+        if (mRemoteViews == null) {
+            VLog.w("notification", "contentView == null");
+        }
         return mRemoteViews;
     }
 
     public RemoteViews getBigRemoteViews() {
         return mBigRemoteViews;
+    }
+
+    public RemoteViews getHeadsUpContentView() {
+        return mHeadsUpContentView;
     }
 }
