@@ -11,12 +11,16 @@ import android.os.IBinder;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.SpecialWidgetList;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.utils.HookUtils;
 import com.lody.virtual.helper.utils.Reflect;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.WeakHashMap;
 
 /**
@@ -25,6 +29,14 @@ import java.util.WeakHashMap;
  *      String, IIntentReceiver, IntentFilter, String, int)
  */
 /* package */ class Hook_RegisterReceiver extends Hook {
+
+	private static final int IDX_IIntentReceiver = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1 ? 2 : 1;
+
+	private static final int IDX_RequiredPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
+			? 4
+			: 3;
+	private static final int IDX_IntentFilter = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1 ? 3 : 2;
+
 
 	private WeakHashMap<IBinder, IIntentReceiver.Stub> mProxyIIntentReceiver = new WeakHashMap<>();
 
@@ -38,23 +50,18 @@ import java.util.WeakHashMap;
 
 		HookUtils.replaceFirstAppPkg(args);
 
-		final int indexOfRequiredPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
-				? 4
-				: 3;
-
 		String permission = VirtualCore.getPermissionBroadcast();
 
-		Class<?> permType = method.getParameterTypes()[indexOfRequiredPermission];
+		Class<?> permType = method.getParameterTypes()[IDX_RequiredPermission];
 		if (permType == String.class) {
-			args[indexOfRequiredPermission] = permission;
+			args[IDX_RequiredPermission] = permission;
 		} else if (permType == String[].class) {
-			args[indexOfRequiredPermission] = new String[]{permission};
+			args[IDX_RequiredPermission] = new String[]{permission};
 		}
-
-		final int indexOfIIntentReceiver = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1 ? 2 : 1;
-
-		if (args.length > indexOfIIntentReceiver && IIntentReceiver.class.isInstance(args[indexOfIIntentReceiver])) {
-			final IIntentReceiver old = (IIntentReceiver) args[indexOfIIntentReceiver];
+		IntentFilter filter = (IntentFilter) args[IDX_IntentFilter];
+		modifyIntentFilter(filter);
+		if (args.length > IDX_IIntentReceiver && IIntentReceiver.class.isInstance(args[IDX_IIntentReceiver])) {
+			final IIntentReceiver old = (IIntentReceiver) args[IDX_IIntentReceiver];
 			// 防止重复代理
 			if (!ProxyIIntentReceiver.class.isInstance(old)) {
 
@@ -68,13 +75,33 @@ import java.util.WeakHashMap;
 					WeakReference WeakReference_mDispatcher = Reflect.on(old).get("mDispatcher");
 					Object mDispatcher = WeakReference_mDispatcher.get();
 					Reflect.on(mDispatcher).set("mIIntentReceiver", proxyIIntentReceiver);
-					args[indexOfIIntentReceiver] = proxyIIntentReceiver;
+					args[IDX_IIntentReceiver] = proxyIIntentReceiver;
 				} catch (Throwable e) {
 					e.printStackTrace();
 				}
 			}
 		}
 		return method.invoke(who, args);
+	}
+
+	private void modifyIntentFilter(IntentFilter filter) {
+		if (filter != null) {
+			List<String> actions = Reflect.on(filter).get("mActions");
+			List<String> newActions = new ArrayList<>();
+			ListIterator<String> iterator = actions.listIterator();
+			while (iterator.hasNext()) {
+                String action = iterator.next();
+				if (SpecialWidgetList.isActionInBlackList(action)) {
+					iterator.remove();
+				}
+				String newAction = SpecialWidgetList.modifyAction(action);
+				if (newAction != null) {
+					iterator.remove();
+					newActions.add(newAction);
+				}
+            }
+			actions.addAll(newActions);
+		}
 	}
 
 	@Override

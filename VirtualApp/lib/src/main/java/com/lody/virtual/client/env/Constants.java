@@ -1,5 +1,7 @@
 package com.lody.virtual.client.env;
 
+import android.content.Intent;
+
 import com.lody.virtual.client.stub.ShortcutHandleActivity;
 
 /**
@@ -37,8 +39,17 @@ public class Constants {
 	 * patches/android_frameworks_base-M.patch.
 	 */
 	public static final String FEATURE_FAKE_SIGNATURE = "fake-signature";
+	public static final String VIRTUAL_ACTION_PACKAGE_ADDED = "Virtual." + Intent.ACTION_PACKAGE_ADDED;
+	public static final String VIRTUAL_ACTION_PACKAGE_REMOVED = "Virtual." + Intent.ACTION_PACKAGE_REMOVED;
+	public static final String VIRTUAL_ACTION_PACKAGE_CHANGED = "Virtual." + Intent.ACTION_PACKAGE_CHANGED;
 	/**
 	 * The activity who handle the shortcut.
 	 */
 	public static String SHORTCUT_PROXY_ACTIVITY_NAME = ShortcutHandleActivity.class.getName();
+
+	public static String ACTION_INSTALL_PACKAGE = "android.intent.action.VIRTUAL_INSTALL_PACKAGE";
+
+	public static String ACTION_UNINSTALL_PACKAGE = "android.intent.action.VIRTUAL_UNINSTALL_PACKAGE";
+
+
 }

@@ -17,12 +17,6 @@ public class IntentFilterService extends IIntentFilterObserver.Stub {
 		return sService;
 	}
 
-	public static IIntentFilterObserver getService(IBinder binder) {
-		if (binder == null)
-			return null;
-		else
-			return IIntentFilterObserver.Stub.asInterface(binder);
-	}
 
 	@Override
 	public Intent filter(Intent intent) throws RemoteException {

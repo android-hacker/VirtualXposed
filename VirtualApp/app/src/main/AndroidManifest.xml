@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
-    package="io.virtualapp"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    package="io.virtualapp"
     >
 
     <application
@@ -28,10 +28,9 @@
 
         <activity
             android:name=".home.LoadingActivity"
-            android:noHistory="true"
-            android:taskAffinity="va.task.loading"
             android:excludeFromRecents="true"
-            android:theme="@android:style/Theme.DeviceDefault.Dialog.NoActionBar"/>
+            android:noHistory="true"
+            android:taskAffinity="va.task.loading"/>
 
 
         <meta-data

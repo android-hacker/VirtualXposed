@@ -31,11 +31,6 @@ public class ServiceManagerNative {
 	private static final String TAG = ServiceManagerNative.class.getSimpleName();
 	private static final String SERVICE_CP_AUTH = "virtual.service.BinderProvider";
 
-	public static String ACTION_INSTALL_PACKAGE = "android.intent.action.VIRTUAL_INSTALL_PACKAGE";
-	public static String ACTION_UNINSTALL_PACKAGE = "android.intent.action.VIRTUAL_UNINSTALL_PACKAGE";
-
-	public static String ACTION_PACKAGE_ADDED = "android.intent.action.VIRTUAL_PACKAGE_ADDED";
-	public static String ACTION_PACKAGE_REMOVE = "android.intent.action.VIRTUAL_PACKAGE_REMOVE";
 
 	private static IServiceFetcher sFetcher;
 

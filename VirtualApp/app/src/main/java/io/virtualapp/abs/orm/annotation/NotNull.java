@@ -6,8 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @author Lody
- *         加上此注解的字段不能NULL
+ * @author Lody 加上此注解的字段不能NULL
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="match_parent"
-    android:layout_height="60dp">
+              android:layout_width="match_parent"
+              android:layout_height="60dp"
+              android:orientation="horizontal">
 
     <ImageView
         android:id="@+id/item_app_icon"
         android:layout_width="60dp"
-        android:layout_height="60dp" />
+        android:layout_height="60dp"/>
 
     <TextView
         android:id="@+id/item_app_name"
-        android:gravity="center|start"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_marginLeft="20dp"
         android:layout_marginStart="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:gravity="center|start"/>
 
 </LinearLayout>

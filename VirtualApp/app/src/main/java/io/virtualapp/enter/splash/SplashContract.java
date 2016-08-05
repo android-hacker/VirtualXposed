@@ -6,17 +6,17 @@ import io.virtualapp.abs.BaseView;
 /**
  * @author Lody
  */
-/*package*/ class SplashContract {
+/* package */ class SplashContract {
 
-    /*package*/ interface SplashView extends BaseView<SplashPresenter> {
-        void prepareLoading();
+	/* package */ interface SplashView extends BaseView<SplashPresenter> {
+		void prepareLoading();
 
-        void startLoading();
+		void startLoading();
 
-        void finishLoading();
-    }
+		void finishLoading();
+	}
 
-    /*package*/ interface SplashPresenter extends BasePresenter {
-        //Empty yet
-    }
+	/* package */ interface SplashPresenter extends BasePresenter {
+		// Empty yet
+	}
 }

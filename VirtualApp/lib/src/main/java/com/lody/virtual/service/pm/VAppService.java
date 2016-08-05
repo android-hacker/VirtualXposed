@@ -8,8 +8,7 @@ import android.util.DisplayMetrics;
 
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.local.LocalReceiverManager;
-import com.lody.virtual.client.service.ServiceManagerNative;
+import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.helper.compat.NativeLibraryHelperCompat;
 import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.proto.InstallResult;
@@ -208,9 +207,18 @@ public class VAppService extends IAppManager.Stub {
 			}
 		}
 		remoteCallbackList.finishBroadcast();
+		Intent virtualIntent = new Intent(Constants.VIRTUAL_ACTION_PACKAGE_ADDED);
+		Uri uri = Uri.fromParts("package", pkgName, null);
+		virtualIntent.setData(uri);
+		VirtualCore.getCore().getContext().sendBroadcast(virtualIntent);
+		notifyAppChanged(pkgName);
+	}
 
-		notifySysInstalled(pkgName);
-		notifyVirtualInstalled(pkgName);
+	private void notifyAppChanged(String pkgName) {
+		Intent virtualIntent = new Intent(Constants.VIRTUAL_ACTION_PACKAGE_CHANGED);
+		Uri uri = Uri.fromParts("package", pkgName, null);
+		virtualIntent.setData(uri);
+		VirtualCore.getCore().getContext().sendBroadcast(virtualIntent);
 	}
 
 	private void notifyAppUninstalled(String pkgName) {
@@ -223,38 +231,14 @@ public class VAppService extends IAppManager.Stub {
 			}
 		}
 		remoteCallbackList.finishBroadcast();
-
-		notifySysUninstalled(pkgName);
-		notifyVirtualUninstalled(pkgName);
-	}
-
-	private void notifySysInstalled(String pkgName) {
-		Intent intent = new Intent(Intent.ACTION_PACKAGE_ADDED);
-		Uri uri = Uri.fromParts("package", pkgName, null);
-		intent.setData(uri);
-		LocalReceiverManager.sendBroadcast(intent);
-	}
-
-	private void notifySysUninstalled(String pkgName) {
-		Intent intent = new Intent(Intent.ACTION_PACKAGE_REMOVED);
-		Uri uri = Uri.fromParts("package", pkgName, null);
-		intent.setData(uri);
-		LocalReceiverManager.sendBroadcast(intent);
-	}
-
-	private void notifyVirtualInstalled(String pkgName) {
-		Intent virtualIntent = new Intent(ServiceManagerNative.ACTION_PACKAGE_ADDED);
+		Intent virtualIntent = new Intent(Constants.VIRTUAL_ACTION_PACKAGE_REMOVED);
 		Uri uri = Uri.fromParts("package", pkgName, null);
 		virtualIntent.setData(uri);
 		VirtualCore.getCore().getContext().sendBroadcast(virtualIntent);
+		notifyAppChanged(pkgName);
 	}
 
-	private void notifyVirtualUninstalled(String pkgName) {
-		Intent virtualIntent = new Intent(ServiceManagerNative.ACTION_PACKAGE_REMOVE);
-		Uri uri = Uri.fromParts("package", pkgName, null);
-		virtualIntent.setData(uri);
-		VirtualCore.getCore().getContext().sendBroadcast(virtualIntent);
-	}
+
 
 	@Override
 	public void registerObserver(IAppObserver observer) {

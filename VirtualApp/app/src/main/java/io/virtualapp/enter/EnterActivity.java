@@ -13,35 +13,36 @@ import jonathanfinerty.once.Once;
 
 public class EnterActivity extends VActivity {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        boolean enterGuide = !Once.beenDone(Once.THIS_APP_INSTALL, VCommends.TAG_NEW_VERSION);
-        if (enterGuide) {
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_enter);
-        if (enterGuide) {
-            enterGuideFragment();
-        } else {
-            enterSplashFragment();
-        }
-    }
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		boolean enterGuide = !Once.beenDone(Once.THIS_APP_INSTALL, VCommends.TAG_NEW_VERSION);
+		if (enterGuide) {
+			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+					WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		}
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_enter);
+		if (enterGuide) {
+			enterGuideFragment();
+		} else {
+			enterSplashFragment();
+		}
+	}
 
-    private void enterSplashFragment() {
-        Fragment exist = findFragmentById(R.id.enter_layout_root);
-        if (!(exist instanceof SplashFragment)) {
-            SplashFragment splashFragment = SplashFragment.newInstance();
-            replaceFragment(R.id.enter_layout_root, splashFragment);
-        }
-    }
+	private void enterSplashFragment() {
+		Fragment exist = findFragmentById(R.id.enter_layout_root);
+		if (!(exist instanceof SplashFragment)) {
+			SplashFragment splashFragment = SplashFragment.newInstance();
+			replaceFragment(R.id.enter_layout_root, splashFragment);
+		}
+	}
 
-    private void enterGuideFragment() {
-        Fragment exist = findFragmentById(R.id.enter_layout_root);
-        if (!(exist instanceof SetupFragment)) {
-            SetupFragment guideFragment = SetupFragment.newInstance();
-            replaceFragment(R.id.enter_layout_root, guideFragment);
-        }
-    }
+	private void enterGuideFragment() {
+		Fragment exist = findFragmentById(R.id.enter_layout_root);
+		if (!(exist instanceof SetupFragment)) {
+			SetupFragment guideFragment = SetupFragment.newInstance();
+			replaceFragment(R.id.enter_layout_root, guideFragment);
+		}
+	}
 
 }

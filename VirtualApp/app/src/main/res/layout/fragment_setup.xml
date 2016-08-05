@@ -1,46 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <io.virtualapp.abs.percent.PercentLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:gravity="center|top"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+                                               xmlns:app="http://schemas.android.com/apk/res-auto"
+                                               android:layout_width="match_parent"
+                                               android:layout_height="match_parent"
+                                               android:gravity="center|top"
+                                               android:orientation="vertical">
 
     <ImageView
-        android:layout_marginTop="30dp"
         android:id="@+id/setup_ic"
-        app:layout_widthPercent="45%"
-        app:layout_heightPercent="45%"
-        android:src="@mipmap/ic_launcher"
         android:layout_width="0dp"
-        android:layout_height="0dp" />
+        android:layout_height="0dp"
+        android:layout_marginTop="30dp"
+        android:src="@mipmap/ic_launcher"
+        app:layout_heightPercent="45%"
+        app:layout_widthPercent="45%"/>
 
 
     <LinearLayout
         android:id="@+id/setup_layout_body"
-        android:layout_gravity="center"
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:orientation="vertical">
 
         <TextView
-            android:gravity="center"
-            android:textSize="25sp"
-            android:text="@string/app_welcome"
-            android:textStyle="bold"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/app_welcome"
+            android:textSize="25sp"
+            android:textStyle="bold"/>
 
         <Button
             android:id="@+id/btn_go_home"
-            android:textColor="@android:color/white"
-            android:layout_marginTop="50dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
+            android:layout_marginTop="50dp"
             android:background="@drawable/sel_guide_btn"
             android:text="@string/setup_enter_new_world"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:textColor="@android:color/white"/>
 
     </LinearLayout>
 

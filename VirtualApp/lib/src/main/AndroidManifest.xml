@@ -216,7 +216,7 @@
             android:process=":x"/>
 
         <activity
-            android:name=".client.service.InstallerActivity"
+            android:name=".client.stub.InstallerActivity"
             android:allowTaskReparenting="true"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:excludeFromRecents="false"
@@ -225,8 +225,7 @@
             android:label="@string/virtual_installer"
             android:noHistory="true"
             android:screenOrientation="portrait"
-            android:taskAffinity=":PInstaller"
-            android:theme="@android:style/Theme.NoDisplay">
+            android:taskAffinity=":PInstaller">
 
             <intent-filter>
                 <action android:name="android.intent.action.VIRTUAL_INSTALL_PACKAGE"/>
