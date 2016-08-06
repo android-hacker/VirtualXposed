@@ -49,4 +49,14 @@ public final class SpecialWidgetList {
 	public static String modifyAction(String originAction) {
 		return MODIFY_ACTION_MAP.get(originAction);
 	}
+
+	public static String restoreAction(String action) {
+		for (Map.Entry<String, String> next : MODIFY_ACTION_MAP.entrySet()) {
+			String modifiedAction = next.getValue();
+			if (modifiedAction.equals(action)) {
+				return next.getKey();
+			}
+		}
+		return null;
+	}
 }

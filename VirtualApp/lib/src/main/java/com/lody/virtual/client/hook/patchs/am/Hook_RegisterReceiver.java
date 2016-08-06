@@ -121,6 +121,10 @@ import java.util.WeakHashMap;
 				boolean sticky, int sendingUser) throws RemoteException {
 			try {
 				String action = intent.getAction();
+				String oldAction = SpecialWidgetList.restoreAction(action);
+				if (oldAction != null) {
+					intent.setAction(oldAction);
+				}
 				ComponentName oldComponent = VirtualCore.getOriginComponentName(action);
 				if (oldComponent != null) {
 					intent.setComponent(oldComponent);

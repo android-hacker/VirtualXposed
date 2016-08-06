@@ -211,15 +211,8 @@ public class VAppService extends IAppManager.Stub {
 		Uri uri = Uri.fromParts("package", pkgName, null);
 		virtualIntent.setData(uri);
 		VirtualCore.getCore().getContext().sendBroadcast(virtualIntent);
-		notifyAppChanged(pkgName);
 	}
 
-	private void notifyAppChanged(String pkgName) {
-		Intent virtualIntent = new Intent(Constants.VIRTUAL_ACTION_PACKAGE_CHANGED);
-		Uri uri = Uri.fromParts("package", pkgName, null);
-		virtualIntent.setData(uri);
-		VirtualCore.getCore().getContext().sendBroadcast(virtualIntent);
-	}
 
 	private void notifyAppUninstalled(String pkgName) {
 		int N = remoteCallbackList.beginBroadcast();
@@ -235,7 +228,6 @@ public class VAppService extends IAppManager.Stub {
 		Uri uri = Uri.fromParts("package", pkgName, null);
 		virtualIntent.setData(uri);
 		VirtualCore.getCore().getContext().sendBroadcast(virtualIntent);
-		notifyAppChanged(pkgName);
 	}
 
 
