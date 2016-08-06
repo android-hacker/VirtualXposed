@@ -11,14 +11,7 @@ import com.lody.virtual.service.interfaces.IIntentFilterObserver;
 
 import java.lang.reflect.Method;
 
-/**
- * Class: Created by andy on 16-8-4. TODO:
- */
-public class Hook_BaseStartActivity extends Hook {
-	@Override
-	public String getName() {
-		return "";
-	}
+public abstract class Hook_BaseStartActivity extends Hook {
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {

@@ -2,7 +2,6 @@ package com.lody.virtual.service.am;
 
 import android.app.IActivityManager;
 import android.content.pm.ProviderInfo;
-import android.os.ConditionVariable;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
@@ -14,9 +13,7 @@ import com.lody.virtual.service.process.ProcessRecord;
 import com.lody.virtual.service.process.ProviderList;
 import com.lody.virtual.service.process.VProcessService;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -31,8 +28,6 @@ public class VContentService extends IContentManager.Stub {
 
 	private final ProviderList mProviderList = new ProviderList();
 
-	private Map<String, ConditionVariable> mLaunchingProviders = new HashMap<>();
-
 	public static void systemReady() {
 		sService.set(new VContentService());
 	}
@@ -42,27 +37,28 @@ public class VContentService extends IContentManager.Stub {
 	}
 
 	@Override
-	public synchronized IActivityManager.ContentProviderHolder getContentProvider(String name) {
+	public IActivityManager.ContentProviderHolder getContentProvider(String name) {
 		if (TextUtils.isEmpty(name)) {
 			return null;
 		}
 		ProviderInfo providerInfo = VPackageService.getService().resolveContentProvider(name, 0);
 		if (providerInfo == null) {
-			VLog.d(TAG, "Unable to find Provider who named %s.", name);
 			return null;
 		}
-		IActivityManager.ContentProviderHolder holder = mProviderList.getHolder(name);
-		if (holder != null) {
+		ProcessRecord targetApp = VProcessService.getService().findProcess(providerInfo.processName);
+		if (targetApp != null) {
+			IActivityManager.ContentProviderHolder holder = mProviderList.getHolder(name);
+			if (holder == null) {
+				holder = new IActivityManager.ContentProviderHolder(providerInfo);
+			}
 			return holder;
+		} else {
+			VLog.d(TAG, "Installing %s...", providerInfo.authority);
+			targetApp = VProcessService.getService().startProcessLocked(providerInfo);
+			if (targetApp == null) {
+				return null;
+			}
 		}
-		VLog.d(TAG, "Installing %s...", providerInfo.authority);
-		ProcessRecord r = VProcessService.getService().startProcessLocked(providerInfo);
-		if (r == null) {
-			return null;
-		}
-		ConditionVariable variable = new ConditionVariable();
-		mLaunchingProviders.put(name, variable);
-		variable.block();
 		return mProviderList.getHolder(name);
 	}
 
@@ -79,10 +75,6 @@ public class VContentService extends IContentManager.Stub {
 				continue;
 			}
 			final String authority = providerInfo.authority;
-			ConditionVariable lock = mLaunchingProviders.remove(authority);
-			if (lock != null) {
-				lock.open();
-			}
 			IBinder pb = holder.provider.asBinder();
 			if (!linkProviderDied(authority, pb)) {
 				VLog.e(TAG, "Link Provider(%s) died failed.", authority);
@@ -105,10 +97,8 @@ public class VContentService extends IContentManager.Stub {
 			binder.linkToDeath(new IBinder.DeathRecipient() {
 				@Override
 				public void binderDied() {
-					synchronized (mProviderList) {
-						mProviderList.removeAuthority(authority);
-						binder.unlinkToDeath(this, 0);
-					}
+					mProviderList.removeAuthority(authority);
+					binder.unlinkToDeath(this, 0);
 				}
 			}, 0);
 			return true;

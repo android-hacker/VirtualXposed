@@ -61,14 +61,15 @@ public class AppSandBox {
 			if (installLocked(procName, pkg)) {
 				installSafely(procName, pkg);
 			}
+
 		} else {
 			final ConditionVariable lock = new ConditionVariable();
 			RuntimeEnv.getUIHandler().post(new Runnable() {
 				@Override
 				public void run() {
 					boolean nextStep = installLocked(procName, pkg);
-					lock.open();
 					if (nextStep) installSafely(procName, pkg);
+					lock.open();
 				}
 			});
 			lock.block();
@@ -79,15 +80,15 @@ public class AppSandBox {
 		if (installedPkgs.contains(pkg)) {
 			return false;
 		}
+		LocalProcessManager.onAppProcessCreate(VClientImpl.getClient().asBinder(), pkg, processName);
 		boolean firstInstall = LAST_PKG == null;
 		LAST_PKG = pkg;
 		if (!firstInstall) {
 			createLoadedApk(VirtualCore.getCore().findApp(pkg));
-			return false;
+			return true;
 		}
 		ContextFixer.fixCamera();
 		PatchManager.fixAllSettings();
-		LocalProcessManager.onAppProcessCreate(VClientImpl.getClient().asBinder(), pkg, processName);
 		return true;
 	}
 

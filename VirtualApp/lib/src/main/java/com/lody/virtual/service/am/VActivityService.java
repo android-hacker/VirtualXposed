@@ -134,10 +134,8 @@ public class VActivityService extends IActivityManager.Stub {
 	}
 
 	@Override
-	public VActRedirectResult redirectTargetActivity(final VRedirectActRequest request) throws RemoteException {
-		synchronized (stubInfoMap) {
-			return redirectTargetActivityLocked(request);
-		}
+	public synchronized VActRedirectResult redirectTargetActivity(final VRedirectActRequest request) throws RemoteException {
+		return redirectTargetActivityLocked(request);
 	}
 
 	private VActRedirectResult redirectTargetActivityLocked(VRedirectActRequest request) {

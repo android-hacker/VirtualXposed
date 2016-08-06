@@ -296,7 +296,6 @@ public class VProcessService extends IProcessManager.Stub {
             r.appThread = appThread;
             r.stubInfo.verify();
             mProcessList.addProcess(callingPid, r);
-//            VContentService.getService().generateApplicationProvidersLocked(r);
         } else {
             VLog.w(TAG, "Pid %d has been bound to PMS, should not be bound again, ignored.", callingPid);
         }
