@@ -19,6 +19,7 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.compat.IApplicationThreadCompat;
 import com.lody.virtual.helper.proto.VParceledListSlice;
 import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.IServiceManager;
 import com.lody.virtual.service.process.ProcessRecord;
 import com.lody.virtual.service.process.VProcessService;
@@ -105,6 +106,10 @@ public class VServiceService extends IServiceManager.Stub {
 			return null;
 		}
 		ProcessRecord processRecord = VProcessService.getService().startProcessLocked(serviceInfo);
+		if (processRecord == null) {
+			VLog.e(TAG, "Unable to start new Process for : " + ComponentUtils.toComponentName(serviceInfo));
+			return null;
+		}
 		IApplicationThread appThread = processRecord.appThread;
 		ServiceRecord r = findRecord(serviceInfo);
 		if (r == null) {
