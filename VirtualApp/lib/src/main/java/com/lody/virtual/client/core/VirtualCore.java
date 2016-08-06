@@ -270,9 +270,7 @@ public final class VirtualCore {
 
 	public void addLoadingPage(Intent intent, Activity activity) {
 		if (activity != null) {
-			Bundle bundle = new Bundle();
-			BundleCompat.putBinder(bundle, ExtraConstants.EXTRA_BINDER, activity.getActivityToken());
-			intent.putExtra(ExtraConstants.EXTRA_SENDER, bundle);
+			addLoadingPage(intent, activity.getActivityToken());
 		}
 	}
 

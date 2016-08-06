@@ -50,4 +50,5 @@ dependencies {
     releaseCompile 'com.github.moduth:blockcanary-no-op:1.0.2'
     compile project(':lib')
     compile 'com.google.android.gms:play-services-appindexing:8.1.0'
+    compile 'com.github.castorflex.smoothprogressbar:library:1.1.0'
 }

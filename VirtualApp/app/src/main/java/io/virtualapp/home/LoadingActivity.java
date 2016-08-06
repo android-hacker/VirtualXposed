@@ -1,11 +1,11 @@
 package io.virtualapp.home;
 
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.ExtraConstants;
-
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.ExtraConstants;
 
 import io.virtualapp.R;
 import io.virtualapp.abs.ui.VUiKit;
@@ -14,7 +14,7 @@ import io.virtualapp.abs.ui.VUiKit;
  * @author Lody
  */
 
-public class LoadingActivity extends Activity {
+public class LoadingActivity extends AppCompatActivity {
 
 	private boolean opened;
 
