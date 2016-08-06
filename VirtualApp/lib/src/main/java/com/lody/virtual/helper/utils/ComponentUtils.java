@@ -6,6 +6,9 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.ComponentInfo;
 import android.content.pm.PackageInfo;
 
+import com.lody.virtual.client.core.AppSandBox;
+import com.lody.virtual.client.env.RuntimeEnv;
+
 /**
  * @author Lody
  *
@@ -58,4 +61,9 @@ public class ComponentUtils {
 	public static boolean isSystemApp(ApplicationInfo applicationInfo) {
 		return applicationInfo != null && (ApplicationInfo.FLAG_SYSTEM & applicationInfo.flags) != 0;
 	}
+
+	public static boolean isSharedPackage(String pkg) {
+		return pkg.equals(RuntimeEnv.getInitialPackageName()) || AppSandBox.getSharedPackages().contains(pkg);
+	}
+
 }

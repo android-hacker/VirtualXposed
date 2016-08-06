@@ -32,7 +32,6 @@ import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.proto.InstallResult;
 import com.lody.virtual.service.IAppManager;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -373,10 +372,8 @@ public final class VirtualCore {
 		try {
 			return getService().getAllApps();
 		} catch (RemoteException e) {
-			e.printStackTrace();
+			return RuntimeEnv.crash(e);
 		}
-		// noinspection unchecked
-		return Collections.EMPTY_LIST;
 	}
 
 	public void preloadAllApps() {
@@ -401,19 +398,19 @@ public final class VirtualCore {
 	 */
 	enum ProcessType {
 		/**
-		 * 服务端进程
+		 * Server process
 		 */
 		Server,
 		/**
-		 * 插件客户端进程
+		 * Virtual app process
 		 */
 		VAppClient,
 		/**
-		 * 主进程
+		 * Main process
 		 */
 		Main,
 		/**
-		 * 子进程
+		 * Child process
 		 */
 		CHILD
 	}

@@ -24,6 +24,7 @@ public class RuntimeEnv {
 
 	private static Handler sUIHandler = null;
 
+	private static String sInitialPackageName;
 	private static String sCurrentProcessName;
 
 	public static void init() {
@@ -34,9 +35,17 @@ public class RuntimeEnv {
 		return sCurrentProcessName;
 	}
 
+
+	public static String getInitialPackageName() {
+		return sInitialPackageName;
+	}
+
 	public static void setCurrentProcessName(String processName, AppInfo appInfo) {
-		if (processName == null) {
+		if (processName == null || appInfo == null) {
 			return;
+		}
+		if (sInitialPackageName == null) {
+			sInitialPackageName = appInfo.packageName;
 		}
 		sCurrentProcessName = processName;
 		Process.setArgV0(processName);
@@ -49,7 +58,7 @@ public class RuntimeEnv {
 		}
 		VMRuntimeCompat.registerAppInfo(appInfo.packageName, appInfo.dataDir, processName);
 		AppBindDataCompat dataMirror = new AppBindDataCompat(VirtualCore.getHostBindData());
-		dataMirror.setAppInfo(appInfo.applicationInfo);
+		dataMirror.setAppInfo(appInfo.getApplicationInfo());
 		dataMirror.setInfo(appInfo.getLoadedApk());
 		dataMirror.setInstrumentationName(new ComponentName(appInfo.packageName, Instrumentation.class.getName()));
 		dataMirror.setProcessName(processName);

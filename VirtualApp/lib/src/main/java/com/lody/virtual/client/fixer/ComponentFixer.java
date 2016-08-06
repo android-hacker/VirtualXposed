@@ -1,18 +1,28 @@
 package com.lody.virtual.client.fixer;
 
-import com.lody.virtual.helper.proto.AppInfo;
-
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ComponentInfo;
 import android.os.Build;
 import android.os.Process;
 import android.text.TextUtils;
 
+import com.lody.virtual.helper.proto.AppInfo;
+
+import static com.lody.virtual.helper.utils.ComponentUtils.isSharedPackage;
+
 /**
  * @author Lody
  */
 
 public class ComponentFixer {
+
+	public static void fixUid(ApplicationInfo applicationInfo) {
+		if (applicationInfo != null
+				&& applicationInfo.uid != 99999
+				&& !isSharedPackage(applicationInfo.packageName)) {
+			applicationInfo.uid = 99999;
+		}
+	}
 
 	public static void fixApplicationInfo(AppInfo info, ApplicationInfo applicationInfo) {
 		if (TextUtils.isEmpty(applicationInfo.processName)) {

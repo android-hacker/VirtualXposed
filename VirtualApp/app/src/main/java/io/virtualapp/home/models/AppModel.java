@@ -1,7 +1,5 @@
 package io.virtualapp.home.models;
 
-import com.lody.virtual.helper.proto.AppInfo;
-
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -9,6 +7,8 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.lody.virtual.helper.proto.AppInfo;
 
 /**
  * @author Lody
@@ -48,7 +48,7 @@ public class AppModel implements Parcelable {
 		this.context = context;
 		this.packageName = appInfo.packageName;
 		this.path = appInfo.apkPath;
-		loadData(appInfo.applicationInfo);
+		loadData(appInfo.getApplicationInfo());
 
 	}
 

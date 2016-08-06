@@ -49,6 +49,7 @@ public class AppSandBox {
 	private static final String TAG = AppSandBox.class.getSimpleName();
 	private static Map<String, Application> applicationMap = new HashMap<>();
 	private static Set<String> installedPkgs = new HashSet<>();
+	private static List<String> sharedPackages = new ArrayList<>();
 
 	private static String LAST_PKG;
 
@@ -80,6 +81,7 @@ public class AppSandBox {
 		if (installedPkgs.contains(pkg)) {
 			return false;
 		}
+		sharedPackages.addAll(LocalPackageManager.getInstance().querySharedPackages(pkg));
 		LocalProcessManager.onAppProcessCreate(VClientImpl.getClient().asBinder(), pkg, processName);
 		boolean firstInstall = LAST_PKG == null;
 		LAST_PKG = pkg;
@@ -97,11 +99,11 @@ public class AppSandBox {
 		if (appInfo == null) {
 			return;
 		}
-		LocalPackageManager pm = LocalPackageManager.getInstance();
-		ApplicationInfo applicationInfo = appInfo.applicationInfo;
 		RuntimeEnv.setCurrentProcessName(processName, appInfo);
+		LocalPackageManager pm = LocalPackageManager.getInstance();
+		ApplicationInfo applicationInfo = appInfo.getApplicationInfo();
 		LoadedApk loadedApk = createLoadedApk(appInfo);
-		for (String sharedPkg : pm.querySharedPackages(pkg)) {
+		for (String sharedPkg : sharedPackages) {
 			createLoadedApk(VirtualCore.getCore().findApp(sharedPkg));
 		}
 		setupRuntime(applicationInfo);
@@ -217,8 +219,7 @@ public class AppSandBox {
 
 	private static LoadedApk createLoadedApk(AppInfo appInfo) {
 		if (appInfo != null) {
-			ApplicationInfo applicationInfo = appInfo.applicationInfo;
-			LoadedApk loadedApk = ActivityThreadCompat.getPackageInfoNoCheck(applicationInfo);
+			LoadedApk loadedApk = appInfo.getLoadedApk();
 			ClassLoader classLoader = ClassLoaderHelper.create(appInfo);
 
 			if (!(loadedApk.getClassLoader() instanceof ClassLoaderHelper.AppClassLoader)) {
@@ -234,4 +235,7 @@ public class AppSandBox {
 		return null;
 	}
 
+	public static List<String> getSharedPackages() {
+		return sharedPackages;
+	}
 }

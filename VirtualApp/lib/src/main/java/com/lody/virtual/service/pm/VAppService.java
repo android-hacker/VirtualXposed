@@ -138,7 +138,7 @@ public class VAppService extends IAppManager.Stub {
 		appInfo.dependSystem = dependSystem;
 		appInfo.apkPath = apk.getPath();
 		appInfo.packageName = pkg.packageName;
-		appInfo.applicationInfo = pkg.applicationInfo;
+		appInfo.setApplicationInfo(pkg.applicationInfo);
 
 		File dataFolder = fileSystem.getAppPackageFolder(pkg.packageName);
 		File libFolder = fileSystem.getAppLibFolder(pkg.packageName);
