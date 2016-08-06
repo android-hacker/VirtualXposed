@@ -262,7 +262,7 @@ public class VProcessService extends IProcessManager.Stub {
 	}
 
 	@Override
-	public void onAppProcessCreate(IBinder clientBinder, String pkg, String processName) {
+	public synchronized void onAppProcessCreate(IBinder clientBinder, String pkg, String processName) {
 		final int callingPid = Binder.getCallingPid();
 		int uid = Binder.getCallingUid();
 		IVClient client = IVClient.Stub.asInterface(clientBinder);
