@@ -90,7 +90,7 @@ import java.util.WeakHashMap;
 			List<String> newActions = new ArrayList<>();
 			ListIterator<String> iterator = actions.listIterator();
 			while (iterator.hasNext()) {
-                String action = iterator.next();
+				String action = iterator.next();
 				if (SpecialWidgetList.isActionInBlackList(action)) {
 					iterator.remove();
 				}
@@ -99,7 +99,7 @@ import java.util.WeakHashMap;
 					iterator.remove();
 					newActions.add(newAction);
 				}
-            }
+			}
 			actions.addAll(newActions);
 		}
 	}
