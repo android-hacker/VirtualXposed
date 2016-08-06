@@ -16,8 +16,6 @@ import io.virtualapp.abs.ui.VUiKit;
 
 public class LoadingActivity extends AppCompatActivity {
 
-	private boolean opened;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -29,13 +27,4 @@ public class LoadingActivity extends AppCompatActivity {
 		}
 	}
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		if (!opened) {
-			opened = true;
-		} else {
-			finish();
-		}
-	}
 }

@@ -249,7 +249,7 @@ public class VActivityService extends IActivityManager.Stub {
 				}
 			}
 		}
-		VProcessService.FetchResult res = VProcessService.getService().fetchStub(targetProcessName);
+		VProcessService.FetchResult res = VProcessService.getService().fetchStubLocked(targetProcessName);
 		StubInfo selectedStub = res.stubInfo;
 		if (selectedStub == null) {
 			return null;

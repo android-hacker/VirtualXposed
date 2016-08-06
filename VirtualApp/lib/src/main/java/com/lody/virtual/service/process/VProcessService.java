@@ -370,7 +370,10 @@ public class VProcessService extends IProcessManager.Stub {
 		if (!VAppService.getService().isAppInstalled(pkg)) {
             return null;
         }
-		FetchResult res = fetchStub(appProcessName);
+		FetchResult res;
+		synchronized (this) {
+			res = fetchStubLocked(appProcessName);
+		}
 		if (res.stubInfo == null) {
             VLog.e(TAG, "Unable to fetch free Stub for launch Process: %s(%s).", pkg, appProcessName);
             return null;
@@ -381,7 +384,7 @@ public class VProcessService extends IProcessManager.Stub {
 		return findProcess(appProcessName);
 	}
 
-	public FetchResult fetchStub(String appProcessName) {
+	public FetchResult fetchStubLocked(String appProcessName) {
 		boolean isNew = false;
 		StubInfo stubInfo = findStubInfo(appProcessName);
 		if (stubInfo == null) {

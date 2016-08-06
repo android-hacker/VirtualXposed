@@ -5,5 +5,5 @@
     <string name="wait">Please wait…</string>
     <string name="desktop">Desktop</string>
     <string name="add_app">Add App</string>
-    <string name="preparing">正在打开应用, 请稍后</string>
+    <string name="preparing">Opening the app…</string>
 </resources>
