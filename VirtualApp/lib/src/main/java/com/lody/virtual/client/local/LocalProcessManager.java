@@ -1,16 +1,14 @@
 package com.lody.virtual.client.local;
 
-import java.util.List;
+import android.os.IBinder;
+import android.os.RemoteException;
 
 import com.lody.virtual.client.env.RuntimeEnv;
 import com.lody.virtual.client.service.ServiceManagerNative;
-import com.lody.virtual.helper.proto.VComponentInfo;
 import com.lody.virtual.service.IProcessManager;
 import com.lody.virtual.service.interfaces.IProcessObserver;
 
-import android.content.pm.ComponentInfo;
-import android.os.IBinder;
-import android.os.RemoteException;
+import java.util.List;
 
 /**
  * @author Lody
@@ -75,37 +73,15 @@ public class LocalProcessManager {
 		}
 	}
 
-	public static void onEnterAppProcessName(String pluginProcessName) {
+
+	public static void onAppProcessCreate(IBinder appThread, String pkg, String processName) {
 		try {
-			getService().onEnterAppProcessName(pluginProcessName);
+			getService().onAppProcessCreate(appThread, pkg, processName);
 		} catch (RemoteException e) {
 			// Ignore
 		}
 	}
 
-	public static void onEnterApp(String pkg) {
-		try {
-			getService().onEnterApp(pkg);
-		} catch (RemoteException e) {
-			// Ignore
-		}
-	}
-
-	public static void onAppProcessCreate(IBinder appThread) {
-		try {
-			getService().onAppProcessCreate(appThread);
-		} catch (RemoteException e) {
-			// Ignore
-		}
-	}
-
-	public static void installComponent(ComponentInfo componentInfo) {
-		try {
-			getService().installComponent(VComponentInfo.wrap(componentInfo));
-		} catch (RemoteException e) {
-			// Ignore
-		}
-	}
 
 	public static boolean isAppPid(int pid) {
 		try {

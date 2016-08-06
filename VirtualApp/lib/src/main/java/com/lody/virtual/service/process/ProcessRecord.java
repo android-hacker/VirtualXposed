@@ -1,17 +1,19 @@
 package com.lody.virtual.service.process;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import com.lody.virtual.client.IVClient;
-import com.lody.virtual.service.am.StubInfo;
-import com.lody.virtual.service.am.VActivityService;
-
 import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
 import android.app.IApplicationThread;
 import android.os.RemoteException;
+
+import com.lody.virtual.client.IVClient;
+import com.lody.virtual.service.am.ContentProviderRecord;
+import com.lody.virtual.service.am.StubInfo;
+import com.lody.virtual.service.am.VActivityService;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public final class ProcessRecord {
 	/**
@@ -25,7 +27,7 @@ public final class ProcessRecord {
 	/**
 	 * Virtual process name
 	 */
-	public String appProcessName;
+	public String processName;
 	/**
 	 * Target Stub info
 	 */
@@ -46,7 +48,15 @@ public final class ProcessRecord {
 	 * target process's uid
 	 */
 	public int uid;
+
 	String initialPackage;
+
+	// class (String) -> ContentProviderRecord
+	public final HashMap<String, ContentProviderRecord> pubProviders
+			= new HashMap<String, ContentProviderRecord>();
+	// All ContentProviderRecord process is using
+	public final HashMap<ContentProviderRecord, Integer> conProviders
+			= new HashMap<ContentProviderRecord, Integer>();
 
 	public ProcessRecord(int pid, int uid) {
 		this.pid = pid;
@@ -75,12 +85,13 @@ public final class ProcessRecord {
 	 * @param pkgName
 	 *            apk的包名
 	 */
-	/* package */ synchronized boolean addPkg(String pkgName) {
+	/* package */ synchronized boolean addPackage(String pkgName) {
 		if (!runningAppPkgs.contains(pkgName)) {
 			runningAppPkgs.add(pkgName);
 			if (initialPackage == null) {
 				initialPackage = pkgName;
 			}
+			return true;
 		}
 		return false;
 	}
@@ -97,5 +108,18 @@ public final class ProcessRecord {
 	 */
 	public boolean isRunning(String pkgName) {
 		return runningAppPkgs.contains(pkgName);
+	}
+
+
+	@Override
+	public String toString() {
+		return "ProcessRecord{" +
+				"initialPackage='" + initialPackage + '\'' +
+				", pid=" + pid +
+				", uid=" + uid +
+				", runningAppPkgs=" + runningAppPkgs +
+				", stubProcessName='" + stubProcessName + '\'' +
+				", appProcessName='" + processName + '\'' +
+				'}';
 	}
 }

@@ -1,15 +1,20 @@
 package com.lody.virtual.service.am;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
+import android.app.ActivityManager;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.ComponentInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ProviderInfo;
+import android.os.Binder;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
+import android.text.TextUtils;
+import android.util.Pair;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
@@ -23,22 +28,17 @@ import com.lody.virtual.service.IActivityManager;
 import com.lody.virtual.service.process.ProcessRecord;
 import com.lody.virtual.service.process.VProcessService;
 
-import android.app.ActivityManager;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.pm.ComponentInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.ProviderInfo;
-import android.content.pm.ServiceInfo;
-import android.os.Binder;
-import android.os.Bundle;
-import android.os.IBinder;
-import android.os.RemoteException;
-import android.text.TextUtils;
-import android.util.Pair;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Lody
@@ -125,12 +125,8 @@ public class VActivityService extends IActivityManager.Stub {
 				&& TextUtils.equals(metaData.getString(Constants.META_KEY_IDENTITY), Constants.META_VALUE_STUB);
 	}
 
-	public List<ActivityInfo> getStubActivityList() {
-		return Collections.unmodifiableList(stubActivityList);
-	}
-
-	public Map<String, StubInfo> getStubInfoMap() {
-		return stubInfoMap;
+	public Collection<StubInfo> getStubs() {
+		return stubInfoMap.values();
 	}
 
 	public Set<String> getStubProcessList() {
@@ -255,14 +251,12 @@ public class VActivityService extends IActivityManager.Stub {
 				}
 			}
 		}
-		StubInfo selectStubInfo = fetchRunningStubInfo(targetProcessName);
-		if (selectStubInfo == null) {
-			selectStubInfo = VProcessService.getService().fetchFreeStubInfo(stubInfoMap.values());
-		}
-		if (selectStubInfo == null) {
+		VProcessService.FetchResult res = VProcessService.getService().fetchStub(targetProcessName);
+		StubInfo selectedStub = res.stubInfo;
+		if (selectedStub == null) {
 			return null;
 		}
-		ActivityInfo stubActInfo = selectStubInfo.fetchStubActivityInfo(targetActInfo);
+		ActivityInfo stubActInfo = selectedStub.fetchStubActivityInfo(targetActInfo);
 		if (stubActInfo == null) {
 			return null;
 		}
@@ -279,45 +273,8 @@ public class VActivityService extends IActivityManager.Stub {
 		return result;
 	}
 
-	ProviderInfo fetchServiceRuntime(ServiceInfo serviceInfo) {
-		synchronized (stubInfoMap) {
-			if (serviceInfo == null) {
-				return null;
-			}
-			String targetProcessName = ComponentUtils.getProcessName(serviceInfo);
-			ProviderInfo runningEnv = fetchRunningServiceRuntime(targetProcessName);
-			if (runningEnv == null) {
-				StubInfo stubInfo = VProcessService.getService().fetchFreeStubInfo(stubInfoMap.values());
-				if (stubInfo != null) {
-					runningEnv = stubInfo.providerInfo;
-				}
-			}
-			if (runningEnv != null) {
-				return runningEnv;
-			}
-		}
-		return null;
-	}
 
-	ProviderInfo fetchRunningServiceRuntime(ServiceInfo serviceInfo) {
-		if (serviceInfo != null) {
-			String appProcessName = ComponentUtils.getProcessName(serviceInfo);
-			return fetchRunningServiceRuntime(appProcessName);
-		}
-		return null;
-	}
 
-	private ProviderInfo fetchRunningServiceRuntime(String appProcessName) {
-		StubInfo stubInfo = fetchRunningStubInfo(appProcessName);
-		if (stubInfo != null) {
-			return stubInfo.providerInfo;
-		}
-		return null;
-	}
-
-	private StubInfo fetchRunningStubInfo(String appProcessName) {
-		return VProcessService.getService().findStubInfo(appProcessName);
-	}
 
 	public StubInfo findStubInfo(String stubProcName) {
 		return stubProcName == null ? null : stubInfoMap.get(stubProcName);

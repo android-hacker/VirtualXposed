@@ -1,12 +1,8 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
-import java.util.List;
-
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalContentManager;
 
-import android.app.IActivityManager;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -22,8 +18,6 @@ import android.app.IActivityManager;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		List<IActivityManager.ContentProviderHolder> providers = (List<IActivityManager.ContentProviderHolder>) args[1];
-		LocalContentManager.getDefault().publishContentProviders(providers);
 		return method.invoke(who, args);
 	}
 

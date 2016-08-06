@@ -1,11 +1,23 @@
 package com.lody.virtual.client.core;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
+import android.app.Application;
+import android.app.IActivityManager;
+import android.app.LoadedApk;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ProviderInfo;
+import android.os.Build;
+import android.os.ConditionVariable;
+import android.os.Looper;
+import android.os.Message;
+import android.os.StrictMode;
+import android.renderscript.RenderScript;
+import android.renderscript.RenderScriptCacheDir;
+import android.view.HardwareRenderer;
 
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.env.RuntimeEnv;
@@ -20,23 +32,13 @@ import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.proto.ReceiverInfo;
 import com.lody.virtual.helper.utils.Reflect;
 
-import android.app.Application;
-import android.app.IActivityManager;
-import android.app.LoadedApk;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.IntentFilter;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.ProviderInfo;
-import android.os.Build;
-import android.os.Looper;
-import android.os.Message;
-import android.os.StrictMode;
-import android.renderscript.RenderScript;
-import android.renderscript.RenderScriptCacheDir;
-import android.view.HardwareRenderer;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Lody
@@ -46,6 +48,7 @@ public class AppSandBox {
 
 	private static final String TAG = AppSandBox.class.getSimpleName();
 	private static Map<String, Application> applicationMap = new HashMap<>();
+	private static Set<String> installedPkgs = new HashSet<>();
 
 	private static String LAST_PKG;
 
@@ -55,34 +58,40 @@ public class AppSandBox {
 
 	public static void install(final String procName, final String pkg) {
 		if (Looper.myLooper() == Looper.getMainLooper()) {
-			installLocked(procName, pkg);
+			if (installLocked(procName, pkg)) {
+				installSafely(procName, pkg);
+			}
 		} else {
-			final CountDownLatch lock = new CountDownLatch(1);
+			final ConditionVariable lock = new ConditionVariable();
 			RuntimeEnv.getUIHandler().post(new Runnable() {
 				@Override
 				public void run() {
-					installLocked(procName, pkg);
-					lock.countDown();
+					boolean nextStep = installLocked(procName, pkg);
+					lock.open();
+					if (nextStep) installSafely(procName, pkg);
 				}
 			});
-			try {
-				lock.await();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			lock.block();
 		}
 	}
 
-	private static void installLocked(String processName, String pkg) {
+	private static boolean installLocked(String processName, String pkg) {
+		if (installedPkgs.contains(pkg)) {
+			return false;
+		}
 		boolean firstInstall = LAST_PKG == null;
 		LAST_PKG = pkg;
 		if (!firstInstall) {
 			createLoadedApk(VirtualCore.getCore().findApp(pkg));
-			return;
+			return false;
 		}
 		ContextFixer.fixCamera();
 		PatchManager.fixAllSettings();
-		LocalProcessManager.onAppProcessCreate(VClientImpl.getClient().asBinder());
+		LocalProcessManager.onAppProcessCreate(VClientImpl.getClient().asBinder(), pkg, processName);
+		return true;
+	}
+
+	private static void installSafely(String processName, String pkg) {
 		AppInfo appInfo = VirtualCore.getCore().findApp(pkg);
 		if (appInfo == null) {
 			return;
@@ -117,8 +126,8 @@ public class AppSandBox {
 
 		List<ReceiverInfo> receiverInfos = pm.queryReceivers(processName, 0);
 		installReceivers(app, receiverInfos);
-		LocalProcessManager.onEnterApp(pkg);
 		applicationMap.put(appInfo.packageName, app);
+		installedPkgs.add(appInfo.packageName);
 	}
 
 	private static void installReceivers(Context app, List<ReceiverInfo> receivers) {

@@ -1,24 +1,5 @@
 package com.lody.virtual.client.core;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.lody.virtual.client.env.Constants;
-import com.lody.virtual.client.env.RuntimeEnv;
-import com.lody.virtual.client.fixer.ContextFixer;
-import com.lody.virtual.client.local.LocalPackageManager;
-import com.lody.virtual.client.local.LocalProcessManager;
-import com.lody.virtual.client.service.ServiceManagerNative;
-import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.compat.ActivityThreadCompat;
-import com.lody.virtual.helper.compat.BundleCompat;
-import com.lody.virtual.helper.loaders.DexAppClassLoader;
-import com.lody.virtual.helper.proto.AppInfo;
-import com.lody.virtual.helper.proto.InstallResult;
-import com.lody.virtual.service.IAppManager;
-
 import android.app.Activity;
 import android.app.ActivityThread;
 import android.content.ComponentName;
@@ -36,6 +17,25 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.text.TextUtils;
+
+import com.lody.virtual.client.env.Constants;
+import com.lody.virtual.client.env.RuntimeEnv;
+import com.lody.virtual.client.fixer.ContextFixer;
+import com.lody.virtual.client.local.LocalPackageManager;
+import com.lody.virtual.client.local.LocalProcessManager;
+import com.lody.virtual.client.service.ServiceManagerNative;
+import com.lody.virtual.helper.ExtraConstants;
+import com.lody.virtual.helper.compat.ActivityThreadCompat;
+import com.lody.virtual.helper.compat.BundleCompat;
+import com.lody.virtual.helper.loaders.DexAppClassLoader;
+import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.proto.InstallResult;
+import com.lody.virtual.service.IAppManager;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Lody
@@ -183,14 +183,6 @@ public final class VirtualCore {
 			}
 		}
 		return mService;
-	}
-
-	public void notifyOnEnterApp(String appPkg) {
-		LocalProcessManager.onEnterApp(appPkg);
-	}
-
-	public void notifyOnEnterAppProcessName(String appProcessName) {
-		LocalProcessManager.onEnterAppProcessName(appProcessName);
 	}
 
 	/**

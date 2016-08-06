@@ -1,11 +1,19 @@
 package com.lody.virtual.service.am;
 
-import static android.app.ActivityThread.SERVICE_DONE_EXECUTING_STOP;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.ListIterator;
+import android.app.ActivityManager;
+import android.app.IApplicationThread;
+import android.app.IServiceConnection;
+import android.app.Notification;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ServiceInfo;
+import android.os.Binder;
+import android.os.Build;
+import android.os.IBinder;
+import android.os.Process;
+import android.os.RemoteException;
+import android.os.SystemClock;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.compat.IApplicationThreadCompat;
@@ -15,21 +23,12 @@ import com.lody.virtual.service.IServiceManager;
 import com.lody.virtual.service.process.ProcessRecord;
 import com.lody.virtual.service.process.VProcessService;
 
-import android.app.ActivityManager;
-import android.app.IApplicationThread;
-import android.app.IServiceConnection;
-import android.app.Notification;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.ProviderInfo;
-import android.content.pm.ServiceInfo;
-import android.os.Binder;
-import android.os.Build;
-import android.os.IBinder;
-import android.os.Process;
-import android.os.RemoteException;
-import android.os.SystemClock;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.ListIterator;
+
+import static android.app.ActivityThread.SERVICE_DONE_EXECUTING_STOP;
 
 /**
  * @author Lody
@@ -47,7 +46,7 @@ public class VServiceService extends IServiceManager.Stub {
 		return sService;
 	}
 
-	private static ServiceInfo getServiceInfo(Intent service) {
+	private static ServiceInfo resolveServiceInfo(Intent service) {
 		if (service != null) {
 			ServiceInfo serviceInfo = VirtualCore.getCore().resolveServiceInfo(service);
 			if (serviceInfo != null) {
@@ -101,24 +100,11 @@ public class VServiceService extends IServiceManager.Stub {
 
 	private ComponentName startServiceCommon(IBinder caller, Intent service, String resolvedType,
 			boolean scheduleServiceArgs) {
-		ServiceInfo serviceInfo = getServiceInfo(service);
+		ServiceInfo serviceInfo = resolveServiceInfo(service);
 		if (serviceInfo == null) {
 			return null;
 		}
-		String processName = ComponentUtils.getProcessName(serviceInfo);
-		ProviderInfo env = VActivityService.getService().fetchRunningServiceRuntime(serviceInfo);
-		if (env == null) {
-			env = VActivityService.getService().fetchServiceRuntime(serviceInfo);
-			if (env == null) {
-				return null;
-			} else {
-				VProcessService.getService().launchComponentProcess(serviceInfo, env);
-			}
-		}
-		ProcessRecord processRecord = VProcessService.getService().findProcess(processName);
-		if (processRecord == null) {
-			return null;
-		}
+		ProcessRecord processRecord = VProcessService.getService().startProcessLocked(serviceInfo);
 		IApplicationThread appThread = processRecord.appThread;
 		ServiceRecord r = findRecord(serviceInfo);
 		if (r == null) {
@@ -144,7 +130,7 @@ public class VServiceService extends IServiceManager.Stub {
 
 	@Override
 	public int stopService(IBinder caller, Intent service, String resolvedType) throws RemoteException {
-		ServiceInfo serviceInfo = getServiceInfo(service);
+		ServiceInfo serviceInfo = resolveServiceInfo(service);
 		if (serviceInfo == null) {
 			return 0;
 		}
@@ -186,7 +172,7 @@ public class VServiceService extends IServiceManager.Stub {
 	@Override
 	public int bindService(IBinder caller, IBinder token, Intent service, String resolvedType,
 			IServiceConnection connection, int flags) throws RemoteException {
-		ServiceInfo serviceInfo = getServiceInfo(service);
+		ServiceInfo serviceInfo = resolveServiceInfo(service);
 		if (serviceInfo == null) {
 			return 0;
 		}
@@ -257,7 +243,7 @@ public class VServiceService extends IServiceManager.Stub {
 
 	@Override
 	public IBinder peekService(Intent service, String resolvedType) throws RemoteException {
-		ServiceInfo serviceInfo = getServiceInfo(service);
+		ServiceInfo serviceInfo = resolveServiceInfo(service);
 		if (serviceInfo == null) {
 			return null;
 		}
@@ -296,7 +282,7 @@ public class VServiceService extends IServiceManager.Stub {
 		ListIterator<ServiceRecord> iterator = mHistory.listIterator();
 		while (iterator.hasNext()) {
 			ServiceRecord r = iterator.next();
-			if (ComponentUtils.getProcessName(r.serviceInfo).equals(record.appProcessName)) {
+			if (ComponentUtils.getProcessName(r.serviceInfo).equals(record.processName)) {
 				iterator.remove();
 			}
 		}
@@ -313,7 +299,7 @@ public class VServiceService extends IServiceManager.Stub {
 				info.pid = r.pid;
 				ProcessRecord processRecord = VProcessService.getService().findProcess(r.pid);
 				if (processRecord != null) {
-					info.process = processRecord.appProcessName;
+					info.process = processRecord.processName;
 					info.clientPackage = processRecord.getInitialPackage();
 				}
 				info.activeSince = r.activeSince;

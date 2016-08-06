@@ -6,13 +6,7 @@ import com.lody.virtual.service.interfaces.IProcessObserver;
 
 interface IProcessManager {
 
-    void onAppProcessCreate(in IBinder appThread);
-
-    void onEnterApp(String pkg);
-
-    void onEnterAppProcessName(String pluginProcessName);
-
-    void installComponent(in VComponentInfo componentInfo);
+    void onAppProcessCreate(in IBinder appThread, in String pkg, in String processName);
 
     boolean isAppProcess(String processName);
 

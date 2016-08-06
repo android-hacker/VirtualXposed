@@ -15,7 +15,7 @@ public class RunningAppList {
 		runningApps.remove(pkgName);
 	}
 
-	public void pluginStarted(String pkgName, RunningAppRecord runningAppRecord) {
+	public void appStarted(String pkgName, RunningAppRecord runningAppRecord) {
 		runningApps.put(pkgName, runningAppRecord);
 	}
 

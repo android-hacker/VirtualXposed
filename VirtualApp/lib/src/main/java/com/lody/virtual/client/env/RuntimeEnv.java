@@ -1,18 +1,18 @@
 package com.lody.virtual.client.env;
 
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.compat.AppBindDataCompat;
-import com.lody.virtual.helper.compat.VMRuntimeCompat;
-import com.lody.virtual.helper.proto.AppInfo;
-import com.lody.virtual.helper.utils.Reflect;
-import com.lody.virtual.helper.utils.VLog;
-
 import android.app.Instrumentation;
 import android.content.ComponentName;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
 import android.os.RemoteException;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.compat.AppBindDataCompat;
+import com.lody.virtual.helper.compat.VMRuntimeCompat;
+import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.utils.Reflect;
+import com.lody.virtual.helper.utils.VLog;
 
 /**
  * @author Lody
@@ -48,7 +48,6 @@ public class RuntimeEnv {
 			// Ignore
 		}
 		VMRuntimeCompat.registerAppInfo(appInfo.packageName, appInfo.dataDir, processName);
-		VirtualCore.getCore().notifyOnEnterAppProcessName(sCurrentProcessName);
 		AppBindDataCompat dataMirror = new AppBindDataCompat(VirtualCore.getHostBindData());
 		dataMirror.setAppInfo(appInfo.applicationInfo);
 		dataMirror.setInfo(appInfo.getLoadedApk());
