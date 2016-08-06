@@ -28,6 +28,7 @@
 
         <activity
             android:name=".home.LoadingActivity"
+            android:theme="@style/TransparentTheme"
             android:excludeFromRecents="true"
             android:noHistory="true"
             android:taskAffinity="va.task.loading"/>

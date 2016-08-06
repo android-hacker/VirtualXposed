@@ -16,4 +16,12 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textAllCaps">false</item>
     </style>
+
+    <style name="TransparentTheme" parent="AppTheme">
+        <item name="android:windowNoTitle">true</item>
+        <item name="colorPrimary">@android:color/background_dark</item>
+        <item name="colorPrimaryDark">@android:color/background_dark</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
 </resources>
