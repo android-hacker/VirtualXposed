@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static android.app.ActivityThread.SERVICE_DONE_EXECUTING_STOP;
 
@@ -36,6 +37,8 @@ import static android.app.ActivityThread.SERVICE_DONE_EXECUTING_STOP;
  *
  */
 public class VServiceService extends IServiceManager.Stub {
+
+	private final ReentrantLock mLock = new ReentrantLock();
 
 	private static final String TAG = VServiceService.class.getSimpleName();
 

@@ -365,12 +365,12 @@ public class VProcessService extends IProcessManager.Stub {
 	}
 
 	public ProcessRecord startProcessLocked(@NonNull ComponentInfo componentInfo) {
+		FetchResult res;
 		String pkg = componentInfo.packageName;
 		String appProcessName = ComponentUtils.getProcessName(componentInfo);
 		if (!VAppService.getService().isAppInstalled(pkg)) {
             return null;
         }
-		FetchResult res;
 		synchronized (this) {
 			res = fetchStubLocked(appProcessName);
 		}
@@ -433,12 +433,13 @@ public class VProcessService extends IProcessManager.Stub {
 		return findStubProcessRecord(stubInfo.processName) != null;
 	}
 
-	public StubInfo fetchFreeStubInfo(Collection<StubInfo> stubInfos) {
+
+	public synchronized StubInfo fetchFreeStubInfo(Collection<StubInfo> stubInfos) {
 		for (StubInfo stubInfo : stubInfos) {
-			if (!isStubProcessRunning(stubInfo)) {
-				return stubInfo;
-			}
-		}
+            if (!isStubProcessRunning(stubInfo)) {
+                return stubInfo;
+            }
+        }
 		return null;
 	}
 
