@@ -236,6 +236,10 @@ public class PagerView extends ViewGroup implements PagerAdapter.OnDataChangeLis
 
 	@Override
 	public void removeViewAt(int index) {
+		// When Animation finished, view may have been removed, so check here.
+    if (index < 0 || index >= getChildCount()) {
+      return;
+    }
 		super.removeViewAt(index);
 		int pages = (int) Math.ceil(getChildCount() * 1.0 / itemPerPage);
 		if (pages < totalPage) {
