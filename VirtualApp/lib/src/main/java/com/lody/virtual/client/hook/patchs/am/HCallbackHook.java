@@ -8,7 +8,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 
-import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.interfaces.Injectable;
 import com.lody.virtual.helper.ExtraConstants;
@@ -83,10 +82,6 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 			calling = true;
 			try {
 				if (LAUNCH_ACTIVITY == msg.what) {
-					if (!VClientImpl.getClient().isBound()) {
-						getH().sendMessage(msg);
-						return true;
-					}
 					handleLaunchActivity(msg);
 				}
 				if (otherCallback != null) {
