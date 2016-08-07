@@ -1,9 +1,9 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
-
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VActivityManager;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -21,7 +21,7 @@ public class Hook_GetServices extends Hook {
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		int maxNum = (int) args[0];
 		int flags = (int) args[1];
-		return VActivityManager.getInstance().getServices(maxNum, flags);
+		return VActivityManager.getInstance().getServices(maxNum, flags).getList();
 	}
 
 	@Override
