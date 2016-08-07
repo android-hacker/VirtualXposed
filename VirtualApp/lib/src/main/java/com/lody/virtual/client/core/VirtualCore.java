@@ -27,7 +27,7 @@ import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.compat.ActivityThreadCompat;
 import com.lody.virtual.helper.compat.BundleCompat;
-import com.lody.virtual.helper.loaders.DexAppClassLoader;
+import com.lody.virtual.helper.loaders.ClassLoaderHelper;
 import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.proto.InstallResult;
 import com.lody.virtual.service.IAppManager;
@@ -228,7 +228,7 @@ public final class VirtualCore {
 	public void preOpt(String pkg) throws Exception {
 		AppInfo info = findApp(pkg);
 		if (info != null && !info.dependSystem) {
-			new DexAppClassLoader(info);
+			ClassLoaderHelper.create(info);
 		}
 	}
 

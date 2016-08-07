@@ -60,7 +60,26 @@ public class LoadingActivity extends AppCompatActivity {
 		Intent intent = getIntent().getParcelableExtra(ExtraConstants.EXTRA_INTENT);
 		VirtualCore.getCore().addLoadingPage(intent, this);
 		if (intent != null) {
-			VUiKit.postDelayed(500, () -> startActivity(intent));
+			VUiKit.defer().when(() -> {
+				long startTime = System.currentTimeMillis();
+				if (!appModel.fastOpen) {
+					try {
+						VirtualCore.getCore().preOpt(appModel.packageName);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				long spend = System.currentTimeMillis() - startTime;
+				if (spend < 500) {
+					try {
+						Thread.sleep(500 - spend);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}).done((res) -> {
+				startActivity(intent);
+			});
 		}
 	}
 
