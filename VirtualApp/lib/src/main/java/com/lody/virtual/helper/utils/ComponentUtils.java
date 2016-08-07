@@ -63,7 +63,8 @@ public class ComponentUtils {
 	}
 
 	public static boolean isSharedPackage(String pkg) {
-		return pkg.equals(RuntimeEnv.getInitialPackageName()) || AppSandBox.getSharedPackages().contains(pkg);
+		return pkg != null
+				&& (pkg.equals(RuntimeEnv.getInitialPackageName()) || AppSandBox.getSharedPackages().contains(pkg));
 	}
 
 }

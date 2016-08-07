@@ -447,4 +447,12 @@ public class VProcessService extends IProcessManager.Stub {
 		return mProcessList.findProcess(pid);
 	}
 
+	@Override
+	public String getInitialPackage(int pid) {
+		ProcessRecord r = findProcess(pid);
+		if (r != null) {
+			return r.initialPackage;
+		}
+		return null;
+	}
 }

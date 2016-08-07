@@ -1,8 +1,12 @@
 package com.lody.virtual;
 
-import com.lody.virtual.helper.utils.VLog;
-
+import android.os.Binder;
 import android.os.Build;
+import android.os.Process;
+
+import com.lody.virtual.client.local.LocalProcessManager;
+import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.helper.utils.VLog;
 
 /**
  * Created by Xfast on 2016/7/21.
@@ -69,6 +73,18 @@ public class IOHook {
 		if (pid == android.os.Process.myPid()) {
 			VLog.e(TAG, VLog.getStackTraceString(new Throwable()));
 		}
+	}
+
+	public static int onGetCallingUid(int originUid) {
+		int callingPid = Binder.getCallingPid();
+		if (callingPid == Process.myPid()) {
+			return originUid;
+		}
+		String initialPackage = LocalProcessManager.getInitialPackage(callingPid);
+		if (ComponentUtils.isSharedPackage(initialPackage)) {
+			return originUid;
+		}
+		return 99999;
 	}
 
 	// private static native void nativeRejectPath(String path);

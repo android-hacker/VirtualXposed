@@ -287,11 +287,13 @@ public class VServiceService extends IServiceManager.Stub {
 	}
 
 	public void processDied(ProcessRecord record) {
-		ListIterator<ServiceRecord> iterator = mHistory.listIterator();
-		while (iterator.hasNext()) {
-			ServiceRecord r = iterator.next();
-			if (ComponentUtils.getProcessName(r.serviceInfo).equals(record.processName)) {
-				iterator.remove();
+		synchronized (mHistory) {
+			ListIterator<ServiceRecord> iterator = mHistory.listIterator();
+			while (iterator.hasNext()) {
+				ServiceRecord r = iterator.next();
+				if (ComponentUtils.getProcessName(r.serviceInfo).equals(record.processName)) {
+					iterator.remove();
+				}
 			}
 		}
 	}

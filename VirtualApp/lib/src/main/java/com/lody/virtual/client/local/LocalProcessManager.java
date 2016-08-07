@@ -122,4 +122,12 @@ public class LocalProcessManager {
 			e.printStackTrace();
 		}
 	}
+
+	public static String getInitialPackage(int pid){
+		try {
+			return getService().getInitialPackage(pid);
+		} catch (RemoteException e) {
+			return RuntimeEnv.crash(e);
+		}
+	}
 }

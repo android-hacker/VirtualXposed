@@ -28,5 +28,6 @@ interface IProcessManager {
 
     void unregisterProcessObserver(in IProcessObserver observer);
 
+    String getInitialPackage(int pid);
 
 }
