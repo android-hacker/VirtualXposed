@@ -1,11 +1,8 @@
 package io.virtualapp.home;
 
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.local.LocalProcessManager;
-import com.lody.virtual.helper.ExtraConstants;
-
 import android.app.Activity;
-import android.content.Intent;
+
+import com.lody.virtual.client.local.LocalProcessManager;
 
 import io.virtualapp.VCommends;
 import io.virtualapp.home.models.AppModel;
@@ -41,13 +38,7 @@ public class HomePresenterImpl implements HomeContract.HomePresenter {
 	public void launchApp(AppModel model) {
 		try {
 			LocalProcessManager.killAllApps();
-			Intent intent = VirtualCore.getCore().getLaunchIntent(model.packageName);
-			if (intent != null) {
-				Intent loadingPageIntent = new Intent(mActivity, LoadingActivity.class);
-				loadingPageIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				loadingPageIntent.putExtra(ExtraConstants.EXTRA_INTENT, intent);
-				mActivity.startActivity(loadingPageIntent);
-			}
+			LoadingActivity.launch(mActivity, model);
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}

@@ -36,7 +36,6 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 
 	String TAG = "HomeActivity";
 	private HomeContract.HomePresenter mPresenter;
-	private ProgressDialog mOpeningAppDialog;
 	private ProgressBar mLoadingBar;
 	private PagerView mPagerView;
 	private FloatingActionButton mAppFab;
@@ -177,7 +176,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 
 	@Override
 	public void waitingAppOpen() {
-		mOpeningAppDialog = ProgressDialog.show(this, "Please wait", "Opening the app...");
+		ProgressDialog.show(this, "Please wait", "Opening the app...");
 	}
 
 	@Override
