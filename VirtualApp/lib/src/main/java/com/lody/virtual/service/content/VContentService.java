@@ -1,4 +1,4 @@
-package com.lody.virtual.service.am;
+package com.lody.virtual.service.content;
 
 import android.app.IActivityManager;
 import android.content.pm.ProviderInfo;
@@ -6,11 +6,11 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
 
+import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.IContentManager;
 import com.lody.virtual.service.pm.VPackageService;
 import com.lody.virtual.service.process.ProcessRecord;
-import com.lody.virtual.service.process.ProviderList;
 import com.lody.virtual.service.process.VProcessService;
 
 import java.util.List;
@@ -54,10 +54,14 @@ public class VContentService extends IContentManager.Stub {
 			return holder;
 		} else {
 			VLog.d(TAG, "Installing %s...", providerInfo.authority);
-			targetApp = VProcessService.getService().startProcessLocked(providerInfo);
+			targetApp = VProcessService.getService().startProcess(ComponentUtils.getProcessName(providerInfo),
+					providerInfo.applicationInfo);
 			if (targetApp == null) {
 				return null;
 			}
+		}
+		if (targetApp.isLaunching(providerInfo.packageName)) {
+			targetApp.lock.block();
 		}
 		return mProviderList.getHolder(name);
 	}

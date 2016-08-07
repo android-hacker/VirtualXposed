@@ -3,7 +3,7 @@ package com.lody.virtual.client.local;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import com.lody.virtual.client.env.RuntimeEnv;
+import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.service.IProcessManager;
 import com.lody.virtual.service.interfaces.IProcessObserver;
@@ -33,6 +33,14 @@ public class LocalProcessManager {
 		return service;
 	}
 
+	public static void attachClient(IBinder client) {
+		try {
+			getService().attachClient(client);
+		} catch (RemoteException e) {
+			VirtualRuntime.crash(e);
+		}
+	}
+
 	public static void killAllApps() {
 		try {
 			getService().killAllApps();
@@ -53,7 +61,7 @@ public class LocalProcessManager {
 		try {
 			return getService().isAppProcess(processName);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -73,21 +81,11 @@ public class LocalProcessManager {
 		}
 	}
 
-
-	public static void onAppProcessCreate(IBinder appThread, String pkg, String processName) {
-		try {
-			getService().onAppProcessCreate(appThread, pkg, processName);
-		} catch (RemoteException e) {
-			// Ignore
-		}
-	}
-
-
 	public static boolean isAppPid(int pid) {
 		try {
 			return getService().isAppPid(pid);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -95,7 +93,7 @@ public class LocalProcessManager {
 		try {
 			return getService().getProcessPkgList(pid);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -103,7 +101,7 @@ public class LocalProcessManager {
 		try {
 			return getService().getAppProcessName(pid);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -123,11 +121,27 @@ public class LocalProcessManager {
 		}
 	}
 
-	public static String getInitialPackage(int pid){
+	public static String getInitialPackage(int pid) {
 		try {
 			return getService().getInitialPackage(pid);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
+		}
+	}
+
+	public static void handleApplicationCrash() {
+		try {
+			getService().handleApplicationCrash();
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void appDoneExecuting(String packageName) {
+		try {
+			getService().appDoneExecuting(packageName);
+		} catch (RemoteException e) {
+			e.printStackTrace();
 		}
 	}
 }

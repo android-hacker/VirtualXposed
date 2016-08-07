@@ -1,7 +1,11 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
-import java.util.Collections;
+import android.app.ApplicationThreadNative;
+import android.app.IApplicationThread;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.os.Build;
+import android.os.IBinder;
 
 import com.android.internal.content.ReferrerIntent;
 import com.lody.virtual.client.core.VirtualCore;
@@ -11,14 +15,9 @@ import com.lody.virtual.helper.compat.IApplicationThreadCompat;
 import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.VRedirectActRequest;
 import com.lody.virtual.helper.utils.ArrayUtils;
-import com.lody.virtual.helper.utils.VLog;
 
-import android.app.ApplicationThreadNative;
-import android.app.IApplicationThread;
-import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.os.Build;
-import android.os.IBinder;
+import java.lang.reflect.Method;
+import java.util.Collections;
 
 /**
  * @author Lody
@@ -51,7 +50,6 @@ import android.os.IBinder;
 		}
 		IBinder resultTo = (IBinder) args[resultToIndex];
 		final Intent targetIntent = (Intent) args[intentIndex];
-		VLog.i("Andy", "startActivity -> 0 %s", targetIntent);
 		ActivityInfo targetActInfo = VirtualCore.getCore().resolveActivityInfo(targetIntent);
 		if (targetActInfo == null) {
 			return method.invoke(who, args);
@@ -106,10 +104,5 @@ import android.os.IBinder;
 		}
 		args[intentIndex] = stubIntent;
 		return method.invoke(who, args);
-	}
-
-	@Override
-	public Object afterHook(Object who, Method method, Object[] args, Object result) throws Throwable {
-		return super.afterHook(who, method, args, result);
 	}
 }

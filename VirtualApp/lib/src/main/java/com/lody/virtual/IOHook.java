@@ -1,12 +1,12 @@
 package com.lody.virtual;
 
-import android.os.Binder;
-import android.os.Build;
-import android.os.Process;
-
 import com.lody.virtual.client.local.LocalProcessManager;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.VLog;
+
+import android.os.Binder;
+import android.os.Build;
+import android.os.Process;
 
 /**
  * Created by Xfast on 2016/7/21.

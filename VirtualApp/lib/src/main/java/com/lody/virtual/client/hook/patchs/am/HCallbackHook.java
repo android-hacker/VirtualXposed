@@ -1,17 +1,5 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Field;
-
-import com.lody.virtual.client.core.AppSandBox;
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.interfaces.Injectable;
-import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.compat.ActivityRecordCompat;
-import com.lody.virtual.helper.compat.ClassLoaderCompat;
-import com.lody.virtual.helper.proto.AppInfo;
-import com.lody.virtual.helper.utils.ComponentUtils;
-import com.lody.virtual.helper.utils.VLog;
-
 import android.app.ActivityThread;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -19,6 +7,16 @@ import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.interfaces.Injectable;
+import com.lody.virtual.helper.ExtraConstants;
+import com.lody.virtual.helper.compat.ActivityRecordCompat;
+import com.lody.virtual.helper.compat.ClassLoaderCompat;
+import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.utils.VLog;
+
+import java.lang.reflect.Field;
 
 /**
  * @author Lody
@@ -110,7 +108,6 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		String pkgName = component.getPackageName();
 
 		AppInfo appInfo = VirtualCore.getCore().findApp(pkgName);
-
 		if (appInfo == null) {
 			return;
 		}
@@ -121,12 +118,8 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		if (stubActInfo == null || targetActInfo == null) {
 			return;
 		}
-		String processName = ComponentUtils.getProcessName(targetActInfo);
-		AppSandBox.install(processName, targetActInfo.packageName);
-
-		ClassLoader pluginClassLoader = appInfo.getClassLoader();
-
-		targetIntent.setExtrasClassLoader(pluginClassLoader);
+		ClassLoader appClassLoader = appInfo.getClassLoader();
+		targetIntent.setExtrasClassLoader(appClassLoader);
 
 		boolean error = false;
 		try {
@@ -140,7 +133,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		if (error && Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
 			// 4.4以下的设备会出现这个BUG(unParcel找不到类加载器),
 			// 只能通过注入Class.forName所使用的类加载器来解决了...
-			ClassLoader oldParent = ClassLoaderCompat.setParent(getClass().getClassLoader(), pluginClassLoader);
+			ClassLoader oldParent = ClassLoaderCompat.setParent(getClass().getClassLoader(), appClassLoader);
 			try {
 				targetIntent.putExtra(ExtraConstants.EXTRA_STUB_ACT_INFO, stubActInfo);
 				targetIntent.putExtra(ExtraConstants.EXTRA_TARGET_ACT_INFO, targetActInfo);

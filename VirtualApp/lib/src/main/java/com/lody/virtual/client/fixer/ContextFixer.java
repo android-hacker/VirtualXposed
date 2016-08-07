@@ -1,6 +1,11 @@
 package com.lody.virtual.client.fixer;
 
-import java.lang.reflect.Method;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.hardware.Camera;
+import android.os.Build;
+import android.os.DropBoxManager;
 
 import com.lody.virtual.client.core.PatchManager;
 import com.lody.virtual.client.core.VirtualCore;
@@ -11,12 +16,7 @@ import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.ReflectException;
 import com.lody.virtual.helper.utils.VLog;
 
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.hardware.Camera;
-import android.os.Build;
-import android.os.DropBoxManager;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -47,19 +47,24 @@ public class ContextFixer {
 
 	private static native boolean hookNativeMethod(Object method, String packageName);
 
+	private static boolean sNativeFixed = false;
+
 	public static void fixCamera() {
-		try {
-			Method native_setup;
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-				native_setup = Reflect.on(Camera.class).exactMethod("native_setup",
-						new Class[]{Object.class, int.class, int.class, String.class});
-			} else {
-				native_setup = Reflect.on(Camera.class).exactMethod("native_setup",
-						new Class[]{Object.class, int.class, String.class});
+		if (!sNativeFixed) {
+			try {
+				Method native_setup;
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+					native_setup = Reflect.on(Camera.class).exactMethod("native_setup",
+							new Class[]{Object.class, int.class, int.class, String.class});
+				} else {
+					native_setup = Reflect.on(Camera.class).exactMethod("native_setup",
+							new Class[]{Object.class, int.class, String.class});
+				}
+				hookNativeMethod(native_setup, VirtualCore.getCore().getHostPkg());
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
 			}
-			hookNativeMethod(native_setup, VirtualCore.getCore().getHostPkg());
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
+			sNativeFixed = true;
 		}
 	}
 	/**

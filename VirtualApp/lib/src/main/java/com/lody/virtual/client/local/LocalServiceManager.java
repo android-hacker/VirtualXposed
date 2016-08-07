@@ -2,7 +2,7 @@ package com.lody.virtual.client.local;
 
 import java.util.List;
 
-import com.lody.virtual.client.env.RuntimeEnv;
+import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.service.IServiceManager;
 
@@ -43,7 +43,7 @@ public class LocalServiceManager {
 		try {
 			return getService().startService(caller, service, resolvedType);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -51,7 +51,7 @@ public class LocalServiceManager {
 		try {
 			return getService().stopService(caller, service, resolvedType);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -59,7 +59,7 @@ public class LocalServiceManager {
 		try {
 			return getService().stopServiceToken(className, token, startId);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -68,7 +68,7 @@ public class LocalServiceManager {
 		try {
 			getService().setServiceForeground(className, token, id, notification, keepNotification);
 		} catch (RemoteException e) {
-			RuntimeEnv.crash(e);
+			VirtualRuntime.crash(e);
 		}
 	}
 
@@ -77,7 +77,7 @@ public class LocalServiceManager {
 		try {
 			return getService().bindService(caller, token, service, resolvedType, connection, flags);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -85,7 +85,7 @@ public class LocalServiceManager {
 		try {
 			return getService().unbindService(connection);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -93,7 +93,7 @@ public class LocalServiceManager {
 		try {
 			return getService().peekService(service, resolvedType);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -126,7 +126,7 @@ public class LocalServiceManager {
 			// noinspection unchecked
 			return getService().getServices(maxNum, flags).getList();
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 }

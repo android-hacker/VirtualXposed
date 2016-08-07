@@ -1,18 +1,18 @@
 package com.lody.virtual.client.service;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.os.IBinder;
-import android.os.RemoteException;
-
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.env.RuntimeEnv;
+import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.MethodConstants;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.ServiceCache;
 import com.lody.virtual.service.interfaces.IServiceFetcher;
+
+import android.content.Context;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 
 /**
  * @author Lody
@@ -30,7 +30,6 @@ public class ServiceManagerNative {
 	public static final String INTENT_FILTER_MANAGER = "intent_filter";
 	private static final String TAG = ServiceManagerNative.class.getSimpleName();
 	private static final String SERVICE_CP_AUTH = "virtual.service.BinderProvider";
-
 
 	private static IServiceFetcher sFetcher;
 
@@ -53,7 +52,7 @@ public class ServiceManagerNative {
 			public void binderDied() {
 				binder.unlinkToDeath(this, 0);
 				VLog.e(TAG, "Ops, the server has crashed.");
-				RuntimeEnv.exit();
+				VirtualRuntime.exit();
 			}
 		};
 		try {

@@ -1,10 +1,10 @@
 package com.lody.virtual.service.filter;
 
+import com.lody.virtual.service.interfaces.IIntentFilterObserver;
+
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.RemoteException;
-
-import com.lody.virtual.service.interfaces.IIntentFilterObserver;
 
 /**
  * Class: Created by andy on 16-8-2. TODO:
@@ -16,7 +16,6 @@ public class IntentFilterService extends IIntentFilterObserver.Stub {
 	public static IntentFilterService getService() {
 		return sService;
 	}
-
 
 	@Override
 	public Intent filter(Intent intent) throws RemoteException {

@@ -1,15 +1,15 @@
 package com.lody.virtual.client.stub;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.widget.Toast;
+import java.net.URLDecoder;
 
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
 
-import java.net.URLDecoder;
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Toast;
 
 public class InstallerActivity extends Activity {
 	public static String installScheme = "file://";

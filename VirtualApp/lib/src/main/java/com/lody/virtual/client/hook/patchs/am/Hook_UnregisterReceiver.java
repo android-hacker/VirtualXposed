@@ -1,8 +1,8 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import com.lody.virtual.client.hook.base.Hook;
-
 import java.lang.reflect.Method;
+
+import com.lody.virtual.client.hook.base.Hook;
 
 /**
  * Class: Created by andy on 16-8-3. TODO:

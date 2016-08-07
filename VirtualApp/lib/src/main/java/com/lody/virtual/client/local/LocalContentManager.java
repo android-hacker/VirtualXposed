@@ -2,7 +2,7 @@ package com.lody.virtual.client.local;
 
 import java.util.List;
 
-import com.lody.virtual.client.env.RuntimeEnv;
+import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.service.IContentManager;
 
@@ -48,7 +48,7 @@ public class LocalContentManager {
 		try {
 			return getService().getContentProvider(auth);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 

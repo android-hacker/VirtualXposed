@@ -42,8 +42,6 @@ public class LoadingActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_loading);
 
 		appModel = getIntent().getParcelableExtra(MODEL_ARGUMENT);
-		assert (appModel != null);
-
 		// TODO check if it is time costing...
 		AppInfo appInfo = VirtualCore.getCore().findApp(appModel.packageName);
 		if (appInfo != null) {

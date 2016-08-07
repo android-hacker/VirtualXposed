@@ -1,10 +1,5 @@
 package com.lody.virtual.service;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.os.IBinder;
-import android.os.RemoteException;
-
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.client.stub.KeepService;
@@ -14,14 +9,19 @@ import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.component.BaseContentProvider;
 import com.lody.virtual.service.account.VAccountService;
 import com.lody.virtual.service.am.VActivityService;
-import com.lody.virtual.service.am.VContentService;
 import com.lody.virtual.service.am.VReceiverService;
 import com.lody.virtual.service.am.VServiceService;
+import com.lody.virtual.service.content.VContentService;
 import com.lody.virtual.service.filter.IntentFilterService;
 import com.lody.virtual.service.interfaces.IServiceFetcher;
 import com.lody.virtual.service.pm.VAppService;
 import com.lody.virtual.service.pm.VPackageService;
 import com.lody.virtual.service.process.VProcessService;
+
+import android.content.Context;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 
 /**
  * @author Lody

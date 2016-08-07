@@ -24,4 +24,5 @@ interface IActivityManager {
     String getPackageForToken(in IBinder token);
 
     ActivityInfo getActivityInfo(in IBinder token);
+
 }

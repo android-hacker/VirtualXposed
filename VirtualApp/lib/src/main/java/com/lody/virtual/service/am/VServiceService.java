@@ -25,10 +25,8 @@ import com.lody.virtual.service.process.ProcessRecord;
 import com.lody.virtual.service.process.VProcessService;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static android.app.ActivityThread.SERVICE_DONE_EXECUTING_STOP;
 
@@ -38,13 +36,9 @@ import static android.app.ActivityThread.SERVICE_DONE_EXECUTING_STOP;
  */
 public class VServiceService extends IServiceManager.Stub {
 
-	private final ReentrantLock mLock = new ReentrantLock();
-
 	private static final String TAG = VServiceService.class.getSimpleName();
-
 	private static final VServiceService sService = new VServiceService();
-
-	private final List<ServiceRecord> mHistory = Collections.synchronizedList(new ArrayList<ServiceRecord>());
+	private final List<ServiceRecord> mHistory = new ArrayList<ServiceRecord>();
 
 	public static VServiceService getService() {
 		return sService;
@@ -99,7 +93,9 @@ public class VServiceService extends IServiceManager.Stub {
 
 	@Override
 	public ComponentName startService(IBinder caller, Intent service, String resolvedType) throws RemoteException {
-		return startServiceCommon(caller, service, resolvedType, true);
+		synchronized (this) {
+			return startServiceCommon(caller, service, resolvedType, true);
+		}
 	}
 
 	private ComponentName startServiceCommon(IBinder caller, Intent service, String resolvedType,
@@ -108,12 +104,13 @@ public class VServiceService extends IServiceManager.Stub {
 		if (serviceInfo == null) {
 			return null;
 		}
-		ProcessRecord processRecord = VProcessService.getService().startProcessLocked(serviceInfo);
+		ProcessRecord processRecord = VProcessService.getService()
+				.startProcess(ComponentUtils.getProcessName(serviceInfo), serviceInfo.applicationInfo);
 		if (processRecord == null) {
 			VLog.e(TAG, "Unable to start new Process for : " + ComponentUtils.toComponentName(serviceInfo));
 			return null;
 		}
-		IApplicationThread appThread = processRecord.appThread;
+		IApplicationThread appThread = processRecord.thread;
 		ServiceRecord r = findRecord(serviceInfo);
 		if (r == null) {
 			r = new ServiceRecord();
@@ -138,37 +135,41 @@ public class VServiceService extends IServiceManager.Stub {
 
 	@Override
 	public int stopService(IBinder caller, Intent service, String resolvedType) throws RemoteException {
-		ServiceInfo serviceInfo = resolveServiceInfo(service);
-		if (serviceInfo == null) {
-			return 0;
-		}
-		ServiceRecord r = findRecord(serviceInfo);
-		if (r == null) {
-			return 0;
-		}
-		if (!r.hasSomeBound()) {
-			IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-				mHistory.remove(r);
+		synchronized (this) {
+			ServiceInfo serviceInfo = resolveServiceInfo(service);
+			if (serviceInfo == null) {
+				return 0;
 			}
+			ServiceRecord r = findRecord(serviceInfo);
+			if (r == null) {
+				return 0;
+			}
+			if (!r.hasSomeBound()) {
+				IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+					mHistory.remove(r);
+				}
+			}
+			return 1;
 		}
-		return 1;
 	}
 
 	@Override
 	public boolean stopServiceToken(ComponentName className, IBinder token, int startId) throws RemoteException {
-		ServiceRecord r = findRecord(token);
-		if (r == null) {
+		synchronized (this) {
+			ServiceRecord r = findRecord(token);
+			if (r == null) {
+				return false;
+			}
+			if (r.startId == startId) {
+				IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+					mHistory.remove(r);
+				}
+				return true;
+			}
 			return false;
 		}
-		if (r.startId == startId) {
-			IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-				mHistory.remove(r);
-			}
-			return true;
-		}
-		return false;
 	}
 
 	@Override
@@ -180,108 +181,120 @@ public class VServiceService extends IServiceManager.Stub {
 	@Override
 	public int bindService(IBinder caller, IBinder token, Intent service, String resolvedType,
 			IServiceConnection connection, int flags) throws RemoteException {
-		ServiceInfo serviceInfo = resolveServiceInfo(service);
-		if (serviceInfo == null) {
-			return 0;
-		}
-		ServiceRecord r = findRecord(serviceInfo);
-		if (r == null) {
-			if ((flags & Context.BIND_AUTO_CREATE) != 0) {
-				startServiceCommon(caller, service, resolvedType, false);
-				r = findRecord(serviceInfo);
+		synchronized (this) {
+			ServiceInfo serviceInfo = resolveServiceInfo(service);
+			if (serviceInfo == null) {
+				return 0;
 			}
-		}
-		if (r == null) {
-			return 0;
-		}
-		if (r.binder != null && r.binder.isBinderAlive()) {
-			if (r.doRebind) {
-				IApplicationThreadCompat.scheduleBindService(r.targetAppThread, r.token, service, true, 0);
+			ServiceRecord r = findRecord(serviceInfo);
+			if (r == null) {
+				if ((flags & Context.BIND_AUTO_CREATE) != 0) {
+					startServiceCommon(caller, service, resolvedType, false);
+					r = findRecord(serviceInfo);
+				}
 			}
-			ComponentName componentName = new ComponentName(r.serviceInfo.packageName, r.serviceInfo.name);
-			try {
-				connection.connected(componentName, r.binder);
-			} catch (Exception e) {
-				e.printStackTrace();
+			if (r == null) {
+				return 0;
 			}
-		} else {
-			IApplicationThreadCompat.scheduleBindService(r.targetAppThread, r.token, service, r.doRebind, 0);
-		}
-		r.lastActivityTime = SystemClock.uptimeMillis();
-		r.addToBoundIntent(service, connection);
+			if (r.binder != null && r.binder.isBinderAlive()) {
+				if (r.doRebind) {
+					IApplicationThreadCompat.scheduleBindService(r.targetAppThread, r.token, service, true, 0);
+				}
+				ComponentName componentName = new ComponentName(r.serviceInfo.packageName, r.serviceInfo.name);
+				try {
+					connection.connected(componentName, r.binder);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			} else {
+				IApplicationThreadCompat.scheduleBindService(r.targetAppThread, r.token, service, r.doRebind, 0);
+			}
+			r.lastActivityTime = SystemClock.uptimeMillis();
+			r.addToBoundIntent(service, connection);
 
-		return 1;
+			return 1;
+		}
 	}
 
 	@Override
 	public boolean unbindService(IServiceConnection connection) throws RemoteException {
-		ServiceRecord r = findRecord(connection);
-		if (r == null) {
-			return false;
-		}
-		Intent intent = r.removedConnection(connection);
-		IApplicationThreadCompat.scheduleUnbindService(r.targetAppThread, r.token, intent);
-		if (r.startId <= 0 && r.getAllConnections().isEmpty()) {
-			IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-				mHistory.remove(r);
+		synchronized (this) {
+			ServiceRecord r = findRecord(connection);
+			if (r == null) {
+				return false;
 			}
+			Intent intent = r.removedConnection(connection);
+			IApplicationThreadCompat.scheduleUnbindService(r.targetAppThread, r.token, intent);
+			if (r.startId <= 0 && r.getAllConnections().isEmpty()) {
+				IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+					mHistory.remove(r);
+				}
+			}
+			return true;
 		}
-		return true;
 	}
 
 	@Override
 	public void unbindFinished(IBinder token, Intent service, boolean doRebind) throws RemoteException {
-		ServiceRecord r = findRecord(token);
-		if (r != null) {
-			r.doRebind = doRebind;
+		synchronized (this) {
+			ServiceRecord r = findRecord(token);
+			if (r != null) {
+				r.doRebind = doRebind;
+			}
 		}
 	}
 
 	@Override
 	public void serviceDoneExecuting(IBinder token, int type, int startId, int res) throws RemoteException {
-		ServiceRecord r = findRecord(token);
-		if (r == null) {
-			return;
-		}
-		if (SERVICE_DONE_EXECUTING_STOP == type) {
-			mHistory.remove(r);
+		synchronized (this) {
+			ServiceRecord r = findRecord(token);
+			if (r == null) {
+				return;
+			}
+			if (SERVICE_DONE_EXECUTING_STOP == type) {
+				mHistory.remove(r);
+			}
 		}
 	}
 
 	@Override
 	public IBinder peekService(Intent service, String resolvedType) throws RemoteException {
-		ServiceInfo serviceInfo = resolveServiceInfo(service);
-		if (serviceInfo == null) {
+		synchronized (this) {
+			ServiceInfo serviceInfo = resolveServiceInfo(service);
+			if (serviceInfo == null) {
+				return null;
+			}
+			ServiceRecord r = findRecord(serviceInfo);
+			if (r != null) {
+				return r.token;
+			}
 			return null;
 		}
-		ServiceRecord r = findRecord(serviceInfo);
-		if (r != null) {
-			return r.token;
-		}
-		return null;
 	}
 
 	@Override
 	public void publishService(IBinder token, Intent intent, IBinder service) throws RemoteException {
-		ServiceRecord r = findRecord(token);
-		if (r == null) {
-			return;
-		}
-		List<IServiceConnection> allConnections = r.getAllConnections();
-		if (allConnections.isEmpty()) {
-			return;
-		}
-		for (IServiceConnection connection : allConnections) {
-			if (connection.asBinder().isBinderAlive()) {
-				ComponentName componentName = new ComponentName(r.serviceInfo.packageName, r.serviceInfo.name);
-				try {
-					connection.connected(componentName, service);
-				} catch (Exception e) {
-					e.printStackTrace();
+		synchronized (this) {
+			ServiceRecord r = findRecord(token);
+			if (r == null) {
+				return;
+			}
+			List<IServiceConnection> allConnections = r.getAllConnections();
+			if (allConnections.isEmpty()) {
+				return;
+			}
+			for (IServiceConnection connection : allConnections) {
+				if (connection.asBinder().isBinderAlive()) {
+					ComponentName componentName = new ComponentName(r.serviceInfo.packageName, r.serviceInfo.name);
+					try {
+						connection.connected(componentName, service);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				} else {
+					allConnections.remove(connection);
 				}
-			} else {
-				allConnections.remove(connection);
 			}
 		}
 	}
@@ -310,7 +323,7 @@ public class VServiceService extends IServiceManager.Stub {
 				ProcessRecord processRecord = VProcessService.getService().findProcess(r.pid);
 				if (processRecord != null) {
 					info.process = processRecord.processName;
-					info.clientPackage = processRecord.getInitialPackage();
+					info.clientPackage = processRecord.info.packageName;
 				}
 				info.activeSince = r.activeSince;
 				info.lastActivityTime = r.lastActivityTime;

@@ -1,8 +1,8 @@
 package com.lody.virtual.client.env;
 
-import android.content.Intent;
-
 import com.lody.virtual.client.stub.ShortcutHandleActivity;
+
+import android.content.Intent;
 
 /**
  * @author Lody
@@ -50,6 +50,5 @@ public class Constants {
 	public static String ACTION_INSTALL_PACKAGE = "android.intent.action.VIRTUAL_INSTALL_PACKAGE";
 
 	public static String ACTION_UNINSTALL_PACKAGE = "android.intent.action.VIRTUAL_UNINSTALL_PACKAGE";
-
 
 }

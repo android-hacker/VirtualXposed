@@ -1,5 +1,18 @@
 package com.lody.virtual.client.hook.patchs.am;
 
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.WeakHashMap;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.SpecialWidgetList;
+import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.hook.utils.HookUtils;
+import com.lody.virtual.helper.utils.Reflect;
+
 import android.app.IApplicationThread;
 import android.content.ComponentName;
 import android.content.IIntentReceiver;
@@ -10,19 +23,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.env.SpecialWidgetList;
-import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.hook.utils.HookUtils;
-import com.lody.virtual.helper.utils.Reflect;
-
-import java.lang.ref.WeakReference;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.WeakHashMap;
-
 /**
  * @author Lody
  * @see android.app.IActivityManager#registerReceiver(IApplicationThread,
@@ -30,13 +30,16 @@ import java.util.WeakHashMap;
  */
 /* package */ class Hook_RegisterReceiver extends Hook {
 
-	private static final int IDX_IIntentReceiver = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1 ? 2 : 1;
+	private static final int IDX_IIntentReceiver = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
+			? 2
+			: 1;
 
 	private static final int IDX_RequiredPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
 			? 4
 			: 3;
-	private static final int IDX_IntentFilter = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1 ? 3 : 2;
-
+	private static final int IDX_IntentFilter = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
+			? 3
+			: 2;
 
 	private WeakHashMap<IBinder, IIntentReceiver.Stub> mProxyIIntentReceiver = new WeakHashMap<>();
 

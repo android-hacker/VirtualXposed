@@ -1,16 +1,12 @@
 package com.lody.virtual.helper.proto;
 
-import android.app.Application;
 import android.app.LoadedApk;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
+import android.content.res.CompatibilityInfo;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.lody.virtual.client.core.AppSandBox;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.fixer.ComponentFixer;
-import com.lody.virtual.helper.compat.ActivityThreadCompat;
 
 /**
  * @author Lody
@@ -35,13 +31,8 @@ public final class AppInfo implements Parcelable {
 	public String libDir;
 	public String odexDir;
 	public String cacheDir;
-	private ApplicationInfo applicationInfo;
 	public boolean dependSystem;
-
-	public ApplicationInfo getApplicationInfo() {
-		ComponentFixer.fixUid(applicationInfo);
-		return applicationInfo;
-	}
+	private ApplicationInfo applicationInfo;
 
 	public AppInfo() {
 	}
@@ -57,6 +48,9 @@ public final class AppInfo implements Parcelable {
 		dependSystem = in.readByte() != 0;
 	}
 
+	public ApplicationInfo getApplicationInfo() {
+		return applicationInfo;
+	}
 
 	public void setApplicationInfo(ApplicationInfo applicationInfo) {
 		this.applicationInfo = applicationInfo;
@@ -66,7 +60,7 @@ public final class AppInfo implements Parcelable {
 		return getLoadedApk().getClassLoader();
 	}
 
-	public synchronized LoadedApk getLoadedApk() {
+	public LoadedApk getLoadedApk() {
 		LoadedApk loadedApk = null;
 		try {
 			loadedApk = VirtualCore.mainThread().peekPackageInfo(packageName, true);
@@ -74,22 +68,10 @@ public final class AppInfo implements Parcelable {
 			// Ignore
 		}
 		if (loadedApk == null) {
-			loadedApk = ActivityThreadCompat.getPackageInfoNoCheck(getApplicationInfo());
+			loadedApk = VirtualCore.mainThread().getPackageInfoNoCheck(getApplicationInfo(),
+					CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO);
 		}
 		return loadedApk;
-	}
-
-	public boolean isInstalled() {
-		try {
-			return VirtualCore.getCore().getUnHookPackageManager().getApplicationInfo(packageName, 0) != null;
-		} catch (PackageManager.NameNotFoundException e) {
-			// Ignore
-		}
-		return false;
-	}
-
-	public Application getApplication() {
-		return AppSandBox.getApplication(packageName);
 	}
 
 	@Override

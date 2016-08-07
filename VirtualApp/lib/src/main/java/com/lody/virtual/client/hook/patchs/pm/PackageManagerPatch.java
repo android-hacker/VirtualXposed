@@ -1,8 +1,6 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import android.app.ActivityThread;
-import android.content.pm.IPackageManager;
-import android.os.IBinder;
+import java.lang.reflect.Field;
 
 import com.lody.virtual.client.hook.base.HookBinder;
 import com.lody.virtual.client.hook.base.HookObject;
@@ -11,7 +9,9 @@ import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.base.ResultStaticHook;
 import com.lody.virtual.client.interfaces.IHookObject;
 
-import java.lang.reflect.Field;
+import android.app.ActivityThread;
+import android.content.pm.IPackageManager;
+import android.os.IBinder;
 
 /**
  * @author Lody

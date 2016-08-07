@@ -1,13 +1,13 @@
 package io.virtualapp;
 
+import android.app.Application;
+import android.content.Context;
+import android.os.RemoteException;
+
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.local.LocalProcessManager;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.interfaces.IProcessObserver;
-
-import android.app.Application;
-import android.content.Context;
-import android.os.RemoteException;
 
 import jonathanfinerty.once.Once;
 

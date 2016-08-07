@@ -19,7 +19,7 @@ import android.os.RemoteException;
 import android.text.TextUtils;
 
 import com.lody.virtual.client.env.Constants;
-import com.lody.virtual.client.env.RuntimeEnv;
+import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.fixer.ContextFixer;
 import com.lody.virtual.client.local.LocalPackageManager;
 import com.lody.virtual.client.local.LocalProcessManager;
@@ -166,7 +166,6 @@ public final class VirtualCore {
 			PatchManager patchManager = PatchManager.getInstance();
 			patchManager.injectAll();
 			patchManager.checkEnv();
-			RuntimeEnv.init();
 			ContextFixer.fixContext(context);
 			isStartUp = true;
 		}
@@ -237,7 +236,7 @@ public final class VirtualCore {
 		try {
 			return getService().installApp(apkPath, flags);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -245,7 +244,7 @@ public final class VirtualCore {
 		try {
 			return getService().isAppInstalled(pkg);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -285,7 +284,7 @@ public final class VirtualCore {
 		try {
 			return getService().findAppInfo(pkg);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -293,7 +292,7 @@ public final class VirtualCore {
 		try {
 			return getService().getAppCount();
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -372,7 +371,7 @@ public final class VirtualCore {
 		try {
 			return getService().getAllApps();
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 

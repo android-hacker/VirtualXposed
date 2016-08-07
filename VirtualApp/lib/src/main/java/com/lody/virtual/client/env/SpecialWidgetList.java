@@ -1,16 +1,16 @@
 package com.lody.virtual.client.env;
 
-import android.content.Intent;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.content.Intent;
+
 /**
  * @author Lody
  *
- * 特殊组件名单
+ *         特殊组件名单
  *
  */
 public final class SpecialWidgetList {
@@ -21,9 +21,9 @@ public final class SpecialWidgetList {
 
 	static {
 		ACTION_BLACK_LIST.add("android.appwidget.action.APPWIDGET_UPDATE");
-		MODIFY_ACTION_MAP.put(Intent.ACTION_PACKAGE_ADDED,  Constants.VIRTUAL_ACTION_PACKAGE_ADDED);
-		MODIFY_ACTION_MAP.put(Intent.ACTION_PACKAGE_REMOVED,  Constants.VIRTUAL_ACTION_PACKAGE_REMOVED);
-		MODIFY_ACTION_MAP.put(Intent.ACTION_PACKAGE_CHANGED,  Constants.VIRTUAL_ACTION_PACKAGE_CHANGED);
+		MODIFY_ACTION_MAP.put(Intent.ACTION_PACKAGE_ADDED, Constants.VIRTUAL_ACTION_PACKAGE_ADDED);
+		MODIFY_ACTION_MAP.put(Intent.ACTION_PACKAGE_REMOVED, Constants.VIRTUAL_ACTION_PACKAGE_REMOVED);
+		MODIFY_ACTION_MAP.put(Intent.ACTION_PACKAGE_CHANGED, Constants.VIRTUAL_ACTION_PACKAGE_CHANGED);
 	}
 
 	/**

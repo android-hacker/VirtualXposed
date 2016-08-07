@@ -1,14 +1,14 @@
 package com.lody.virtual.client.hook.providers;
 
-import android.content.IContentProvider;
-import android.net.Uri;
-import android.os.Bundle;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+
+import android.content.IContentProvider;
+import android.net.Uri;
+import android.os.Bundle;
 
 /**
  * @author Lody

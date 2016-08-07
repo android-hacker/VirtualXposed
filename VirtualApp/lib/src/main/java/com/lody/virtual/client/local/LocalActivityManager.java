@@ -3,7 +3,7 @@ package com.lody.virtual.client.local;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.lody.virtual.client.env.RuntimeEnv;
+import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.proto.AppTaskInfo;
@@ -45,7 +45,7 @@ public class LocalActivityManager {
 		try {
 			return getService().redirectTargetActivity(request);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -110,7 +110,7 @@ public class LocalActivityManager {
 		try {
 			return getService().getTaskInfo(taskId);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -118,7 +118,7 @@ public class LocalActivityManager {
 		try {
 			return getService().getCallingActivity(token);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -126,7 +126,7 @@ public class LocalActivityManager {
 		try {
 			return getService().getPackageForToken(token);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -134,7 +134,7 @@ public class LocalActivityManager {
 		try {
 			return getService().getActivityInfo(token);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 }

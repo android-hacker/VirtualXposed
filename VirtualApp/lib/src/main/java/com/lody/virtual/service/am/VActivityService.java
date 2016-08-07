@@ -12,6 +12,7 @@ import android.content.pm.ProviderInfo;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Parcel;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -134,8 +135,11 @@ public class VActivityService extends IActivityManager.Stub {
 	}
 
 	@Override
-	public synchronized VActRedirectResult redirectTargetActivity(final VRedirectActRequest request) throws RemoteException {
-		return redirectTargetActivityLocked(request);
+	public VActRedirectResult redirectTargetActivity(final VRedirectActRequest request)
+			throws RemoteException {
+		synchronized (this) {
+			return redirectTargetActivityLocked(request);
+		}
 	}
 
 	private VActRedirectResult redirectTargetActivityLocked(VRedirectActRequest request) {
@@ -172,7 +176,7 @@ public class VActivityService extends IActivityManager.Stub {
 					ActivityRecord r = inTask.topActivity();
 					ProcessRecord processRecord = VProcessService.getService().findProcess(r.pid);
 					// Only one Activity in the SingleInstance task
-					return new VActRedirectResult(r.token, processRecord.appThread.asBinder());
+					return new VActRedirectResult(r.token, processRecord.thread.asBinder());
 				} else {
 					resultFlags |= Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
 					resultFlags |= Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -185,7 +189,7 @@ public class VActivityService extends IActivityManager.Stub {
 					ActivityRecord r = topTask.topActivity();
 					ProcessRecord processRecord = VProcessService.getService().findProcess(r.pid);
 					// The top Activity is the target Activity
-					return new VActRedirectResult(r.token, processRecord.appThread.asBinder());
+					return new VActRedirectResult(r.token, processRecord.thread.asBinder());
 				}
 			}
 
@@ -206,7 +210,7 @@ public class VActivityService extends IActivityManager.Stub {
 					if (top != null) {
 						ProcessRecord processRecord = VProcessService.getService().findProcess(top.pid);
 						// The top Activity is the target Activity
-						return new VActRedirectResult(top.token, processRecord.appThread.asBinder());
+						return new VActRedirectResult(top.token, processRecord.thread.asBinder());
 					}
 				}
 			}
@@ -243,13 +247,14 @@ public class VActivityService extends IActivityManager.Stub {
 								ActivityManagerCompat.finishActivity(afterCurrent.token, -1, null);
 							}
 							ProcessRecord processRecord = VProcessService.getService().findProcess(current.pid);
-							return new VActRedirectResult(current.token, processRecord.appThread.asBinder());
+							return new VActRedirectResult(current.token, processRecord.thread.asBinder());
 						}
 					}
 				}
 			}
 		}
-		ProcessRecord processRecord = VProcessService.getService().startProcessLocked(targetActInfo);
+		ProcessRecord processRecord = VProcessService.getService().startProcess(targetProcessName,
+				targetActInfo.applicationInfo);
 		if (processRecord == null) {
 			return null;
 		}
@@ -269,13 +274,6 @@ public class VActivityService extends IActivityManager.Stub {
 		result.replaceToken = replaceToken;
 		// Workaround: issue #33 END
 		return result;
-	}
-
-
-
-
-	public StubInfo findStubInfo(String stubProcName) {
-		return stubProcName == null ? null : stubInfoMap.get(stubProcName);
 	}
 
 	@Override
@@ -412,4 +410,13 @@ public class VActivityService extends IActivityManager.Stub {
 		}
 	}
 
+	@Override
+	public boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
+		try {
+			return super.onTransact(code, data, reply, flags);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 }

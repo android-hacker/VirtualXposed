@@ -1,7 +1,6 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import android.content.Intent;
-import android.os.RemoteException;
+import java.lang.reflect.Method;
 
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.hook.base.Hook;
@@ -9,7 +8,8 @@ import com.lody.virtual.client.local.LocalIntentFilterManager;
 import com.lody.virtual.helper.utils.ArrayUtils;
 import com.lody.virtual.service.interfaces.IIntentFilterObserver;
 
-import java.lang.reflect.Method;
+import android.content.Intent;
+import android.os.RemoteException;
 
 public abstract class Hook_BaseStartActivity extends Hook {
 

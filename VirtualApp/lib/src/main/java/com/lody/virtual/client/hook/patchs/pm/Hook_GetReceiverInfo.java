@@ -1,15 +1,15 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import android.content.ComponentName;
-import android.content.pm.ActivityInfo;
+import static android.content.pm.PackageManager.GET_DISABLED_COMPONENTS;
+
+import java.lang.reflect.Method;
 
 import com.lody.virtual.client.fixer.ComponentFixer;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.LocalPackageManager;
 
-import java.lang.reflect.Method;
-
-import static android.content.pm.PackageManager.GET_DISABLED_COMPONENTS;
+import android.content.ComponentName;
+import android.content.pm.ActivityInfo;
 
 /**
  * @author Lody

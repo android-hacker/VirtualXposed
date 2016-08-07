@@ -1,10 +1,8 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import android.app.IActivityManager;
-import android.app.IApplicationThread;
-import android.content.IContentProvider;
-import android.content.pm.ProviderInfo;
-import android.os.IBinder;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.providers.ProviderHook;
@@ -12,9 +10,11 @@ import com.lody.virtual.client.local.LocalContentManager;
 import com.lody.virtual.client.local.LocalPackageManager;
 import com.lody.virtual.helper.utils.ComponentUtils;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import android.app.IActivityManager;
+import android.app.IApplicationThread;
+import android.content.IContentProvider;
+import android.content.pm.ProviderInfo;
+import android.os.IBinder;
 
 /**
  * @author Lody
@@ -68,7 +68,6 @@ import java.lang.reflect.Proxy;
 		}
 		return holder;
 	}
-
 
 	public int getProviderNameIndex() {
 		return 1;

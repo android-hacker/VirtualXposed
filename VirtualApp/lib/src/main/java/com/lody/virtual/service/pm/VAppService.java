@@ -1,10 +1,9 @@
 package com.lody.virtual.service.pm;
 
-import android.content.Intent;
-import android.net.Uri;
-import android.os.RemoteCallbackList;
-import android.os.RemoteException;
-import android.util.DisplayMetrics;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
@@ -19,10 +18,11 @@ import com.lody.virtual.service.IAppManager;
 import com.lody.virtual.service.interfaces.IAppObserver;
 import com.lody.virtual.service.process.VProcessService;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.RemoteCallbackList;
+import android.os.RemoteException;
+import android.util.DisplayMetrics;
 
 /**
  * @author Lody
@@ -213,7 +213,6 @@ public class VAppService extends IAppManager.Stub {
 		VirtualCore.getCore().getContext().sendBroadcast(virtualIntent);
 	}
 
-
 	private void notifyAppUninstalled(String pkgName) {
 		int N = remoteCallbackList.beginBroadcast();
 		while (N-- > 0) {
@@ -229,8 +228,6 @@ public class VAppService extends IAppManager.Stub {
 		virtualIntent.setData(uri);
 		VirtualCore.getCore().getContext().sendBroadcast(virtualIntent);
 	}
-
-
 
 	@Override
 	public void registerObserver(IAppObserver observer) {

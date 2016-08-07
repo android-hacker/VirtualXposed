@@ -3,13 +3,10 @@ package com.lody.virtual.client.service;
 import java.io.Serializable;
 
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.service.am.StubInfo;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.pm.ComponentInfo;
-import android.content.pm.ProviderInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,16 +19,14 @@ import android.os.Parcelable;
  */
 public class ProviderCaller {
 
-	public static Bundle call(String auth, Context context, String methodName, String arg, Bundle bundle) {
-		Uri uri = Uri.parse("content://" + auth);
-		ContentResolver contentResolver = context.getContentResolver();
-		return contentResolver.call(uri, methodName, arg, bundle);
+	public static Bundle call(StubInfo stubInfo, String methodName, String arg, Bundle bundle) {
+		return call(stubInfo.providerInfo.authority, VirtualCore.getCore().getContext(), methodName, arg, bundle);
 	}
 
-	public static void initProcess(ProviderInfo providerInfo, ComponentInfo componentInfo) {
-		new Builder(VirtualCore.getCore().getContext(), providerInfo.authority)
-				.addArg(ExtraConstants.EXTRA_PROCESS_NAME, ComponentUtils.getProcessName(componentInfo))
-				.addArg(ExtraConstants.EXTRA_PKG, componentInfo.packageName);
+	public static Bundle call(String authority, Context context, String methodName, String arg, Bundle bundle) {
+		Uri uri = Uri.parse("content://" + authority);
+		ContentResolver contentResolver = context.getContentResolver();
+		return contentResolver.call(uri, methodName, arg, bundle);
 	}
 
 	public static final class Builder {

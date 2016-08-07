@@ -1,128 +1,153 @@
 package com.lody.virtual.service.process;
 
-import android.annotation.NonNull;
-import android.app.ActivityManagerNative;
 import android.app.ApplicationThreadNative;
 import android.app.IApplicationThread;
-import android.content.pm.ComponentInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.ProviderInfo;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Process;
-import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.text.TextUtils;
 
 import com.lody.virtual.client.IVClient;
-import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.service.ProviderCaller;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.MethodConstants;
-import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.IProcessManager;
 import com.lody.virtual.service.am.StubInfo;
 import com.lody.virtual.service.am.VActivityService;
 import com.lody.virtual.service.am.VServiceService;
 import com.lody.virtual.service.interfaces.IProcessObserver;
-import com.lody.virtual.service.pm.VAppService;
+import com.lody.virtual.service.pm.VPackageService;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import static android.os.Process.killProcess;
 
 /**
  * @author Lody
- *
- *         <p/>
- *         维护和管理所有的插件进程，支持如下特征： 1、在插件进程创建后第一时间与PMS连接，在插件进程死亡时能够立刻知晓并采取相应措施。
- *         2、在进程剩余不多时自动杀死优先级最低的进程。
  */
+
 public class VProcessService extends IProcessManager.Stub {
 
+	private static final VProcessService sService = new VProcessService();
 	private static final String TAG = VProcessService.class.getSimpleName();
-	private static final VProcessService sMgr = new VProcessService();
-	private final ProcessList mProcessList = new ProcessList();
-	private final RunningAppList mRunningAppList = new RunningAppList();
-	private RemoteCallbackList<IProcessObserver> mObserverList = new RemoteCallbackList<>();
+	private final ProcessMap mProcessMap = new ProcessMap();
+	private Map<String, ProcessRecord> mPendingProcesses = new HashMap<>();
 
 	public static VProcessService getService() {
-		return sMgr;
+		return sService;
 	}
 
-	/**
-	 * 根据插件进程的Pid查找运行在该进程的所有插件包名
-	 *
-	 * @param pid
-	 *            插件Pid
-	 */
-	public String[] findRunningAppPkgByPid(int pid) {
-		synchronized (mProcessList) {
-			ProcessRecord record = mProcessList.findProcess(pid);
-			if (record != null) {
-				return record.runningAppPkgs.toArray(new String[record.runningAppPkgs.size()]);
+	@Override
+	public void attachClient(final IBinder clientBinder) {
+		synchronized (this) {
+			int callingPid = Binder.getCallingPid();
+			final IVClient client = IVClient.Stub.asInterface(clientBinder);
+			if (client == null) {
+				killProcess(callingPid);
+				return;
+			}
+			IApplicationThread thread = null;
+			try {
+				thread = ApplicationThreadNative.asInterface(client.getAppThread());
+			} catch (RemoteException e) {
+				// client has died
+			}
+			if (thread == null) {
+				killProcess(callingPid);
+				return;
+			}
+			ProcessRecord app = null;
+			try {
+				IBinder token = client.getToken();
+				if (token instanceof ProcessRecord) {
+					app = (ProcessRecord) token;
+				}
+			} catch (RemoteException e) {
+				// client has died
+			}
+			if (app == null) {
+				killProcess(callingPid);
+				return;
+			}
+			try {
+				final ProcessRecord record = app;
+				clientBinder.linkToDeath(new DeathRecipient() {
+					@Override
+					public void binderDied() {
+						clientBinder.unlinkToDeath(this, 0);
+						onProcessDied(record);
+					}
+				}, 0);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+			app.client = client;
+			app.thread = thread;
+			app.pid = callingPid;
+			try {
+				client.bindApplication(app.processName, app.info, app.sharedPackages, app.providers);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+			mProcessMap.put(app);
+			mPendingProcesses.remove(app.processName);
+		}
+	}
+
+	private void onProcessDied(ProcessRecord record) {
+		VLog.d(TAG, "Process %s has died.", record.processName);
+		mProcessMap.remove(record.pid);
+		VActivityService.getService().processDied(record);
+		VServiceService.getService().processDied(record);
+		record.lock.open();
+	}
+
+	public ProcessRecord startProcess(String processName, ApplicationInfo info) {
+		synchronized (this) {
+			ProcessRecord app = mProcessMap.get(processName);
+			if (app != null) {
+				return app;
+			}
+			app = mPendingProcesses.get(processName);
+			if (app != null) {
+				return app;
+			}
+			StubInfo stubInfo = queryFreeStubForProcess(processName);
+			if (stubInfo == null) {
+				return null;
+			}
+			List<String> sharedPackages = VPackageService.getService().querySharedPackages(info.packageName);
+			List<ProviderInfo> providers = VPackageService.getService().queryContentProviders(processName, 0).getList();
+			app = new ProcessRecord(stubInfo, info, processName, providers, sharedPackages);
+			app.pendingPackages.add(info.packageName);
+			mPendingProcesses.put(processName, app);
+			Bundle extras = new Bundle();
+			BundleCompat.putBinder(extras, ExtraConstants.EXTRA_BINDER, app);
+			ProviderCaller.call(stubInfo, MethodConstants.INIT_PROCESS, null, extras);
+			return app;
+		}
+	}
+
+	private StubInfo queryFreeStubForProcess(String processName) {
+		for (StubInfo stubInfo : VActivityService.getService().getStubs()) {
+			if (mProcessMap.get(stubInfo) == null || mPendingProcesses.containsKey(processName)) {
+				return stubInfo;
 			}
 		}
 		return null;
 	}
 
 	@Override
-	public void killApplicationProcess(String procName, int uid) {
-		synchronized (mProcessList) {
-			boolean killed = false;
-			for (ProcessRecord r : mProcessList.values()) {
-				if (TextUtils.equals(procName, r.processName)) {
-					killProcess(r);
-					killed = true;
-					break;
-				}
-			}
-			if (!killed) {
-				try {
-					ActivityManagerNative.getDefault().killApplicationProcess(procName, Process.myUid());
-				} catch (RemoteException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-	@Override
-	public boolean isAppPid(int pid) throws RemoteException {
-		return mProcessList.containPid(pid);
-	}
-
-	@Override
-	public String getAppProcessName(int pid) throws RemoteException {
-		synchronized (mProcessList) {
-			ProcessRecord r = mProcessList.findProcess(pid);
-			if (r == null) {
-				return null;
-			}
-			return r.processName;
-		}
-	}
-
-	@Override
-	public List<String> getProcessPkgList(int pid) throws RemoteException {
-		synchronized (mProcessList) {
-			ProcessRecord r = mProcessList.findProcess(pid);
-			if (r == null) {
-				return null;
-			}
-			return new ArrayList<String>(r.runningAppPkgs);
-		}
-	}
-
-	/**
-	 * 判断指定进程是否为插件进程
-	 *
-	 * @param processName
-	 *            进程名
-	 */
-	@Override
-	public synchronized boolean isAppProcess(String processName) {
+	public boolean isAppProcess(String processName) {
 		if (!TextUtils.isEmpty(processName)) {
 			Set<String> processList = VActivityService.getService().getStubProcessList();
 			return processList.contains(processName);
@@ -130,317 +155,128 @@ public class VProcessService extends IProcessManager.Stub {
 		return false;
 	}
 
-	/**
-	 * DUMP PROC
-	 */
+	@Override
+	public boolean isAppPid(int pid) {
+		return findProcess(pid) != null;
+	}
+
+	@Override
+	public String getAppProcessName(int pid) {
+		synchronized (mProcessMap) {
+			ProcessRecord r = mProcessMap.get(pid);
+			if (r != null) {
+				return r.processName;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public List<String> getProcessPkgList(int pid) {
+		synchronized (mProcessMap) {
+			ProcessRecord r = mProcessMap.get(pid);
+			if (r != null) {
+				return new ArrayList<>(r.pkgList);
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public void killAllApps() {
+		synchronized (mProcessMap) {
+			mProcessMap.foreach(new ProcessMap.Visitor() {
+				@Override
+				public boolean accept(ProcessRecord record) {
+					killProcess(record.pid);
+					return true;
+				}
+			});
+		}
+	}
+
+	@Override
+	public void killAppByPkg(final String pkg) {
+		synchronized (mProcessMap) {
+			mProcessMap.foreach(new ProcessMap.Visitor() {
+				@Override
+				public boolean accept(ProcessRecord record) {
+					if (record.pkgList.contains(pkg)) {
+						killProcess(record.pid);
+					}
+					return true;
+				}
+			});
+		}
+	}
+
+	@Override
+	public void killApplicationProcess(final String procName, int uid) {
+		synchronized (mProcessMap) {
+			mProcessMap.foreach(new ProcessMap.Visitor() {
+				@Override
+				public boolean accept(ProcessRecord record) {
+					if (record.processName.equals(procName)) {
+						killProcess(record.pid);
+					}
+					return true;
+				}
+			});
+		}
+	}
+
 	@Override
 	public void dump() {
 
 	}
 
-	/**
-	 * 杀掉所有的插件进程
-	 */
 	@Override
-	public void killAllApps() {
-		synchronized (mProcessList) {
-			for (ProcessRecord r : mProcessList.values()) {
-				killProcess(r);
-			}
-		}
-	}
+	public void registerProcessObserver(IProcessObserver observer) {
 
-	/**
-	 * 判断指定Pid是否与指定进程名为同一个进程
-	 *
-	 * @param pid
-	 *            Pid
-	 * @param appProcessName
-	 *            进程名
-	 */
-	public boolean isSameProcess(int pid, String appProcessName) {
-		synchronized (mProcessList) {
-			ProcessRecord r = mProcessList.findProcess(pid);
-			return r != null && r.processName.equals(appProcessName);
-		}
-	}
-
-	/**
-	 * 杀掉所有正在运行指定包名apk的进程
-	 *
-	 * @param pkgName
-	 *            包名
-	 */
-	@Override
-	public void killAppByPkg(String pkgName) {
-		if (!TextUtils.isEmpty(pkgName)) {
-			synchronized (mProcessList) {
-				for (ProcessRecord r : mProcessList.values()) {
-					if (r.isRunning(pkgName)) {
-						killProcess(r);
-					}
-				}
-				mRunningAppList.pluginStopped(pkgName);
-			}
-		}
-	}
-
-	/**
-	 * 杀掉指定插件进程
-	 *
-	 * @param r
-	 *            record
-	 */
-	private void killProcess(ProcessRecord r) {
-		if (r != null) {
-			synchronized (mProcessList) {
-				if (r.pid != 0) {
-					tryKillProcess(r.pid);
-				}
-			}
-		}
-	}
-
-	private void tryKillProcess(int pid) {
-		try {
-			Process.killProcess(pid);
-		} catch (Throwable e) {
-			// Maybe produce exception
-		}
-	}
-
-	private ProcessRecord removeProcessRecordLocked(int pid) {
-		synchronized (mProcessList) {
-			ProcessRecord r = mProcessList.findProcess(pid);
-			if (r == null) {
-				return null;
-			}
-			for (String pkg : r.runningAppPkgs) {
-				RunningAppRecord app = mRunningAppList.getRecord(pkg);
-				if (app == null) {
-					continue;
-				}
-				int count = mObserverList.beginBroadcast();
-				for (int N = 0; N < count; N++) {
-					try {
-						mObserverList.getBroadcastItem(N).onProcessDied(pkg, r.processName);
-					} catch (RemoteException e) {
-						e.printStackTrace();
-					}
-				}
-				mObserverList.finishBroadcast();
-				if (app.isRunningOnPid(r.pid)) {
-					app.removePid(r.pid);
-				}
-				if (app.runningPids.isEmpty()) {
-					mRunningAppList.pluginStopped(app.pkgName);
-				}
-			}
-			mProcessList.removeRecord(pid);
-			return r;
-		}
-	}
-
-	private void linkClientBinderDied(final int pid, final IBinder cb) {
-		try {
-			cb.linkToDeath(new DeathRecipient() {
-				@Override
-				public void binderDied() {
-					synchronized (mProcessList) {
-						ProcessRecord r = removeProcessRecordLocked(pid);
-						if (r != null) {
-							VActivityService.getService().processDied(r);
-							VServiceService.getService().processDied(r);
-						}
-						cb.unlinkToDeath(this, 0);
-					}
-				}
-			}, 0);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
 	}
 
 	@Override
-	public synchronized void onAppProcessCreate(IBinder clientBinder, String pkg, String processName) {
-		final int callingPid = Binder.getCallingPid();
-		int uid = Binder.getCallingUid();
-		IVClient client = IVClient.Stub.asInterface(clientBinder);
-		if (client == null) {
-            Process.killProcess(callingPid);
-            return;
-        }
-		IApplicationThread appThread = null;
-		try {
-            appThread = ApplicationThreadNative.asInterface(client.getAppThread());
-        } catch (RemoteException e) {
-            // Ignore
-        }
-		if (appThread == null) {
-            Process.killProcess(callingPid);
-            return;
-        }
-		linkClientBinderDied(callingPid, clientBinder);
-		ProcessRecord r = mProcessList.findProcess(callingPid);
-		if (r == null) {
-            r = new ProcessRecord(callingPid, uid);
-            r.updateStubProcess(callingPid);
-            if (r.stubProcessName == null || r.stubInfo == null) {
-                VLog.e(TAG, "Unable to find stubInfo from target AppProcess(%d).", callingPid);
-                killProcess(r);
-                return;
-            }
-            r.client = client;
-            r.processName = processName;
-            onEnterApp(pkg, r);
-            r.appThread = appThread;
-            r.stubInfo.verify();
-            mProcessList.addProcess(callingPid, r);
-        } else {
-            VLog.w(TAG, "Pid %d has been bound to PMS, should not be bound again, ignored.", callingPid);
-        }
-	}
-
-
-	public void onEnterApp(String pkgName, ProcessRecord r) {
-		int count = mObserverList.beginBroadcast();
-		for (int N = 0; N < count; N++) {
-            try {
-                mObserverList.getBroadcastItem(N).onProcessCreated(pkgName, r.processName);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-        }
-		mObserverList.finishBroadcast();
-		r.addPackage(pkgName);
-		RunningAppRecord runningAppRecord = mRunningAppList.getRecord(pkgName);
-		if (runningAppRecord == null) {
-            runningAppRecord = new RunningAppRecord(pkgName);
-            runningAppRecord.addPid(Binder.getCallingPid());
-            mRunningAppList.appStarted(pkgName, runningAppRecord);
-        }
-
-	}
-
-	public void registerProcessObserver(final IProcessObserver observer) {
-		try {
-			final IBinder binder = observer.asBinder();
-			binder.linkToDeath(new DeathRecipient() {
-				@Override
-				public void binderDied() {
-					mObserverList.unregister(observer);
-					binder.unlinkToDeath(this, 0);
-				}
-			}, 0);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-		mObserverList.register(observer);
-	}
-
 	public void unregisterProcessObserver(IProcessObserver observer) {
-		mObserverList.unregister(observer);
-	}
 
-
-	public StubInfo findStubInfo(String appProcessName) {
-		synchronized (mProcessList) {
-			ProcessRecord r = findProcess(appProcessName);
-			if (r != null) {
-				return r.stubInfo;
-			}
-			return null;
-		}
-	}
-
-	public ProcessRecord findProcess(String appProcessName) {
-		synchronized (mProcessList) {
-			for (ProcessRecord r : mProcessList.values()) {
-				if (TextUtils.equals(appProcessName, r.processName)) {
-					return r;
-				}
-			}
-		}
-		return null;
-	}
-
-
-	public ProcessRecord startProcessLocked(@NonNull ComponentInfo componentInfo) {
-		String pkg = componentInfo.packageName;
-		final String appProcessName = ComponentUtils.getProcessName(componentInfo);
-		if (!VAppService.getService().isAppInstalled(pkg)) {
-            return null;
-        }
-		boolean notCreated = false;
-		StubInfo stubInfo;
-		synchronized (this) {
-			stubInfo = findStubInfo(appProcessName);
-			if (stubInfo == null) {
-				// The target process is not running,
-				// we need to find a free stub to hold the target process.
-				notCreated = true;
-				stubInfo = fetchFreeStubInfo(VActivityService.getService().getStubs());
-			}
-		}
-		if (stubInfo == null) {
-			VLog.e(TAG, "Unable to fetch free Stub for launch Process: %s(%s).", pkg, appProcessName);
-			return null;
-		}
-		if (notCreated) {
-            performStartProcessLocked(componentInfo.packageName, appProcessName, stubInfo.providerInfo);
-        }
-		return findProcess(appProcessName);
-	}
-
-
-	public ProcessRecord getCallingProcessRecord() {
-		return findProcess(Binder.getCallingPid());
-	}
-
-
-	public void performStartProcessLocked(String pkg, String processName, ProviderInfo providerInfo) {
-		new ProviderCaller.Builder(VirtualCore.getCore().getContext(), providerInfo.authority)
-                .methodName(MethodConstants.INIT_PROCESS)
-                .addArg(ExtraConstants.EXTRA_PKG, pkg)
-                .addArg(ExtraConstants.EXTRA_PROCESS_NAME, processName)
-                .call();
-	}
-
-	public ProcessRecord findStubProcessRecord(String processName) {
-		synchronized (mProcessList) {
-			for (ProcessRecord r : mProcessList.values()) {
-				if (TextUtils.equals(r.stubProcessName, processName)) {
-					return r;
-				}
-			}
-		}
-		return null;
-	}
-
-	private boolean isStubProcessRunning(StubInfo stubInfo) {
-		return findStubProcessRecord(stubInfo.processName) != null;
-	}
-
-
-	public synchronized StubInfo fetchFreeStubInfo(Collection<StubInfo> stubInfos) {
-		for (StubInfo stubInfo : stubInfos) {
-            if (!isStubProcessRunning(stubInfo)) {
-                return stubInfo;
-            }
-        }
-		return null;
-	}
-
-	public ProcessRecord findProcess(int pid) {
-		return mProcessList.findProcess(pid);
 	}
 
 	@Override
 	public String getInitialPackage(int pid) {
-		ProcessRecord r = findProcess(pid);
-		if (r != null) {
-			return r.initialPackage;
+		synchronized (mProcessMap) {
+			ProcessRecord r = mProcessMap.get(pid);
+			if (r != null) {
+				return r.info.packageName;
+			}
+			return null;
 		}
-		return null;
+	}
+
+	@Override
+	public void handleApplicationCrash() {
+		synchronized (mProcessMap) {
+			ProcessRecord r = mProcessMap.get(Binder.getCallingPid());
+			if (r != null) {
+				r.lock.open();
+			}
+		}
+	}
+
+	@Override
+	public void appDoneExecuting(String packageName) {
+		synchronized (mProcessMap) {
+			ProcessRecord r = mProcessMap.get(Binder.getCallingPid());
+			if (r != null) {
+				r.pendingPackages.remove(packageName);
+				r.lock.open();
+			}
+		}
+	}
+
+	public ProcessRecord findProcess(int pid) {
+		return mProcessMap.get(pid);
+	}
+
+	public ProcessRecord findProcess(String processName) {
+		return mProcessMap.get(processName);
 	}
 }

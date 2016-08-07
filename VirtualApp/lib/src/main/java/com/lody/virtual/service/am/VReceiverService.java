@@ -1,5 +1,17 @@
 package com.lody.virtual.service.am;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import com.lody.virtual.client.service.ServiceManagerNative;
+import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.service.IReceiverManager;
+
 import android.app.Activity;
 import android.app.ApplicationThreadNative;
 import android.app.IApplicationThread;
@@ -11,26 +23,13 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import com.lody.virtual.client.service.ServiceManagerNative;
-import com.lody.virtual.helper.utils.VLog;
-import com.lody.virtual.service.IReceiverManager;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
 /**
- * By : qiang.sheng qiang.sheng@godinsec.com Created by andy on 16-8-3.
- * TODO:
+ * By : qiang.sheng qiang.sheng@godinsec.com Created by andy on 16-8-3. TODO:
  * 管理Receiver的服务, 用于模拟系统广播的发送. 例如:应用安装, 卸载.
  */
 public class VReceiverService extends IReceiverManager.Stub {
 
-	private static  final VReceiverService mService = new VReceiverService();
+	private static final VReceiverService mService = new VReceiverService();
 
 	final Map<IBinder, ReceiverList> mRegisteredReceivers = (Map<IBinder, ReceiverList>) Collections
 			.synchronizedMap(new HashMap<IBinder, ReceiverList>());
@@ -47,7 +46,6 @@ public class VReceiverService extends IReceiverManager.Stub {
 			return null;
 		return Stub.asInterface(receiverServiceBinder);
 	}
-
 
 	@Override
 	public void unregisterReceiver(IBinder receiver) {
@@ -83,8 +81,9 @@ public class VReceiverService extends IReceiverManager.Stub {
 
 					if (!intentReceivers.contains(receiver)) {
 						intentReceivers.add(receiver);
-						VLog.i("Andy", "Receiver -> registerReceiver %s", Arrays.toString(new Object[]{action, receiver,
-								intentReceiver, intentReceivers.size(), intentReceivers.contains(intentReceiver.asBinder())}));
+						VLog.i("Andy", "Receiver -> registerReceiver %s",
+								Arrays.toString(new Object[]{action, receiver, intentReceiver, intentReceivers.size(),
+										intentReceivers.contains(intentReceiver.asBinder())}));
 					}
 				}
 			}
