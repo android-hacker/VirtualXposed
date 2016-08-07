@@ -50,6 +50,10 @@ public class VClientImpl extends IVClient.Stub {
 	private final H mH = new H();
 	private AppBindData mBoundApplication;
 
+	public boolean isBound() {
+		return mBoundApplication != null;
+	}
+
 	private final class AppBindData {
 		String processName;
 		ApplicationInfo appInfo;

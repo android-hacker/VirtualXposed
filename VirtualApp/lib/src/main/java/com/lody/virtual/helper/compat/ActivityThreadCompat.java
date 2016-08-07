@@ -36,10 +36,6 @@ public class ActivityThreadCompat {
 		}
 	}
 
-	public static void handleBindApplication(Object bindData) {
-		ActivityThread mainThread = VirtualCore.mainThread();
-		Reflect.on(mainThread).call("handleBindApplication", bindData);
-	}
 
 	public static IActivityManager.ContentProviderHolder installProvider(Context context, ProviderInfo providerInfo) {
 		if (!installProvider.isAccessible()) {

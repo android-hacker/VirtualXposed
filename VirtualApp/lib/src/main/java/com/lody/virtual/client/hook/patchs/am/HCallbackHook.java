@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 
+import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.interfaces.Injectable;
 import com.lody.virtual.helper.ExtraConstants;
@@ -48,9 +49,6 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 	}
 
 	private boolean calling = false;
-	/**
-	 * 其它插件化可能也会注入Activity$H, 这里要保留其它插件化的Callback引用，我们的Callback完事后再调用它的。
-	 */
 	private Handler.Callback otherCallback;
 
 	private HCallbackHook() {
@@ -66,7 +64,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
-		return null;
+		throw new RuntimeException("Unable to find field: mH.");
 	}
 
 	private static Handler.Callback getHCallback() {
@@ -85,6 +83,10 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 			calling = true;
 			try {
 				if (LAUNCH_ACTIVITY == msg.what) {
+					if (!VClientImpl.getClient().isBound()) {
+						getH().sendMessage(msg);
+						return true;
+					}
 					handleLaunchActivity(msg);
 				}
 				if (otherCallback != null) {
