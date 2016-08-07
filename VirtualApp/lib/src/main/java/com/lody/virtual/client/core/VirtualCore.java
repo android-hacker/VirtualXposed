@@ -1,5 +1,23 @@
 package com.lody.virtual.client.core;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.lody.virtual.client.env.Constants;
+import com.lody.virtual.client.env.VirtualRuntime;
+import com.lody.virtual.client.fixer.ContextFixer;
+import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.client.local.VPackageManager;
+import com.lody.virtual.client.service.ServiceManagerNative;
+import com.lody.virtual.helper.ExtraConstants;
+import com.lody.virtual.helper.compat.ActivityThreadCompat;
+import com.lody.virtual.helper.compat.BundleCompat;
+import com.lody.virtual.helper.loaders.ClassLoaderHelper;
+import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.proto.InstallResult;
+import com.lody.virtual.service.IAppManager;
+
 import android.app.Activity;
 import android.app.ActivityThread;
 import android.content.ComponentName;
@@ -17,24 +35,6 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.text.TextUtils;
-
-import com.lody.virtual.client.env.Constants;
-import com.lody.virtual.client.env.VirtualRuntime;
-import com.lody.virtual.client.fixer.ContextFixer;
-import com.lody.virtual.client.local.LocalPackageManager;
-import com.lody.virtual.client.local.LocalProcessManager;
-import com.lody.virtual.client.service.ServiceManagerNative;
-import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.compat.ActivityThreadCompat;
-import com.lody.virtual.helper.compat.BundleCompat;
-import com.lody.virtual.helper.loaders.ClassLoaderHelper;
-import com.lody.virtual.helper.proto.AppInfo;
-import com.lody.virtual.helper.proto.InstallResult;
-import com.lody.virtual.service.IAppManager;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Lody
@@ -158,7 +158,7 @@ public final class VirtualCore {
 				processType = ProcessType.Main;
 			} else if (processName.endsWith(Constants.SERVER_PROCESS_NAME)) {
 				processType = ProcessType.Server;
-			} else if (LocalProcessManager.isAppProcess(processName)) {
+			} else if (VActivityManager.getInstance().isAppProcess(processName)) {
 				processType = ProcessType.VAppClient;
 			} else {
 				processType = ProcessType.CHILD;
@@ -327,7 +327,7 @@ public final class VirtualCore {
 	public synchronized ActivityInfo resolveActivityInfo(Intent intent) {
 		ActivityInfo activityInfo = null;
 		if (intent.getComponent() == null) {
-			ResolveInfo resolveInfo = LocalPackageManager.getInstance().resolveIntent(intent, intent.getType(), 0);
+			ResolveInfo resolveInfo = VPackageManager.getInstance().resolveIntent(intent, intent.getType(), 0);
 			if (resolveInfo != null && resolveInfo.activityInfo != null) {
 				activityInfo = resolveInfo.activityInfo;
 				intent.setClassName(activityInfo.packageName, activityInfo.name);
@@ -342,7 +342,7 @@ public final class VirtualCore {
 	public synchronized ActivityInfo resolveActivityInfo(ComponentName componentName) {
 		ActivityInfo activityInfo = activityInfoCache.get(componentName);
 		if (activityInfo == null) {
-			activityInfo = LocalPackageManager.getInstance().getActivityInfo(componentName, 0);
+			activityInfo = VPackageManager.getInstance().getActivityInfo(componentName, 0);
 			if (activityInfo != null) {
 				activityInfoCache.put(componentName, activityInfo);
 			}
@@ -352,7 +352,7 @@ public final class VirtualCore {
 
 	public ServiceInfo resolveServiceInfo(Intent intent) {
 		ServiceInfo serviceInfo = null;
-		ResolveInfo resolveInfo = LocalPackageManager.getInstance().resolveService(intent, intent.getType(), 0);
+		ResolveInfo resolveInfo = VPackageManager.getInstance().resolveService(intent, intent.getType(), 0);
 		if (resolveInfo != null) {
 			serviceInfo = resolveInfo.serviceInfo;
 		}
@@ -360,11 +360,11 @@ public final class VirtualCore {
 	}
 
 	public void killApp(String pkg) {
-		LocalProcessManager.killAppByPkg(pkg);
+		VActivityManager.getInstance().killAppByPkg(pkg);
 	}
 
 	public void killAllApps() {
-		LocalProcessManager.killAllApps();
+		VActivityManager.getInstance().killAllApps();
 	}
 
 	public List<AppInfo> getAllApps() {

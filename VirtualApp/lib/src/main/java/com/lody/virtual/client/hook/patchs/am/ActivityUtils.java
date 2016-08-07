@@ -1,7 +1,7 @@
 package com.lody.virtual.client.hook.patchs.am;
 
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.local.LocalActivityManager;
+import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.VRedirectActRequest;
@@ -30,7 +30,7 @@ import android.os.IBinder;
 			req.fromHost = !VirtualCore.getCore().isVAppProcess();
 			req.resultTo = resultTo;
 			// Get Request Result
-			VActRedirectResult result = LocalActivityManager.getInstance().redirectTargetActivity(req);
+			VActRedirectResult result = VActivityManager.getInstance().redirectTargetActivity(req);
 			if (result == null || result.stubActInfo == null) {
 				return false;
 			}

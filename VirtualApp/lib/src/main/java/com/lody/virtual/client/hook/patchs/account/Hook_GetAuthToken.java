@@ -3,7 +3,7 @@ package com.lody.virtual.client.hook.patchs.account;
 import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalAccountManager;
+import com.lody.virtual.client.local.VAccountManager;
 
 import android.accounts.Account;
 import android.accounts.IAccountManagerResponse;
@@ -32,7 +32,7 @@ public class Hook_GetAuthToken extends Hook {
 		boolean notifyOnAuthFailure = (boolean) args[3];
 		boolean expectActivityLaunch = (boolean) args[4];
 		Bundle options = (Bundle) args[5];
-		LocalAccountManager.getInstance().getAuthToken(response, account, authTokenType, notifyOnAuthFailure,
+		VAccountManager.getInstance().getAuthToken(response, account, authTokenType, notifyOnAuthFailure,
 				expectActivityLaunch, options);
 		return 0;
 	}

@@ -44,12 +44,12 @@ import android.util.LogPrinter;
  * @author Lody
  *
  */
-public class VPackageService extends IPackageManager.Stub {
+public class VPackageManagerService extends IPackageManager.Stub {
 
 	static final String TAG = "PackageManager";
 
 	private static final boolean DEBUG_SHOW_INFO = false;
-	private static final AtomicReference<VPackageService> gService = new AtomicReference<>();
+	private static final AtomicReference<VPackageManagerService> gService = new AtomicReference<>();
 	private static final Comparator<ResolveInfo> mResolvePrioritySorter = new Comparator<ResolveInfo>() {
 		public int compare(ResolveInfo r1, ResolveInfo r2) {
 			int v1 = r1.priority;
@@ -100,17 +100,17 @@ public class VPackageService extends IPackageManager.Stub {
 
 	private int[] mGids;
 
-	public VPackageService(int[] gids) {
+	public VPackageManagerService(int[] gids) {
 		this.mGids = gids;
 	}
 
 	public static void systemReady() {
 		int[] gids = VirtualCore.getCore().getGids();
-		VPackageService instance = new VPackageService(gids);
+		VPackageManagerService instance = new VPackageManagerService(gids);
 		gService.set(instance);
 	}
 
-	public static VPackageService getService() {
+	public static VPackageManagerService getService() {
 		return gService.get();
 	}
 
@@ -122,8 +122,8 @@ public class VPackageService extends IPackageManager.Stub {
 		return VirtualCore.getCore().getContext();
 	}
 
-	private VAppService getPMS() {
-		return VAppService.getService();
+	private VAppManagerService getPMS() {
+		return VAppManagerService.getService();
 	}
 
 	public void analyzePackageLocked(AppInfo appInfo, PackageParser.Package pkg) {

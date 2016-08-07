@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 
 import com.lody.virtual.client.fixer.ComponentFixer;
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalPackageManager;
+import com.lody.virtual.client.local.VPackageManager;
 
 import android.content.ComponentName;
 import android.content.pm.ProviderInfo;
@@ -31,7 +31,7 @@ import android.content.pm.ProviderInfo;
 		if (getHostPkg().equals(componentName.getPackageName())) {
 			return method.invoke(who, args);
 		}
-		ProviderInfo providerInfo = LocalPackageManager.getInstance().getProviderInfo(componentName, flags);
+		ProviderInfo providerInfo = VPackageManager.getInstance().getProviderInfo(componentName, flags);
 		if (providerInfo != null) {
 			ComponentFixer.fixUid(providerInfo.applicationInfo);
 		}

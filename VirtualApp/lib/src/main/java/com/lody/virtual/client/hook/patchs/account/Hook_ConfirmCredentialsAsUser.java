@@ -3,7 +3,7 @@ package com.lody.virtual.client.hook.patchs.account;
 import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalAccountManager;
+import com.lody.virtual.client.local.VAccountManager;
 
 import android.accounts.Account;
 import android.accounts.IAccountManagerResponse;
@@ -30,7 +30,7 @@ public class Hook_ConfirmCredentialsAsUser extends Hook {
 		Account account = (Account) args[1];
 		Bundle options = (Bundle) args[2];
 		boolean expectActivityLaunch = (boolean) args[3];
-		LocalAccountManager.getInstance().confirmCredentials(response, account, options, expectActivityLaunch);
+		VAccountManager.getInstance().confirmCredentials(response, account, options, expectActivityLaunch);
 		return 0;
 	}
 }

@@ -3,7 +3,7 @@ package com.lody.virtual.client.hook.patchs.pm;
 import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalPackageManager;
+import com.lody.virtual.client.local.VPackageManager;
 
 /**
  * @author Lody
@@ -27,7 +27,7 @@ import com.lody.virtual.client.local.LocalPackageManager;
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		String processName = (String) args[0];
 		int flags = (int) args[2];
-		return LocalPackageManager.getInstance().queryContentProviders(processName, flags);
+		return VPackageManager.getInstance().queryContentProviders(processName, flags);
 	}
 
 }

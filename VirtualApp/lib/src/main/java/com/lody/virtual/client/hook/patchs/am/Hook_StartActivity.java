@@ -9,7 +9,7 @@ import android.os.IBinder;
 
 import com.android.internal.content.ReferrerIntent;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.local.LocalActivityManager;
+import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.compat.IApplicationThreadCompat;
 import com.lody.virtual.helper.proto.VActRedirectResult;
@@ -63,7 +63,7 @@ import java.util.Collections;
 		req.fromHost = !VirtualCore.getCore().isVAppProcess();
 		req.resultTo = resultTo;
 		// Get Request Result
-		VActRedirectResult result = LocalActivityManager.getInstance().redirectTargetActivity(req);
+		VActRedirectResult result = VActivityManager.getInstance().redirectTargetActivity(req);
 		if (result == null || result.justReturn) {
 			return 0;
 		}
@@ -90,7 +90,7 @@ import java.util.Collections;
 		}
 		ActivityInfo callerActInfo = null;
 		if (resultTo != null) {
-			callerActInfo = LocalActivityManager.getInstance().getActivityInfo(resultTo);
+			callerActInfo = VActivityManager.getInstance().getActivityInfo(resultTo);
 		}
 		// Mapping
 		Intent stubIntent = new Intent();

@@ -1,6 +1,6 @@
 package com.lody.virtual;
 
-import com.lody.virtual.client.local.LocalProcessManager;
+import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.VLog;
 
@@ -80,7 +80,7 @@ public class IOHook {
 		if (callingPid == Process.myPid()) {
 			return originUid;
 		}
-		String initialPackage = LocalProcessManager.getInitialPackage(callingPid);
+		String initialPackage = VActivityManager.getInstance().getInitialPackage(callingPid);
 		if (ComponentUtils.isSharedPackage(initialPackage)) {
 			return originUid;
 		}

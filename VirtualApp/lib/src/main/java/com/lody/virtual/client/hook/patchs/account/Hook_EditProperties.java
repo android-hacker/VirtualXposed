@@ -3,7 +3,7 @@ package com.lody.virtual.client.hook.patchs.account;
 import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalAccountManager;
+import com.lody.virtual.client.local.VAccountManager;
 
 import android.accounts.IAccountManagerResponse;
 
@@ -27,7 +27,7 @@ public class Hook_EditProperties extends Hook {
 		IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 		String accountType = (String) args[1];
 		boolean expectActivityLaunch = (boolean) args[2];
-		LocalAccountManager.getInstance().editProperties(response, accountType, expectActivityLaunch);
+		VAccountManager.getInstance().editProperties(response, accountType, expectActivityLaunch);
 		return 0;
 	}
 }

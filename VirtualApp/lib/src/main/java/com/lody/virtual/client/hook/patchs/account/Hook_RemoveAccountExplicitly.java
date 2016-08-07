@@ -5,7 +5,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalAccountManager;
+import com.lody.virtual.client.local.VAccountManager;
 
 import android.accounts.Account;
 import android.accounts.IAccountManagerResponse;
@@ -35,7 +35,7 @@ public class Hook_RemoveAccountExplicitly extends Hook {
 			@Override
 			public void run() {
 				try {
-					LocalAccountManager.getInstance().removeAccount(new IAccountManagerResponse.Stub() {
+					VAccountManager.getInstance().removeAccount(new IAccountManagerResponse.Stub() {
 						@Override
 						public void onResult(Bundle value) throws RemoteException {
 							result.set(true);

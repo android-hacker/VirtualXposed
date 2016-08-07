@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 
 import com.lody.virtual.client.fixer.ComponentFixer;
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalPackageManager;
+import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.helper.utils.ComponentUtils;
 
 import android.content.pm.PackageInfo;
@@ -33,7 +33,7 @@ public final class Hook_GetPackageInfo extends Hook {
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		String pkg = (String) args[0];
 		int flags = (int) args[1];
-		PackageInfo packageInfo = LocalPackageManager.getInstance().getPackageInfo(pkg, flags);
+		PackageInfo packageInfo = VPackageManager.getInstance().getPackageInfo(pkg, flags);
 		if (packageInfo != null) {
 			ComponentFixer.fixUid(packageInfo.applicationInfo);
 			return packageInfo;

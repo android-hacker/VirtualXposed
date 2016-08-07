@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalPackageManager;
+import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.helper.compat.ParceledListSliceCompat;
 
 import android.content.pm.ApplicationInfo;
@@ -25,7 +25,7 @@ import android.content.pm.PackageManager;
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 
 		int flags = (Integer) args[0];
-		List<ApplicationInfo> appInfos = LocalPackageManager.getInstance().getInstalledApplications(flags);
+		List<ApplicationInfo> appInfos = VPackageManager.getInstance().getInstalledApplications(flags);
 		if (isMainProcess()) {
 			PackageManager hostPM = getUnhookPM();
 			// noinspection WrongConstant

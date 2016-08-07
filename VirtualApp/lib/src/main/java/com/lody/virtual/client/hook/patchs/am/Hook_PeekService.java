@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.utils.HookUtils;
-import com.lody.virtual.client.local.LocalServiceManager;
+import com.lody.virtual.client.local.VActivityManager;
 
 import android.content.Intent;
 
@@ -25,7 +25,7 @@ import android.content.Intent;
 		HookUtils.replaceLastAppPkg(args);
 		Intent service = (Intent) args[0];
 		String resolvedType = (String) args[1];
-		return LocalServiceManager.getInstance().peekService(service, resolvedType);
+		return VActivityManager.getInstance().peekService(service, resolvedType);
 	}
 
 	@Override

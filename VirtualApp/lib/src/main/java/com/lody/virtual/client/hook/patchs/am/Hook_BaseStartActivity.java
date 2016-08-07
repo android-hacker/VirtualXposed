@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalIntentFilterManager;
+import com.lody.virtual.client.local.VIntentFilterManager;
 import com.lody.virtual.helper.utils.ArrayUtils;
 import com.lody.virtual.service.interfaces.IIntentFilterObserver;
 
@@ -41,7 +41,7 @@ public abstract class Hook_BaseStartActivity extends Hook {
 				|| (Intent.ACTION_VIEW.equals(intent.getAction()) && "package".equals(intent.getScheme()))) {
 			intent.setAction(Constants.ACTION_UNINSTALL_PACKAGE);
 		}
-		IIntentFilterObserver intentFilter = LocalIntentFilterManager.getInterface();
+		IIntentFilterObserver intentFilter = VIntentFilterManager.getInterface();
 		if (intentFilter != null) {
 			try {
 				return new Intent(intentFilter.filter(intent));

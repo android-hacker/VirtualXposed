@@ -3,7 +3,7 @@ package com.lody.virtual.client.hook.patchs.am;
 import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalActivityManager;
+import com.lody.virtual.client.local.VActivityManager;
 
 import android.os.IBinder;
 
@@ -23,7 +23,7 @@ import android.os.IBinder;
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		IBinder token = (IBinder) args[0];
-		String pkg = LocalActivityManager.getInstance().getPackageForToken(token);
+		String pkg = VActivityManager.getInstance().getPackageForToken(token);
 		if (pkg != null) {
 			return pkg;
 		}

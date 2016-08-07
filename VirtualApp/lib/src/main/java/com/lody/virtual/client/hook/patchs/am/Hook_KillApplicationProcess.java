@@ -3,7 +3,7 @@ package com.lody.virtual.client.hook.patchs.am;
 import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalProcessManager;
+import com.lody.virtual.client.local.VActivityManager;
 
 /**
  * @author Lody
@@ -23,7 +23,7 @@ import com.lody.virtual.client.local.LocalProcessManager;
 		if (args.length > 1 && args[0] instanceof String && args[1] instanceof Integer) {
 			String procName = (String) args[0];
 			int uid = (int) args[1];
-			LocalProcessManager.killApplicationProcess(procName, uid);
+			VActivityManager.getInstance().killApplicationProcess(procName, uid);
 			return 0;
 		}
 		return method.invoke(who, args);

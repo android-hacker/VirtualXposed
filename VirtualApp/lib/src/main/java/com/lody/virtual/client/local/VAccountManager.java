@@ -13,13 +13,13 @@ import android.os.RemoteException;
  * @author Lody
  */
 
-public class LocalAccountManager {
+public class VAccountManager {
 
-	private static LocalAccountManager sMgr = new LocalAccountManager();
+	private static VAccountManager sMgr = new VAccountManager();
 
 	private IAccountManager mRemote;
 
-	public static LocalAccountManager getInstance() {
+	public static VAccountManager getInstance() {
 		return sMgr;
 	}
 

@@ -9,7 +9,7 @@ import android.os.Handler;
 
 /**
  * An interface to the Authenticator specialization of RegisteredServicesCache.
- * The use of this interface by the VAccountService makes it easier to unit test
+ * The use of this interface by the VAccountManagerService makes it easier to unit test
  * it.
  * 
  * @hide

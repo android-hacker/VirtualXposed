@@ -26,18 +26,18 @@ import android.os.RemoteException;
  * @author Lody
  *
  */
-public class LocalPackageManager {
+public class VPackageManager {
 
-	private static final LocalPackageManager sMgr = new LocalPackageManager();
+	private static final VPackageManager sMgr = new VPackageManager();
 	private IPackageManager mRemote;
 
-	public static LocalPackageManager getInstance() {
+	public static VPackageManager getInstance() {
 		return sMgr;
 	}
 
 	public synchronized IPackageManager getInterface() {
 		if (mRemote == null) {
-			synchronized (LocalPackageManager.class) {
+			synchronized (VPackageManager.class) {
 				if (mRemote == null) {
 					final IBinder pmBinder = ServiceManagerNative.getService(ServiceManagerNative.PACKAGE_MANAGER);
 					mRemote = IPackageManager.Stub.asInterface(pmBinder);

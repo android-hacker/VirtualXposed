@@ -3,7 +3,7 @@ package com.lody.virtual.client.hook.patchs.am;
 import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalActivityManager;
+import com.lody.virtual.client.local.VActivityManager;
 
 import android.content.ComponentName;
 import android.content.pm.ActivityInfo;
@@ -26,7 +26,7 @@ public class Hook_GetCallingActivity extends Hook {
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		IBinder token = (IBinder) args[0];
-		ActivityInfo activityInfo = LocalActivityManager.getInstance().getCallingActivity(token);
+		ActivityInfo activityInfo = VActivityManager.getInstance().getCallingActivity(token);
 		if (activityInfo == null) {
 			return null;
 		}

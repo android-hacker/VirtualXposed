@@ -5,7 +5,7 @@ import android.content.Context;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.local.LocalProcessManager;
+import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.interfaces.IProcessObserver;
 
@@ -38,7 +38,7 @@ public class VApp extends Application {
 		super.onCreate();
 		if (VirtualCore.getCore().isMainProcess()) {
 			Once.initialise(this);
-			LocalProcessManager.registerProcessObserver(new IProcessObserver.Stub() {
+			VActivityManager.getInstance().registerProcessObserver(new IProcessObserver.Stub() {
 				@Override
 				public void onProcessCreated(String pkg, String processName) throws RemoteException {
 					VLog.d("VProcess", "Process created: %s -> %s.", pkg, processName);

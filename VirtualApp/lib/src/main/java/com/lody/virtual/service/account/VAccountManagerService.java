@@ -79,10 +79,10 @@ import android.util.Pair;
  * 
  * @hide
  */
-public class VAccountService extends IAccountManager.Stub
+public class VAccountManagerService extends IAccountManager.Stub
 		implements
 			RegisteredServicesCacheListener<AuthenticatorDescription> {
-	private static final String TAG = "VAccountService";
+	private static final String TAG = "VAccountManagerService";
 
 	private static final int TIMEOUT_DELAY_MS = 1000 * 60;
 	private static final String DATABASE_NAME = "accounts.db";
@@ -124,7 +124,7 @@ public class VAccountService extends IAccountManager.Stub
 			+ "=(select _id FROM accounts WHERE name=? AND type=?)";
 	private static final String[] COLUMNS_EXTRAS_KEY_AND_VALUE = {EXTRAS_KEY, EXTRAS_VALUE};
 	private static final Account[] EMPTY_ACCOUNT_ARRAY = new Account[]{};
-	private static AtomicReference<VAccountService> sThis = new AtomicReference<VAccountService>();
+	private static AtomicReference<VAccountManagerService> sThis = new AtomicReference<VAccountManagerService>();
 
 	static {
 		ACCOUNTS_CHANGED_INTENT = new Intent(AccountManager.LOGIN_ACCOUNTS_CHANGED_ACTION);
@@ -148,12 +148,12 @@ public class VAccountService extends IAccountManager.Stub
 	/** protected by the {@link #mCacheLock} */
 	private HashMap<Account, HashMap<String, String>> mAuthTokenCache = new HashMap<Account, HashMap<String, String>>();
 
-	public VAccountService(Context context) {
+	public VAccountManagerService(Context context) {
 		this(context, context.getPackageManager(), new AccountAuthenticatorCache(context));
 	}
 
-	public VAccountService(Context context, PackageManager packageManager,
-			AccountAuthenticatorCache authenticatorCache) {
+	public VAccountManagerService(Context context, PackageManager packageManager,
+								  AccountAuthenticatorCache authenticatorCache) {
 		mContext = context;
 		mPackageManager = packageManager;
 
@@ -161,7 +161,7 @@ public class VAccountService extends IAccountManager.Stub
 			mOpenHelper = new DatabaseHelper(mContext);
 		}
 
-		mMessageThread = new HandlerThread("VAccountService");
+		mMessageThread = new HandlerThread("VAccountManagerService");
 		mMessageThread.start();
 		mMessageHandler = new MessageHandler(mMessageThread.getLooper());
 
@@ -188,14 +188,14 @@ public class VAccountService extends IAccountManager.Stub
 	 * This should only be called by system code. One should only call this
 	 * after the service has started.
 	 *
-	 * @return a reference to the VAccountService instance
+	 * @return a reference to the VAccountManagerService instance
 	 */
-	public static VAccountService getSingleton() {
+	public static VAccountManagerService getSingleton() {
 		return sThis.get();
 	}
 
 	public static void systemReady(Context context) {
-		new VAccountService(context);
+		new VAccountManagerService(context);
 	}
 
 	private static String getDatabaseName(Context context) {
@@ -1347,7 +1347,7 @@ public class VAccountService extends IAccountManager.Stub
 	 * Allow callers with the given uid permission to get credentials for
 	 * account/authTokenType.
 	 * <p>
-	 * Although this is public it can only be accessed via the VAccountService
+	 * Although this is public it can only be accessed via the VAccountManagerService
 	 * object which is in the system. This means we don't need to protect it
 	 * with permissions.
 	 *
@@ -1382,7 +1382,7 @@ public class VAccountService extends IAccountManager.Stub
 	 * Don't allow callers with the given uid permission to get credentials for
 	 * account/authTokenType.
 	 * <p>
-	 * Although this is public it can only be accessed via the VAccountService
+	 * Although this is public it can only be accessed via the VAccountManagerService
 	 * object which is in the system. This means we don't need to protect it
 	 * with permissions.
 	 *
@@ -1972,7 +1972,7 @@ public class VAccountService extends IAccountManager.Stub
 	private class DatabaseHelper extends SQLiteOpenHelper {
 
 		public DatabaseHelper(Context context) {
-			super(context, VAccountService.getDatabaseName(mContext), null, DATABASE_VERSION);
+			super(context, VAccountManagerService.getDatabaseName(mContext), null, DATABASE_VERSION);
 		}
 
 		/**

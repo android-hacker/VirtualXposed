@@ -22,9 +22,8 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.fixer.ContextFixer;
 import com.lody.virtual.client.hook.delegate.AppInstrumentation;
-import com.lody.virtual.client.local.LocalContentManager;
-import com.lody.virtual.client.local.LocalPackageManager;
-import com.lody.virtual.client.local.LocalProcessManager;
+import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.helper.compat.ActivityThreadCompat;
 import com.lody.virtual.helper.loaders.ClassLoaderHelper;
 import com.lody.virtual.helper.proto.AppInfo;
@@ -118,7 +117,7 @@ public class VClientImpl extends IVClient.Stub {
 		if (providers != null) {
 			installContentProviders(app, providers);
 		}
-		List<ReceiverInfo> receivers = LocalPackageManager.getInstance().queryReceivers(data.processName, 0);
+		List<ReceiverInfo> receivers = VPackageManager.getInstance().queryReceivers(data.processName, 0);
 		installReceivers(app, receivers);
 		try {
 			mInstrumentation.callApplicationOnCreate(app);
@@ -129,7 +128,7 @@ public class VClientImpl extends IVClient.Stub {
 								+ ": " + e.toString(), e);
 			}
 		}
-		LocalProcessManager.appDoneExecuting(data.appInfo.packageName);
+		VActivityManager.getInstance().appDoneExecuting(data.appInfo.packageName);
 	}
 
 	private void installContentProviders(Context context, List<ProviderInfo> providers) {
@@ -143,7 +142,7 @@ public class VClientImpl extends IVClient.Stub {
 				results.add(cph);
 			}
 		}
-		LocalContentManager.getDefault().publishContentProviders(results);
+		VActivityManager.getInstance().publishContentProviders(results);
 	}
 
 	private static void installReceivers(Context context, List<ReceiverInfo> receivers) {

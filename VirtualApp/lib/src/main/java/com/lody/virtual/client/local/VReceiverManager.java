@@ -1,8 +1,5 @@
 package com.lody.virtual.client.local;
 
-import com.lody.virtual.client.service.ServiceManagerNative;
-import com.lody.virtual.service.IReceiverManager;
-
 import android.app.ActivityThread;
 import android.content.IIntentReceiver;
 import android.content.Intent;
@@ -10,17 +7,20 @@ import android.content.IntentFilter;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.lody.virtual.client.service.ServiceManagerNative;
+import com.lody.virtual.service.IReceiverManager;
+
 /**
  * @author Lody
  */
 
-public class LocalReceiverManager {
+public class VReceiverManager {
 
 	private static IReceiverManager mRemote;
 
 	private static IReceiverManager getInterface() {
 		if (mRemote == null) {
-			synchronized (LocalReceiverManager.class) {
+			synchronized (VReceiverManager.class) {
 				if (mRemote == null) {
 					IBinder receiverServiceBinder = ServiceManagerNative
 							.getService(ServiceManagerNative.RECEIVER_MANAGER);

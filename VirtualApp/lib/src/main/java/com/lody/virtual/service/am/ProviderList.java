@@ -1,10 +1,10 @@
-package com.lody.virtual.service.content;
+package com.lody.virtual.service.am;
+
+import android.app.IActivityManager;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import android.app.IActivityManager;
 
 /**
  * @author Lody

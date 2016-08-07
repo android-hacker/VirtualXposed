@@ -3,7 +3,7 @@ package com.lody.virtual.client.hook.patchs.pm;
 import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalPackageManager;
+import com.lody.virtual.client.local.VPackageManager;
 
 import android.content.pm.PermissionGroupInfo;
 
@@ -25,7 +25,7 @@ public class Hook_GetPermissionGroupInfo extends Hook {
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		String name = (String) args[0];
 		int flags = (int) args[1];
-		PermissionGroupInfo info = LocalPackageManager.getInstance().getPermissionGroupInfo(name, flags);
+		PermissionGroupInfo info = VPackageManager.getInstance().getPermissionGroupInfo(name, flags);
 		if (info != null) {
 			return info;
 		}

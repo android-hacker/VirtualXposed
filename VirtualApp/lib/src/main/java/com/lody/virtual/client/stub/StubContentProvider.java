@@ -1,7 +1,7 @@
 package com.lody.virtual.client.stub;
 
 import com.lody.virtual.client.VClientImpl;
-import com.lody.virtual.client.local.LocalProcessManager;
+import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.MethodConstants;
 import com.lody.virtual.helper.compat.BundleCompat;
@@ -29,7 +29,7 @@ public abstract class StubContentProvider extends BaseContentProvider {
 		IBinder token = BundleCompat.getBinder(extras, ExtraConstants.EXTRA_BINDER);
 		VClientImpl client = VClientImpl.getClient();
 		client.setToken(token);
-		LocalProcessManager.attachClient(client);
+		VActivityManager.getInstance().attachClient(client);
 	}
 
 	public static class C0 extends StubContentProvider {

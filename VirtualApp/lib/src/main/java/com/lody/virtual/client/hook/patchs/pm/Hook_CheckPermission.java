@@ -3,7 +3,7 @@ package com.lody.virtual.client.hook.patchs.pm;
 import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalPackageManager;
+import com.lody.virtual.client.local.VPackageManager;
 
 /**
  * @author Lody
@@ -22,7 +22,7 @@ import com.lody.virtual.client.local.LocalPackageManager;
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		String permName = (String) args[0];
 		String pkgName = (String) args[1];
-		return LocalPackageManager.getInstance().checkPermission(permName, pkgName);
+		return VPackageManager.getInstance().checkPermission(permName, pkgName);
 	}
 
 	@Override

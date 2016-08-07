@@ -1,9 +1,9 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
-
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalProcessManager;
+import com.lody.virtual.client.local.VActivityManager;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -23,7 +23,7 @@ import com.lody.virtual.client.local.LocalProcessManager;
 		if (args.length > 0 && args[0] instanceof String) {
 			String pkg = (String) args[0];
 			if (isAppPkg(pkg)) {
-				LocalProcessManager.killAppByPkg(pkg);
+				VActivityManager.getInstance().killAppByPkg(pkg);
 				return 0;
 			}
 		}

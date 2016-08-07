@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 
 import com.lody.virtual.client.fixer.ComponentFixer;
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalPackageManager;
+import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.helper.utils.ComponentUtils;
 
 import android.content.pm.ApplicationInfo;
@@ -27,7 +27,7 @@ import android.content.pm.ApplicationInfo;
 		if (getHostPkg().equals(pkg)) {
 			return method.invoke(who, args);
 		}
-		ApplicationInfo applicationInfo = LocalPackageManager.getInstance().getApplicationInfo(pkg, flags);
+		ApplicationInfo applicationInfo = VPackageManager.getInstance().getApplicationInfo(pkg, flags);
 		if (applicationInfo != null) {
 			ComponentFixer.fixUid(applicationInfo);
 			return applicationInfo;

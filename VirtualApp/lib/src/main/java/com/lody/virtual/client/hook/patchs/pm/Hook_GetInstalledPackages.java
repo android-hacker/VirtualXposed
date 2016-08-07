@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalPackageManager;
+import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.helper.compat.ParceledListSliceCompat;
 import com.lody.virtual.helper.proto.VParceledListSlice;
 
@@ -33,7 +33,7 @@ import android.content.pm.PackageInfo;
 		} else {
 			packageInfos = VirtualCore.getCore().getUnHookPackageManager().getInstalledPackages(flags);
 		}
-		VParceledListSlice<PackageInfo> listSlice = LocalPackageManager.getInstance().getInstalledPackages(flags);
+		VParceledListSlice<PackageInfo> listSlice = VPackageManager.getInstance().getInstalledPackages(flags);
 		packageInfos.addAll(listSlice.getList());
 		if (ParceledListSliceCompat.isReturnParceledListSlice(method)) {
 			return ParceledListSliceCompat.create(packageInfos);

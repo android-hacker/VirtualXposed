@@ -1,9 +1,10 @@
 package com.lody.virtual.service.pm;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.RemoteCallbackList;
+import android.os.RemoteException;
+import android.util.DisplayMetrics;
 
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
@@ -15,27 +16,26 @@ import com.lody.virtual.helper.utils.FileIO;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.AppFileSystem;
 import com.lody.virtual.service.IAppManager;
+import com.lody.virtual.service.am.VActivityManagerService;
 import com.lody.virtual.service.interfaces.IAppObserver;
-import com.lody.virtual.service.process.VProcessService;
 
-import android.content.Intent;
-import android.net.Uri;
-import android.os.RemoteCallbackList;
-import android.os.RemoteException;
-import android.util.DisplayMetrics;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Lody
  */
-public class VAppService extends IAppManager.Stub {
+public class VAppManagerService extends IAppManager.Stub {
 
-	private static final String TAG = VAppService.class.getSimpleName();
+	private static final String TAG = VAppManagerService.class.getSimpleName();
 
-	private static final AtomicReference<VAppService> gService = new AtomicReference<>();
+	private static final AtomicReference<VAppManagerService> gService = new AtomicReference<>();
 
 	private RemoteCallbackList<IAppObserver> remoteCallbackList = new RemoteCallbackList<IAppObserver>();
 
-	public static VAppService getService() {
+	public static VAppManagerService getService() {
 		return gService.get();
 	}
 
@@ -55,7 +55,7 @@ public class VAppService extends IAppManager.Stub {
 	}
 
 	public static void systemReady() {
-		VAppService instance = new VAppService();
+		VAppManagerService instance = new VAppManagerService();
 		gService.set(instance);
 		instance.preloadAllApps();
 	}
@@ -175,7 +175,7 @@ public class VAppService extends IAppManager.Stub {
 	public boolean uninstallApp(String pkg) {
 		synchronized (PackageCache.sPackageCaches) {
 			if (isAppInstalled(pkg)) {
-				VProcessService.getService().killAppByPkg(pkg);
+				VActivityManagerService.getService().killAppByPkg(pkg);
 				FileIO.deleteDir(AppFileSystem.getDefault().getAppPackageFolder(pkg));
 				PackageCache.remove(pkg);
 				notifyAppUninstalled(pkg);

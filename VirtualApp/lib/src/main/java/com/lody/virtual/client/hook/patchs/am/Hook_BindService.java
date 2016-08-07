@@ -10,7 +10,7 @@ import android.os.IBinder;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalServiceManager;
+import com.lody.virtual.client.local.VActivityManager;
 
 import java.lang.reflect.Method;
 
@@ -45,7 +45,7 @@ import java.lang.reflect.Method;
 			}
 			if (isAppPkg(pkgName)) {
 //				connection = new HackServiceConnection(application, connection);
-				return LocalServiceManager.getInstance().bindService(caller.asBinder(), token, service, resolvedType,
+				return VActivityManager.getInstance().bindService(caller.asBinder(), token, service, resolvedType,
 						connection, flags);
 			}
 		}

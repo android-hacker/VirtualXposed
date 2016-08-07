@@ -3,7 +3,7 @@ package com.lody.virtual.client.hook.patchs.account;
 import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalAccountManager;
+import com.lody.virtual.client.local.VAccountManager;
 
 import android.accounts.Account;
 import android.accounts.IAccountManagerResponse;
@@ -27,7 +27,7 @@ public class Hook_RemoveAccount extends Hook {
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 		Account account = (Account) args[1];
-		LocalAccountManager.getInstance().removeAccount(response, account);
+		VAccountManager.getInstance().removeAccount(response, account);
 		return 0;
 	}
 }

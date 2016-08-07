@@ -3,7 +3,7 @@ package com.lody.virtual.client.hook.patchs.account;
 import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalAccountManager;
+import com.lody.virtual.client.local.VAccountManager;
 
 import android.accounts.Account;
 
@@ -25,6 +25,6 @@ public class Hook_GetUserData extends Hook {
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		Account account = (Account) args[0];
 		String key = (String) args[1];
-		return LocalAccountManager.getInstance().getUserData(account, key);
+		return VAccountManager.getInstance().getUserData(account, key);
 	}
 }

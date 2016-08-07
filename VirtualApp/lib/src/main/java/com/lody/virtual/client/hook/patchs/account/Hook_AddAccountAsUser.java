@@ -3,7 +3,7 @@ package com.lody.virtual.client.hook.patchs.account;
 import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalAccountManager;
+import com.lody.virtual.client.local.VAccountManager;
 
 import android.accounts.IAccountManagerResponse;
 import android.os.Bundle;
@@ -31,7 +31,7 @@ public class Hook_AddAccountAsUser extends Hook {
 		String[] requiredFeatures = (String[]) args[3];
 		boolean expectActivityLaunch = (boolean) args[4];
 		Bundle options = (Bundle) args[5];
-		LocalAccountManager.getInstance().addAcount(response, accountType, authTokenType, requiredFeatures,
+		VAccountManager.getInstance().addAcount(response, accountType, authTokenType, requiredFeatures,
 				expectActivityLaunch, options);
 		return 0;
 	}

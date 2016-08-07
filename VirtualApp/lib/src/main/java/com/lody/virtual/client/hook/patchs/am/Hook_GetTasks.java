@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalActivityManager;
+import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.proto.AppTaskInfo;
 
 import android.app.ActivityManager;
@@ -29,7 +29,7 @@ import android.app.ActivityManager;
 				.invoke(who, args);
 		for (int i = 0; i < runningTaskInfos.size(); i++) {
 			ActivityManager.RunningTaskInfo info = runningTaskInfos.get(i);
-			AppTaskInfo taskInfo = LocalActivityManager.getInstance().getTaskInfo(info.id);
+			AppTaskInfo taskInfo = VActivityManager.getInstance().getTaskInfo(info.id);
 			if (taskInfo != null) {
 				info.topActivity = taskInfo.topActivity;
 				info.baseActivity = taskInfo.baseActivity;

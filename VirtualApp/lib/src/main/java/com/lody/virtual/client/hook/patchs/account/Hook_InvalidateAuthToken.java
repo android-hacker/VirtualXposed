@@ -3,7 +3,7 @@ package com.lody.virtual.client.hook.patchs.account;
 import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalAccountManager;
+import com.lody.virtual.client.local.VAccountManager;
 
 /**
  * @author Lody
@@ -23,7 +23,7 @@ public class Hook_InvalidateAuthToken extends Hook {
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		String accountType = (String) args[0];
 		String authToken = (String) args[1];
-		LocalAccountManager.getInstance().invalidateAuthToken(accountType, authToken);
+		VAccountManager.getInstance().invalidateAuthToken(accountType, authToken);
 		return 0;
 	}
 }

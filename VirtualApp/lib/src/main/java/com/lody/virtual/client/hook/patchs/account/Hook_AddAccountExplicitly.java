@@ -3,7 +3,7 @@ package com.lody.virtual.client.hook.patchs.account;
 import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalAccountManager;
+import com.lody.virtual.client.local.VAccountManager;
 
 import android.accounts.Account;
 import android.os.Bundle;
@@ -28,6 +28,6 @@ public class Hook_AddAccountExplicitly extends Hook {
 		Account account = (Account) args[0];
 		String password = (String) args[1];
 		Bundle userdata = (Bundle) args[2];
-		return LocalAccountManager.getInstance().addAccount(account, password, userdata);
+		return VAccountManager.getInstance().addAccount(account, password, userdata);
 	}
 }

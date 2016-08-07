@@ -6,8 +6,8 @@ import java.lang.reflect.Proxy;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.providers.ProviderHook;
-import com.lody.virtual.client.local.LocalContentManager;
-import com.lody.virtual.client.local.LocalPackageManager;
+import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.helper.utils.ComponentUtils;
 
 import android.app.IActivityManager;
@@ -35,13 +35,13 @@ import android.os.IBinder;
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		String name = (String) args[getProviderNameIndex()];
-		ProviderInfo providerInfo = LocalPackageManager.getInstance().resolveContentProvider(name, 0);
+		ProviderInfo providerInfo = VPackageManager.getInstance().resolveContentProvider(name, 0);
 		if (providerInfo != null) {
 			if (getHostPkg().equals(providerInfo.packageName)) {
 				return method.invoke(who, args);
 			}
 		}
-		IActivityManager.ContentProviderHolder holder = LocalContentManager.getDefault().getContentProvider(name);
+		IActivityManager.ContentProviderHolder holder = VActivityManager.getInstance().getContentProvider(name);
 		if (holder == null) {
 			try {
 				holder = (IActivityManager.ContentProviderHolder) method.invoke(who, args);

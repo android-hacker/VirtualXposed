@@ -6,7 +6,7 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.fixer.ActivityFixer;
 import com.lody.virtual.client.fixer.ContextFixer;
 import com.lody.virtual.client.interfaces.Injectable;
-import com.lody.virtual.client.local.LocalActivityManager;
+import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.client.local.LocalActivityRecord;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
@@ -76,7 +76,7 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 		String pkg = activity.getPackageName();
 		boolean isApp = VirtualCore.getCore().isAppInstalled(pkg);
 		if (isApp) {
-			LocalActivityRecord r = LocalActivityManager.getInstance().onActivityCreate(activity);
+			LocalActivityRecord r = VActivityManager.getInstance().onActivityCreate(activity);
 			ContextFixer.fixContext(activity);
 			ActivityFixer.fixActivity(activity);
 			ActivityInfo info = null;
@@ -101,7 +101,7 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 		String pkg = activity.getPackageName();
 		boolean isApp = VirtualCore.getCore().isAppInstalled(pkg);
 		if (isApp) {
-			LocalActivityManager.getInstance().onActivityResumed(activity);
+			VActivityManager.getInstance().onActivityResumed(activity);
 		}
 		super.callActivityOnResume(activity);
 		Intent intent = activity.getIntent();
@@ -117,7 +117,7 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 		String pkg = activity.getPackageName();
 		boolean isApp = VirtualCore.getCore().isAppInstalled(pkg);
 		if (isApp) {
-			LocalActivityManager.getInstance().onActivityDestroy(activity);
+			VActivityManager.getInstance().onActivityDestroy(activity);
 		}
 		super.callActivityOnDestroy(activity);
 	}

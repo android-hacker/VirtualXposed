@@ -3,7 +3,7 @@ package com.lody.virtual.client.hook.patchs.account;
 import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalAccountManager;
+import com.lody.virtual.client.local.VAccountManager;
 
 /**
  * @author Lody
@@ -21,6 +21,6 @@ public class Hook_GetAuthenticatorTypes extends Hook {
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		return LocalAccountManager.getInstance().getAuthenticatorTypes();
+		return VAccountManager.getInstance().getAuthenticatorTypes();
 	}
 }

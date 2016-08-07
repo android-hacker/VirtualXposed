@@ -3,7 +3,7 @@ package com.lody.virtual.client.hook.patchs.am;
 import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalServiceManager;
+import com.lody.virtual.client.local.VActivityManager;
 
 import android.content.Intent;
 import android.os.IBinder;
@@ -26,7 +26,7 @@ import android.os.IBinder;
 		IBinder token = (IBinder) args[0];
 		Intent intent = (Intent) args[1];
 		IBinder service = (IBinder) args[2];
-		LocalServiceManager.getInstance().publishService(token, intent, service);
+		VActivityManager.getInstance().publishService(token, intent, service);
 		return 0;
 	}
 

@@ -6,7 +6,7 @@ import java.lang.reflect.Method;
 
 import com.lody.virtual.client.fixer.ComponentFixer;
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalPackageManager;
+import com.lody.virtual.client.local.VPackageManager;
 
 import android.content.ComponentName;
 import android.content.pm.ActivityInfo;
@@ -36,7 +36,7 @@ import android.content.pm.ActivityInfo;
 		if ((flags & GET_DISABLED_COMPONENTS) == 0) {
 			flags |= GET_DISABLED_COMPONENTS;
 		}
-		ActivityInfo receiverInfo = LocalPackageManager.getInstance().getReceiverInfo(componentName, flags);
+		ActivityInfo receiverInfo = VPackageManager.getInstance().getReceiverInfo(componentName, flags);
 		if (receiverInfo != null) {
 			ComponentFixer.fixUid(receiverInfo.applicationInfo);
 		}

@@ -1,8 +1,6 @@
-package com.lody.virtual.service.process;
+package com.lody.virtual.service.am;
 
 import android.util.SparseArray;
-
-import com.lody.virtual.service.am.StubInfo;
 
 import java.util.HashMap;
 import java.util.Map;

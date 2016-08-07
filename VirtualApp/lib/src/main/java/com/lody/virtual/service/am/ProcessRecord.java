@@ -1,18 +1,17 @@
-package com.lody.virtual.service.process;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import com.lody.virtual.client.IVClient;
-import com.lody.virtual.service.am.StubInfo;
+package com.lody.virtual.service.am;
 
 import android.app.IApplicationThread;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ProviderInfo;
 import android.os.Binder;
 import android.os.ConditionVariable;
+
+import com.lody.virtual.client.IVClient;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public final class ProcessRecord extends Binder {
 
@@ -37,10 +36,6 @@ public final class ProcessRecord extends Binder {
 		this.processName = processName;
 		this.providers = providers;
 		this.sharedPackages = sharedPackages;
-	}
-
-	public void addPackage(String newPkg) {
-		pkgList.add(newPkg);
 	}
 
 	public boolean isLaunching(String packageName) {

@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalServiceManager;
+import com.lody.virtual.client.local.VActivityManager;
 
 import android.app.IApplicationThread;
 import android.content.Intent;
@@ -42,7 +42,7 @@ import android.content.pm.ServiceInfo;
 				return method.invoke(who, args);
 			}
 			if (isAppPkg(pkgName)) {
-				return LocalServiceManager.getInstance().startService(appThread.asBinder(), service, resolvedType);
+				return VActivityManager.getInstance().startService(appThread.asBinder(), service, resolvedType);
 			}
 		}
 		return method.invoke(who, args);
