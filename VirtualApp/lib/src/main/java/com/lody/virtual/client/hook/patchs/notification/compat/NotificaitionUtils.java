@@ -1,14 +1,5 @@
 package com.lody.virtual.client.hook.patchs.notification.compat;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Map;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.utils.Reflect;
-import com.lody.virtual.helper.utils.VLog;
-
 import android.app.Notification;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -21,6 +12,15 @@ import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.RemoteViews;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.utils.Reflect;
+import com.lody.virtual.helper.utils.VLog;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Map;
 
 /***
  * 通知栏的包名判断
@@ -202,6 +202,17 @@ import android.widget.RemoteViews;
 		}
 		notification1.flags = notification.flags;
 		notification1.icon = notification.icon;
+
+        //intent
+        if(notification1.contentIntent == null){
+            notification1.contentIntent = notification.contentIntent;
+        }
+        if(notification1.deleteIntent == null){
+            notification1.deleteIntent = notification.deleteIntent;
+        }
+        if(notification1.fullScreenIntent == null){
+            notification1.fullScreenIntent = notification.fullScreenIntent;
+        }
 		///
 		if (notification1.contentView == null) {
 			notification1.contentView = notification.contentView;
