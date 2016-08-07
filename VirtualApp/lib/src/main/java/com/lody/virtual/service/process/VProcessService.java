@@ -364,51 +364,39 @@ public class VProcessService extends IProcessManager.Stub {
 		return null;
 	}
 
+
 	public ProcessRecord startProcessLocked(@NonNull ComponentInfo componentInfo) {
-		FetchResult res;
 		String pkg = componentInfo.packageName;
-		String appProcessName = ComponentUtils.getProcessName(componentInfo);
+		final String appProcessName = ComponentUtils.getProcessName(componentInfo);
 		if (!VAppService.getService().isAppInstalled(pkg)) {
             return null;
         }
+		boolean notCreated = false;
+		StubInfo stubInfo;
 		synchronized (this) {
-			res = fetchStubLocked(appProcessName);
+			stubInfo = findStubInfo(appProcessName);
+			if (stubInfo == null) {
+				// The target process is not running,
+				// we need to find a free stub to hold the target process.
+				notCreated = true;
+				stubInfo = fetchFreeStubInfo(VActivityService.getService().getStubs());
+			}
 		}
-		if (res.stubInfo == null) {
-            VLog.e(TAG, "Unable to fetch free Stub for launch Process: %s(%s).", pkg, appProcessName);
-            return null;
-        }
-		if (res.isNewStub) {
-            performStartProcessLocked(componentInfo.packageName, appProcessName, res.stubInfo.providerInfo);
+		if (stubInfo == null) {
+			VLog.e(TAG, "Unable to fetch free Stub for launch Process: %s(%s).", pkg, appProcessName);
+			return null;
+		}
+		if (notCreated) {
+            performStartProcessLocked(componentInfo.packageName, appProcessName, stubInfo.providerInfo);
         }
 		return findProcess(appProcessName);
 	}
 
-	public FetchResult fetchStubLocked(String appProcessName) {
-		boolean isNew = false;
-		StubInfo stubInfo = findStubInfo(appProcessName);
-		if (stubInfo == null) {
-			// The target process is not running,
-			// we need to find a free stub to hold the target process.
-			isNew = true;
-			stubInfo = fetchFreeStubInfo(VActivityService.getService().getStubs());
-		}
-		return new FetchResult(isNew, stubInfo);
-	}
 
 	public ProcessRecord getCallingProcessRecord() {
 		return findProcess(Binder.getCallingPid());
 	}
 
-	public class FetchResult {
-		public boolean isNewStub;
-		public StubInfo stubInfo;
-
-		public FetchResult(boolean isNewStub, StubInfo stubInfo) {
-			this.isNewStub = isNewStub;
-			this.stubInfo = stubInfo;
-		}
-	}
 
 	public void performStartProcessLocked(String pkg, String processName, ProviderInfo providerInfo) {
 		new ProviderCaller.Builder(VirtualCore.getCore().getContext(), providerInfo.authority)
