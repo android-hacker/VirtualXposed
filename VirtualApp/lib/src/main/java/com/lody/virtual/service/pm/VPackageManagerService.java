@@ -1,24 +1,5 @@
 package com.lody.virtual.service.pm;
 
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.fixer.ComponentFixer;
-import com.lody.virtual.helper.compat.ObjectsCompat;
-import com.lody.virtual.helper.proto.AppInfo;
-import com.lody.virtual.helper.proto.ReceiverInfo;
-import com.lody.virtual.helper.proto.VParceledListSlice;
-import com.lody.virtual.helper.utils.ComponentUtils;
-import com.lody.virtual.helper.utils.VLog;
-import com.lody.virtual.service.IPackageManager;
-
 import android.annotation.TargetApi;
 import android.content.ComponentName;
 import android.content.Context;
@@ -39,6 +20,25 @@ import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.LogPrinter;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.fixer.ComponentFixer;
+import com.lody.virtual.helper.compat.ObjectsCompat;
+import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.proto.ReceiverInfo;
+import com.lody.virtual.helper.proto.VParceledListSlice;
+import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.service.IPackageManager;
+
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Lody
@@ -250,11 +250,11 @@ public class VPackageManagerService extends IPackageManager.Stub {
 	}
 
 	private long getLastInstallTime(String packageName) {
-		return System.currentTimeMillis();
+		return 0;
 	}
 
 	private long getFirstInstallTime(String packageName) {
-		return System.currentTimeMillis();
+		return 0;
 	}
 
 	@Override
