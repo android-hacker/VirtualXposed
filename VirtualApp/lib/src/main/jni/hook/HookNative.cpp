@@ -33,10 +33,10 @@ namespace HOOK_BINDER {
 
     void hook() {
         LOGD("hook Binder...");
-        g_sym_IPCThreadState_self = dlsym((void*)0xFFFFFFFF, "_ZN7android14IPCThreadState4selfEv");
-        g_sym_IPCThreadState_getCallingUid = dlsym((void*)0xFFFFFFFF, "_ZNK7android14IPCThreadState13getCallingUidEv");
+        g_sym_IPCThreadState_self = dlsym(RTLD_DEFAULT, "_ZN7android14IPCThreadState4selfEv");
+        g_sym_IPCThreadState_getCallingUid = dlsym(RTLD_DEFAULT, "_ZNK7android14IPCThreadState13getCallingUidEv");
         if (g_sym_IPCThreadState_getCallingUid == NULL) {
-            g_sym_IPCThreadState_getCallingUid = dlsym((void*)0xFFFFFFFF, "_ZN7android14IPCThreadState13getCallingUidEv");
+            g_sym_IPCThreadState_getCallingUid = dlsym(RTLD_DEFAULT, "_ZN7android14IPCThreadState13getCallingUidEv");
         }
         if (g_sym_IPCThreadState_self == NULL || g_sym_IPCThreadState_getCallingUid == NULL) {
             LOGE("hook Binder failed!");
