@@ -425,6 +425,37 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		}
 	}
 
+	@Override
+	public void ensureAppBound(String processName, ApplicationInfo appInfo) {
+		int pid = getCallingPid();
+		ProcessRecord app = findProcess(pid);
+		if (app == null) {
+			app = mPendingProcesses.get(processName);
+		}
+		if (app == null && processName != null && appInfo != null) {
+			String stubProcessName = getProcessName(pid);
+			StubInfo stubInfo = null;
+			for (StubInfo info : getStubs()) {
+				if (info.processName.equals(stubProcessName)) {
+					stubInfo = info;
+					break;
+				}
+			}
+			if (stubInfo != null) {
+				performInitProcessLocked(stubInfo, appInfo, processName);
+			}
+		}
+	}
+
+	private String getProcessName(int pid) {
+		for (ActivityManager.RunningAppProcessInfo info : am.getRunningAppProcesses()) {
+			if (info.pid == pid) {
+				return info.processName;
+			}
+		}
+		return null;
+	}
+
 	public ActivityInfo getCallingActivity(IBinder token) {
 		synchronized (mMainStack) {
 			ActivityRecord r = mMainStack.findRecord(token);
@@ -509,17 +540,21 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		if (serviceInfo == null) {
 			return null;
 		}
-		ProcessRecord processRecord = startProcess(ComponentUtils.getProcessName(serviceInfo),
+		ProcessRecord targetApp = startProcess(ComponentUtils.getProcessName(serviceInfo),
 				serviceInfo.applicationInfo);
-		if (processRecord == null) {
+
+		if (targetApp == null) {
 			VLog.e(TAG, "Unable to start new Process for : " + ComponentUtils.toComponentName(serviceInfo));
 			return null;
 		}
-		IApplicationThread appThread = processRecord.thread;
+		if (targetApp.thread == null) {
+			targetApp.attachLock.block();
+		}
+		IApplicationThread appThread = targetApp.thread;
 		ServiceRecord r = findRecord(serviceInfo);
 		if (r == null) {
 			r = new ServiceRecord();
-			r.pid = processRecord.pid;
+			r.pid = targetApp.pid;
 			r.startId = 0;
 			r.activeSince = SystemClock.elapsedRealtime();
 			r.targetAppThread = appThread;
@@ -850,25 +885,27 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			app.client = client;
 			app.thread = thread;
 			app.pid = callingPid;
+			mPendingProcesses.remove(app.processName);
+			mProcessMap.put(app);
+			app.attachLock.open();
 			try {
 				client.bindApplication(app.processName, app.info, app.sharedPackages, app.providers);
 			} catch (RemoteException e) {
 				e.printStackTrace();
 			}
-			mProcessMap.put(app);
-			mPendingProcesses.remove(app.processName);
 		}
 	}
 
 	private void onProcessDead(ProcessRecord record) {
-		VLog.d(TAG, "Process %s has dead.", record.processName);
+		VLog.d(TAG, "Process %s died.", record.processName);
 		mProcessMap.remove(record.pid);
-		VActivityManagerService.getService().processDead(record);
+		processDead(record);
 		record.lock.open();
 	}
 
 	public ProcessRecord startProcess(String processName, ApplicationInfo info) {
 		synchronized (this) {
+			VLog.d(TAG, "startProcess %s (%s).", processName, info.packageName);
 			ProcessRecord app = mProcessMap.get(processName);
 			if (app != null) {
 				return app;
@@ -881,21 +918,26 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			if (stubInfo == null) {
 				return null;
 			}
-			List<String> sharedPackages = VPackageManagerService.getService().querySharedPackages(info.packageName);
-			List<ProviderInfo> providers = VPackageManagerService.getService().queryContentProviders(processName, 0).getList();
-			app = new ProcessRecord(stubInfo, info, processName, providers, sharedPackages);
-			app.pendingPackages.add(info.packageName);
-			mPendingProcesses.put(processName, app);
-			Bundle extras = new Bundle();
-			BundleCompat.putBinder(extras, ExtraConstants.EXTRA_BINDER, app);
-			ProviderCaller.call(stubInfo, MethodConstants.INIT_PROCESS, null, extras);
+			app = performInitProcessLocked(stubInfo, info, processName);
 			return app;
 		}
 	}
 
+	private ProcessRecord performInitProcessLocked(StubInfo stubInfo, ApplicationInfo info, String processName) {
+		List<String> sharedPackages = VPackageManagerService.getService().querySharedPackages(info.packageName);
+		List<ProviderInfo> providers = VPackageManagerService.getService().queryContentProviders(processName, 0).getList();
+		ProcessRecord app = new ProcessRecord(stubInfo, info, processName, providers, sharedPackages);
+		app.pendingPackages.add(info.packageName);
+		mPendingProcesses.put(processName, app);
+		Bundle extras = new Bundle();
+		BundleCompat.putBinder(extras, ExtraConstants.EXTRA_BINDER, app);
+		ProviderCaller.call(stubInfo, MethodConstants.INIT_PROCESS, null, extras);
+		return app;
+	}
+
 	private StubInfo queryFreeStubForProcess(String processName) {
-		for (StubInfo stubInfo : VActivityManagerService.getService().getStubs()) {
-			if (mProcessMap.get(stubInfo) == null || mPendingProcesses.containsKey(processName)) {
+		for (StubInfo stubInfo : getStubs()) {
+			if (mProcessMap.get(stubInfo) == null && !mPendingProcesses.containsKey(processName)) {
 				return stubInfo;
 			}
 		}
@@ -905,7 +947,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	@Override
 	public boolean isAppProcess(String processName) {
 		if (!TextUtils.isEmpty(processName)) {
-			Set<String> processList = VActivityManagerService.getService().getStubProcessList();
+			Set<String> processList = getStubProcessList();
 			return processList.contains(processName);
 		}
 		return false;

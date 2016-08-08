@@ -8,12 +8,15 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 
+import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.interfaces.Injectable;
+import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.compat.ActivityRecordCompat;
 import com.lody.virtual.helper.compat.ClassLoaderCompat;
 import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Field;
@@ -82,7 +85,9 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 			calling = true;
 			try {
 				if (LAUNCH_ACTIVITY == msg.what) {
-					handleLaunchActivity(msg);
+					if (!handleLaunchActivity(msg)) {
+						return true;
+					}
 				}
 				if (otherCallback != null) {
 					return otherCallback.handleMessage(msg);
@@ -94,7 +99,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		return false;
 	}
 
-	private void handleLaunchActivity(Message msg) {
+	private boolean handleLaunchActivity(Message msg) {
 		Object r = msg.obj;
 		// StubIntent
 		Intent stubIntent = ActivityRecordCompat.getIntent(r);
@@ -106,14 +111,20 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 
 		AppInfo appInfo = VirtualCore.getCore().findApp(pkgName);
 		if (appInfo == null) {
-			return;
+			return true;
 		}
 		ActivityInfo stubActInfo = stubIntent.getParcelableExtra(ExtraConstants.EXTRA_STUB_ACT_INFO);
 		ActivityInfo targetActInfo = stubIntent.getParcelableExtra(ExtraConstants.EXTRA_TARGET_ACT_INFO);
 		ActivityInfo callerActInfo = stubIntent.getParcelableExtra(ExtraConstants.EXTRA_CALLER);
 
 		if (stubActInfo == null || targetActInfo == null) {
-			return;
+			return true;
+		}
+		String processName = ComponentUtils.getProcessName(targetActInfo);
+		if (!VClientImpl.getClient().isBound()) {
+			VActivityManager.getInstance().ensureAppBound(processName, targetActInfo.applicationInfo);
+			getH().sendMessageDelayed(Message.obtain(msg), 5);
+			return false;
 		}
 		ClassLoader appClassLoader = appInfo.getClassLoader();
 		targetIntent.setExtrasClassLoader(appClassLoader);
@@ -142,6 +153,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		}
 		ActivityRecordCompat.setIntent(r, targetIntent);
 		ActivityRecordCompat.setActivityInfo(r, targetActInfo);
+		return true;
 	}
 
 	@Override

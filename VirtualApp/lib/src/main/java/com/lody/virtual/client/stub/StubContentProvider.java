@@ -1,14 +1,14 @@
 package com.lody.virtual.client.stub;
 
+import android.os.Bundle;
+import android.os.IBinder;
+
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.MethodConstants;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.component.BaseContentProvider;
-
-import android.os.Bundle;
-import android.os.IBinder;
 
 /**
  * @author Lody

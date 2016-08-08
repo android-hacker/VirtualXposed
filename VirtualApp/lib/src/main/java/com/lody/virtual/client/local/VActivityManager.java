@@ -6,6 +6,7 @@ import android.app.Notification;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -359,6 +360,14 @@ public class VActivityManager {
 			return getService().isAppPid(pid);
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
+		}
+	}
+
+	public void ensureAppBound(String processName, ApplicationInfo appInfo) {
+		try {
+			getService().ensureAppBound(processName, appInfo);
+		} catch (RemoteException e) {
+			e.printStackTrace();
 		}
 	}
 }

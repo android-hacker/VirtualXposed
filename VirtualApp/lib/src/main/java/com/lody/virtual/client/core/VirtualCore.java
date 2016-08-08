@@ -1,23 +1,5 @@
 package com.lody.virtual.client.core;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.lody.virtual.client.env.Constants;
-import com.lody.virtual.client.env.VirtualRuntime;
-import com.lody.virtual.client.fixer.ContextFixer;
-import com.lody.virtual.client.local.VActivityManager;
-import com.lody.virtual.client.local.VPackageManager;
-import com.lody.virtual.client.service.ServiceManagerNative;
-import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.compat.ActivityThreadCompat;
-import com.lody.virtual.helper.compat.BundleCompat;
-import com.lody.virtual.helper.loaders.ClassLoaderHelper;
-import com.lody.virtual.helper.proto.AppInfo;
-import com.lody.virtual.helper.proto.InstallResult;
-import com.lody.virtual.service.IAppManager;
-
 import android.app.Activity;
 import android.app.ActivityThread;
 import android.content.ComponentName;
@@ -35,6 +17,24 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.text.TextUtils;
+
+import com.lody.virtual.client.env.Constants;
+import com.lody.virtual.client.env.VirtualRuntime;
+import com.lody.virtual.client.fixer.ContextFixer;
+import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.client.local.VPackageManager;
+import com.lody.virtual.client.service.ServiceManagerNative;
+import com.lody.virtual.helper.ExtraConstants;
+import com.lody.virtual.helper.compat.ActivityThreadCompat;
+import com.lody.virtual.helper.compat.BundleCompat;
+import com.lody.virtual.helper.loaders.ClassLoaderHelper;
+import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.proto.InstallResult;
+import com.lody.virtual.service.IAppManager;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Lody
@@ -280,7 +280,7 @@ public final class VirtualCore {
 		}
 	}
 
-	public AppInfo findApp(final String pkg) {
+	public AppInfo findApp(String pkg) {
 		try {
 			return getService().findAppInfo(pkg);
 		} catch (RemoteException e) {

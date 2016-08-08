@@ -16,6 +16,7 @@ import java.util.Set;
 public final class ProcessRecord extends Binder {
 
 	public final ConditionVariable lock = new ConditionVariable();
+	public final ConditionVariable attachLock = new ConditionVariable();
 	final public StubInfo stubInfo;
 	public final ApplicationInfo info; // all about the first app in the process
 	final public String processName; // name of the process

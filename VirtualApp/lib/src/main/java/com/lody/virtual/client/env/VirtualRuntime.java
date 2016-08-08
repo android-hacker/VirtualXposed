@@ -25,6 +25,10 @@ public class VirtualRuntime {
 	private static String sInitialPackageName;
 	private static String sProcessName;
 
+	public static Handler getUIHandler() {
+		return sUIHandler;
+	}
+
 	public static String getProcessName() {
 		return sProcessName;
 	}
@@ -57,6 +61,5 @@ public class VirtualRuntime {
 		VLog.d(VirtualRuntime.class.getSimpleName(), "Exit process : %s (%s).", getProcessName(),
 				VirtualCore.getCore().getProcessName());
 		Process.killProcess(Process.myPid());
-		System.exit(0);
 	}
 }

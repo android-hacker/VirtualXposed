@@ -29,6 +29,7 @@ import com.lody.virtual.helper.loaders.ClassLoaderHelper;
 import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.proto.ReceiverInfo;
 import com.lody.virtual.helper.utils.Reflect;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -116,6 +117,7 @@ public class VClientImpl extends IVClient.Stub {
 				CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO);
 		fixLoadedApk(mBoundApplication.info, appInfo);
 		Application app = data.info.makeApplication(false, null);
+		ContextFixer.fixContext(app);
 		Reflect.on(mainThread).set("mInitialApplication", app);
 		List<ProviderInfo> providers = data.providers;
 		if (providers != null) {
@@ -188,7 +190,7 @@ public class VClientImpl extends IVClient.Stub {
 	public void bindApplication(String processName, ApplicationInfo appInfo, List<String> sharedPackages,
 			List<ProviderInfo> providers) {
 		VirtualRuntime.setupRuntime(processName, appInfo);
-		AppBindData appBindData = new AppBindData();
+		final AppBindData appBindData = new AppBindData();
 		appBindData.processName = processName;
 		appBindData.appInfo = appInfo;
 		appBindData.sharedPackages = sharedPackages;

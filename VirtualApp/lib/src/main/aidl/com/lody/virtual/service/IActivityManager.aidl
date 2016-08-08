@@ -89,4 +89,6 @@ interface IActivityManager {
 
     ContentProviderHolder getContentProvider(String auth);
 
+    void ensureAppBound(in String processName, in ApplicationInfo appInfo);
+
 }
