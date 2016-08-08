@@ -1,20 +1,18 @@
 package com.lody.virtual.client.hook.patchs.mount;
 
-import android.os.ServiceManager;
-import android.os.storage.IMountService;
-
 import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.binders.HookMountServiceBinder;
+
+import android.os.ServiceManager;
+import android.os.storage.IMountService;
 
 /**
  * @author Lody
  *
  * @see IMountService
  */
-@Patch({Hook_GetVolumeList.class,
-		Hook_Mkdirs.class,
-})
+@Patch({Hook_GetVolumeList.class, Hook_Mkdirs.class,})
 public class MountServicePatch extends PatchObject<IMountService, HookMountServiceBinder> {
 
 	@Override

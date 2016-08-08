@@ -1,8 +1,8 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import com.lody.virtual.client.hook.base.Hook;
-
 import java.lang.reflect.Method;
+
+import com.lody.virtual.client.hook.base.Hook;
 
 /**
  * @author Lody
@@ -10,14 +10,13 @@ import java.lang.reflect.Method;
 
 public class Hook_AddOnPermissionsChangeListener extends Hook {
 
+	@Override
+	public String getName() {
+		return "addOnPermissionsChangeListener";
+	}
 
-    @Override
-    public String getName() {
-        return "addOnPermissionsChangeListener";
-    }
-
-    @Override
-    public Object onHook(Object who, Method method, Object... args) throws Throwable {
-        return 0;
-    }
+	@Override
+	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		return 0;
+	}
 }

@@ -1,9 +1,9 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalPackageManager;
-
 import java.lang.reflect.Method;
+
+import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.local.VPackageManager;
 
 /**
  * @author Lody
@@ -25,6 +25,6 @@ import java.lang.reflect.Method;
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		String name = (String) args[0];
 		int flags = (int) args[1];
-		return LocalPackageManager.getInstance().resolveContentProvider(name, flags);
+		return VPackageManager.getInstance().resolveContentProvider(name, flags);
 	}
 }

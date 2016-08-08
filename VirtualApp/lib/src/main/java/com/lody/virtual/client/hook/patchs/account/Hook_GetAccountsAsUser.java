@@ -9,10 +9,9 @@ package com.lody.virtual.client.hook.patchs.account;
 
 public class Hook_GetAccountsAsUser extends Hook_GetAccounts {
 
-
-    @Override
-    public String getName() {
-        return "getAccountsAsUser";
-    }
+	@Override
+	public String getName() {
+		return "getAccountsAsUser";
+	}
 
 }

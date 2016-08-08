@@ -1,11 +1,11 @@
 package com.lody.virtual.client.hook.patchs.window.session;
 
-import android.view.WindowManager;
+import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.helper.utils.ArrayUtils;
 
-import java.lang.reflect.Method;
+import android.view.WindowManager;
 
 /**
  * @author Lody

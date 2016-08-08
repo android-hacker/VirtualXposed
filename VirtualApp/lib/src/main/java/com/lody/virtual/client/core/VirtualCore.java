@@ -1,5 +1,23 @@
 package com.lody.virtual.client.core;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.lody.virtual.client.env.Constants;
+import com.lody.virtual.client.env.VirtualRuntime;
+import com.lody.virtual.client.fixer.ContextFixer;
+import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.client.local.VPackageManager;
+import com.lody.virtual.client.service.ServiceManagerNative;
+import com.lody.virtual.helper.ExtraConstants;
+import com.lody.virtual.helper.compat.ActivityThreadCompat;
+import com.lody.virtual.helper.compat.BundleCompat;
+import com.lody.virtual.helper.loaders.ClassLoaderHelper;
+import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.proto.InstallResult;
+import com.lody.virtual.service.IAppManager;
+
 import android.app.Activity;
 import android.app.ActivityThread;
 import android.content.ComponentName;
@@ -8,7 +26,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.res.AssetManager;
@@ -18,27 +35,6 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.text.TextUtils;
-
-import com.lody.virtual.client.env.Constants;
-import com.lody.virtual.client.env.RuntimeEnv;
-import com.lody.virtual.client.fixer.ContextFixer;
-import com.lody.virtual.client.local.LocalPackageManager;
-import com.lody.virtual.client.local.LocalProcessManager;
-import com.lody.virtual.client.service.ServiceManagerNative;
-import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.compat.ActivityThreadCompat;
-import com.lody.virtual.helper.compat.BundleCompat;
-import com.lody.virtual.helper.loaders.DexAppClassLoader;
-import com.lody.virtual.helper.proto.AppInfo;
-import com.lody.virtual.helper.proto.InstallResult;
-import com.lody.virtual.service.IAppManager;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Lody
@@ -73,7 +69,6 @@ public final class VirtualCore {
 	private ProcessType processType;
 	private IAppManager mService;
 	private boolean isStartUp;
-	private Set<String> hostProviderAuths = new HashSet<String>(5);
 	private PackageInfo hostPkgInfo;
 	private Map<ComponentName, ActivityInfo> activityInfoCache = new HashMap<ComponentName, ActivityInfo>();
 
@@ -87,10 +82,6 @@ public final class VirtualCore {
 
 	public static VirtualCore getCore() {
 		return gCore;
-	}
-
-	public int[] getGids() {
-		return hostPkgInfo.gids;
 	}
 
 	public static PackageManager getPM() {
@@ -123,6 +114,10 @@ public final class VirtualCore {
 		return String.format("%s.BRC_%s", getCore().getHostPkg(), extAction);
 	}
 
+	public int[] getGids() {
+		return hostPkgInfo.gids;
+	}
+
 	public PackageInfo getHostPkgInfo() {
 		return hostPkgInfo;
 	}
@@ -153,12 +148,6 @@ public final class VirtualCore {
 			hostBindData = ActivityThreadCompat.getBoundApplication(mainThread);
 			unHookPackageManager = context.getPackageManager();
 			hostPkgInfo = unHookPackageManager.getPackageInfo(context.getPackageName(), PackageManager.GET_PROVIDERS);
-			ProviderInfo[] hostProviders = hostPkgInfo.providers;
-			if (hostProviders != null) {
-				for (ProviderInfo info : hostProviders) {
-					hostProviderAuths.add(info.authority);
-				}
-			}
 			// Host包名
 			pkgName = context.getPackageName();
 			// 主进程名
@@ -169,7 +158,7 @@ public final class VirtualCore {
 				processType = ProcessType.Main;
 			} else if (processName.endsWith(Constants.SERVER_PROCESS_NAME)) {
 				processType = ProcessType.Server;
-			} else if (LocalProcessManager.isAppProcess(processName)) {
+			} else if (VActivityManager.getInstance().isAppProcess(processName)) {
 				processType = ProcessType.VAppClient;
 			} else {
 				processType = ProcessType.CHILD;
@@ -177,14 +166,9 @@ public final class VirtualCore {
 			PatchManager patchManager = PatchManager.getInstance();
 			patchManager.injectAll();
 			patchManager.checkEnv();
-			RuntimeEnv.init();
 			ContextFixer.fixContext(context);
 			isStartUp = true;
 		}
-	}
-
-	public boolean isHostProvider(String auth) {
-		return auth != null && hostProviderAuths.contains(auth);
 	}
 
 	public IAppManager getService() {
@@ -197,14 +181,6 @@ public final class VirtualCore {
 			}
 		}
 		return mService;
-	}
-
-	public void notifyOnEnterApp(String appPkg) {
-		LocalProcessManager.onEnterApp(appPkg);
-	}
-
-	public void notifyOnEnterAppProcessName(String appProcessName) {
-		LocalProcessManager.onEnterAppProcessName(appProcessName);
 	}
 
 	/**
@@ -252,7 +228,7 @@ public final class VirtualCore {
 	public void preOpt(String pkg) throws Exception {
 		AppInfo info = findApp(pkg);
 		if (info != null && !info.dependSystem) {
-			new DexAppClassLoader(info);
+			ClassLoaderHelper.create(info);
 		}
 	}
 
@@ -260,7 +236,7 @@ public final class VirtualCore {
 		try {
 			return getService().installApp(apkPath, flags);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -268,7 +244,7 @@ public final class VirtualCore {
 		try {
 			return getService().isAppInstalled(pkg);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -292,9 +268,7 @@ public final class VirtualCore {
 
 	public void addLoadingPage(Intent intent, Activity activity) {
 		if (activity != null) {
-			Bundle bundle = new Bundle();
-			BundleCompat.putBinder(bundle, ExtraConstants.EXTRA_BINDER, activity.getActivityToken());
-			intent.putExtra(ExtraConstants.EXTRA_SENDER, bundle);
+			addLoadingPage(intent, activity.getActivityToken());
 		}
 	}
 
@@ -310,7 +284,7 @@ public final class VirtualCore {
 		try {
 			return getService().findAppInfo(pkg);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -318,7 +292,7 @@ public final class VirtualCore {
 		try {
 			return getService().getAppCount();
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -353,7 +327,7 @@ public final class VirtualCore {
 	public synchronized ActivityInfo resolveActivityInfo(Intent intent) {
 		ActivityInfo activityInfo = null;
 		if (intent.getComponent() == null) {
-			ResolveInfo resolveInfo = LocalPackageManager.getInstance().resolveIntent(intent, intent.getType(), 0);
+			ResolveInfo resolveInfo = VPackageManager.getInstance().resolveIntent(intent, intent.getType(), 0);
 			if (resolveInfo != null && resolveInfo.activityInfo != null) {
 				activityInfo = resolveInfo.activityInfo;
 				intent.setClassName(activityInfo.packageName, activityInfo.name);
@@ -368,17 +342,17 @@ public final class VirtualCore {
 	public synchronized ActivityInfo resolveActivityInfo(ComponentName componentName) {
 		ActivityInfo activityInfo = activityInfoCache.get(componentName);
 		if (activityInfo == null) {
-				activityInfo = LocalPackageManager.getInstance().getActivityInfo(componentName, 0);
-				if (activityInfo != null) {
-					activityInfoCache.put(componentName, activityInfo);
-				}
+			activityInfo = VPackageManager.getInstance().getActivityInfo(componentName, 0);
+			if (activityInfo != null) {
+				activityInfoCache.put(componentName, activityInfo);
+			}
 		}
 		return activityInfo;
 	}
 
 	public ServiceInfo resolveServiceInfo(Intent intent) {
 		ServiceInfo serviceInfo = null;
-		ResolveInfo resolveInfo = LocalPackageManager.getInstance().resolveService(intent, intent.getType(), 0);
+		ResolveInfo resolveInfo = VPackageManager.getInstance().resolveService(intent, intent.getType(), 0);
 		if (resolveInfo != null) {
 			serviceInfo = resolveInfo.serviceInfo;
 		}
@@ -386,21 +360,19 @@ public final class VirtualCore {
 	}
 
 	public void killApp(String pkg) {
-		LocalProcessManager.killAppByPkg(pkg);
+		VActivityManager.getInstance().killAppByPkg(pkg);
 	}
 
 	public void killAllApps() {
-		LocalProcessManager.killAllApps();
+		VActivityManager.getInstance().killAllApps();
 	}
 
 	public List<AppInfo> getAllApps() {
 		try {
 			return getService().getAllApps();
 		} catch (RemoteException e) {
-			e.printStackTrace();
+			return VirtualRuntime.crash(e);
 		}
-		// noinspection unchecked
-		return Collections.EMPTY_LIST;
 	}
 
 	public void preloadAllApps() {
@@ -425,19 +397,19 @@ public final class VirtualCore {
 	 */
 	enum ProcessType {
 		/**
-		 * 服务端进程
+		 * Server process
 		 */
 		Server,
 		/**
-		 * 插件客户端进程
+		 * Virtual app process
 		 */
 		VAppClient,
 		/**
-		 * 主进程
+		 * Main process
 		 */
 		Main,
 		/**
-		 * 子进程
+		 * Child process
 		 */
 		CHILD
 	}

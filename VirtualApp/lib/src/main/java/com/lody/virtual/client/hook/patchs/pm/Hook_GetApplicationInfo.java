@@ -1,14 +1,13 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import android.content.pm.ApplicationInfo;
+import java.lang.reflect.Method;
 
-import com.lody.virtual.client.env.BlackList;
 import com.lody.virtual.client.fixer.ComponentFixer;
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalPackageManager;
-import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.client.local.VPackageManager;
+import com.lody.virtual.helper.utils.ComponentUtils;
 
-import java.lang.reflect.Method;
+import android.content.pm.ApplicationInfo;
 
 /**
  * @author Lody
@@ -28,18 +27,16 @@ import java.lang.reflect.Method;
 		if (getHostPkg().equals(pkg)) {
 			return method.invoke(who, args);
 		}
-		if (BlackList.isBlackPkg(pkg)) {
-			// 隔离Gms
-			return null;
-		}
-		ApplicationInfo applicationInfo = (ApplicationInfo) method.invoke(who, args);
+		ApplicationInfo applicationInfo = VPackageManager.getInstance().getApplicationInfo(pkg, flags);
 		if (applicationInfo != null) {
-			AppInfo appInfo = findAppInfo(pkg);
-			if (appInfo != null) {
-				ComponentFixer.fixApplicationInfo(appInfo, applicationInfo);
-			}
+			ComponentFixer.fixUid(applicationInfo);
 			return applicationInfo;
 		}
-		return LocalPackageManager.getInstance().getApplicationInfo(pkg, flags);
+		applicationInfo = (ApplicationInfo) method.invoke(who, args);
+		if (ComponentUtils.isSystemApp(applicationInfo)) {
+			return applicationInfo;
+		}
+		return null;
+
 	}
 }

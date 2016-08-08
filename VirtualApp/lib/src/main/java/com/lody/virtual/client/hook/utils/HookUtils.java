@@ -16,9 +16,9 @@ public class HookUtils {
 			if (VirtualCore.getCore().isAppInstalled(pkg)) {
 				args[index] = VirtualCore.getCore().getHostPkg();
 			}
-            return pkg;
+			return pkg;
 		}
-        return null;
+		return null;
 	}
 
 	public static void replaceAppPkg(Object[] args) {

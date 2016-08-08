@@ -1,5 +1,34 @@
 package com.lody.virtual.service.pm;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.lang.ref.WeakReference;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import com.android.internal.util.XmlUtils;
+import com.lody.virtual.helper.utils.VLog;
+
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -32,35 +61,6 @@ import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
-
-import com.android.internal.util.XmlUtils;
-import com.lody.virtual.helper.utils.VLog;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.lang.ref.WeakReference;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
-import java.security.spec.EncodedKeySpec;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.jar.Attributes;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 /**
  * Package archive parsing
@@ -1039,7 +1039,7 @@ public class PackageParser {
 				PARSE_DEFAULT_INSTALL_LOCATION);
 		pkg.applicationInfo.installLocation = pkg.installLocation;
 
-        /* Set the global "on SD card" flag */
+		/* Set the global "on SD card" flag */
 		if ((flags & PARSE_ON_SDCARD) != 0) {
 			pkg.applicationInfo.flags |= ApplicationInfo.FLAG_EXTERNAL_STORAGE;
 		}
@@ -1404,9 +1404,6 @@ public class PackageParser {
 
 		return pkg;
 	}
-
-
-
 
 	private PermissionGroup parsePermissionGroup(Package owner, Resources res, XmlPullParser parser, AttributeSet attrs,
 			String[] outError) throws XmlPullParserException, IOException {
@@ -2210,7 +2207,9 @@ public class PackageParser {
 		String cpname = sa
 				.getNonConfigurationString(com.android.internal.R.styleable.AndroidManifestProvider_authorities, 0);
 
-//		p.info.isSyncable = sa.getBoolean(com.android.internal.R.styleable.AndroidManifestProvider_syncable, false);
+		// p.info.isSyncable =
+		// sa.getBoolean(com.android.internal.R.styleable.AndroidManifestProvider_syncable,
+		// false);
 
 		String permission = sa
 				.getNonConfigurationString(com.android.internal.R.styleable.AndroidManifestProvider_permission, 0);
@@ -2258,7 +2257,7 @@ public class PackageParser {
 	}
 
 	private boolean parseProviderTags(Resources res, XmlPullParser parser, AttributeSet attrs, Provider outInfo,
-									  String[] outError) throws XmlPullParserException, IOException {
+			String[] outError) throws XmlPullParserException, IOException {
 		int outerDepth = parser.getDepth();
 		int type;
 		while ((type = parser.next()) != XmlPullParser.END_DOCUMENT
@@ -2599,7 +2598,7 @@ public class PackageParser {
 	}
 
 	private boolean parseIntent(Resources res, XmlPullParser parser, AttributeSet attrs, IntentInfo outInfo,
-								String[] outError) throws XmlPullParserException, IOException {
+			String[] outError) throws XmlPullParserException, IOException {
 
 		TypedArray sa = res.obtainAttributes(attrs, com.android.internal.R.styleable.AndroidManifestIntentFilter);
 
@@ -2990,7 +2989,6 @@ public class PackageParser {
 			}
 			return componentName;
 		}
-
 
 		public void appendComponentShortName(StringBuilder sb) {
 			ComponentName.appendShortString(sb, owner.applicationInfo.packageName, className);

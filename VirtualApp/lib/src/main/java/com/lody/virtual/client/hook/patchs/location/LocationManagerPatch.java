@@ -1,16 +1,16 @@
 package com.lody.virtual.client.hook.patchs.location;
 
-import android.content.Context;
-import android.location.ILocationManager;
-import android.os.Build;
-import android.os.ServiceManager;
-import android.text.TextUtils;
-
 import com.lody.virtual.client.hook.base.HookBinder;
 import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
 import com.lody.virtual.client.hook.binders.HookLocationBinder;
+
+import android.content.Context;
+import android.location.ILocationManager;
+import android.os.Build;
+import android.os.ServiceManager;
+import android.text.TextUtils;
 
 /**
  * @author Lody
@@ -18,9 +18,7 @@ import com.lody.virtual.client.hook.binders.HookLocationBinder;
  *
  * @see ILocationManager
  */
-@Patch({
-		Hook_RequestLocationUpdates.class,
-})
+@Patch({Hook_RequestLocationUpdates.class,})
 public class LocationManagerPatch extends PatchObject<ILocationManager, HookLocationBinder> {
 	@Override
 	protected HookLocationBinder initHookObject() {
@@ -76,7 +74,8 @@ public class LocationManagerPatch extends PatchObject<ILocationManager, HookLoca
 			addHook(new ReplaceLastPkgHook("getLastLocation"));
 		}
 
-		if (Build.VERSION.SDK_INT == Build.VERSION_CODES.JELLY_BEAN && TextUtils.equals(Build.VERSION.RELEASE, "4.1.2")) {
+		if (Build.VERSION.SDK_INT == Build.VERSION_CODES.JELLY_BEAN
+				&& TextUtils.equals(Build.VERSION.RELEASE, "4.1.2")) {
 			addHook(new ReplaceLastPkgHook("requestLocationUpdates"));
 			addHook(new ReplaceLastPkgHook("requestLocationUpdatesPI"));
 			addHook(new ReplaceLastPkgHook("removeUpdates"));

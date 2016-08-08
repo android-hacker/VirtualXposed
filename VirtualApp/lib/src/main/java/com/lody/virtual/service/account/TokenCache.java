@@ -1,15 +1,15 @@
 package com.lody.virtual.service.account;
 
-import android.accounts.Account;
-import android.util.LruCache;
-import android.util.Pair;
-
-import com.lody.virtual.helper.compat.ObjectsCompat;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+
+import com.lody.virtual.helper.compat.ObjectsCompat;
+
+import android.accounts.Account;
+import android.util.LruCache;
+import android.util.Pair;
 
 /**
  * TokenCaches manage time limited authentication tokens in memory.

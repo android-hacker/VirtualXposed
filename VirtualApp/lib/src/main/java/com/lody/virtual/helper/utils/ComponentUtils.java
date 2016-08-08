@@ -2,7 +2,9 @@ package com.lody.virtual.helper.utils;
 
 import android.content.ComponentName;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.ComponentInfo;
+import android.content.pm.PackageInfo;
 
 /**
  * @author Lody
@@ -46,5 +48,20 @@ public class ComponentUtils {
 
 	public static ComponentName toComponentName(ComponentInfo componentInfo) {
 		return new ComponentName(componentInfo.packageName, componentInfo.name);
+	}
+
+	public static boolean isSystemApp(PackageInfo packageInfo) {
+		return packageInfo != null && packageInfo.applicationInfo != null
+				&& (ApplicationInfo.FLAG_SYSTEM & packageInfo.applicationInfo.flags) != 0;
+	}
+
+	public static boolean isSystemApp(ApplicationInfo applicationInfo) {
+		return applicationInfo != null && (ApplicationInfo.FLAG_SYSTEM & applicationInfo.flags) != 0;
+	}
+
+
+	public static boolean isSharedPackage(String initialPackage) {
+		// TODO
+		return false;
 	}
 }

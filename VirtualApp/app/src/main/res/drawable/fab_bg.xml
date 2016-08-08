@@ -3,7 +3,7 @@
     <item android:state_pressed="true">
         <layer-list>
             <!-- Shadow -->
-            <item android:top="1dp" android:right="1dp">
+            <item android:right="1dp" android:top="1dp">
                 <layer-list>
                     <item>
                         <shape android:shape="oval">
@@ -120,7 +120,7 @@
 
         <layer-list>
             <!-- Shadow -->
-            <item android:top="2dp" android:right="1dp">
+            <item android:right="1dp" android:top="2dp">
                 <layer-list>
                     <item>
                         <shape android:shape="oval">

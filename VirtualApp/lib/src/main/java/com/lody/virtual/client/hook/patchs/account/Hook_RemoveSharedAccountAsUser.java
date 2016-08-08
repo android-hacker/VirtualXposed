@@ -1,10 +1,10 @@
 package com.lody.virtual.client.hook.patchs.account;
 
-import android.accounts.Account;
+import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
 
-import java.lang.reflect.Method;
+import android.accounts.Account;
 
 /**
  * @author Lody
@@ -15,13 +15,13 @@ import java.lang.reflect.Method;
 
 public class Hook_RemoveSharedAccountAsUser extends Hook {
 
-    @Override
-    public String getName() {
-        return "removeSharedAccountAsUser";
-    }
+	@Override
+	public String getName() {
+		return "removeSharedAccountAsUser";
+	}
 
-    @Override
-    public Object onHook(Object who, Method method, Object... args) throws Throwable {
-        return false;
-    }
+	@Override
+	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		return false;
+	}
 }

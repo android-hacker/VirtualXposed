@@ -1,5 +1,12 @@
 package com.lody.virtual.client.hook.patchs.am;
 
+import java.lang.reflect.Field;
+
+import com.lody.virtual.client.hook.base.HookBinder;
+import com.lody.virtual.client.hook.base.HookObject;
+import com.lody.virtual.client.hook.base.Patch;
+import com.lody.virtual.client.hook.base.PatchObject;
+
 import android.app.ActivityManagerNative;
 import android.app.IActivityManager;
 import android.content.Context;
@@ -7,25 +14,18 @@ import android.os.IBinder;
 import android.os.ServiceManager;
 import android.util.Singleton;
 
-import com.lody.virtual.client.hook.base.HookBinder;
-import com.lody.virtual.client.hook.base.HookObject;
-import com.lody.virtual.client.hook.base.Patch;
-import com.lody.virtual.client.hook.base.PatchObject;
-
-import java.lang.reflect.Field;
-
 /**
  * @author Lody
- *
- *
  * @see ActivityManagerNative
  * @see IActivityManager
  * @see android.app.ActivityManager
  */
 
 @Patch({Hook_StartActivities.class, Hook_StartActivity.class, Hook_StartActivityAsCaller.class,
-		Hook_StartActivityAsUser.class, Hook_GetIntentSender.class, Hook_RegisterReceiver.class,
-		Hook_GetContentProvider.class, Hook_GetContentProviderExternal.class,
+		Hook_StartActivityAndWait.class, Hook_StartActivityWithConfig.class, Hook_StartActivityIntentSender.class,
+		Hook_StartNextMatchingActivity.class, Hook_StartVoiceActivity.class, Hook_StartActivityAsUser.class,
+		Hook_GetIntentSender.class, Hook_RegisterReceiver.class, Hook_GetContentProvider.class,
+		Hook_GetContentProviderExternal.class,
 
 		Hook_GetActivityClassForToken.class, Hook_GetTasks.class, Hook_GetRunningAppProcesses.class,
 
@@ -40,16 +40,10 @@ import java.lang.reflect.Field;
 		Hook_ForceStopPackage.class, Hook_AddPackageDependency.class, Hook_UpdateDeviceOwner.class,
 		Hook_CrashApplication.class, Hook_GetPackageForToken.class,
 
-		Hook_SetPackageAskScreenCompat.class, Hook_GetPackageAskScreenCompat.class,
-		Hook_SetAppLockedVerifying.class,
-		Hook_CheckPermission.class,
-		Hook_PublishContentProviders.class,
-		Hook_GetCurrentUser.class,
-		Hook_UnstableProviderDied.class,
-		Hook_GetCallingActivity.class,
-		Hook_FinishActivity.class,
-		Hook_GetServices.class,
-})
+		Hook_SetPackageAskScreenCompat.class, Hook_GetPackageAskScreenCompat.class, Hook_SetAppLockedVerifying.class,
+		Hook_CheckPermission.class, Hook_PublishContentProviders.class, Hook_GetCurrentUser.class,
+		Hook_UnstableProviderDied.class, Hook_GetCallingActivity.class, Hook_FinishActivity.class,
+		Hook_GetServices.class,})
 
 public class ActivityManagerPatch extends PatchObject<IActivityManager, HookObject<IActivityManager>> {
 

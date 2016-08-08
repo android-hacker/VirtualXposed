@@ -6,17 +6,17 @@ import io.virtualapp.abs.BaseView;
 /**
  * @author Lody
  */
-/*package*/ class SetupContract {
+/* package */ class SetupContract {
 
-    /*package*/ interface SetupView extends BaseView<SetupPresenter> {
-        void hideIcon();
+	/* package */ interface SetupView extends BaseView<SetupPresenter> {
+		void hideIcon();
 
-        void hideGuideBody();
+		void hideGuideBody();
 
-        void showAnim();
-    }
+		void showAnim();
+	}
 
-    /*package*/ interface SetupPresenter extends BasePresenter {
-        void setupComplete();
-    }
+	/* package */ interface SetupPresenter extends BasePresenter {
+		void setupComplete();
+	}
 }

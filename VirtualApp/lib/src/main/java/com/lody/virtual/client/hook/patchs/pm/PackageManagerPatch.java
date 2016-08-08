@@ -1,8 +1,6 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import android.app.ActivityThread;
-import android.content.pm.IPackageManager;
-import android.os.IBinder;
+import java.lang.reflect.Field;
 
 import com.lody.virtual.client.hook.base.HookBinder;
 import com.lody.virtual.client.hook.base.HookObject;
@@ -11,7 +9,9 @@ import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.base.ResultStaticHook;
 import com.lody.virtual.client.interfaces.IHookObject;
 
-import java.lang.reflect.Field;
+import android.app.ActivityThread;
+import android.content.pm.IPackageManager;
+import android.os.IBinder;
 
 /**
  * @author Lody
@@ -45,12 +45,9 @@ import java.lang.reflect.Field;
 
 		Hook_AddPackageToPreferred.class, Hook_RemovePackageFromPreferred.class,
 		Hook_ClearPackagePreferredActivities.class, Hook_GetPreferredActivities.class,
-		Hook_ClearPackagePersistentPreferredActivities.class,
-		Hook_GetPermissionGroupInfo.class,
-		Hook_DeletePackage.class, Hook_GetPackageInstaller.class,
-		Hook_AddOnPermissionsChangeListener.class,
-		Hook_RemoveOnPermissionsChangeListener.class,
-		Hook_ActivitySupportsIntent.class,
+		Hook_ClearPackagePersistentPreferredActivities.class, Hook_GetPermissionGroupInfo.class,
+		Hook_DeletePackage.class, Hook_GetPackageInstaller.class, Hook_AddOnPermissionsChangeListener.class,
+		Hook_RemoveOnPermissionsChangeListener.class, Hook_ActivitySupportsIntent.class,
 
 })
 public final class PackageManagerPatch extends PatchObject<IPackageManager, HookObject<IPackageManager>> {
@@ -94,6 +91,7 @@ public final class PackageManagerPatch extends PatchObject<IPackageManager, Hook
 			}
 		};
 		pmHookBinder.injectService("package");
+
 	}
 
 	@Override

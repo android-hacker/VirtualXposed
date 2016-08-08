@@ -1,40 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <io.virtualapp.abs.percent.PercentLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:gravity="center"
-    android:layout_height="match_parent">
+                                               xmlns:app="http://schemas.android.com/apk/res-auto"
+                                               android:layout_width="match_parent"
+                                               android:layout_height="match_parent"
+                                               android:gravity="center"
+                                               android:orientation="vertical">
 
     <ImageView
-        android:layout_marginBottom="50dp"
         android:id="@+id/setup_ic"
-        app:layout_widthPercent="45%"
-        app:layout_heightPercent="45%"
-        android:src="@mipmap/ic_launcher"
         android:layout_width="0dp"
-        android:layout_height="0dp" />
+        android:layout_height="0dp"
+        android:layout_marginBottom="50dp"
+        android:src="@mipmap/ic_launcher"
+        app:layout_heightPercent="45%"
+        app:layout_widthPercent="45%"/>
 
-        <LinearLayout
-            android:id="@+id/splash_loading_body"
+    <LinearLayout
+        android:id="@+id/splash_loading_body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:gravity="center"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:text="@string/wait"
+            android:textSize="20sp"
+            android:textStyle="bold"/>
 
-            <TextView
-                android:textStyle="bold"
-                android:textSize="20sp"
-                android:gravity="center"
-                android:text="@string/wait"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
-            <ProgressBar
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-        </LinearLayout>
+    </LinearLayout>
 
 
 </io.virtualapp.abs.percent.PercentLinearLayout>

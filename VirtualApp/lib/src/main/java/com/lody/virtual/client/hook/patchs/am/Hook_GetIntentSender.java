@@ -1,5 +1,11 @@
 package com.lody.virtual.client.hook.patchs.am;
 
+import java.lang.reflect.Method;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.stub.KeepService;
+import com.lody.virtual.helper.ExtraConstants;
+
 import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -7,21 +13,12 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.stub.KeepService;
-import com.lody.virtual.helper.ExtraConstants;
-
-import java.lang.reflect.Method;
-
 /**
  * @author Lody
- *
- *
  * @see android.app.ActivityManagerNative#getIntentSender(int, String, IBinder,
  *      String, int, Intent[], String[], int, Bundle, int)
  */
-/* package */ class Hook_GetIntentSender extends Hook {
+/* package */ class Hook_GetIntentSender extends Hook_BaseStartActivity {
 
 	@Override
 	public String getName() {
@@ -66,8 +63,7 @@ import java.lang.reflect.Method;
 	}
 
 	private Intent redirectIntentSender(int flags, Intent intent) {
-		if (flags == ActivityManager.INTENT_SENDER_ACTIVITY
-				|| flags == ActivityManager.INTENT_SENDER_SERVICE) {
+		if (flags == ActivityManager.INTENT_SENDER_ACTIVITY || flags == ActivityManager.INTENT_SENDER_SERVICE) {
 			ActivityInfo activityInfo = VirtualCore.getCore().resolveActivityInfo(intent);
 			if (activityInfo == null || !isAppPkg(activityInfo.packageName)) {
 				return null;

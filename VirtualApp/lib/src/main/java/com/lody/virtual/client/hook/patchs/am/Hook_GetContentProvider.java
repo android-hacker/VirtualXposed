@@ -3,12 +3,14 @@ package com.lody.virtual.client.hook.patchs.am;
 import android.app.IActivityManager;
 import android.app.IApplicationThread;
 import android.content.IContentProvider;
+import android.content.pm.ProviderInfo;
 import android.os.IBinder;
 
-import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.providers.ProviderHook;
-import com.lody.virtual.client.local.LocalContentManager;
+import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.client.local.VPackageManager;
+import com.lody.virtual.helper.utils.ComponentUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -18,7 +20,8 @@ import java.lang.reflect.Proxy;
  * @author Lody
  *
  *
- * @see IActivityManager#getContentProvider(IApplicationThread, String, int, boolean)
+ * @see IActivityManager#getContentProvider(IApplicationThread, String, int,
+ *      boolean)
  * @see IActivityManager#getContentProviderExternal(String, int, IBinder)
  *
  */
@@ -32,19 +35,32 @@ import java.lang.reflect.Proxy;
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		String name = (String) args[getProviderNameIndex()];
-		IActivityManager.ContentProviderHolder holder = null;
-		if (!VirtualCore.getCore().isHostProvider(name)) {
-			holder = LocalContentManager.getDefault().getContentProvider(name);
+		ProviderInfo providerInfo = VPackageManager.getInstance().resolveContentProvider(name, 0);
+		if (providerInfo != null) {
+			if (getHostPkg().equals(providerInfo.packageName)) {
+				return method.invoke(who, args);
+			}
 		}
+		IActivityManager.ContentProviderHolder holder = VActivityManager.getInstance().getContentProvider(name);
 		if (holder == null) {
 			try {
 				holder = (IActivityManager.ContentProviderHolder) method.invoke(who, args);
+				if (holder != null && holder.info != null && !ComponentUtils.isSystemApp(holder.info.applicationInfo)
+						&& !getHostPkg().equals(holder.info.packageName)) {
+					holder = null;
+				}
 			} catch (InvocationTargetException e) {
 				if (e.getCause() instanceof SecurityException) {
 					return null;
 				}
 				throw e.getCause();
 			}
+		}
+		if (holder == null) {
+			return null;
+		}
+		if (holder.provider == null) {
+			return holder;
 		}
 		ProviderHook.HookFetcher fetcher = ProviderHook.fetchHook(name);
 		if (fetcher != null) {

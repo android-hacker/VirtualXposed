@@ -1,12 +1,12 @@
 package com.lody.virtual.client.hook.base;
 
-import android.content.Context;
-import android.content.pm.PackageManager;
+import java.lang.reflect.Method;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.proto.AppInfo;
 
-import java.lang.reflect.Method;
+import android.content.Context;
+import android.content.pm.PackageManager;
 
 /**
  * @author Lody
@@ -25,7 +25,6 @@ public abstract class Hook {
 		return true;
 	}
 
-
 	/**
 	 * Hook回调
 	 */
@@ -33,11 +32,9 @@ public abstract class Hook {
 		return method.invoke(who, args);
 	}
 
-
 	public Object afterHook(Object who, Method method, Object[] args, Object result) throws Throwable {
 		return result;
 	}
-
 
 	public boolean isEnable() {
 		return enable;

@@ -1,13 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:gravity="center"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:background="#77000000"
+             android:orientation="vertical">
 
-    <ProgressBar
-        style="?android:attr/progressBarStyle"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/progressBar"/>
-</LinearLayout>
+        android:layout_height="128dp"
+        android:layout_gravity="bottom"
+        android:background="#F8F8F8">
+
+        <fr.castorflex.android.smoothprogressbar.SmoothProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            app:spb_colors="@array/progress_colors"
+            app:spb_mirror_mode="false"
+            app:spb_progressiveStart_activated="true"
+            app:spb_progressiveStart_speed="1.5"
+            app:spb_progressiveStop_speed="3.4"
+            app:spb_reversed="false"
+            app:spb_sections_count="4"
+            app:spb_speed="2.0"
+            app:spb_stroke_separator_length="4dp"
+            app:spb_stroke_width="4dp"/>
+
+        <ImageView
+            android:id="@+id/app_icon"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="64dp"
+            android:layout_width="64dp"
+            android:layout_height="64dp"/>
+
+        <TextView
+            android:id="@+id/app_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/app_icon"
+            android:layout_toRightOf="@id/app_icon"
+            android:layout_marginLeft="20dp"
+            android:text="@string/preparing"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/app_icon"
+            android:layout_toRightOf="@id/app_icon"
+            android:layout_marginLeft="20dp"
+            android:text="@string/preparing"/>
+
+    </RelativeLayout>
+
+</FrameLayout>

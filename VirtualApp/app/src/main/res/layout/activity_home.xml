@@ -1,45 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:fab="http://schemas.android.com/apk/res-auto">
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+             xmlns:fab="http://schemas.android.com/apk/res-auto"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
 
     <io.virtualapp.abs.percent.PercentLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:background="@color/colorPrimaryDark"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+                                                   xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                   android:layout_width="match_parent"
+                                                   android:layout_height="match_parent"
+                                                   android:background="@color/colorPrimaryDark"
+                                                   android:orientation="vertical">
 
 
         <LinearLayout
-            android:orientation="vertical"
-            android:gravity="center"
-            app:layout_heightPercent="16%"
             android:layout_width="match_parent"
-            android:layout_height="0dp">
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_heightPercent="16%">
 
             <TextView
-                android:textStyle="bold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_name"
                 android:textColor="@android:color/white"
                 android:textSize="20sp"
-                android:text="@string/app_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:textStyle="bold"/>
 
             <TextView
-                android:textColor="#ddd"
-                android:text="@string/desktop"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:text="@string/desktop"
+                android:textColor="#ddd"/>
 
         </LinearLayout>
 
         <FrameLayout
-            android:layout_marginBottom="80dp"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_marginBottom="80dp">
 
             <io.virtualapp.widgets.PagerView
                 android:id="@+id/home_launcher"
@@ -47,33 +47,33 @@
                 android:layout_height="match_parent"/>
 
             <ProgressBar
-                android:layout_gravity="center"
                 android:id="@+id/pb_loading_app"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"/>
 
         </FrameLayout>
     </io.virtualapp.abs.percent.PercentLinearLayout>
 
     <com.melnykov.fab.FloatingActionButton
         android:id="@+id/home_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:layout_margin="30dp"
         android:src="@drawable/ic_add"
         fab:fab_colorNormal="@color/colorPrimary"
-        fab:fab_colorPressed="@color/colorPrimaryDark"
-        android:layout_margin="30dp"
-        android:layout_gravity="bottom|center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        fab:fab_colorPressed="@color/colorPrimaryDark"/>
 
     <com.melnykov.fab.FloatingActionButton
-            android:id="@+id/home_del"
-            android:visibility="gone"
-            android:src="@drawable/ic_crash"
-            fab:fab_colorNormal="#e84e40"
-            fab:fab_colorPressed="#e51c23"
-            android:layout_margin="30dp"
-            android:layout_gravity="bottom|center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+        android:id="@+id/home_del"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:layout_margin="30dp"
+        android:src="@drawable/ic_crash"
+        android:visibility="gone"
+        fab:fab_colorNormal="#e84e40"
+        fab:fab_colorPressed="#e51c23"/>
 
 </FrameLayout>

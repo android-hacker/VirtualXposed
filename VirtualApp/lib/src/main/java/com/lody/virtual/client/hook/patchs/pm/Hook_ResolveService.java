@@ -1,12 +1,12 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import android.content.Intent;
-import android.content.pm.ResolveInfo;
+import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalPackageManager;
+import com.lody.virtual.client.local.VPackageManager;
 
-import java.lang.reflect.Method;
+import android.content.Intent;
+import android.content.pm.ResolveInfo;
 
 /**
  * @author Lody
@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
 		Intent intent = (Intent) args[0];
 		String resolvedType = (String) args[1];
 		int flags = (int) args[2];
-		ResolveInfo resolveInfo = LocalPackageManager.getInstance().resolveService(intent, resolvedType, flags);
+		ResolveInfo resolveInfo = VPackageManager.getInstance().resolveService(intent, resolvedType, flags);
 		if (resolveInfo == null) {
 			resolveInfo = (ResolveInfo) method.invoke(who, args);
 		}

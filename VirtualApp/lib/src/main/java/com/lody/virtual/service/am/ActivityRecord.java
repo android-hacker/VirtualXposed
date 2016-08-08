@@ -7,7 +7,7 @@ import android.os.IBinder;
  * @author Lody
  */
 
-/*package*/ class ActivityRecord {
+/* package */ class ActivityRecord {
 	int pid;
 	IBinder token;
 	ActivityInfo activityInfo;
@@ -15,12 +15,15 @@ import android.os.IBinder;
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
 
 		ActivityRecord that = (ActivityRecord) o;
 
-		if (pid != that.pid) return false;
+		if (pid != that.pid)
+			return false;
 		return token != null ? token.equals(that.token) : that.token == null;
 
 	}

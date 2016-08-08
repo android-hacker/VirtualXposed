@@ -1,25 +1,25 @@
 package com.lody.virtual.service.am;
 
-import android.content.ComponentName;
-import android.content.pm.ActivityInfo;
-import android.os.IBinder;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
 import com.lody.virtual.helper.proto.AppTaskInfo;
 import com.lody.virtual.helper.utils.ComponentUtils;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import android.content.ComponentName;
+import android.content.pm.ActivityInfo;
+import android.os.IBinder;
 
 /**
  * @author Lody
  */
 
 public class ActivityTaskRecord {
-	String rootAffinity;
-	int taskId;
 	final LinkedList<ActivityRecord> activityList = new LinkedList<ActivityRecord>();
 	final Map<IBinder, ActivityRecord> activities = new HashMap<>();
+	String rootAffinity;
+	int taskId;
 	ComponentName baseActivity;
 
 	public AppTaskInfo toTaskInfo() {

@@ -1,5 +1,24 @@
 package com.lody.virtual.service.pm;
 
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.fixer.ComponentFixer;
+import com.lody.virtual.helper.compat.ObjectsCompat;
+import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.proto.ReceiverInfo;
+import com.lody.virtual.helper.proto.VParceledListSlice;
+import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.service.IPackageManager;
+
 import android.annotation.TargetApi;
 import android.content.ComponentName;
 import android.content.Context;
@@ -17,38 +36,20 @@ import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.RemoteException;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.LogPrinter;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.fixer.ComponentFixer;
-import com.lody.virtual.helper.compat.ObjectsCompat;
-import com.lody.virtual.helper.proto.AppInfo;
-import com.lody.virtual.helper.proto.ReceiverInfo;
-import com.lody.virtual.helper.proto.VParceledListSlice;
-import com.lody.virtual.helper.utils.ComponentUtils;
-import com.lody.virtual.helper.utils.VLog;
-import com.lody.virtual.service.IPackageManager;
-
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Lody
  *
  */
-public class VPackageService extends IPackageManager.Stub {
+public class VPackageManagerService extends IPackageManager.Stub {
 
 	static final String TAG = "PackageManager";
 
 	private static final boolean DEBUG_SHOW_INFO = false;
-	private static final AtomicReference<VPackageService> gService = new AtomicReference<>();
+	private static final AtomicReference<VPackageManagerService> gService = new AtomicReference<>();
 	private static final Comparator<ResolveInfo> mResolvePrioritySorter = new Comparator<ResolveInfo>() {
 		public int compare(ResolveInfo r1, ResolveInfo r2) {
 			int v1 = r1.priority;
@@ -75,14 +76,13 @@ public class VPackageService extends IPackageManager.Stub {
 			return 0;
 		}
 	};
-	private static final Comparator<ProviderInfo> mProviderInitOrderSorter =
-			new Comparator<ProviderInfo>() {
-				public int compare(ProviderInfo p1, ProviderInfo p2) {
-					final int v1 = p1.initOrder;
-					final int v2 = p2.initOrder;
-					return (v1 > v2) ? -1 : ((v1 < v2) ? 1 : 0);
-				}
-			};
+	private static final Comparator<ProviderInfo> mProviderInitOrderSorter = new Comparator<ProviderInfo>() {
+		public int compare(ProviderInfo p1, ProviderInfo p2) {
+			final int v1 = p1.initOrder;
+			final int v2 = p2.initOrder;
+			return (v1 > v2) ? -1 : ((v1 < v2) ? 1 : 0);
+		}
+	};
 
 	final ActivityIntentResolver mActivities = new ActivityIntentResolver();
 	final ServiceIntentResolver mServices = new ServiceIntentResolver();
@@ -100,17 +100,17 @@ public class VPackageService extends IPackageManager.Stub {
 
 	private int[] mGids;
 
-	public VPackageService(int[] gids) {
+	public VPackageManagerService(int[] gids) {
 		this.mGids = gids;
 	}
 
 	public static void systemReady() {
 		int[] gids = VirtualCore.getCore().getGids();
-		VPackageService instance = new VPackageService(gids);
+		VPackageManagerService instance = new VPackageManagerService(gids);
 		gService.set(instance);
 	}
 
-	public static VPackageService getService() {
+	public static VPackageManagerService getService() {
 		return gService.get();
 	}
 
@@ -122,8 +122,8 @@ public class VPackageService extends IPackageManager.Stub {
 		return VirtualCore.getCore().getContext();
 	}
 
-	private VAppService getPMS() {
-		return VAppService.getService();
+	private VAppManagerService getPMS() {
+		return VAppManagerService.getService();
 	}
 
 	public void analyzePackageLocked(AppInfo appInfo, PackageParser.Package pkg) {
@@ -665,6 +665,23 @@ public class VPackageService extends IPackageManager.Stub {
 		return null;
 	}
 
+	@Override
+	public List<String> querySharedPackages(String packageName) {
+		synchronized (mPackages) {
+			PackageParser.Package p = mPackages.get(packageName);
+			if (p == null || p.mSharedUserId == null) {
+				// noinspection unchecked
+				return Collections.EMPTY_LIST;
+			}
+			ArrayList<String> list = new ArrayList<>();
+			for (PackageParser.Package one : mPackages.values()) {
+				if (TextUtils.equals(one.mSharedUserId, p.mSharedUserId)) {
+					list.add(one.packageName);
+				}
+			}
+			return list;
+		}
+	}
 	@Override
 	public boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
 		try {

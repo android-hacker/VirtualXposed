@@ -21,19 +21,17 @@ public class ProviderHook implements InvocationHandler {
 
 	private static final Map<String, HookFetcher> PROVIDER_MAP = new HashMap<>();
 
-	public interface HookFetcher {
-		ProviderHook fetch(IContentProvider provider);
-	}
-
-	public static HookFetcher fetchHook(String authority) {
-		return PROVIDER_MAP.get(authority);
-	}
-
 	static {
 		PROVIDER_MAP.put("settings", new HookFetcher() {
 			@Override
 			public ProviderHook fetch(IContentProvider provider) {
 				return new SettingsProviderHook(provider);
+			}
+		});
+		PROVIDER_MAP.put("downloads", new HookFetcher() {
+			@Override
+			public ProviderHook fetch(IContentProvider provider) {
+				return new DownloadProviderHook(provider);
 			}
 		});
 	}
@@ -42,6 +40,19 @@ public class ProviderHook implements InvocationHandler {
 
 	public ProviderHook(Object base) {
 		this.mBase = base;
+	}
+
+	public static HookFetcher fetchHook(String authority) {
+		HookFetcher fetcher = PROVIDER_MAP.get(authority);
+		if (fetcher == null) {
+			fetcher = new HookFetcher() {
+				@Override
+				public ProviderHook fetch(IContentProvider provider) {
+					return new ExternalProviderHook(provider);
+				}
+			};
+		}
+		return fetcher;
 	}
 
 	public Bundle call(Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
@@ -77,5 +88,9 @@ public class ProviderHook implements InvocationHandler {
 
 	protected void processArgs(Method method, Object... args) {
 
+	}
+
+	public interface HookFetcher {
+		ProviderHook fetch(IContentProvider provider);
 	}
 }

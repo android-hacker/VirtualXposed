@@ -1,12 +1,12 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import android.content.ComponentName;
-import android.os.IBinder;
+import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalServiceManager;
+import com.lody.virtual.client.local.VActivityManager;
 
-import java.lang.reflect.Method;
+import android.content.ComponentName;
+import android.os.IBinder;
 
 /**
  * @author Lody
@@ -29,7 +29,7 @@ import java.lang.reflect.Method;
 		if (componentName != null) {
 			String pkgName = componentName.getPackageName();
 			if (isAppPkg(pkgName)) {
-				return LocalServiceManager.getInstance().stopServiceToken(componentName, token, startId);
+				return VActivityManager.getInstance().stopServiceToken(componentName, token, startId);
 			}
 		}
 		return method.invoke(who, args);

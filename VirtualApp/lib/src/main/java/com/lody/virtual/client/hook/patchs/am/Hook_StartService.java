@@ -1,14 +1,14 @@
 package com.lody.virtual.client.hook.patchs.am;
 
+import java.lang.reflect.Method;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.local.VActivityManager;
+
 import android.app.IApplicationThread;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.local.LocalServiceManager;
-import com.lody.virtual.client.hook.base.Hook;
-
-import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -30,8 +30,7 @@ import java.lang.reflect.Method;
 		IApplicationThread appThread = (IApplicationThread) args[0];
 		Intent service = (Intent) args[1];
 		String resolvedType = (String) args[2];
-		if (service != null
-				&& service.getComponent() != null
+		if (service != null && service.getComponent() != null
 				&& getHostPkg().equals(service.getComponent().getPackageName())) {
 			// for server process
 			return method.invoke(who, args);
@@ -43,7 +42,7 @@ import java.lang.reflect.Method;
 				return method.invoke(who, args);
 			}
 			if (isAppPkg(pkgName)) {
-				return LocalServiceManager.getInstance().startService(appThread.asBinder(), service, resolvedType);
+				return VActivityManager.getInstance().startService(appThread.asBinder(), service, resolvedType);
 			}
 		}
 		return method.invoke(who, args);

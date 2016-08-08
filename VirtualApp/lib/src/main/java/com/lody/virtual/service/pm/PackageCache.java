@@ -1,9 +1,9 @@
 package com.lody.virtual.service.pm;
 
-import com.lody.virtual.helper.proto.AppInfo;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.lody.virtual.helper.proto.AppInfo;
 
 /**
  * @author Lody
@@ -17,7 +17,7 @@ public class PackageCache {
 		synchronized (PackageCache.class) {
 			sPackageCaches.put(pkg.packageName, pkg);
 			sAppInfos.put(pkg.packageName, appInfo);
-			VPackageService.getService().analyzePackageLocked(appInfo, pkg);
+			VPackageManagerService.getService().analyzePackageLocked(appInfo, pkg);
 		}
 	}
 
@@ -29,7 +29,7 @@ public class PackageCache {
 		synchronized (PackageCache.class) {
 			sPackageCaches.remove(packageName);
 			sAppInfos.remove(packageName);
-			VPackageService.getService().deletePackageLocked(packageName);
+			VPackageManagerService.getService().deletePackageLocked(packageName);
 		}
 	}
 }

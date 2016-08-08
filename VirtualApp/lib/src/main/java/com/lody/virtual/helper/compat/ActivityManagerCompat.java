@@ -1,11 +1,11 @@
 package com.lody.virtual.helper.compat;
 
+import com.lody.virtual.helper.utils.Reflect;
+
 import android.app.ActivityManagerNative;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
-
-import com.lody.virtual.helper.utils.Reflect;
 
 /**
  * @author Lody
@@ -13,20 +13,20 @@ import com.lody.virtual.helper.utils.Reflect;
 
 public class ActivityManagerCompat {
 
-    public static boolean finishActivity(IBinder token, int code, Intent data) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            try {
-                return ActivityManagerNative.getDefault().finishActivity(token, code, data, false);
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            return Reflect.on(ActivityManagerNative.getDefault()).call("finishActivity", token, code, data).get();
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
+	public static boolean finishActivity(IBinder token, int code, Intent data) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			try {
+				return ActivityManagerNative.getDefault().finishActivity(token, code, data, false);
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
+		}
+		try {
+			return Reflect.on(ActivityManagerNative.getDefault()).call("finishActivity", token, code, data).get();
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
 
-        return false;
-    }
+		return false;
+	}
 }

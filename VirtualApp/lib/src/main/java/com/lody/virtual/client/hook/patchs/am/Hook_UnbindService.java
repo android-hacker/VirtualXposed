@@ -1,11 +1,11 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import android.app.IServiceConnection;
+import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalServiceManager;
+import com.lody.virtual.client.local.VActivityManager;
 
-import java.lang.reflect.Method;
+import android.app.IServiceConnection;
 
 /**
  * @author Lody
@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		IServiceConnection connection = (IServiceConnection) args[0];
-		return LocalServiceManager.getInstance().unbindService(connection);
+		return VActivityManager.getInstance().unbindService(connection);
 	}
 
 	@Override

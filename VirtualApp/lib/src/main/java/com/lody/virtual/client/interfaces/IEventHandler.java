@@ -6,7 +6,6 @@ package com.lody.virtual.client.interfaces;
 
 public interface IEventHandler {
 
-    void reportError(String error);
-
+	void reportError(String error);
 
 }

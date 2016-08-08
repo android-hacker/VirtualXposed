@@ -1,12 +1,12 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import android.content.Intent;
-import android.os.IBinder;
+import java.lang.reflect.Method;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.LocalServiceManager;
+import com.lody.virtual.client.local.VActivityManager;
 
-import java.lang.reflect.Method;
+import android.content.Intent;
+import android.os.IBinder;
 
 /**
  * @author Lody
@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
 		IBinder token = (IBinder) args[0];
 		Intent service = (Intent) args[1];
 		boolean doRebind = (boolean) args[2];
-		LocalServiceManager.getInstance().unbindFinished(token, service, doRebind);
+		VActivityManager.getInstance().unbindFinished(token, service, doRebind);
 		return 0;
 	}
 

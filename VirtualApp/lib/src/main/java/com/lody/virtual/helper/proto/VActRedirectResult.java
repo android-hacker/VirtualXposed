@@ -11,6 +11,17 @@ import android.os.Parcelable;
  */
 public class VActRedirectResult implements Parcelable {
 
+	public static final Creator<VActRedirectResult> CREATOR = new Creator<VActRedirectResult>() {
+		@Override
+		public VActRedirectResult createFromParcel(Parcel source) {
+			return new VActRedirectResult(source);
+		}
+
+		@Override
+		public VActRedirectResult[] newArray(int size) {
+			return new VActRedirectResult[size];
+		}
+	};
 	public ActivityInfo stubActInfo;
 	public int flags;
 	public IBinder replaceToken;
@@ -32,6 +43,15 @@ public class VActRedirectResult implements Parcelable {
 		this.flags = flags;
 	}
 
+	protected VActRedirectResult(Parcel in) {
+		this.stubActInfo = in.readParcelable(ActivityInfo.class.getClassLoader());
+		this.flags = in.readInt();
+		this.replaceToken = in.readStrongBinder();
+		this.newIntentToken = in.readStrongBinder();
+		this.targetClient = in.readStrongBinder();
+		this.justReturn = in.readByte() == 1;
+	}
+
 	@Override
 	public int describeContents() {
 		return 0;
@@ -46,25 +66,4 @@ public class VActRedirectResult implements Parcelable {
 		dest.writeStrongBinder(this.targetClient);
 		dest.writeByte((byte) (justReturn ? 1 : 0));
 	}
-
-	protected VActRedirectResult(Parcel in) {
-		this.stubActInfo = in.readParcelable(ActivityInfo.class.getClassLoader());
-		this.flags = in.readInt();
-		this.replaceToken = in.readStrongBinder();
-		this.newIntentToken = in.readStrongBinder();
-		this.targetClient = in.readStrongBinder();
-		this.justReturn = in.readByte() == 1;
-	}
-
-	public static final Creator<VActRedirectResult> CREATOR = new Creator<VActRedirectResult>() {
-		@Override
-		public VActRedirectResult createFromParcel(Parcel source) {
-			return new VActRedirectResult(source);
-		}
-
-		@Override
-		public VActRedirectResult[] newArray(int size) {
-			return new VActRedirectResult[size];
-		}
-	};
 }

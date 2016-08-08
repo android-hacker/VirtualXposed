@@ -1,10 +1,10 @@
 package io.virtualapp.home.models;
 
-import android.content.Context;
+import java.util.List;
 
 import org.jdeferred.Promise;
 
-import java.util.List;
+import android.content.Context;
 
 /**
  * @author Lody
@@ -12,20 +12,21 @@ import java.util.List;
  */
 public interface AppDataSource {
 
-    /**
-     * @return All the Applications we Virtual.
-     */
-    Promise<List<AppModel>, Throwable, Void> getVirtualApps();
+	/**
+	 * @return All the Applications we Virtual.
+	 */
+	Promise<List<AppModel>, Throwable, Void> getVirtualApps();
 
-    /**
-     * @param context Context
-     * @return All the Applications we Installed.
-     */
-    Promise<List<AppModel>, Throwable, Void> getInstalledApps(Context context);
+	/**
+	 * @param context
+	 *            Context
+	 * @return All the Applications we Installed.
+	 */
+	Promise<List<AppModel>, Throwable, Void> getInstalledApps(Context context);
 
-    Promise<List<AppModel>, Throwable, Void> getSdCardApps(Context context);
+	Promise<List<AppModel>, Throwable, Void> getSdCardApps(Context context);
 
-    void addVirtualApp(AppModel app) throws Throwable;
+	void addVirtualApp(AppModel app) throws Throwable;
 
-    void removeVirtualApp(AppModel app) throws Throwable;
+	void removeVirtualApp(AppModel app) throws Throwable;
 }

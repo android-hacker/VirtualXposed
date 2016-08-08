@@ -1,13 +1,13 @@
 package com.lody.virtual.client.hook.patchs.clipboard;
 
+import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
+import com.lody.virtual.client.hook.binders.HookClipboardBinder;
+
 import android.content.Context;
 import android.content.IClipboard;
 import android.os.Build;
 import android.os.ServiceManager;
-
-import com.lody.virtual.client.hook.base.PatchObject;
-import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
-import com.lody.virtual.client.hook.binders.HookClipboardBinder;
 
 /**
  * @author Lody

@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:gravity="center"
-    android:layout_gravity="center"
-    android:orientation="vertical"
-    android:layout_width="60dp"
-    android:layout_height="60dp">
+              android:layout_width="60dp"
+              android:layout_height="60dp"
+              android:layout_gravity="center"
+              android:gravity="center"
+              android:orientation="vertical">
 
     <ImageView
         android:id="@+id/item_app_icon"
-        android:src="@mipmap/ic_launcher"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@mipmap/ic_launcher"/>
 
     <TextView
-        android:singleLine="true"
-        android:textColor="@android:color/white"
         android:id="@+id/item_app_name"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:textColor="@android:color/white"/>
 
 </LinearLayout>

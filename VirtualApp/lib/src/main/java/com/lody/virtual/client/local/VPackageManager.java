@@ -1,5 +1,13 @@
 package com.lody.virtual.client.local;
 
+import java.util.List;
+
+import com.lody.virtual.client.env.VirtualRuntime;
+import com.lody.virtual.client.service.ServiceManagerNative;
+import com.lody.virtual.helper.proto.ReceiverInfo;
+import com.lody.virtual.helper.proto.VParceledListSlice;
+import com.lody.virtual.service.IPackageManager;
+
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -14,30 +22,22 @@ import android.content.pm.ServiceInfo;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import com.lody.virtual.client.env.RuntimeEnv;
-import com.lody.virtual.client.service.ServiceManagerNative;
-import com.lody.virtual.helper.proto.ReceiverInfo;
-import com.lody.virtual.helper.proto.VParceledListSlice;
-import com.lody.virtual.service.IPackageManager;
-
-import java.util.List;
-
 /**
  * @author Lody
  *
  */
-public class LocalPackageManager {
+public class VPackageManager {
 
-	private static final LocalPackageManager sMgr = new LocalPackageManager();
+	private static final VPackageManager sMgr = new VPackageManager();
 	private IPackageManager mRemote;
 
-	public static LocalPackageManager getInstance() {
+	public static VPackageManager getInstance() {
 		return sMgr;
 	}
 
 	public synchronized IPackageManager getInterface() {
 		if (mRemote == null) {
-			synchronized (LocalPackageManager.class) {
+			synchronized (VPackageManager.class) {
 				if (mRemote == null) {
 					final IBinder pmBinder = ServiceManagerNative.getService(ServiceManagerNative.PACKAGE_MANAGER);
 					mRemote = IPackageManager.Stub.asInterface(pmBinder);
@@ -51,7 +51,7 @@ public class LocalPackageManager {
 		try {
 			return getInterface().checkPermission(permName, pkgName);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -59,7 +59,7 @@ public class LocalPackageManager {
 		try {
 			return getInterface().resolveService(intent, resolvedType, flags);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -67,16 +67,16 @@ public class LocalPackageManager {
 		try {
 			return getInterface().getPermissionGroupInfo(name, flags);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
 	public List<ApplicationInfo> getInstalledApplications(int flags) {
 		try {
-			//noinspection unchecked
+			// noinspection unchecked
 			return getInterface().getInstalledApplications(flags).getList();
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -84,7 +84,7 @@ public class LocalPackageManager {
 		try {
 			return getInterface().getPackageInfo(packageName, flags);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -92,7 +92,7 @@ public class LocalPackageManager {
 		try {
 			return getInterface().resolveIntent(intent, resolvedType, flags);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -100,7 +100,7 @@ public class LocalPackageManager {
 		try {
 			return getInterface().queryIntentContentProviders(intent, resolvedType, flags);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -108,7 +108,7 @@ public class LocalPackageManager {
 		try {
 			return getInterface().getReceiverInfo(componentName, flags);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -116,7 +116,7 @@ public class LocalPackageManager {
 		try {
 			return getInterface().getInstalledPackages(flags);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -124,7 +124,7 @@ public class LocalPackageManager {
 		try {
 			return getInterface().queryPermissionsByGroup(group, flags);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -132,7 +132,7 @@ public class LocalPackageManager {
 		try {
 			return getInterface().getPermissionInfo(name, flags);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -140,7 +140,7 @@ public class LocalPackageManager {
 		try {
 			return getInterface().getActivityInfo(componentName, flags);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -148,7 +148,7 @@ public class LocalPackageManager {
 		try {
 			return getInterface().queryIntentReceivers(intent, resolvedType, flags);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -156,7 +156,7 @@ public class LocalPackageManager {
 		try {
 			return getInterface().getAllPermissionGroups(flags);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -164,7 +164,7 @@ public class LocalPackageManager {
 		try {
 			return getInterface().queryIntentActivities(intent, resolvedType, flags);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -172,7 +172,7 @@ public class LocalPackageManager {
 		try {
 			return getInterface().queryIntentServices(intent, resolvedType, flags);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -180,7 +180,7 @@ public class LocalPackageManager {
 		try {
 			return getInterface().getApplicationInfo(packageName, flags);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -188,7 +188,7 @@ public class LocalPackageManager {
 		try {
 			return getInterface().getReceiverIntentFilter(info);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -196,7 +196,7 @@ public class LocalPackageManager {
 		try {
 			return getInterface().resolveContentProvider(name, flags);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -204,7 +204,7 @@ public class LocalPackageManager {
 		try {
 			return getInterface().getServiceInfo(componentName, flags);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -212,7 +212,7 @@ public class LocalPackageManager {
 		try {
 			return getInterface().getProviderInfo(componentName, flags);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -220,26 +220,33 @@ public class LocalPackageManager {
 		try {
 			return getInterface().activitySupportsIntent(component, intent, resolvedType);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
 	public List<ProviderInfo> queryContentProviders(String processName, int flags) {
 		try {
-			//noinspection unchecked
+			// noinspection unchecked
 			return getInterface().queryContentProviders(processName, flags).getList();
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
 	public List<ReceiverInfo> queryReceivers(String processName, int flags) {
 		try {
-			//noinspection unchecked
+			// noinspection unchecked
 			return getInterface().queryReceivers(processName, flags);
 		} catch (RemoteException e) {
-			return RuntimeEnv.crash(e);
+			return VirtualRuntime.crash(e);
 		}
 	}
 
+	public List<String> querySharedPackages(String packageName) {
+		try {
+			return getInterface().querySharedPackages(packageName);
+		} catch (RemoteException e) {
+			return VirtualRuntime.crash(e);
+		}
+	}
 }

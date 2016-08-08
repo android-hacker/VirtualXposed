@@ -6,14 +6,14 @@ package com.lody.virtual.client.hook.base;
 
 public class StaticHook extends Hook {
 
-    private String mName;
+	private String mName;
 
-    public StaticHook(String name) {
-        this.mName = name;
-    }
+	public StaticHook(String name) {
+		this.mName = name;
+	}
 
-    @Override
-    public String getName() {
-        return mName;
-    }
+	@Override
+	public String getName() {
+		return mName;
+	}
 }

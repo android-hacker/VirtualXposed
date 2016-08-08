@@ -1,17 +1,17 @@
 package com.lody.virtual.client.fixer;
 
-import android.view.LayoutInflater;
-import android.view.View;
+import java.lang.reflect.Constructor;
+import java.util.HashMap;
 
 import com.lody.virtual.helper.utils.Reflect;
 
-import java.lang.reflect.Constructor;
-import java.util.HashMap;
+import android.view.LayoutInflater;
+import android.view.View;
 
 /**
  * @author Lody
  *
- * Clear the cache of LayoutInflater.
+ *         Clear the cache of LayoutInflater.
  *
  */
 public class LayoutInflaterFixer {

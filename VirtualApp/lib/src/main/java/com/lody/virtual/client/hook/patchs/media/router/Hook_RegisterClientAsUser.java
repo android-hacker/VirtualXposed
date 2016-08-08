@@ -1,8 +1,8 @@
 package com.lody.virtual.client.hook.patchs.media.router;
 
-import com.lody.virtual.client.hook.base.Hook;
-
 import java.lang.reflect.Method;
+
+import com.lody.virtual.client.hook.base.Hook;
 
 /**
  * @author Lody

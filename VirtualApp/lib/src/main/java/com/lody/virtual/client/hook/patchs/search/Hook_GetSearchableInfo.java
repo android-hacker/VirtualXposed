@@ -1,12 +1,12 @@
 package com.lody.virtual.client.hook.patchs.search;
 
-import android.content.ComponentName;
-import android.content.pm.ActivityInfo;
+import java.lang.reflect.Method;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 
-import java.lang.reflect.Method;
+import android.content.ComponentName;
+import android.content.pm.ActivityInfo;
 
 /**
  * @author Lody

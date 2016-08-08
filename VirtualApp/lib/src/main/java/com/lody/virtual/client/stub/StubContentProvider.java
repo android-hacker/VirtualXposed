@@ -1,11 +1,14 @@
 package com.lody.virtual.client.stub;
 
-import android.os.Bundle;
-
-import com.lody.virtual.client.core.AppSandBox;
+import com.lody.virtual.client.VClientImpl;
+import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.MethodConstants;
+import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.component.BaseContentProvider;
+
+import android.os.Bundle;
+import android.os.IBinder;
 
 /**
  * @author Lody
@@ -19,14 +22,14 @@ public abstract class StubContentProvider extends BaseContentProvider {
 			initProcess(extras);
 			return null;
 		}
-
 		return null;
 	}
 
 	private void initProcess(Bundle extras) {
-		final String processName = extras.getString(ExtraConstants.EXTRA_PROCESS_NAME);
-		final String packageName = extras.getString(ExtraConstants.EXTRA_PKG);
-		AppSandBox.install(processName, packageName);
+		IBinder token = BundleCompat.getBinder(extras, ExtraConstants.EXTRA_BINDER);
+		VClientImpl client = VClientImpl.getClient();
+		client.setToken(token);
+		VActivityManager.getInstance().attachClient(client);
 	}
 
 	public static class C0 extends StubContentProvider {

@@ -9,45 +9,45 @@ import io.virtualapp.home.models.AppModel;
 /**
  * @author Lody
  */
-/*package*/ class HomeContract {
+/* package */ class HomeContract {
 
-    /*package*/ interface HomeView extends BaseView<HomePresenter> {
+	/* package */ interface HomeView extends BaseView<HomePresenter> {
 
-        void showLoading();
+		void showLoading();
 
-        void loadFinish(List<AppModel> appModels);
+		void loadFinish(List<AppModel> appModels);
 
-        void loadError(Throwable err);
+		void loadError(Throwable err);
 
-        void showGuide();
+		void showGuide();
 
-        void showFab();
+		void showFab();
 
-        void hideFab();
+		void hideFab();
 
-        void setCrashShadow(boolean show);
+		void setCrashShadow(boolean show);
 
-        void waitingAppOpen();
+		void waitingAppOpen();
 
-        void refreshPagerView();
+		void refreshPagerView();
 
-        void addAppToLauncher(AppModel model);
-    }
+		void addAppToLauncher(AppModel model);
+	}
 
-    /*package*/ interface HomePresenter extends BasePresenter {
-        void launchApp(AppModel model);
+	/* package */ interface HomePresenter extends BasePresenter {
+		void launchApp(AppModel model);
 
-        void dataChanged();
+		void dataChanged();
 
-        void dragChange(boolean isStart);
+		void dragChange(boolean isStart);
 
-        void dragNearCrash(boolean canDel);
+		void dragNearCrash(boolean canDel);
 
-        void addApp(AppModel model);
+		void addApp(AppModel model);
 
-        void deleteApp(AppModel model);
+		void deleteApp(AppModel model);
 
-        void wantAddApp();
-    }
+		void wantAddApp();
+	}
 
 }
