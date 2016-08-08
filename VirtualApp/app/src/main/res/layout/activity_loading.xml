@@ -39,6 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignTop="@id/app_icon"
+            android:paddingTop="8dp"
             android:layout_toRightOf="@id/app_icon"
             android:layout_marginLeft="20dp"
             android:text="@string/preparing"/>
@@ -47,6 +48,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@id/app_icon"
+            android:paddingBottom="8dp"
             android:layout_toRightOf="@id/app_icon"
             android:layout_marginLeft="20dp"
             android:text="@string/preparing"/>
