@@ -3,7 +3,9 @@ package com.lody.virtual.client.hook.patchs.pm;
 import android.os.Process;
 
 import com.lody.virtual.client.VClientImpl;
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.helper.proto.AppInfo;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -33,8 +35,13 @@ import java.util.List;
 		VClientImpl client = VClientImpl.getClient();
 		List<String> sharedPackages = client.getSharedPackages();
 		List<String> packages = new ArrayList<>(sharedPackages.size() + 1);
-		packages.add(client.geInitialPackage());
+		String initialPackage = client.geInitialPackage();
+		packages.add(initialPackage);
 		packages.addAll(sharedPackages);
+		List<AppInfo> appInfos = VirtualCore.getCore().getAllApps();
+		for (AppInfo appInfo : appInfos) {
+			packages.add(appInfo.packageName);
+		}
 		return packages.toArray(new String[packages.size()]);
 	}
 
