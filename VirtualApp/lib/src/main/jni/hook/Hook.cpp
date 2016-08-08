@@ -528,5 +528,5 @@ void HOOK::hook(int api_level) {
         HOOK_IO(faccessat);
     }
 
-    LOGI("End IO hooks SUCCESS!!!");
+    LOGI("End IO hooks SUCCESS!");
 }

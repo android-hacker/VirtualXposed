@@ -14,6 +14,7 @@ import android.content.pm.PermissionInfo;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
+import android.content.pm.Signature;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.RemoteException;
@@ -22,6 +23,7 @@ import android.util.Log;
 import android.util.LogPrinter;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.fixer.ComponentFixer;
 import com.lody.virtual.helper.compat.ObjectsCompat;
 import com.lody.virtual.helper.proto.AppInfo;
@@ -236,7 +238,14 @@ public class VPackageManagerService extends IPackageManager.Stub {
 			PackageParser.Package pkg = mPackages.get(packageName);
 			if (pkg != null) {
 				if ((flags & PackageManager.GET_SIGNATURES) != 0 && pkg.mSignatures == null) {
-					PackageParser.collectCertificates(pkg, PackageParser.PARSE_IS_SYSTEM);
+					if (pkg.mAppMetaData != null && pkg.mAppMetaData.containsKey(Constants.FEATURE_FAKE_SIGNATURE)) {
+						String sig = pkg.mAppMetaData.getString("fake-signature");
+						if (sig != null) {
+							pkg.mSignatures = new Signature[] {new Signature(sig)};
+						}
+					} else {
+						PackageParser.collectCertificates(pkg, PackageParser.PARSE_IS_SYSTEM);
+					}
 				}
 				PackageInfo packageInfo = PackageParser.generatePackageInfo(pkg, mGids, flags,
 						getFirstInstallTime(packageName), getLastInstallTime(packageName));
