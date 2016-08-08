@@ -60,6 +60,14 @@ public class IOHook {
 		}
 	}
 
+	public static void hookNative() {
+		try {
+			nativeHookNative();
+		} catch (Throwable e) {
+			VLog.e(TAG, VLog.getStackTraceString(e));
+		}
+	}
+
 	/**
 	 * this is called by JNI.
 	 * 
@@ -76,6 +84,7 @@ public class IOHook {
 	}
 
 	public static int onGetCallingUid(int originUid) {
+		VLog.e("va-io-java", "onGetCallUid=" + originUid);
 		int callingPid = Binder.getCallingPid();
 		if (callingPid == Process.myPid()) {
 			return originUid;
@@ -94,6 +103,8 @@ public class IOHook {
 	private static native String nativeGetRedirectedPath(String orgPath);
 
 	private static native void nativeRedirect(String orgPath, String newPath);
+
+	private static native void nativeHookNative();
 
 	private static native void nativeHook(int apiLevel);
 }

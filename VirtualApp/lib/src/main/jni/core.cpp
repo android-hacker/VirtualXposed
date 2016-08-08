@@ -7,7 +7,20 @@
 JavaVM *g_vm;
 jclass g_jclass;
 
-void hook(JNIEnv *env, jclass jclazz, jint apiLevel) {
+
+
+void hook_native(JNIEnv *env, jclass jclazz) {
+    static bool hasHooked = false;
+    if (hasHooked) {
+        return;
+    }
+    HOOK_NATIVE::hook();
+    hasHooked = true;
+}
+
+
+
+void hook_io(JNIEnv *env, jclass jclazz, jint apiLevel) {
     static bool hasHooked = false;
     if (hasHooked) {
         return;
@@ -35,13 +48,14 @@ jstring restore(JNIEnv *env, jclass jclazz, jstring redirectedPath) {
 }
 
 
+
 static JNINativeMethod gMethods[] = {
+        NATIVE_METHOD((void *) hook_io,  "nativeHook",     "(I)V"),
         NATIVE_METHOD((void *) redirect, "nativeRedirect", "(Ljava/lang/String;Ljava/lang/String;)V"),
-        NATIVE_METHOD((void *) hook,     "nativeHook",     "(I)V"),
-        //...hum
         NATIVE_METHOD((void *) query,    "nativeGetRedirectedPath",     "(Ljava/lang/String;)Ljava/lang/String;"),
         NATIVE_METHOD((void *) restore,  "nativeRestoreRedirectedPath", "(Ljava/lang/String;)Ljava/lang/String;"),
-//        NATIVE_METHOD((void *) reject,  "rejectPath",             "(Ljava/lang/String;)V"),
+
+        NATIVE_METHOD((void *) hook_native, "nativeHookNative",     "()V"),
 };
 
 
@@ -67,5 +81,17 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     env->DeleteLocalRef(javaClass);
     LOGI("JavaVM::GetEnv() SUCCESS!");
     return JNI_VERSION_1_4;
+}
+
+
+
+JNIEXPORT void JNICALL JNI_OnUnload(JavaVM* vm, void* reserved) {
+    JNIEnv *env;
+    if (vm->GetEnv((void **) &env, JNI_VERSION_1_4) != JNI_OK) {
+        LOGE("JNI_OnUnload GetEnv() FAILED!!!");
+        return;
+    }
+    env->DeleteGlobalRef((jobject)g_vm);
+    env->DeleteGlobalRef((jobject)g_jclass);
 }
 
