@@ -42,16 +42,19 @@ public class LoadingActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_loading);
 
 		appModel = getIntent().getParcelableExtra(MODEL_ARGUMENT);
-		// TODO check if it is time costing...
-		AppInfo appInfo = VirtualCore.getCore().findApp(appModel.packageName);
-		if (appInfo != null) {
-			appModel = new AppModel(this, appInfo);
-		}
 
-		ImageView iconView = (ImageView) findViewById(R.id.app_icon);
-		if (iconView != null) {
-			iconView.setImageDrawable(appModel.icon);
-		}
+		VUiKit.defer().when(() -> {
+			AppInfo appInfo = VirtualCore.getCore().findApp(appModel.packageName);
+			if (appInfo != null) {
+				appModel = new AppModel(this, appInfo);
+			}
+		}).done((res) -> {
+			ImageView iconView = (ImageView) findViewById(R.id.app_icon);
+			if (iconView != null) {
+				iconView.setImageDrawable(appModel.icon);
+			}
+		});
+
 		TextView nameView = (TextView) findViewById(R.id.app_name);
 		if (nameView != null) {
 			nameView.setText(appModel.name);
@@ -77,9 +80,7 @@ public class LoadingActivity extends AppCompatActivity {
 						e.printStackTrace();
 					}
 				}
-			}).done((res) -> {
-				startActivity(intent);
-			});
+			}).done((res) -> startActivity(intent));
 		}
 	}
 
