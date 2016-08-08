@@ -56,6 +56,14 @@ public class VClientImpl extends IVClient.Stub {
 		return mBoundApplication != null;
 	}
 
+	public List<String> getSharedPackages() {
+		return mBoundApplication.sharedPackages;
+	}
+
+	public String geInitialPackage() {
+		return mBoundApplication.appInfo.packageName;
+	}
+
 	private final class AppBindData {
 		String processName;
 		ApplicationInfo appInfo;

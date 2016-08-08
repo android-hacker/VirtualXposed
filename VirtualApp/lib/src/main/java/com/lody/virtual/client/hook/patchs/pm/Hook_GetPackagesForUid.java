@@ -1,14 +1,13 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
+import android.os.Process;
+
+import com.lody.virtual.client.VClientImpl;
+import com.lody.virtual.client.hook.base.Hook;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.helper.proto.AppInfo;
-
-import android.os.Process;
 
 /**
  * @author Lody
@@ -31,12 +30,12 @@ import android.os.Process;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		List<AppInfo> appInfos = VirtualCore.getCore().getAllApps();
-		List<String> appList = new ArrayList<>(appInfos.size());
-		for (AppInfo appInfo : appInfos) {
-			appList.add(appInfo.packageName);
-		}
-		return appList.toArray(new String[appInfos.size()]);
+		VClientImpl client = VClientImpl.getClient();
+		List<String> sharedPackages = client.getSharedPackages();
+		List<String> packages = new ArrayList<>(sharedPackages.size() + 1);
+		packages.add(client.geInitialPackage());
+		packages.addAll(sharedPackages);
+		return packages.toArray(new String[packages.size()]);
 	}
 
 	@Override
