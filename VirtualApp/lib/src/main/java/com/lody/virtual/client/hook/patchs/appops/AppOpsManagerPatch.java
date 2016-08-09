@@ -12,10 +12,8 @@ import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
 import com.lody.virtual.client.hook.base.StaticHook;
 import com.lody.virtual.client.hook.binders.HookAppOpsBinder;
-import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 /**
  * @author Lody
@@ -69,17 +67,13 @@ public class AppOpsManagerPatch extends PatchObject<IAppOpsService, HookAppOpsBi
 
 		@Override
 		public boolean beforeHook(Object who, Method method, Object... args) {
-			VLog.d("######", "%s (%s)", method.getName(), Arrays.toString(args));
 			if (pkgIndex != -1 && args.length > pkgIndex && args[pkgIndex] instanceof String) {
-				VLog.d("######", "%s 1", method.getName());
 				String pkg = (String) args[pkgIndex];
 				if (isAppPkg(pkg)) {
-					VLog.d("######", "%s 2", method.getName());
 					args[pkgIndex] = getHostPkg();
 				}
 			}
 			if (uidIndex != -1 && args.length > uidIndex && args[uidIndex] instanceof Integer) {
-				VLog.d("######", "%s 3", method.getName());
 				args[uidIndex] = Process.myUid();
 			}
 			return true;

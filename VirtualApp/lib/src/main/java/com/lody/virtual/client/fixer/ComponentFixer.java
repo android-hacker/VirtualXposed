@@ -68,7 +68,7 @@ public class ComponentFixer {
 	}
 
 	public static void fixUid(ApplicationInfo applicationInfo) {
-		if (VClientImpl.getClient().isBound() && applicationInfo != null) {
+		if (false && VClientImpl.getClient().isBound() && applicationInfo != null) {
 			String packageName = applicationInfo.packageName;
 			if (packageName.equals(VClientImpl.getClient().geCurrentPackage())
 					|| ComponentUtils.isSharedPackage(packageName)) {
