@@ -134,6 +134,9 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		}
 		ProviderInfo[] providerInfos = packageInfo.providers;
 		for (ProviderInfo providerInfo : providerInfos) {
+			if (providerInfo.authority == null) {
+				continue;
+			}
 			if (isStubComponent(providerInfo)) {
 				String processName = providerInfo.processName;
 				stubProcessList.add(processName);

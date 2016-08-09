@@ -1,11 +1,13 @@
 package com.lody.virtual.client.hook.patchs.appops;
 
-import java.lang.reflect.Method;
-
 import com.lody.virtual.client.hook.base.Hook;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
+ *
+ * @see com.android.internal.app.IAppOpsService#noteOperation(int, int, String)
  *
  */
 /* package */ class Hook_NoteOperation extends Hook {
@@ -17,7 +19,6 @@ import com.lody.virtual.client.hook.base.Hook;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-
 		String pkgName = (String) args[2];
 		if (isAppPkg(pkgName)) {
 			args[2] = getHostPkg();

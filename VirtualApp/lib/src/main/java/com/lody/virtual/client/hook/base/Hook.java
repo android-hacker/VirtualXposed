@@ -1,12 +1,12 @@
 package com.lody.virtual.client.hook.base;
 
-import java.lang.reflect.Method;
+import android.content.Context;
+import android.content.pm.PackageManager;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.proto.AppInfo;
 
-import android.content.Context;
-import android.content.pm.PackageManager;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -78,5 +78,10 @@ public abstract class Hook {
 
 	protected final PackageManager getUnhookPM() {
 		return VirtualCore.getCore().getUnHookPackageManager();
+	}
+
+	@Override
+	public String toString() {
+		return "Hook${ " + getName() + " }";
 	}
 }

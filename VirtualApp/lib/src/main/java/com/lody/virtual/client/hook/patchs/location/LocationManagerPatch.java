@@ -1,16 +1,16 @@
 package com.lody.virtual.client.hook.patchs.location;
 
-import com.lody.virtual.client.hook.base.HookBinder;
-import com.lody.virtual.client.hook.base.Patch;
-import com.lody.virtual.client.hook.base.PatchObject;
-import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
-import com.lody.virtual.client.hook.binders.HookLocationBinder;
-
 import android.content.Context;
 import android.location.ILocationManager;
 import android.os.Build;
 import android.os.ServiceManager;
 import android.text.TextUtils;
+
+import com.lody.virtual.client.hook.base.HookBinder;
+import com.lody.virtual.client.hook.base.Patch;
+import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
+import com.lody.virtual.client.hook.binders.HookLocationBinder;
 
 /**
  * @author Lody
@@ -35,6 +35,7 @@ public class LocationManagerPatch extends PatchObject<ILocationManager, HookLoca
 	protected void applyHooks() {
 		super.applyHooks();
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			addHook(new ReplaceLastPkgHook("requestLocationUpdates"));
 			addHook(new ReplaceLastPkgHook("removeUpdates"));
 			addHook(new ReplaceLastPkgHook("requestGeofence"));
 			addHook(new ReplaceLastPkgHook("removeGeofence"));
