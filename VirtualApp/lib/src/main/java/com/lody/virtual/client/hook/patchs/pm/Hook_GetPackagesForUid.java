@@ -27,7 +27,7 @@ import java.util.List;
 	@Override
 	public boolean beforeHook(Object who, Method method, Object... args) {
 		int uid = (int) args[0];
-		return uid == Process.myUid();
+		return uid == Process.myUid() || uid == 99999;
 	}
 
 	@Override
