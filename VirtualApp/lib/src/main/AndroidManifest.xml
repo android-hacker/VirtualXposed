@@ -660,7 +660,7 @@
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C12"
-            android:authorities="virtual.client.stub.StubContentProvider11"
+            android:authorities="virtual.client.stub.StubContentProvider12"
             android:exported="false"
             android:process=":p12">
             <meta-data
