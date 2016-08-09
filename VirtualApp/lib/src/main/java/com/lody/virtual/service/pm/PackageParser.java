@@ -63,7 +63,9 @@ import android.util.Log;
 import android.util.TypedValue;
 
 /**
- * Package archive parsing
+ * Package archive parsing.
+ * 在不同版本间, PackageParser 的接口申明各不一样, 如果通过适配版本的方法来做, 将会变得难以维护,这里试图
+ * 通过自定义 PackageParser 的方式, 来屏蔽不同版本间的差异.
  *
  * {@hide}
  */
@@ -513,8 +515,8 @@ public class PackageParser {
 			throws IOException, XmlPullParserException {
 
 		int type;
-		while ((type = parser.next()) != XmlPullParser.START_TAG && type != XmlPullParser.END_DOCUMENT) {
-			;
+		while ((type = parser.next()) != XmlPullParser.START_TAG
+				&& type != XmlPullParser.END_DOCUMENT) {
 		}
 
 		if (type != XmlPullParser.START_TAG) {
@@ -904,6 +906,7 @@ public class PackageParser {
 
 		mArchiveSourcePath = sourceFile.getPath();
 		if (!sourceFile.isFile()) {
+			// 后续的 PackageParser 中支持 Directory 这里为了简单起见, 这解析单个 APK.
 			VLog.w(TAG, "Skipping dir: " + mArchiveSourcePath);
 			mParseError = PackageManager.INSTALL_PARSE_FAILED_NOT_APK;
 			return null;
@@ -921,6 +924,7 @@ public class PackageParser {
 		if (DEBUG_JAR)
 			VLog.d(TAG, "Scanning package: " + mArchiveSourcePath);
 
+		// begin to load apk file to assetManager.
 		XmlResourceParser parser = null;
 		AssetManager assmgr = null;
 		Resources res = null;
@@ -941,11 +945,14 @@ public class PackageParser {
 			VLog.w(TAG, "Unable to read AndroidManifest.xml of " + mArchiveSourcePath, e);
 		}
 		if (assetError) {
-			if (assmgr != null)
+			if (assmgr != null) {
 				assmgr.close();
+			}
 			mParseError = PackageManager.INSTALL_PARSE_FAILED_BAD_MANIFEST;
 			return null;
 		}
+		// end of loading apk file to assetManager.
+
 		String[] errorText = new String[1];
 		Package pkg = null;
 		Exception errorException = null;

@@ -90,6 +90,7 @@ public class VAppManagerService extends IAppManager.Stub {
 		}
 		InstallResult res = new InstallResult();
 		res.packageName = pkg.packageName;
+		// PackageCache holds all packages, try to check if need update.
 		PackageParser.Package existOne = PackageCache.get(pkg.packageName);
 		if (existOne != null) {
 			if ((flags & InstallStrategy.IGNORE_NEW_VERSION) != 0) {
@@ -113,6 +114,7 @@ public class VAppManagerService extends IAppManager.Stub {
 			if (!libDir.exists() && !libDir.mkdirs()) {
 				return InstallResult.makeFailure("Unable to create lib dir.");
 			}
+			VLog.d(TAG, "copy " + apkPath + "'s library to the path:" + libDir);
 			int libRes = NativeLibraryHelperCompat.copyNativeBinaries(new File(apkPath), libDir);
 			if (libRes < 0) {
 				return InstallResult.makeFailure("This APK's native lib is not support your device.");

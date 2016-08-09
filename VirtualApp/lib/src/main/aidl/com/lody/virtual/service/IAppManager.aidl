@@ -2,11 +2,8 @@
 package com.lody.virtual.service;
 
 import com.lody.virtual.service.interfaces.IAppObserver;
-import com.lody.virtual.helper.proto.Problem;
 import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.proto.InstallResult;
-
-import android.content.pm.PackageInfo;
 
 interface IAppManager {
 
