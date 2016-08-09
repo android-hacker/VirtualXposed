@@ -129,6 +129,13 @@ public class VClientImpl extends IVClient.Stub {
 	private final Map<String, LoadedApk> strongRefPackages = new HashMap<>();
 
 	private void handleBindApplication(AppBindData data) {
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public synchronized void start() {
+				new Exception().printStackTrace();
+				super.start();
+			}
+		});
 		ContextFixer.fixCamera();
 		mBoundApplication = data;
 		VirtualCore core = VirtualCore.getCore();
@@ -170,6 +177,7 @@ public class VClientImpl extends IVClient.Stub {
 		AppBindDataCompat compat = new AppBindDataCompat(hostBindData);
 		compat.setAppInfo(data.appInfo);
 		compat.setProcessName(data.processName);
+		compat.setInfo(data.info);
 	}
 
 	private void installContentProviders(Context context, List<ProviderInfo> providers) {
