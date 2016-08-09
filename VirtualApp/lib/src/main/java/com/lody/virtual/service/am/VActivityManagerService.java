@@ -442,7 +442,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 				}
 			}
 			if (stubInfo != null) {
-				performInitProcessLocked(stubInfo, appInfo, processName);
+				performStartProcessLocked(stubInfo, appInfo, processName);
 			}
 		}
 	}
@@ -780,13 +780,12 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			}
 			return holder;
 		} else {
-			VLog.d(TAG, "Installing %s...", providerInfo.authority);
 			targetApp = startProcess(ComponentUtils.getProcessName(providerInfo), providerInfo.applicationInfo);
 			if (targetApp == null) {
 				return null;
 			}
 		}
-		if (targetApp.isLaunching(providerInfo.packageName)) {
+		if (!targetApp.doneExecuting) {
 			targetApp.lock.block();
 		}
 		return mProviderList.getHolder(name);
@@ -908,6 +907,9 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			VLog.d(TAG, "startProcess %s (%s).", processName, info.packageName);
 			ProcessRecord app = mProcessMap.get(processName);
 			if (app != null) {
+				if (!app.pkgList.contains(info.packageName)) {
+					app.pkgList.add(info.packageName);
+				}
 				return app;
 			}
 			app = mPendingProcesses.get(processName);
@@ -918,16 +920,15 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			if (stubInfo == null) {
 				return null;
 			}
-			app = performInitProcessLocked(stubInfo, info, processName);
+			app = performStartProcessLocked(stubInfo, info, processName);
 			return app;
 		}
 	}
 
-	private ProcessRecord performInitProcessLocked(StubInfo stubInfo, ApplicationInfo info, String processName) {
+	private ProcessRecord performStartProcessLocked(StubInfo stubInfo, ApplicationInfo info, String processName) {
 		List<String> sharedPackages = VPackageManagerService.getService().querySharedPackages(info.packageName);
 		List<ProviderInfo> providers = VPackageManagerService.getService().queryContentProviders(processName, 0).getList();
 		ProcessRecord app = new ProcessRecord(stubInfo, info, processName, providers, sharedPackages);
-		app.pendingPackages.add(info.packageName);
 		mPendingProcesses.put(processName, app);
 		Bundle extras = new Bundle();
 		BundleCompat.putBinder(extras, ExtraConstants.EXTRA_BINDER, app);
@@ -974,7 +975,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		synchronized (mProcessMap) {
 			ProcessRecord r = mProcessMap.get(pid);
 			if (r != null) {
-				return new ArrayList<>(r.pkgList);
+				return new ArrayList<String>(r.pkgList);
 			}
 		}
 		return null;
@@ -1060,11 +1061,11 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	@Override
-	public void appDoneExecuting(String packageName) {
+	public void appDoneExecuting() {
 		synchronized (mProcessMap) {
 			ProcessRecord r = mProcessMap.get(Binder.getCallingPid());
 			if (r != null) {
-				r.pendingPackages.remove(packageName);
+				r.doneExecuting = true;
 				r.lock.open();
 			}
 		}

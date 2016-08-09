@@ -35,7 +35,7 @@ import java.util.List;
 		VClientImpl client = VClientImpl.getClient();
 		List<String> sharedPackages = client.getSharedPackages();
 		List<String> packages = new ArrayList<>(sharedPackages.size() + 1);
-		String initialPackage = client.geInitialPackage();
+		String initialPackage = client.geCurrentPackage();
 		packages.add(initialPackage);
 		packages.addAll(sharedPackages);
 		List<AppInfo> appInfos = VirtualCore.getCore().getAllApps();

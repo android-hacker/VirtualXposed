@@ -339,9 +339,9 @@ public class VActivityManager {
 		}
 	}
 
-	public void appDoneExecuting(String packageName) {
+	public void appDoneExecuting() {
 		try {
-			getService().appDoneExecuting(packageName);
+			getService().appDoneExecuting();
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}

@@ -41,7 +41,7 @@ interface IActivityManager {
 
     void handleApplicationCrash();
 
-    void appDoneExecuting(in String packageName);
+    void appDoneExecuting();
 
 
     VActRedirectResult redirectTargetActivity(in VRedirectActRequest request);

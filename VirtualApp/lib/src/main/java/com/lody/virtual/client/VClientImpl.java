@@ -25,6 +25,7 @@ import com.lody.virtual.client.hook.delegate.AppInstrumentation;
 import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.helper.compat.ActivityThreadCompat;
+import com.lody.virtual.helper.compat.AppBindDataCompat;
 import com.lody.virtual.helper.loaders.ClassLoaderHelper;
 import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.proto.ReceiverInfo;
@@ -51,6 +52,7 @@ public class VClientImpl extends IVClient.Stub {
 	private IBinder token;
 	private final H mH = new H();
 	private AppBindData mBoundApplication;
+	private Application mInitialApplication;
 
 	public boolean isBound() {
 		return mBoundApplication != null;
@@ -60,7 +62,11 @@ public class VClientImpl extends IVClient.Stub {
 		return mBoundApplication.sharedPackages;
 	}
 
-	public String geInitialPackage() {
+	public Application getCurrentApplication() {
+		return mInitialApplication;
+	}
+
+	public String geCurrentPackage() {
 		return mBoundApplication.appInfo.packageName;
 	}
 
@@ -138,9 +144,10 @@ public class VClientImpl extends IVClient.Stub {
 			strongRefPackages.put(shared, loadedApk);
 		}
 		fixLoadedApk(mBoundApplication.info, appInfo);
+		fixBoundApp(mBoundApplication, VirtualCore.getHostBindData());
 		Application app = data.info.makeApplication(false, null);
+		mInitialApplication = app;
 		ContextFixer.fixContext(app);
-		Reflect.on(mainThread).set("mInitialApplication", app);
 		List<ProviderInfo> providers = data.providers;
 		if (providers != null) {
 			installContentProviders(app, providers);
@@ -156,7 +163,13 @@ public class VClientImpl extends IVClient.Stub {
 								+ ": " + e.toString(), e);
 			}
 		}
-		VActivityManager.getInstance().appDoneExecuting(data.appInfo.packageName);
+		VActivityManager.getInstance().appDoneExecuting();
+	}
+
+	private void fixBoundApp(AppBindData data, Object hostBindData) {
+		AppBindDataCompat compat = new AppBindDataCompat(hostBindData);
+		compat.setAppInfo(data.appInfo);
+		compat.setProcessName(data.processName);
 	}
 
 	private void installContentProviders(Context context, List<ProviderInfo> providers) {

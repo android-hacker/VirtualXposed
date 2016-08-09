@@ -23,10 +23,6 @@ import java.lang.reflect.Field;
 
 /**
  * @author Lody
- *         <p>
- *         <p>
- *         注入我们的Callback到
- *         <h1>ActivityThread$H</h1>.
  * @see Handler.Callback
  * @see ActivityThread
  */
@@ -166,7 +162,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 	public boolean isEnvBad() {
 		Handler.Callback callback = getHCallback();
 		boolean envBad = callback != this;
-		if (envBad) {
+		if (callback != null && envBad) {
 			VLog.d(TAG, "HCallback has bad, other callback = " + callback);
 		}
 		return envBad;

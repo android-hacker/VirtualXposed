@@ -8,7 +8,6 @@ import android.os.ConditionVariable;
 
 import com.lody.virtual.client.IVClient;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,10 +19,10 @@ public final class ProcessRecord extends Binder {
 	final public StubInfo stubInfo;
 	public final ApplicationInfo info; // all about the first app in the process
 	final public String processName; // name of the process
-	public final List<String> pendingPackages = new ArrayList<>(2);
 	final Set<String> pkgList = new HashSet<>(); // List of packages
 													// running in the
 													// process
+	boolean doneExecuting;
 	final List<ProviderInfo> providers;
 	final List<String> sharedPackages;
 	public IVClient client;
@@ -39,7 +38,13 @@ public final class ProcessRecord extends Binder {
 		this.sharedPackages = sharedPackages;
 	}
 
-	public boolean isLaunching(String packageName) {
-		return pendingPackages.contains(packageName);
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		ProcessRecord record = (ProcessRecord) o;
+		return processName != null ? processName.equals(record.processName) : record.processName == null;
+
 	}
+
 }
