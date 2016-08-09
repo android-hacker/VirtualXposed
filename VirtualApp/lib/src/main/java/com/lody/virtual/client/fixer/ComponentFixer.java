@@ -6,7 +6,9 @@ import android.os.Build;
 import android.os.Process;
 import android.text.TextUtils;
 
+import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.utils.ComponentUtils;
 
 /**
  * @author Lody
@@ -66,6 +68,14 @@ public class ComponentFixer {
 	}
 
 	public static void fixUid(ApplicationInfo applicationInfo) {
-		// TODO
+		if (VClientImpl.getClient().isBound() && applicationInfo != null) {
+			String packageName = applicationInfo.packageName;
+			if (packageName.equals(VClientImpl.getClient().geCurrentPackage())
+					|| ComponentUtils.isSharedPackage(packageName)) {
+				applicationInfo.uid = Process.myUid();
+			} else {
+				applicationInfo.uid = 99999;
+			}
+		}
 	}
 }

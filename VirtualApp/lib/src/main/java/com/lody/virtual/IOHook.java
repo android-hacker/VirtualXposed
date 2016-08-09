@@ -1,12 +1,13 @@
 package com.lody.virtual;
 
-import com.lody.virtual.client.local.VActivityManager;
-import com.lody.virtual.helper.utils.ComponentUtils;
-import com.lody.virtual.helper.utils.VLog;
-
 import android.os.Binder;
 import android.os.Build;
 import android.os.Process;
+
+import com.lody.virtual.client.VClientImpl;
+import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.helper.utils.VLog;
 
 /**
  * Created by Xfast on 2016/7/21.
@@ -77,23 +78,28 @@ public class IOHook {
 	 *            signal
 	 */
 	public static void onKillProcess(int pid, int signal) {
-		VLog.e(TAG, "onKillProcess: pid=" + pid + ", signal=" + signal);
+		VLog.e(TAG, "killProcess: pid = %d, signal = %d.", pid, signal);
 		if (pid == android.os.Process.myPid()) {
 			VLog.e(TAG, VLog.getStackTraceString(new Throwable()));
 		}
 	}
 
 	public static int onGetCallingUid(int originUid) {
-		VLog.e("va-io-java", "onGetCallUid=" + originUid);
+		int resultUid = originUid;
 		int callingPid = Binder.getCallingPid();
 		if (callingPid == Process.myPid()) {
-			return originUid;
+			resultUid = originUid;
+		} else {
+			if (VClientImpl.getClient().isBound()) {
+				String initialPackage = VActivityManager.getInstance().getInitialPackage(callingPid);
+				if (!VClientImpl.getClient().geCurrentPackage().equals(initialPackage)
+						&& !ComponentUtils.isSharedPackage(initialPackage)) {
+//					resultUid = 99999;
+				}
+			}
 		}
-		String initialPackage = VActivityManager.getInstance().getInitialPackage(callingPid);
-		if (ComponentUtils.isSharedPackage(initialPackage)) {
-			return originUid;
-		}
-		return 99999;
+		VLog.d(TAG, "getCallingUid: orig = %d, after = %d.", originUid, resultUid);
+		return resultUid;
 	}
 
 	// private static native void nativeRejectPath(String path);

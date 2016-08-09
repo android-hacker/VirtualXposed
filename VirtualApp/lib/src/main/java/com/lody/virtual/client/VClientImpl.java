@@ -18,6 +18,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 
+import com.lody.virtual.IOHook;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.fixer.ContextFixer;
@@ -136,6 +137,7 @@ public class VClientImpl extends IVClient.Stub {
 				super.start();
 			}
 		});
+		IOHook.hookNative();
 		ContextFixer.fixCamera();
 		mBoundApplication = data;
 		VirtualCore core = VirtualCore.getCore();

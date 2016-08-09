@@ -6,6 +6,8 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.ComponentInfo;
 import android.content.pm.PackageInfo;
 
+import com.lody.virtual.client.VClientImpl;
+
 /**
  * @author Lody
  *
@@ -60,8 +62,8 @@ public class ComponentUtils {
 	}
 
 
-	public static boolean isSharedPackage(String initialPackage) {
-		// TODO
-		return false;
+	public static boolean isSharedPackage(String packageName) {
+		return packageName != null
+				&& VClientImpl.getClient().getSharedPackages().contains(packageName);
 	}
 }

@@ -8,7 +8,9 @@ import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.os.IBinder;
 
+import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.HackServiceConnection;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VActivityManager;
 
@@ -40,11 +42,11 @@ import java.lang.reflect.Method;
 		ServiceInfo serviceInfo = VirtualCore.getCore().resolveServiceInfo(service);
 		if (serviceInfo != null) {
 			String pkgName = serviceInfo.packageName;
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.L) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 				service.setComponent(new ComponentName(serviceInfo.packageName, serviceInfo.name));
 			}
 			if (isAppPkg(pkgName)) {
-//				connection = new HackServiceConnection(application, connection);
+				connection = new HackServiceConnection(VClientImpl.getClient().getCurrentApplication(), connection);
 				return VActivityManager.getInstance().bindService(caller.asBinder(), token, service, resolvedType,
 						connection, flags);
 			}

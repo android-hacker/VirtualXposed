@@ -1,8 +1,5 @@
 package com.lody.virtual.client.hook.patchs.notification.compat;
 
-import com.lody.virtual.client.env.Constants;
-import com.lody.virtual.helper.utils.OSUtils;
-
 import android.content.Context;
 import android.os.Build;
 import android.util.TypedValue;
@@ -11,6 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+
+import com.lody.virtual.client.env.Constants;
+import com.lody.virtual.helper.utils.OSUtils;
 
 /**
  * Created by 247321453 on 2016/7/17. 通知栏的宽度适配
@@ -128,7 +128,7 @@ class WidthCompat {
 		try {
 			return (ViewGroup) LayoutInflater.from(context).inflate(layoutId, null);
 		} catch (Throwable e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 		return new FrameLayout(context);
 	}

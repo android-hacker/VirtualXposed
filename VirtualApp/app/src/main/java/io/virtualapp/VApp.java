@@ -2,12 +2,11 @@ package io.virtualapp;
 
 import android.app.Application;
 import android.content.Context;
-import android.os.RemoteException;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 
+import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.local.VActivityManager;
-import com.lody.virtual.helper.utils.VLog;
-import com.lody.virtual.service.interfaces.IProcessObserver;
 
 import jonathanfinerty.once.Once;
 
@@ -38,17 +37,28 @@ public class VApp extends Application {
 		super.onCreate();
 		if (VirtualCore.getCore().isMainProcess()) {
 			Once.initialise(this);
-			VActivityManager.getInstance().registerProcessObserver(new IProcessObserver.Stub() {
-				@Override
-				public void onProcessCreated(String pkg, String processName) throws RemoteException {
-					VLog.d("VProcess", "Process created: %s -> %s.", pkg, processName);
-				}
+			// Install the Google mobile service
+			installGms();
+		}
+	}
 
-				@Override
-				public void onProcessDied(String pkg, String processName) throws RemoteException {
-					VLog.d("VProcess", "Process died: %s -> %s.", pkg, processName);
-				}
-			});
+	private static final String[] GMS_PKG = {
+			"com.google.android.gsf",
+			"com.google.android.gsf.login",
+			"com.google.android.gms",
+			"com.android.vending"
+	};
+	private void installGms() {
+		PackageManager pm = VirtualCore.getCore().getUnHookPackageManager();
+		for (String pkg : GMS_PKG) {
+			try {
+				ApplicationInfo appInfo = pm.getApplicationInfo(pkg, 0);
+				String apkPath = appInfo.sourceDir;
+				VirtualCore.getCore().installApp(apkPath,
+						InstallStrategy.DEPEND_SYSTEM_IF_EXIST | InstallStrategy.TERMINATE_IF_EXIST);
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
