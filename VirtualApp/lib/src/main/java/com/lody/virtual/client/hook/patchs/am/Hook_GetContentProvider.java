@@ -42,10 +42,13 @@ import java.lang.reflect.Proxy;
 			}
 		}
 		IActivityManager.ContentProviderHolder holder = VActivityManager.getInstance().getContentProvider(name);
-		if (holder == null) {
+		boolean external = holder == null;
+		if (external) {
 			try {
 				holder = (IActivityManager.ContentProviderHolder) method.invoke(who, args);
-				if (holder != null && holder.info != null && !ComponentUtils.isSystemApp(holder.info.applicationInfo)
+				if (holder != null
+						&& holder.info != null
+						&& !ComponentUtils.isSystemApp(holder.info.applicationInfo)
 						&& !getHostPkg().equals(holder.info.packageName)) {
 					holder = null;
 				}
@@ -65,9 +68,11 @@ import java.lang.reflect.Proxy;
 		ProviderHook.HookFetcher fetcher = ProviderHook.fetchHook(name);
 		if (fetcher != null) {
 			IContentProvider provider = holder.provider;
-			ProviderHook hook = fetcher.fetch(provider);
-			holder.provider = (IContentProvider) Proxy.newProxyInstance(provider.getClass().getClassLoader(),
-					new Class[]{IContentProvider.class}, hook);
+			ProviderHook hook = fetcher.fetch(external, providerInfo, provider);
+			if (hook != null) {
+				holder.provider = (IContentProvider) Proxy.newProxyInstance(provider.getClass().getClassLoader(),
+						new Class[]{IContentProvider.class}, hook);
+			}
 		}
 		return holder;
 	}

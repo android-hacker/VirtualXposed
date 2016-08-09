@@ -1,6 +1,7 @@
 package com.lody.virtual.client.hook.providers;
 
 import android.content.IContentProvider;
+import android.content.pm.ProviderInfo;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -24,13 +25,13 @@ public class ProviderHook implements InvocationHandler {
 	static {
 		PROVIDER_MAP.put("settings", new HookFetcher() {
 			@Override
-			public ProviderHook fetch(IContentProvider provider) {
+			public ProviderHook fetch(boolean external, ProviderInfo info, IContentProvider provider) {
 				return new SettingsProviderHook(provider);
 			}
 		});
 		PROVIDER_MAP.put("downloads", new HookFetcher() {
 			@Override
-			public ProviderHook fetch(IContentProvider provider) {
+			public ProviderHook fetch(boolean external, ProviderInfo info, IContentProvider provider) {
 				return new DownloadProviderHook(provider);
 			}
 		});
@@ -47,8 +48,11 @@ public class ProviderHook implements InvocationHandler {
 		if (fetcher == null) {
 			fetcher = new HookFetcher() {
 				@Override
-				public ProviderHook fetch(IContentProvider provider) {
-					return new ExternalProviderHook(provider);
+				public ProviderHook fetch(boolean external, ProviderInfo info, IContentProvider provider) {
+					if (external) {
+						return new ExternalProviderHook(provider);
+					}
+					return null;
 				}
 			};
 		}
@@ -91,6 +95,6 @@ public class ProviderHook implements InvocationHandler {
 	}
 
 	public interface HookFetcher {
-		ProviderHook fetch(IContentProvider provider);
+		ProviderHook fetch(boolean external, ProviderInfo info, IContentProvider provider);
 	}
 }
