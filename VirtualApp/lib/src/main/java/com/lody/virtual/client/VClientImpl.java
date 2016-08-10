@@ -137,7 +137,7 @@ public class VClientImpl extends IVClient.Stub {
 				super.start();
 			}
 		});
-		IOHook.hookNative();
+//		IOHook.hookNative();
 		ContextFixer.fixCamera();
 		mBoundApplication = data;
 		VirtualCore core = VirtualCore.getCore();

@@ -15,7 +15,7 @@
 
 
 namespace HOOK_NATIVE {
-    void hook();
+    void hook(jobject javaMethod, jboolean isArt);
 }
 
 #endif //NDK_HOOK_NATIVE_H

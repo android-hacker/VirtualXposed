@@ -1,8 +1,11 @@
 package com.lody.virtual;
 
+import java.lang.reflect.Method;
+
 import android.os.Binder;
 import android.os.Build;
 import android.os.Process;
+import dalvik.system.DexFile;
 
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.local.VActivityManager;
@@ -63,20 +66,16 @@ public class IOHook {
 
 	public static void hookNative() {
 		try {
-			nativeHookNative();
+            boolean isArt = System.getProperty("java.vm.version").startsWith("2");
+			String methodName = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? "openDexFileNative" : "openDexFile";
+			Method method = DexFile.class.getDeclaredMethod(methodName, String.class, String.class, Integer.TYPE);
+			method.setAccessible(true);
+			nativeHookNative(method, isArt);
 		} catch (Throwable e) {
 			VLog.e(TAG, VLog.getStackTraceString(e));
 		}
 	}
 
-	/**
-	 * this is called by JNI.
-	 * 
-	 * @param pid
-	 *            killed pid
-	 * @param signal
-	 *            signal
-	 */
 	public static void onKillProcess(int pid, int signal) {
 		VLog.e(TAG, "killProcess: pid = %d, signal = %d.", pid, signal);
 		if (pid == android.os.Process.myPid()) {
@@ -102,7 +101,17 @@ public class IOHook {
 		return resultUid;
 	}
 
-	// private static native void nativeRejectPath(String path);
+	public static void onOpenDexFileNative(String[] arr) {
+		VLog.d(TAG, "org source = %s, org output = %s.", arr[0], arr[1]);
+	}
+
+
+
+    private static native void nativeHookNative(Object method, boolean isArt);
+
+	private static native void nativeMark();
+
+
 
 	private static native String nativeRestoreRedirectedPath(String redirectedPath);
 
@@ -110,7 +119,6 @@ public class IOHook {
 
 	private static native void nativeRedirect(String orgPath, String newPath);
 
-	private static native void nativeHookNative();
-
 	private static native void nativeHook(int apiLevel);
+
 }
