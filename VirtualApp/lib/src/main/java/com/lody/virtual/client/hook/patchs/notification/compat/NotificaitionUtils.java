@@ -192,7 +192,7 @@ import java.util.Map;
 			if (builder == null) {
 				builder = createBuilder(context, notification);
 			}
-			VLog.w(TAG, "clone" + VLog.getStackTraceString(e));
+			//VLog.w(TAG, "clone" + VLog.getStackTraceString(e));
 		}
 		fixNotificationIcon(context, notification, builder);
 		if (Build.VERSION.SDK_INT >= 16) {
