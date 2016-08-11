@@ -150,7 +150,7 @@ public final class VirtualCore {
 			unHookPackageManager = context.getPackageManager();
 			hostPkgInfo = unHookPackageManager.getPackageInfo(context.getPackageName(), PackageManager.GET_PROVIDERS);
 			// Host包名
-			pkgName = context.getPackageName();
+			pkgName = context.getApplicationInfo().packageName;
 			// 主进程名
 			mainProcessName = context.getApplicationInfo().processName;
 			// 当前进程名

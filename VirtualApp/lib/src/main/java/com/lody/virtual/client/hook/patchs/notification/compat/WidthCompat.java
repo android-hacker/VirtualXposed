@@ -11,7 +11,6 @@ import android.widget.LinearLayout;
 
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.helper.utils.OSUtils;
-import com.lody.virtual.helper.utils.VLog;
 
 /**
  * Created by 247321453 on 2016/7/17. 通知栏的宽度适配
@@ -49,6 +48,7 @@ class WidthCompat {
             return width - padding * 2;
         return width;
     }
+
 
     private int getMIUINotificationWidth(Context context, int width, int height) {
         // status_bar_notification_row
@@ -90,7 +90,7 @@ class WidthCompat {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            // Ops
         }
         return width;
     }
@@ -134,7 +134,7 @@ class WidthCompat {
         try {
             return (ViewGroup) LayoutInflater.from(context).inflate(layoutId, null);
         } catch (Throwable e) {
-            VLog.w(TAG, "systemui view:" + VLog.getStackTraceString(e));
+//            VLog.w(TAG, "systemui view:" + VLog.getStackTraceString(e));
 //			e.printStackTrace();
         }
         return new FrameLayout(context);

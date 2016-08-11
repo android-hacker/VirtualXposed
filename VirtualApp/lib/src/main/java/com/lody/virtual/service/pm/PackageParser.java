@@ -1,34 +1,5 @@
 package com.lody.virtual.service.pm;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.lang.ref.WeakReference;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
-import java.security.spec.EncodedKeySpec;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.jar.Attributes;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
-import com.android.internal.util.XmlUtils;
-import com.lody.virtual.helper.utils.VLog;
-
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -61,6 +32,35 @@ import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+
+import com.android.internal.util.XmlUtils;
+import com.lody.virtual.helper.utils.VLog;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.lang.ref.WeakReference;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 /**
  * Package archive parsing.
@@ -2208,8 +2208,16 @@ public class PackageParser {
 			sa.recycle();
 			return null;
 		}
+		boolean providerExportedDefault = false;
 
-		p.info.exported = sa.getBoolean(com.android.internal.R.styleable.AndroidManifestProvider_exported, true);
+		if (owner.applicationInfo.targetSdkVersion < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+			// For compatibility, applications targeting API level 16 or lower
+			// should have their content providers exported by default, unless they
+			// specify otherwise.
+			providerExportedDefault = true;
+		}
+
+		p.info.exported = sa.getBoolean(com.android.internal.R.styleable.AndroidManifestProvider_exported, providerExportedDefault);
 
 		String cpname = sa
 				.getNonConfigurationString(com.android.internal.R.styleable.AndroidManifestProvider_authorities, 0);

@@ -23,12 +23,12 @@ public class VApp extends Application {
 
 	@Override
 	protected void attachBaseContext(Context base) {
-		super.attachBaseContext(base);
 		try {
 			VirtualCore.getCore().startup(base);
-		} catch (Throwable e) {
-			e.printStackTrace();
+		} catch (Throwable throwable) {
+			throwable.printStackTrace();
 		}
+		super.attachBaseContext(base);
 	}
 
 	@Override
