@@ -27,7 +27,6 @@ import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.compat.ActivityThreadCompat;
 import com.lody.virtual.helper.compat.BundleCompat;
-import com.lody.virtual.helper.loaders.ClassLoaderHelper;
 import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.proto.InstallResult;
 import com.lody.virtual.service.IAppManager;
@@ -35,6 +34,8 @@ import com.lody.virtual.service.IAppManager;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import dalvik.system.DexFile;
 
 /**
  * @author Lody
@@ -228,7 +229,7 @@ public final class VirtualCore {
 	public void preOpt(String pkg) throws Exception {
 		AppInfo info = findApp(pkg);
 		if (info != null && !info.dependSystem) {
-			ClassLoaderHelper.create(info);
+			DexFile.loadDex(info.apkPath, info.getOdexFile().getPath(), 0);
 		}
 	}
 

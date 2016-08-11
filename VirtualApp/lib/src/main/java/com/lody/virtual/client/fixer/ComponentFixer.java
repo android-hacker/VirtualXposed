@@ -18,14 +18,13 @@ public class ComponentFixer {
 
 
 	public static void fixApplicationInfo(AppInfo info, ApplicationInfo applicationInfo) {
+		applicationInfo.flags |= ApplicationInfo.FLAG_HAS_CODE;
 		if (TextUtils.isEmpty(applicationInfo.processName)) {
 			applicationInfo.processName = applicationInfo.packageName;
 		}
 		applicationInfo.name = fixComponentClassName(info.packageName, applicationInfo.name);
 		applicationInfo.publicSourceDir = info.apkPath;
-		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB_MR1) {
-			applicationInfo.flags &= -ApplicationInfo.FLAG_STOPPED;
-		}
+		applicationInfo.sourceDir = info.apkPath;
 		try {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 				applicationInfo.splitSourceDirs = new String[]{info.apkPath};
@@ -40,7 +39,6 @@ public class ComponentFixer {
 		} catch (Throwable e) {
 			// Ignore
 		}
-		applicationInfo.sourceDir = info.apkPath;
 		applicationInfo.dataDir = info.dataDir;
 		applicationInfo.enabled = true;
 		applicationInfo.nativeLibraryDir = info.libDir;

@@ -1,16 +1,25 @@
 package com.lody.virtual;
 
-import java.lang.reflect.Method;
-
 import android.os.Binder;
 import android.os.Build;
 import android.os.Process;
-import dalvik.system.DexFile;
 
 import com.lody.virtual.client.VClientImpl;
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.VLog;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import dalvik.system.DexFile;
 
 /**
  * Created by Xfast on 2016/7/21.
@@ -19,12 +28,23 @@ public class IOHook {
 
 	private static final String TAG = IOHook.class.getSimpleName();
 
-	private static boolean sLoaded;
+	private static Map<String, AppInfo> sDexOverrideMap;
+
+	public static void startDexOverride() {
+		List<AppInfo> appInfos = VirtualCore.getCore().getAllApps();
+		sDexOverrideMap = new HashMap<>(appInfos.size());
+		for (AppInfo info : appInfos) {
+			try {
+				sDexOverrideMap.put(new File(info.apkPath).getCanonicalPath(), info);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 	static {
 		try {
 			System.loadLibrary("iohook");
-			sLoaded = true;
 		} catch (Throwable e) {
 			VLog.e(TAG, VLog.getStackTraceString(e));
 		}
@@ -66,11 +86,11 @@ public class IOHook {
 
 	public static void hookNative() {
 		try {
-            boolean isArt = System.getProperty("java.vm.version").startsWith("2");
-			String methodName = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? "openDexFileNative" : "openDexFile";
+			String methodName =
+					Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? "openDexFileNative" : "openDexFile";
 			Method method = DexFile.class.getDeclaredMethod(methodName, String.class, String.class, Integer.TYPE);
 			method.setAccessible(true);
-			nativeHookNative(method, isArt);
+			nativeHookNative(method, VirtualRuntime.isArt());
 		} catch (Throwable e) {
 			VLog.e(TAG, VLog.getStackTraceString(e));
 		}
@@ -97,12 +117,18 @@ public class IOHook {
 				}
 			}
 		}
-		VLog.d(TAG, "getCallingUid: orig = %d, after = %d.", originUid, resultUid);
 		return resultUid;
 	}
 
-	public static void onOpenDexFileNative(String[] arr) {
-		VLog.d(TAG, "org source = %s, org output = %s.", arr[0], arr[1]);
+	public static void onOpenDexFileNative(String[] params) {
+		String dexOrJarPath = params[0];
+		String outputPath = params[1];
+		VLog.d(TAG, "DexOrJarPath = %s, OutputPath = %s.", dexOrJarPath, outputPath);
+		AppInfo info = sDexOverrideMap.get(dexOrJarPath);
+		if (info != null && !info.dependSystem) {
+			outputPath = info.getOdexFile().getPath();
+		}
+		params[1] = outputPath;
 	}
 
 

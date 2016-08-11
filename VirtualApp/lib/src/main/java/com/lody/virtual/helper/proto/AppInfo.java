@@ -8,6 +8,8 @@ import android.os.Parcelable;
 
 import com.lody.virtual.client.core.VirtualCore;
 
+import java.io.File;
+
 /**
  * @author Lody
  *
@@ -54,6 +56,10 @@ public final class AppInfo implements Parcelable {
 
 	public void setApplicationInfo(ApplicationInfo applicationInfo) {
 		this.applicationInfo = applicationInfo;
+	}
+
+	public File getOdexFile() {
+		return new File(odexDir, "classes.dex");
 	}
 
 	public ClassLoader getClassLoader() {

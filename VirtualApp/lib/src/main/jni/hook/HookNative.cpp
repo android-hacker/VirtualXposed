@@ -159,11 +159,13 @@ namespace HOOK_JAVA {
             LOGE("hook mark failed! because register methods FAILED!!!");
             return;
         }
+        void * art_work_around_app_jni_bugs = dlsym(RTLD_DEFAULT, "art_work_around_app_jni_bugs");
 
         jmethodID mtd_nativeHook = env->GetStaticMethodID(g_jclass, gMethods[0].name, gMethods[0].signature);
 
         size_t memory = (size_t) mtd_nativeHook;
-        size_t destAddr = (size_t) mark;
+        size_t destAddr = art_work_around_app_jni_bugs ? (size_t) art_work_around_app_jni_bugs : (size_t) mark;
+
         int offset = 0;
         bool found = false;
         while (true) {
@@ -201,9 +203,11 @@ namespace HOOK_JAVA {
 
         LOGE("offset=%d", nativeFuncOffset);
         if (!isArt) {
+            LOGD("replace dalvik method.");
             org_DalvikBridgeFunc = (Bridge_DalvikBridgeFunc)(*jniFuncPtr);
             *jniFuncPtr = (void*) new_bridge_openDexNativeFunc;
         } else {
+            LOGD("replace art method.");
             org_native_openDexNativeFunc = (Native_openDexNativeFunc)(*jniFuncPtr);
             *jniFuncPtr = (void*) new_native_openDexNativeFunc;
         }

@@ -62,4 +62,8 @@ public class VirtualRuntime {
 				VirtualCore.getCore().getProcessName());
 		Process.killProcess(Process.myPid());
 	}
+
+	public static boolean isArt() {
+		return System.getProperty("java.vm.version").startsWith("2");
+	}
 }

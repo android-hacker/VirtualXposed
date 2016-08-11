@@ -436,6 +436,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			app = mPendingProcesses.get(processName);
 		}
 		if (app == null && processName != null && appInfo != null) {
+			appInfo.flags |= ApplicationInfo.FLAG_HAS_CODE;
 			String stubProcessName = getProcessName(pid);
 			StubInfo stubInfo = null;
 			for (StubInfo info : getStubs()) {

@@ -27,17 +27,10 @@ import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.helper.compat.ActivityThreadCompat;
 import com.lody.virtual.helper.compat.AppBindDataCompat;
-import com.lody.virtual.helper.loaders.ClassLoaderHelper;
-import com.lody.virtual.helper.proto.AppInfo;
 import com.lody.virtual.helper.proto.ReceiverInfo;
-import com.lody.virtual.helper.utils.Reflect;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static com.lody.virtual.helper.utils.Reflect.on;
 
 /**
  * @author Lody
@@ -124,11 +117,6 @@ public class VClientImpl extends IVClient.Stub {
 		}
 	}
 
-	/**
-	 * Avoid the GC.
-	 */
-	private final Map<String, LoadedApk> strongRefPackages = new HashMap<>();
-
 	private void handleBindApplication(AppBindData data) {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
@@ -137,22 +125,13 @@ public class VClientImpl extends IVClient.Stub {
 				super.start();
 			}
 		});
-//		IOHook.hookNative();
+		IOHook.startDexOverride();
+		IOHook.hookNative();
 		ContextFixer.fixCamera();
 		mBoundApplication = data;
-		VirtualCore core = VirtualCore.getCore();
 		ActivityThread mainThread = VirtualCore.mainThread();
-		AppInfo appInfo = core.findApp(data.appInfo.packageName);
 		mBoundApplication.info = mainThread.getPackageInfoNoCheck(data.appInfo,
 				CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO);
-		for (String shared : data.sharedPackages) {
-			AppInfo sharedInfo = core.findApp(shared);
-			LoadedApk loadedApk =  mainThread.getPackageInfoNoCheck(sharedInfo.getApplicationInfo(),
-					CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO);
-			fixLoadedApk(loadedApk, sharedInfo);
-			strongRefPackages.put(shared, loadedApk);
-		}
-		fixLoadedApk(mBoundApplication.info, appInfo);
 		fixBoundApp(mBoundApplication, VirtualCore.getHostBindData());
 		Application app = data.info.makeApplication(false, null);
 		mInitialApplication = app;
@@ -223,13 +202,6 @@ public class VClientImpl extends IVClient.Stub {
 		}
 	}
 
-
-	private void fixLoadedApk(LoadedApk loadedApk, AppInfo appInfo) {
-		Reflect info = on(loadedApk);
-		if (!(info.get("mClassLoader") instanceof ClassLoaderHelper.AppClassLoader)) {
-			info.set("mClassLoader", ClassLoaderHelper.create(appInfo));
-		}
-	}
 
 	@Override
 	public void bindApplication(String processName, ApplicationInfo appInfo, List<String> sharedPackages,
