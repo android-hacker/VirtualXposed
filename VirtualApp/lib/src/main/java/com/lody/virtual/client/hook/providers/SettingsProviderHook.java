@@ -20,19 +20,6 @@ public class SettingsProviderHook extends ExternalProviderHook {
 
 	@Override
 	public Bundle call(Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
-		if (args[1] instanceof String) {
-			String methodName = (String) args[1];
-			if (methodName.endsWith("secure")) {
-				try {
-					return super.call(method, args);
-				} catch (InvocationTargetException e) {
-					if (e.getCause() instanceof SecurityException) {
-						return null;
-					}
-					throw e;
-				}
-			}
-		}
 		return super.call(method, args);
 	}
 

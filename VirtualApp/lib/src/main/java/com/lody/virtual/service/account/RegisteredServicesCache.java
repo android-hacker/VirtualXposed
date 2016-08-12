@@ -1,28 +1,5 @@
 package com.lody.virtual.service.account;
 
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlSerializer;
-
-import com.android.internal.os.AtomicFile;
-import com.android.internal.util.FastXmlSerializer;
-import com.google.android.collect.Lists;
-import com.google.android.collect.Maps;
-
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -40,6 +17,30 @@ import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Xml;
+
+import com.android.internal.os.AtomicFile;
+import com.android.internal.util.FastXmlSerializer;
+import com.google.android.collect.Lists;
+import com.google.android.collect.Maps;
+import com.lody.virtual.client.env.Constants;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlSerializer;
+
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A cache of registered services. This cache is built by interrogating the
@@ -102,9 +103,9 @@ public abstract class RegisteredServicesCache<V> {
 		};
 		mReceiver = new AtomicReference<BroadcastReceiver>(receiver);
 		IntentFilter intentFilter = new IntentFilter();
-		intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
-		intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
-		intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+		intentFilter.addAction(Constants.VIRTUAL_ACTION_PACKAGE_ADDED);
+		intentFilter.addAction(Constants.VIRTUAL_ACTION_PACKAGE_CHANGED);
+		intentFilter.addAction(Constants.VIRTUAL_ACTION_PACKAGE_REMOVED);
 		intentFilter.addDataScheme("package");
 		mContext.registerReceiver(receiver, intentFilter);
 		// Register for events related to sdcard installation.
@@ -113,6 +114,7 @@ public abstract class RegisteredServicesCache<V> {
 		sdFilter.addAction(Intent.ACTION_EXTERNAL_APPLICATIONS_UNAVAILABLE);
 		mContext.registerReceiver(receiver, sdFilter);
 	}
+
 
 	public void dump(FileDescriptor fd, PrintWriter fout, String[] args) {
 		Map<V, ServiceInfo<V>> services;

@@ -153,6 +153,10 @@ public class VClientImpl extends IVClient.Stub {
 		Application app = data.info.makeApplication(false, null);
 		mInitialApplication = app;
 		ContextFixer.fixContext(app);
+		List<ProviderInfo> providers = data.providers;
+		if (providers != null) {
+			installContentProviders(app, providers);
+		}
 		try {
 			mInstrumentation.callApplicationOnCreate(app);
 		} catch (Exception e) {
@@ -161,11 +165,6 @@ public class VClientImpl extends IVClient.Stub {
 						"Unable to create application " + app.getClass().getName()
 								+ ": " + e.toString(), e);
 			}
-		}
-
-		List<ProviderInfo> providers = data.providers;
-		if (providers != null) {
-			installContentProviders(app, providers);
 		}
 
 		List<ReceiverInfo> receivers = VPackageManager.getInstance().queryReceivers(data.processName, 0);

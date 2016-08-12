@@ -1,6 +1,5 @@
 package com.lody.virtual.service.am;
 
-import android.os.IBinder;
 import android.util.SparseArray;
 
 import java.util.HashMap;
@@ -30,7 +29,7 @@ public class ProcessMap {
 	public ProcessRecord get(StubInfo stubInfo) {
 		for (int N = 0; N < mProcessByPids.size(); N++) {
 			ProcessRecord r = mProcessByPids.valueAt(N);
-			if (r.stubInfo != null && r.stubInfo.equals(stubInfo)) {
+			if (r.stubInfo.equals(stubInfo)) {
 				return r;
 			}
 		}
@@ -60,28 +59,6 @@ public class ProcessMap {
 			mProcessByPids.remove(pid);
 		}
 		return record;
-	}
-
-	public ProcessRecord get(IBinder app) {
-		for (int N = 0; N < mProcessByPids.size(); N++) {
-			ProcessRecord r = mProcessByPids.valueAt(N);
-			if (r.thread != null && r.thread.asBinder() == app) {
-				return r;
-			}
-		}
-		return null;
-	}
-
-	public boolean isExist(ProcessRecord proc) {
-		synchronized (this) {
-			for (int N = 0; N < mProcessByPids.size(); N++) {
-				ProcessRecord r = mProcessByPids.valueAt(N);
-				if (r == proc) {
-					return true;
-				}
-			}
-			return false;
-		}
 	}
 
 	public interface Visitor {
