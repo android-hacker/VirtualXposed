@@ -68,7 +68,7 @@ VirtualApp currently has **no documentation**, If you are interested in VirtualA
 
 License
 -------
-LGPL 3.0
+GPL 3.0
 
 About Author
 ------------
