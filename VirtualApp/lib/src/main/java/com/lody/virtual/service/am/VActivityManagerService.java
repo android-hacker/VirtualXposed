@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Parcel;
+import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.text.TextUtils;
@@ -133,6 +134,17 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	private ActivityManager am = (ActivityManager) VirtualCore.getCore().getContext()
 			.getSystemService(Context.ACTIVITY_SERVICE);
 	private Map<String, ProcessRecord> mPendingProcesses = new HashMap<>();
+
+	private final ProcessRecord mSystemProcessRecord;
+
+	public VActivityManagerService() {
+		mSystemProcessRecord = new ProcessRecord(null, VirtualCore.getCore().getHostPkgInfo().applicationInfo, VirtualCore.getCore().getProcessName(), null, null);
+		mSystemProcessRecord.thread = VirtualCore.mainThread().getApplicationThread();
+		mSystemProcessRecord.pid = Process.myPid();
+		mSystemProcessRecord.pkgList.add(VirtualCore.getCore().getHostPkg());
+		mProcessMap.put(mSystemProcessRecord);
+	}
+
 
 	private final Handler mHandler = new Handler() {
 		@Override
@@ -1293,16 +1305,6 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			VLog.v(TAG, "startService: " + service
 					+ " type=" + resolvedType + " args=" + service.getExtras());
 
-			if (caller != null) {
-				final ProcessRecord callerApp = getRecordForAppLocked(caller);
-				if (callerApp == null) {
-					throw new SecurityException(
-							"Unable to find app for caller " + caller
-									+ " (pid=" + Binder.getCallingPid()
-									+ ") when starting service " + service);
-				}
-			}
-
 			ServiceLookupResult res =
 					retrieveServiceLocked(service, resolvedType
 					);
@@ -1339,14 +1341,6 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		synchronized(this) {
 			VLog.v(TAG, "stopService: " + service
 					+ " type=" + resolvedType);
-
-			final ProcessRecord callerApp = getRecordForAppLocked(caller);
-			if (caller != null && callerApp == null) {
-				throw new SecurityException(
-						"Unable to find app for caller " + caller
-								+ " (pid=" + Binder.getCallingPid()
-								+ ") when stopping service " + service);
-			}
 
 			// If this service is active, make sure it is stopped.
 			ServiceLookupResult r = findServiceLocked(service, resolvedType);
@@ -2050,7 +2044,9 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			mProcessMap.foreach(new ProcessMap.Visitor() {
 				@Override
 				public boolean accept(ProcessRecord record) {
-					killProcess(record.pid);
+					if (record != mSystemProcessRecord) {
+						killProcess(record.pid);
+					}
 					return true;
 				}
 			});
@@ -2142,7 +2138,11 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
 	public ProcessRecord getRecordForAppLocked(IBinder app) {
 		synchronized (mProcessMap) {
-			return mProcessMap.get(app);
+			ProcessRecord r = mProcessMap.get(app);
+			if (r != null) {
+				return r;
+			}
+			return mSystemProcessRecord;
 		}
 	}
 

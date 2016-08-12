@@ -30,7 +30,7 @@ public class ProcessMap {
 	public ProcessRecord get(StubInfo stubInfo) {
 		for (int N = 0; N < mProcessByPids.size(); N++) {
 			ProcessRecord r = mProcessByPids.valueAt(N);
-			if (r.stubInfo.equals(stubInfo)) {
+			if (r.stubInfo != null && r.stubInfo.equals(stubInfo)) {
 				return r;
 			}
 		}
