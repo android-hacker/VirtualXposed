@@ -1,10 +1,13 @@
 package com.lody.virtual.service.am;
 
+import android.annotation.NonNull;
 import android.app.ActivityManager;
 import android.app.ApplicationThreadNative;
 import android.app.IApplicationThread;
 import android.app.IServiceConnection;
 import android.app.Notification;
+import android.app.PendingIntent;
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -14,17 +17,19 @@ import android.content.pm.ComponentInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
+import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.Parcel;
-import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.util.Slog;
 
 import com.lody.virtual.client.IVClient;
 import com.lody.virtual.client.core.VirtualCore;
@@ -50,6 +55,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -58,7 +64,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static android.app.ActivityThread.SERVICE_DONE_EXECUTING_STOP;
 import static android.os.Process.killProcess;
 
 /**
@@ -70,15 +75,75 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	private static final AtomicReference<VActivityManagerService> sService = new AtomicReference<>();
 	private static final String TAG = VActivityManagerService.class.getSimpleName();
 
+	static final int SERVICE_TIMEOUT_MSG = 12;
+
+	// How long we wait for a service to finish executing.
+	static final int SERVICE_TIMEOUT = 20 * 1000;
+
+	// The minimum amount of time between restarting services that we allow.
+	// That is, when multiple services are restarting, we won't allow each
+	// to restart less than this amount of time from the last one.
+	static final int SERVICE_MIN_RESTART_TIME_BETWEEN = 10 * 1000;
+
+	// How long a service needs to be running until it will start back at
+	// SERVICE_RESTART_DURATION after being killed.
+	static final int SERVICE_RESET_RUN_DURATION = 60 * 1000;
+
+	// Multiplying factor to increase restart duration time by, for each time
+	// a service is killed before it has run for SERVICE_RESET_RUN_DURATION.
+	static final int SERVICE_RESTART_DURATION_FACTOR = 4;
+
+	// How long a service needs to be running until restarting its process
+	// is no longer considered to be a relaunch of the service.
+	static final int SERVICE_RESTART_DURATION = 5 * 1000;
+
+	/**
+	 * All currently running services.
+	 */
+	final HashMap<ComponentName, ServiceRecord> mServices = new HashMap<ComponentName, ServiceRecord>();
+	/**
+	 * All currently running services indexed by the Intent used to start them.
+	 */
+	final HashMap<Intent.FilterComparison, ServiceRecord> mServicesByIntent = new HashMap<Intent.FilterComparison, ServiceRecord>();
+	/**
+	 * All currently bound service connections. Keys are the IBinder of the
+	 * client's IServiceConnection.
+	 */
+	final HashMap<IBinder, ArrayList<ConnectionRecord>> mServiceConnections = new HashMap<IBinder, ArrayList<ConnectionRecord>>();
+	/**
+	 * List of services that we have been asked to start, but haven't yet been
+	 * able to. It is used to hold start requests while waiting for their
+	 * corresponding application thread to get going.
+	 */
+	final ArrayList<ServiceRecord> mPendingServices = new ArrayList<ServiceRecord>();
+	/**
+	 * List of services that are scheduled to restart following a crash.
+	 */
+	final ArrayList<ServiceRecord> mRestartingServices = new ArrayList<ServiceRecord>();
+	/**
+	 * List of services that are in the process of being stopped.
+	 */
+	final ArrayList<ServiceRecord> mStoppingServices = new ArrayList<ServiceRecord>();
+
 	private final Map<String, StubInfo> stubInfoMap = new ConcurrentHashMap<>();
 	private final Set<String> stubProcessList = new HashSet<String>();
 	private final ActivityStack mMainStack = new ActivityStack();
-	private final List<ServiceRecord> mHistory = new ArrayList<ServiceRecord>();
 	private final ProviderList mProviderList = new ProviderList();
 	private final ProcessMap mProcessMap = new ProcessMap();
 	private ActivityManager am = (ActivityManager) VirtualCore.getCore().getContext()
 			.getSystemService(Context.ACTIVITY_SERVICE);
 	private Map<String, ProcessRecord> mPendingProcesses = new HashMap<>();
+
+	private final Handler mHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+				case SERVICE_TIMEOUT_MSG: {
+					serviceTimeout((ProcessRecord)msg.obj);
+				} break;
+			}
+		}
+	};
 
 	public static VActivityManagerService getService() {
 		return sService.get();
@@ -86,16 +151,6 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
 	public static void systemReady(Context context) {
 		new VActivityManagerService().onCreate(context);
-	}
-
-	private static ServiceInfo resolveServiceInfo(Intent service) {
-		if (service != null) {
-			ServiceInfo serviceInfo = VirtualCore.getCore().resolveServiceInfo(service);
-			if (serviceInfo != null) {
-				return serviceInfo;
-			}
-		}
-		return null;
 	}
 
 	public void onCreate(Context context) {
@@ -218,9 +273,9 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			}
 
 			if (targetActInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_TOP) {
-				ActivityTaskRecord topTask = getTopTask();
-				if (topTask != null && topTask.isOnTop(targetActInfo)) {
-					ActivityRecord r = topTask.topActivity();
+				ActivityTaskRecord task = mMainStack.findTask(taskAffinity);
+				if (task != null && task.isOnTop(targetActInfo)) {
+					ActivityRecord r = task.topActivity();
 					ProcessRecord processRecord = findProcess(r.pid);
 					// The top Activity is the target Activity
 					return new VActRedirectResult(r.token, processRecord.thread.asBinder());
@@ -287,7 +342,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 				}
 			}
 		}
-		ProcessRecord processRecord = startProcess(targetProcessName, targetActInfo.applicationInfo);
+		ProcessRecord processRecord = startProcessLocked(targetProcessName, targetActInfo.applicationInfo);
 		if (processRecord == null) {
 			return null;
 		}
@@ -399,15 +454,6 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	public void processDead(ProcessRecord record) {
-		synchronized (mHistory) {
-			ListIterator<ServiceRecord> iterator = mHistory.listIterator();
-			while (iterator.hasNext()) {
-				ServiceRecord r = iterator.next();
-				if (ComponentUtils.getProcessName(r.serviceInfo).equals(record.processName)) {
-					iterator.remove();
-				}
-			}
-		}
 		synchronized (mMainStack) {
 			int pid = record.pid;
 			List<Pair<ActivityTaskRecord, ActivityRecord>> removeRecordList = new LinkedList<>();
@@ -494,126 +540,880 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		}
 	}
 
-	private void addRecord(ServiceRecord r) {
-		mHistory.add(r);
-	}
+	void serviceTimeout(ProcessRecord proc) {
+		String anrMessage = null;
 
-	private ServiceRecord findRecord(ServiceInfo serviceInfo) {
-		synchronized (mHistory) {
-			for (ServiceRecord r : mHistory) {
-				if (ComponentUtils.isSameComponent(serviceInfo, r.serviceInfo)) {
-					return r;
+		synchronized(this) {
+			if (proc.executingServices.size() == 0 || proc.thread == null) {
+				return;
+			}
+			long maxTime = SystemClock.uptimeMillis() - SERVICE_TIMEOUT;
+			Iterator<ServiceRecord> it = proc.executingServices.iterator();
+			ServiceRecord timeout = null;
+			long nextTime = 0;
+			while (it.hasNext()) {
+				ServiceRecord sr = it.next();
+				if (sr.executingStart < maxTime) {
+					timeout = sr;
+					break;
+				}
+				if (sr.executingStart > nextTime) {
+					nextTime = sr.executingStart;
 				}
 			}
-			return null;
+			if (timeout != null && mProcessMap.isExist(proc)) {
+				Slog.w(TAG, "Timeout executing service: " + timeout);
+				anrMessage = "Executing service " + timeout.shortName;
+			} else {
+				Message msg = mHandler.obtainMessage(SERVICE_TIMEOUT_MSG);
+				msg.obj = proc;
+				mHandler.sendMessageAtTime(msg, nextTime+SERVICE_TIMEOUT);
+			}
+		}
+
+		if (anrMessage != null) {
+			VLog.w(TAG, anrMessage);
 		}
 	}
 
-	private ServiceRecord findRecord(IServiceConnection connection) {
-		synchronized (mHistory) {
-			for (ServiceRecord r : mHistory) {
-				if (r.containConnection(connection)) {
-					return r;
+	ActivityManager.RunningServiceInfo makeRunningServiceInfoLocked(ServiceRecord r) {
+		ActivityManager.RunningServiceInfo info =
+				new ActivityManager.RunningServiceInfo();
+		info.service = r.name;
+		if (r.app != null) {
+			info.pid = r.app.pid;
+		}
+		info.uid = r.appInfo.uid;
+		info.process = r.processName;
+		info.foreground = r.isForeground;
+		info.activeSince = r.createTime;
+		info.started = r.startRequested;
+		info.clientCount = r.connections.size();
+		info.crashCount = r.crashCount;
+		info.lastActivityTime = r.lastActivity;
+		if (r.isForeground) {
+			info.flags |= ActivityManager.RunningServiceInfo.FLAG_FOREGROUND;
+		}
+		if (r.startRequested) {
+			info.flags |= ActivityManager.RunningServiceInfo.FLAG_STARTED;
+		}
+		if (r.app != null && r.app.persistent) {
+			info.flags |= ActivityManager.RunningServiceInfo.FLAG_PERSISTENT_PROCESS;
+		}
+
+		for (ArrayList<ConnectionRecord> connl : r.connections.values()) {
+			for (int i=0; i<connl.size(); i++) {
+				ConnectionRecord conn = connl.get(i);
+				if (conn.clientLabel != 0) {
+					info.clientPackage = conn.binding.client.info.packageName;
+					info.clientLabel = conn.clientLabel;
+					return info;
 				}
 			}
-			return null;
+		}
+		return info;
+	}
+
+	public List<ActivityManager.RunningServiceInfo> getServicesLocked(int maxNum) {
+		ArrayList<ActivityManager.RunningServiceInfo> res
+                = new ArrayList<ActivityManager.RunningServiceInfo>();
+
+		if (mServices.size() > 0) {
+            Iterator<ServiceRecord> it = mServices.values().iterator();
+            while (it.hasNext() && res.size() < maxNum) {
+                res.add(makeRunningServiceInfoLocked(it.next()));
+            }
+        }
+
+		for (int i=0; i<mRestartingServices.size() && res.size() < maxNum; i++) {
+            ServiceRecord r = mRestartingServices.get(i);
+            ActivityManager.RunningServiceInfo info =
+                    makeRunningServiceInfoLocked(r);
+            info.restarting = r.nextRestartTime;
+            res.add(info);
+        }
+
+		return res;
+	}
+
+	public PendingIntent getRunningServiceControlPanel(ComponentName name) {
+		synchronized (this) {
+			ServiceRecord r = mServices.get(name);
+			if (r != null) {
+				for (ArrayList<ConnectionRecord> conn : r.connections.values()) {
+					for (int i=0; i<conn.size(); i++) {
+						if (conn.get(i).clientIntent != null) {
+							return conn.get(i).clientIntent;
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	private ServiceRecord findServiceLocked(ComponentName name,
+											IBinder token) {
+		ServiceRecord r = mServices.get(name);
+		return r == token ? r : null;
+	}
+
+		private ServiceLookupResult findServiceLocked(Intent service, String resolvedType) {
+		ServiceRecord r = null;
+		if (service.getComponent() != null) {
+			r = mServices.get(service.getComponent());
+		}
+		if (r == null) {
+			Intent.FilterComparison filter = new Intent.FilterComparison(service);
+			r = mServicesByIntent.get(filter);
+		}
+
+		if (r == null) {
+			ResolveInfo rInfo = VPackageManagerService.getService().resolveService(service, resolvedType, 0);
+			ServiceInfo sInfo = rInfo != null ? rInfo.serviceInfo : null;
+			if (sInfo == null) {
+				return null;
+			}
+
+			ComponentName name = new ComponentName(sInfo.applicationInfo.packageName, sInfo.name);
+			r = mServices.get(name);
+		}
+		if (r != null) {
+			return new ServiceLookupResult(r, null);
+		}
+		return null;
+	}
+
+	private class ServiceRestarter implements Runnable {
+		private ServiceRecord mService;
+
+		void setService(ServiceRecord service) {
+			mService = service;
+		}
+
+		public void run() {
+			synchronized(VActivityManagerService.this) {
+				performServiceRestartLocked(mService);
+			}
 		}
 	}
 
-	private ServiceRecord findRecord(IBinder token) {
-		synchronized (mHistory) {
-			for (ServiceRecord r : mHistory) {
-				if (r.token == token) {
-					return r;
+
+	final void performServiceRestartLocked(ServiceRecord r) {
+		if (!mRestartingServices.contains(r)) {
+			return;
+		}
+		bringUpServiceLocked(r, r.intent.getIntent().getFlags(), true);
+	}
+
+	private void bumpServiceExecutingLocked(ServiceRecord r, String why) {
+		VLog.v(TAG, ">>> EXECUTING "
+				+ why + " of " + r + " in app " + r.app);
+		long now = SystemClock.uptimeMillis();
+		if (r.executeNesting == 0 && r.app != null) {
+			if (r.app.executingServices.size() == 0) {
+				Message msg = mHandler.obtainMessage(SERVICE_TIMEOUT_MSG);
+				msg.obj = r.app;
+				mHandler.sendMessageAtTime(msg, now + SERVICE_TIMEOUT);
+			}
+			r.app.executingServices.add(r);
+		}
+		r.executeNesting++;
+		r.executingStart = now;
+	}
+
+	private void sendServiceArgsLocked(ServiceRecord r) {
+		final int N = r.pendingStarts.size();
+		if (N == 0) {
+			return;
+		}
+
+		while (r.pendingStarts.size() > 0) {
+			try {
+				ServiceRecord.StartItem si = r.pendingStarts.remove(0);
+				VLog.v(TAG, "Sending arguments to: "
+						+ r + " " + r.intent + " args=" + si.intent);
+				if (si.intent == null && N > 1) {
+					// If somehow we got a dummy null intent in the middle,
+					// then skip it.  DO NOT skip a null intent when it is
+					// the only one in the list -- this is to support the
+					// onStartCommand(null) case.
+					continue;
+				}
+				si.deliveredTime = SystemClock.uptimeMillis();
+				r.deliveredStarts.add(si);
+				si.deliveryCount++;
+				bumpServiceExecutingLocked(r, "start");
+				int flags = 0;
+				if (si.deliveryCount > 0) {
+					flags |= Service.START_FLAG_RETRY;
+				}
+				if (si.doneExecutingCount > 0) {
+					flags |= Service.START_FLAG_REDELIVERY;
+				}
+				IApplicationThreadCompat.scheduleServiceArgs(r.app.thread, r, si.taskRemoved, si.id, flags, si.intent);
+			} catch (RemoteException e) {
+				// Remote process gone...  we'll let the normal cleanup take
+				// care of this.
+				VLog.v(TAG, "Crashed while scheduling start: " + r);
+				break;
+			} catch (Exception e) {
+				VLog.w(TAG, "Unexpected exception", e);
+				break;
+			}
+		}
+	}
+
+	private boolean bringUpServiceLocked(ServiceRecord r,
+										 int intentFlags, boolean whileRestarting) {
+		//VLog.i(TAG, "Bring up service:");
+		//r.dump("  ");
+
+		if (r.app != null && r.app.thread != null) {
+			sendServiceArgsLocked(r);
+			return true;
+		}
+
+		if (!whileRestarting && r.restartDelay > 0) {
+			// If waiting for a restart, then do nothing.
+			return true;
+		}
+
+		VLog.v(TAG, "Bringing up " + r + " " + r.intent);
+
+		// We are now bringing the service up, so no longer in the
+		// restarting state.
+		mRestartingServices.remove(r);
+
+		final String appName = r.processName;
+		ProcessRecord app = findProcess(appName);
+		if (app != null && app.thread != null) {
+			try {
+				realStartServiceLocked(r, app);
+				return true;
+			} catch (RemoteException e) {
+				VLog.w(TAG, "Exception when starting service " + r.shortName, e);
+			}
+
+			// If a dead object exception was thrown -- fall through to
+			// restart the application.
+		}
+
+		// Not running -- get it started, and enqueue this service record
+		// to be executed when the app comes up.
+		if (!mPendingServices.contains(r)) {
+			mPendingServices.add(r);
+		}
+		if (startProcessLocked(ComponentUtils.getProcessName(r.serviceInfo), r.appInfo) == null) {
+			VLog.w(TAG, "Unable to launch app "
+					+ r.appInfo.packageName + "/"
+					+ r.appInfo.uid + " for service "
+					+ r.intent.getIntent() + ": process is bad");
+			bringDownServiceLocked(r, true);
+			mPendingServices.remove(r);
+			return false;
+		}
+
+		return true;
+	}
+
+	private void bringDownServiceLocked(ServiceRecord r, boolean force) {
+		//VLog.i(TAG, "Bring down service:");
+		//r.dump("  ");
+
+		// Does it still need to run?
+		if (!force && r.startRequested) {
+			return;
+		}
+		if (r.connections.size() > 0) {
+			if (!force) {
+				// XXX should probably keep a count of the number of auto-create
+				// connections directly in the service.
+				Iterator<ArrayList<ConnectionRecord>> it = r.connections.values().iterator();
+				while (it.hasNext()) {
+					ArrayList<ConnectionRecord> cr = it.next();
+					for (int i=0; i<cr.size(); i++) {
+						if ((cr.get(i).flags&Context.BIND_AUTO_CREATE) != 0) {
+							return;
+						}
+					}
 				}
 			}
-			return null;
+
+			// Report to all of the connections that the service is no longer
+			// available.
+			Iterator<ArrayList<ConnectionRecord>> it = r.connections.values().iterator();
+			while (it.hasNext()) {
+				ArrayList<ConnectionRecord> c = it.next();
+				for (int i=0; i<c.size(); i++) {
+					ConnectionRecord cr = c.get(i);
+					// There is still a connection to the service that is
+					// being brought down.  Mark it as dead.
+					cr.serviceDead = true;
+					try {
+						cr.conn.connected(r.name, null);
+					} catch (Exception e) {
+						VLog.w(TAG, "Failure disconnecting service " + r.name +
+								" to connection " + c.get(i).conn.asBinder() +
+								" (in " + c.get(i).binding.client.processName + ")", e);
+					}
+				}
+			}
 		}
+
+		// Tell the service that it has been unbound.
+		if (r.bindings.size() > 0 && r.app != null && r.app.thread != null) {
+			Iterator<IntentBindRecord> it = r.bindings.values().iterator();
+			while (it.hasNext()) {
+				IntentBindRecord ibr = it.next();
+				VLog.v(TAG, "Bringing down binding " + ibr
+						+ ": hasBound=" + ibr.hasBound);
+				if (r.app != null && r.app.thread != null && ibr.hasBound) {
+					try {
+						bumpServiceExecutingLocked(r, "bring down unbind");
+						ibr.hasBound = false;
+						IApplicationThreadCompat.scheduleUnbindService(r.app.thread, r,
+								ibr.intent.getIntent());
+					} catch (Exception e) {
+						VLog.w(TAG, "Exception when unbinding service "
+								+ r.shortName, e);
+						serviceDoneExecutingLocked(r, true);
+					}
+				}
+			}
+		}
+
+		VLog.v(TAG, "Bringing down " + r + " " + r.intent);
+
+		mServices.remove(r.name);
+		mServicesByIntent.remove(r.intent);
+		r.totalRestartCount = 0;
+		unscheduleServiceRestartLocked(r);
+
+		// Also make sure it is not on the pending list.
+		int N = mPendingServices.size();
+		for (int i=0; i<N; i++) {
+			if (mPendingServices.get(i) == r) {
+				mPendingServices.remove(i);
+				VLog.v(TAG, "Removed pending: " + r);
+				i--;
+				N--;
+			}
+		}
+
+		r.cancelNotification();
+		r.isForeground = false;
+		r.foregroundId = 0;
+		r.foregroundNoti = null;
+
+		// Clear start entries.
+		r.clearDeliveredStartsLocked();
+		r.pendingStarts.clear();
+
+		if (r.app != null) {
+			r.app.services.remove(r);
+			if (r.app.thread != null) {
+				try {
+					bumpServiceExecutingLocked(r, "stop");
+					mStoppingServices.add(r);
+					IApplicationThreadCompat.scheduleStopService(r.app.thread, r);
+				} catch (Exception e) {
+					VLog.w(TAG, "Exception when stopping service "
+							+ r.shortName, e);
+					serviceDoneExecutingLocked(r, true);
+				}
+				updateServiceForegroundLocked(r.app);
+			} else {
+				VLog.v(
+						TAG, "Removed service that has no process: " + r);
+			}
+		} else {
+			VLog.v(
+					TAG, "Removed service that is not running: " + r);
+		}
+
+		if (r.bindings.size() > 0) {
+			r.bindings.clear();
+		}
+
+		if (r.restarter instanceof ServiceRestarter) {
+			((ServiceRestarter)r.restarter).setService(null);
+		}
+	}
+
+	public void updateServiceForegroundLocked(ProcessRecord proc) {
+		boolean anyForeground = false;
+		for (ServiceRecord sr : proc.services) {
+			if (sr.isForeground) {
+				anyForeground = true;
+				break;
+			}
+		}
+		if (anyForeground != proc.foregroundServices) {
+			proc.foregroundServices = anyForeground;
+		}
+	}
+
+	public void serviceDoneExecutingLocked(ServiceRecord r, boolean inStopping) {
+		VLog.v(TAG, "<<< DONE EXECUTING " + r
+				+ ": nesting=" + r.executeNesting
+				+ ", inStopping=" + inStopping + ", app=" + r.app);
+		r.executeNesting--;
+		if (r.executeNesting <= 0 && r.app != null) {
+			VLog.v(TAG,
+					"Nesting at 0 of " + r.shortName);
+			r.app.executingServices.remove(r);
+			if (r.app.executingServices.size() == 0) {
+				VLog.v(TAG,
+						"No more executingServices of " + r.shortName);
+				mHandler.removeMessages(SERVICE_TIMEOUT_MSG, r.app);
+			}
+			if (inStopping) {
+				VLog.v(TAG,
+						"doneExecuting remove stopping " + r);
+				mStoppingServices.remove(r);
+				r.bindings.clear();
+			}
+		}
+	}
+	
+	private boolean unscheduleServiceRestartLocked(ServiceRecord r) {
+		if (r.restartDelay == 0) {
+			return false;
+		}
+		r.resetRestartCounter();
+		mRestartingServices.remove(r);
+		mHandler.removeCallbacks(r.restarter);
+		return true;
+	}
+	
+	private void realStartServiceLocked(ServiceRecord r,
+										ProcessRecord app) throws RemoteException {
+		if (app.thread == null) {
+			throw new RemoteException();
+		}
+
+		r.app = app;
+		r.restartTime = r.lastActivity = SystemClock.uptimeMillis();
+
+		app.services.add(r);
+		bumpServiceExecutingLocked(r, "create");
+
+		boolean created = false;
+		try {
+			IApplicationThreadCompat.scheduleCreateService(app.thread, r, r.serviceInfo, 0);
+			r.postNotification();
+			created = true;
+		} finally {
+			if (!created) {
+				app.services.remove(r);
+				scheduleServiceRestartLocked(r, false);
+			}
+		}
+		requestServiceBindingsLocked(r);
+
+		// If the service is in the started state, and there are no
+		// pending arguments, then fake up one so its onStartCommand() will
+		// be called.
+		if (r.startRequested && r.callStart && r.pendingStarts.size() == 0) {
+			r.pendingStarts.add(new ServiceRecord.StartItem(r, false, r.makeNextStartId(),
+					null));
+		}
+
+		sendServiceArgsLocked(r);
+	}
+
+	private void requestServiceBindingsLocked(ServiceRecord r) {
+		Iterator<IntentBindRecord> bindings = r.bindings.values().iterator();
+		while (bindings.hasNext()) {
+			IntentBindRecord i = bindings.next();
+			if (!requestServiceBindingLocked(r, i, false)) {
+				break;
+			}
+		}
+	}
+
+	private boolean requestServiceBindingLocked(ServiceRecord r,
+												IntentBindRecord i, boolean rebind) {
+		if (r.app == null || r.app.thread == null) {
+			// If service is not currently running, can't yet bind.
+			return false;
+		}
+		if ((!i.requested || rebind) && i.apps.size() > 0) {
+			try {
+				bumpServiceExecutingLocked(r, "bind");
+				IApplicationThreadCompat.scheduleBindService(r.app.thread, r, i.intent.getIntent(), rebind, 0);
+				if (!rebind) {
+					i.requested = true;
+				}
+				i.hasBound = true;
+				i.doRebind = false;
+			} catch (RemoteException e) {
+				VLog.v(TAG, "Crashed while binding " + r);
+				return false;
+			}
+		}
+		return true;
+	}
+
+
+	private boolean scheduleServiceRestartLocked(ServiceRecord r,
+												 boolean allowCancel) {
+		boolean canceled = false;
+
+		final long now = SystemClock.uptimeMillis();
+		long minDuration = SERVICE_RESTART_DURATION;
+		long resetTime = SERVICE_RESET_RUN_DURATION;
+
+		if ((r.serviceInfo.applicationInfo.flags
+				&ApplicationInfo.FLAG_PERSISTENT) != 0) {
+			minDuration /= 4;
+		}
+
+		// Any delivered but not yet finished starts should be put back
+		// on the pending list.
+		final int N = r.deliveredStarts.size();
+		if (N > 0) {
+			for (int i=N-1; i>=0; i--) {
+				ServiceRecord.StartItem si = r.deliveredStarts.get(i);
+				if (si.intent == null) {
+					// We'll generate this again if needed.
+				} else if (!allowCancel || (si.deliveryCount < ServiceRecord.MAX_DELIVERY_COUNT
+						&& si.doneExecutingCount < ServiceRecord.MAX_DONE_EXECUTING_COUNT)) {
+					r.pendingStarts.add(0, si);
+					long dur = SystemClock.uptimeMillis() - si.deliveredTime;
+					dur *= 2;
+					if (minDuration < dur) minDuration = dur;
+					if (resetTime < dur) resetTime = dur;
+				} else {
+					VLog.w(TAG, "Canceling start item " + si.intent + " in service "
+							+ r.name);
+					canceled = true;
+				}
+			}
+			r.deliveredStarts.clear();
+		}
+
+		r.totalRestartCount++;
+		if (r.restartDelay == 0) {
+			r.restartCount++;
+			r.restartDelay = minDuration;
+		} else {
+			// If it has been a "reasonably long time" since the service
+			// was started, then reset our restart duration back to
+			// the beginning, so we don't infinitely increase the duration
+			// on a service that just occasionally gets killed (which is
+			// a normal case, due to process being killed to reclaim memory).
+			if (now > (r.restartTime+resetTime)) {
+				r.restartCount = 1;
+				r.restartDelay = minDuration;
+			} else {
+				if ((r.serviceInfo.applicationInfo.flags
+						&ApplicationInfo.FLAG_PERSISTENT) != 0) {
+					// Services in peristent processes will restart much more
+					// quickly, since they are pretty important.  (Think SystemUI).
+					r.restartDelay += minDuration/2;
+				} else {
+					r.restartDelay *= SERVICE_RESTART_DURATION_FACTOR;
+					if (r.restartDelay < minDuration) {
+						r.restartDelay = minDuration;
+					}
+				}
+			}
+		}
+
+		r.nextRestartTime = now + r.restartDelay;
+
+		// Make sure that we don't end up restarting a bunch of services
+		// all at the same time.
+		boolean repeat;
+		do {
+			repeat = false;
+			for (int i=mRestartingServices.size()-1; i>=0; i--) {
+				ServiceRecord r2 = mRestartingServices.get(i);
+				if (r2 != r && r.nextRestartTime
+						>= (r2.nextRestartTime-SERVICE_MIN_RESTART_TIME_BETWEEN)
+						&& r.nextRestartTime
+						< (r2.nextRestartTime+SERVICE_MIN_RESTART_TIME_BETWEEN)) {
+					r.nextRestartTime = r2.nextRestartTime + SERVICE_MIN_RESTART_TIME_BETWEEN;
+					r.restartDelay = r.nextRestartTime - now;
+					repeat = true;
+					break;
+				}
+			}
+		} while (repeat);
+
+		if (!mRestartingServices.contains(r)) {
+			mRestartingServices.add(r);
+		}
+
+		r.cancelNotification();
+
+		mHandler.removeCallbacks(r.restarter);
+		mHandler.postAtTime(r.restarter, r.nextRestartTime);
+		r.nextRestartTime = SystemClock.uptimeMillis() + r.restartDelay;
+		VLog.w(TAG, "Scheduling restart of crashed service "
+				+ r.shortName + " in " + r.restartDelay + "ms");
+
+		return canceled;
+	}
+
+	private void killServicesLocked(ProcessRecord app,
+									boolean allowRestart) {
+		// Clean up any connections this application has to other services.
+		if (app.connections.size() > 0) {
+			for (ConnectionRecord r : app.connections) {
+				removeConnectionLocked(r, app, null);
+			}
+		}
+		app.connections.clear();
+
+		if (app.services.size() != 0) {
+			// Any services running in the application need to be placed
+			// back in the pending list.
+			for (ServiceRecord sr : app.services) {
+				sr.app = null;
+				sr.executeNesting = 0;
+				if (mStoppingServices.remove(sr)) {
+					VLog.v(TAG, "killServices remove stopping " + sr);
+				}
+
+				boolean hasClients = sr.bindings.size() > 0;
+				if (hasClients) {
+					for (IntentBindRecord b : sr.bindings.values()) {
+						VLog.v(TAG, "Killing binding " + b
+								+ ": shouldUnbind=" + b.hasBound);
+						b.binder = null;
+						b.requested = b.received = b.hasBound = false;
+					}
+				}
+
+				if (sr.crashCount >= 2 && (sr.serviceInfo.applicationInfo.flags
+						& ApplicationInfo.FLAG_PERSISTENT) == 0) {
+					VLog.w(TAG, "Service crashed " + sr.crashCount
+							+ " times, stopping: " + sr);
+					bringDownServiceLocked(sr, true);
+				} else if (!allowRestart) {
+					bringDownServiceLocked(sr, true);
+				} else {
+					boolean canceled = scheduleServiceRestartLocked(sr, true);
+
+					// Should the service remain running?  Note that in the
+					// extreme case of so many attempts to deliver a command
+					// that it failed we also will stop it here.
+					if (sr.startRequested && (sr.stopIfKilled || canceled)) {
+						if (sr.pendingStarts.size() == 0) {
+							sr.startRequested = false;
+							if (!hasClients) {
+								// Whoops, no reason to restart!
+								bringDownServiceLocked(sr, true);
+							}
+						}
+					}
+				}
+			}
+			if (!allowRestart) {
+				app.services.clear();
+			}
+		}
+
+		// Make sure we have no more records on the stopping list.
+		int i = mStoppingServices.size();
+		while (i > 0) {
+			i--;
+			ServiceRecord sr = mStoppingServices.get(i);
+			if (sr.app == app) {
+				mStoppingServices.remove(i);
+				Slog.v(TAG, "killServices remove stopping " + sr);
+			}
+		}
+		app.executingServices.clear();
+	}
+
+	private ServiceLookupResult retrieveServiceLocked(Intent service,
+													  String resolvedType) {
+		ServiceRecord r;
+		Intent.FilterComparison filter = new Intent.FilterComparison(service);
+		r = mServicesByIntent.get(filter);
+		if (r == null) {
+				ResolveInfo rInfo =
+						VPackageManagerService.getService().resolveService(
+								service, resolvedType, 0);
+				ServiceInfo sInfo =
+						rInfo != null ? rInfo.serviceInfo : null;
+				if (sInfo == null) {
+					VLog.w(TAG, "Unable to start service " + service +
+							": not found");
+					return null;
+				}
+
+				ComponentName name = new ComponentName(
+						sInfo.applicationInfo.packageName, sInfo.name);
+				r = mServices.get(name);
+				if (r == null) {
+					filter = new Intent.FilterComparison(service.cloneFilter());
+					ServiceRestarter res = new ServiceRestarter();
+					r = new ServiceRecord(this, name, filter, sInfo, res);
+					res.setService(r);
+					mServices.put(name, r);
+					mServicesByIntent.put(filter, r);
+
+					// Make sure this component isn't in the pending list.
+					int N = mPendingServices.size();
+					for (int i=0; i<N; i++) {
+						ServiceRecord pr = mPendingServices.get(i);
+						if (pr.name.equals(name)) {
+							mPendingServices.remove(i);
+							i--;
+							N--;
+						}
+					}
+				}
+		}
+		return new ServiceLookupResult(r, null);
 	}
 
 	@Override
 	public ComponentName startService(IBinder caller, Intent service, String resolvedType) throws RemoteException {
+		// Refuse possible leaked file descriptors
+		if (service != null && service.hasFileDescriptors()) {
+			throw new IllegalArgumentException("File descriptors passed in Intent");
+		}
 		synchronized (this) {
-			return startServiceCommon(caller, service, resolvedType, true);
+			final long origId = Binder.clearCallingIdentity();
+			ComponentName res = startServiceLocked(ApplicationThreadNative.asInterface(caller), service, resolvedType);
+			Binder.restoreCallingIdentity(origId);
+			return res;
 		}
 	}
 
-	private ComponentName startServiceCommon(IBinder caller, Intent service, String resolvedType,
-			boolean scheduleServiceArgs) {
-		ServiceInfo serviceInfo = resolveServiceInfo(service);
-		if (serviceInfo == null) {
-			return null;
-		}
-		ProcessRecord targetApp = startProcess(ComponentUtils.getProcessName(serviceInfo),
-				serviceInfo.applicationInfo);
+	ComponentName startServiceLocked(IApplicationThread caller,
+									 Intent service, String resolvedType) {
+		synchronized(this) {
+			VLog.v(TAG, "startService: " + service
+					+ " type=" + resolvedType + " args=" + service.getExtras());
 
-		if (targetApp == null) {
-			VLog.e(TAG, "Unable to start new Process for : " + ComponentUtils.toComponentName(serviceInfo));
-			return null;
+			if (caller != null) {
+				final ProcessRecord callerApp = getRecordForAppLocked(caller);
+				if (callerApp == null) {
+					throw new SecurityException(
+							"Unable to find app for caller " + caller
+									+ " (pid=" + Binder.getCallingPid()
+									+ ") when starting service " + service);
+				}
+			}
+
+			ServiceLookupResult res =
+					retrieveServiceLocked(service, resolvedType
+					);
+			if (res == null) {
+				return null;
+			}
+			if (res.record == null) {
+				return new ComponentName("!", res.permission != null
+						? res.permission : "private to package");
+			}
+			ServiceRecord r = res.record;
+			if (unscheduleServiceRestartLocked(r)) {
+				VLog.v(TAG, "START SERVICE WHILE RESTART PENDING: " + r);
+			}
+			r.startRequested = true;
+			r.callStart = false;
+			r.pendingStarts.add(new ServiceRecord.StartItem(r, false, r.makeNextStartId(),
+					service));
+			r.lastActivity = SystemClock.uptimeMillis();
+			if (!bringUpServiceLocked(r, service.getFlags(), false)) {
+				return new ComponentName("!", "Service process is bad");
+			}
+			return r.name;
 		}
-		if (targetApp.thread == null) {
-			targetApp.attachLock.block();
-		}
-		IApplicationThread appThread = targetApp.thread;
-		ServiceRecord r = findRecord(serviceInfo);
-		if (r == null) {
-			r = new ServiceRecord();
-			r.pid = targetApp.pid;
-			r.startId = 0;
-			r.activeSince = SystemClock.elapsedRealtime();
-			r.targetAppThread = appThread;
-			r.token = new Binder();
-			r.serviceInfo = serviceInfo;
-			IApplicationThreadCompat.scheduleCreateService(appThread, r.token, r.serviceInfo, 0);
-			addRecord(r);
-		}
-		r.lastActivityTime = SystemClock.uptimeMillis();
-		if (scheduleServiceArgs) {
-			r.startId++;
-			boolean taskRemoved = serviceInfo.applicationInfo != null
-					&& serviceInfo.applicationInfo.targetSdkVersion < Build.VERSION_CODES.ECLAIR;
-			IApplicationThreadCompat.scheduleServiceArgs(appThread, r.token, taskRemoved, r.startId, 0, service);
-		}
-		return new ComponentName(serviceInfo.packageName, serviceInfo.name);
 	}
 
 	@Override
 	public int stopService(IBinder caller, Intent service, String resolvedType) throws RemoteException {
-		synchronized (this) {
-			ServiceInfo serviceInfo = resolveServiceInfo(service);
-			if (serviceInfo == null) {
-				return 0;
-			}
-			ServiceRecord r = findRecord(serviceInfo);
-			if (r == null) {
-				return 0;
-			}
-			if (!r.hasSomeBound()) {
-				IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
-				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-					mHistory.remove(r);
-				}
-			}
-			return 1;
+		// Refuse possible leaked file descriptors
+		if (service != null && service.hasFileDescriptors()) {
+			throw new IllegalArgumentException("File descriptors passed in Intent");
 		}
+
+		synchronized(this) {
+			VLog.v(TAG, "stopService: " + service
+					+ " type=" + resolvedType);
+
+			final ProcessRecord callerApp = getRecordForAppLocked(caller);
+			if (caller != null && callerApp == null) {
+				throw new SecurityException(
+						"Unable to find app for caller " + caller
+								+ " (pid=" + Binder.getCallingPid()
+								+ ") when stopping service " + service);
+			}
+
+			// If this service is active, make sure it is stopped.
+			ServiceLookupResult r = findServiceLocked(service, resolvedType);
+			if (r != null) {
+				if (r.record != null) {
+					final long origId = Binder.clearCallingIdentity();
+					try {
+						stopServiceLocked(r.record);
+					} finally {
+						Binder.restoreCallingIdentity(origId);
+					}
+					return 1;
+				}
+				return -1;
+			}
+		}
+
+		return 0;
+	}
+
+	private void stopServiceLocked(ServiceRecord service) {
+		service.startRequested = false;
+		service.callStart = false;
+		bringDownServiceLocked(service, false);
 	}
 
 	@Override
 	public boolean stopServiceToken(ComponentName className, IBinder token, int startId) throws RemoteException {
-		synchronized (this) {
-			ServiceRecord r = findRecord(token);
-			if (r == null) {
-				return false;
-			}
-			if (r.startId == startId) {
-				IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
-				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-					mHistory.remove(r);
+		synchronized(this) {
+			VLog.v(TAG, "stopServiceToken: " + className
+					+ " " + token + " startId=" + startId);
+			ServiceRecord r = findServiceLocked(className, token);
+			if (r != null) {
+				if (startId >= 0) {
+					// Asked to only stop if done with all work.  Note that
+					// to avoid leaks, we will take this as dropping all
+					// start items up to and including this one.
+					ServiceRecord.StartItem si = r.findDeliveredStart(startId, false);
+					if (si != null) {
+						while (r.deliveredStarts.size() > 0) {
+							ServiceRecord.StartItem cur = r.deliveredStarts.remove(0);
+							if (cur == si) {
+								break;
+							}
+						}
+					}
+
+					if (r.getLastStartId() != startId) {
+						return false;
+					}
+
+					if (r.deliveredStarts.size() > 0) {
+						VLog.w(TAG, "stopServiceToken startId " + startId
+								+ " is last, but have " + r.deliveredStarts.size()
+								+ " remaining args");
+					}
 				}
+
+				r.startRequested = false;
+				r.callStart = false;
+				final long origId = Binder.clearCallingIdentity();
+				bringDownServiceLocked(r, false);
+				Binder.restoreCallingIdentity(origId);
 				return true;
 			}
-			return false;
 		}
+		return false;
 	}
 
 	@Override
@@ -623,147 +1423,386 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	@Override
-	public int bindService(IBinder caller, IBinder token, Intent service, String resolvedType,
-			IServiceConnection connection, int flags) throws RemoteException {
-		synchronized (this) {
-			ServiceInfo serviceInfo = resolveServiceInfo(service);
-			if (serviceInfo == null) {
-				return 0;
-			}
-			ServiceRecord r = findRecord(serviceInfo);
-			if (r == null) {
-				if ((flags & Context.BIND_AUTO_CREATE) != 0) {
-					startServiceCommon(caller, service, resolvedType, false);
-					r = findRecord(serviceInfo);
-				}
-			}
-			if (r == null) {
-				return 0;
-			}
-			if (r.binder != null && r.binder.isBinderAlive()) {
-				if (r.doRebind) {
-					IApplicationThreadCompat.scheduleBindService(r.targetAppThread, r.token, service, true, 0);
-				}
-				ComponentName componentName = new ComponentName(r.serviceInfo.packageName, r.serviceInfo.name);
-				try {
-					connection.connected(componentName, r.binder);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			} else {
-				IApplicationThreadCompat.scheduleBindService(r.targetAppThread, r.token, service, r.doRebind, 0);
-			}
-			r.lastActivityTime = SystemClock.uptimeMillis();
-			r.addToBoundIntent(service, connection);
-
-			return 1;
+	public int bindService(IBinder caller, IBinder token, @NonNull Intent service, String resolvedType,
+						   IServiceConnection connection, int flags) throws RemoteException {
+		// Refuse possible leaked file descriptors
+		if (service != null && service.hasFileDescriptors()) {
+			throw new IllegalArgumentException("File descriptors passed in Intent");
 		}
+
+		synchronized(this) {
+			VLog.v(TAG, "bindService: " + service
+					+ " type=" + resolvedType + " conn=" + connection.asBinder()
+					+ " flags=0x" + Integer.toHexString(flags));
+			final ProcessRecord callerApp = getRecordForAppLocked(caller);
+			if (callerApp == null) {
+				throw new SecurityException(
+						"Unable to find app for caller " + caller
+								+ " (pid=" + Binder.getCallingPid()
+								+ ") when binding service " + service);
+			}
+
+			int clientLabel = 0;
+
+			ServiceLookupResult res =
+					retrieveServiceLocked(service, resolvedType);
+			if (res == null) {
+				return 0;
+			}
+			if (res.record == null) {
+				return -1;
+			}
+			ServiceRecord s = res.record;
+
+			final long origId = Binder.clearCallingIdentity();
+
+			if (unscheduleServiceRestartLocked(s)) {
+				VLog.v(TAG, "BIND SERVICE WHILE RESTART PENDING: "
+						+ s);
+			}
+
+			AppBindRecord b = s.retrieveAppBindingLocked(service, callerApp);
+			ConnectionRecord c = new ConnectionRecord(b,
+					connection, flags, clientLabel, null);
+
+			IBinder binder = connection.asBinder();
+			ArrayList<ConnectionRecord> clist = s.connections.get(binder);
+			if (clist == null) {
+				clist = new ArrayList<ConnectionRecord>();
+				s.connections.put(binder, clist);
+			}
+			clist.add(c);
+			b.connections.add(c);
+			b.client.connections.add(c);
+			clist = mServiceConnections.get(binder);
+			if (clist == null) {
+				clist = new ArrayList<ConnectionRecord>();
+				mServiceConnections.put(binder, clist);
+			}
+			clist.add(c);
+
+			if ((flags&Context.BIND_AUTO_CREATE) != 0) {
+				s.lastActivity = SystemClock.uptimeMillis();
+				if (!bringUpServiceLocked(s, service.getFlags(), false)) {
+					return 0;
+				}
+			}
+
+			VLog.v(TAG, "Bind " + s + " with " + b
+					+ ": received=" + b.intent.received
+					+ " apps=" + b.intent.apps.size()
+					+ " doRebind=" + b.intent.doRebind);
+
+			if (s.app != null && b.intent.received) {
+				// Service is already running, so we can immediately
+				// publish the connection.
+				try {
+					c.conn.connected(s.name, b.intent.binder);
+				} catch (Exception e) {
+					Slog.w(TAG, "Failure sending service " + s.shortName
+							+ " to connection " + c.conn.asBinder()
+							+ " (in " + c.binding.client.processName + ")", e);
+				}
+
+				// If this is the first app connected back to this binding,
+				// and the service had previously asked to be told when
+				// rebound, then do so.
+				if (b.intent.apps.size() == 1 && b.intent.doRebind) {
+					requestServiceBindingLocked(s, b.intent, true);
+				}
+			} else if (!b.intent.requested) {
+				requestServiceBindingLocked(s, b.intent, false);
+			}
+
+			Binder.restoreCallingIdentity(origId);
+		}
+
+		return 1;
 	}
 
 	@Override
 	public boolean unbindService(IServiceConnection connection) throws RemoteException {
 		synchronized (this) {
-			ServiceRecord r = findRecord(connection);
-			if (r == null) {
+			IBinder binder = connection.asBinder();
+			VLog.v(TAG, "unbindService: conn=" + binder);
+			ArrayList<ConnectionRecord> clist = mServiceConnections.get(binder);
+			if (clist == null) {
+				VLog.w(TAG, "Unbind failed: could not find connection for "
+						+ connection.asBinder());
 				return false;
 			}
-			Intent intent = r.removedConnection(connection);
-			IApplicationThreadCompat.scheduleUnbindService(r.targetAppThread, r.token, intent);
-			if (r.startId <= 0 && r.getAllConnections().isEmpty()) {
-				IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
-				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-					mHistory.remove(r);
+
+			final long origId = Binder.clearCallingIdentity();
+
+			while (clist.size() > 0) {
+				ConnectionRecord r = clist.get(0);
+				removeConnectionLocked(r, null, null);
+			}
+
+			Binder.restoreCallingIdentity(origId);
+		}
+
+		return true;
+	}
+
+	void removeConnectionLocked(
+			ConnectionRecord c, ProcessRecord skipApp, ActivityRecord skipAct) {
+		IBinder binder = c.conn.asBinder();
+		AppBindRecord b = c.binding;
+		ServiceRecord s = b.service;
+		ArrayList<ConnectionRecord> clist = s.connections.get(binder);
+		if (clist != null) {
+			clist.remove(c);
+			if (clist.size() == 0) {
+				s.connections.remove(binder);
+			}
+		}
+		b.connections.remove(c);
+		if (b.client != skipApp) {
+			b.client.connections.remove(c);
+		}
+		clist = mServiceConnections.get(binder);
+		if (clist != null) {
+			clist.remove(c);
+			if (clist.size() == 0) {
+				mServiceConnections.remove(binder);
+			}
+		}
+
+		if (b.connections.size() == 0) {
+			b.intent.apps.remove(b.client);
+		}
+
+		if (!c.serviceDead) {
+			VLog.v(TAG, "Disconnecting binding " + b.intent
+					+ ": shouldUnbind=" + b.intent.hasBound);
+			if (s.app != null && s.app.thread != null && b.intent.apps.size() == 0
+					&& b.intent.hasBound) {
+				try {
+					bumpServiceExecutingLocked(s, "unbind");
+					b.intent.hasBound = false;
+					// Assume the client doesn't want to know about a rebind;
+					// we will deal with that later if it asks for one.
+					b.intent.doRebind = false;
+					s.app.thread.scheduleUnbindService(s, b.intent.intent.getIntent());
+				} catch (Exception e) {
+					Slog.w(TAG, "Exception when unbinding service " + s.shortName, e);
+					serviceDoneExecutingLocked(s, true);
 				}
 			}
-			return true;
-		}
-	}
 
-	@Override
-	public void unbindFinished(IBinder token, Intent service, boolean doRebind) throws RemoteException {
-		synchronized (this) {
-			ServiceRecord r = findRecord(token);
-			if (r != null) {
-				r.doRebind = doRebind;
+			if ((c.flags&Context.BIND_AUTO_CREATE) != 0) {
+				bringDownServiceLocked(s, false);
 			}
 		}
 	}
 
 	@Override
-	public void serviceDoneExecuting(IBinder token, int type, int startId, int res) throws RemoteException {
-		synchronized (this) {
-			ServiceRecord r = findRecord(token);
-			if (r == null) {
-				return;
+	public void unbindFinished(IBinder token, Intent intent, boolean doRebind) throws RemoteException {
+		// Refuse possible leaked file descriptors
+		if (intent != null && intent.hasFileDescriptors()) {
+			throw new IllegalArgumentException("File descriptors passed in Intent");
+		}
+
+		synchronized(this) {
+			if (!(token instanceof ServiceRecord)) {
+				throw new IllegalArgumentException("Invalid service token");
 			}
-			if (SERVICE_DONE_EXECUTING_STOP == type) {
-				mHistory.remove(r);
+			ServiceRecord r = (ServiceRecord)token;
+
+			final long origId = Binder.clearCallingIdentity();
+
+			Intent.FilterComparison filter
+                    = new Intent.FilterComparison(intent);
+			IntentBindRecord b = r.bindings.get(filter);
+			VLog.v(TAG, "unbindFinished in " + r
+                    + " at " + b + ": apps="
+                    + (b != null ? b.apps.size() : 0));
+
+			boolean inStopping = mStoppingServices.contains(r);
+			if (b != null) {
+                if (b.apps.size() > 0 && !inStopping) {
+                    // Applications have already bound since the last
+                    // unbind, so just rebind right here.
+                    requestServiceBindingLocked(r, b, true);
+                } else {
+                    // Note to tell the service the next time there is
+                    // a new client.
+                    b.doRebind = true;
+                }
+            }
+
+			serviceDoneExecutingLocked(r, inStopping);
+
+			Binder.restoreCallingIdentity(origId);
+		}
+	}
+
+	@Override
+	public void serviceDoneExecuting(IBinder token, int type, int startId, int res) throws RemoteException  {
+		synchronized(this) {
+			if (!(token instanceof ServiceRecord)) {
+				throw new IllegalArgumentException("Invalid service token");
 			}
+			ServiceRecord r = (ServiceRecord)token;
+			boolean inStopping = mStoppingServices.contains(token);
+			if (r != token) {
+                Slog.w(TAG, "Done executing service " + r.name
+                        + " with incorrect token: given " + token
+                        + ", expected " + r);
+                return;
+            }
+
+			if (type == 1) {
+                // This is a call from a service start...  take care of
+                // book-keeping.
+                r.callStart = true;
+                switch (res) {
+                    case Service.START_STICKY_COMPATIBILITY:
+                    case Service.START_STICKY: {
+                        // We are done with the associated start arguments.
+                        r.findDeliveredStart(startId, true);
+                        // Don't stop if killed.
+                        r.stopIfKilled = false;
+                        break;
+                    }
+                    case Service.START_NOT_STICKY: {
+                        // We are done with the associated start arguments.
+                        r.findDeliveredStart(startId, true);
+                        if (r.getLastStartId() == startId) {
+                            // There is no more work, and this service
+                            // doesn't want to hang around if killed.
+                            r.stopIfKilled = true;
+                        }
+                        break;
+                    }
+                    case Service.START_REDELIVER_INTENT: {
+                        // We'll keep this item until they explicitly
+                        // call stop for it, but keep track of the fact
+                        // that it was delivered.
+                        ServiceRecord.StartItem si = r.findDeliveredStart(startId, false);
+                        if (si != null) {
+                            si.deliveryCount = 0;
+                            si.doneExecutingCount++;
+                            // Don't stop if killed.
+                            r.stopIfKilled = true;
+                        }
+                        break;
+                    }
+                    case Service.START_TASK_REMOVED_COMPLETE: {
+                        // Special processing for onTaskRemoved().  Don't
+                        // impact normal onStartCommand() processing.
+                        r.findDeliveredStart(startId, true);
+                        break;
+                    }
+                    default:
+                        throw new IllegalArgumentException(
+                                "Unknown service start result: " + res);
+                }
+                if (res == Service.START_STICKY_COMPATIBILITY) {
+                    r.callStart = false;
+                }
+            }
+
+			final long origId = Binder.clearCallingIdentity();
+			serviceDoneExecutingLocked(r, inStopping);
+			Binder.restoreCallingIdentity(origId);
 		}
 	}
 
 	@Override
 	public IBinder peekService(Intent service, String resolvedType) throws RemoteException {
-		synchronized (this) {
-			ServiceInfo serviceInfo = resolveServiceInfo(service);
-			if (serviceInfo == null) {
-				return null;
-			}
-			ServiceRecord r = findRecord(serviceInfo);
-			if (r != null) {
-				return r.token;
-			}
-			return null;
+		// Refuse possible leaked file descriptors
+		if (service != null && service.hasFileDescriptors()) {
+			throw new IllegalArgumentException("File descriptors passed in Intent");
 		}
+
+		IBinder ret = null;
+
+		synchronized(this) {
+			ServiceLookupResult r = findServiceLocked(service, resolvedType);
+
+			if (r != null) {
+				// r.record is null if findServiceLocked() failed the caller permission check
+				if (r.record == null) {
+					throw new SecurityException(
+							"Permission Denial: Accessing service " + r.record.name
+									+ " from pid=" + Binder.getCallingPid()
+									+ ", uid=" + Binder.getCallingUid()
+									+ " requires " + r.permission);
+				}
+				IntentBindRecord ib = r.record.bindings.get(r.record.intent);
+				if (ib != null) {
+					ret = ib.binder;
+				}
+			}
+		}
+
+		return ret;
 	}
 
 	@Override
 	public void publishService(IBinder token, Intent intent, IBinder service) throws RemoteException {
-		synchronized (this) {
-			ServiceRecord r = findRecord(token);
-			if (r == null) {
-				return;
+		// Refuse possible leaked file descriptors
+		if (intent != null && intent.hasFileDescriptors()) {
+			throw new IllegalArgumentException("File descriptors passed in Intent");
+		}
+
+		synchronized(this) {
+			if (!(token instanceof ServiceRecord)) {
+				throw new IllegalArgumentException("Invalid service token");
 			}
-			List<IServiceConnection> allConnections = r.getAllConnections();
-			if (allConnections.isEmpty()) {
-				return;
-			}
-			for (IServiceConnection connection : allConnections) {
-				if (connection.asBinder().isBinderAlive()) {
-					ComponentName componentName = new ComponentName(r.serviceInfo.packageName, r.serviceInfo.name);
-					try {
-						connection.connected(componentName, service);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				} else {
-					allConnections.remove(connection);
-				}
-			}
+			ServiceRecord r = (ServiceRecord)token;
+
+			final long origId = Binder.clearCallingIdentity();
+
+			VLog.v(TAG, "PUBLISHING " + r
+					+ " " + intent + ": " + service);
+			Intent.FilterComparison filter
+                    = new Intent.FilterComparison(intent);
+			IntentBindRecord b = r.bindings.get(filter);
+			if (b != null && !b.received) {
+                b.binder = service;
+                b.requested = true;
+                b.received = true;
+                if (r.connections.size() > 0) {
+                    Iterator<ArrayList<ConnectionRecord>> it
+                            = r.connections.values().iterator();
+                    while (it.hasNext()) {
+                        ArrayList<ConnectionRecord> clist = it.next();
+                        for (int i=0; i<clist.size(); i++) {
+                            ConnectionRecord c = clist.get(i);
+                            if (!filter.equals(c.binding.intent.intent)) {
+                                VLog.v(
+                                        TAG, "Not publishing to: " + c);
+                                VLog.v(
+                                        TAG, "Bound intent: " + c.binding.intent.intent);
+                                VLog.v(
+                                        TAG, "Published intent: " + intent);
+                                continue;
+                            }
+                            VLog.v(TAG, "Publishing to: " + c);
+                            try {
+                                c.conn.connected(r.name, service);
+                            } catch (Exception e) {
+                                VLog.w(TAG, "Failure sending service " + r.name +
+                                        " to connection " + c.conn.asBinder() +
+                                        " (in " + c.binding.client.processName + ")", e);
+                            }
+                        }
+                    }
+                }
+            }
+
+			serviceDoneExecutingLocked(r, mStoppingServices.contains(r));
+
+			Binder.restoreCallingIdentity(origId);
 		}
 	}
-
 	@Override
 	public VParceledListSlice<ActivityManager.RunningServiceInfo> getServices(int maxNum, int flags) {
-		synchronized (mHistory) {
-			int myUid = Process.myUid();
-			List<ActivityManager.RunningServiceInfo> services = new ArrayList<>(mHistory.size());
-			for (ServiceRecord r : mHistory) {
-				ActivityManager.RunningServiceInfo info = new ActivityManager.RunningServiceInfo();
-				info.uid = myUid;
-				info.pid = r.pid;
-				ProcessRecord processRecord = findProcess(r.pid);
-				if (processRecord != null) {
-					info.process = processRecord.processName;
-					info.clientPackage = processRecord.info.packageName;
-				}
-				info.activeSince = r.activeSince;
-				info.lastActivityTime = r.lastActivityTime;
-				info.clientCount = r.getClientCount();
-				info.service = ComponentUtils.toComponentName(r.serviceInfo);
-				info.started = r.startId > 0;
-			}
-			return new VParceledListSlice<>(services);
+		synchronized (this) {
+			return new VParceledListSlice<>(getServicesLocked(maxNum));
 		}
 	}
 
@@ -784,7 +1823,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			}
 			return holder;
 		} else {
-			targetApp = startProcess(ComponentUtils.getProcessName(providerInfo), providerInfo.applicationInfo);
+			targetApp = startProcessLocked(ComponentUtils.getProcessName(providerInfo), providerInfo.applicationInfo);
 			if (targetApp == null) {
 				return null;
 			}
@@ -896,6 +1935,24 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			} catch (RemoteException e) {
 				e.printStackTrace();
 			}
+			VLog.d(TAG, "Attach Client (%s) with %d PendingServices.", app.processName, mPendingServices.size());
+			if (mPendingServices.size() > 0) {
+				ServiceRecord sr = null;
+				try {
+					for (int i=0; i<mPendingServices.size(); i++) {
+						sr = mPendingServices.get(i);
+						if (!app.processName.equals(sr.processName)) {
+							continue;
+						}
+						mPendingServices.remove(i);
+						i--;
+						realStartServiceLocked(sr, app);
+					}
+				} catch (Exception e) {
+					Slog.w(TAG, "Exception in new application when starting service "
+							+ sr.shortName, e);
+				}
+			}
 		}
 	}
 
@@ -903,12 +1960,13 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		VLog.d(TAG, "Process %s died.", record.processName);
 		mProcessMap.remove(record.pid);
 		processDead(record);
+		killServicesLocked(record, false);
 		record.lock.open();
 	}
 
-	public ProcessRecord startProcess(String processName, ApplicationInfo info) {
+	public ProcessRecord startProcessLocked(String processName, ApplicationInfo info) {
 		synchronized (this) {
-			VLog.d(TAG, "startProcess %s (%s).", processName, info.packageName);
+			VLog.d(TAG, "startProcessLocked %s (%s).", processName, info.packageName);
 			ProcessRecord app = mProcessMap.get(processName);
 			if (app != null) {
 				if (!app.pkgList.contains(info.packageName)) {
@@ -931,7 +1989,8 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
 	private ProcessRecord performStartProcessLocked(StubInfo stubInfo, ApplicationInfo info, String processName) {
 		List<String> sharedPackages = VPackageManagerService.getService().querySharedPackages(info.packageName);
-		List<ProviderInfo> providers = VPackageManagerService.getService().queryContentProviders(processName, 0).getList();
+		List<ProviderInfo> providers = VPackageManagerService.getService().queryContentProviders(processName, 0)
+				.getList();
 		ProcessRecord app = new ProcessRecord(stubInfo, info, processName, providers, sharedPackages);
 		mPendingProcesses.put(processName, app);
 		Bundle extras = new Bundle();
@@ -1076,10 +2135,34 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	public ProcessRecord findProcess(int pid) {
-		return mProcessMap.get(pid);
+		synchronized (mProcessMap) {
+			return mProcessMap.get(pid);
+		}
+	}
+
+	public ProcessRecord getRecordForAppLocked(IBinder app) {
+		synchronized (mProcessMap) {
+			return mProcessMap.get(app);
+		}
+	}
+
+	public ProcessRecord getRecordForAppLocked(IApplicationThread app) {
+		synchronized (mProcessMap) {
+			return mProcessMap.get(app.asBinder());
+		}
 	}
 
 	public ProcessRecord findProcess(String processName) {
 		return mProcessMap.get(processName);
+	}
+
+private final class ServiceLookupResult {
+		final ServiceRecord record;
+		final String permission;
+
+		ServiceLookupResult(ServiceRecord _record, String _permission) {
+			record = _record;
+			permission = _permission;
+		}
 	}
 }

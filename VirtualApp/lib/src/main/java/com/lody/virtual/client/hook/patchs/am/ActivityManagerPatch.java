@@ -1,18 +1,18 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Field;
-
-import com.lody.virtual.client.hook.base.HookBinder;
-import com.lody.virtual.client.hook.base.HookObject;
-import com.lody.virtual.client.hook.base.Patch;
-import com.lody.virtual.client.hook.base.PatchObject;
-
 import android.app.ActivityManagerNative;
 import android.app.IActivityManager;
 import android.content.Context;
 import android.os.IBinder;
 import android.os.ServiceManager;
 import android.util.Singleton;
+
+import com.lody.virtual.client.hook.base.HookBinder;
+import com.lody.virtual.client.hook.base.HookObject;
+import com.lody.virtual.client.hook.base.Patch;
+import com.lody.virtual.client.hook.base.PatchObject;
+
+import java.lang.reflect.Field;
 
 /**
  * @author Lody

@@ -229,7 +229,7 @@ public final class VirtualCore {
 	public void preOpt(String pkg) throws Exception {
 		AppInfo info = findApp(pkg);
 		if (info != null && !info.dependSystem) {
-			DexFile.loadDex(info.apkPath, info.getOdexFile().getPath(), 0);
+			DexFile.loadDex(info.apkPath, info.getOdexFile().getPath(), 0).close();
 		}
 	}
 
