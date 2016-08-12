@@ -53,7 +53,7 @@ VirtualApp 目前暂时**没有文档**，Please read the fucking source code。
 
 License
 -------
-LGPL 3.0
+GPL 3.0
 
 关于Author
 ------------
