@@ -29,7 +29,6 @@ import com.lody.virtual.helper.compat.ActivityThreadCompat;
 import com.lody.virtual.helper.compat.AppBindDataCompat;
 import com.lody.virtual.helper.proto.ReceiverInfo;
 import com.lody.virtual.helper.utils.Reflect;
-import com.lody.virtual.helper.utils.VLog;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -214,8 +213,6 @@ public class VClientImpl extends IVClient.Stub {
 						context.registerReceiver(receiver, filter);
 					}
 				} catch (Throwable e) {
-					VLog.w(TAG, "failed to install receiver, the failed cause is \n");
-					e.printStackTrace();
 					// Ignore
 				}
 			}
