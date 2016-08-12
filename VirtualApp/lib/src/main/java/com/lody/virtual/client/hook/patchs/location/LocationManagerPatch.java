@@ -2,6 +2,7 @@ package com.lody.virtual.client.hook.patchs.location;
 
 import android.content.Context;
 import android.location.ILocationManager;
+import android.location.LocationRequest;
 import android.os.Build;
 import android.os.ServiceManager;
 import android.text.TextUtils;
@@ -11,6 +12,9 @@ import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
 import com.lody.virtual.client.hook.binders.HookLocationBinder;
+import com.lody.virtual.helper.utils.ArrayUtils;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -31,15 +35,34 @@ public class LocationManagerPatch extends PatchObject<ILocationManager, HookLoca
 		hookBinder.injectService(Context.LOCATION_SERVICE);
 	}
 
+	private static class BaseHook extends ReplaceLastPkgHook {
+
+		public BaseHook(String name) {
+			super(name);
+		}
+		@Override
+		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+			LocationRequest request = ArrayUtils.getFirst(args, LocationRequest.class);
+			if (request != null) {
+				try {
+					request.setHideFromAppOps(false);
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
+			}
+			return super.onHook(who, method, args);
+		}
+	}
+
 	@Override
 	protected void applyHooks() {
 		super.applyHooks();
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			addHook(new ReplaceLastPkgHook("requestLocationUpdates"));
+			addHook(new BaseHook("requestLocationUpdates"));
 			addHook(new ReplaceLastPkgHook("removeUpdates"));
-			addHook(new ReplaceLastPkgHook("requestGeofence"));
+			addHook(new BaseHook("requestGeofence"));
 			addHook(new ReplaceLastPkgHook("removeGeofence"));
-			addHook(new ReplaceLastPkgHook("getLastLocation"));
+			addHook(new BaseHook("getLastLocation"));
 			addHook(new ReplaceLastPkgHook("addGpsStatusListener"));
 			addHook(new ReplaceLastPkgHook("addGpsMeasurementsListener"));
 			addHook(new ReplaceLastPkgHook("addGpsNavigationMessageListener"));
@@ -52,9 +75,9 @@ public class LocationManagerPatch extends PatchObject<ILocationManager, HookLoca
 			addHook(new ReplaceLastPkgHook("setTestProviderStatus"));
 			addHook(new ReplaceLastPkgHook("clearTestProviderStatus"));
 		} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			addHook(new ReplaceLastPkgHook("requestLocationUpdates"));
+			addHook(new BaseHook("requestLocationUpdates"));
 			addHook(new ReplaceLastPkgHook("removeUpdates"));
-			addHook(new ReplaceLastPkgHook("requestGeofence"));
+			addHook(new BaseHook("requestGeofence"));
 			addHook(new ReplaceLastPkgHook("removeGeofence"));
 			addHook(new ReplaceLastPkgHook("getLastLocation"));
 			addHook(new ReplaceLastPkgHook("addGpsStatusListener"));

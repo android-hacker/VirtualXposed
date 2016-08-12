@@ -28,9 +28,14 @@ import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.helper.compat.ActivityThreadCompat;
 import com.lody.virtual.helper.compat.AppBindDataCompat;
 import com.lody.virtual.helper.proto.ReceiverInfo;
+import com.lody.virtual.helper.utils.Reflect;
+import com.lody.virtual.helper.utils.VLog;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import dalvik.system.PathClassLoader;
 
 /**
  * @author Lody
@@ -39,6 +44,8 @@ import java.util.List;
 public class VClientImpl extends IVClient.Stub {
 
 	private static final int BIND_APPLICATION = 10;
+
+	private static final String TAG = VClientImpl.class.getSimpleName();
 
 	private static final VClientImpl gClient = new VClientImpl();
 	private Instrumentation mInstrumentation = AppInstrumentation.getDefault();
@@ -132,6 +139,16 @@ public class VClientImpl extends IVClient.Stub {
 		ActivityThread mainThread = VirtualCore.mainThread();
 		mBoundApplication.info = mainThread.getPackageInfoNoCheck(data.appInfo,
 				CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO);
+		// T_T   T_T   T_T   T_T   T_T   T_T   T_T   T_T
+		// Gms use the {com.android.location.provider.jar}
+		// T_T   T_T   T_T   T_T   T_T   T_T   T_T   T_T
+		if (data.processName.equals("com.google.android.gms.persistent")) {
+			File file = new File("/system/framework/com.android.location.provider.jar");
+			if (file.exists()) {
+				PathClassLoader parent = new PathClassLoader(file.getPath(), ClassLoader.getSystemClassLoader().getParent());
+				Reflect.on(mBoundApplication.info).set("mBaseClassLoader", parent);
+			}
+		}
 		fixBoundApp(mBoundApplication, VirtualCore.getHostBindData());
 		Application app = data.info.makeApplication(false, null);
 		mInitialApplication = app;
