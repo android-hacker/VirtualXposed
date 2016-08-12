@@ -170,7 +170,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	@Override
-	public VActRedirectResult redirectTargetActivity(final VRedirectActRequest request) throws RemoteException {
+	public VActRedirectResult redirectTargetActivity(final VRedirectActRequest request) {
 		synchronized (this) {
 			return redirectTargetActivityLocked(request);
 		}
@@ -535,7 +535,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	@Override
-	public ComponentName startService(IBinder caller, Intent service, String resolvedType) throws RemoteException {
+	public ComponentName startService(IBinder caller, Intent service, String resolvedType) {
 		synchronized (this) {
 			return startServiceCommon(caller, service, resolvedType, true);
 		}
@@ -589,7 +589,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	@Override
-	public int stopService(IBinder caller, Intent service, String resolvedType) throws RemoteException {
+	public int stopService(IBinder caller, Intent service, String resolvedType) {
 		synchronized (this) {
 			ServiceInfo serviceInfo = resolveServiceInfo(service);
 			if (serviceInfo == null) {
@@ -600,7 +600,11 @@ public class VActivityManagerService extends IActivityManager.Stub {
 				return 0;
 			}
 			if (!r.hasSomeBound()) {
-				IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
+				try {
+					IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
 				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
 					mHistory.remove(r);
 				}
@@ -610,14 +614,18 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	@Override
-	public boolean stopServiceToken(ComponentName className, IBinder token, int startId) throws RemoteException {
+	public boolean stopServiceToken(ComponentName className, IBinder token, int startId) {
 		synchronized (this) {
 			ServiceRecord r = findRecord(token);
 			if (r == null) {
 				return false;
 			}
 			if (r.startId == startId) {
-				IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
+				try {
+					IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
 				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
 					mHistory.remove(r);
 				}
@@ -629,13 +637,13 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
 	@Override
 	public void setServiceForeground(ComponentName className, IBinder token, int id, Notification notification,
-			boolean keepNotification) throws RemoteException {
+			boolean keepNotification) {
 
 	}
 
 	@Override
 	public int bindService(IBinder caller, IBinder token, Intent service, String resolvedType,
-			IServiceConnection connection, int flags) throws RemoteException {
+			IServiceConnection connection, int flags) {
 		synchronized (this) {
 			ServiceInfo serviceInfo = resolveServiceInfo(service);
 			if (serviceInfo == null) {
@@ -653,7 +661,11 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			}
 			if (r.binder != null && r.binder.isBinderAlive()) {
 				if (r.doRebind) {
-					IApplicationThreadCompat.scheduleBindService(r.targetAppThread, r.token, service, true, 0);
+					try {
+						IApplicationThreadCompat.scheduleBindService(r.targetAppThread, r.token, service, true, 0);
+					} catch (RemoteException e) {
+						e.printStackTrace();
+					}
 				}
 				ComponentName componentName = new ComponentName(r.serviceInfo.packageName, r.serviceInfo.name);
 				try {
@@ -662,7 +674,11 @@ public class VActivityManagerService extends IActivityManager.Stub {
 					e.printStackTrace();
 				}
 			} else {
-				IApplicationThreadCompat.scheduleBindService(r.targetAppThread, r.token, service, r.doRebind, 0);
+				try {
+					IApplicationThreadCompat.scheduleBindService(r.targetAppThread, r.token, service, r.doRebind, 0);
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
 			}
 			r.lastActivityTime = SystemClock.uptimeMillis();
 			r.addToBoundIntent(service, connection);
@@ -672,16 +688,24 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	@Override
-	public boolean unbindService(IServiceConnection connection) throws RemoteException {
+	public boolean unbindService(IServiceConnection connection) {
 		synchronized (this) {
 			ServiceRecord r = findRecord(connection);
 			if (r == null) {
 				return false;
 			}
 			Intent intent = r.removedConnection(connection);
-			IApplicationThreadCompat.scheduleUnbindService(r.targetAppThread, r.token, intent);
+			try {
+				IApplicationThreadCompat.scheduleUnbindService(r.targetAppThread, r.token, intent);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
 			if (r.startId <= 0 && r.getAllConnections().isEmpty()) {
-				IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
+				try {
+					IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
 				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
 					mHistory.remove(r);
 				}
@@ -691,7 +715,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	@Override
-	public void unbindFinished(IBinder token, Intent service, boolean doRebind) throws RemoteException {
+	public void unbindFinished(IBinder token, Intent service, boolean doRebind) {
 		synchronized (this) {
 			ServiceRecord r = findRecord(token);
 			if (r != null) {
@@ -701,7 +725,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	@Override
-	public void serviceDoneExecuting(IBinder token, int type, int startId, int res) throws RemoteException {
+	public void serviceDoneExecuting(IBinder token, int type, int startId, int res) {
 		synchronized (this) {
 			ServiceRecord r = findRecord(token);
 			if (r == null) {
@@ -714,7 +738,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	@Override
-	public IBinder peekService(Intent service, String resolvedType) throws RemoteException {
+	public IBinder peekService(Intent service, String resolvedType) {
 		synchronized (this) {
 			ServiceInfo serviceInfo = resolveServiceInfo(service);
 			if (serviceInfo == null) {
@@ -729,7 +753,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	@Override
-	public void publishService(IBinder token, Intent intent, IBinder service) throws RemoteException {
+	public void publishService(IBinder token, Intent intent, IBinder service) {
 		synchronized (this) {
 			ServiceRecord r = findRecord(token);
 			if (r == null) {
