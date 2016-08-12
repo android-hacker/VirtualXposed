@@ -157,8 +157,6 @@ public class VClientImpl extends IVClient.Stub {
 		if (providers != null) {
 			installContentProviders(app, providers);
 		}
-		List<ReceiverInfo> receivers = VPackageManager.getInstance().queryReceivers(data.processName, 0);
-		installReceivers(app, receivers);
 		try {
 			mInstrumentation.callApplicationOnCreate(app);
 		} catch (Exception e) {
@@ -168,6 +166,8 @@ public class VClientImpl extends IVClient.Stub {
 								+ ": " + e.toString(), e);
 			}
 		}
+		List<ReceiverInfo> receivers = VPackageManager.getInstance().queryReceivers(data.processName, 0);
+		installReceivers(app, receivers);
 		VActivityManager.getInstance().appDoneExecuting();
 	}
 
@@ -213,6 +213,8 @@ public class VClientImpl extends IVClient.Stub {
 						context.registerReceiver(receiver, filter);
 					}
 				} catch (Throwable e) {
+					VLog.w(TAG, "failed to install receiver, the failed cause is \n");
+					e.printStackTrace();
 					// Ignore
 				}
 			}
