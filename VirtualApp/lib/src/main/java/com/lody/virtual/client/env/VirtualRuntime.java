@@ -53,6 +53,7 @@ public class VirtualRuntime {
 
 	public static <T> T crash(RemoteException e) throws RuntimeException {
 		e.printStackTrace();
+		CrashReporter.report(getProcessName(), e);
 		exit();
 		throw new RuntimeException(e);
 	}
