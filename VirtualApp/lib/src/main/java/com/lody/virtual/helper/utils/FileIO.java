@@ -3,6 +3,7 @@ package com.lody.virtual.helper.utils;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -78,9 +79,12 @@ public class FileIO {
 	}
 
 	public static void copyFile(File source, File target) {
+
+		FileInputStream inputStream = null;
+		FileOutputStream outputStream = null;
 		try {
-			FileInputStream inputStream = new FileInputStream(source);
-			FileOutputStream outputStream = new FileOutputStream(target);
+			inputStream = new FileInputStream(source);
+			outputStream = new FileOutputStream(target);
 			FileChannel iChannel = inputStream.getChannel();
 			FileChannel oChannel = outputStream.getChannel();
 
@@ -94,11 +98,20 @@ public class FileIO {
 				buffer.position(0);
 				oChannel.write(buffer);
 			}
-			inputStream.close();
-			outputStream.close();
-
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			closeQuitely(inputStream);
+			closeQuitely(outputStream);
+		}
+	}
+
+	private static void closeQuitely(Closeable closeable) {
+		if (closeable != null) {
+			try {
+				closeable.close();
+			} catch (Exception ignored) {
+			}
 		}
 	}
 

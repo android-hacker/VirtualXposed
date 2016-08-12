@@ -22,6 +22,7 @@ public class VActRedirectResult implements Parcelable {
 			return new VActRedirectResult[size];
 		}
 	};
+
 	public ActivityInfo stubActInfo;
 	public int flags;
 	public IBinder replaceToken;
