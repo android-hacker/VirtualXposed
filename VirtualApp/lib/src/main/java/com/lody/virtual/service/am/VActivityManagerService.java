@@ -942,24 +942,26 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	public ProcessRecord startProcessLocked(String processName, ApplicationInfo info) {
-		VLog.d(TAG, "startProcessLocked %s (%s).", processName, info.packageName);
-		ProcessRecord app = mProcessMap.get(processName);
-		if (app != null) {
-            if (!app.pkgList.contains(info.packageName)) {
-                app.pkgList.add(info.packageName);
-            }
-            return app;
-        }
-		app = mPendingProcesses.get(processName);
-		if (app != null) {
-            return app;
-        }
-		StubInfo stubInfo = queryFreeStubForProcess(processName);
-		if (stubInfo == null) {
-            return null;
-        }
-		app = performStartProcessLocked(stubInfo, info, processName);
-		return app;
+		synchronized (this) {
+			VLog.d(TAG, "startProcessLocked %s (%s).", processName, info.packageName);
+			ProcessRecord app = mProcessMap.get(processName);
+			if (app != null) {
+				if (!app.pkgList.contains(info.packageName)) {
+					app.pkgList.add(info.packageName);
+				}
+				return app;
+			}
+			app = mPendingProcesses.get(processName);
+			if (app != null) {
+				return app;
+			}
+			StubInfo stubInfo = queryFreeStubForProcess(processName);
+			if (stubInfo == null) {
+				return null;
+			}
+			app = performStartProcessLocked(stubInfo, info, processName);
+			return app;
+		}
 	}
 
 	private ProcessRecord performStartProcessLocked(StubInfo stubInfo, ApplicationInfo info, String processName) {

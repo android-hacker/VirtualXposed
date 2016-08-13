@@ -142,11 +142,17 @@ public class VClientImpl extends IVClient.Stub {
 		// Gms use the {com.android.location.provider.jar}
 		// T_T   T_T   T_T   T_T   T_T   T_T   T_T   T_T
 		if (data.processName.equals("com.google.android.gms.persistent")) {
-			File file = new File("/system/framework/com.android.location.provider.jar");
-			if (file.exists()) {
-				PathClassLoader parent = new PathClassLoader(file.getPath(), ClassLoader.getSystemClassLoader().getParent());
-				Reflect.on(mBoundApplication.info).set("mBaseClassLoader", parent);
+			StringBuilder importRules = new StringBuilder(30);
+			File frameworkFolder = new File("/system/framework/");
+			File[] files = frameworkFolder.listFiles();
+			for (File jar : files) {
+				String name = jar.getName();
+				if (name.startsWith("com.google") || name.startsWith("com.android")) {
+					importRules.append(jar.getPath()).append(":");
+				}
 			}
+			PathClassLoader parent = new PathClassLoader(importRules.toString(), ClassLoader.getSystemClassLoader().getParent());
+			Reflect.on(mBoundApplication.info).set("mBaseClassLoader", parent);
 		}
 		fixBoundApp(mBoundApplication, VirtualCore.getHostBindData());
 		Application app = data.info.makeApplication(false, null);

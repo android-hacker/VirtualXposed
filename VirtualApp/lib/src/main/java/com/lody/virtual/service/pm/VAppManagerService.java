@@ -116,10 +116,9 @@ public class VAppManagerService extends IAppManager.Stub {
 			}
 			VLog.d(TAG, "copy " + apkPath + "'s library to the path:" + libDir);
 			int libRes = NativeLibraryHelperCompat.copyNativeBinaries(new File(apkPath), libDir);
-			if (libRes < 0) {
-				return InstallResult.makeFailure("This APK's native lib is not support your device.");
-			}
-
+//			if (libRes < 0) {
+//				return InstallResult.makeFailure("This APK's native lib is not support your device.");
+//			}
 			if (!dependSystem) {
 				File storeFile = AppFileSystem.getDefault().getAppApkFile(pkg.packageName);
 				File parentFolder = storeFile.getParentFile();
