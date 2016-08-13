@@ -287,7 +287,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 				}
 			}
 		}
-		ProcessRecord processRecord = startProcess(targetProcessName, targetActInfo.applicationInfo);
+		ProcessRecord processRecord = startProcessLocked(targetProcessName, targetActInfo.applicationInfo);
 		if (processRecord == null) {
 			return null;
 		}
@@ -547,7 +547,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		if (serviceInfo == null) {
 			return null;
 		}
-		ProcessRecord targetApp = startProcess(ComponentUtils.getProcessName(serviceInfo),
+		ProcessRecord targetApp = startProcessLocked(ComponentUtils.getProcessName(serviceInfo),
 				serviceInfo.applicationInfo);
 
 		if (targetApp == null) {
@@ -819,7 +819,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			}
 			return holder;
 		} else {
-			targetApp = startProcess(ComponentUtils.getProcessName(providerInfo), providerInfo.applicationInfo);
+			targetApp = startProcessLocked(ComponentUtils.getProcessName(providerInfo), providerInfo.applicationInfo);
 			if (targetApp == null) {
 				return null;
 			}
@@ -941,27 +941,25 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		record.lock.open();
 	}
 
-	public ProcessRecord startProcess(String processName, ApplicationInfo info) {
-		synchronized (this) {
-			VLog.d(TAG, "startProcess %s (%s).", processName, info.packageName);
-			ProcessRecord app = mProcessMap.get(processName);
-			if (app != null) {
-				if (!app.pkgList.contains(info.packageName)) {
-					app.pkgList.add(info.packageName);
-				}
-				return app;
-			}
-			app = mPendingProcesses.get(processName);
-			if (app != null) {
-				return app;
-			}
-			StubInfo stubInfo = queryFreeStubForProcess(processName);
-			if (stubInfo == null) {
-				return null;
-			}
-			app = performStartProcessLocked(stubInfo, info, processName);
-			return app;
-		}
+	public ProcessRecord startProcessLocked(String processName, ApplicationInfo info) {
+		VLog.d(TAG, "startProcessLocked %s (%s).", processName, info.packageName);
+		ProcessRecord app = mProcessMap.get(processName);
+		if (app != null) {
+            if (!app.pkgList.contains(info.packageName)) {
+                app.pkgList.add(info.packageName);
+            }
+            return app;
+        }
+		app = mPendingProcesses.get(processName);
+		if (app != null) {
+            return app;
+        }
+		StubInfo stubInfo = queryFreeStubForProcess(processName);
+		if (stubInfo == null) {
+            return null;
+        }
+		app = performStartProcessLocked(stubInfo, info, processName);
+		return app;
 	}
 
 	private ProcessRecord performStartProcessLocked(StubInfo stubInfo, ApplicationInfo info, String processName) {

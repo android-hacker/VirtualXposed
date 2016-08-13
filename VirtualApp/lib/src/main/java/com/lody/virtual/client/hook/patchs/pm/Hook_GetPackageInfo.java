@@ -40,9 +40,6 @@ public final class Hook_GetPackageInfo extends Hook {
 		}
 		packageInfo = (PackageInfo) method.invoke(who, args);
 		if (packageInfo != null) {
-			if (packageInfo.packageName.startsWith("com.google")) {
-				return null;
-			}
 			if (getHostPkg().equals(packageInfo.packageName) || ComponentUtils.isSystemApp(packageInfo)) {
 				return packageInfo;
 			}

@@ -34,9 +34,6 @@ import java.lang.reflect.Method;
 		}
 		applicationInfo = (ApplicationInfo) method.invoke(who, args);
 		if (applicationInfo != null) {
-			if (applicationInfo.packageName.startsWith("com.google")) {
-				return null;
-			}
 			if (ComponentUtils.isSystemApp(applicationInfo)) {
 				return applicationInfo;
 			}
