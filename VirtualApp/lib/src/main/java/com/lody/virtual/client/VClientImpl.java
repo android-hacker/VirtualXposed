@@ -17,6 +17,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
+import android.text.TextUtils;
 
 import com.lody.virtual.IOHook;
 import com.lody.virtual.client.core.VirtualCore;
@@ -29,6 +30,7 @@ import com.lody.virtual.helper.compat.ActivityThreadCompat;
 import com.lody.virtual.helper.compat.AppBindDataCompat;
 import com.lody.virtual.helper.proto.ReceiverInfo;
 import com.lody.virtual.helper.utils.Reflect;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -75,6 +77,7 @@ public class VClientImpl extends IVClient.Stub {
 		ApplicationInfo appInfo;
 		List<String> sharedPackages;
 		List<ProviderInfo> providers;
+		List<String> usesLibraries;
 		LoadedApk info;
 	}
 
@@ -135,25 +138,47 @@ public class VClientImpl extends IVClient.Stub {
 		IOHook.hookNative();
 		ContextFixer.fixCamera();
 		mBoundApplication = data;
+		List<String> libraries = new ArrayList<>();
+		if (data.usesLibraries != null) {
+			boolean fail = false;
+			for (String library : data.usesLibraries) {
+				try {
+					ApplicationInfo info = VirtualCore.getPM().getApplicationInfo(library, 0);
+					if (info.sourceDir != null) {
+						libraries.add(info.sourceDir);
+					}
+				} catch (Throwable e) {
+					fail = true;
+				}
+				if (fail) {
+					File file = new File("/system/framework/" + library + ".jar");
+					if (file.exists()) {
+						libraries.add(file.getPath());
+						fail = false;
+					} else {
+						file = new File("/system/framework/" + library + ".boot.jar");
+						if (file.exists()) {
+							libraries.add(file.getPath());
+							fail = false;
+						}
+					}
+				}
+				if (fail) {
+					VLog.w(TAG, "Unable to detect the library : %s.", library);
+				}
+			}
+		}
+		data.appInfo.sharedLibraryFiles = libraries.toArray(new String[libraries.size()]);
 		ActivityThread mainThread = VirtualCore.mainThread();
 		mBoundApplication.info = mainThread.getPackageInfoNoCheck(data.appInfo,
 				CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO);
-		// T_T   T_T   T_T   T_T   T_T   T_T   T_T   T_T
-		// Gms use the {com.android.location.provider.jar}
-		// T_T   T_T   T_T   T_T   T_T   T_T   T_T   T_T
-		if (data.processName.equals("com.google.android.gms.persistent")) {
-			StringBuilder importRules = new StringBuilder(30);
-			File frameworkFolder = new File("/system/framework/");
-			File[] files = frameworkFolder.listFiles();
-			for (File jar : files) {
-				String name = jar.getName();
-				if (name.startsWith("com.google") || name.startsWith("com.android")) {
-					importRules.append(jar.getPath()).append(":");
-				}
-			}
-			PathClassLoader parent = new PathClassLoader(importRules.toString(), ClassLoader.getSystemClassLoader().getParent());
-			Reflect.on(mBoundApplication.info).set("mBaseClassLoader", parent);
+		if (!libraries.isEmpty()) {
+			String frameworkPath = TextUtils.join(File.pathSeparator, data.appInfo.sharedLibraryFiles);
+			VLog.d(TAG, "Import library : %s.", frameworkPath);
+			ClassLoader baseClassLoader = new PathClassLoader(frameworkPath, ClassLoader.getSystemClassLoader().getParent());
+			Reflect.on(mBoundApplication.info).set("mBaseClassLoader", baseClassLoader);
 		}
+
 		fixBoundApp(mBoundApplication, VirtualCore.getHostBindData());
 		Application app = data.info.makeApplication(false, null);
 		mInitialApplication = app;
@@ -228,13 +253,14 @@ public class VClientImpl extends IVClient.Stub {
 
 	@Override
 	public void bindApplication(String processName, ApplicationInfo appInfo, List<String> sharedPackages,
-			List<ProviderInfo> providers) {
+			List<ProviderInfo> providers, List<String> usesLibraries) {
 		VirtualRuntime.setupRuntime(processName, appInfo);
 		final AppBindData appBindData = new AppBindData();
 		appBindData.processName = processName;
 		appBindData.appInfo = appInfo;
 		appBindData.sharedPackages = sharedPackages;
 		appBindData.providers = providers;
+		appBindData.usesLibraries = usesLibraries;
 		sendMessage(BIND_APPLICATION, appBindData);
 	}
 }

@@ -25,17 +25,19 @@ public final class ProcessRecord extends Binder {
 	boolean doneExecuting;
 	final List<ProviderInfo> providers;
 	final List<String> sharedPackages;
+	final List<String> usesLibraries;
 	public IVClient client;
 	public IApplicationThread thread;
 	public int pid; // The process of this application; 0 if none
 
 	public ProcessRecord(StubInfo stubInfo, ApplicationInfo info, String processName, List<ProviderInfo> providers,
-			List<String> sharedPackages) {
+			List<String> sharedPackages, List<String> usesLibraries) {
 		this.stubInfo = stubInfo;
 		this.info = info;
 		this.processName = processName;
 		this.providers = providers;
 		this.sharedPackages = sharedPackages;
+		this.usesLibraries = usesLibraries;
 	}
 
 	@Override

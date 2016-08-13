@@ -223,6 +223,17 @@ public class VPackageManagerService extends IPackageManager.Stub {
 	}
 
 	@Override
+	public List<String> getSharedLibraries(String pkgName) {
+		synchronized (mPackages) {
+			PackageParser.Package p = mPackages.get(pkgName);
+			if (p != null) {
+				return p.usesLibraries;
+			}
+			return null;
+		}
+	}
+
+	@Override
 	public int checkPermission(String permName, String pkgName) {
 		if ("android.permission.INTERACT_ACROSS_USERS".equals(permName)
 				|| "android.permission.INTERACT_ACROSS_USERS_FULL".equals(permName)) {

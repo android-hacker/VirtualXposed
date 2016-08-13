@@ -927,7 +927,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			mProcessMap.put(app);
 			app.attachLock.open();
 			try {
-				client.bindApplication(app.processName, app.info, app.sharedPackages, app.providers);
+				client.bindApplication(app.processName, app.info, app.sharedPackages, app.providers, app.usesLibraries);
 			} catch (RemoteException e) {
 				e.printStackTrace();
 			}
@@ -965,9 +965,11 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	private ProcessRecord performStartProcessLocked(StubInfo stubInfo, ApplicationInfo info, String processName) {
-		List<String> sharedPackages = VPackageManagerService.getService().querySharedPackages(info.packageName);
-		List<ProviderInfo> providers = VPackageManagerService.getService().queryContentProviders(processName, 0).getList();
-		ProcessRecord app = new ProcessRecord(stubInfo, info, processName, providers, sharedPackages);
+		VPackageManagerService pm = VPackageManagerService.getService();
+		List<String> sharedPackages = pm.querySharedPackages(info.packageName);
+		List<ProviderInfo> providers = pm.queryContentProviders(processName, 0).getList();
+		List<String> usesLibraries = pm.getSharedLibraries(info.packageName);
+		ProcessRecord app = new ProcessRecord(stubInfo, info, processName, providers, sharedPackages, usesLibraries);
 		mPendingProcesses.put(processName, app);
 		Bundle extras = new Bundle();
 		BundleCompat.putBinder(extras, ExtraConstants.EXTRA_BINDER, app);

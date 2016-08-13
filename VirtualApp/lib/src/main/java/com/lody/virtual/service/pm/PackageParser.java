@@ -64,8 +64,6 @@ import java.util.jar.Manifest;
 
 /**
  * Package archive parsing.
- * 在不同版本间, PackageParser 的接口申明各不一样, 如果通过适配版本的方法来做, 将会变得难以维护,这里试图
- * 通过自定义 PackageParser 的方式, 来屏蔽不同版本间的差异.
  *
  * {@hide}
  */
@@ -756,7 +754,7 @@ public class PackageParser {
 		if ((flags & PackageManager.GET_META_DATA) != 0 && (metaData != null || p.mAppMetaData != null)) {
 			return true;
 		}
-		if ((flags & PackageManager.GET_SHARED_LIBRARY_FILES) != 0 && p.usesLibraryFiles != null) {
+		if (p.usesLibraryFiles != null) {
 			return true;
 		}
 		return false;
@@ -785,9 +783,9 @@ public class PackageParser {
 		if ((flags & PackageManager.GET_META_DATA) != 0) {
 			ai.metaData = p.mAppMetaData;
 		}
-		if ((flags & PackageManager.GET_SHARED_LIBRARY_FILES) != 0) {
+//		if ((flags & PackageManager.GET_SHARED_LIBRARY_FILES) != 0) {
 			ai.sharedLibraryFiles = p.usesLibraryFiles;
-		}
+//		}
 		if (!sCompatibilityModeEnabled) {
 			ai.disableCompatibilityMode();
 		}
@@ -1802,26 +1800,16 @@ public class PackageParser {
 				// that may change.
 				String lname = sa
 						.getNonResourceString(com.android.internal.R.styleable.AndroidManifestUsesLibrary_name);
-				boolean req = sa.getBoolean(com.android.internal.R.styleable.AndroidManifestUsesLibrary_required, true);
 
 				sa.recycle();
 
 				if (lname != null) {
-					if (req) {
-						if (owner.usesLibraries == null) {
-							owner.usesLibraries = new ArrayList<String>();
-						}
-						if (!owner.usesLibraries.contains(lname)) {
-							owner.usesLibraries.add(lname.intern());
-						}
-					} else {
-						if (owner.usesOptionalLibraries == null) {
-							owner.usesOptionalLibraries = new ArrayList<String>();
-						}
-						if (!owner.usesOptionalLibraries.contains(lname)) {
-							owner.usesOptionalLibraries.add(lname.intern());
-						}
-					}
+					if (owner.usesLibraries == null) {
+                        owner.usesLibraries = new ArrayList<String>();
+                    }
+					if (!owner.usesLibraries.contains(lname)) {
+                        owner.usesLibraries.add(lname.intern());
+                    }
 				}
 
 				XmlUtils.skipCurrentTag(parser);
