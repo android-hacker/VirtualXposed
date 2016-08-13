@@ -1,10 +1,8 @@
 package com.lody.virtual.service.account;
 
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -14,6 +12,7 @@ import android.content.pm.XmlSerializerAndParser;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
 import android.os.Handler;
+import android.os.RemoteException;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Xml;
@@ -22,7 +21,8 @@ import com.android.internal.os.AtomicFile;
 import com.android.internal.util.FastXmlSerializer;
 import com.google.android.collect.Lists;
 import com.google.android.collect.Maps;
-import com.lody.virtual.client.env.Constants;
+import com.lody.virtual.service.interfaces.IAppObserver;
+import com.lody.virtual.service.pm.VAppManagerService;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -40,7 +40,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A cache of registered services. This cache is built by interrogating the
@@ -58,8 +57,6 @@ public abstract class RegisteredServicesCache<V> {
 	private final String mMetaDataName;
 	private final String mAttributesName;
 	private final XmlSerializerAndParser<V> mSerializerAndParser;
-	private final AtomicReference<BroadcastReceiver> mReceiver;
-
 	private final Object mServicesLock = new Object();
 	/**
 	 * This file contains the list of known services. We would like to maintain
@@ -95,24 +92,17 @@ public abstract class RegisteredServicesCache<V> {
 
 		generateServicesMap();
 
-		final BroadcastReceiver receiver = new BroadcastReceiver() {
+		VAppManagerService.getService().registerObserver(new IAppObserver.Stub() {
 			@Override
-			public void onReceive(Context context1, Intent intent) {
+			public void onNewApp(String pkg) throws RemoteException {
 				generateServicesMap();
 			}
-		};
-		mReceiver = new AtomicReference<BroadcastReceiver>(receiver);
-		IntentFilter intentFilter = new IntentFilter();
-		intentFilter.addAction(Constants.VIRTUAL_ACTION_PACKAGE_ADDED);
-		intentFilter.addAction(Constants.VIRTUAL_ACTION_PACKAGE_CHANGED);
-		intentFilter.addAction(Constants.VIRTUAL_ACTION_PACKAGE_REMOVED);
-		intentFilter.addDataScheme("package");
-		mContext.registerReceiver(receiver, intentFilter);
-		// Register for events related to sdcard installation.
-		IntentFilter sdFilter = new IntentFilter();
-		sdFilter.addAction(Intent.ACTION_EXTERNAL_APPLICATIONS_AVAILABLE);
-		sdFilter.addAction(Intent.ACTION_EXTERNAL_APPLICATIONS_UNAVAILABLE);
-		mContext.registerReceiver(receiver, sdFilter);
+
+			@Override
+			public void onRemoveApp(String pkg) throws RemoteException {
+				generateServicesMap();
+			}
+		});
 	}
 
 
@@ -191,17 +181,11 @@ public abstract class RegisteredServicesCache<V> {
 	 * Stops the monitoring of package additions, removals and changes.
 	 */
 	public void close() {
-		final BroadcastReceiver receiver = mReceiver.getAndSet(null);
-		if (receiver != null) {
-			mContext.unregisterReceiver(receiver);
-		}
+		// Nothing
 	}
 
 	@Override
 	protected void finalize() throws Throwable {
-		if (mReceiver.get() != null) {
-			Log.e(TAG, "RegisteredServicesCache finalized without being closed");
-		}
 		close();
 		super.finalize();
 	}
