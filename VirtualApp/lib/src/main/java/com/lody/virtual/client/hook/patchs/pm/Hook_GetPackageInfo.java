@@ -1,13 +1,13 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import java.lang.reflect.Method;
+import android.content.pm.PackageInfo;
 
 import com.lody.virtual.client.fixer.ComponentFixer;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.helper.utils.ComponentUtils;
 
-import android.content.pm.PackageInfo;
+import java.lang.reflect.Method;
 /**
  * @author Lody
  *
@@ -40,6 +40,9 @@ public final class Hook_GetPackageInfo extends Hook {
 		}
 		packageInfo = (PackageInfo) method.invoke(who, args);
 		if (packageInfo != null) {
+			if (packageInfo.packageName.startsWith("com.google")) {
+				return null;
+			}
 			if (getHostPkg().equals(packageInfo.packageName) || ComponentUtils.isSystemApp(packageInfo)) {
 				return packageInfo;
 			}

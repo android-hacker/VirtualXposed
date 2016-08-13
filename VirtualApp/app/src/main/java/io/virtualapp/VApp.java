@@ -15,6 +15,22 @@ import jonathanfinerty.once.Once;
  */
 public class VApp extends Application {
 
+	private static final String[] GMS_PKG = {
+			"com.android.vending",
+
+			"com.google.android.gsf",
+			"com.google.android.gsf.login",
+			"com.google.android.gms",
+
+			"com.google.android.backuptransport",
+			"com.google.android.backup",
+			"com.google.android.configupdater",
+			"com.google.android.syncadapters.contacts",
+			"com.google.android.feedback",
+			"com.google.android.onetimeinitializer",
+			"com.google.android.partnersetup",
+			"com.google.android.setupwizard",
+			"com.google.android.syncadapters.calendar",};
 	private static VApp gDefault;
 
 	public static VApp getApp() {
@@ -43,12 +59,6 @@ public class VApp extends Application {
 		}
 	}
 
-	private static final String[] GMS_PKG = {
-			"com.google.android.gsf",
-			"com.google.android.gsf.login",
-			"com.google.android.gms",
-			"com.android.vending"
-	};
 	private void installGms() {
 		PackageManager pm = VirtualCore.getCore().getUnHookPackageManager();
 		for (String pkg : GMS_PKG) {
