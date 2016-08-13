@@ -1,13 +1,13 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import java.lang.reflect.Method;
+import android.content.pm.ApplicationInfo;
 
 import com.lody.virtual.client.fixer.ComponentFixer;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.helper.utils.ComponentUtils;
 
-import android.content.pm.ApplicationInfo;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -33,8 +33,13 @@ import android.content.pm.ApplicationInfo;
 			return applicationInfo;
 		}
 		applicationInfo = (ApplicationInfo) method.invoke(who, args);
-		if (ComponentUtils.isSystemApp(applicationInfo)) {
-			return applicationInfo;
+		if (applicationInfo != null) {
+			if (applicationInfo.packageName.startsWith("com.google")) {
+				return null;
+			}
+			if (ComponentUtils.isSystemApp(applicationInfo)) {
+				return applicationInfo;
+			}
 		}
 		return null;
 

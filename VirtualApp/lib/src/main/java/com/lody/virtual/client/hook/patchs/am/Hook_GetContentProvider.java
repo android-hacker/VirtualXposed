@@ -52,6 +52,9 @@ import java.lang.reflect.Proxy;
 						&& !getHostPkg().equals(holder.info.packageName)) {
 					holder = null;
 				}
+				if (holder != null && holder.info != null && holder.info.packageName.startsWith("com.google")) {
+					return  null;
+				}
 			} catch (InvocationTargetException e) {
 				if (e.getCause() instanceof SecurityException) {
 					return null;

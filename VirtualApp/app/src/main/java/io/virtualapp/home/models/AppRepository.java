@@ -1,22 +1,22 @@
 package io.virtualapp.home.models;
 
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.os.Environment;
+
+import com.lody.virtual.client.core.InstallStrategy;
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.proto.AppInfo;
+
+import org.jdeferred.Promise;
+
 import java.io.File;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-
-import org.jdeferred.Promise;
-
-import com.lody.virtual.client.core.InstallStrategy;
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.proto.AppInfo;
-
-import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.os.Environment;
 
 import io.virtualapp.abs.ui.VUiKit;
 
@@ -54,7 +54,9 @@ public class AppRepository implements AppDataSource {
 			List<AppInfo> infos = VirtualCore.getCore().getAllApps();
 			List<AppModel> models = new ArrayList<AppModel>();
 			for (AppInfo info : infos) {
-				models.add(new AppModel(mContext, info));
+				if (mContext.getPackageManager().getLaunchIntentForPackage(info.packageName) != null) {
+					models.add(new AppModel(mContext, info));
+				}
 			}
 			Collections.sort(models, (lhs, rhs) -> COLLATOR.compare(lhs.name, rhs.name));
 			return models;
