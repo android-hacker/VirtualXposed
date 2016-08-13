@@ -5,7 +5,6 @@ import android.location.ILocationManager;
 import android.location.LocationRequest;
 import android.os.Build;
 import android.os.ServiceManager;
-import android.os.WorkSource;
 import android.text.TextUtils;
 
 import com.lody.virtual.client.hook.base.HookBinder;
@@ -13,7 +12,6 @@ import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
 import com.lody.virtual.client.hook.binders.HookLocationBinder;
 import com.lody.virtual.helper.utils.ArrayUtils;
-import com.lody.virtual.helper.utils.Reflect;
 
 import java.lang.reflect.Method;
 
@@ -45,21 +43,7 @@ public class LocationManagerPatch extends PatchObject<ILocationManager, HookLoca
 			LocationRequest request = ArrayUtils.getFirst(args, LocationRequest.class);
 			if (request != null) {
 				try {
-					WorkSource source = request.getWorkSource();
-					if (source != null) {
-						String[] names = Reflect.on(source).get("mNames");
-						if (names != null) {
-							for (int i = 0; i < names.length; i++) {
-								if (isAppPkg(names[i])) {
-									names[i] = getHostPkg();
-								}
-							}
-						}
-					}
-				} catch (Throwable e) {
-					e.printStackTrace();
-				}
-				try {
+					request.setWorkSource(null);
 					request.setHideFromAppOps(false);
 				} catch (Throwable e) {
 					e.printStackTrace();
