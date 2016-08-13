@@ -68,7 +68,7 @@ public class VApp extends Application {
 				VirtualCore.getCore().installApp(apkPath,
 						InstallStrategy.DEPEND_SYSTEM_IF_EXIST | InstallStrategy.TERMINATE_IF_EXIST);
 			} catch (Throwable e) {
-				e.printStackTrace();
+				// Ignore
 			}
 		}
 	}
