@@ -5,6 +5,8 @@ import android.os.Bundle;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Lody
@@ -16,6 +18,13 @@ public class SettingsProviderHook extends ExternalProviderHook {
 
 	public static final int METHOD_GET = 0;
 	public static final int METHOD_PUT = 0;
+
+	private static final Map<String, String> PRE_SET_VALUES = new HashMap<>();
+
+	static {
+		PRE_SET_VALUES.put("user_setup_complete", "1");
+	}
+
 
 	public SettingsProviderHook(Object base) {
 		super(base);
@@ -31,17 +40,28 @@ public class SettingsProviderHook extends ExternalProviderHook {
 		return -1;
 	}
 
+	public static boolean isSecureMethod(String method) {
+		return method.endsWith("secure");
+	}
+
+
 	@Override
 	public Bundle call(Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
 		String methodName = (String) args[args.length - 3];
 		String arg = (String) args[args.length - 2];
 		int methodType = getMethodType(methodName);
-		if (METHOD_GET == methodType && "user_setup_complete".equals(arg)) {
-			Bundle res = new Bundle();
-			res.putString("value", "1");
-			return res;
-		} else if (METHOD_PUT == methodType && "package_verifier_user_consent".equals(arg)) {
-			return null;
+		if (METHOD_GET == methodType) {
+			String presetValue = PRE_SET_VALUES.get(arg);
+			if (presetValue != null) {
+				Bundle res = new Bundle();
+				res.putString("value", presetValue);
+				return res;
+			}
+		}
+		if (METHOD_PUT == methodType) {
+			if (isSecureMethod(methodName)) {
+				return null;
+			}
 		}
 		return super.call(method, args);
 	}
