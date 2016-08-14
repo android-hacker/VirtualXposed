@@ -187,6 +187,9 @@ namespace HOOK_JAVA {
     static int  nativeFuncOffset;
 
     void searchJniOffset() {
+        if (nativeFuncOffset != 0) {
+            return;
+        }
         JNIEnv *env = NULL;
         g_vm->GetEnv((void **) &env, JNI_VERSION_1_4);
         g_vm->AttachCurrentThread(&env, NULL);

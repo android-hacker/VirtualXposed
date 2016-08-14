@@ -8,7 +8,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 
-import com.lody.virtual.IOHook;
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.interfaces.Injectable;
@@ -79,7 +78,6 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 	@Override
 	public boolean handleMessage(Message msg) {
 		if (!calling) {
-			IOHook.hookNative();
 			calling = true;
 			try {
 				if (LAUNCH_ACTIVITY == msg.what) {

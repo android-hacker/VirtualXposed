@@ -41,8 +41,8 @@ public class VApp extends Application {
 	protected void attachBaseContext(Context base) {
 		try {
 			VirtualCore.getCore().startup(base);
-		} catch (Throwable throwable) {
-			throwable.printStackTrace();
+		} catch (Throwable e) {
+			e.printStackTrace();
 		}
 		super.attachBaseContext(base);
 	}

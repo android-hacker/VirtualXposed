@@ -336,17 +336,6 @@ public class PackageParser {
 					jarFile.close();
 					return false;
 				}
-				if (DEBUG_JAR) {
-					VLog.i(TAG, "File " + sourcePath + ": entry=" + jarEntry + " certs="
-							+ (certs != null ? certs.length : 0));
-					if (certs != null) {
-						final int N = certs.length;
-						for (int i = 0; i < N; i++) {
-							VLog.i(TAG, "  Public key: " + certs[i].getPublicKey().getEncoded() + " "
-									+ certs[i].getPublicKey());
-						}
-					}
-				}
 			} else {
 				Enumeration<JarEntry> entries = jarFile.entries();
 				final Manifest manifest = jarFile.getManifest();

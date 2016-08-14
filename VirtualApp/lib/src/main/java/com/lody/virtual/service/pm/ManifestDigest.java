@@ -1,11 +1,11 @@
 package com.lody.virtual.service.pm;
 
-import java.util.Arrays;
-import java.util.jar.Attributes;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Base64;
+
+import java.util.Arrays;
+import java.util.jar.Attributes;
 
 /**
  * Represents the manifest digest for a package. This is suitable for comparison
@@ -47,7 +47,7 @@ public class ManifestDigest implements Parcelable {
 		mDigest = source.createByteArray();
 	}
 
-	static ManifestDigest fromAttributes(Attributes attributes) {
+	public static ManifestDigest fromAttributes(Attributes attributes) {
 		if (attributes == null) {
 			return null;
 		}

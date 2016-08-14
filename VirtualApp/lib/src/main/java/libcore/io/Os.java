@@ -40,7 +40,6 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 
-//这个接口并不是 public 的,改成 public 没有出现异常,那么说明改成 public 是可以的.
 public interface Os {
     FileDescriptor accept(FileDescriptor fd, InetSocketAddress peerAddress) throws ErrnoException, SocketException;
     boolean access(String path, int mode) throws ErrnoException;

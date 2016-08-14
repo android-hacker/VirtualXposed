@@ -378,4 +378,12 @@ public class VActivityManager {
 			return VirtualRuntime.crash(e);
 		}
 	}
+
+	public int getSystemPid() {
+		try {
+			return getService().getSystemPid();
+		} catch (RemoteException e) {
+			return VirtualRuntime.crash(e);
+		}
+	}
 }

@@ -67,7 +67,7 @@ public class VClientImpl extends IVClient.Stub {
 	}
 
 	public String getCurrentPackage() {
-		return mBoundApplication.appInfo.packageName;
+		return mBoundApplication != null ? mBoundApplication.appInfo.packageName : null;
 	}
 
 	public int getVUid() {
@@ -130,6 +130,7 @@ public class VClientImpl extends IVClient.Stub {
 	}
 
 	private void handleBindApplication(AppBindData data) {
+		mBoundApplication = data;
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public synchronized void start() {
@@ -157,13 +158,11 @@ public class VClientImpl extends IVClient.Stub {
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
-
+		IOHook.hookNative();
 		ActivityThread mainThread = VirtualCore.mainThread();
 		Reflect.on(mainThread).set("mInitialApplication", null);
 		IOHook.startDexOverride();
-		IOHook.hookNative();
 		ContextFixer.fixCamera();
-		mBoundApplication = data;
 		List<String> libraries = new ArrayList<>();
 		if (data.usesLibraries != null) {
 			boolean fail = false;
@@ -205,13 +204,6 @@ public class VClientImpl extends IVClient.Stub {
 			throw new RuntimeException(e);
 		}
 		mBoundApplication.info = Reflect.on(context).get("mPackageInfo");
-//		if (!libraries.isEmpty()) {
-//			String frameworkPath = TextUtils.join(File.pathSeparator, data.appInfo.sharedLibraryFiles);
-//			VLog.d(TAG, "Import library : %s.", frameworkPath);
-//			ClassLoader baseClassLoader = new PathClassLoader(frameworkPath, ClassLoader.getSystemClassLoader().getParent());
-//			Reflect.on(mBoundApplication.info).set("mBaseClassLoader", baseClassLoader);
-//		}
-//		Reflect.on(mBoundApplication.info).set("mSecurityViolation", false);
 
 		fixBoundApp(mBoundApplication, VirtualCore.getHostBindData());
 		Application app = data.info.makeApplication(false, null);

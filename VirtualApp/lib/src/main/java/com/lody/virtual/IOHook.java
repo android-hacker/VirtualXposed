@@ -2,6 +2,7 @@ package com.lody.virtual;
 
 import android.os.Binder;
 import android.os.Build;
+import android.os.Process;
 
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
@@ -82,13 +83,21 @@ public class IOHook {
 		}
 	}
 
-	public static void hookNative() {
+	private static Method openDexFileNative;
+	static {
 		try {
 			String methodName =
 					Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? "openDexFileNative" : "openDexFile";
-			Method method = DexFile.class.getDeclaredMethod(methodName, String.class, String.class, Integer.TYPE);
-			method.setAccessible(true);
-			nativeHookNative(method, VirtualRuntime.isArt());
+			openDexFileNative = DexFile.class.getDeclaredMethod(methodName, String.class, String.class, Integer.TYPE);
+			openDexFileNative.setAccessible(true);
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static void hookNative() {
+		try {
+			nativeHookNative(openDexFileNative, VirtualRuntime.isArt());
 		} catch (Throwable e) {
 			VLog.e(TAG, VLog.getStackTraceString(e));
 		}
@@ -106,6 +115,8 @@ public class IOHook {
 		int callingPid = Binder.getCallingPid();
 		if (callingPid == 0) {
 			resultUid = VClientImpl.getClient().getVUid();
+		} else if (callingPid == VirtualCore.getCore().getSystemPid()) {
+			return Process.SYSTEM_UID;
 		} else {
 			int uid = VActivityManager.getInstance().getUidByPid(callingPid);
 			if (uid != -1) {

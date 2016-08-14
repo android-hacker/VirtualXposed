@@ -15,6 +15,8 @@ import com.lody.virtual.service.interfaces.IProcessObserver;
 
 interface IActivityManager {
 
+    int getSystemPid();
+
     int getUidByPid(int pid);
 
     void attachClient(in IBinder clinet);

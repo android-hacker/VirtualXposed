@@ -16,20 +16,6 @@
 
 package com.lody.virtual.service.account;
 
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-
-import com.android.internal.R;
-import com.lody.virtual.service.IAccountManager;
-
 import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorResponse;
@@ -56,7 +42,6 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -68,6 +53,21 @@ import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
+
+import com.android.internal.R;
+import com.lody.virtual.os.VBinder;
+import com.lody.virtual.service.IAccountManager;
+
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A system service that provides account, password, and authtoken management
@@ -238,7 +238,7 @@ public class VAccountManagerService extends IAccountManager.Stub
 			try {
 				while (cursor.moveToNext()) {
 					final int uid = cursor.getInt(0);
-					final boolean packageExists = mPackageManager.getPackagesForUid(uid) != null;
+					final boolean packageExists = true;
 					if (packageExists) {
 						continue;
 					}
@@ -306,8 +306,8 @@ public class VAccountManagerService extends IAccountManager.Stub
 	}
 
 	public String getPassword(Account account) {
-		Log.v(TAG, "getPassword: " + account + ", caller's uid " + Binder.getCallingUid() + ", pid "
-				+ Binder.getCallingPid());
+		Log.v(TAG, "getPassword: " + account + ", caller's uid " + VBinder.getCallingUid() + ", pid "
+				+ VBinder.getCallingPid());
 		if (account == null)
 			throw new IllegalArgumentException("account is null");
 		checkAuthenticateAccountsPermission(account);
@@ -342,8 +342,8 @@ public class VAccountManagerService extends IAccountManager.Stub
 	}
 
 	public String getUserData(Account account, String key) {
-		Log.v(TAG, "getUserData: " + account + ", key " + key + ", caller's uid " + Binder.getCallingUid() + ", pid "
-				+ Binder.getCallingPid());
+		Log.v(TAG, "getUserData: " + account + ", key " + key + ", caller's uid " + VBinder.getCallingUid() + ", pid "
+				+ VBinder.getCallingPid());
 		if (account == null)
 			throw new IllegalArgumentException("account is null");
 		if (key == null)
@@ -358,8 +358,8 @@ public class VAccountManagerService extends IAccountManager.Stub
 	}
 
 	public AuthenticatorDescription[] getAuthenticatorTypes() {
-		Log.v(TAG, "getAuthenticatorTypes: " + "caller's uid " + Binder.getCallingUid() + ", pid "
-				+ Binder.getCallingPid());
+		Log.v(TAG, "getAuthenticatorTypes: " + "caller's uid " + VBinder.getCallingUid() + ", pid "
+				+ VBinder.getCallingPid());
 		long identityToken = clearCallingIdentity();
 		try {
 			Collection<RegisteredServicesCache.ServiceInfo<AuthenticatorDescription>> authenticatorCollection = mAuthenticatorCache
@@ -377,8 +377,8 @@ public class VAccountManagerService extends IAccountManager.Stub
 	}
 
 	public boolean addAccount(Account account, String password, Bundle extras) {
-		Log.v(TAG, "addAccount: " + account + ", caller's uid " + Binder.getCallingUid() + ", pid "
-				+ Binder.getCallingPid());
+		Log.v(TAG, "addAccount: " + account + ", caller's uid " + VBinder.getCallingUid() + ", pid "
+				+ VBinder.getCallingPid());
 		if (account == null)
 			throw new IllegalArgumentException("account is null");
 		checkAuthenticateAccountsPermission(account);
@@ -445,7 +445,7 @@ public class VAccountManagerService extends IAccountManager.Stub
 
 	public void hasFeatures(IAccountManagerResponse response, Account account, String[] features) {
 		Log.v(TAG, "hasFeatures: " + account + ", response " + response + ", features " + stringArrayToString(features)
-				+ ", caller's uid " + Binder.getCallingUid() + ", pid " + Binder.getCallingPid());
+				+ ", caller's uid " + VBinder.getCallingUid() + ", pid " + VBinder.getCallingPid());
 		if (response == null)
 			throw new IllegalArgumentException("response is null");
 		if (account == null)
@@ -462,8 +462,8 @@ public class VAccountManagerService extends IAccountManager.Stub
 	}
 
 	public void removeAccount(IAccountManagerResponse response, Account account) {
-		Log.v(TAG, "removeAccount: " + account + ", response " + response + ", caller's uid " + Binder.getCallingUid()
-				+ ", pid " + Binder.getCallingPid());
+		Log.v(TAG, "removeAccount: " + account + ", response " + response + ", caller's uid " + VBinder.getCallingUid()
+				+ ", pid " + VBinder.getCallingPid());
 		if (response == null)
 			throw new IllegalArgumentException("response is null");
 		if (account == null)
@@ -499,8 +499,8 @@ public class VAccountManagerService extends IAccountManager.Stub
 	}
 
 	public void invalidateAuthToken(String accountType, String authToken) {
-		Log.v(TAG, "invalidateAuthToken: accountType " + accountType + ", caller's uid " + Binder.getCallingUid()
-				+ ", pid " + Binder.getCallingPid());
+		Log.v(TAG, "invalidateAuthToken: accountType " + accountType + ", caller's uid " + VBinder.getCallingUid()
+				+ ", pid " + VBinder.getCallingPid());
 		if (accountType == null)
 			throw new IllegalArgumentException("accountType is null");
 		if (authToken == null)
@@ -578,7 +578,7 @@ public class VAccountManagerService extends IAccountManager.Stub
 
 	public String peekAuthToken(Account account, String authTokenType) {
 		Log.v(TAG, "peekAuthToken: " + account + ", authTokenType " + authTokenType + ", caller's uid "
-				+ Binder.getCallingUid() + ", pid " + Binder.getCallingPid());
+				+ VBinder.getCallingUid() + ", pid " + VBinder.getCallingPid());
 		if (account == null)
 			throw new IllegalArgumentException("account is null");
 		if (authTokenType == null)
@@ -594,7 +594,7 @@ public class VAccountManagerService extends IAccountManager.Stub
 
 	public void setAuthToken(Account account, String authTokenType, String authToken) {
 		Log.v(TAG, "setAuthToken: " + account + ", authTokenType " + authTokenType + ", caller's uid "
-				+ Binder.getCallingUid() + ", pid " + Binder.getCallingPid());
+				+ VBinder.getCallingUid() + ", pid " + VBinder.getCallingPid());
 		if (account == null)
 			throw new IllegalArgumentException("account is null");
 		if (authTokenType == null)
@@ -609,8 +609,8 @@ public class VAccountManagerService extends IAccountManager.Stub
 	}
 
 	public void setPassword(Account account, String password) {
-		Log.v(TAG, "setPassword: " + account + ", caller's uid " + Binder.getCallingUid() + ", pid "
-				+ Binder.getCallingPid());
+		Log.v(TAG, "setPassword: " + account + ", caller's uid " + VBinder.getCallingUid() + ", pid "
+				+ VBinder.getCallingPid());
 		if (account == null)
 			throw new IllegalArgumentException("account is null");
 		checkAuthenticateAccountsPermission(account);
@@ -653,8 +653,8 @@ public class VAccountManagerService extends IAccountManager.Stub
 	}
 
 	public void clearPassword(Account account) {
-		Log.v(TAG, "clearPassword: " + account + ", caller's uid " + Binder.getCallingUid() + ", pid "
-				+ Binder.getCallingPid());
+		Log.v(TAG, "clearPassword: " + account + ", caller's uid " + VBinder.getCallingUid() + ", pid "
+				+ VBinder.getCallingPid());
 		if (account == null)
 			throw new IllegalArgumentException("account is null");
 		checkManageAccountsPermission();
@@ -667,8 +667,8 @@ public class VAccountManagerService extends IAccountManager.Stub
 	}
 
 	public void setUserData(Account account, String key, String value) {
-		Log.v(TAG, "setUserData: " + account + ", key " + key + ", caller's uid " + Binder.getCallingUid() + ", pid "
-				+ Binder.getCallingPid());
+		Log.v(TAG, "setUserData: " + account + ", key " + key + ", caller's uid " + VBinder.getCallingUid() + ", pid "
+				+ VBinder.getCallingPid());
 		if (key == null)
 			throw new IllegalArgumentException("key is null");
 		if (account == null)
@@ -771,26 +771,26 @@ public class VAccountManagerService extends IAccountManager.Stub
 			final boolean notifyOnAuthFailure, final boolean expectActivityLaunch, Bundle loginOptionsIn) {
 		Log.v(TAG, "getAuthToken: " + account + ", response " + response + ", authTokenType " + authTokenType
 				+ ", notifyOnAuthFailure " + notifyOnAuthFailure + ", expectActivityLaunch " + expectActivityLaunch
-				+ ", caller's uid " + Binder.getCallingUid() + ", pid " + Binder.getCallingPid());
+				+ ", caller's uid " + VBinder.getCallingUid() + ", pid " + VBinder.getCallingPid());
 		if (response == null)
 			throw new IllegalArgumentException("response is null");
 		if (account == null)
 			throw new IllegalArgumentException("account is null");
 		if (authTokenType == null)
 			throw new IllegalArgumentException("authTokenType is null");
-		checkBinderPermission(Manifest.permission.USE_CREDENTIALS);
+		checkVBinderPermission(Manifest.permission.USE_CREDENTIALS);
 		RegisteredServicesCache.ServiceInfo<AuthenticatorDescription> authenticatorInfo = mAuthenticatorCache
 				.getServiceInfo(AuthenticatorDescription.newKey(account.type));
 		final boolean customTokens = authenticatorInfo != null && authenticatorInfo.type.customTokens;
 
 		// skip the check if customTokens
-		final int callerUid = Binder.getCallingUid();
+		final int callerUid = VBinder.getCallingUid();
 		final boolean permissionGranted = customTokens || permissionIsGranted(account, authTokenType, callerUid);
 
 		final Bundle loginOptions = (loginOptionsIn == null) ? new Bundle() : loginOptionsIn;
 		// let authenticator know the identity of the caller
 		loginOptions.putInt(AccountManager.KEY_CALLER_UID, callerUid);
-		loginOptions.putInt(AccountManager.KEY_CALLER_PID, Binder.getCallingPid());
+		loginOptions.putInt(AccountManager.KEY_CALLER_PID, VBinder.getCallingPid());
 		if (notifyOnAuthFailure) {
 			loginOptions.putBoolean(AccountManager.KEY_NOTIFY_ON_FAILURE, true);
 		}
@@ -960,16 +960,16 @@ public class VAccountManagerService extends IAccountManager.Stub
 		Log.v(TAG,
 				"addAccount: accountType " + accountType + ", response " + response + ", authTokenType " + authTokenType
 						+ ", requiredFeatures " + stringArrayToString(requiredFeatures) + ", expectActivityLaunch "
-						+ expectActivityLaunch + ", caller's uid " + Binder.getCallingUid() + ", pid "
-						+ Binder.getCallingPid());
+						+ expectActivityLaunch + ", caller's uid " + VBinder.getCallingUid() + ", pid "
+						+ VBinder.getCallingPid());
 		if (response == null)
 			throw new IllegalArgumentException("response is null");
 		if (accountType == null)
 			throw new IllegalArgumentException("accountType is null");
 		checkManageAccountsPermission();
 
-		final int pid = Binder.getCallingPid();
-		final int uid = Binder.getCallingUid();
+		final int pid = VBinder.getCallingPid();
+		final int uid = VBinder.getCallingUid();
 		final Bundle options = (optionsIn == null) ? new Bundle() : optionsIn;
 		options.putInt(AccountManager.KEY_CALLER_UID, uid);
 		options.putInt(AccountManager.KEY_CALLER_PID, pid);
@@ -996,8 +996,8 @@ public class VAccountManagerService extends IAccountManager.Stub
 			final boolean expectActivityLaunch) {
 		Log.v(TAG,
 				"confirmCredentials: " + account + ", response " + response + ", expectActivityLaunch "
-						+ expectActivityLaunch + ", caller's uid " + Binder.getCallingUid() + ", pid "
-						+ Binder.getCallingPid());
+						+ expectActivityLaunch + ", caller's uid " + VBinder.getCallingUid() + ", pid "
+						+ VBinder.getCallingPid());
 		if (response == null)
 			throw new IllegalArgumentException("response is null");
 		if (account == null)
@@ -1022,8 +1022,8 @@ public class VAccountManagerService extends IAccountManager.Stub
 			final boolean expectActivityLaunch, final Bundle loginOptions) {
 		Log.v(TAG,
 				"updateCredentials: " + account + ", response " + response + ", authTokenType " + authTokenType
-						+ ", expectActivityLaunch " + expectActivityLaunch + ", caller's uid " + Binder.getCallingUid()
-						+ ", pid " + Binder.getCallingPid());
+						+ ", expectActivityLaunch " + expectActivityLaunch + ", caller's uid " + VBinder.getCallingUid()
+						+ ", pid " + VBinder.getCallingPid());
 		if (response == null)
 			throw new IllegalArgumentException("response is null");
 		if (account == null)
@@ -1053,8 +1053,8 @@ public class VAccountManagerService extends IAccountManager.Stub
 			final boolean expectActivityLaunch) {
 		Log.v(TAG,
 				"editProperties: accountType " + accountType + ", response " + response + ", expectActivityLaunch "
-						+ expectActivityLaunch + ", caller's uid " + Binder.getCallingUid() + ", pid "
-						+ Binder.getCallingPid());
+						+ expectActivityLaunch + ", caller's uid " + VBinder.getCallingUid() + ", pid "
+						+ VBinder.getCallingPid());
 		if (response == null)
 			throw new IllegalArgumentException("response is null");
 		if (accountType == null)
@@ -1076,8 +1076,8 @@ public class VAccountManagerService extends IAccountManager.Stub
 	}
 
 	public Account[] getAccounts(String type) {
-		Log.v(TAG, "getAccounts: accountType " + type + ", caller's uid " + Binder.getCallingUid() + ", pid "
-				+ Binder.getCallingPid());
+		Log.v(TAG, "getAccounts: accountType " + type + ", caller's uid " + VBinder.getCallingUid() + ", pid "
+				+ VBinder.getCallingPid());
 		checkReadAccountsPermission();
 		long identityToken = clearCallingIdentity();
 		try {
@@ -1092,8 +1092,8 @@ public class VAccountManagerService extends IAccountManager.Stub
 	public void getAccountsByFeatures(IAccountManagerResponse response, String type, String[] features) {
 		Log.v(TAG,
 				"getAccounts: accountType " + type + ", response " + response + ", features "
-						+ stringArrayToString(features) + ", caller's uid " + Binder.getCallingUid() + ", pid "
-						+ Binder.getCallingPid());
+						+ stringArrayToString(features) + ", caller's uid " + VBinder.getCallingUid() + ", pid "
+						+ VBinder.getCallingPid());
 		if (response == null)
 			throw new IllegalArgumentException("response is null");
 		if (type == null)
@@ -1160,8 +1160,8 @@ public class VAccountManagerService extends IAccountManager.Stub
 	protected void dump(FileDescriptor fd, PrintWriter fout, String[] args) {
 		if (mContext
 				.checkCallingOrSelfPermission(android.Manifest.permission.DUMP) != PackageManager.PERMISSION_GRANTED) {
-			fout.println("Permission Denial: can't dump AccountsManager from from pid=" + Binder.getCallingPid()
-					+ ", uid=" + Binder.getCallingUid() + " without permission " + android.Manifest.permission.DUMP);
+			fout.println("Permission Denial: can't dump AccountsManager from from pid=" + VBinder.getCallingPid()
+					+ ", uid=" + VBinder.getCallingUid() + " without permission " + android.Manifest.permission.DUMP);
 			return;
 		}
 
@@ -1243,14 +1243,14 @@ public class VAccountManagerService extends IAccountManager.Stub
 	}
 
 	/** Succeeds if any of the specified permissions are granted. */
-	private void checkBinderPermission(String... permissions) {
+	private void checkVBinderPermission(String... permissions) {
 
 		if (true) {
 			// FIXME: Check permission for va.
 			return;
 		}
 
-		final int uid = Binder.getCallingUid();
+		final int uid = VBinder.getCallingUid();
 
 		for (String perm : permissions) {
 			if (mContext.checkCallingOrSelfPermission(perm) == PackageManager.PERMISSION_GRANTED) {
@@ -1293,19 +1293,19 @@ public class VAccountManagerService extends IAccountManager.Stub
 			// FIXME : check permission for va.
 			return true;
 		}
-		if (Binder.getCallingUid() == android.os.Process.SYSTEM_UID) {
+		if (VBinder.getCallingUid() == android.os.Process.SYSTEM_UID) {
 			return true;
 		}
 		synchronized (mCacheLock) {
 			final SQLiteDatabase db = mOpenHelper.getReadableDatabase();
-			String[] args = {String.valueOf(Binder.getCallingUid()), authTokenType, account.name, account.type};
+			String[] args = {String.valueOf(VBinder.getCallingUid()), authTokenType, account.name, account.type};
 			final boolean permissionGranted = DatabaseUtils.longForQuery(db, COUNT_OF_MATCHING_GRANTS, args) != 0;
 			if (!permissionGranted && ActivityManager.isRunningInTestHarness()) {
 				// TODO: Skip this check when running automated tests. Replace
 				// this
 				// with a more general solution.
 				Log.d(TAG, "no credentials permission for usage of " + account + ", " + authTokenType + " by uid "
-						+ Binder.getCallingUid() + " but ignoring since device is in test harness.");
+						+ VBinder.getCallingUid() + " but ignoring since device is in test harness.");
 				return true;
 			}
 			return permissionGranted;
@@ -1317,7 +1317,7 @@ public class VAccountManagerService extends IAccountManager.Stub
 			// FIXME : check for va.
 			return;
 		}
-		final int uid = Binder.getCallingUid();
+		final int uid = VBinder.getCallingUid();
 		if (account == null || !hasAuthenticatorUid(account.type, uid)) {
 			String msg = "caller uid " + uid + " is different than the authenticator's uid";
 			Log.w(TAG, msg);
@@ -1327,20 +1327,20 @@ public class VAccountManagerService extends IAccountManager.Stub
 	}
 
 	private void checkAuthenticateAccountsPermission(Account account) {
-		checkBinderPermission(Manifest.permission.AUTHENTICATE_ACCOUNTS);
+		checkVBinderPermission(Manifest.permission.AUTHENTICATE_ACCOUNTS);
 		checkCallingUidAgainstAuthenticator(account);
 	}
 
 	private void checkReadAccountsPermission() {
-		checkBinderPermission(Manifest.permission.GET_ACCOUNTS);
+		checkVBinderPermission(Manifest.permission.GET_ACCOUNTS);
 	}
 
 	private void checkManageAccountsPermission() {
-		checkBinderPermission(Manifest.permission.MANAGE_ACCOUNTS);
+		checkVBinderPermission(Manifest.permission.MANAGE_ACCOUNTS);
 	}
 
 	private void checkManageAccountsOrUseCredentialsPermissions() {
-		checkBinderPermission(Manifest.permission.MANAGE_ACCOUNTS, Manifest.permission.USE_CREDENTIALS);
+		checkVBinderPermission(Manifest.permission.MANAGE_ACCOUNTS, Manifest.permission.USE_CREDENTIALS);
 	}
 
 	/**

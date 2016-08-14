@@ -312,6 +312,11 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	@Override
+	public int getSystemPid() {
+		return VirtualCore.getCore().myUid();
+	}
+
+	@Override
 	public void onActivityCreated(IBinder token, ActivityInfo targetActInfo, ActivityInfo callerActInfo, int taskId) {
 		synchronized (mMainStack) {
 			ActivityTaskRecord task = mMainStack.findTask(taskId);

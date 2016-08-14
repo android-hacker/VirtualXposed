@@ -30,7 +30,6 @@ import com.lody.virtual.helper.compat.ActivityThreadCompat;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.proto.AppSettings;
 import com.lody.virtual.helper.proto.InstallResult;
-import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.IAppManager;
 
 import java.util.HashMap;
@@ -75,6 +74,7 @@ public final class VirtualCore {
 	private PackageInfo hostPkgInfo;
 	private Map<ComponentName, ActivityInfo> activityInfoCache = new HashMap<ComponentName, ActivityInfo>();
 	private final int myUid = Process.myUid();
+	private int systemPid;
 
 
 	private VirtualCore() {
@@ -173,13 +173,14 @@ public final class VirtualCore {
 			} else {
 				processType = ProcessType.CHILD;
 			}
+			if (isVAppProcess()) {
+				systemPid = VActivityManager.getInstance().getSystemPid();
+			}
 			PatchManager patchManager = PatchManager.getInstance();
 			patchManager.injectAll();
 			patchManager.checkEnv();
 			ContextFixer.fixContext(context);
 			isStartUp = true;
-			VLog.w("###########", "MyProcessType: " + processType.name()
-			);
 		}
 	}
 
@@ -402,6 +403,10 @@ public final class VirtualCore {
 			// Ignore
 		}
 		return false;
+	}
+
+	public int getSystemPid() {
+		return systemPid;
 	}
 
 	/**

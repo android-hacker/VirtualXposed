@@ -101,12 +101,12 @@ public class FileIO {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			closeQuitely(inputStream);
-			closeQuitely(outputStream);
+			closeQuietly(inputStream);
+			closeQuietly(outputStream);
 		}
 	}
 
-	private static void closeQuitely(Closeable closeable) {
+	public static void closeQuietly(Closeable closeable) {
 		if (closeable != null) {
 			try {
 				closeable.close();

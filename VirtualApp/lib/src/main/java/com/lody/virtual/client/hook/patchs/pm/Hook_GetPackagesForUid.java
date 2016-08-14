@@ -29,10 +29,14 @@ import java.util.Arrays;
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		int uid = (int) args[0];
 		if (uid == VirtualCore.getCore().myUid()) {
-			// From native?
-			uid = VClientImpl.getClient().getVUid();
-			VLog.e(getName(), "Retry getCallingUid : " + Binder.getCallingUid());
-			VLog.printStackTrace(getName());
+			if (isServiceProcess()) {
+				return method.invoke(who, args);
+			} else {
+				// From native?
+				uid = VClientImpl.getClient().getVUid();
+				VLog.e(getName(), "Retry getCallingUid : " + Binder.getCallingUid());
+				VLog.printStackTrace(getName());
+			}
 		}
 		String[] res = VPackageManager.getInstance().getPackagesForUid(uid);
 		VLog.d(getName(), "getPackagesForUid : %d return %s", uid, Arrays.toString(res));
@@ -44,6 +48,6 @@ import java.util.Arrays;
 
 	@Override
 	public boolean isEnable() {
-		return isAppProcess();
+		return isAppProcess() || isServiceProcess();
 	}
 }
