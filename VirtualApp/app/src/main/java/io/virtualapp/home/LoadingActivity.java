@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.proto.AppSettings;
 
 import io.virtualapp.R;
 import io.virtualapp.abs.ui.VUiKit;
@@ -44,9 +44,9 @@ public class LoadingActivity extends AppCompatActivity {
 		appModel = getIntent().getParcelableExtra(MODEL_ARGUMENT);
 
 		VUiKit.defer().when(() -> {
-			AppInfo appInfo = VirtualCore.getCore().findApp(appModel.packageName);
-			if (appInfo != null) {
-				appModel = new AppModel(this, appInfo);
+			AppSettings appSettings = VirtualCore.getCore().findApp(appModel.packageName);
+			if (appSettings != null) {
+				appModel = new AppModel(this, appSettings);
 			}
 		}).done((res) -> {
 			ImageView iconView = (ImageView) findViewById(R.id.app_icon);

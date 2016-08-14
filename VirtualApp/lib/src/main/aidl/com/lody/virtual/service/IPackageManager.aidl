@@ -18,6 +18,10 @@ import com.lody.virtual.helper.proto.VParceledListSlice;
 
 interface IPackageManager {
 
+        int getPackageUid(String packageName);
+
+        String[] getPackagesForUid(int uid);
+
         List<String> getSharedLibraries(String pkgName);
 
         int checkPermission(String permName, String pkgName);

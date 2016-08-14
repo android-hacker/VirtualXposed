@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 
+import com.lody.virtual.IOHook;
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.interfaces.Injectable;
@@ -15,7 +16,7 @@ import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.compat.ActivityRecordCompat;
 import com.lody.virtual.helper.compat.ClassLoaderCompat;
-import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.proto.AppSettings;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.VLog;
 
@@ -78,6 +79,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 	@Override
 	public boolean handleMessage(Message msg) {
 		if (!calling) {
+			IOHook.hookNative();
 			calling = true;
 			try {
 				if (LAUNCH_ACTIVITY == msg.what) {
@@ -105,8 +107,8 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		ComponentName component = targetIntent.getComponent();
 		String pkgName = component.getPackageName();
 
-		AppInfo appInfo = VirtualCore.getCore().findApp(pkgName);
-		if (appInfo == null) {
+		AppSettings appSettings = VirtualCore.getCore().findApp(pkgName);
+		if (appSettings == null) {
 			return true;
 		}
 		ActivityInfo stubActInfo = stubIntent.getParcelableExtra(ExtraConstants.EXTRA_STUB_ACT_INFO);
@@ -122,7 +124,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 			getH().sendMessageDelayed(Message.obtain(msg), 5);
 			return false;
 		}
-		ClassLoader appClassLoader = appInfo.getClassLoader();
+		ClassLoader appClassLoader = appSettings.getClassLoader();
 		targetIntent.setExtrasClassLoader(appClassLoader);
 
 		boolean error = false;

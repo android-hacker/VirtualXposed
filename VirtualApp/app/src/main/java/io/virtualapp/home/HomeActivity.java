@@ -13,7 +13,7 @@ import android.widget.ProgressBar;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
-import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.proto.AppSettings;
 import com.melnykov.fab.FloatingActionButton;
 import com.umeng.analytics.MobclickAgent;
 
@@ -207,7 +207,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 		if (resultCode == RESULT_OK && requestCode == VCommends.REQUEST_SELECT_APP && data != null) {
 			AppModel model = data.getParcelableExtra(VCommends.EXTRA_APP_MODEL);
 			mPresenter.addApp(model);
-			AppInfo info = VirtualCore.getCore().findApp(model.packageName);
+			AppSettings info = VirtualCore.getCore().findApp(model.packageName);
 			if (info != null) {
 				if (info.dependSystem) {
 					mPresenter.dataChanged();

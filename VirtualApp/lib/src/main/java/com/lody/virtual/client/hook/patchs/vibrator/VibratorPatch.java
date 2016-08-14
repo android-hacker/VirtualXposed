@@ -1,12 +1,12 @@
 package com.lody.virtual.client.hook.patchs.vibrator;
 
-import com.lody.virtual.client.hook.base.Patch;
-import com.lody.virtual.client.hook.base.PatchObject;
-import com.lody.virtual.client.hook.binders.HookVibratorBinder;
-
 import android.content.Context;
 import android.os.IVibratorService;
 import android.os.ServiceManager;
+
+import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
+import com.lody.virtual.client.hook.binders.HookVibratorBinder;
 
 /**
  * @author Lody
@@ -15,7 +15,6 @@ import android.os.ServiceManager;
  * @see IVibratorService
  * @see android.os.Vibrator
  */
-@Patch({Hook_Vibrate.class, Hook_VibratePattern.class})
 public class VibratorPatch extends PatchObject<IVibratorService, HookVibratorBinder> {
 
 	@Override
@@ -26,6 +25,13 @@ public class VibratorPatch extends PatchObject<IVibratorService, HookVibratorBin
 	@Override
 	public void inject() throws Throwable {
 		getHookObject().injectService(Context.VIBRATOR_SERVICE);
+	}
+
+	@Override
+	protected void applyHooks() {
+		super.applyHooks();
+		addHook(new ReplaceCallingPkgHook("vibrate")).replaceUid(0);
+		addHook(new ReplaceCallingPkgHook("vibratePattern")).replaceUid(0);
 	}
 
 	@Override

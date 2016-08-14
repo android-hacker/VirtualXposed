@@ -1,13 +1,7 @@
 package com.lody.virtual.client.core;
 
-import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR1;
-import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR2;
-import static android.os.Build.VERSION_CODES.KITKAT;
-import static android.os.Build.VERSION_CODES.LOLLIPOP;
-import static android.os.Build.VERSION_CODES.LOLLIPOP_MR1;
-
-import java.util.HashMap;
-import java.util.Map;
+import android.os.Build;
+import android.provider.Settings;
 
 import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.delegate.AppInstrumentation;
@@ -28,6 +22,7 @@ import com.lody.virtual.client.hook.patchs.imms.MmsPatch;
 import com.lody.virtual.client.hook.patchs.input.InputMethodManagerPatch;
 import com.lody.virtual.client.hook.patchs.isub.SubPatch;
 import com.lody.virtual.client.hook.patchs.job.JobPatch;
+import com.lody.virtual.client.hook.patchs.libcore.LibCorePatch;
 import com.lody.virtual.client.hook.patchs.location.LocationManagerPatch;
 import com.lody.virtual.client.hook.patchs.media.router.MediaRouterServicePatch;
 import com.lody.virtual.client.hook.patchs.media.session.SessionManagerPatch;
@@ -49,8 +44,14 @@ import com.lody.virtual.client.interfaces.IHookObject;
 import com.lody.virtual.client.interfaces.Injectable;
 import com.lody.virtual.helper.utils.Reflect;
 
-import android.os.Build;
-import android.provider.Settings;
+import java.util.HashMap;
+import java.util.Map;
+
+import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR1;
+import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR2;
+import static android.os.Build.VERSION_CODES.KITKAT;
+import static android.os.Build.VERSION_CODES.LOLLIPOP;
+import static android.os.Build.VERSION_CODES.LOLLIPOP_MR1;
 
 /**
  * @author Lody
@@ -120,6 +121,7 @@ public final class PatchManager {
 		addPatch(new PackageManagerPatch());
 
 		if (VirtualCore.getCore().isVAppProcess()) {
+			addPatch(new LibCorePatch());
 			// ## Fuck the MIUI Security
 			if (MIUISecurityManagerPatch.needInject()) {
 				addPatch(new MIUISecurityManagerPatch());

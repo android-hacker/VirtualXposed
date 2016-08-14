@@ -10,12 +10,13 @@ import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.helper.compat.NativeLibraryHelperCompat;
-import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.proto.AppSettings;
 import com.lody.virtual.helper.proto.InstallResult;
 import com.lody.virtual.helper.utils.FileIO;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.AppFileSystem;
 import com.lody.virtual.service.IAppManager;
+import com.lody.virtual.service.am.UidSystem;
 import com.lody.virtual.service.am.VActivityManagerService;
 import com.lody.virtual.service.interfaces.IAppObserver;
 
@@ -33,7 +34,9 @@ public class VAppManagerService extends IAppManager.Stub {
 
 	private static final AtomicReference<VAppManagerService> gService = new AtomicReference<>();
 
-	private RemoteCallbackList<IAppObserver> remoteCallbackList = new RemoteCallbackList<IAppObserver>();
+	private RemoteCallbackList<IAppObserver> mRemoteCallbackList = new RemoteCallbackList<IAppObserver>();
+
+	private final UidSystem mUidSystem = new UidSystem();
 
 	public static VAppManagerService getService() {
 		return gService.get();
@@ -115,7 +118,7 @@ public class VAppManagerService extends IAppManager.Stub {
 				return InstallResult.makeFailure("Unable to create lib dir.");
 			}
 			VLog.d(TAG, "copy " + apkPath + "'s library to the path:" + libDir);
-			int libRes = NativeLibraryHelperCompat.copyNativeBinaries(new File(apkPath), libDir);
+			/*int libRes = */NativeLibraryHelperCompat.copyNativeBinaries(new File(apkPath), libDir);
 //			if (libRes < 0) {
 //				return InstallResult.makeFailure("This APK's native lib is not support your device.");
 //			}
@@ -135,11 +138,11 @@ public class VAppManagerService extends IAppManager.Stub {
 			PackageCache.remove(pkg.packageName);
 		}
 		AppFileSystem fileSystem = AppFileSystem.getDefault();
-		AppInfo appInfo = new AppInfo();
-		appInfo.dependSystem = dependSystem;
-		appInfo.apkPath = apk.getPath();
-		appInfo.packageName = pkg.packageName;
-		appInfo.setApplicationInfo(pkg.applicationInfo);
+		AppSettings appSettings = new AppSettings();
+		appSettings.dependSystem = dependSystem;
+		appSettings.apkPath = apk.getPath();
+		appSettings.packageName = pkg.packageName;
+		appSettings.uid = mUidSystem.getOrCreateUid(pkg.mSharedUserId);
 
 		File dataFolder = fileSystem.getAppPackageFolder(pkg.packageName);
 		File libFolder = fileSystem.getAppLibFolder(pkg.packageName);
@@ -148,11 +151,11 @@ public class VAppManagerService extends IAppManager.Stub {
 
 		ensureFoldersCreated(dataFolder, libFolder, dvmCacheFolder, cacheFolder);
 
-		appInfo.dataDir = dataFolder.getPath();
-		appInfo.libDir = libFolder.getPath();
-		appInfo.cacheDir = cacheFolder.getPath();
-		appInfo.odexDir = dvmCacheFolder.getPath();
-		PackageCache.put(pkg, appInfo);
+		appSettings.dataDir = dataFolder.getPath();
+		appSettings.libDir = libFolder.getPath();
+		appSettings.cacheDir = cacheFolder.getPath();
+		appSettings.odexDir = dvmCacheFolder.getPath();
+		PackageCache.put(pkg, appSettings);
 		notifyAppInstalled(pkg.packageName);
 		res.isSuccess = true;
 		return res;
@@ -186,12 +189,16 @@ public class VAppManagerService extends IAppManager.Stub {
 		return false;
 	}
 
-	public List<AppInfo> getAllApps() {
-		return new ArrayList<>(PackageCache.sAppInfos.values());
+	public List<AppSettings> getAllApps() {
+		List<AppSettings> settings = new ArrayList<>(getAppCount());
+		for (PackageParser.Package p : PackageCache.sPackageCaches.values()) {
+			settings.add((AppSettings) p.mExtras);
+		}
+		return settings;
 	}
 
 	public int getAppCount() {
-		return PackageCache.sAppInfos.size();
+		return PackageCache.sPackageCaches.size();
 	}
 
 	public boolean isAppInstalled(String pkg) {
@@ -199,15 +206,15 @@ public class VAppManagerService extends IAppManager.Stub {
 	}
 
 	private void notifyAppInstalled(String pkgName) {
-		int N = remoteCallbackList.beginBroadcast();
+		int N = mRemoteCallbackList.beginBroadcast();
 		while (N-- > 0) {
 			try {
-				remoteCallbackList.getBroadcastItem(N).onNewApp(pkgName);
+				mRemoteCallbackList.getBroadcastItem(N).onNewApp(pkgName);
 			} catch (RemoteException e) {
 				// Ignore
 			}
 		}
-		remoteCallbackList.finishBroadcast();
+		mRemoteCallbackList.finishBroadcast();
 		Intent virtualIntent = new Intent(Constants.VIRTUAL_ACTION_PACKAGE_ADDED);
 		Uri uri = Uri.fromParts("package", pkgName, null);
 		virtualIntent.setData(uri);
@@ -215,15 +222,15 @@ public class VAppManagerService extends IAppManager.Stub {
 	}
 
 	private void notifyAppUninstalled(String pkgName) {
-		int N = remoteCallbackList.beginBroadcast();
+		int N = mRemoteCallbackList.beginBroadcast();
 		while (N-- > 0) {
 			try {
-				remoteCallbackList.getBroadcastItem(N).onRemoveApp(pkgName);
+				mRemoteCallbackList.getBroadcastItem(N).onRemoveApp(pkgName);
 			} catch (RemoteException e) {
 				// Ignore
 			}
 		}
-		remoteCallbackList.finishBroadcast();
+		mRemoteCallbackList.finishBroadcast();
 		Intent virtualIntent = new Intent(Constants.VIRTUAL_ACTION_PACKAGE_REMOVED);
 		Uri uri = Uri.fromParts("package", pkgName, null);
 		virtualIntent.setData(uri);
@@ -233,7 +240,7 @@ public class VAppManagerService extends IAppManager.Stub {
 	@Override
 	public void registerObserver(IAppObserver observer) {
 		try {
-			remoteCallbackList.register(observer);
+			mRemoteCallbackList.register(observer);
 		} catch (Throwable e) {
 			// Ignore
 		}
@@ -242,16 +249,16 @@ public class VAppManagerService extends IAppManager.Stub {
 	@Override
 	public void unregisterObserver(IAppObserver observer) {
 		try {
-			remoteCallbackList.unregister(observer);
+			mRemoteCallbackList.unregister(observer);
 		} catch (Throwable e) {
 			// Ignore
 		}
 	}
 
-	public AppInfo findAppInfo(String pkg) {
+	public AppSettings findAppInfo(String pkg) {
 		synchronized (PackageCache.class) {
 			if (pkg != null) {
-				return PackageCache.sAppInfos.get(pkg);
+				return (AppSettings) PackageCache.sPackageCaches.get(pkg).mExtras;
 			}
 			return null;
 		}

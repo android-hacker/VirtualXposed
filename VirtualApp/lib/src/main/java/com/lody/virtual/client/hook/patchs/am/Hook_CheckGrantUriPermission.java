@@ -1,9 +1,9 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
-
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.utils.HookUtils;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -13,6 +13,9 @@ import com.lody.virtual.client.hook.utils.HookUtils;
  *         targetPkg, Uri uri, int modeFlags)
  */
 /* package */ class Hook_CheckGrantUriPermission extends Hook {
+	{
+		replaceUid(0);
+	}
 
 	@Override
 	public String getName() {

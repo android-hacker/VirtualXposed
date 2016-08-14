@@ -1,9 +1,10 @@
 package com.lody.virtual.client.hook.patchs.mount;
 
-import java.lang.reflect.Method;
-
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.utils.HookUtils;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -21,6 +22,11 @@ import com.lody.virtual.client.hook.utils.HookUtils;
 
 	@Override
 	public boolean beforeHook(Object who, Method method, Object... args) {
+		if (args.length >= 1) {
+			if (args[0] instanceof Integer) {
+				args[0] = VirtualCore.getCore().myUid();
+			}
+		}
 		HookUtils.replaceFirstAppPkg(args);
 		return super.beforeHook(who, method, args);
 	}

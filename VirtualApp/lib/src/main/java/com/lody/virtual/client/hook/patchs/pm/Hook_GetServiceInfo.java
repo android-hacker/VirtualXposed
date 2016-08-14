@@ -1,15 +1,13 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import static android.content.pm.PackageManager.GET_DISABLED_COMPONENTS;
+import android.content.ComponentName;
 
-import java.lang.reflect.Method;
-
-import com.lody.virtual.client.fixer.ComponentFixer;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VPackageManager;
 
-import android.content.ComponentName;
-import android.content.pm.ServiceInfo;
+import java.lang.reflect.Method;
+
+import static android.content.pm.PackageManager.GET_DISABLED_COMPONENTS;
 
 /**
  * @author Lody
@@ -33,10 +31,6 @@ import android.content.pm.ServiceInfo;
 		if ((flags & GET_DISABLED_COMPONENTS) == 0) {
 			flags |= GET_DISABLED_COMPONENTS;
 		}
-		ServiceInfo serviceInfo = VPackageManager.getInstance().getServiceInfo(componentName, flags);
-		if (serviceInfo != null) {
-			ComponentFixer.fixUid(serviceInfo.applicationInfo);
-		}
-		return serviceInfo;
+		return VPackageManager.getInstance().getServiceInfo(componentName, flags);
 	}
 }

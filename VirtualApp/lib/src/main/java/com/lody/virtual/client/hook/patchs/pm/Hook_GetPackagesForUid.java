@@ -1,15 +1,15 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import android.os.Process;
+import android.os.Binder;
 
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.client.local.VPackageManager;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 /**
  * @author Lody
@@ -19,30 +19,27 @@ import java.util.List;
  */
 /* package */ class Hook_GetPackagesForUid extends Hook {
 
+
 	@Override
 	public String getName() {
 		return "getPackagesForUid";
 	}
 
 	@Override
-	public boolean beforeHook(Object who, Method method, Object... args) {
-		int uid = (int) args[0];
-		return uid == Process.myUid() || uid == 99999;
-	}
-
-	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		VClientImpl client = VClientImpl.getClient();
-		List<String> sharedPackages = client.getSharedPackages();
-		List<String> packages = new ArrayList<>(sharedPackages.size() + 1);
-		String initialPackage = client.geCurrentPackage();
-		packages.add(initialPackage);
-		packages.addAll(sharedPackages);
-		List<AppInfo> appInfos = VirtualCore.getCore().getAllApps();
-		for (AppInfo appInfo : appInfos) {
-			packages.add(appInfo.packageName);
+		int uid = (int) args[0];
+		if (uid == VirtualCore.getCore().myUid()) {
+			// From native?
+			uid = VClientImpl.getClient().getVUid();
+			VLog.e(getName(), "Retry getCallingUid : " + Binder.getCallingUid());
+			VLog.printStackTrace(getName());
 		}
-		return packages.toArray(new String[packages.size()]);
+		String[] res = VPackageManager.getInstance().getPackagesForUid(uid);
+		VLog.d(getName(), "getPackagesForUid : %d return %s", uid, Arrays.toString(res));
+		if (res == null) {
+			return method.invoke(who, args);
+		}
+		return res;
 	}
 
 	@Override

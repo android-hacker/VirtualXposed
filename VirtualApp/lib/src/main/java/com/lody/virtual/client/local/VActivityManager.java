@@ -370,4 +370,12 @@ public class VActivityManager {
 			e.printStackTrace();
 		}
 	}
+
+	public int getUidByPid(int pid) {
+		try {
+			return getService().getUidByPid(pid);
+		} catch (RemoteException e) {
+			return VirtualRuntime.crash(e);
+		}
+	}
 }

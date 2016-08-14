@@ -1,16 +1,16 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
+import android.annotation.SuppressLint;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.helper.utils.ArrayUtils;
 
-import android.annotation.SuppressLint;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 
 /**
  * @author Lody
@@ -60,7 +60,6 @@ import android.content.pm.Signature;
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
-
 		}
 
 		return method.invoke(who, args);

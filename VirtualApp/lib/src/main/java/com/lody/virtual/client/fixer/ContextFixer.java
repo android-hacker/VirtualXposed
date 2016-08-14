@@ -14,7 +14,6 @@ import com.lody.virtual.client.hook.patchs.dropbox.DropBoxManagerPatch;
 import com.lody.virtual.client.hook.patchs.graphics.GraphicsStatsPatch;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.ReflectException;
-import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Method;
 
@@ -75,8 +74,13 @@ public class ContextFixer {
 	 */
 	public static void fixContext(Context context) {
 		PatchManager.getInstance().checkEnv(GraphicsStatsPatch.class);
+		int deep = 0;
 		while (context instanceof ContextWrapper) {
 			context = ((ContextWrapper) context).getBaseContext();
+			deep++;
+			if (deep >= 10) {
+				break;
+			}
 		}
 		try {
 			Reflect.on(context).set("mPackageManager", null);
@@ -101,16 +105,14 @@ public class ContextFixer {
 		try {
 			ref.set("mBasePackageName", pkgName);
 		} catch (Throwable e) {
-			VLog.w(TAG, "Unable to found field:mBasePackageName in ContextImpl, ignore.");
+			// Ignore
+		}
+		try {
+			ref.set("mOpPackageName", pkgName);
+		} catch (Throwable e) {
+			// Ignore
 		}
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-			try {
-				ref.set("mOpPackageName", pkgName);
-			} catch (Throwable e) {
-				// Ignore
-			}
-		}
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
 			try {
 				ContentResolver resolver = context.getContentResolver();

@@ -7,12 +7,17 @@ import android.os.IBinder;
 import android.os.ServiceManager;
 import android.util.Singleton;
 
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.base.HookBinder;
 import com.lody.virtual.client.hook.base.HookObject;
 import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
+import com.lody.virtual.client.hook.base.StaticHook;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -40,7 +45,7 @@ import java.lang.reflect.Field;
 		Hook_ForceStopPackage.class, Hook_AddPackageDependency.class, Hook_UpdateDeviceOwner.class,
 		Hook_CrashApplication.class, Hook_GetPackageForToken.class,
 
-		Hook_SetPackageAskScreenCompat.class, Hook_GetPackageAskScreenCompat.class, Hook_SetAppLockedVerifying.class,
+		Hook_SetPackageAskScreenCompat.class, Hook_GetPackageAskScreenCompat.class,
 		Hook_CheckPermission.class, Hook_PublishContentProviders.class, Hook_GetCurrentUser.class,
 		Hook_UnstableProviderDied.class, Hook_GetCallingActivity.class, Hook_FinishActivity.class,
 		Hook_GetServices.class,})
@@ -91,6 +96,30 @@ public class ActivityManagerPatch extends PatchObject<IActivityManager, HookObje
 			}
 		};
 		hookAMBinder.injectService(Context.ACTIVITY_SERVICE);
+	}
+
+	@Override
+	protected void applyHooks() {
+		super.applyHooks();
+		if (VirtualCore.getCore().isVAppProcess()) {
+			addHook(new isUserRunning());
+			addHook(new ReplaceCallingPkgHook("setAppLockedVerifying"));
+			addHook(new StaticHook("checkUriPermission")).replaceUid(2);
+			addHook(new StaticHook("checkPermissionWithToken")).replaceUid(2);
+		}
+	}
+
+	private class isUserRunning extends Hook {
+		@Override
+		public String getName() {
+			return "isUserRunning";
+		}
+
+		@Override
+		public boolean beforeHook(Object who, Method method, Object... args) {
+			int userId = (int) args[0];
+			return userId == 0;
+		}
 	}
 
 	@Override

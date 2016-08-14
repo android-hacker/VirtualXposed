@@ -15,6 +15,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.Process;
 import android.os.RemoteException;
 import android.text.TextUtils;
 
@@ -27,8 +28,9 @@ import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.compat.ActivityThreadCompat;
 import com.lody.virtual.helper.compat.BundleCompat;
-import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.proto.AppSettings;
 import com.lody.virtual.helper.proto.InstallResult;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.IAppManager;
 
 import java.util.HashMap;
@@ -72,9 +74,15 @@ public final class VirtualCore {
 	private boolean isStartUp;
 	private PackageInfo hostPkgInfo;
 	private Map<ComponentName, ActivityInfo> activityInfoCache = new HashMap<ComponentName, ActivityInfo>();
+	private final int myUid = Process.myUid();
+
 
 	private VirtualCore() {
 
+	}
+
+	public int myUid() {
+		return myUid;
 	}
 
 	public static Object getHostBindData() {
@@ -139,6 +147,7 @@ public final class VirtualCore {
 		return unHookPackageManager;
 	}
 
+
 	public void startup(Context context) throws Throwable {
 		if (!isStartUp) {
 			if (Looper.myLooper() != Looper.getMainLooper()) {
@@ -169,6 +178,8 @@ public final class VirtualCore {
 			patchManager.checkEnv();
 			ContextFixer.fixContext(context);
 			isStartUp = true;
+			VLog.w("###########", "MyProcessType: " + processType.name()
+			);
 		}
 	}
 
@@ -227,7 +238,7 @@ public final class VirtualCore {
 	}
 
 	public void preOpt(String pkg) throws Exception {
-		AppInfo info = findApp(pkg);
+		AppSettings info = findApp(pkg);
 		if (info != null && !info.dependSystem) {
 			DexFile.loadDex(info.apkPath, info.getOdexFile().getPath(), 0).close();
 		}
@@ -250,7 +261,7 @@ public final class VirtualCore {
 	}
 
 	public Intent getLaunchIntent(String pkg) {
-		AppInfo info = findApp(pkg);
+		AppSettings info = findApp(pkg);
 		if (info != null) {
 			Intent intent = getPackageManager().getLaunchIntentForPackage(pkg);
 			if (intent == null) {
@@ -281,7 +292,7 @@ public final class VirtualCore {
 		}
 	}
 
-	public AppInfo findApp(String pkg) {
+	public AppSettings findApp(String pkg) {
 		try {
 			return getService().findAppInfo(pkg);
 		} catch (RemoteException e) {
@@ -311,10 +322,10 @@ public final class VirtualCore {
 	}
 
 	public Resources getResources(String pkg) {
-		AppInfo appInfo = findApp(pkg);
-		if (appInfo != null) {
+		AppSettings appSettings = findApp(pkg);
+		if (appSettings != null) {
 			AssetManager assets = new AssetManager();
-			assets.addAssetPath(appInfo.apkPath);
+			assets.addAssetPath(appSettings.apkPath);
 			Resources hostRes = context.getResources();
 			return new Resources(assets, hostRes.getDisplayMetrics(), hostRes.getConfiguration());
 		}
@@ -368,7 +379,7 @@ public final class VirtualCore {
 		VActivityManager.getInstance().killAllApps();
 	}
 
-	public List<AppInfo> getAllApps() {
+	public List<AppSettings> getAllApps() {
 		try {
 			return getService().getAllApps();
 		} catch (RemoteException e) {

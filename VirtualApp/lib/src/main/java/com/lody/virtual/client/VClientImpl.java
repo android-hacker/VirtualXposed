@@ -10,14 +10,14 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
-import android.content.res.CompatibilityInfo;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Process;
 import android.os.RemoteException;
-import android.text.TextUtils;
 
 import com.lody.virtual.IOHook;
 import com.lody.virtual.client.core.VirtualCore;
@@ -35,8 +35,6 @@ import com.lody.virtual.helper.utils.VLog;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import dalvik.system.PathClassLoader;
 
 /**
  * @author Lody
@@ -68,9 +66,14 @@ public class VClientImpl extends IVClient.Stub {
 		return mInitialApplication;
 	}
 
-	public String geCurrentPackage() {
+	public String getCurrentPackage() {
 		return mBoundApplication.appInfo.packageName;
 	}
+
+	public int getVUid() {
+		return mBoundApplication != null ? mBoundApplication.appInfo.uid : -1;
+	}
+
 
 	private final class AppBindData {
 		String processName;
@@ -134,6 +137,29 @@ public class VClientImpl extends IVClient.Stub {
 				super.start();
 			}
 		});
+		ThreadGroup systemGroup = new ThreadGroup("va-system") {
+			@Override
+			public void uncaughtException(Thread t, Throwable e) {
+				VLog.e(TAG, e);
+				Process.killProcess(Process.myPid());
+			}
+		};
+		ThreadGroup root = Thread.currentThread().getThreadGroup();
+		while (true) {
+			ThreadGroup parent = root.getParent();
+			if (parent == null) {
+				break;
+			}
+			root = parent;
+		}
+		try {
+			Reflect.on(root).set("parent", systemGroup);
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+
+		ActivityThread mainThread = VirtualCore.mainThread();
+		Reflect.on(mainThread).set("mInitialApplication", null);
 		IOHook.startDexOverride();
 		IOHook.hookNative();
 		ContextFixer.fixCamera();
@@ -142,6 +168,9 @@ public class VClientImpl extends IVClient.Stub {
 		if (data.usesLibraries != null) {
 			boolean fail = false;
 			for (String library : data.usesLibraries) {
+				if (library.equals("android.test.runner")) {
+					continue;
+				}
 				try {
 					ApplicationInfo info = VirtualCore.getPM().getApplicationInfo(library, 0);
 					if (info.sourceDir != null) {
@@ -169,19 +198,25 @@ public class VClientImpl extends IVClient.Stub {
 			}
 		}
 		data.appInfo.sharedLibraryFiles = libraries.toArray(new String[libraries.size()]);
-		ActivityThread mainThread = VirtualCore.mainThread();
-		mBoundApplication.info = mainThread.getPackageInfoNoCheck(data.appInfo,
-				CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO);
-		if (!libraries.isEmpty()) {
-			String frameworkPath = TextUtils.join(File.pathSeparator, data.appInfo.sharedLibraryFiles);
-			VLog.d(TAG, "Import library : %s.", frameworkPath);
-			ClassLoader baseClassLoader = new PathClassLoader(frameworkPath, ClassLoader.getSystemClassLoader().getParent());
-			Reflect.on(mBoundApplication.info).set("mBaseClassLoader", baseClassLoader);
+		Context context;
+		try {
+			context = VirtualCore.getCore().getContext().createPackageContext(data.appInfo.packageName, Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
+		} catch (PackageManager.NameNotFoundException e) {
+			throw new RuntimeException(e);
 		}
+		mBoundApplication.info = Reflect.on(context).get("mPackageInfo");
+//		if (!libraries.isEmpty()) {
+//			String frameworkPath = TextUtils.join(File.pathSeparator, data.appInfo.sharedLibraryFiles);
+//			VLog.d(TAG, "Import library : %s.", frameworkPath);
+//			ClassLoader baseClassLoader = new PathClassLoader(frameworkPath, ClassLoader.getSystemClassLoader().getParent());
+//			Reflect.on(mBoundApplication.info).set("mBaseClassLoader", baseClassLoader);
+//		}
+//		Reflect.on(mBoundApplication.info).set("mSecurityViolation", false);
 
 		fixBoundApp(mBoundApplication, VirtualCore.getHostBindData());
 		Application app = data.info.makeApplication(false, null);
 		mInitialApplication = app;
+		Reflect.on(mainThread).set("mInitialApplication", mInitialApplication);
 		ContextFixer.fixContext(app);
 		List<ProviderInfo> providers = data.providers;
 		if (providers != null) {

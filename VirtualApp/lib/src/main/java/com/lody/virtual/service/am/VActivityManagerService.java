@@ -35,6 +35,7 @@ import com.lody.virtual.helper.MethodConstants;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.compat.IApplicationThreadCompat;
+import com.lody.virtual.helper.proto.AppSettings;
 import com.lody.virtual.helper.proto.AppTaskInfo;
 import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.VParceledListSlice;
@@ -43,6 +44,7 @@ import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.IActivityManager;
 import com.lody.virtual.service.interfaces.IProcessObserver;
+import com.lody.virtual.service.pm.VAppManagerService;
 import com.lody.virtual.service.pm.VPackageManagerService;
 
 import java.util.ArrayList;
@@ -942,6 +944,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	public ProcessRecord startProcessLocked(String processName, ApplicationInfo info) {
+		checkApplicationInfo(info);
 		synchronized (this) {
 			VLog.d(TAG, "startProcessLocked %s (%s).", processName, info.packageName);
 			ProcessRecord app = mProcessMap.get(processName);
@@ -962,6 +965,27 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			app = performStartProcessLocked(stubInfo, info, processName);
 			return app;
 		}
+	}
+
+	private void checkApplicationInfo(ApplicationInfo info) {
+		if (info.uid == 0) {
+			VLog.e(TAG, "CheckApplicationInfo failed: uid = 0.");
+			VLog.printStackTrace(TAG);
+			AppSettings settings = VAppManagerService.getService().findAppInfo(info.packageName);
+			info.uid = settings.uid;
+		}
+	}
+
+
+	@Override
+	public int getUidByPid(int pid) {
+		synchronized (this) {
+			ProcessRecord r = findProcess(pid);
+			if (r != null) {
+				return r.info.uid;
+			}
+		}
+		return -1;
 	}
 
 	private ProcessRecord performStartProcessLocked(StubInfo stubInfo, ApplicationInfo info, String processName) {

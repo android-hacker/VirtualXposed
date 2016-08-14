@@ -1,13 +1,11 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import java.lang.reflect.Method;
+import android.content.ComponentName;
 
-import com.lody.virtual.client.fixer.ComponentFixer;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VPackageManager;
 
-import android.content.ComponentName;
-import android.content.pm.ProviderInfo;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -31,11 +29,7 @@ import android.content.pm.ProviderInfo;
 		if (getHostPkg().equals(componentName.getPackageName())) {
 			return method.invoke(who, args);
 		}
-		ProviderInfo providerInfo = VPackageManager.getInstance().getProviderInfo(componentName, flags);
-		if (providerInfo != null) {
-			ComponentFixer.fixUid(providerInfo.applicationInfo);
-		}
-		return providerInfo;
+		return VPackageManager.getInstance().getProviderInfo(componentName, flags);
 	}
 
 }

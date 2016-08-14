@@ -1,16 +1,16 @@
 package com.lody.virtual.client.hook.base;
 
+import android.text.TextUtils;
+
+import com.lody.virtual.client.interfaces.IHookObject;
+import com.lody.virtual.helper.utils.VLog;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.lody.virtual.client.interfaces.IHookObject;
-import com.lody.virtual.helper.utils.VLog;
-
-import android.text.TextUtils;
 
 /**
  * @author Lody
@@ -55,15 +55,16 @@ public class HookObject<T> implements IHookObject<T> {
 	 *            要添加的Hook
 	 */
 	@Override
-	public void addHook(Hook hook) {
+	public Hook addHook(Hook hook) {
 		if (hook != null && !TextUtils.isEmpty(hook.getName())) {
 			if (internalHookMapping.containsKey(hook.getName())) {
 				VLog.w(TAG, "Hook(%s) from class(%s) have been added, can't add again.", hook.getName(),
 						hook.getClass().getName());
-				return;
+				return hook;
 			}
 			internalHookMapping.put(hook.getName(), hook);
 		}
+		return hook;
 	}
 
 	/**
@@ -151,12 +152,14 @@ public class HookObject<T> implements IHookObject<T> {
 					}
 				}
 				return method.invoke(mBaseObject, args);
-			} catch (Throwable e) {
-				if (e instanceof InvocationTargetException) {
-					throw e.getCause();
-				} else {
-					throw e;
+			} catch (InvocationTargetException e) {
+				Throwable cause = e.getTargetException();
+				if (cause != null) {
+					throw cause;
 				}
+				throw e;
+			} catch (Throwable e) {
+				throw e;
 			}
 		}
 	}

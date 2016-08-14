@@ -4,9 +4,10 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.proto.AppSettings;
 
 import java.lang.reflect.Method;
+import java.util.LinkedList;
 
 /**
  * @author Lody
@@ -15,6 +16,18 @@ import java.lang.reflect.Method;
 public abstract class Hook {
 
 	private boolean enable = true;
+	private LinkedList<SubModule> subModules;
+
+	public void addSubModule(SubModule module) {
+		if (subModules == null) {
+			subModules = new LinkedList<>();
+		}
+		subModules.offer(module);
+	}
+
+	public abstract class SubModule {
+		public abstract void apply(Object who, Method method, Object... args);
+	}
 
 	/**
 	 * @return Hook的方法名
@@ -22,7 +35,23 @@ public abstract class Hook {
 	public abstract String getName();
 
 	public boolean beforeHook(Object who, Method method, Object... args) {
+		if (subModules != null) {
+			for (SubModule subModule : subModules) {
+				subModule.apply(who, method, args);
+			}
+		}
 		return true;
+	}
+
+	public void replaceUid(final int index) {
+		addSubModule(new SubModule() {
+			@Override
+			public void apply(Object who, Method method, Object... args) {
+				if (args.length > index && args[index] instanceof Integer) {
+					args[index] = VirtualCore.getCore().myUid();
+				}
+			}
+		});
 	}
 
 	/**
@@ -60,7 +89,7 @@ public abstract class Hook {
 		return VirtualCore.getCore().getContext();
 	}
 
-	protected final AppInfo findAppInfo(String pkg) {
+	protected final AppSettings findAppInfo(String pkg) {
 		return VirtualCore.getCore().findApp(pkg);
 	}
 

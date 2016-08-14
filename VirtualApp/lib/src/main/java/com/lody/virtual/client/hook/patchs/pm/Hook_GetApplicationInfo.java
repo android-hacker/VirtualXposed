@@ -2,7 +2,6 @@ package com.lody.virtual.client.hook.patchs.pm;
 
 import android.content.pm.ApplicationInfo;
 
-import com.lody.virtual.client.fixer.ComponentFixer;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.helper.utils.ComponentUtils;
@@ -29,7 +28,6 @@ import java.lang.reflect.Method;
 		}
 		ApplicationInfo applicationInfo = VPackageManager.getInstance().getApplicationInfo(pkg, flags);
 		if (applicationInfo != null) {
-			ComponentFixer.fixUid(applicationInfo);
 			return applicationInfo;
 		}
 		applicationInfo = (ApplicationInfo) method.invoke(who, args);

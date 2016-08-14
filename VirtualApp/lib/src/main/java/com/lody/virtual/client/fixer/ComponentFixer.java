@@ -3,12 +3,9 @@ package com.lody.virtual.client.fixer;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ComponentInfo;
 import android.os.Build;
-import android.os.Process;
 import android.text.TextUtils;
 
-import com.lody.virtual.client.VClientImpl;
-import com.lody.virtual.helper.proto.AppInfo;
-import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.helper.proto.AppSettings;
 
 /**
  * @author Lody
@@ -17,7 +14,7 @@ import com.lody.virtual.helper.utils.ComponentUtils;
 public class ComponentFixer {
 
 
-	public static void fixApplicationInfo(AppInfo info, ApplicationInfo applicationInfo) {
+	public static void fixApplicationInfo(AppSettings info, ApplicationInfo applicationInfo) {
 		applicationInfo.flags |= ApplicationInfo.FLAG_HAS_CODE;
 		if (TextUtils.isEmpty(applicationInfo.processName)) {
 			applicationInfo.processName = applicationInfo.packageName;
@@ -42,7 +39,7 @@ public class ComponentFixer {
 		applicationInfo.dataDir = info.dataDir;
 		applicationInfo.enabled = true;
 		applicationInfo.nativeLibraryDir = info.libDir;
-		applicationInfo.uid = Process.myUid();
+		applicationInfo.uid = info.uid;
 	}
 
 	public static String fixComponentClassName(String pkgName, String className) {
@@ -55,25 +52,17 @@ public class ComponentFixer {
 		return null;
 	}
 
-	public static void fixComponentInfo(AppInfo appInfo, ComponentInfo info) {
+	public static void fixComponentInfo(AppSettings appSettings, ComponentInfo info) {
 		if (info != null) {
 			if (TextUtils.isEmpty(info.processName)) {
 				info.processName = info.packageName;
 			}
-			fixApplicationInfo(appInfo, info.applicationInfo);
+			fixApplicationInfo(appSettings, info.applicationInfo);
 			info.name = fixComponentClassName(info.packageName, info.name);
-		}
-	}
-
-	public static void fixUid(ApplicationInfo applicationInfo) {
-		if (false && VClientImpl.getClient().isBound() && applicationInfo != null) {
-			String packageName = applicationInfo.packageName;
-			if (packageName.equals(VClientImpl.getClient().geCurrentPackage())
-					|| ComponentUtils.isSharedPackage(packageName)) {
-				applicationInfo.uid = Process.myUid();
-			} else {
-				applicationInfo.uid = 99999;
+			if (info.processName == null) {
+				info.processName = info.applicationInfo.processName;
 			}
 		}
 	}
+
 }

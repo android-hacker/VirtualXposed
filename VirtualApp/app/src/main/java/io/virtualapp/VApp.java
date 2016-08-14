@@ -44,7 +44,6 @@ public class VApp extends Application {
 		} catch (Throwable throwable) {
 			throwable.printStackTrace();
 		}
-		VAppCrashHandler.getInstance().register();
 		super.attachBaseContext(base);
 	}
 

@@ -144,6 +144,42 @@ namespace HOOK_JAVA {
     }
 
 
+
+    ///////////////////binder////////////////////////
+    typedef void (*Bridge_DalvikBridgeFunc_Binder)(const void **, void *, const void *, void *);
+    typedef jint (*Native_getCallingUidNativeFunc_Binder)(JNIEnv *, jclass);
+
+    static Bridge_DalvikBridgeFunc_Binder org_DalvikBridgeFunc_Binder;
+    static Native_getCallingUidNativeFunc_Binder org_native_getCallingUid;
+
+    static jmethodID g_methodid_onGetCallingUid;
+
+    static jint new_native_getCallingUidNativeFunc(JNIEnv* env, jclass jclazz) {
+
+        jint org_uid = org_native_getCallingUid(env, jclazz);
+
+        jint new_uid = env->CallStaticIntMethod(g_jclass, g_methodid_onGetCallingUid, org_uid);
+
+        return new_uid;
+    }
+
+    static void new_bridge_getCallingUidNativeFunc(const void **args, void *pResult, const void *method, void *self) {
+        JNIEnv *env = NULL;
+        g_vm->GetEnv((void **) &env, JNI_VERSION_1_6);
+        g_vm->AttachCurrentThread(&env, NULL);
+
+        org_DalvikBridgeFunc_Binder(args, pResult, method, self);
+
+        jint new_uid = env->CallStaticIntMethod(g_jclass, g_methodid_onGetCallingUid, *(int*)pResult);
+
+        *(int*)pResult = new_uid;
+
+    }
+    //////////////////end binder////////////////////
+
+
+
+
     static JNINativeMethod gMethods[] = {
             NATIVE_METHOD((void *) mark, "nativeMark", "()V"),
     };
@@ -193,6 +229,8 @@ namespace HOOK_JAVA {
 
         g_methodid_onOpenDexFileNative = env->GetStaticMethodID(g_jclass, "onOpenDexFileNative", "([Ljava/lang/String;)V");
 
+        g_methodid_onGetCallingUid = env->GetStaticMethodID(g_jclass, "onGetCallingUid", "(I)I");
+
         if (!isArt) {
             nativeFuncOffset += (sizeof(int) + sizeof(void*));//this is jni Bridge offset.
         }
@@ -212,6 +250,23 @@ namespace HOOK_JAVA {
             *jniFuncPtr = (void*) new_native_openDexNativeFunc;
         }
 
+
+//        jclass cls_Binder = env->FindClass("android/os/Binder");
+//        size_t mtd_getCallingUid = (size_t) env->GetStaticMethodID(cls_Binder, "getCallingUid", "()I");
+//
+//        void** jniFuncPtr_Binder = (void**)(mtd_getCallingUid + nativeFuncOffset);
+//
+//        LOGE("offset=%d", nativeFuncOffset);
+//        if (!isArt) {
+//            LOGD("replace dalvik method.");
+//            org_DalvikBridgeFunc_Binder = (Bridge_DalvikBridgeFunc_Binder)(*jniFuncPtr_Binder);
+//            *jniFuncPtr_Binder = (void*) new_bridge_getCallingUidNativeFunc;
+//        } else {
+//            LOGD("replace art method.");
+//            org_native_getCallingUid = (Native_getCallingUidNativeFunc_Binder)(*jniFuncPtr_Binder);
+//            *jniFuncPtr_Binder = (void*) new_native_getCallingUidNativeFunc;
+//        }
+
         LOGD("DONE java hook!");
     }
 };
@@ -225,4 +280,5 @@ void HOOK_NATIVE::hook(jobject javaMethod, jboolean isArt) {
     HOOK_JAVA::hook(javaMethod, isArt);
     LOGI("End Native hooks SUCCESS!");
 }
+
 

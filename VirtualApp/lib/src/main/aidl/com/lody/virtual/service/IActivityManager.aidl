@@ -15,6 +15,8 @@ import com.lody.virtual.service.interfaces.IProcessObserver;
 
 interface IActivityManager {
 
+    int getUidByPid(int pid);
+
     void attachClient(in IBinder clinet);
 
     boolean isAppProcess(String processName);
@@ -89,6 +91,6 @@ interface IActivityManager {
 
     ContentProviderHolder getContentProvider(String auth);
 
-    void ensureAppBound(in String processName, in ApplicationInfo appInfo);
+    void ensureAppBound(in String processName, in ApplicationInfo appSettings);
 
 }

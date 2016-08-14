@@ -10,6 +10,7 @@ import android.os.ServiceManager;
 import android.text.TextUtils;
 
 import com.lody.virtual.client.interfaces.IHookObject;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.io.FileDescriptor;
 import java.lang.reflect.Field;
@@ -17,6 +18,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -146,10 +148,11 @@ public abstract class HookBinder<Interface extends IInterface> implements IHookO
 	 *            要添加的Hook
 	 */
 	@Override
-	public void addHook(Hook hook) {
+	public Hook addHook(Hook hook) {
 		if (hook != null && !TextUtils.isEmpty(hook.getName())) {
 			internalHookMapping.put(hook.getName(), hook);
 		}
+		return hook;
 	}
 
 	/**
@@ -227,6 +230,7 @@ public abstract class HookBinder<Interface extends IInterface> implements IHookO
 
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+			VLog.w("XXXXXXXXXXXXXXX", "call %s (%s).", method.getName(), Arrays.toString(args));
 			Hook hook = getHook(method.getName());
 			try {
 				if (hook != null && hook.isEnable()) {

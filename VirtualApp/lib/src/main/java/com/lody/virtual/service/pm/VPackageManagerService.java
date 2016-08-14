@@ -26,7 +26,7 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.fixer.ComponentFixer;
 import com.lody.virtual.helper.compat.ObjectsCompat;
-import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.proto.AppSettings;
 import com.lody.virtual.helper.proto.ReceiverInfo;
 import com.lody.virtual.helper.proto.VParceledListSlice;
 import com.lody.virtual.helper.utils.ComponentUtils;
@@ -98,9 +98,10 @@ public class VPackageManagerService extends IPackageManager.Stub {
 	final HashMap<String, PackageParser.Provider> mProvidersByAuthority = new HashMap<>();
 
 	private final Map<String, PackageParser.Package> mPackages = PackageCache.sPackageCaches;
-	private final Map<String, AppInfo> mAppInfos = PackageCache.sAppInfos;
 
 	private int[] mGids;
+
+
 
 	public VPackageManagerService(int[] gids) {
 		this.mGids = gids;
@@ -128,30 +129,31 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		return VAppManagerService.getService();
 	}
 
-	public void analyzePackageLocked(AppInfo appInfo, PackageParser.Package pkg) {
+	public void analyzePackageLocked(PackageParser.Package pkg) {
+		AppSettings appSettings = (AppSettings) pkg.mExtras;
 		int N = pkg.activities.size();
 		for (int i = 0; i < N; i++) {
 			PackageParser.Activity a = pkg.activities.get(i);
-			ComponentFixer.fixComponentInfo(appInfo, a.info);
+			ComponentFixer.fixComponentInfo(appSettings, a.info);
 			mActivities.addActivity(a, "activity");
 		}
 		N = pkg.services.size();
 		for (int i = 0; i < N; i++) {
 			PackageParser.Service a = pkg.services.get(i);
-			ComponentFixer.fixComponentInfo(appInfo, a.info);
+			ComponentFixer.fixComponentInfo(appSettings, a.info);
 			mServices.addService(a);
 		}
 		N = pkg.receivers.size();
 		for (int i = 0; i < N; i++) {
 			PackageParser.Activity a = pkg.receivers.get(i);
-			ComponentFixer.fixComponentInfo(appInfo, a.info);
+			ComponentFixer.fixComponentInfo(appSettings, a.info);
 			mReceivers.addActivity(a, "receiver");
 		}
 
 		N = pkg.providers.size();
 		for (int i = 0; i < N; i++) {
 			PackageParser.Provider p = pkg.providers.get(i);
-			ComponentFixer.fixComponentInfo(appInfo, p.info);
+			ComponentFixer.fixComponentInfo(appSettings, p.info);
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 				mProviders.addProvider(p);
 			}
@@ -248,6 +250,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		synchronized (mPackages) {
 			PackageParser.Package pkg = mPackages.get(packageName);
 			if (pkg != null) {
+				AppSettings settings = (AppSettings) pkg.mExtras;
 				if ((flags & PackageManager.GET_SIGNATURES) != 0 && pkg.mSignatures == null) {
 					if (pkg.mAppMetaData != null && pkg.mAppMetaData.containsKey(Constants.FEATURE_FAKE_SIGNATURE)) {
 						String sig = pkg.mAppMetaData.getString("fake-signature");
@@ -261,7 +264,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 				PackageInfo packageInfo = PackageParser.generatePackageInfo(pkg, mGids, flags,
 						getFirstInstallTime(packageName), getLastInstallTime(packageName));
 				if (packageInfo != null) {
-					ComponentFixer.fixApplicationInfo(mAppInfos.get(packageName), packageInfo.applicationInfo);
+					ComponentFixer.fixApplicationInfo(settings, packageInfo.applicationInfo);
 					return packageInfo;
 				}
 			}
@@ -283,7 +286,9 @@ public class VPackageManagerService extends IPackageManager.Stub {
 			PackageParser.Activity a = mActivities.mActivities.get(component);
 			if (a != null) {
 				ActivityInfo activityInfo = PackageParser.generateActivityInfo(a, flags);
-				ComponentFixer.fixComponentInfo(mAppInfos.get(activityInfo.packageName), activityInfo);
+				PackageParser.Package p = mPackages.get(activityInfo.packageName);
+				AppSettings settings = (AppSettings) p.mExtras;
+				ComponentFixer.fixComponentInfo(settings, activityInfo);
 				return activityInfo;
 			}
 		}
@@ -313,7 +318,9 @@ public class VPackageManagerService extends IPackageManager.Stub {
 			PackageParser.Activity a = mReceivers.mActivities.get(component);
 			if (a != null) {
 				ActivityInfo receiverInfo = PackageParser.generateActivityInfo(a, flags);
-				ComponentFixer.fixComponentInfo(mAppInfos.get(receiverInfo.packageName), receiverInfo);
+				PackageParser.Package p = mPackages.get(receiverInfo.packageName);
+				AppSettings settings = (AppSettings) p.mExtras;
+				ComponentFixer.fixComponentInfo(settings, receiverInfo);
 				return receiverInfo;
 			}
 		}
@@ -326,7 +333,9 @@ public class VPackageManagerService extends IPackageManager.Stub {
 			PackageParser.Service s = mServices.mServices.get(component);
 			if (s != null) {
 				ServiceInfo serviceInfo = PackageParser.generateServiceInfo(s, flags);
-				ComponentFixer.fixComponentInfo(mAppInfos.get(serviceInfo.packageName), serviceInfo);
+				PackageParser.Package p = mPackages.get(serviceInfo.packageName);
+				AppSettings settings = (AppSettings) p.mExtras;
+				ComponentFixer.fixComponentInfo(settings, serviceInfo);
 				return serviceInfo;
 			}
 		}
@@ -339,7 +348,9 @@ public class VPackageManagerService extends IPackageManager.Stub {
 			PackageParser.Provider p = mProvidersByComponent.get(component);
 			if (p != null) {
 				ProviderInfo providerInfo = PackageParser.generateProviderInfo(p, flags);
-				ComponentFixer.fixComponentInfo(mAppInfos.get(providerInfo.packageName), providerInfo);
+				PackageParser.Package pkg = mPackages.get(providerInfo.packageName);
+				AppSettings settings = (AppSettings) pkg.mExtras;
+				ComponentFixer.fixComponentInfo(settings, providerInfo);
 				return providerInfo;
 			}
 		}
@@ -464,6 +475,8 @@ public class VPackageManagerService extends IPackageManager.Stub {
 				if (a.info.processName.equals(processName)) {
 					ActivityInfo receiverInfo = PackageParser.generateActivityInfo(a, flags);
 					if (receiverInfo != null) {
+						AppSettings settings = (AppSettings) mPackages.get(receiverInfo.packageName).mExtras;
+						ComponentFixer.fixComponentInfo(settings, receiverInfo);
 						ComponentName component = ComponentUtils.toComponentName(receiverInfo);
 						IntentFilter[] filters = null;
 						if (a.intents != null) {
@@ -649,7 +662,9 @@ public class VPackageManagerService extends IPackageManager.Stub {
 			final PackageParser.Provider provider = mProvidersByAuthority.get(name);
 			if (provider != null) {
 				ProviderInfo providerInfo = PackageParser.generateProviderInfo(provider, flags);
-				ComponentFixer.fixComponentInfo(mAppInfos.get(providerInfo.packageName), providerInfo);
+				PackageParser.Package p = mPackages.get(providerInfo.packageName);
+				AppSettings settings = (AppSettings) p.mExtras;
+				ComponentFixer.fixComponentInfo(settings, providerInfo);
 				return providerInfo;
 			}
 		}
@@ -662,11 +677,41 @@ public class VPackageManagerService extends IPackageManager.Stub {
 			PackageParser.Package pkg = mPackages.get(packageName);
 			if (pkg != null) {
 				ApplicationInfo applicationInfo = PackageParser.generateApplicationInfo(pkg, flags);
-				ComponentFixer.fixApplicationInfo(mAppInfos.get(applicationInfo.packageName), applicationInfo);
+				AppSettings settings = (AppSettings) pkg.mExtras;
+				ComponentFixer.fixApplicationInfo(settings, applicationInfo);
 				return applicationInfo;
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public String[] getPackagesForUid(int uid) {
+		synchronized (this) {
+			List<String> pkgList = new ArrayList<>(2);
+			for (PackageParser.Package p : mPackages.values()) {
+				AppSettings settings = (AppSettings) p.mExtras;
+				if (settings.uid == uid) {
+					pkgList.add(p.packageName);
+					if (p.mSharedUserId == null) {
+						break;
+					}
+				}
+			}
+			return pkgList.toArray(new String[pkgList.size()]);
+		}
+	}
+
+	@Override
+	public int getPackageUid(String packageName) {
+		synchronized (mPackages) {
+			PackageParser.Package p = mPackages.get(packageName);
+			if (p != null) {
+				AppSettings settings = (AppSettings) p.mExtras;
+				return settings.uid;
+			}
+			return -1;
+		}
 	}
 
 	@Override

@@ -1,9 +1,10 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import java.lang.reflect.Method;
-
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.hook.utils.HookUtils;
+import com.lody.virtual.client.local.VPackageManager;
+import com.lody.virtual.helper.utils.VLog;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -19,8 +20,13 @@ import com.lody.virtual.client.hook.utils.HookUtils;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		HookUtils.replaceFirstAppPkg(args);
-		return method.invoke(who, args);
+		String pkgName = (String) args[0];
+		int vuid = VPackageManager.getInstance().getPackageUid(pkgName);
+		if (vuid == -1 && pkgName.equals(getHostPkg())) {
+			return method.invoke(who, args);
+		}
+		VLog.d(getName(), "getPackageUid return %d.", vuid);
+		return vuid;
 	}
 
 	@Override

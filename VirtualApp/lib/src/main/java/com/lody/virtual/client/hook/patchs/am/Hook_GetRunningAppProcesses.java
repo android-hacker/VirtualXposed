@@ -1,7 +1,6 @@
 package com.lody.virtual.client.hook.patchs.am;
 
 import android.app.ActivityManager;
-import android.os.Process;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VActivityManager;
@@ -26,15 +25,15 @@ import java.util.List;
 		List<ActivityManager.RunningAppProcessInfo> infoList = (List<ActivityManager.RunningAppProcessInfo>) method
 				.invoke(who, args);
 		if (infoList != null) {
-			int myUid = Process.myUid();
 			for (ActivityManager.RunningAppProcessInfo info : infoList) {
-				if (info.uid == myUid && VActivityManager.getInstance().isAppPid(info.pid)) {
+				if (VActivityManager.getInstance().isAppPid(info.pid)) {
 					List<String> pkgList = VActivityManager.getInstance().getProcessPkgList(info.pid);
 					String processName = VActivityManager.getInstance().getAppProcessName(info.pid);
 					if (processName != null) {
 						info.processName = processName;
 					}
 					info.pkgList = pkgList.toArray(new String[pkgList.size()]);
+					info.uid = VActivityManager.getInstance().getUidByPid(info.pid);
 				}
 			}
 		}

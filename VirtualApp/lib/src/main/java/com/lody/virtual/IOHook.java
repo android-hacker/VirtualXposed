@@ -2,14 +2,12 @@ package com.lody.virtual;
 
 import android.os.Binder;
 import android.os.Build;
-import android.os.Process;
 
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.local.VActivityManager;
-import com.lody.virtual.helper.proto.AppInfo;
-import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.helper.proto.AppSettings;
 import com.lody.virtual.helper.utils.VLog;
 
 import java.io.File;
@@ -28,12 +26,12 @@ public class IOHook {
 
 	private static final String TAG = IOHook.class.getSimpleName();
 
-	private static Map<String, AppInfo> sDexOverrideMap;
+	private static Map<String, AppSettings> sDexOverrideMap;
 
 	public static void startDexOverride() {
-		List<AppInfo> appInfos = VirtualCore.getCore().getAllApps();
-		sDexOverrideMap = new HashMap<>(appInfos.size());
-		for (AppInfo info : appInfos) {
+		List<AppSettings> appSettings = VirtualCore.getCore().getAllApps();
+		sDexOverrideMap = new HashMap<>(appSettings.size());
+		for (AppSettings info : appSettings) {
 			try {
 				sDexOverrideMap.put(new File(info.apkPath).getCanonicalPath(), info);
 			} catch (IOException e) {
@@ -106,17 +104,17 @@ public class IOHook {
 	public static int onGetCallingUid(int originUid) {
 		int resultUid = originUid;
 		int callingPid = Binder.getCallingPid();
-		if (callingPid == Process.myPid()) {
-			resultUid = originUid;
+		if (callingPid == 0) {
+			resultUid = VClientImpl.getClient().getVUid();
 		} else {
-			if (VClientImpl.getClient().isBound()) {
-				String initialPackage = VActivityManager.getInstance().getInitialPackage(callingPid);
-				if (!VClientImpl.getClient().geCurrentPackage().equals(initialPackage)
-						&& !ComponentUtils.isSharedPackage(initialPackage)) {
-//					resultUid = 99999;
-				}
+			int uid = VActivityManager.getInstance().getUidByPid(callingPid);
+			if (uid != -1) {
+				resultUid = uid;
+			} else {
+				VLog.e(TAG, "Unable to get uid from pid : %d.", callingPid);
 			}
 		}
+		VLog.e(TAG, "GetCallingUid return %d.", resultUid);
 		return resultUid;
 	}
 
@@ -124,11 +122,11 @@ public class IOHook {
 		String dexOrJarPath = params[0];
 		String outputPath = params[1];
 		VLog.d(TAG, "DexOrJarPath = %s, OutputPath = %s.", dexOrJarPath, outputPath);
-		AppInfo info = sDexOverrideMap.get(dexOrJarPath);
+		AppSettings info = sDexOverrideMap.get(dexOrJarPath);
 		if (info != null && !info.dependSystem) {
 			outputPath = info.getOdexFile().getPath();
+			params[1] = outputPath;
 		}
-		params[1] = outputPath;
 	}
 
 
@@ -147,4 +145,15 @@ public class IOHook {
 
 	private static native void nativeHook(int apiLevel);
 
+	public static int onGetUid(int uid) {
+		int vuid = VClientImpl.getClient().getVUid();
+		if (vuid == -1) {
+			if (VClientImpl.getClient().isBound()) {
+				VLog.printStackTrace(TAG);
+			}
+			vuid = uid;
+		}
+		VLog.e(TAG, "Process.myPid() return %d.", vuid);
+		return vuid;
+	}
 }

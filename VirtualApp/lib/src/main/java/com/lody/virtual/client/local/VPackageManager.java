@@ -1,13 +1,5 @@
 package com.lody.virtual.client.local;
 
-import java.util.List;
-
-import com.lody.virtual.client.env.VirtualRuntime;
-import com.lody.virtual.client.service.ServiceManagerNative;
-import com.lody.virtual.helper.proto.ReceiverInfo;
-import com.lody.virtual.helper.proto.VParceledListSlice;
-import com.lody.virtual.service.IPackageManager;
-
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -21,6 +13,14 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.os.IBinder;
 import android.os.RemoteException;
+
+import com.lody.virtual.client.env.VirtualRuntime;
+import com.lody.virtual.client.service.ServiceManagerNative;
+import com.lody.virtual.helper.proto.ReceiverInfo;
+import com.lody.virtual.helper.proto.VParceledListSlice;
+import com.lody.virtual.service.IPackageManager;
+
+import java.util.List;
 
 /**
  * @author Lody
@@ -245,6 +245,22 @@ public class VPackageManager {
 	public List<String> querySharedPackages(String packageName) {
 		try {
 			return getInterface().querySharedPackages(packageName);
+		} catch (RemoteException e) {
+			return VirtualRuntime.crash(e);
+		}
+	}
+
+	public String[] getPackagesForUid(int uid) {
+		try {
+			return getInterface().getPackagesForUid(uid);
+		} catch (RemoteException e) {
+			return VirtualRuntime.crash(e);
+		}
+	}
+
+	public int getPackageUid(String packageName) {
+		try {
+			return getInterface().getPackageUid(packageName);
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}

@@ -1,11 +1,11 @@
 package com.lody.virtual.client.hook.base;
 
-import java.lang.reflect.Constructor;
+import android.os.Build;
 
 import com.lody.virtual.client.interfaces.IHookObject;
 import com.lody.virtual.client.interfaces.Injectable;
 
-import android.os.Build;
+import java.lang.reflect.Constructor;
 
 /**
  * @author Lody
@@ -87,8 +87,8 @@ public abstract class PatchObject<T, H extends IHookObject<T>> implements Inject
 		}
 	}
 
-	public void addHook(Hook hook) {
-		hookObject.addHook(hook);
+	public Hook addHook(Hook hook) {
+		return hookObject.addHook(hook);
 	}
 
 	/**

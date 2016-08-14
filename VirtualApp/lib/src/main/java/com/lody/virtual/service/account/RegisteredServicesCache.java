@@ -192,6 +192,8 @@ public abstract class RegisteredServicesCache<V> {
 
 	private boolean inSystemImage(int callerUid) {
 		String[] packages = mContext.getPackageManager().getPackagesForUid(callerUid);
+		if (packages == null) packages = new String[0];
+
 		for (String name : packages) {
 			try {
 				PackageInfo packageInfo = mContext.getPackageManager().getPackageInfo(name, 0 /* flags */);

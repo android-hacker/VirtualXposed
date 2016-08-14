@@ -1,14 +1,17 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
-
 import com.lody.virtual.client.hook.base.Hook;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
  *
  */
 /* package */ class Hook_HandleIncomingUser extends Hook {
+	{
+		replaceUid(1);
+	}
 
 	@Override
 	public String getName() {

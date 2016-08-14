@@ -1,9 +1,9 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
-
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VActivityManager;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -12,6 +12,9 @@ import com.lody.virtual.client.local.VActivityManager;
  * @see android.app.IActivityManager#killApplicationProcess(String, int)
  */
 /* package */ class Hook_KillApplicationProcess extends Hook {
+	{
+		replaceUid(1);
+	}
 
 	@Override
 	public String getName() {
