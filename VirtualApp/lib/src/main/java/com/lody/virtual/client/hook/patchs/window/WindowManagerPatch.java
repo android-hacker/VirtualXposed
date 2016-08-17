@@ -1,14 +1,15 @@
 package com.lody.virtual.client.hook.patchs.window;
 
-import com.lody.virtual.client.hook.base.Patch;
-import com.lody.virtual.client.hook.base.PatchObject;
-import com.lody.virtual.client.hook.binders.HookWindowManagerBinder;
-import com.lody.virtual.helper.utils.Reflect;
-
 import android.content.Context;
 import android.os.ServiceManager;
 import android.view.IWindowManager;
 import android.view.WindowManagerGlobal;
+
+import com.lody.virtual.client.hook.base.Patch;
+import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.StaticHook;
+import com.lody.virtual.client.hook.binders.HookWindowManagerBinder;
+import com.lody.virtual.helper.utils.Reflect;
 
 /**
  * @author Lody
@@ -57,6 +58,13 @@ public class WindowManagerPatch extends PatchObject<IWindowManager, HookWindowMa
 				// Ignore
 			}
 		}
+	}
+
+	@Override
+	protected void applyHooks() {
+		super.applyHooks();
+		addHook(new StaticHook("addAppToken")).replaceUserId(7);
+		addHook(new StaticHook("setScreenCaptureDisabled")).replaceUserId(0);
 	}
 
 	@Override

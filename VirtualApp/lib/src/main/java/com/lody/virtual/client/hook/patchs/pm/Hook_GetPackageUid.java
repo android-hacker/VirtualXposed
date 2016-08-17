@@ -3,6 +3,7 @@ package com.lody.virtual.client.hook.patchs.pm;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
 
@@ -21,7 +22,11 @@ import java.lang.reflect.Method;
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		String pkgName = (String) args[0];
-		int vuid = VPackageManager.getInstance().getPackageUid(pkgName);
+		int userId = isAppProcess() ? VUserHandle.myUserId() : VUserHandle.USER_OWNER;
+		if (args.length > 1 && args[1] instanceof Integer) {
+			userId = (int) args[1];
+		}
+		int vuid = VPackageManager.getInstance().getPackageUid(pkgName, userId);
 		if (vuid == -1 && pkgName.equals(getHostPkg())) {
 			return method.invoke(who, args);
 		}

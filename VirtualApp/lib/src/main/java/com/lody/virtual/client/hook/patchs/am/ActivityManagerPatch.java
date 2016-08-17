@@ -3,6 +3,7 @@ package com.lody.virtual.client.hook.patchs.am;
 import android.app.ActivityManagerNative;
 import android.app.IActivityManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.ServiceManager;
 import android.util.Singleton;
@@ -28,7 +29,7 @@ import java.lang.reflect.Method;
 
 @Patch({Hook_StartActivities.class, Hook_StartActivity.class, Hook_StartActivityAsCaller.class,
 		Hook_StartActivityAndWait.class, Hook_StartActivityWithConfig.class, Hook_StartActivityIntentSender.class,
-		Hook_StartNextMatchingActivity.class, Hook_StartVoiceActivity.class, Hook_StartActivityAsUser.class,
+		Hook_StartNextMatchingActivity.class, Hook_StartVoiceActivity.class,
 		Hook_GetIntentSender.class, Hook_RegisterReceiver.class, Hook_GetContentProvider.class,
 		Hook_GetContentProviderExternal.class,
 
@@ -104,8 +105,27 @@ public class ActivityManagerPatch extends PatchObject<IActivityManager, HookObje
 		if (VirtualCore.getCore().isVAppProcess()) {
 			addHook(new isUserRunning());
 			addHook(new ReplaceCallingPkgHook("setAppLockedVerifying"));
-			addHook(new StaticHook("checkUriPermission")).replaceUid(2);
+			addHook(new StaticHook("checkUriPermission") {
+				@Override
+				public Object afterHook(Object who, Method method, Object[] args, Object result) throws Throwable {
+					return PackageManager.PERMISSION_GRANTED;
+				}
+			});
 			addHook(new StaticHook("checkPermissionWithToken")).replaceUid(2);
+			addHook(new StaticHook("broadcastStickyIntent")).replaceLastUserId();
+			addHook(new StaticHook("startActivityAsUser")).replaceLastUserId();
+			addHook(new StaticHook("unbroadcastIntent")).replaceLastUserId();
+			addHook(new StaticHook("getRecentTasks")).replaceLastUserId();
+			addHook(new StaticHook("grantUriPermission")).replaceLastUserId();
+			addHook(new StaticHook("revokeUriPermission")).replaceLastUserId();
+			addHook(new StaticHook("takePersistableUriPermission")).replaceLastUserId();
+			addHook(new StaticHook("releasePersistableUriPermission")).replaceLastUserId();
+			addHook(new StaticHook("profileControl")).replaceUserId(1);
+			addHook(new StaticHook("getProviderMimeType")).replaceLastUserId();
+			addHook(new StaticHook("dumpHeap")).replaceUserId(0);
+			addHook(new StaticHook("killUid")).replaceUserId(1);
+			addHook(new StaticHook("updateLockTaskPackages")).replaceUserId(0);
+			addHook(new StaticHook("setProcessMemoryTrimLevel")).replaceUserId(1);
 		}
 	}
 

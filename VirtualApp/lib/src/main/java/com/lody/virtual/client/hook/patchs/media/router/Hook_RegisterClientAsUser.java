@@ -1,14 +1,18 @@
 package com.lody.virtual.client.hook.patchs.media.router;
 
-import java.lang.reflect.Method;
-
 import com.lody.virtual.client.hook.base.Hook;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
  *
  */
 /* package */ class Hook_RegisterClientAsUser extends Hook {
+
+	{
+		replaceLastUserId();
+	}
 
 	@Override
 	public String getName() {

@@ -28,8 +28,9 @@ import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.compat.ActivityThreadCompat;
 import com.lody.virtual.helper.compat.BundleCompat;
-import com.lody.virtual.helper.proto.AppSettings;
+import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.proto.InstallResult;
+import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.service.IAppManager;
 
 import java.util.HashMap;
@@ -85,6 +86,10 @@ public final class VirtualCore {
 		return myUid;
 	}
 
+	public int myUserId() {
+		return VUserHandle.getUserId(myUid);
+	}
+
 	public static Object getHostBindData() {
 		return getCore().hostBindData;
 	}
@@ -125,10 +130,6 @@ public final class VirtualCore {
 
 	public int[] getGids() {
 		return hostPkgInfo.gids;
-	}
-
-	public PackageInfo getHostPkgInfo() {
-		return hostPkgInfo;
 	}
 
 	public Context getContext() {
@@ -239,7 +240,7 @@ public final class VirtualCore {
 	}
 
 	public void preOpt(String pkg) throws Exception {
-		AppSettings info = findApp(pkg);
+		AppSetting info = findApp(pkg);
 		if (info != null && !info.dependSystem) {
 			DexFile.loadDex(info.apkPath, info.getOdexFile().getPath(), 0).close();
 		}
@@ -261,23 +262,32 @@ public final class VirtualCore {
 		}
 	}
 
-	public Intent getLaunchIntent(String pkg) {
-		AppSettings info = findApp(pkg);
-		if (info != null) {
-			Intent intent = getPackageManager().getLaunchIntentForPackage(pkg);
-			if (intent == null) {
-				throw new IllegalStateException("Unable to launch the app named : " + pkg);
-			}
-			return intent;
-		} else {
-			throw new IllegalStateException("Unable to find app named : " + pkg);
+	public Intent getLaunchIntent(String packageName, int userId) {
+		VPackageManager pm = VPackageManager.getInstance();
+		Intent intentToResolve = new Intent(Intent.ACTION_MAIN);
+		intentToResolve.addCategory(Intent.CATEGORY_INFO);
+		intentToResolve.setPackage(packageName);
+		List<ResolveInfo> ris = pm.queryIntentActivities(intentToResolve, intentToResolve.resolveType(context), 0, userId);
+
+		// Otherwise, try to find a main launcher activity.
+		if (ris == null || ris.size() <= 0) {
+			// reuse the intent instance
+			intentToResolve.removeCategory(Intent.CATEGORY_INFO);
+			intentToResolve.addCategory(Intent.CATEGORY_LAUNCHER);
+			intentToResolve.setPackage(packageName);
+			ris = pm.queryIntentActivities(intentToResolve, intentToResolve.resolveType(context), 0, userId);
 		}
+		if (ris == null || ris.size() <= 0) {
+			return null;
+		}
+		Intent intent = new Intent(intentToResolve);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.setClassName(ris.get(0).activityInfo.packageName,
+				ris.get(0).activityInfo.name);
+		intent.putExtra(ExtraConstants.EXTRA_TARGET_USER, userId);
+		return intent;
 	}
 
-	public void launchApp(String pkgName) throws Throwable {
-		Intent intent = getLaunchIntent(pkgName);
-		context.startActivity(intent);
-	}
 
 	public void addLoadingPage(Intent intent, Activity activity) {
 		if (activity != null) {
@@ -293,7 +303,7 @@ public final class VirtualCore {
 		}
 	}
 
-	public AppSettings findApp(String pkg) {
+	public AppSetting findApp(String pkg) {
 		try {
 			return getService().findAppInfo(pkg);
 		} catch (RemoteException e) {
@@ -323,10 +333,10 @@ public final class VirtualCore {
 	}
 
 	public Resources getResources(String pkg) {
-		AppSettings appSettings = findApp(pkg);
-		if (appSettings != null) {
+		AppSetting appSetting = findApp(pkg);
+		if (appSetting != null) {
 			AssetManager assets = new AssetManager();
-			assets.addAssetPath(appSettings.apkPath);
+			assets.addAssetPath(appSetting.apkPath);
 			Resources hostRes = context.getResources();
 			return new Resources(assets, hostRes.getDisplayMetrics(), hostRes.getConfiguration());
 		}
@@ -337,25 +347,25 @@ public final class VirtualCore {
 		return TextUtils.equals(pkgName, context.getPackageName());
 	}
 
-	public synchronized ActivityInfo resolveActivityInfo(Intent intent) {
+	public synchronized ActivityInfo resolveActivityInfo(Intent intent, int userId) {
 		ActivityInfo activityInfo = null;
 		if (intent.getComponent() == null) {
-			ResolveInfo resolveInfo = VPackageManager.getInstance().resolveIntent(intent, intent.getType(), 0);
+			ResolveInfo resolveInfo = VPackageManager.getInstance().resolveIntent(intent, intent.getType(), 0, 0);
 			if (resolveInfo != null && resolveInfo.activityInfo != null) {
 				activityInfo = resolveInfo.activityInfo;
 				intent.setClassName(activityInfo.packageName, activityInfo.name);
 				activityInfoCache.put(intent.getComponent(), activityInfo);
 			}
 		} else {
-			activityInfo = resolveActivityInfo(intent.getComponent());
+			activityInfo = resolveActivityInfo(intent.getComponent(), userId);
 		}
 		return activityInfo;
 	}
 
-	public synchronized ActivityInfo resolveActivityInfo(ComponentName componentName) {
+	public synchronized ActivityInfo resolveActivityInfo(ComponentName componentName, int userId) {
 		ActivityInfo activityInfo = activityInfoCache.get(componentName);
 		if (activityInfo == null) {
-			activityInfo = VPackageManager.getInstance().getActivityInfo(componentName, 0);
+			activityInfo = VPackageManager.getInstance().getActivityInfo(componentName, 0, userId);
 			if (activityInfo != null) {
 				activityInfoCache.put(componentName, activityInfo);
 			}
@@ -363,24 +373,24 @@ public final class VirtualCore {
 		return activityInfo;
 	}
 
-	public ServiceInfo resolveServiceInfo(Intent intent) {
+	public ServiceInfo resolveServiceInfo(Intent intent, int userId) {
 		ServiceInfo serviceInfo = null;
-		ResolveInfo resolveInfo = VPackageManager.getInstance().resolveService(intent, intent.getType(), 0);
+		ResolveInfo resolveInfo = VPackageManager.getInstance().resolveService(intent, intent.getType(), 0, userId);
 		if (resolveInfo != null) {
 			serviceInfo = resolveInfo.serviceInfo;
 		}
 		return serviceInfo;
 	}
 
-	public void killApp(String pkg) {
-		VActivityManager.getInstance().killAppByPkg(pkg);
+	public void killApp(String pkg, int userId) {
+		VActivityManager.getInstance().killAppByPkg(pkg, userId);
 	}
 
 	public void killAllApps() {
 		VActivityManager.getInstance().killAllApps();
 	}
 
-	public List<AppSettings> getAllApps() {
+	public List<AppSetting> getAllApps() {
 		try {
 			return getService().getAllApps();
 		} catch (RemoteException e) {

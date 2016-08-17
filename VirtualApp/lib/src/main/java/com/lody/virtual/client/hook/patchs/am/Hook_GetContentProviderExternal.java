@@ -12,6 +12,9 @@ package com.lody.virtual.client.hook.patchs.am;
  *
  */
 /* package */ class Hook_GetContentProviderExternal extends Hook_GetContentProvider {
+	{
+		replaceLastOfUserId(2);
+	}
 
 	@Override
 	public String getName() {

@@ -5,6 +5,7 @@ import android.provider.Settings;
 
 import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.delegate.AppInstrumentation;
+import com.lody.virtual.client.hook.patchs.accessibility.AccessibilityPatch;
 import com.lody.virtual.client.hook.patchs.account.AccountManagerPatch;
 import com.lody.virtual.client.hook.patchs.alerm.AlarmManagerPatch;
 import com.lody.virtual.client.hook.patchs.am.ActivityManagerPatch;
@@ -15,6 +16,7 @@ import com.lody.virtual.client.hook.patchs.audio.AudioManagerPatch;
 import com.lody.virtual.client.hook.patchs.backup.BackupManagerPatch;
 import com.lody.virtual.client.hook.patchs.camera.CameraPatch;
 import com.lody.virtual.client.hook.patchs.clipboard.ClipBoardPatch;
+import com.lody.virtual.client.hook.patchs.content.ContentServicePatch;
 import com.lody.virtual.client.hook.patchs.display.DisplayManagerPatch;
 import com.lody.virtual.client.hook.patchs.dropbox.DropBoxManagerPatch;
 import com.lody.virtual.client.hook.patchs.graphics.GraphicsStatsPatch;
@@ -117,10 +119,13 @@ public final class PatchManager {
 	}
 
 	private void injectInternal() throws Throwable {
-		addPatch(new ActivityManagerPatch());
-		addPatch(new PackageManagerPatch());
-
+		if (VirtualCore.getCore().isMainProcess()) {
+			addPatch(new ActivityManagerPatch());
+			return;
+		}
 		if (VirtualCore.getCore().isVAppProcess()) {
+			addPatch(new ActivityManagerPatch());
+			addPatch(new PackageManagerPatch());
 			addPatch(new LibCorePatch());
 			// ## Fuck the MIUI Security
 			if (MIUISecurityManagerPatch.needInject()) {
@@ -146,6 +151,8 @@ public final class PatchManager {
 			addPatch(new AudioManagerPatch());
 			addPatch(new SearchManagerPatch());
 			addPatch(new AlarmManagerPatch());
+			addPatch(new AccessibilityPatch());
+			addPatch(new ContentServicePatch());
 
 			if (Build.VERSION.SDK_INT >= JELLY_BEAN_MR2) {
 				addPatch(new VibratorPatch());

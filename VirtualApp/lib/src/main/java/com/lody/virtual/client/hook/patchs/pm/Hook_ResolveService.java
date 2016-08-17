@@ -1,12 +1,13 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import java.lang.reflect.Method;
+import android.content.Intent;
+import android.content.pm.ResolveInfo;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VPackageManager;
+import com.lody.virtual.os.VUserHandle;
 
-import android.content.Intent;
-import android.content.pm.ResolveInfo;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -27,7 +28,11 @@ import android.content.pm.ResolveInfo;
 		Intent intent = (Intent) args[0];
 		String resolvedType = (String) args[1];
 		int flags = (int) args[2];
-		ResolveInfo resolveInfo = VPackageManager.getInstance().resolveService(intent, resolvedType, flags);
+		int userId = isAppProcess() ? VUserHandle.myUserId() : VUserHandle.USER_OWNER;
+		if (args.length > 3 && args[3] instanceof Integer) {
+			userId = (int) args[3];
+		}
+		ResolveInfo resolveInfo = VPackageManager.getInstance().resolveService(intent, resolvedType, flags, userId);
 		if (resolveInfo == null) {
 			resolveInfo = (ResolveInfo) method.invoke(who, args);
 		}

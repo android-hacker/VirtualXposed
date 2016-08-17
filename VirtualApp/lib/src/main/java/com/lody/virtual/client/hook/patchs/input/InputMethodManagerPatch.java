@@ -1,14 +1,15 @@
 package com.lody.virtual.client.hook.patchs.input;
 
-import java.lang.reflect.Field;
+import android.content.Context;
+import android.view.inputmethod.InputMethodManager;
 
 import com.android.internal.view.IInputMethodManager;
 import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.StaticHook;
 import com.lody.virtual.client.hook.binders.HookIMMBinder;
 
-import android.content.Context;
-import android.view.inputmethod.InputMethodManager;
+import java.lang.reflect.Field;
 
 /**
  * @author Lody
@@ -51,6 +52,12 @@ public class InputMethodManagerPatch extends PatchObject<IInputMethodManager, Ho
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	@Override
+	protected void applyHooks() {
+		super.applyHooks();
+		addHook(new StaticHook("addClient")).replaceUid(2);
 	}
 
 	@Override

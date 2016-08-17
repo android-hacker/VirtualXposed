@@ -11,9 +11,11 @@ import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.base.StaticHook;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.ReflectException;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 import libcore.io.ForwardingOs;
 import libcore.io.Libcore;
@@ -74,6 +76,18 @@ public class LibCorePatch extends PatchObject<Os,HookObject<Os>> {
         addHook(new ReplaceUidHook("setuid", 0));
         addHook(new getpwnam());
         addHook(new getsockoptUcred());
+        addHook(new Hook() {
+            @Override
+            public String getName() {
+                return "mkdir";
+            }
+
+            @Override
+            public Object afterHook(Object who, Method method, Object[] args, Object result) throws Throwable {
+                VLog.d("mkdir", " %s return " + result, Arrays.toString(args));
+                return result;
+            }
+        });
     }
 
 

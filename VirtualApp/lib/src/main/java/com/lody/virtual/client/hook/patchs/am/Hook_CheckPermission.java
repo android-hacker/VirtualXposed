@@ -3,7 +3,6 @@ package com.lody.virtual.client.hook.patchs.am;
 import android.Manifest;
 import android.content.pm.PackageManager;
 
-import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 
 import java.lang.reflect.Method;
@@ -16,6 +15,9 @@ import java.lang.reflect.Method;
  */
 
 public class Hook_CheckPermission extends Hook {
+	{
+		replaceUid(2);
+	}
 
 	@Override
 	public String getName() {
@@ -25,9 +27,6 @@ public class Hook_CheckPermission extends Hook {
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		String permission = (String) args[0];
-		// Replace the real uid
-		args[args.length - 1] = VirtualCore.getCore().myUid();
-
 		if (Manifest.permission.ACCOUNT_MANAGER.equals(permission)) {
 			return PackageManager.PERMISSION_GRANTED;
 		}
@@ -39,6 +38,6 @@ public class Hook_CheckPermission extends Hook {
 
 	@Override
 	public boolean isEnable() {
-		return isAppProcess() || isServiceProcess();
+		return isAppProcess();
 	}
 }

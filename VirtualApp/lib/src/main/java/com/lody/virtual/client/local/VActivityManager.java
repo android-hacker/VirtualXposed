@@ -18,6 +18,7 @@ import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.VParceledListSlice;
 import com.lody.virtual.helper.proto.VRedirectActRequest;
 import com.lody.virtual.helper.utils.Reflect;
+import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.service.IActivityManager;
 import com.lody.virtual.service.interfaces.IProcessObserver;
 
@@ -244,16 +245,16 @@ public class VActivityManager {
 
 	public android.app.IActivityManager.ContentProviderHolder getContentProvider(String auth) {
 		try {
-			return getService().getContentProvider(auth);
+			return getService().getContentProvider(auth, VUserHandle.myUserId());
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
 	}
 
 
-	public void attachClient(IBinder clinet) {
+	public void attachClient(IBinder client) {
 		try {
-			getService().attachClient(clinet);
+			getService().attachClient(client);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -323,9 +324,9 @@ public class VActivityManager {
 		}
 	}
 
-	public void killAppByPkg(String pkg) {
+	public void killAppByPkg(String pkg, int userId) {
 		try {
-			getService().killAppByPkg(pkg);
+			getService().killAppByPkg(pkg, userId);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}

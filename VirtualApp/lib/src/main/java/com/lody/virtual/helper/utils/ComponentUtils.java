@@ -38,7 +38,7 @@ public class ComponentUtils {
 
 	public static boolean isSameComponent(ComponentInfo first, ComponentInfo second) {
 
-		if (first != null && second != null) {
+		if (first != null && second != null && (first.applicationInfo.uid == second.applicationInfo.uid)) {
 			String pkg1 = first.packageName + "";
 			String pkg2 = second.packageName + "";
 			String name1 = first.name + "";

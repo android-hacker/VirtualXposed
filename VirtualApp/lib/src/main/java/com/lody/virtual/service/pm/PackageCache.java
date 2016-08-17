@@ -1,6 +1,6 @@
 package com.lody.virtual.service.pm;
 
-import com.lody.virtual.helper.proto.AppSettings;
+import com.lody.virtual.helper.proto.AppSetting;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,9 +13,9 @@ public class PackageCache {
 	public static final Map<String, PackageParser.Package> sPackageCaches = new ConcurrentHashMap<>();
 
 
-	public static void put(PackageParser.Package pkg, AppSettings appSettings) {
+	public static void put(PackageParser.Package pkg, AppSetting appSetting) {
 		synchronized (PackageCache.class) {
-			pkg.mExtras = appSettings;
+			pkg.mExtras = appSetting;
 			sPackageCaches.put(pkg.packageName, pkg);
 			VPackageManagerService.getService().analyzePackageLocked(pkg);
 		}

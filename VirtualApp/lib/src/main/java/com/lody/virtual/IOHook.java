@@ -8,7 +8,7 @@ import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.local.VActivityManager;
-import com.lody.virtual.helper.proto.AppSettings;
+import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.utils.VLog;
 
 import java.io.File;
@@ -27,12 +27,12 @@ public class IOHook {
 
 	private static final String TAG = IOHook.class.getSimpleName();
 
-	private static Map<String, AppSettings> sDexOverrideMap;
+	private static Map<String, AppSetting> sDexOverrideMap;
 
 	public static void startDexOverride() {
-		List<AppSettings> appSettings = VirtualCore.getCore().getAllApps();
+		List<AppSetting> appSettings = VirtualCore.getCore().getAllApps();
 		sDexOverrideMap = new HashMap<>(appSettings.size());
-		for (AppSettings info : appSettings) {
+		for (AppSetting info : appSettings) {
 			try {
 				sDexOverrideMap.put(new File(info.apkPath).getCanonicalPath(), info);
 			} catch (IOException e) {
@@ -125,7 +125,7 @@ public class IOHook {
 				VLog.e(TAG, "Unable to get uid from pid : %d.", callingPid);
 			}
 		}
-		VLog.e(TAG, "GetCallingUid return %d.", resultUid);
+//		VLog.e(TAG, "GetCallingUid return %d.", resultUid);
 		return resultUid;
 	}
 
@@ -133,7 +133,7 @@ public class IOHook {
 		String dexOrJarPath = params[0];
 		String outputPath = params[1];
 		VLog.d(TAG, "DexOrJarPath = %s, OutputPath = %s.", dexOrJarPath, outputPath);
-		AppSettings info = sDexOverrideMap.get(dexOrJarPath);
+		AppSetting info = sDexOverrideMap.get(dexOrJarPath);
 		if (info != null && !info.dependSystem) {
 			outputPath = info.getOdexFile().getPath();
 			params[1] = outputPath;
@@ -164,7 +164,7 @@ public class IOHook {
 			}
 			vuid = uid;
 		}
-		VLog.e(TAG, "Process.myPid() return %d.", vuid);
+//		VLog.e(TAG, "Process.myPid() return %d.", vuid);
 		return vuid;
 	}
 }

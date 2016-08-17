@@ -186,7 +186,7 @@ namespace HOOK_JAVA {
 
     static int  nativeFuncOffset;
 
-    void searchJniOffset() {
+    void searchJniOffset(bool isArt) {
         if (nativeFuncOffset != 0) {
             return;
         }
@@ -198,7 +198,7 @@ namespace HOOK_JAVA {
             LOGE("hook mark failed! because register methods FAILED!!!");
             return;
         }
-        void * art_work_around_app_jni_bugs = dlsym(RTLD_DEFAULT, "art_work_around_app_jni_bugs");
+        void * art_work_around_app_jni_bugs = isArt ? dlsym(RTLD_DEFAULT, "art_work_around_app_jni_bugs") : 0;
 
         jmethodID mtd_nativeHook = env->GetStaticMethodID(g_jclass, gMethods[0].name, gMethods[0].signature);
 
@@ -221,6 +221,9 @@ namespace HOOK_JAVA {
         if (found) {
             LOGE("Get Offset : %d", offset);
             nativeFuncOffset = offset;
+            if (!isArt) {
+                nativeFuncOffset += (sizeof(int) + sizeof(void*));//this is jni Bridge offset.
+            }
         }
     }
 
@@ -233,10 +236,6 @@ namespace HOOK_JAVA {
         g_methodid_onOpenDexFileNative = env->GetStaticMethodID(g_jclass, "onOpenDexFileNative", "([Ljava/lang/String;)V");
 
         g_methodid_onGetCallingUid = env->GetStaticMethodID(g_jclass, "onGetCallingUid", "(I)I");
-
-        if (!isArt) {
-            nativeFuncOffset += (sizeof(int) + sizeof(void*));//this is jni Bridge offset.
-        }
 
         size_t mtd_openDexNative = (size_t) env->FromReflectedMethod(javaMethod);
 
@@ -278,7 +277,7 @@ namespace HOOK_JAVA {
 
 void HOOK_NATIVE::hook(jobject javaMethod, jboolean isArt) {
     LOGI("Begin Native hooks...");
-    HOOK_JAVA::searchJniOffset();
+    HOOK_JAVA::searchJniOffset(isArt);
     HOOK_BINDER::hook();
     HOOK_JAVA::hook(javaMethod, isArt);
     LOGI("End Native hooks SUCCESS!");

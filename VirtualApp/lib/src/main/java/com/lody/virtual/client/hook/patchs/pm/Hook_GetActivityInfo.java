@@ -1,10 +1,10 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
 import android.content.ComponentName;
-import android.content.pm.ActivityInfo;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VPackageManager;
+import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
 
@@ -31,11 +31,19 @@ import static android.content.pm.PackageManager.GET_DISABLED_COMPONENTS;
 		if (getHostPkg().equals(componentName.getPackageName())) {
 			return method.invoke(who, args);
 		}
+		int userId = isAppProcess() ? VUserHandle.myUserId() : VUserHandle.USER_OWNER;
+		if (args.length > 2 && args[2] instanceof Integer) {
+			userId = (int) args[2];
+		}
 		int flags = (int) args[1];
 		if ((flags & GET_DISABLED_COMPONENTS) == 0) {
 			flags |= GET_DISABLED_COMPONENTS;
 		}
-		ActivityInfo info = VPackageManager.getInstance().getActivityInfo(componentName, flags);
-		return info;
+		return VPackageManager.getInstance().getActivityInfo(componentName, flags, userId);
+	}
+
+	@Override
+	public boolean isEnable() {
+		return isAppProcess();
 	}
 }

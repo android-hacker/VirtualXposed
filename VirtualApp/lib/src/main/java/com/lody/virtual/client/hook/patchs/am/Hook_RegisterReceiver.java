@@ -1,18 +1,5 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.ref.WeakReference;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.WeakHashMap;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.env.SpecialWidgetList;
-import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.hook.utils.HookUtils;
-import com.lody.virtual.helper.utils.Reflect;
-
 import android.app.IApplicationThread;
 import android.content.ComponentName;
 import android.content.IIntentReceiver;
@@ -23,12 +10,31 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.SpecialWidgetList;
+import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.hook.utils.HookUtils;
+import com.lody.virtual.helper.ExtraConstants;
+import com.lody.virtual.helper.utils.Reflect;
+import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.os.VUserHandle;
+
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.WeakHashMap;
+
 /**
  * @author Lody
  * @see android.app.IActivityManager#registerReceiver(IApplicationThread,
  *      String, IIntentReceiver, IntentFilter, String, int)
  */
 /* package */ class Hook_RegisterReceiver extends Hook {
+	{
+		replaceLastUserId();
+	}
 
 	private static final int IDX_IIntentReceiver = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
 			? 2
@@ -122,6 +128,15 @@ import android.os.RemoteException;
 		@Override
 		public void performReceive(Intent intent, int resultCode, String data, Bundle extras, boolean ordered,
 				boolean sticky, int sendingUser) throws RemoteException {
+			if (sendingUser == VUserHandle.USER_NULL) {
+				sendingUser = intent.getIntExtra(ExtraConstants.EXTRA_CALLER_USER, VUserHandle.myUserId());
+			} else {
+				sendingUser = intent.getIntExtra(ExtraConstants.EXTRA_CALLER_USER, sendingUser);
+			}
+			if (!VUserHandle.accept(sendingUser)) {
+				VLog.d("VActivityManager", "Reject cross SendingUser : %d.", sendingUser);
+				return;
+			}
 			try {
 				String action = intent.getAction();
 				String oldAction = SpecialWidgetList.restoreAction(action);
@@ -149,7 +164,7 @@ import android.os.RemoteException;
 		// @Override
 		public void performReceive(Intent intent, int resultCode, String data, Bundle extras, boolean ordered,
 				boolean sticky) throws android.os.RemoteException {
-			this.performReceive(intent, resultCode, data, extras, ordered, sticky, 0);
+			this.performReceive(intent, resultCode, data, extras, ordered, sticky, VUserHandle.USER_NULL);
 		}
 	}
 }

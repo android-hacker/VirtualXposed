@@ -15,7 +15,7 @@ import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.compat.ActivityRecordCompat;
 import com.lody.virtual.helper.compat.ClassLoaderCompat;
-import com.lody.virtual.helper.proto.AppSettings;
+import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.VLog;
 
@@ -105,8 +105,8 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		ComponentName component = targetIntent.getComponent();
 		String pkgName = component.getPackageName();
 
-		AppSettings appSettings = VirtualCore.getCore().findApp(pkgName);
-		if (appSettings == null) {
+		AppSetting appSetting = VirtualCore.getCore().findApp(pkgName);
+		if (appSetting == null) {
 			return true;
 		}
 		ActivityInfo stubActInfo = stubIntent.getParcelableExtra(ExtraConstants.EXTRA_STUB_ACT_INFO);
@@ -122,7 +122,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 			getH().sendMessageDelayed(Message.obtain(msg), 5);
 			return false;
 		}
-		ClassLoader appClassLoader = appSettings.getClassLoader();
+		ClassLoader appClassLoader = VClientImpl.getClient().getClassLoader(targetActInfo.applicationInfo);
 		targetIntent.setExtrasClassLoader(appClassLoader);
 
 		boolean error = false;

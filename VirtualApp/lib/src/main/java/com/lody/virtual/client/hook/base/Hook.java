@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.proto.AppSettings;
+import com.lody.virtual.helper.proto.AppSetting;
 
 import java.lang.reflect.Method;
 import java.util.LinkedList;
@@ -25,6 +25,17 @@ public abstract class Hook {
 		subModules.offer(module);
 	}
 
+	public void replaceUserId(final int index) {
+		addSubModule(new SubModule() {
+			@Override
+			public void apply(Object who, Method method, Object... args) {
+				if (args.length > index && args[index] instanceof Integer) {
+					args[index] = VirtualCore.getCore().myUserId();
+				}
+			}
+		});
+	}
+
 	public abstract class SubModule {
 		public abstract void apply(Object who, Method method, Object... args);
 	}
@@ -43,7 +54,7 @@ public abstract class Hook {
 		return true;
 	}
 
-	public void replaceUid(final int index) {
+	public Hook replaceUid(final int index) {
 		addSubModule(new SubModule() {
 			@Override
 			public void apply(Object who, Method method, Object... args) {
@@ -52,6 +63,31 @@ public abstract class Hook {
 				}
 			}
 		});
+		return this;
+	}
+
+	public Hook replaceLastUserId() {
+		addSubModule(new SubModule() {
+			@Override
+			public void apply(Object who, Method method, Object... args) {
+				if (args.length > 0 && args[args.length - 1] instanceof Integer) {
+					args[args.length - 1] = VirtualCore.getCore().myUserId();
+				}
+			}
+		});
+		return this;
+	}
+
+	public Hook replaceLastOfUserId(final int lastIndex) {
+		addSubModule(new SubModule() {
+			@Override
+			public void apply(Object who, Method method, Object... args) {
+				if (args.length > 0 && args[args.length - lastIndex] instanceof Integer) {
+					args[args.length - lastIndex] = VirtualCore.getCore().myUserId();
+				}
+			}
+		});
+		return this;
 	}
 
 	/**
@@ -89,7 +125,7 @@ public abstract class Hook {
 		return VirtualCore.getCore().getContext();
 	}
 
-	protected final AppSettings findAppInfo(String pkg) {
+	protected final AppSetting findAppInfo(String pkg) {
 		return VirtualCore.getCore().findApp(pkg);
 	}
 

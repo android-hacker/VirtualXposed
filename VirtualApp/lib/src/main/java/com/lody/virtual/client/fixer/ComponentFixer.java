@@ -5,7 +5,9 @@ import android.content.pm.ComponentInfo;
 import android.os.Build;
 import android.text.TextUtils;
 
-import com.lody.virtual.helper.proto.AppSettings;
+import com.lody.virtual.helper.proto.AppSetting;
+import com.lody.virtual.os.VEnvironment;
+import com.lody.virtual.os.VUserHandle;
 
 /**
  * @author Lody
@@ -14,17 +16,17 @@ import com.lody.virtual.helper.proto.AppSettings;
 public class ComponentFixer {
 
 
-	public static void fixApplicationInfo(AppSettings info, ApplicationInfo applicationInfo) {
+	public static void fixApplicationInfo(AppSetting setting, ApplicationInfo applicationInfo, int userId) {
 		applicationInfo.flags |= ApplicationInfo.FLAG_HAS_CODE;
 		if (TextUtils.isEmpty(applicationInfo.processName)) {
 			applicationInfo.processName = applicationInfo.packageName;
 		}
-		applicationInfo.name = fixComponentClassName(info.packageName, applicationInfo.name);
-		applicationInfo.publicSourceDir = info.apkPath;
-		applicationInfo.sourceDir = info.apkPath;
+		applicationInfo.name = fixComponentClassName(setting.packageName, applicationInfo.name);
+		applicationInfo.publicSourceDir = setting.apkPath;
+		applicationInfo.sourceDir = setting.apkPath;
 		try {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-				applicationInfo.splitSourceDirs = new String[]{info.apkPath};
+				applicationInfo.splitSourceDirs = new String[]{setting.apkPath};
 				applicationInfo.splitPublicSourceDirs = applicationInfo.splitSourceDirs;
 			}
 		} catch (Throwable e) {
@@ -36,13 +38,13 @@ public class ComponentFixer {
 		} catch (Throwable e) {
 			// Ignore
 		}
-		applicationInfo.dataDir = info.dataDir;
 		applicationInfo.enabled = true;
-		applicationInfo.nativeLibraryDir = info.libDir;
-		applicationInfo.uid = info.uid;
+		applicationInfo.nativeLibraryDir = setting.libPath;
+		applicationInfo.dataDir = VEnvironment.getDataUserPackageDirectory(userId, setting.packageName).getPath();
+		applicationInfo.uid = VUserHandle.getUid(userId, setting.baseUid);
 	}
 
-	public static String fixComponentClassName(String pkgName, String className) {
+	private static String fixComponentClassName(String pkgName, String className) {
 		if (className != null) {
 			if (className.charAt(0) == '.') {
 				return pkgName + className;
@@ -52,12 +54,12 @@ public class ComponentFixer {
 		return null;
 	}
 
-	public static void fixComponentInfo(AppSettings appSettings, ComponentInfo info) {
+	public static void fixComponentInfo(AppSetting appSetting, ComponentInfo info, int userId) {
 		if (info != null) {
 			if (TextUtils.isEmpty(info.processName)) {
 				info.processName = info.packageName;
 			}
-			fixApplicationInfo(appSettings, info.applicationInfo);
+			fixApplicationInfo(appSetting, info.applicationInfo, userId);
 			info.name = fixComponentClassName(info.packageName, info.name);
 			if (info.processName == null) {
 				info.processName = info.applicationInfo.processName;

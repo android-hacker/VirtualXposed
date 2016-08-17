@@ -4,6 +4,7 @@ import android.content.ComponentName;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VPackageManager;
+import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
 
@@ -31,6 +32,15 @@ import static android.content.pm.PackageManager.GET_DISABLED_COMPONENTS;
 		if ((flags & GET_DISABLED_COMPONENTS) == 0) {
 			flags |= GET_DISABLED_COMPONENTS;
 		}
-		return VPackageManager.getInstance().getServiceInfo(componentName, flags);
+		int userId = isAppProcess() ? VUserHandle.myUserId() : VUserHandle.USER_OWNER;
+		if (args.length > 2 && args[2] instanceof Integer) {
+			userId = (int) args[2];
+		}
+		return VPackageManager.getInstance().getServiceInfo(componentName, flags, userId);
+	}
+
+	@Override
+	public boolean isEnable() {
+		return isAppProcess();
 	}
 }

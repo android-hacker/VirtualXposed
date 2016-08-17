@@ -1,9 +1,10 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import java.lang.reflect.Method;
-
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VPackageManager;
+import com.lody.virtual.os.VUserHandle;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -25,6 +26,10 @@ import com.lody.virtual.client.local.VPackageManager;
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		String name = (String) args[0];
 		int flags = (int) args[1];
-		return VPackageManager.getInstance().resolveContentProvider(name, flags);
+		int userId = isAppProcess() ? VUserHandle.myUserId() : VUserHandle.USER_OWNER;
+		if (args.length > 2 && args[2] instanceof Integer) {
+			userId = (int) args[2];
+		}
+		return VPackageManager.getInstance().resolveContentProvider(name, flags, userId);
 	}
 }

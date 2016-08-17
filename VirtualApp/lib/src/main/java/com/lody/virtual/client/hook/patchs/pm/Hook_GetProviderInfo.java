@@ -4,6 +4,7 @@ import android.content.ComponentName;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VPackageManager;
+import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
 
@@ -29,7 +30,11 @@ import java.lang.reflect.Method;
 		if (getHostPkg().equals(componentName.getPackageName())) {
 			return method.invoke(who, args);
 		}
-		return VPackageManager.getInstance().getProviderInfo(componentName, flags);
+		int userId = isAppProcess() ? VUserHandle.myUserId() : VUserHandle.USER_OWNER;
+		if (args.length > 2 && args[2] instanceof Integer) {
+			userId = (int) args[2];
+		}
+		return VPackageManager.getInstance().getProviderInfo(componentName, flags, userId);
 	}
 
 }

@@ -1,14 +1,15 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
+import android.app.IApplicationThread;
+import android.content.Intent;
+import android.content.pm.ServiceInfo;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.os.VUserHandle;
 
-import android.app.IApplicationThread;
-import android.content.Intent;
-import android.content.pm.ServiceInfo;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -35,7 +36,7 @@ import android.content.pm.ServiceInfo;
 			// for server process
 			return method.invoke(who, args);
 		}
-		ServiceInfo serviceInfo = VirtualCore.getCore().resolveServiceInfo(service);
+		ServiceInfo serviceInfo = VirtualCore.getCore().resolveServiceInfo(service, VUserHandle.myUserId());
 		if (serviceInfo != null) {
 			String pkgName = serviceInfo.packageName;
 			if (pkgName.equals(getHostPkg())) {

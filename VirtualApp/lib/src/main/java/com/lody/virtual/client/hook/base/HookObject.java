@@ -9,8 +9,11 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import libcore.io.Os;
 
 /**
  * @author Lody
@@ -142,6 +145,9 @@ public class HookObject<T> implements IHookObject<T> {
 	private class HookHandler implements InvocationHandler {
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+			if (!(method.getDeclaringClass() == Os.class)) {
+				VLog.v("XXXXXXXXXXXXXXX", "%s call %s (%s).", method.getDeclaringClass().getSimpleName(), method.getName(), Arrays.toString(args));
+			}
 			Hook hook = getHook(method.getName());
 			try {
 				if (hook != null && hook.isEnable()) {

@@ -7,7 +7,8 @@ import android.os.Environment;
 
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.proto.AppSettings;
+import com.lody.virtual.helper.proto.AppSetting;
+import com.lody.virtual.os.VUserHandle;
 
 import org.jdeferred.Promise;
 
@@ -51,10 +52,10 @@ public class AppRepository implements AppDataSource {
 	@Override
 	public Promise<List<AppModel>, Throwable, Void> getVirtualApps() {
 		return VUiKit.defer().when(() -> {
-			List<AppSettings> infos = VirtualCore.getCore().getAllApps();
+			List<AppSetting> infos = VirtualCore.getCore().getAllApps();
 			List<AppModel> models = new ArrayList<AppModel>();
-			for (AppSettings info : infos) {
-				if (mContext.getPackageManager().getLaunchIntentForPackage(info.packageName) != null) {
+			for (AppSetting info : infos) {
+				if (VirtualCore.getCore().getLaunchIntent(info.packageName, VUserHandle.USER_OWNER) != null) {
 					models.add(new AppModel(mContext, info));
 				}
 			}

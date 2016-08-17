@@ -1,5 +1,10 @@
 package com.lody.virtual.client.service;
 
+import android.content.Context;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
+
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.helper.ExtraConstants;
@@ -9,11 +14,6 @@ import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.ServiceCache;
 import com.lody.virtual.service.interfaces.IServiceFetcher;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.os.IBinder;
-import android.os.RemoteException;
-
 /**
  * @author Lody
  */
@@ -21,12 +21,9 @@ public class ServiceManagerNative {
 
 	public static final String PACKAGE_MANAGER = "package";
 	public static final String ACTIVITY_MANAGER = "activity";
+	public static final String USER_MANAGER = "user";
 	public static final String APP_MANAGER = "app";
-	public static final String PROCESS_MANAGER = "process";
-	public static final String SERVICE_MANAGER = "service";
-	public static final String CONTENT_MANAGER = "content";
 	public static final String ACCOUNT_MANAGER = "account";
-	public static final String RECEIVER_MANAGER = "receiver";
 	public static final String INTENT_FILTER_MANAGER = "intent_filter";
 	private static final String TAG = ServiceManagerNative.class.getSimpleName();
 	private static final String SERVICE_CP_AUTH = "virtual.service.BinderProvider";

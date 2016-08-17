@@ -26,7 +26,9 @@ import java.lang.reflect.Proxy;
  *
  */
 /* package */ class Hook_GetContentProvider extends Hook {
-
+	{
+		replaceLastOfUserId(2);
+	}
 	@Override
 	public String getName() {
 		return "getContentProvider";
@@ -35,7 +37,7 @@ import java.lang.reflect.Proxy;
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		String name = (String) args[getProviderNameIndex()];
-		ProviderInfo providerInfo = VPackageManager.getInstance().resolveContentProvider(name, 0);
+		ProviderInfo providerInfo = VPackageManager.getInstance().resolveContentProvider(name, 0, 0);
 		if (providerInfo != null) {
 			if (getHostPkg().equals(providerInfo.packageName)) {
 				return method.invoke(who, args);

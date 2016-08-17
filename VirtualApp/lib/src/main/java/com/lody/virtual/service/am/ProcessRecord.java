@@ -7,6 +7,7 @@ import android.os.Binder;
 import android.os.ConditionVariable;
 
 import com.lody.virtual.client.IVClient;
+import com.lody.virtual.os.VUserHandle;
 
 import java.util.HashSet;
 import java.util.List;
@@ -28,12 +29,16 @@ public final class ProcessRecord extends Binder {
 	final List<String> usesLibraries;
 	public IVClient client;
 	public IApplicationThread thread;
-	public int pid; // The process of this application; 0 if none
+	public int pid;
+	public int uid;
+	public int userId;
 
 	public ProcessRecord(StubInfo stubInfo, ApplicationInfo info, String processName, List<ProviderInfo> providers,
 			List<String> sharedPackages, List<String> usesLibraries) {
 		this.stubInfo = stubInfo;
 		this.info = info;
+		this.uid = info.uid;
+		this.userId = VUserHandle.getUserId(info.uid);
 		this.processName = processName;
 		this.providers = providers;
 		this.sharedPackages = sharedPackages;

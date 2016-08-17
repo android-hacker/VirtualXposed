@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
  */
 /* package */ class Hook_CheckGrantUriPermission extends Hook {
 	{
-		replaceUid(0);
+		replaceUid(0).replaceLastUserId();
 	}
 
 	@Override

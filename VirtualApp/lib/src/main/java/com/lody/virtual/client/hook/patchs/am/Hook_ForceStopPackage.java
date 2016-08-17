@@ -2,6 +2,7 @@ package com.lody.virtual.client.hook.patchs.am;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
 
@@ -20,14 +21,13 @@ import java.lang.reflect.Method;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		if (args.length > 0 && args[0] instanceof String) {
-			String pkg = (String) args[0];
-			if (isAppPkg(pkg)) {
-				VActivityManager.getInstance().killAppByPkg(pkg);
-				return 0;
-			}
+		String pkg = (String) args[0];
+		int userId = VUserHandle.myUserId();
+		if (args.length > 1 && args[1] instanceof Integer) {
+			userId = (int) args[1];
 		}
-		return method.invoke(who, args);
+		VActivityManager.getInstance().killAppByPkg(pkg, userId);
+		return 0;
 	}
 
 	@Override

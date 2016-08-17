@@ -1,14 +1,15 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import java.lang.reflect.Method;
-import java.util.List;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.helper.compat.ParceledListSliceCompat;
+import com.lody.virtual.os.VUserHandle;
 
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
+import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * @author Lody
@@ -25,7 +26,11 @@ import android.content.pm.PackageManager;
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 
 		int flags = (Integer) args[0];
-		List<ApplicationInfo> appInfos = VPackageManager.getInstance().getInstalledApplications(flags);
+		int userId = isAppProcess() ? VUserHandle.myUserId() : VUserHandle.USER_OWNER;
+		if (args.length > 1 && args[1] instanceof Integer) {
+			userId = (int) args[1];
+		}
+		List<ApplicationInfo> appInfos = VPackageManager.getInstance().getInstalledApplications(flags, userId);
 		if (isMainProcess()) {
 			PackageManager hostPM = getUnhookPM();
 			// noinspection WrongConstant

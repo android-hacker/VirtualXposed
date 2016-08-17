@@ -1,6 +1,8 @@
 package com.lody.virtual.service.pm;
 
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
@@ -9,12 +11,14 @@ import android.util.DisplayMetrics;
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
+import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.helper.compat.NativeLibraryHelperCompat;
-import com.lody.virtual.helper.proto.AppSettings;
+import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.proto.InstallResult;
-import com.lody.virtual.helper.utils.FileIO;
+import com.lody.virtual.helper.utils.FileUtils;
 import com.lody.virtual.helper.utils.VLog;
-import com.lody.virtual.service.AppFileSystem;
+import com.lody.virtual.os.VEnvironment;
+import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.service.IAppManager;
 import com.lody.virtual.service.am.UidSystem;
 import com.lody.virtual.service.am.VActivityManagerService;
@@ -32,22 +36,14 @@ public class VAppManagerService extends IAppManager.Stub {
 
 	private static final String TAG = VAppManagerService.class.getSimpleName();
 
+	private UidSystem mUidSystem = new UidSystem();
+
 	private static final AtomicReference<VAppManagerService> gService = new AtomicReference<>();
 
 	private RemoteCallbackList<IAppObserver> mRemoteCallbackList = new RemoteCallbackList<IAppObserver>();
 
-	private final UidSystem mUidSystem = new UidSystem();
-
 	public static VAppManagerService getService() {
 		return gService.get();
-	}
-
-	private static void ensureFoldersCreated(File... folders) {
-		for (File folder : folders) {
-			if (!folder.exists() && !folder.mkdirs()) {
-				VLog.w(TAG, "Warning: unable to create folder : " + folder.getPath());
-			}
-		}
 	}
 
 	private static PackageParser.Package parsePackage(File apk, int flags) {
@@ -64,12 +60,29 @@ public class VAppManagerService extends IAppManager.Stub {
 	}
 
 	public void preloadAllApps() {
-		List<File> appList = AppFileSystem.getDefault().getAllApps();
-		for (File app : appList) {
-			InstallResult res = install(app.getPath(),
-					InstallStrategy.TERMINATE_IF_EXIST | InstallStrategy.DEPEND_SYSTEM_IF_EXIST, true);
+		for (File appDir : VEnvironment.getDataAppDirectory().listFiles()) {
+			String pkgName = appDir.getName();
+			File storeFile = new File(appDir, "base.apk");
+			int flags = 0;
+			if (!storeFile.exists()) {
+				ApplicationInfo appInfo = null;
+				try {
+					appInfo = VirtualCore.getCore().getUnHookPackageManager()
+							.getApplicationInfo(pkgName, 0);
+				} catch (PackageManager.NameNotFoundException e) {
+					// Ignore
+				}
+				if (appInfo == null || appInfo.publicSourceDir == null) {
+					FileUtils.deleteDir(appDir);
+					continue;
+				}
+				storeFile = new File(appInfo.publicSourceDir);
+				flags |= InstallStrategy.DEPEND_SYSTEM_IF_EXIST;
+			}
+			InstallResult res = install(storeFile.getPath(), flags, true);
 			if (!res.isSuccess) {
-				FileIO.deleteDir(app);
+				VLog.e(TAG, "Unable to install app %s: %s.", pkgName, res.error);
+				FileUtils.deleteDir(appDir);
 			}
 		}
 	}
@@ -88,7 +101,7 @@ public class VAppManagerService extends IAppManager.Stub {
 			return InstallResult.makeFailure("APK File is not exist.");
 		}
 		PackageParser.Package pkg = parsePackage(apk, 0);
-		if (pkg == null) {
+		if (pkg == null || pkg.packageName == null) {
 			return InstallResult.makeFailure("Unable to parse the package.");
 		}
 		InstallResult res = new InstallResult();
@@ -105,57 +118,50 @@ public class VAppManagerService extends IAppManager.Stub {
 			}
 			res.isUpdate = true;
 		}
+		File appDir = VEnvironment.getDataAppPackageDirectory(pkg.packageName);
 
-		File libDir = AppFileSystem.getDefault().getAppLibFolder(pkg.packageName);
+
+		File libDir = new File(appDir, "lib");
+		if (!libDir.exists() && !libDir.mkdirs()) {
+			return InstallResult.makeFailure("Unable to create lib dir.");
+		}
 		boolean dependSystem = (flags & InstallStrategy.DEPEND_SYSTEM_IF_EXIST) != 0
 				&& VirtualCore.getCore().isOutsideInstalled(pkg.packageName);
 
 		if (!onlyScan) {
 			if (res.isUpdate) {
-				FileIO.deleteDir(libDir);
+				FileUtils.deleteDir(libDir);
 			}
-			if (!libDir.exists() && !libDir.mkdirs()) {
-				return InstallResult.makeFailure("Unable to create lib dir.");
-			}
-			VLog.d(TAG, "copy " + apkPath + "'s library to the path:" + libDir);
-			/*int libRes = */NativeLibraryHelperCompat.copyNativeBinaries(new File(apkPath), libDir);
-//			if (libRes < 0) {
-//				return InstallResult.makeFailure("This APK's native lib is not support your device.");
-//			}
+			NativeLibraryHelperCompat.copyNativeBinaries(new File(apkPath), libDir);
 			if (!dependSystem) {
-				File storeFile = AppFileSystem.getDefault().getAppApkFile(pkg.packageName);
+				// /data/app/com.xxx.xxx-1/base.apk
+				File storeFile = new File(appDir, "base.apk");
 				File parentFolder = storeFile.getParentFile();
 				if (!parentFolder.exists() && !parentFolder.mkdirs()) {
 					VLog.w(TAG, "Warning: unable to create folder : " + storeFile.getPath());
 				} else if (storeFile.exists() && !storeFile.delete()) {
 					VLog.w(TAG, "Warning: unable to delete file : " + storeFile.getPath());
 				}
-				FileIO.copyFile(apk, storeFile);
+				FileUtils.copyFile(apk, storeFile);
 				apk = storeFile;
 			}
 		}
 		if (existOne != null) {
 			PackageCache.remove(pkg.packageName);
 		}
-		AppFileSystem fileSystem = AppFileSystem.getDefault();
-		AppSettings appSettings = new AppSettings();
-		appSettings.dependSystem = dependSystem;
-		appSettings.apkPath = apk.getPath();
-		appSettings.packageName = pkg.packageName;
-		appSettings.uid = mUidSystem.getOrCreateUid(pkg.mSharedUserId);
+		AppSetting appSetting = new AppSetting();
+		appSetting.dependSystem = dependSystem;
+		appSetting.apkPath = apk.getPath();
+		appSetting.libPath = libDir.getPath();
+		File odexFolder = new File(appDir, VirtualRuntime.isArt() ? "oat" : "odex");
+		if (!odexFolder.exists() && !odexFolder.mkdirs()) {
+			VLog.w(TAG, "Warning: unable to create folder : " + odexFolder.getPath());
+		}
+		appSetting.odexDir = odexFolder.getPath();
+		appSetting.packageName = pkg.packageName;
+		appSetting.baseUid = mUidSystem.getOrCreateUid(pkg.mSharedUserId);
 
-		File dataFolder = fileSystem.getAppPackageFolder(pkg.packageName);
-		File libFolder = fileSystem.getAppLibFolder(pkg.packageName);
-		File dvmCacheFolder = fileSystem.getAppDVMCacheFolder(pkg.packageName);
-		File cacheFolder = fileSystem.getAppCacheFolder(pkg.packageName);
-
-		ensureFoldersCreated(dataFolder, libFolder, dvmCacheFolder, cacheFolder);
-
-		appSettings.dataDir = dataFolder.getPath();
-		appSettings.libDir = libFolder.getPath();
-		appSettings.cacheDir = cacheFolder.getPath();
-		appSettings.odexDir = dvmCacheFolder.getPath();
-		PackageCache.put(pkg, appSettings);
+		PackageCache.put(pkg, appSetting);
 		notifyAppInstalled(pkg.packageName);
 		res.isSuccess = true;
 		return res;
@@ -179,8 +185,8 @@ public class VAppManagerService extends IAppManager.Stub {
 	public boolean uninstallApp(String pkg) {
 		synchronized (PackageCache.sPackageCaches) {
 			if (isAppInstalled(pkg)) {
-				VActivityManagerService.getService().killAppByPkg(pkg);
-				FileIO.deleteDir(AppFileSystem.getDefault().getAppPackageFolder(pkg));
+				VActivityManagerService.getService().killAppByPkg(pkg, VUserHandle.USER_ALL);
+				FileUtils.deleteDir(VEnvironment.getDataAppPackageDirectory(pkg));
 				PackageCache.remove(pkg);
 				notifyAppUninstalled(pkg);
 				return true;
@@ -189,10 +195,10 @@ public class VAppManagerService extends IAppManager.Stub {
 		return false;
 	}
 
-	public List<AppSettings> getAllApps() {
-		List<AppSettings> settings = new ArrayList<>(getAppCount());
+	public List<AppSetting> getAllApps() {
+		List<AppSetting> settings = new ArrayList<>(getAppCount());
 		for (PackageParser.Package p : PackageCache.sPackageCaches.values()) {
-			settings.add((AppSettings) p.mExtras);
+			settings.add((AppSetting) p.mExtras);
 		}
 		return settings;
 	}
@@ -215,7 +221,7 @@ public class VAppManagerService extends IAppManager.Stub {
 			}
 		}
 		mRemoteCallbackList.finishBroadcast();
-		Intent virtualIntent = new Intent(Constants.VIRTUAL_ACTION_PACKAGE_ADDED);
+		Intent virtualIntent = new Intent(Constants.ACTION_PACKAGE_ADDED);
 		Uri uri = Uri.fromParts("package", pkgName, null);
 		virtualIntent.setData(uri);
 		VirtualCore.getCore().getContext().sendBroadcast(virtualIntent);
@@ -231,7 +237,7 @@ public class VAppManagerService extends IAppManager.Stub {
 			}
 		}
 		mRemoteCallbackList.finishBroadcast();
-		Intent virtualIntent = new Intent(Constants.VIRTUAL_ACTION_PACKAGE_REMOVED);
+		Intent virtualIntent = new Intent(Constants.ACTION_PACKAGE_REMOVED);
 		Uri uri = Uri.fromParts("package", pkgName, null);
 		virtualIntent.setData(uri);
 		VirtualCore.getCore().getContext().sendBroadcast(virtualIntent);
@@ -255,10 +261,10 @@ public class VAppManagerService extends IAppManager.Stub {
 		}
 	}
 
-	public AppSettings findAppInfo(String pkg) {
+	public AppSetting findAppInfo(String pkg) {
 		synchronized (PackageCache.class) {
 			if (pkg != null) {
-				return (AppSettings) PackageCache.sPackageCaches.get(pkg).mExtras;
+				return (AppSetting) PackageCache.sPackageCaches.get(pkg).mExtras;
 			}
 			return null;
 		}

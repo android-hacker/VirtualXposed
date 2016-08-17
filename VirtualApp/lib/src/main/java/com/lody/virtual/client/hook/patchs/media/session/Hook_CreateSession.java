@@ -1,14 +1,18 @@
 package com.lody.virtual.client.hook.patchs.media.session;
 
-import java.lang.reflect.Method;
-
 import com.lody.virtual.client.hook.base.Hook;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
  *
  */
 /* package */ class Hook_CreateSession extends Hook {
+
+	{
+		replaceLastUserId();
+	}
 
 	@Override
 	public String getName() {

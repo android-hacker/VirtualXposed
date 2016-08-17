@@ -1,7 +1,5 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import android.os.Binder;
-
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
@@ -34,8 +32,6 @@ import java.util.Arrays;
 			} else {
 				// From native?
 				uid = VClientImpl.getClient().getVUid();
-				VLog.e(getName(), "Retry getCallingUid : " + Binder.getCallingUid());
-				VLog.printStackTrace(getName());
 			}
 		}
 		String[] res = VPackageManager.getInstance().getPackagesForUid(uid);

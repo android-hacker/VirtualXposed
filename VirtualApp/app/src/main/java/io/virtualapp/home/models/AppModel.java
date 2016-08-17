@@ -8,7 +8,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.lody.virtual.helper.proto.AppSettings;
+import com.lody.virtual.helper.proto.AppSetting;
+import com.lody.virtual.os.VUserHandle;
 
 /**
  * @author Lody
@@ -44,12 +45,11 @@ public class AppModel implements Parcelable {
 		loadData(packageInfo.applicationInfo);
 	}
 
-	public AppModel(Context context, AppSettings appSettings) {
+	public AppModel(Context context, AppSetting appSetting) {
 		this.context = context;
-		this.packageName = appSettings.packageName;
-		this.path = appSettings.apkPath;
-		loadData(appSettings.getApplicationInfo());
-
+		this.packageName = appSetting.packageName;
+		this.path = appSetting.apkPath;
+		loadData(appSetting.getApplicationInfo(VUserHandle.USER_OWNER));
 	}
 
 	protected AppModel(Parcel in) {

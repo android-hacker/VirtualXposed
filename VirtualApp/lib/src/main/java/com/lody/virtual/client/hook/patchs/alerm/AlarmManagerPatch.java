@@ -1,12 +1,13 @@
 package com.lody.virtual.client.hook.patchs.alerm;
 
-import com.lody.virtual.client.hook.base.Patch;
-import com.lody.virtual.client.hook.base.PatchObject;
-import com.lody.virtual.client.hook.binders.HookAlarmBinder;
-
 import android.app.IAlarmManager;
 import android.content.Context;
 import android.os.ServiceManager;
+
+import com.lody.virtual.client.hook.base.Patch;
+import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.StaticHook;
+import com.lody.virtual.client.hook.binders.HookAlarmBinder;
 
 /**
  * @author Lody
@@ -23,6 +24,12 @@ public class AlarmManagerPatch extends PatchObject<IAlarmManager, HookAlarmBinde
 	@Override
 	public void inject() throws Throwable {
 		getHookObject().injectService(Context.ALARM_SERVICE);
+	}
+
+	@Override
+	protected void applyHooks() {
+		super.applyHooks();
+		addHook(new StaticHook("getNextAlarmClock")).replaceLastUserId();
 	}
 
 	@Override

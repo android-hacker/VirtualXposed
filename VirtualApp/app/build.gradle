@@ -51,4 +51,5 @@ dependencies {
     compile project(':lib')
     compile 'com.google.android.gms:play-services-appindexing:8.1.0'
     compile 'com.github.castorflex.smoothprogressbar:library:1.1.0'
+    compile 'com.yanzhenjie:recyclerview-swipe:1.0.1'
 }

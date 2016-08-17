@@ -1,6 +1,7 @@
 package com.lody.virtual.os;
 
 import android.os.Binder;
+import android.os.UserHandle;
 
 import com.lody.virtual.IOHook;
 
@@ -18,4 +19,7 @@ public class VBinder {
         return Binder.getCallingPid();
     }
 
+    public static VUserHandle getCallingUserHandle() {
+        return new VUserHandle(VUserHandle.getUserId(getCallingUid()));
+    }
 }

@@ -8,16 +8,20 @@ import android.app.LoadedApk;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
+import android.content.res.CompatibilityInfo;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
 import android.os.RemoteException;
+import android.os.UserHandle;
 
 import com.lody.virtual.IOHook;
 import com.lody.virtual.client.core.VirtualCore;
@@ -31,6 +35,7 @@ import com.lody.virtual.helper.compat.AppBindDataCompat;
 import com.lody.virtual.helper.proto.ReceiverInfo;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.os.VUserHandle;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -72,6 +77,11 @@ public class VClientImpl extends IVClient.Stub {
 
 	public int getVUid() {
 		return mBoundApplication != null ? mBoundApplication.appInfo.uid : -1;
+	}
+
+	public ClassLoader getClassLoader(ApplicationInfo appInfo) {
+		LoadedApk apk = VirtualCore.mainThread().getPackageInfoNoCheck(appInfo, CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO);
+		return apk.getClassLoader();
 	}
 
 
@@ -130,6 +140,7 @@ public class VClientImpl extends IVClient.Stub {
 	}
 
 	private void handleBindApplication(AppBindData data) {
+		VLog.d(TAG, "VClient bound, uid : %d, dataPath : %s, processName : %s.", data.appInfo.uid, data.appInfo.dataDir, data.processName);
 		mBoundApplication = data;
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
@@ -199,10 +210,18 @@ public class VClientImpl extends IVClient.Stub {
 		data.appInfo.sharedLibraryFiles = libraries.toArray(new String[libraries.size()]);
 		Context context;
 		try {
-			context = VirtualCore.getCore().getContext().createPackageContext(data.appInfo.packageName, Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
+			Context hostContext = VirtualCore.getCore().getContext();
+			while (hostContext instanceof ContextWrapper) {
+				hostContext = ((ContextWrapper) hostContext).getBaseContext();
+			}
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+				Reflect.on(hostContext).set("mUser", new UserHandle(VUserHandle.myUserId()));
+			}
+			context = hostContext.createPackageContext(data.appInfo.packageName, Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
 		} catch (PackageManager.NameNotFoundException e) {
 			throw new RuntimeException(e);
 		}
+		VLog.d(TAG, "Pre path : %s.", context.getSharedPrefsFile("a").getPath());
 		mBoundApplication.info = Reflect.on(context).get("mPackageInfo");
 
 		fixBoundApp(mBoundApplication, VirtualCore.getHostBindData());
@@ -224,7 +243,7 @@ public class VClientImpl extends IVClient.Stub {
 			}
 		}
 
-		List<ReceiverInfo> receivers = VPackageManager.getInstance().queryReceivers(data.processName, 0);
+		List<ReceiverInfo> receivers = VPackageManager.getInstance().queryReceivers(data.processName,0 , 0);
 		installReceivers(app, receivers);
 		VActivityManager.getInstance().appDoneExecuting();
 	}

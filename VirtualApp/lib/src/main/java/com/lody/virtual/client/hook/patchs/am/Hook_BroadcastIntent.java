@@ -1,14 +1,5 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.env.Constants;
-import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.utils.BitmapUtils;
-import com.lody.virtual.helper.utils.VLog;
-
 import android.app.IApplicationThread;
 import android.content.ComponentName;
 import android.content.IIntentReceiver;
@@ -18,6 +9,16 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.Constants;
+import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.helper.ExtraConstants;
+import com.lody.virtual.helper.utils.BitmapUtils;
+import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.os.VUserHandle;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -38,10 +39,16 @@ import android.text.TextUtils;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		if (args[1] instanceof Intent) {
-			Intent intent = (Intent) args[1];
-			handleIntent(intent);
+		Intent intent = (Intent) args[1];
+		handleIntent(intent);
+		int userId = VUserHandle.myUserId();
+		int userIdIndex = args.length - 1;
+		if (args[userIdIndex] instanceof Integer) {
+			userId = (int) args[userIdIndex];
+			args[userIdIndex] = VirtualCore.getCore().myUserId();
 		}
+		intent.putExtra(ExtraConstants.EXTRA_CALLER_USER, userId);
+
 		Class<?> permissionType = method.getParameterTypes()[7];
 		if (permissionType == String.class) {
 			args[7] = VirtualCore.getPermissionBroadcast();

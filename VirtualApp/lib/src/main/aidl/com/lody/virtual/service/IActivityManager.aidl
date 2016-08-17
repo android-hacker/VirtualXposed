@@ -31,7 +31,7 @@ interface IActivityManager {
 
     void killAllApps();
 
-    void killAppByPkg(String pkg);
+    void killAppByPkg(String pkg, int userId);
 
     void killApplicationProcess(String procName, int uid);
 
@@ -91,8 +91,8 @@ interface IActivityManager {
 
     void publishContentProviders(in List<ContentProviderHolder> holderList);
 
-    ContentProviderHolder getContentProvider(String auth);
+    ContentProviderHolder getContentProvider(String authority, int userId);
 
-    void ensureAppBound(in String processName, in ApplicationInfo appSettings);
+    void ensureAppBound(in String processName, in ApplicationInfo appSetting);
 
 }

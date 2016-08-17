@@ -1,10 +1,12 @@
 package io.virtualapp.home;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.UserInfo;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,10 +15,13 @@ import android.widget.ProgressBar;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
-import com.lody.virtual.helper.proto.AppSettings;
+import com.lody.virtual.helper.proto.AppSetting;
+import com.lody.virtual.os.VUserHandle;
+import com.lody.virtual.os.VUserManager;
 import com.melnykov.fab.FloatingActionButton;
 import com.umeng.analytics.MobclickAgent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.virtualapp.R;
@@ -26,6 +31,7 @@ import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.effects.ExplosionField;
 import io.virtualapp.home.adapters.LaunchpadAdapter;
 import io.virtualapp.home.models.AppModel;
+import io.virtualapp.users.UserListActivity;
 import io.virtualapp.widgets.PagerView;
 import io.virtualapp.widgets.showcase.MaterialShowcaseView;
 
@@ -76,9 +82,18 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 			mPresenter.deleteApp(model);
 		});
 		mPagerView.setOnItemClickListener((item, pos) -> {
-			AppModel model = (AppModel) item;
-			mPresenter.launchApp(model);
+
+			new AlertDialog.Builder(this)
+					.setTitle("Choose an User")
+					.setItems(getUsers(), (dialog, userId)
+							-> mPresenter.launchApp((AppModel) item, userId))
+					.setNegativeButton(android.R.string.cancel, null)
+					.show();
+
 		});
+		findViewById(R.id.user_icon).setOnClickListener(v -> {
+			startActivity(new Intent(this, UserListActivity.class));
+        });
 		mCrashFab.post(() -> {
 			int[] location = new int[2];
 			mAppFab.getLocationInWindow(location);
@@ -108,8 +123,8 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 
 	public void registerInstallerReceiver() {
 		IntentFilter filter = new IntentFilter();
-		filter.addAction(Constants.VIRTUAL_ACTION_PACKAGE_ADDED);
-		filter.addAction(Constants.VIRTUAL_ACTION_PACKAGE_REMOVED);
+		filter.addAction(Constants.ACTION_PACKAGE_ADDED);
+		filter.addAction(Constants.ACTION_PACKAGE_REMOVED);
 		filter.addDataScheme("package");
 		registerReceiver(installerReceiver, filter);
 	}
@@ -207,7 +222,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 		if (resultCode == RESULT_OK && requestCode == VCommends.REQUEST_SELECT_APP && data != null) {
 			AppModel model = data.getParcelableExtra(VCommends.EXTRA_APP_MODEL);
 			mPresenter.addApp(model);
-			AppSettings info = VirtualCore.getCore().findApp(model.packageName);
+			AppSetting info = VirtualCore.getCore().findApp(model.packageName);
 			if (info != null) {
 				if (info.dependSystem) {
 					mPresenter.dataChanged();
@@ -217,7 +232,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 				ProgressDialog dialog = ProgressDialog.show(this, "Please wait", "Optimizing new Virtual App...");
 				VUiKit.defer().when(() -> {
 					try {
-						model.loadData(info.getApplicationInfo());
+						model.loadData(info.getApplicationInfo(VUserHandle.USER_OWNER));
 						VirtualCore.getCore().preOpt(info.packageName);
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -239,6 +254,15 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 	protected void onDestroy() {
 		super.onDestroy();
 		unregisterInstallerReceiver();
+	}
+
+	public String[] getUsers() {
+		List<UserInfo> userList = VUserManager.get().getUsers(false);
+		List<String> users = new ArrayList<>(userList.size());
+		for (UserInfo info : userList) {
+			users.add(info.name);
+		}
+		return users.toArray(new String[users.size()]);
 	}
 
 	public class InstallerReceiver extends BroadcastReceiver {

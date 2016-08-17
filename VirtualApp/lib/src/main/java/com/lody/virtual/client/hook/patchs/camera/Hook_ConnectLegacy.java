@@ -1,12 +1,13 @@
 package com.lody.virtual.client.hook.patchs.camera;
 
-import java.lang.reflect.Method;
+import android.hardware.ICameraClient;
+import android.hardware.camera2.utils.BinderHolder;
 
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.utils.HookUtils;
 
-import android.hardware.ICameraClient;
-import android.hardware.camera2.utils.BinderHolder;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -26,6 +27,9 @@ public class Hook_ConnectLegacy extends Hook {
 	@Override
 	public boolean beforeHook(Object who, Method method, Object... args) {
 		HookUtils.replaceAppPkg(args);
+		if (args[args.length - 2] instanceof Integer) {
+			args[args.length - 2] = VirtualCore.getCore().myUid();
+		}
 		return super.beforeHook(who, method, args);
 	}
 }

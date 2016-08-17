@@ -1,16 +1,17 @@
 package com.lody.virtual.client.hook.patchs.notification;
 
-import java.lang.reflect.Field;
+import android.app.INotificationManager;
+import android.app.NotificationManager;
+import android.os.Build;
+import android.widget.Toast;
 
 import com.lody.virtual.client.hook.base.HookObject;
 import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
+import com.lody.virtual.client.hook.base.StaticHook;
 
-import android.app.INotificationManager;
-import android.app.NotificationManager;
-import android.os.Build;
-import android.widget.Toast;
+import java.lang.reflect.Field;
 
 /**
  * @author Lody
@@ -36,9 +37,12 @@ public class NotificationManagerPatch extends PatchObject<INotificationManager, 
 	@Override
 	protected void applyHooks() {
 		super.applyHooks();
-		addHook(new ReplaceCallingPkgHook("enqueueToast"));
+		addHook(new ReplaceCallingPkgHook("enqueueToast")).replaceLastUserId();
 		addHook(new ReplaceCallingPkgHook("cancelToast"));
-		addHook(new ReplaceCallingPkgHook("areNotificationsEnabledForPackage"));
+		addHook(new ReplaceCallingPkgHook("areNotificationsEnabledForPackage")).replaceUid(1);
+		addHook(new StaticHook("registerListener")).replaceLastUserId();
+		addHook(new StaticHook("unregisterListener")).replaceLastUserId();
+		addHook(new StaticHook("getAppActiveNotifications")).replaceLastUserId();
 		if ("samsung".equalsIgnoreCase(Build.BRAND)) {
 			addHook(new ReplaceCallingPkgHook("removeEdgeNotification"));
 		}

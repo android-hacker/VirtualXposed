@@ -15,6 +15,7 @@ import com.lody.virtual.helper.compat.IApplicationThreadCompat;
 import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.VRedirectActRequest;
 import com.lody.virtual.helper.utils.ArrayUtils;
+import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -50,7 +51,8 @@ import java.util.Collections;
 		}
 		IBinder resultTo = (IBinder) args[resultToIndex];
 		final Intent targetIntent = (Intent) args[intentIndex];
-		ActivityInfo targetActInfo = VirtualCore.getCore().resolveActivityInfo(targetIntent);
+
+		ActivityInfo targetActInfo = VirtualCore.getCore().resolveActivityInfo(targetIntent, VUserHandle.myUserId());
 		if (targetActInfo == null) {
 			return method.invoke(who, args);
 		}
@@ -61,6 +63,13 @@ import java.util.Collections;
 		// Create Redirect Request
 		VRedirectActRequest req = new VRedirectActRequest(targetActInfo, targetIntent.getFlags());
 		req.fromHost = !VirtualCore.getCore().isVAppProcess();
+		if (req.fromHost) {
+			int userId = targetIntent.getIntExtra(ExtraConstants.EXTRA_TARGET_USER, -9);
+			if (userId != -9) {
+				int appId = VUserHandle.getAppId(targetActInfo.applicationInfo.uid);
+				targetActInfo.applicationInfo.uid = VUserHandle.getUid(userId, appId);
+			}
+		}
 		req.resultTo = resultTo;
 		// Get Request Result
 		VActRedirectResult result = VActivityManager.getInstance().redirectTargetActivity(req);

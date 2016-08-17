@@ -1,7 +1,6 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
 import android.content.ComponentName;
-import android.content.pm.ActivityInfo;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VPackageManager;
@@ -35,7 +34,11 @@ import static android.content.pm.PackageManager.GET_DISABLED_COMPONENTS;
 		if ((flags & GET_DISABLED_COMPONENTS) == 0) {
 			flags |= GET_DISABLED_COMPONENTS;
 		}
-		ActivityInfo receiverInfo = VPackageManager.getInstance().getReceiverInfo(componentName, flags);
-		return receiverInfo;
+		return VPackageManager.getInstance().getReceiverInfo(componentName, flags, 0);
+	}
+
+	@Override
+	public boolean isEnable() {
+		return isAppProcess();
 	}
 }

@@ -5,6 +5,9 @@ package com.lody.virtual.client.hook.patchs.notification;
  *
  */
 /* package */ class Hook_EnqueueNotificationWithTag extends Hook_EnqueueNotification {
+	{
+		replaceLastUserId();
+	}
 
 	@Override
 	public String getName() {

@@ -230,7 +230,7 @@ public abstract class HookBinder<Interface extends IInterface> implements IHookO
 
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-			VLog.w("XXXXXXXXXXXXXXX", "call %s (%s).", method.getName(), Arrays.toString(args));
+			VLog.v("XXXXXXXXXXXXXXX", "%s call %s (%s).", method.getDeclaringClass().getSimpleName(), method.getName(), Arrays.toString(args));
 			Hook hook = getHook(method.getName());
 			try {
 				if (hook != null && hook.isEnable()) {

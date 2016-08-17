@@ -2,9 +2,11 @@ package com.lody.virtual.client.hook.patchs.pm;
 
 import android.content.pm.PackageInfo;
 
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
 /**
@@ -32,9 +34,16 @@ public final class Hook_GetPackageInfo extends Hook {
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		String pkg = (String) args[0];
 		int flags = (int) args[1];
-		PackageInfo packageInfo = VPackageManager.getInstance().getPackageInfo(pkg, flags);
+		int userId = VUserHandle.myUserId();
+		if (args.length > 2 && args[2] instanceof Integer) {
+			userId = (int) args[2];
+		}
+		PackageInfo packageInfo = VPackageManager.getInstance().getPackageInfo(pkg, flags, userId);
 		if (packageInfo != null) {
 			return packageInfo;
+		}
+		if (args.length > 2 && args[2] instanceof Integer) {
+			args[2] = VirtualCore.getCore().myUserId();
 		}
 		packageInfo = (PackageInfo) method.invoke(who, args);
 		if (packageInfo != null) {

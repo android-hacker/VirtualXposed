@@ -35,4 +35,6 @@ public class ExtraConstants {
 	public static final int WHAT_PENDING_INTENT = 5;
 
 	public static final String EXTRA_SENDER = "V.Extra.Sender";
+	public static final String EXTRA_TARGET_USER = "V.Extra.TargetUserId";
+	public static final String EXTRA_CALLER_USER = "V.Extra.CallerUserId";
 }

@@ -2,7 +2,6 @@ package com.lody.virtual.service.pm;
 
 import android.annotation.TargetApi;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
@@ -26,13 +25,15 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.fixer.ComponentFixer;
 import com.lody.virtual.helper.compat.ObjectsCompat;
-import com.lody.virtual.helper.proto.AppSettings;
+import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.proto.ReceiverInfo;
 import com.lody.virtual.helper.proto.VParceledListSlice;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.service.IPackageManager;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -102,7 +103,6 @@ public class VPackageManagerService extends IPackageManager.Stub {
 	private int[] mGids;
 
 
-
 	public VPackageManagerService(int[] gids) {
 		this.mGids = gids;
 	}
@@ -110,6 +110,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 	public static void systemReady() {
 		int[] gids = VirtualCore.getCore().getGids();
 		VPackageManagerService instance = new VPackageManagerService(gids);
+		new VUserManagerService(VirtualCore.getCore().getContext(), instance, new char[0], instance.mPackages);
 		gService.set(instance);
 	}
 
@@ -121,39 +122,38 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		return info != null && (info.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
 	}
 
-	private Context getContext() {
-		return VirtualCore.getCore().getContext();
-	}
-
-	private VAppManagerService getPMS() {
-		return VAppManagerService.getService();
-	}
-
 	public void analyzePackageLocked(PackageParser.Package pkg) {
-		AppSettings appSettings = (AppSettings) pkg.mExtras;
 		int N = pkg.activities.size();
 		for (int i = 0; i < N; i++) {
 			PackageParser.Activity a = pkg.activities.get(i);
-			ComponentFixer.fixComponentInfo(appSettings, a.info);
+			if (a.info.processName == null) {
+				a.info.processName = a.info.packageName;
+			}
 			mActivities.addActivity(a, "activity");
 		}
 		N = pkg.services.size();
 		for (int i = 0; i < N; i++) {
 			PackageParser.Service a = pkg.services.get(i);
-			ComponentFixer.fixComponentInfo(appSettings, a.info);
+			if (a.info.processName == null) {
+				a.info.processName = a.info.packageName;
+			}
 			mServices.addService(a);
 		}
 		N = pkg.receivers.size();
 		for (int i = 0; i < N; i++) {
 			PackageParser.Activity a = pkg.receivers.get(i);
-			ComponentFixer.fixComponentInfo(appSettings, a.info);
+			if (a.info.processName == null) {
+				a.info.processName = a.info.packageName;
+			}
 			mReceivers.addActivity(a, "receiver");
 		}
 
 		N = pkg.providers.size();
 		for (int i = 0; i < N; i++) {
 			PackageParser.Provider p = pkg.providers.get(i);
-			ComponentFixer.fixComponentInfo(appSettings, p.info);
+			if (p.info.processName == null) {
+				p.info.processName = p.info.packageName;
+			}
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 				mProviders.addProvider(p);
 			}
@@ -236,21 +236,19 @@ public class VPackageManagerService extends IPackageManager.Stub {
 	}
 
 	@Override
-	public int checkPermission(String permName, String pkgName) {
+	public int checkPermission(String permName, String pkgName, int userId) {
 		if ("android.permission.INTERACT_ACROSS_USERS".equals(permName)
 				|| "android.permission.INTERACT_ACROSS_USERS_FULL".equals(permName)) {
 			return PackageManager.PERMISSION_DENIED;
 		}
-
-		return PackageManager.PERMISSION_GRANTED;
+		return VirtualCore.getCore().getPackageManager().checkPermission(permName, VirtualCore.getCore().getHostPkg());
 	}
 
 	@Override
-	public PackageInfo getPackageInfo(String packageName, int flags) {
+	public PackageInfo getPackageInfo(String packageName, int flags, int userId) {
 		synchronized (mPackages) {
 			PackageParser.Package pkg = mPackages.get(packageName);
 			if (pkg != null) {
-				AppSettings settings = (AppSettings) pkg.mExtras;
 				if ((flags & PackageManager.GET_SIGNATURES) != 0 && pkg.mSignatures == null) {
 					if (pkg.mAppMetaData != null && pkg.mAppMetaData.containsKey(Constants.FEATURE_FAKE_SIGNATURE)) {
 						String sig = pkg.mAppMetaData.getString("fake-signature");
@@ -264,7 +262,8 @@ public class VPackageManagerService extends IPackageManager.Stub {
 				PackageInfo packageInfo = PackageParser.generatePackageInfo(pkg, mGids, flags,
 						getFirstInstallTime(packageName), getLastInstallTime(packageName));
 				if (packageInfo != null) {
-					ComponentFixer.fixApplicationInfo(settings, packageInfo.applicationInfo);
+					AppSetting setting = (AppSetting) pkg.mExtras;
+					ComponentFixer.fixApplicationInfo(setting, packageInfo.applicationInfo, userId);
 					return packageInfo;
 				}
 			}
@@ -280,15 +279,22 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		return 0;
 	}
 
+	public void checkUserId(int userId) {
+		if (!VUserManagerService.getInstance().exists(userId)) {
+			throw new SecurityException("The userId: " + userId + " is not exist.");
+		}
+	}
+
 	@Override
-	public ActivityInfo getActivityInfo(ComponentName component, int flags) {
+	public ActivityInfo getActivityInfo(ComponentName component, int flags, int userId) {
+		checkUserId(userId);
 		synchronized (mPackages) {
 			PackageParser.Activity a = mActivities.mActivities.get(component);
 			if (a != null) {
 				ActivityInfo activityInfo = PackageParser.generateActivityInfo(a, flags);
 				PackageParser.Package p = mPackages.get(activityInfo.packageName);
-				AppSettings settings = (AppSettings) p.mExtras;
-				ComponentFixer.fixComponentInfo(settings, activityInfo);
+				AppSetting settings = (AppSetting) p.mExtras;
+				ComponentFixer.fixComponentInfo(settings, activityInfo, userId);
 				return activityInfo;
 			}
 		}
@@ -313,14 +319,15 @@ public class VPackageManagerService extends IPackageManager.Stub {
 	}
 
 	@Override
-	public ActivityInfo getReceiverInfo(ComponentName component, int flags) {
+	public ActivityInfo getReceiverInfo(ComponentName component, int flags, int userId) {
+		checkUserId(userId);
 		synchronized (mPackages) {
 			PackageParser.Activity a = mReceivers.mActivities.get(component);
 			if (a != null) {
 				ActivityInfo receiverInfo = PackageParser.generateActivityInfo(a, flags);
 				PackageParser.Package p = mPackages.get(receiverInfo.packageName);
-				AppSettings settings = (AppSettings) p.mExtras;
-				ComponentFixer.fixComponentInfo(settings, receiverInfo);
+				AppSetting settings = (AppSetting) p.mExtras;
+				ComponentFixer.fixComponentInfo(settings, receiverInfo, userId);
 				return receiverInfo;
 			}
 		}
@@ -328,14 +335,15 @@ public class VPackageManagerService extends IPackageManager.Stub {
 	}
 
 	@Override
-	public ServiceInfo getServiceInfo(ComponentName component, int flags) {
+	public ServiceInfo getServiceInfo(ComponentName component, int flags, int userId) {
+		checkUserId(userId);
 		synchronized (mPackages) {
 			PackageParser.Service s = mServices.mServices.get(component);
 			if (s != null) {
 				ServiceInfo serviceInfo = PackageParser.generateServiceInfo(s, flags);
 				PackageParser.Package p = mPackages.get(serviceInfo.packageName);
-				AppSettings settings = (AppSettings) p.mExtras;
-				ComponentFixer.fixComponentInfo(settings, serviceInfo);
+				AppSetting settings = (AppSetting) p.mExtras;
+				ComponentFixer.fixComponentInfo(settings, serviceInfo, userId);
 				return serviceInfo;
 			}
 		}
@@ -343,14 +351,15 @@ public class VPackageManagerService extends IPackageManager.Stub {
 	}
 
 	@Override
-	public ProviderInfo getProviderInfo(ComponentName component, int flags) {
+	public ProviderInfo getProviderInfo(ComponentName component, int flags, int userId) {
+		checkUserId(userId);
 		synchronized (mPackages) {
 			PackageParser.Provider p = mProvidersByComponent.get(component);
 			if (p != null) {
 				ProviderInfo providerInfo = PackageParser.generateProviderInfo(p, flags);
 				PackageParser.Package pkg = mPackages.get(providerInfo.packageName);
-				AppSettings settings = (AppSettings) pkg.mExtras;
-				ComponentFixer.fixComponentInfo(settings, providerInfo);
+				AppSetting settings = (AppSetting) pkg.mExtras;
+				ComponentFixer.fixComponentInfo(settings, providerInfo, userId);
 				return providerInfo;
 			}
 		}
@@ -358,8 +367,9 @@ public class VPackageManagerService extends IPackageManager.Stub {
 	}
 
 	@Override
-	public ResolveInfo resolveIntent(Intent intent, String resolvedType, int flags) {
-		List<ResolveInfo> query = queryIntentActivities(intent, resolvedType, flags);
+	public ResolveInfo resolveIntent(Intent intent, String resolvedType, int flags, int userId) {
+		checkUserId(userId);
+		List<ResolveInfo> query = queryIntentActivities(intent, resolvedType, flags, 0);
 		return chooseBestActivity(intent, resolvedType, flags, query);
 	}
 
@@ -396,7 +406,8 @@ public class VPackageManagerService extends IPackageManager.Stub {
 	}
 
 	@Override
-	public List<ResolveInfo> queryIntentActivities(Intent intent, String resolvedType, int flags) {
+	public List<ResolveInfo> queryIntentActivities(Intent intent, String resolvedType, int flags, int userId) {
+		checkUserId(userId);
 		ComponentName comp = intent.getComponent();
 		if (comp == null) {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
@@ -408,7 +419,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		}
 		if (comp != null) {
 			final List<ResolveInfo> list = new ArrayList<ResolveInfo>(1);
-			final ActivityInfo ai = getActivityInfo(comp, flags);
+			final ActivityInfo ai = getActivityInfo(comp, flags, userId);
 			if (ai != null) {
 				final ResolveInfo ri = new ResolveInfo();
 				ri.activityInfo = ai;
@@ -432,7 +443,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 	}
 
 	@Override
-	public List<ResolveInfo> queryIntentReceivers(Intent intent, String resolvedType, int flags) {
+	public List<ResolveInfo> queryIntentReceivers(Intent intent, String resolvedType, int flags, int userId) {
 		ComponentName comp = intent.getComponent();
 		if (comp == null) {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
@@ -444,7 +455,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		}
 		if (comp != null) {
 			List<ResolveInfo> list = new ArrayList<ResolveInfo>(1);
-			ActivityInfo ai = getReceiverInfo(comp, flags);
+			ActivityInfo ai = getReceiverInfo(comp, flags, userId);
 			if (ai != null) {
 				ResolveInfo ri = new ResolveInfo();
 				ri.activityInfo = ai;
@@ -468,15 +479,17 @@ public class VPackageManagerService extends IPackageManager.Stub {
 	}
 
 	@Override
-	public List<ReceiverInfo> queryReceivers(String processName, int flags) {
+	public List<ReceiverInfo> queryReceivers(String processName, int uid, int flags) {
+		int userId = VUserHandle.getUserId(uid);
+		checkUserId(userId);
 		ArrayList<ReceiverInfo> finalList = new ArrayList<>(3);
 		synchronized (mPackages) {
 			for (PackageParser.Activity a : mReceivers.mActivities.values()) {
 				if (a.info.processName.equals(processName)) {
 					ActivityInfo receiverInfo = PackageParser.generateActivityInfo(a, flags);
 					if (receiverInfo != null) {
-						AppSettings settings = (AppSettings) mPackages.get(receiverInfo.packageName).mExtras;
-						ComponentFixer.fixComponentInfo(settings, receiverInfo);
+						AppSetting settings = (AppSetting) mPackages.get(receiverInfo.packageName).mExtras;
+						ComponentFixer.fixComponentInfo(settings, receiverInfo, userId);
 						ComponentName component = ComponentUtils.toComponentName(receiverInfo);
 						IntentFilter[] filters = null;
 						if (a.intents != null) {
@@ -491,8 +504,8 @@ public class VPackageManagerService extends IPackageManager.Stub {
 	}
 
 	@Override
-	public ResolveInfo resolveService(Intent intent, String resolvedType, int flags) {
-		List<ResolveInfo> query = queryIntentServices(intent, resolvedType, flags);
+	public ResolveInfo resolveService(Intent intent, String resolvedType, int flags, int userId) {
+		List<ResolveInfo> query = queryIntentServices(intent, resolvedType, flags, userId);
 		if (query != null) {
 			if (query.size() >= 1) {
 				// If there is more than one service with the same priority,
@@ -504,7 +517,8 @@ public class VPackageManagerService extends IPackageManager.Stub {
 	}
 
 	@Override
-	public List<ResolveInfo> queryIntentServices(Intent intent, String resolvedType, int flags) {
+	public List<ResolveInfo> queryIntentServices(Intent intent, String resolvedType, int flags, int userId) {
+		checkUserId(userId);
 		ComponentName comp = intent.getComponent();
 		if (comp == null) {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
@@ -516,7 +530,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		}
 		if (comp != null) {
 			final List<ResolveInfo> list = new ArrayList<ResolveInfo>(1);
-			final ServiceInfo si = getServiceInfo(comp, flags);
+			final ServiceInfo si = getServiceInfo(comp, flags, userId);
 			if (si != null) {
 				final ResolveInfo ri = new ResolveInfo();
 				ri.serviceInfo = si;
@@ -541,7 +555,8 @@ public class VPackageManagerService extends IPackageManager.Stub {
 
 	@TargetApi(Build.VERSION_CODES.KITKAT)
 	@Override
-	public List<ResolveInfo> queryIntentContentProviders(Intent intent, String resolvedType, int flags) {
+	public List<ResolveInfo> queryIntentContentProviders(Intent intent, String resolvedType, int flags, int userId) {
+		checkUserId(userId);
 		ComponentName comp = intent.getComponent();
 		if (comp == null) {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
@@ -553,7 +568,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		}
 		if (comp != null) {
 			final List<ResolveInfo> list = new ArrayList<ResolveInfo>(1);
-			final ProviderInfo pi = getProviderInfo(comp, flags);
+			final ProviderInfo pi = getProviderInfo(comp, flags, userId);
 			if (pi != null) {
 				final ResolveInfo ri = new ResolveInfo();
 				ri.providerInfo = pi;
@@ -576,13 +591,19 @@ public class VPackageManagerService extends IPackageManager.Stub {
 	}
 
 	@Override
-	public VParceledListSlice<ProviderInfo> queryContentProviders(String processName, int flags) {
+	public VParceledListSlice<ProviderInfo> queryContentProviders(String processName, int uid, int flags) {
+		int userId = VUserHandle.getUserId(uid);
+		checkUserId(userId);
 		ArrayList<ProviderInfo> finalList = new ArrayList<>(3);
 		// reader
 		synchronized (mPackages) {
 			for (PackageParser.Provider p : mProvidersByComponent.values()) {
 				if (p.info.processName.equals(processName)) {
-					finalList.add(PackageParser.generateProviderInfo(p, flags));
+					ProviderInfo providerInfo = PackageParser.generateProviderInfo(p, flags);
+					PackageParser.Package pkg = mPackages.get(providerInfo.packageName);
+					AppSetting setting = (AppSetting) pkg.mExtras;
+					ComponentFixer.fixApplicationInfo(setting, providerInfo.applicationInfo, userId);
+					finalList.add(providerInfo);
 				}
 			}
 		}
@@ -593,23 +614,25 @@ public class VPackageManagerService extends IPackageManager.Stub {
 	}
 
 	@Override
-	public VParceledListSlice<PackageInfo> getInstalledPackages(int flags) {
+	public VParceledListSlice<PackageInfo> getInstalledPackages(int flags, int userId) {
+		checkUserId(userId);
 		ArrayList<PackageInfo> pkgList = new ArrayList<>(mPackages.size());
 		synchronized (mPackages) {
 			for (PackageParser.Package pkg : mPackages.values()) {
 				String packageName = pkg.packageName;
-				pkgList.add(getPackageInfo(packageName, flags));
+				pkgList.add(getPackageInfo(packageName, flags, userId));
 			}
 		}
 		return new VParceledListSlice<>(pkgList);
 	}
 
 	@Override
-	public VParceledListSlice<ApplicationInfo> getInstalledApplications(int flags) {
+	public VParceledListSlice<ApplicationInfo> getInstalledApplications(int flags, int userId) {
+		checkUserId(userId);
 		ArrayList<ApplicationInfo> list = new ArrayList<>(mPackages.size());
 		synchronized (mPackages) {
 			for (PackageParser.Package pkg : mPackages.values()) {
-				list.add(getApplicationInfo(pkg.packageName, flags));
+				list.add(getApplicationInfo(pkg.packageName, flags, userId));
 			}
 		}
 		return new VParceledListSlice<>(list);
@@ -657,14 +680,16 @@ public class VPackageManagerService extends IPackageManager.Stub {
 	}
 
 	@Override
-	public ProviderInfo resolveContentProvider(String name, int flags) {
+	public ProviderInfo resolveContentProvider(String name, int flags, int userId) {
+		checkUserId(userId);
 		synchronized (mPackages) {
 			final PackageParser.Provider provider = mProvidersByAuthority.get(name);
 			if (provider != null) {
 				ProviderInfo providerInfo = PackageParser.generateProviderInfo(provider, flags);
 				PackageParser.Package p = mPackages.get(providerInfo.packageName);
-				AppSettings settings = (AppSettings) p.mExtras;
-				ComponentFixer.fixComponentInfo(settings, providerInfo);
+				AppSetting settings = (AppSetting) p.mExtras;
+				ComponentFixer.fixComponentInfo(settings, providerInfo, userId);
+				providerInfo.applicationInfo.uid = VUserHandle.getUid(userId, settings.baseUid);
 				return providerInfo;
 			}
 		}
@@ -672,13 +697,15 @@ public class VPackageManagerService extends IPackageManager.Stub {
 	}
 
 	@Override
-	public ApplicationInfo getApplicationInfo(String packageName, int flags) {
+	public ApplicationInfo getApplicationInfo(String packageName, int flags, int userId) {
+		checkUserId(userId);
 		synchronized (mPackages) {
 			PackageParser.Package pkg = mPackages.get(packageName);
 			if (pkg != null) {
 				ApplicationInfo applicationInfo = PackageParser.generateApplicationInfo(pkg, flags);
-				AppSettings settings = (AppSettings) pkg.mExtras;
-				ComponentFixer.fixApplicationInfo(settings, applicationInfo);
+				AppSetting settings = (AppSetting) pkg.mExtras;
+				ComponentFixer.fixApplicationInfo(settings, applicationInfo, userId);
+				applicationInfo.uid = VUserHandle.getUid(userId, settings.baseUid);
 				return applicationInfo;
 			}
 		}
@@ -687,15 +714,14 @@ public class VPackageManagerService extends IPackageManager.Stub {
 
 	@Override
 	public String[] getPackagesForUid(int uid) {
+		int userId = VUserHandle.getUserId(uid);
+		checkUserId(userId);
 		synchronized (this) {
 			List<String> pkgList = new ArrayList<>(2);
 			for (PackageParser.Package p : mPackages.values()) {
-				AppSettings settings = (AppSettings) p.mExtras;
-				if (settings.uid == uid) {
+				AppSetting settings = (AppSetting) p.mExtras;
+				if (VUserHandle.getUid(userId, settings.baseUid) == uid) {
 					pkgList.add(p.packageName);
-					if (p.mSharedUserId == null) {
-						break;
-					}
 				}
 			}
 			return pkgList.toArray(new String[pkgList.size()]);
@@ -703,32 +729,18 @@ public class VPackageManagerService extends IPackageManager.Stub {
 	}
 
 	@Override
-	public int getPackageUid(String packageName) {
+	public int getPackageUid(String packageName, int userId) {
+		checkUserId(userId);
 		synchronized (mPackages) {
 			PackageParser.Package p = mPackages.get(packageName);
 			if (p != null) {
-				AppSettings settings = (AppSettings) p.mExtras;
-				return settings.uid;
+				AppSetting settings = (AppSetting) p.mExtras;
+				return VUserHandle.getUid(userId, settings.baseUid);
 			}
 			return -1;
 		}
 	}
 
-	@Override
-	public List<IntentFilter> getReceiverIntentFilter(ActivityInfo info) {
-		synchronized (mPackages) {
-			ComponentName component = new ComponentName(info.packageName, info.name);
-			PackageParser.Activity receiver = mReceivers.mActivities.get(component);
-			if (receiver != null) {
-				List<IntentFilter> filters = new ArrayList<>(receiver.intents.size());
-				for (PackageParser.ActivityIntentInfo filter : receiver.intents) {
-					filters.add(filter);
-				}
-				return filters;
-			}
-		}
-		return null;
-	}
 
 	@Override
 	public List<String> querySharedPackages(String packageName) {
@@ -755,6 +767,14 @@ public class VPackageManagerService extends IPackageManager.Stub {
 			e.printStackTrace();
 			throw e;
 		}
+	}
+
+	public void createNewUserLILPw(int userId, File userPath) {
+
+	}
+
+	public void cleanUpUserLILPw(int userHandle) {
+
 	}
 
 	final class ActivityIntentResolver extends IntentResolver<PackageParser.ActivityIntentInfo, ResolveInfo> {

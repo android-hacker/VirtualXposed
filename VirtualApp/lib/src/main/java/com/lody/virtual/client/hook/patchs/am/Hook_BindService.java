@@ -13,6 +13,7 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.HackServiceConnection;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
 
@@ -39,7 +40,7 @@ import java.lang.reflect.Method;
 		String resolvedType = (String) args[3];
 		IServiceConnection connection = (IServiceConnection) args[4];
 		int flags = (int) args[5];
-		ServiceInfo serviceInfo = VirtualCore.getCore().resolveServiceInfo(service);
+		ServiceInfo serviceInfo = VirtualCore.getCore().resolveServiceInfo(service, VUserHandle.myUserId());
 		if (serviceInfo != null) {
 			String pkgName = serviceInfo.packageName;
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
