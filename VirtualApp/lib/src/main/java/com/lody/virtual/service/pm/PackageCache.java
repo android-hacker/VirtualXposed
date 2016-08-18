@@ -1,16 +1,14 @@
 package com.lody.virtual.service.pm;
 
 import com.lody.virtual.helper.proto.AppSetting;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import com.lody.virtual.helper.utils.collection.ArrayMap;
 
 /**
  * @author Lody
  */
 
 public class PackageCache {
-	public static final Map<String, PackageParser.Package> sPackageCaches = new ConcurrentHashMap<>();
+	public static final ArrayMap<String, PackageParser.Package> sPackageCaches = new ArrayMap<>();
 
 
 	public static void put(PackageParser.Package pkg, AppSetting appSetting) {

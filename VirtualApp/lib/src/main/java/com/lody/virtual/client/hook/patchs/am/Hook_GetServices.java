@@ -21,7 +21,7 @@ public class Hook_GetServices extends Hook {
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		int maxNum = (int) args[0];
 		int flags = (int) args[1];
-		return VActivityManager.getInstance().getServices(maxNum, flags).getList();
+		return VActivityManager.get().getServices(maxNum, flags).getList();
 	}
 
 	@Override

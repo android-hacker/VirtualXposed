@@ -14,7 +14,6 @@ import android.accounts.IAccountAuthenticatorResponse;
 import android.accounts.IAccountManagerResponse;
 import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
-import android.app.IServiceConnection;
 import android.app.Notification;
 import android.app.admin.DevicePolicyManager;
 import android.content.BroadcastReceiver;
@@ -3167,12 +3166,7 @@ public class VAccountManagerService
             if (Log.isLoggable(TAG, Log.VERBOSE)) {
                 Log.v(TAG, "performing bindService to " + authenticatorInfo.componentName);
             }
-            if (VActivityManagerService.getService().bindServiceAsUser(null, null, intent, intent.resolveType(mContext), new IServiceConnection.Stub() {
-                        @Override
-                        public void connected(ComponentName componentName, IBinder iBinder) throws RemoteException {
-                            onServiceConnected(componentName, iBinder);
-                        }
-                    }, Context.BIND_AUTO_CREATE, (mAccounts.userId)) > 0) {
+            if (!mContext.bindService(intent,this, Context.BIND_AUTO_CREATE)) {
                 if (Log.isLoggable(TAG, Log.VERBOSE)) {
                     Log.v(TAG, "bindService to " + authenticatorInfo.componentName + " failed");
                 }

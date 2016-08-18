@@ -1,5 +1,5 @@
 //
-// Created by Xfast on 2016/7/21.
+// VirtualApp Native Project
 //
 #include "core.h"
 
@@ -14,10 +14,9 @@ void hook_native(JNIEnv *env, jclass jclazz, jobject javaMethod, jboolean isArt)
     if (hasHooked) {
         return;
     }
-    HOOK_NATIVE::hook(javaMethod, isArt);
+    hookNative(javaMethod, isArt);
     hasHooked = true;
 }
-
 
 
 void hook_io(JNIEnv *env, jclass jclazz, jint apiLevel) {
@@ -62,33 +61,29 @@ static JNINativeMethod gMethods[] = {
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv *env;
-    if (vm->GetEnv((void **) &env, JNI_VERSION_1_4) != JNI_OK) {
-        LOGE("GetEnv() FAILED!!!");
+    if (vm->GetEnv((void **) &env, JNI_VERSION_1_6) != JNI_OK) {
         return JNI_ERR;
     }
     jclass javaClass = env->FindClass(JAVA_CLASS);
     if (javaClass == NULL) {
-        LOGE("unable to find class: %s", JAVA_CLASS);
+        LOGE("Ops: Unable to find hook class.");
         return JNI_ERR;
     }
-    env->UnregisterNatives(javaClass);
     if (env->RegisterNatives(javaClass, gMethods, NELEM(gMethods)) < 0) {
-        LOGE("register methods FAILED!!!");
+        LOGE("Ops: Unable to register the native methods.");
         return JNI_ERR;
     }
     g_vm = vm;
     g_jclass = (jclass) env->NewGlobalRef(javaClass);
     env->DeleteLocalRef(javaClass);
-    LOGI("JavaVM::GetEnv() SUCCESS!");
-    return JNI_VERSION_1_4;
+    return JNI_VERSION_1_6;
 }
 
 
 
 JNIEXPORT void JNICALL JNI_OnUnload(JavaVM* vm, void* reserved) {
     JNIEnv *env;
-    if (vm->GetEnv((void **) &env, JNI_VERSION_1_4) != JNI_OK) {
-        LOGE("JNI_OnUnload GetEnv() FAILED!!!");
+    if (vm->GetEnv((void **) &env, JNI_VERSION_1_6) != JNI_OK) {
         return;
     }
     env->DeleteGlobalRef((jobject)g_vm);

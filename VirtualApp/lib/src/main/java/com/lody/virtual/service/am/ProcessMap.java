@@ -1,12 +1,12 @@
 package com.lody.virtual.service.am;
 
 
-import com.lody.virtual.helper.utils.SparseArray;
+import com.lody.virtual.helper.utils.collection.ArrayMap;
+import com.lody.virtual.helper.utils.collection.SparseArray;
 
-import java.util.HashMap;
 
 public class ProcessMap<E> {
-    final HashMap<String, SparseArray<E>> mMap = new HashMap<>();
+    final ArrayMap<String, SparseArray<E>> mMap = new ArrayMap<>();
     
     public E get(String name, int uid) {
         SparseArray<E> uids = mMap.get(name);
@@ -36,7 +36,7 @@ public class ProcessMap<E> {
         return null;
     }
     
-    public HashMap<String, SparseArray<E>> getMap() {
+    public ArrayMap<String, SparseArray<E>> getMap() {
         return mMap;
     }
 }

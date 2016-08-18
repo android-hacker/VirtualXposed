@@ -31,7 +31,7 @@ import android.os.IBinder;
 			int id = (int) args[2];
 			Notification notification = (Notification) args[3];
 			boolean keep = (boolean) args[4];
-			VActivityManager.getInstance().setServiceForeground(componentName, token, id, notification, keep);
+			VActivityManager.get().setServiceForeground(componentName, token, id, notification, keep);
 			return 0;
 		} catch (Throwable e) {
 			e.printStackTrace();

@@ -26,7 +26,7 @@ import android.os.IBinder;
 		IBinder token = (IBinder) args[0];
 		Intent service = (Intent) args[1];
 		boolean doRebind = (boolean) args[2];
-		VActivityManager.getInstance().unbindFinished(token, service, doRebind);
+		VActivityManager.get().unbindFinished(token, service, doRebind);
 		return 0;
 	}
 

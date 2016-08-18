@@ -29,7 +29,7 @@ import android.app.ActivityManager;
 				.invoke(who, args);
 		for (int i = 0; i < runningTaskInfos.size(); i++) {
 			ActivityManager.RunningTaskInfo info = runningTaskInfos.get(i);
-			AppTaskInfo taskInfo = VActivityManager.getInstance().getTaskInfo(info.id);
+			AppTaskInfo taskInfo = VActivityManager.get().getTaskInfo(info.id);
 			if (taskInfo != null) {
 				info.topActivity = taskInfo.topActivity;
 				info.baseActivity = taskInfo.baseActivity;

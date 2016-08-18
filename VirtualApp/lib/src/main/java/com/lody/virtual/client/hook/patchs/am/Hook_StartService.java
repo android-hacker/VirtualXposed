@@ -43,7 +43,7 @@ import java.lang.reflect.Method;
 				return method.invoke(who, args);
 			}
 			if (isAppPkg(pkgName)) {
-				return VActivityManager.getInstance().startService(appThread.asBinder(), service, resolvedType);
+				return VActivityManager.get().startService(appThread.asBinder(), service, resolvedType);
 			}
 		}
 		return method.invoke(who, args);

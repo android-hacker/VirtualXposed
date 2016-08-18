@@ -25,7 +25,7 @@ import android.content.Intent;
 		HookUtils.replaceLastAppPkg(args);
 		Intent service = (Intent) args[0];
 		String resolvedType = (String) args[1];
-		return VActivityManager.getInstance().peekService(service, resolvedType);
+		return VActivityManager.get().peekService(service, resolvedType);
 	}
 
 	@Override

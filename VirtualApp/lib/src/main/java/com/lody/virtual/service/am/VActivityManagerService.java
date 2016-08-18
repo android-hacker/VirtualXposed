@@ -43,8 +43,9 @@ import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.VParceledListSlice;
 import com.lody.virtual.helper.proto.VRedirectActRequest;
 import com.lody.virtual.helper.utils.ComponentUtils;
-import com.lody.virtual.helper.utils.SparseArray;
 import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.helper.utils.collection.ArrayMap;
+import com.lody.virtual.helper.utils.collection.SparseArray;
 import com.lody.virtual.os.VBinder;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.service.IActivityManager;
@@ -54,7 +55,6 @@ import com.lody.virtual.service.pm.VPackageManagerService;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -1090,8 +1090,10 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	@Override
 	public void killAppByPkg(final String pkg, int userId) {
 		synchronized (mProcessNames) {
-			HashMap<String, SparseArray<ProcessRecord>> map = mProcessNames.getMap();
-			for (SparseArray<ProcessRecord> uids : map.values()) {
+			ArrayMap<String, SparseArray<ProcessRecord>> map = mProcessNames.getMap();
+			int N = map.size();
+			while (N-- > 0) {
+				SparseArray<ProcessRecord> uids = map.valueAt(N);
 				for (int i = 0; i < uids.size(); i++) {
 					ProcessRecord r = uids.valueAt(i);
 					if (userId != VUserHandle.USER_ALL) {

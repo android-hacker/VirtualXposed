@@ -48,7 +48,7 @@ import java.lang.reflect.Method;
 			}
 			if (isAppPkg(pkgName)) {
 				connection = new HackServiceConnection(VClientImpl.getClient().getCurrentApplication(), connection);
-				return VActivityManager.getInstance().bindService(caller.asBinder(), token, service, resolvedType,
+				return VActivityManager.get().bindService(caller.asBinder(), token, service, resolvedType,
 						connection, flags);
 			}
 		}

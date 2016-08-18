@@ -21,7 +21,7 @@ import java.util.Map;
 import dalvik.system.DexFile;
 
 /**
- * Created by Xfast on 2016/7/21.
+ * VirtualApp Native Project
  */
 public class IOHook {
 
@@ -118,14 +118,11 @@ public class IOHook {
 		} else if (callingPid == VirtualCore.getCore().getSystemPid()) {
 			return Process.SYSTEM_UID;
 		} else {
-			int uid = VActivityManager.getInstance().getUidByPid(callingPid);
+			int uid = VActivityManager.get().getUidByPid(callingPid);
 			if (uid != -1) {
 				resultUid = uid;
-			} else {
-				VLog.e(TAG, "Unable to get uid from pid : %d.", callingPid);
 			}
 		}
-//		VLog.e(TAG, "GetCallingUid return %d.", resultUid);
 		return resultUid;
 	}
 
@@ -164,7 +161,6 @@ public class IOHook {
 			}
 			vuid = uid;
 		}
-//		VLog.e(TAG, "Process.myPid() return %d.", vuid);
 		return vuid;
 	}
 }

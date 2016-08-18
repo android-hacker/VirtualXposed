@@ -1,5 +1,5 @@
 //
-// Created by Xfast on 2016/7/22.
+// VirtualApp Native Project
 //
 
 #ifndef NDK_CORE_H

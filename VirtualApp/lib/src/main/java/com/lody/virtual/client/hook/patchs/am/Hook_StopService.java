@@ -41,7 +41,7 @@ import android.content.pm.ResolveInfo;
 		if (componentName != null) {
 			String pkgName = componentName.getPackageName();
 			if (isAppPkg(pkgName)) {
-				return VActivityManager.getInstance().stopService(caller.asBinder(), intent, resolvedType);
+				return VActivityManager.get().stopService(caller.asBinder(), intent, resolvedType);
 			}
 		}
 		return method.invoke(who, args);

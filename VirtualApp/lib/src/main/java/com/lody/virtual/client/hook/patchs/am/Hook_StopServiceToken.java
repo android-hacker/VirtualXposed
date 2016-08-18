@@ -29,7 +29,7 @@ import android.os.IBinder;
 		if (componentName != null) {
 			String pkgName = componentName.getPackageName();
 			if (isAppPkg(pkgName)) {
-				return VActivityManager.getInstance().stopServiceToken(componentName, token, startId);
+				return VActivityManager.get().stopServiceToken(componentName, token, startId);
 			}
 		}
 		return method.invoke(who, args);

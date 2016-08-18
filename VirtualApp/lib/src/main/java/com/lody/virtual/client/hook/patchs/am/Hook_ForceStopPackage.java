@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
 		if (args.length > 1 && args[1] instanceof Integer) {
 			userId = (int) args[1];
 		}
-		VActivityManager.getInstance().killAppByPkg(pkg, userId);
+		VActivityManager.get().killAppByPkg(pkg, userId);
 		return 0;
 	}
 

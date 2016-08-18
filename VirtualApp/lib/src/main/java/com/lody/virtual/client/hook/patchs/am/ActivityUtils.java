@@ -31,7 +31,7 @@ import com.lody.virtual.os.VUserHandle;
 			req.fromHost = !VirtualCore.getCore().isVAppProcess();
 			req.resultTo = resultTo;
 			// Get Request Result
-			VActRedirectResult result = VActivityManager.getInstance().redirectTargetActivity(req);
+			VActRedirectResult result = VActivityManager.get().redirectTargetActivity(req);
 			if (result == null || result.stubActInfo == null) {
 				return false;
 			}

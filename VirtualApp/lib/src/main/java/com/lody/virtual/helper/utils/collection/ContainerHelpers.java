@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.lody.virtual.helper.utils;
+package com.lody.virtual.helper.utils.collection;
 
 class ContainerHelpers {
     static final int[] EMPTY_INTS = new int[0];

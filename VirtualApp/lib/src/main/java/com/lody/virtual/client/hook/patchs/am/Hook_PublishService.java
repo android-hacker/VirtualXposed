@@ -26,7 +26,7 @@ import android.os.IBinder;
 		IBinder token = (IBinder) args[0];
 		Intent intent = (Intent) args[1];
 		IBinder service = (IBinder) args[2];
-		VActivityManager.getInstance().publishService(token, intent, service);
+		VActivityManager.get().publishService(token, intent, service);
 		return 0;
 	}
 

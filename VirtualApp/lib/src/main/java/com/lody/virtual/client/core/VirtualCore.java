@@ -169,13 +169,13 @@ public final class VirtualCore {
 				processType = ProcessType.Main;
 			} else if (processName.endsWith(Constants.SERVER_PROCESS_NAME)) {
 				processType = ProcessType.Server;
-			} else if (VActivityManager.getInstance().isAppProcess(processName)) {
+			} else if (VActivityManager.get().isAppProcess(processName)) {
 				processType = ProcessType.VAppClient;
 			} else {
 				processType = ProcessType.CHILD;
 			}
 			if (isVAppProcess()) {
-				systemPid = VActivityManager.getInstance().getSystemPid();
+				systemPid = VActivityManager.get().getSystemPid();
 			}
 			PatchManager patchManager = PatchManager.getInstance();
 			patchManager.injectAll();
@@ -383,11 +383,11 @@ public final class VirtualCore {
 	}
 
 	public void killApp(String pkg, int userId) {
-		VActivityManager.getInstance().killAppByPkg(pkg, userId);
+		VActivityManager.get().killAppByPkg(pkg, userId);
 	}
 
 	public void killAllApps() {
-		VActivityManager.getInstance().killAllApps();
+		VActivityManager.get().killAllApps();
 	}
 
 	public List<AppSetting> getAllApps() {

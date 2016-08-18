@@ -76,7 +76,7 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 		String pkg = activity.getPackageName();
 		boolean isApp = VirtualCore.getCore().isAppInstalled(pkg);
 		if (isApp) {
-			LocalActivityRecord r = VActivityManager.getInstance().onActivityCreate(activity);
+			LocalActivityRecord r = VActivityManager.get().onActivityCreate(activity);
 			ContextFixer.fixContext(activity);
 			ActivityFixer.fixActivity(activity);
 			ActivityInfo info = null;
@@ -101,7 +101,7 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 		String pkg = activity.getPackageName();
 		boolean isApp = VirtualCore.getCore().isAppInstalled(pkg);
 		if (isApp) {
-			VActivityManager.getInstance().onActivityResumed(activity);
+			VActivityManager.get().onActivityResumed(activity);
 		}
 		super.callActivityOnResume(activity);
 		Intent intent = activity.getIntent();
@@ -117,7 +117,7 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 		String pkg = activity.getPackageName();
 		boolean isApp = VirtualCore.getCore().isAppInstalled(pkg);
 		if (isApp) {
-			VActivityManager.getInstance().onActivityDestroy(activity);
+			VActivityManager.get().onActivityDestroy(activity);
 		}
 		super.callActivityOnDestroy(activity);
 	}

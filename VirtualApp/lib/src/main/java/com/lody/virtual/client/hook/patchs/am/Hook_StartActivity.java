@@ -72,7 +72,7 @@ import java.util.Collections;
 		}
 		req.resultTo = resultTo;
 		// Get Request Result
-		VActRedirectResult result = VActivityManager.getInstance().redirectTargetActivity(req);
+		VActRedirectResult result = VActivityManager.get().redirectTargetActivity(req);
 		if (result == null || result.justReturn) {
 			return 0;
 		}
@@ -99,7 +99,7 @@ import java.util.Collections;
 		}
 		ActivityInfo callerActInfo = null;
 		if (resultTo != null) {
-			callerActInfo = VActivityManager.getInstance().getActivityInfo(resultTo);
+			callerActInfo = VActivityManager.get().getActivityInfo(resultTo);
 		}
 		// Mapping
 		Intent stubIntent = new Intent();

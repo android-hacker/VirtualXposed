@@ -24,16 +24,17 @@ public class ComponentUtils {
 	}
 
 	public static String getTaskAffinity(ActivityInfo activityInfo) {
+		int uid = activityInfo.applicationInfo.uid;
 		if (activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
-			return "SINGLE_INSTANCE_" + activityInfo.packageName + "/" + activityInfo.name;
+			return "SINGLE_INSTANCE_" + activityInfo.packageName + "/" + activityInfo.name + ":" + uid;
 		}
 		if (activityInfo.taskAffinity == null && activityInfo.applicationInfo.taskAffinity == null) {
-			return activityInfo.packageName;
+			return activityInfo.packageName+ ":" + uid;
 		}
 		if (activityInfo.taskAffinity != null) {
-			return activityInfo.taskAffinity;
+			return activityInfo.taskAffinity+ ":" + uid;
 		}
-		return activityInfo.applicationInfo.taskAffinity;
+		return activityInfo.applicationInfo.taskAffinity+ ":" + uid;
 	}
 
 	public static boolean isSameComponent(ComponentInfo first, ComponentInfo second) {

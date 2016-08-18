@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
 		if (args.length > 1 && args[0] instanceof String && args[1] instanceof Integer) {
 			String procName = (String) args[0];
 			int uid = (int) args[1];
-			VActivityManager.getInstance().killApplicationProcess(procName, uid);
+			VActivityManager.get().killApplicationProcess(procName, uid);
 			return 0;
 		}
 		return method.invoke(who, args);

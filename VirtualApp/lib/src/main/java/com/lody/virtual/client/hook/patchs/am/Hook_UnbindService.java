@@ -22,7 +22,7 @@ import android.app.IServiceConnection;
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		IServiceConnection connection = (IServiceConnection) args[0];
-		return VActivityManager.getInstance().unbindService(connection);
+		return VActivityManager.get().unbindService(connection);
 	}
 
 	@Override

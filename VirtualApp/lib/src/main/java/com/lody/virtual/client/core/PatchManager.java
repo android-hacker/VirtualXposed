@@ -122,6 +122,9 @@ public final class PatchManager {
 		if (VirtualCore.getCore().isMainProcess()) {
 			addPatch(new ActivityManagerPatch());
 			return;
+		} else if (VirtualCore.getCore().isServiceProcess()) {
+			addPatch(new ActivityManagerPatch());
+			return;
 		}
 		if (VirtualCore.getCore().isVAppProcess()) {
 			addPatch(new ActivityManagerPatch());

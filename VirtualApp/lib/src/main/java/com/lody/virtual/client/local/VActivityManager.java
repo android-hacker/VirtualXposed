@@ -37,7 +37,7 @@ public class VActivityManager {
 
 	private Map<IBinder, LocalActivityRecord> mActivities = new HashMap<IBinder, LocalActivityRecord>(6);
 
-	public static VActivityManager getInstance() {
+	public static VActivityManager get() {
 		return sAM;
 	}
 

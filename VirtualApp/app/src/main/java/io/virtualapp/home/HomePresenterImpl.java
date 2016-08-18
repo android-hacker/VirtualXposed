@@ -38,7 +38,7 @@ public class HomePresenterImpl implements HomeContract.HomePresenter {
 	@Override
 	public void launchApp(AppModel model, int userId) {
 		try {
-			VActivityManager.getInstance().killAllApps();
+			VActivityManager.get().killAllApps();
 			LoadingActivity.launch(mActivity, model, userId);
 		} catch (Throwable e) {
 			e.printStackTrace();

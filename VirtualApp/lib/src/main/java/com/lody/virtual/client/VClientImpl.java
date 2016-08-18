@@ -245,7 +245,7 @@ public class VClientImpl extends IVClient.Stub {
 
 		List<ReceiverInfo> receivers = VPackageManager.getInstance().queryReceivers(data.processName,0 , 0);
 		installReceivers(app, receivers);
-		VActivityManager.getInstance().appDoneExecuting();
+		VActivityManager.get().appDoneExecuting();
 	}
 
 	private void fixBoundApp(AppBindData data, Object hostBindData) {
@@ -266,7 +266,7 @@ public class VClientImpl extends IVClient.Stub {
 				results.add(cph);
 			}
 		}
-		VActivityManager.getInstance().publishContentProviders(results);
+		VActivityManager.get().publishContentProviders(results);
 	}
 
 	private static void installReceivers(Context context, List<ReceiverInfo> receivers) {

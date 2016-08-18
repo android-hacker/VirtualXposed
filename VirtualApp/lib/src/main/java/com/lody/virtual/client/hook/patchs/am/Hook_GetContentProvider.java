@@ -43,7 +43,7 @@ import java.lang.reflect.Proxy;
 				return method.invoke(who, args);
 			}
 		}
-		IActivityManager.ContentProviderHolder holder = VActivityManager.getInstance().getContentProvider(name);
+		IActivityManager.ContentProviderHolder holder = VActivityManager.get().getContentProvider(name);
 		boolean external = holder == null;
 		if (external) {
 			try {

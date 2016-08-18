@@ -118,7 +118,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		}
 		String processName = ComponentUtils.getProcessName(targetActInfo);
 		if (!VClientImpl.getClient().isBound()) {
-			VActivityManager.getInstance().ensureAppBound(processName, targetActInfo.applicationInfo);
+			VActivityManager.get().ensureAppBound(processName, targetActInfo.applicationInfo);
 			getH().sendMessageDelayed(Message.obtain(msg), 5);
 			return false;
 		}
