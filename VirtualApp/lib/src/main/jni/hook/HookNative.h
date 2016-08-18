@@ -1,5 +1,5 @@
 //
-// Created by Xfast on 2016/8/8.
+// VirtualApp Native Project
 //
 
 #ifndef NDK_HOOK_NATIVE_H
@@ -10,12 +10,12 @@
 #include <dlfcn.h>
 #include <stddef.h>
 #include <fcntl.h>
+#include <sys/system_properties.h>
 
 #include "../helper/helper.h"
 
 
-namespace HOOK_NATIVE {
-    void hook(jobject javaMethod, jboolean isArt);
-}
+void hookNative(jobject javaMethod, jboolean isArt);
+
 
 #endif //NDK_HOOK_NATIVE_H

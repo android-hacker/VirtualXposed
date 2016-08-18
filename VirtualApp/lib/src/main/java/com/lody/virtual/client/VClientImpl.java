@@ -182,6 +182,7 @@ public class VClientImpl extends IVClient.Stub {
 		fixBoundApp(mBoundApplication, VirtualCore.getHostBindData());
 		Application app = data.info.makeApplication(false, null);
 		mInitialApplication = app;
+		Reflect.on(VirtualCore.mainThread()).set("mInitialApplication", app);
 		ContextFixer.fixContext(app);
 		List<ProviderInfo> providers = data.providers;
 		if (providers != null) {

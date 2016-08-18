@@ -1,228 +1,227 @@
 //
-// Created by Xfast on 2016/8/8.
+// VirtualApp Native Project
 //
 #include "HookNative.h"
 
+typedef void (*Bridge_DalvikBridgeFunc)(const void **, void *, const void *, void *);
+typedef jobject (*Native_openDexNativeFunc)(JNIEnv *, jclass, jstring, jstring, jint);
+
+
+
+static struct {
+
+    bool isArt;
+    int nativeOffset;
+    jmethodID g_methodid_onGetCallingUid;
+    jmethodID g_methodid_onOpenDexFileNative;
+
+    void* g_sym_IPCThreadState_self;
+    void* g_sym_IPCThreadState_getCallingUid;
+    void* art_work_around_app_jni_bugs;
+    char* (*GetCstrFromString)(void *);
+    void* (*GetStringFromCstr)(const char*);
+
+    Bridge_DalvikBridgeFunc orig_DalvikBridgeFunc;
+    Native_openDexNativeFunc orig_native_openDexNativeFunc;
+
+
+} gOffset;
 
 
 extern JavaVM *g_vm;
 extern jclass g_jclass;
 
 
+void mark() {
+    // Do nothing
+};
 
-namespace HOOK_BINDER {
-    // src: IPCThreadState.cpp
-    static void *g_sym_IPCThreadState_self;
-    static void *g_sym_IPCThreadState_getCallingUid;
-    static jmethodID g_methodid_onGetCallingUid;
-
-    int getCallingUid(JNIEnv *env, jclass jclazz) {
-        int (*org_getCallingUid)(int) = (int (*)(int)) g_sym_IPCThreadState_getCallingUid;
-        int (*func_self)(void) = (int (*)(void)) g_sym_IPCThreadState_self;
-        int uid = org_getCallingUid(func_self());
-        if (uid == getuid()) {
-            uid = env->CallStaticIntMethod(g_jclass, g_methodid_onGetCallingUid, uid);
-            return uid;
-        }
+int getCallingUid(JNIEnv *env, jclass jclazz) {
+    int (*org_getCallingUid)(int) = (int (*)(int)) gOffset.g_sym_IPCThreadState_getCallingUid;
+    int (*func_self)(void) = (int (*)(void)) gOffset.g_sym_IPCThreadState_self;
+    int uid = org_getCallingUid(func_self());
+    if (uid == getuid()) {
+        uid = env->CallStaticIntMethod(g_jclass, gOffset.g_methodid_onGetCallingUid, uid);
         return uid;
     }
-
-    static JNINativeMethod gMethods[] = {
-            NATIVE_METHOD((void *) getCallingUid, "getCallingUid", "()I"),
-    };
-
-    void hook() {
-        LOGD("hook Binder...");
-        g_sym_IPCThreadState_self = dlsym(RTLD_DEFAULT, "_ZN7android14IPCThreadState4selfEv");
-        g_sym_IPCThreadState_getCallingUid = dlsym(RTLD_DEFAULT, "_ZNK7android14IPCThreadState13getCallingUidEv");
-        if (g_sym_IPCThreadState_getCallingUid == NULL) {
-            g_sym_IPCThreadState_getCallingUid = dlsym(RTLD_DEFAULT, "_ZN7android14IPCThreadState13getCallingUidEv");
-        }
-        if (g_sym_IPCThreadState_self == NULL || g_sym_IPCThreadState_getCallingUid == NULL) {
-            LOGE("hook Binder failed!");
-            return;
-        }
-        LOGD("sym_IPCThreadState=%p, sym_getCallingUid=%p", g_sym_IPCThreadState_self, g_sym_IPCThreadState_getCallingUid);
-        JNIEnv *env = NULL;
-        g_vm->GetEnv((void **) &env, JNI_VERSION_1_4);
-        g_vm->AttachCurrentThread(&env, NULL);
-        g_methodid_onGetCallingUid = env->GetStaticMethodID(g_jclass, JAVA_CALLBACK__BINDER__ON_GET_CALLING_UID, JAVA_CALLBACK__BINDER__ON_GET_CALLING_UID_SIGNATURE);
-        jclass jclass_Binder = env->FindClass("android/os/Binder");
-        if (env->RegisterNatives(jclass_Binder, gMethods, NELEM(gMethods)) < 0) {
-            LOGE("hook Binder failed! because register methods FAILED!!!");
-            return;
-        }
-        LOGD("Done hook Binder");
-    }
+    return uid;
 }
 
 
+static JNINativeMethod gMarkMethods[] = {
+        NATIVE_METHOD((void *) mark, "nativeMark", "()V"),
+};
 
-namespace HOOK_JAVA {
-    void mark() {}
-
-    typedef void (*Bridge_DalvikBridgeFunc)(const void **, void *, const void *, void *);
-    typedef jobject (*Native_openDexNativeFunc)(JNIEnv *, jclass, jstring, jstring, jint);
-
-    static Bridge_DalvikBridgeFunc org_DalvikBridgeFunc;
-    static Native_openDexNativeFunc org_native_openDexNativeFunc;
-
-    static jmethodID g_methodid_onOpenDexFileNative;
-
-    static jobject new_native_openDexNativeFunc(JNIEnv* env, jclass jclazz, jstring javaSourceName, jstring javaOutputName, jint options) {
-        jclass stringClass = env->FindClass("java/lang/String");
-        jobjectArray array = env->NewObjectArray(2, stringClass, NULL);
-
-        if (javaSourceName) {
-            env->SetObjectArrayElement(array, 0, javaSourceName);
-        }
-        if (javaOutputName) {
-            env->SetObjectArrayElement(array, 1, javaOutputName);
-        }
-        env->CallStaticVoidMethod(g_jclass, g_methodid_onOpenDexFileNative, array);
-
-        jstring newSource = (jstring) env->GetObjectArrayElement(array, 0);
-        jstring newOutput = (jstring) env->GetObjectArrayElement(array, 1);
-
-        return org_native_openDexNativeFunc(env, jclazz, newSource, newOutput, options);
-    }
-
-    static void new_bridge_openDexNativeFunc(const void **args, void *pResult, const void *method, void *self) {
-        JNIEnv *env = NULL;
-        g_vm->GetEnv((void **) &env, JNI_VERSION_1_6);
-        g_vm->AttachCurrentThread(&env, NULL);
-
-        typedef char* (*GetCstrFromString)(void *);
-        typedef void* (*GetStringFromCstr)(const char*);
-
-        GetCstrFromString getCstrFromString;
-        getCstrFromString =(GetCstrFromString) dlsym(RTLD_DEFAULT, "_Z23dvmCreateCstrFromStringPK12StringObject");
-        if (!getCstrFromString) {
-            getCstrFromString =(GetCstrFromString) dlsym(RTLD_DEFAULT, "dvmCreateCstrFromString");
-        }
-
-        const char* source = args[0] == NULL ? NULL : getCstrFromString((void*) args[0]);
-        const char* output = args[1] == NULL ? NULL : getCstrFromString((void*) args[1]);
-
-        jstring orgSource = source == NULL ? NULL : env->NewStringUTF(source);
-        jstring orgOutput = output == NULL ? NULL : env->NewStringUTF(output);
-
-        jclass stringClass = env->FindClass("java/lang/String");
-        jobjectArray array = env->NewObjectArray(2, stringClass, NULL);
-        if (orgSource) {
-            env->SetObjectArrayElement(array, 0, orgSource);
-        }
-        if (orgOutput) {
-            env->SetObjectArrayElement(array, 1, orgOutput);
-        }
-
-        env->CallStaticVoidMethod(g_jclass, g_methodid_onOpenDexFileNative, array);
-
-        jstring newSource = (jstring) env->GetObjectArrayElement(array, 0);
-        jstring newOutput = (jstring) env->GetObjectArrayElement(array, 1);
-
-        const char *_newSource = newSource == NULL ? NULL : env->GetStringUTFChars(newSource, NULL);
-        const char *_newOutput = newOutput == NULL ? NULL : env->GetStringUTFChars(newOutput, NULL);
-
-        GetStringFromCstr getStringFromCstr;
-        getStringFromCstr =(GetStringFromCstr) dlsym(RTLD_DEFAULT, "_Z23dvmCreateStringFromCstrPKc");
-        if (!getStringFromCstr) {
-            getStringFromCstr =(GetStringFromCstr) dlsym(RTLD_DEFAULT, "dvmCreateStringFromCstr");
-        }
-
-        args[0] = _newSource == NULL ? NULL : getStringFromCstr(_newSource);
-        args[1] = _newOutput == NULL ? NULL : getStringFromCstr(_newOutput);
-
-        if (source && orgSource) {
-            env->ReleaseStringUTFChars(orgSource, source);
-        }
-        if (output && orgOutput) {
-            env->ReleaseStringUTFChars(orgOutput, output);
-        }
-
-        org_DalvikBridgeFunc(args, pResult, method, self);
-    }
-
-
-    static JNINativeMethod gMethods[] = {
-            NATIVE_METHOD((void *) mark, "nativeMark", "()V"),
-    };
-
-    static int  nativeFuncOffset;
-
-    void searchJniOffset() {
-        JNIEnv *env = NULL;
-        g_vm->GetEnv((void **) &env, JNI_VERSION_1_4);
-        g_vm->AttachCurrentThread(&env, NULL);
-
-        if (env->RegisterNatives(g_jclass, gMethods, NELEM(gMethods)) < 0) {
-            LOGE("hook mark failed! because register methods FAILED!!!");
-            return;
-        }
-        void * art_work_around_app_jni_bugs = dlsym(RTLD_DEFAULT, "art_work_around_app_jni_bugs");
-
-        jmethodID mtd_nativeHook = env->GetStaticMethodID(g_jclass, gMethods[0].name, gMethods[0].signature);
-
-        size_t memory = (size_t) mtd_nativeHook;
-        size_t destAddr = art_work_around_app_jni_bugs ? (size_t) art_work_around_app_jni_bugs : (size_t) mark;
-
-        int offset = 0;
-        bool found = false;
-        while (true) {
-            if (*((size_t*) (memory + offset)) == destAddr) {
-                found = true;
-                break;
-            }
-            offset += 4;
-            if (offset >= 100) {
-                LOGE("Unable to find the jniFunc.");
-                break;
-            }
-        }
-        if (found) {
-            LOGE("Get Offset : %d", offset);
-            nativeFuncOffset = offset;
-        }
-    }
-
-    void hook(jobject javaMethod, jboolean isArt) {
-        LOGD("hook java...");
-        JNIEnv *env = NULL;
-        g_vm->GetEnv((void **) &env, JNI_VERSION_1_4);
-        g_vm->AttachCurrentThread(&env, NULL);
-
-        g_methodid_onOpenDexFileNative = env->GetStaticMethodID(g_jclass, "onOpenDexFileNative", "([Ljava/lang/String;)V");
-
-        if (!isArt) {
-            nativeFuncOffset += (sizeof(int) + sizeof(void*));//this is jni Bridge offset.
-        }
-
-        size_t mtd_openDexNative = (size_t) env->FromReflectedMethod(javaMethod);
-
-        void** jniFuncPtr = (void**)(mtd_openDexNative + nativeFuncOffset);
-
-        LOGE("offset=%d", nativeFuncOffset);
-        if (!isArt) {
-            LOGD("replace dalvik method.");
-            org_DalvikBridgeFunc = (Bridge_DalvikBridgeFunc)(*jniFuncPtr);
-            *jniFuncPtr = (void*) new_bridge_openDexNativeFunc;
-        } else {
-            LOGD("replace art method.");
-            org_native_openDexNativeFunc = (Native_openDexNativeFunc)(*jniFuncPtr);
-            *jniFuncPtr = (void*) new_native_openDexNativeFunc;
-        }
-
-        LOGD("DONE java hook!");
-    }
+JNINativeMethod gUidMethods[] = {
+        NATIVE_METHOD((void *) getCallingUid, "getCallingUid", "()I"),
 };
 
 
 
-void HOOK_NATIVE::hook(jobject javaMethod, jboolean isArt) {
-    LOGI("Begin Native hooks...");
-    HOOK_JAVA::searchJniOffset();
-    HOOK_BINDER::hook();
-    HOOK_JAVA::hook(javaMethod, isArt);
-    LOGI("End Native hooks SUCCESS!");
+
+static jobject new_native_openDexNativeFunc(JNIEnv* env, jclass jclazz, jstring javaSourceName, jstring javaOutputName, jint options) {
+    jclass stringClass = env->FindClass("java/lang/String");
+    jobjectArray array = env->NewObjectArray(2, stringClass, NULL);
+
+    if (javaSourceName) {
+        env->SetObjectArrayElement(array, 0, javaSourceName);
+    }
+    if (javaOutputName) {
+        env->SetObjectArrayElement(array, 1, javaOutputName);
+    }
+    env->CallStaticVoidMethod(g_jclass, gOffset.g_methodid_onOpenDexFileNative, array);
+
+    jstring newSource = (jstring) env->GetObjectArrayElement(array, 0);
+    jstring newOutput = (jstring) env->GetObjectArrayElement(array, 1);
+
+    return gOffset.orig_native_openDexNativeFunc(env, jclazz, newSource, newOutput, options);
 }
+
+static void new_bridge_openDexNativeFunc(const void **args, void *pResult, const void *method, void *self) {
+    JNIEnv *env = NULL;
+    g_vm->GetEnv((void **) &env, JNI_VERSION_1_6);
+    g_vm->AttachCurrentThread(&env, NULL);
+
+    typedef char* (*GetCstrFromString)(void *);
+    typedef void* (*GetStringFromCstr)(const char*);
+
+    const char* source = args[0] == NULL ? NULL : gOffset.GetCstrFromString((void*) args[0]);
+    const char* output = args[1] == NULL ? NULL : gOffset.GetCstrFromString((void*) args[1]);
+
+    jstring orgSource = source == NULL ? NULL : env->NewStringUTF(source);
+    jstring orgOutput = output == NULL ? NULL : env->NewStringUTF(output);
+
+    jclass stringClass = env->FindClass("java/lang/String");
+    jobjectArray array = env->NewObjectArray(2, stringClass, NULL);
+    if (orgSource) {
+        env->SetObjectArrayElement(array, 0, orgSource);
+    }
+    if (orgOutput) {
+        env->SetObjectArrayElement(array, 1, orgOutput);
+    }
+
+    env->CallStaticVoidMethod(g_jclass, gOffset.g_methodid_onOpenDexFileNative, array);
+
+    jstring newSource = (jstring) env->GetObjectArrayElement(array, 0);
+    jstring newOutput = (jstring) env->GetObjectArrayElement(array, 1);
+
+    const char *_newSource = newSource == NULL ? NULL : env->GetStringUTFChars(newSource, NULL);
+    const char *_newOutput = newOutput == NULL ? NULL : env->GetStringUTFChars(newOutput, NULL);
+
+    args[0] = _newSource == NULL ? NULL : gOffset.GetStringFromCstr(_newSource);
+    args[1] = _newOutput == NULL ? NULL : gOffset.GetStringFromCstr(_newOutput);
+
+    if (source && orgSource) {
+        env->ReleaseStringUTFChars(orgSource, source);
+    }
+    if (output && orgOutput) {
+        env->ReleaseStringUTFChars(orgOutput, output);
+    }
+
+    gOffset.orig_DalvikBridgeFunc(args, pResult, method, self);
+}
+
+
+
+void searchJniOffset(JNIEnv *env, bool isArt) {
+
+    jmethodID mtd_nativeHook = env->GetStaticMethodID(g_jclass, gMarkMethods[0].name, gMarkMethods[0].signature);
+
+    size_t startAddress = (size_t) mtd_nativeHook;
+    size_t targetAddress = (size_t) mark;
+    if (isArt && gOffset.art_work_around_app_jni_bugs) {
+        targetAddress = (size_t) gOffset.art_work_around_app_jni_bugs;
+    }
+
+    int offset = 0;
+    bool found = false;
+    while (true) {
+        if (*((size_t*) (startAddress + offset)) == targetAddress) {
+            found = true;
+            break;
+        }
+        offset += 4;
+        if (offset >= 100) {
+            LOGE("Ops: Unable to find the jni function.");
+            break;
+        }
+    }
+    if (found) {
+        gOffset.nativeOffset = offset;
+        if (!isArt) {
+            gOffset.nativeOffset += (sizeof(int) + sizeof(void*));
+        }
+        LOGD("Hoho, Get the offset : %d.", gOffset.nativeOffset);
+    }
+}
+
+inline void hookBinder(JNIEnv *env) {
+    if (env->RegisterNatives(env->FindClass("android/os/Binder"), gUidMethods, NELEM(gUidMethods)) < 0) {
+        return;
+    }
+}
+
+inline void replaceImplementation(JNIEnv *env, jobject javaMethod, jboolean isArt) {
+
+    size_t mtd_openDexNative = (size_t) env->FromReflectedMethod(javaMethod);
+    int nativeFuncOffset = gOffset.nativeOffset;
+    void** jniFuncPtr = (void**)(mtd_openDexNative + nativeFuncOffset);
+
+    if (!isArt) {
+        gOffset.orig_DalvikBridgeFunc = (Bridge_DalvikBridgeFunc)(*jniFuncPtr);
+        *jniFuncPtr = (void*) new_bridge_openDexNativeFunc;
+    } else {
+        gOffset.orig_native_openDexNativeFunc = (Native_openDexNativeFunc)(*jniFuncPtr);
+        *jniFuncPtr = (void*) new_native_openDexNativeFunc;
+    }
+
+}
+
+
+void hookNative(jobject javaMethod, jboolean isArt) {
+
+    JNIEnv *env = NULL;
+    g_vm->GetEnv((void **) &env, JNI_VERSION_1_6);
+    g_vm->AttachCurrentThread(&env, NULL);
+
+    if (env->RegisterNatives(g_jclass, gMarkMethods, NELEM(gMarkMethods)) < 0) {
+        return;
+    }
+    gOffset.isArt = isArt;
+
+    char vmSoName[15] = {0};
+    __system_property_get("persist.sys.dalvik.vm.lib", vmSoName);
+    LOGD("Find the so name : %s.", strlen(vmSoName) == 0 ? "<EMPTY>" : vmSoName);
+
+    void* vmHandle = dlopen(vmSoName, 0);
+    if (!vmHandle) {
+        LOGE("Unable to open the %s.", vmSoName);
+        vmHandle = RTLD_DEFAULT;
+    }
+    gOffset.g_sym_IPCThreadState_self = dlsym(RTLD_DEFAULT, "_ZN7android14IPCThreadState4selfEv");
+    gOffset.g_sym_IPCThreadState_getCallingUid = dlsym(RTLD_DEFAULT, "_ZNK7android14IPCThreadState13getCallingUidEv");
+    if (gOffset.g_sym_IPCThreadState_getCallingUid == NULL) {
+        gOffset.g_sym_IPCThreadState_getCallingUid = dlsym(RTLD_DEFAULT, "_ZN7android14IPCThreadState13getCallingUidEv");
+    }
+    gOffset.g_methodid_onGetCallingUid = env->GetStaticMethodID(g_jclass, "onGetCallingUid", "(I)I");
+    gOffset.g_methodid_onOpenDexFileNative = env->GetStaticMethodID(g_jclass, "onOpenDexFileNative", "([Ljava/lang/String;)V");
+
+
+    if (isArt) {
+        gOffset.art_work_around_app_jni_bugs = dlsym(vmHandle, "art_work_around_app_jni_bugs");
+    } else {
+        gOffset.GetCstrFromString = (char *(*)(void *)) dlsym(vmHandle, "_Z23dvmCreateCstrFromStringPK12StringObject");
+        if (!gOffset.GetCstrFromString) {
+            gOffset.GetCstrFromString = (char *(*)(void *)) dlsym(vmHandle, "dvmCreateCstrFromString");
+        }
+        gOffset.GetStringFromCstr = (void *(*)(const char *)) dlsym(vmHandle, "_Z23dvmCreateStringFromCstrPKc");
+        if (!gOffset.GetStringFromCstr) {
+            gOffset.GetStringFromCstr = (void *(*)(const char *)) dlsym(vmHandle, "dvmCreateStringFromCstr");
+        }
+    }
+    searchJniOffset(env, isArt);
+    hookBinder(env);
+    replaceImplementation(env, javaMethod, isArt);
+}
+
 
