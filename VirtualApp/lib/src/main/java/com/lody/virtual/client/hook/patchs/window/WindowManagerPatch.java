@@ -17,8 +17,8 @@ import com.lody.virtual.helper.utils.Reflect;
  *
  * @see IWindowManager
  */
-@Patch({Hook_OverridePendingAppTransition.class, Hook_OverridePendingAppTransitionInPlace.class, Hook_OpenSession.class,
-		Hook_SetAppStartingWindow.class})
+@Patch({OverridePendingAppTransition.class, OverridePendingAppTransitionInPlace.class, OpenSession.class,
+		SetAppStartingWindow.class})
 public class WindowManagerPatch extends PatchObject<IWindowManager, HookWindowManagerBinder> {
 
 	@Override
@@ -63,8 +63,8 @@ public class WindowManagerPatch extends PatchObject<IWindowManager, HookWindowMa
 	@Override
 	protected void applyHooks() {
 		super.applyHooks();
-		addHook(new StaticHook("addAppToken")).replaceUserId(7);
-		addHook(new StaticHook("setScreenCaptureDisabled")).replaceUserId(0);
+		addHook(new StaticHook("addAppToken"));
+		addHook(new StaticHook("setScreenCaptureDisabled"));
 	}
 
 	@Override

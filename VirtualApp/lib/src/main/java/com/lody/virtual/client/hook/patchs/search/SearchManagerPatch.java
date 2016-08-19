@@ -16,7 +16,7 @@ import com.lody.virtual.client.hook.binders.HookSearchBinder;
  *
  */
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-@Patch({Hook_GetSearchableInfo.class,})
+@Patch({GetSearchableInfo.class,})
 public class SearchManagerPatch extends PatchObject<ISearchManager, HookSearchBinder> {
 	@Override
 	protected HookSearchBinder initHookObject() {
@@ -31,7 +31,7 @@ public class SearchManagerPatch extends PatchObject<ISearchManager, HookSearchBi
 	@Override
 	protected void applyHooks() {
 		super.applyHooks();
-		addHook(new StaticHook("launchLegacyAssist")).replaceUid(1);
+		addHook(new StaticHook("launchLegacyAssist"));
 	}
 
 	@Override

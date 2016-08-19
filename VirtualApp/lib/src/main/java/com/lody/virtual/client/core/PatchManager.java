@@ -24,7 +24,6 @@ import com.lody.virtual.client.hook.patchs.imms.MmsPatch;
 import com.lody.virtual.client.hook.patchs.input.InputMethodManagerPatch;
 import com.lody.virtual.client.hook.patchs.isub.SubPatch;
 import com.lody.virtual.client.hook.patchs.job.JobPatch;
-import com.lody.virtual.client.hook.patchs.libcore.LibCorePatch;
 import com.lody.virtual.client.hook.patchs.location.LocationManagerPatch;
 import com.lody.virtual.client.hook.patchs.media.router.MediaRouterServicePatch;
 import com.lody.virtual.client.hook.patchs.media.session.SessionManagerPatch;
@@ -124,12 +123,13 @@ public final class PatchManager {
 			return;
 		} else if (VirtualCore.getCore().isServiceProcess()) {
 			addPatch(new ActivityManagerPatch());
+			addPatch(new PackageManagerPatch());
 			return;
 		}
 		if (VirtualCore.getCore().isVAppProcess()) {
 			addPatch(new ActivityManagerPatch());
 			addPatch(new PackageManagerPatch());
-			addPatch(new LibCorePatch());
+//			addPatch(new LibCorePatch());
 			// ## Fuck the MIUI Security
 			if (MIUISecurityManagerPatch.needInject()) {
 				addPatch(new MIUISecurityManagerPatch());

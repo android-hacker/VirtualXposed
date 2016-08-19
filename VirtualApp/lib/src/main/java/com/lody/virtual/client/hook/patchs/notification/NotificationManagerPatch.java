@@ -21,8 +21,8 @@ import java.lang.reflect.Field;
  * @see NotificationManager
  * @see Toast
  */
-@Patch({Hook_CancelAllNotifications.class, Hook_EnqueueNotificationWithTag.class, Hook_CancelNotificationWithTag.class,
-		Hook_EnqueueNotificationWithTagPriority.class, Hook_EnqueueNotification.class})
+@Patch({CancelAllNotifications.class, EnqueueNotificationWithTag.class, CancelNotificationWithTag.class,
+		EnqueueNotificationWithTagPriority.class, EnqueueNotification.class})
 public class NotificationManagerPatch extends PatchObject<INotificationManager, HookObject<INotificationManager>> {
 
 	public static INotificationManager getNM() {
@@ -37,12 +37,12 @@ public class NotificationManagerPatch extends PatchObject<INotificationManager, 
 	@Override
 	protected void applyHooks() {
 		super.applyHooks();
-		addHook(new ReplaceCallingPkgHook("enqueueToast")).replaceLastUserId();
+		addHook(new ReplaceCallingPkgHook("enqueueToast"));
 		addHook(new ReplaceCallingPkgHook("cancelToast"));
-		addHook(new ReplaceCallingPkgHook("areNotificationsEnabledForPackage")).replaceUid(1);
-		addHook(new StaticHook("registerListener")).replaceLastUserId();
-		addHook(new StaticHook("unregisterListener")).replaceLastUserId();
-		addHook(new StaticHook("getAppActiveNotifications")).replaceLastUserId();
+		addHook(new ReplaceCallingPkgHook("areNotificationsEnabledForPackage"));
+		addHook(new StaticHook("registerListener"));
+		addHook(new StaticHook("unregisterListener"));
+		addHook(new StaticHook("getAppActiveNotifications"));
 		if ("samsung".equalsIgnoreCase(Build.BRAND)) {
 			addHook(new ReplaceCallingPkgHook("removeEdgeNotification"));
 		}

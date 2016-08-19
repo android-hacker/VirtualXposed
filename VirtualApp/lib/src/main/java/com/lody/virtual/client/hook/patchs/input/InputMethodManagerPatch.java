@@ -6,7 +6,6 @@ import android.view.inputmethod.InputMethodManager;
 import com.android.internal.view.IInputMethodManager;
 import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchObject;
-import com.lody.virtual.client.hook.base.StaticHook;
 import com.lody.virtual.client.hook.binders.HookIMMBinder;
 
 import java.lang.reflect.Field;
@@ -19,7 +18,7 @@ import java.lang.reflect.Field;
  * @see IInputMethodManager
  *
  */
-@Patch({Hook_StartInput.class, Hook_WindowGainedFocus.class})
+@Patch({StartInput.class, WindowGainedFocus.class})
 public class InputMethodManagerPatch extends PatchObject<IInputMethodManager, HookIMMBinder> {
 
 	@Override
@@ -57,7 +56,6 @@ public class InputMethodManagerPatch extends PatchObject<IInputMethodManager, Ho
 	@Override
 	protected void applyHooks() {
 		super.applyHooks();
-		addHook(new StaticHook("addClient")).replaceUid(2);
 	}
 
 	@Override

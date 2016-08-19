@@ -3,11 +3,11 @@ package com.lody.virtual.client.fixer;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ComponentInfo;
 import android.os.Build;
+import android.os.Process;
 import android.text.TextUtils;
 
 import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.os.VEnvironment;
-import com.lody.virtual.os.VUserHandle;
 
 /**
  * @author Lody
@@ -41,7 +41,7 @@ public class ComponentFixer {
 		applicationInfo.enabled = true;
 		applicationInfo.nativeLibraryDir = setting.libPath;
 		applicationInfo.dataDir = VEnvironment.getDataUserPackageDirectory(userId, setting.packageName).getPath();
-		applicationInfo.uid = VUserHandle.getUid(userId, setting.baseUid);
+		applicationInfo.uid = Process.myUid();
 	}
 
 	private static String fixComponentClassName(String pkgName, String className) {

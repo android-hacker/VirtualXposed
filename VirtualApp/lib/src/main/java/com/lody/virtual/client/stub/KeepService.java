@@ -1,12 +1,12 @@
 package com.lody.virtual.client.stub;
 
-import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.component.BaseService;
-
 import android.app.ActivityManager;
 import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
+
+import com.lody.virtual.helper.ExtraConstants;
+import com.lody.virtual.helper.component.BaseService;
 
 /**
  * @author Lody
@@ -43,8 +43,8 @@ public class KeepService extends BaseService {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (intent != null) {
-			int action = intent.getIntExtra(ExtraConstants.EXTRA_WHAT, -1);
-			if (action == ExtraConstants.WHAT_PENDING_INTENT) {
+			int what = intent.getIntExtra("_VA_|_what_", -1);
+			if (what == ExtraConstants.WHAT_PENDING_INTENT) {
 				handlePendingIntent(intent);
 			}
 		}
@@ -52,8 +52,8 @@ public class KeepService extends BaseService {
 	}
 
 	private void handlePendingIntent(Intent intent) {
-		int flags = intent.getIntExtra(ExtraConstants.EXTRA_FLAGS, -1);
-		Intent originIntent = intent.getParcelableExtra(ExtraConstants.EXTRA_INTENT);
+		int flags = intent.getIntExtra("_VA_|_type_", -1);
+		Intent originIntent = intent.getParcelableExtra("_VA_|_intent_");
 		if (originIntent == null) {
 			return;
 		}

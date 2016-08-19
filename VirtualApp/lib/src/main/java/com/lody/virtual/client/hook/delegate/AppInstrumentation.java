@@ -1,19 +1,6 @@
 package com.lody.virtual.client.hook.delegate;
 
-import java.lang.reflect.Field;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.fixer.ActivityFixer;
-import com.lody.virtual.client.fixer.ContextFixer;
-import com.lody.virtual.client.interfaces.Injectable;
-import com.lody.virtual.client.local.VActivityManager;
-import com.lody.virtual.client.local.LocalActivityRecord;
-import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.compat.ActivityManagerCompat;
-import com.lody.virtual.helper.compat.BundleCompat;
-
 import android.app.Activity;
-import android.app.ActivityThread;
 import android.app.Application;
 import android.app.Instrumentation;
 import android.content.Context;
@@ -21,6 +8,16 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.IBinder;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.fixer.ActivityFixer;
+import com.lody.virtual.client.fixer.ContextFixer;
+import com.lody.virtual.client.interfaces.Injectable;
+import com.lody.virtual.client.local.LocalActivityRecord;
+import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.helper.ExtraConstants;
+import com.lody.virtual.helper.compat.ActivityManagerCompat;
+import com.lody.virtual.helper.compat.BundleCompat;
 
 /**
  * @author Lody
@@ -59,11 +56,7 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 
 	@Override
 	public void inject() throws Throwable {
-		Field f_mInstrumentation = ActivityThread.class.getDeclaredField("mInstrumentation");
-		if (!f_mInstrumentation.isAccessible()) {
-			f_mInstrumentation.setAccessible(true);
-		}
-		f_mInstrumentation.set(VirtualCore.mainThread(), this);
+		mirror.android.app.ActivityThread.mInstrumentation.set(VirtualCore.mainThread(), this);
 	}
 
 	@Override

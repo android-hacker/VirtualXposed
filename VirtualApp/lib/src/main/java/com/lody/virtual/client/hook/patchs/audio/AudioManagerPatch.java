@@ -6,7 +6,6 @@ import android.os.ServiceManager;
 
 import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
-import com.lody.virtual.client.hook.base.StaticHook;
 import com.lody.virtual.client.hook.binders.HookAudioBinder;
 
 /**
@@ -23,8 +22,6 @@ public class AudioManagerPatch extends PatchObject<IAudioService, HookAudioBinde
 	@Override
 	protected void applyHooks() {
 		super.applyHooks();
-		addHook(new StaticHook("setMasterMute")).replaceLastUserId();
-		addHook(new StaticHook("setMicrophoneMute")).replaceLastUserId();
 		addHook(new ReplaceLastPkgHook("adjustVolume"));
 		addHook(new ReplaceLastPkgHook("adjustLocalOrRemoteStreamVolume"));
 		addHook(new ReplaceLastPkgHook("adjustSuggestedStreamVolume"));

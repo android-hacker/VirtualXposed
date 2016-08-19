@@ -113,9 +113,6 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 		@Override
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			int userId = VUserHandle.myUserId();
-			if (args.length > 0) {
-				userId = (int) args[0];
-			}
 			return VAccountManager.get().getAuthenticatorTypes(userId);
 		}
 	}
@@ -174,9 +171,6 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			String accountType = (String) args[0];
 			int userId = VUserHandle.myUserId();
-			if (args.length > 1) {
-				userId = (int) args[1];
-			}
 			return VAccountManager.get().getAccountsAsUser(accountType, userId);
 		}
 	}
@@ -256,9 +250,6 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 			Account account = (Account) args[1];
 			boolean expectActivityLaunch = (boolean) args[2];
 			int userId = VUserHandle.myUserId();
-			if (args.length > 3) {
-				userId = (int) args[3];
-			}
 			VAccountManager.get().removeAccountAsUser(response, account, expectActivityLaunch, userId);
 			return 0;
 		}

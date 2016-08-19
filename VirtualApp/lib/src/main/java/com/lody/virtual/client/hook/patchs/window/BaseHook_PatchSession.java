@@ -11,7 +11,7 @@ import android.view.IWindowSession;
  * @author Lody
  *
  */
-/* package */ abstract class BaseHook_PatchSession extends Hook {
+/* package */ abstract class BasePatchSession extends Hook {
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {

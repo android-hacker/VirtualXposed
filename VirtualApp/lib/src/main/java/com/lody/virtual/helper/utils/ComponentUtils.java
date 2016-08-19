@@ -29,17 +29,17 @@ public class ComponentUtils {
 			return "SINGLE_INSTANCE_" + activityInfo.packageName + "/" + activityInfo.name + ":" + uid;
 		}
 		if (activityInfo.taskAffinity == null && activityInfo.applicationInfo.taskAffinity == null) {
-			return activityInfo.packageName+ ":" + uid;
+			return activityInfo.packageName;
 		}
 		if (activityInfo.taskAffinity != null) {
-			return activityInfo.taskAffinity+ ":" + uid;
+			return activityInfo.taskAffinity;
 		}
-		return activityInfo.applicationInfo.taskAffinity+ ":" + uid;
+		return activityInfo.applicationInfo.taskAffinity;
 	}
 
 	public static boolean isSameComponent(ComponentInfo first, ComponentInfo second) {
 
-		if (first != null && second != null && (first.applicationInfo.uid == second.applicationInfo.uid)) {
+		if (first != null && second != null) {
 			String pkg1 = first.packageName + "";
 			String pkg2 = second.packageName + "";
 			String name1 = first.name + "";
@@ -75,5 +75,9 @@ public class ComponentUtils {
 			return true;
 		}
 		return client.getSharedPackages().contains(packageName);
+	}
+
+	public static String createAction(ActivityInfo info) {
+		return String.format("_VA_%s_%s", info.packageName, info.name);
 	}
 }

@@ -2050,7 +2050,8 @@ public class VAccountManagerService
         intent.putExtra(GrantCredentialsPermissionActivity.EXTRAS_ACCOUNT, account);
         intent.putExtra(GrantCredentialsPermissionActivity.EXTRAS_AUTH_TOKEN_TYPE, authTokenType);
         intent.putExtra(GrantCredentialsPermissionActivity.EXTRAS_RESPONSE, response);
-        intent.putExtra(GrantCredentialsPermissionActivity.EXTRAS_REQUESTING_UID, uid);
+        // FIXME: uid
+        intent.putExtra(GrantCredentialsPermissionActivity.EXTRAS_REQUESTING_UID, Process.myUid());
 
         return intent;
     }
@@ -3050,8 +3051,7 @@ public class VAccountManagerService
                 int authenticatorUid = VBinder.getCallingUid();
                 long bid = Binder.clearCallingIdentity();
                 try {
-                    PackageManager pm = mContext.getPackageManager();
-                    ResolveInfo resolveInfo = pm.resolveActivityAsUser(intent, 0, mAccounts.userId);
+                    ResolveInfo resolveInfo = VPackageManagerService.getService().resolveIntent(intent, intent.resolveType(mContext), 0, mAccounts.userId);
                     int targetUid = resolveInfo.activityInfo.applicationInfo.uid;
                     //TODO: checkSig
                     if (false/*PackageManager.SIGNATURE_MATCH !=
@@ -3163,6 +3163,7 @@ public class VAccountManagerService
             Intent intent = new Intent();
             intent.setAction(AccountManager.ACTION_AUTHENTICATOR_INTENT);
             intent.setComponent(authenticatorInfo.componentName);
+            intent.putExtra(ExtraConstants.EXTRA_TARGET_USER, mAccounts.userId);
             if (Log.isLoggable(TAG, Log.VERBOSE)) {
                 Log.v(TAG, "performing bindService to " + authenticatorInfo.componentName);
             }

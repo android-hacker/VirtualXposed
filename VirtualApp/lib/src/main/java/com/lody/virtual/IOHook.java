@@ -1,13 +1,9 @@
 package com.lody.virtual;
 
-import android.os.Binder;
 import android.os.Build;
-import android.os.Process;
 
-import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
-import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.utils.VLog;
 
@@ -111,19 +107,7 @@ public class IOHook {
 	}
 
 	public static int onGetCallingUid(int originUid) {
-		int resultUid = originUid;
-		int callingPid = Binder.getCallingPid();
-		if (callingPid == 0) {
-			resultUid = VClientImpl.getClient().getVUid();
-		} else if (callingPid == VirtualCore.getCore().getSystemPid()) {
-			return Process.SYSTEM_UID;
-		} else {
-			int uid = VActivityManager.get().getUidByPid(callingPid);
-			if (uid != -1) {
-				resultUid = uid;
-			}
-		}
-		return resultUid;
+		return originUid;
 	}
 
 	public static void onOpenDexFileNative(String[] params) {
@@ -154,13 +138,6 @@ public class IOHook {
 	private static native void nativeHook(int apiLevel);
 
 	public static int onGetUid(int uid) {
-		int vuid = VClientImpl.getClient().getVUid();
-		if (vuid == -1) {
-			if (VClientImpl.getClient().isBound()) {
-				VLog.printStackTrace(TAG);
-			}
-			vuid = uid;
-		}
-		return vuid;
+		return uid;
 	}
 }

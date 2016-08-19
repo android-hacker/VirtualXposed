@@ -48,8 +48,8 @@ public abstract class PatchObject<T, H extends IHookObject<T>> implements Inject
 		Patch patch = clazz.getAnnotation(Patch.class);
 		int version = Build.VERSION.SDK_INT;
 		if (patch != null) {
-			Class<? extends Hook>[] hookTypes = patch.value();
-			for (Class<? extends Hook> hookType : hookTypes) {
+			Class<?>[] hookTypes = patch.value();
+			for (Class<?> hookType : hookTypes) {
 				ApiLimit apiLimit = hookType.getAnnotation(ApiLimit.class);
 				boolean needToAddHook = true;
 				if (apiLimit != null) {
@@ -69,7 +69,7 @@ public abstract class PatchObject<T, H extends IHookObject<T>> implements Inject
 		}
 	}
 
-	private void addHook(Class<? extends Hook> hookType) {
+	private void addHook(Class<?> hookType) {
 		try {
 			Constructor<?> constructor = hookType.getDeclaredConstructors()[0];
 			if (!constructor.isAccessible()) {

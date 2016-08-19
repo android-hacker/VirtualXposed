@@ -8,7 +8,6 @@ import android.os.ServiceManager;
 
 import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchObject;
-import com.lody.virtual.client.hook.base.StaticHook;
 import com.lody.virtual.client.hook.binders.HookSessionBinder;
 
 /**
@@ -19,7 +18,7 @@ import com.lody.virtual.client.hook.binders.HookSessionBinder;
  * @see ISessionManager
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-@Patch({Hook_CreateSession.class})
+@Patch({CreateSession.class})
 public class SessionManagerPatch extends PatchObject<ISessionManager, HookSessionBinder> {
 	@Override
 	protected HookSessionBinder initHookObject() {
@@ -34,8 +33,6 @@ public class SessionManagerPatch extends PatchObject<ISessionManager, HookSessio
 	@Override
 	protected void applyHooks() {
 		super.applyHooks();
-		addHook(new StaticHook("getSessions")).replaceLastUserId();
-		addHook(new StaticHook("addSessionsListener")).replaceLastUserId();
 	}
 
 	@Override

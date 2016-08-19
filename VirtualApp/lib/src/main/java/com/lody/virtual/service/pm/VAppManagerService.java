@@ -20,6 +20,7 @@ import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.service.IAppManager;
+import com.lody.virtual.service.am.StaticBroadcastSystem;
 import com.lody.virtual.service.am.UidSystem;
 import com.lody.virtual.service.am.VActivityManagerService;
 import com.lody.virtual.service.interfaces.IAppObserver;
@@ -36,7 +37,16 @@ public class VAppManagerService extends IAppManager.Stub {
 
 	private static final String TAG = VAppManagerService.class.getSimpleName();
 
-	private UidSystem mUidSystem = new UidSystem();
+	private boolean isBooting;
+
+	private final UidSystem mUidSystem = new UidSystem();
+
+	private final StaticBroadcastSystem mBroadcastSystem =
+			new StaticBroadcastSystem(
+			VirtualCore.getCore().getContext(),
+					VActivityManagerService.getService(),
+			this
+			);
 
 	private static final AtomicReference<VAppManagerService> gService = new AtomicReference<>();
 
@@ -44,6 +54,10 @@ public class VAppManagerService extends IAppManager.Stub {
 
 	public static VAppManagerService getService() {
 		return gService.get();
+	}
+
+	public boolean isBooting() {
+		return isBooting;
 	}
 
 	private static PackageParser.Package parsePackage(File apk, int flags) {
@@ -60,6 +74,7 @@ public class VAppManagerService extends IAppManager.Stub {
 	}
 
 	public void preloadAllApps() {
+		isBooting = true;
 		for (File appDir : VEnvironment.getDataAppDirectory().listFiles()) {
 			String pkgName = appDir.getName();
 			File storeFile = new File(appDir, "base.apk");
@@ -85,6 +100,7 @@ public class VAppManagerService extends IAppManager.Stub {
 				FileUtils.deleteDir(appDir);
 			}
 		}
+		isBooting = false;
 	}
 
 	@Override
@@ -159,9 +175,12 @@ public class VAppManagerService extends IAppManager.Stub {
 		}
 		appSetting.odexDir = odexFolder.getPath();
 		appSetting.packageName = pkg.packageName;
-		appSetting.baseUid = mUidSystem.getOrCreateUid(pkg.mSharedUserId);
+		appSetting.appId = VUserHandle.getAppId(mUidSystem.getOrCreateUid(pkg.mSharedUserId));
 
 		PackageCache.put(pkg, appSetting);
+		mBroadcastSystem.startApp(pkg);
+
+
 		notifyAppInstalled(pkg.packageName);
 		res.isSuccess = true;
 		return res;
@@ -188,6 +207,7 @@ public class VAppManagerService extends IAppManager.Stub {
 				VActivityManagerService.getService().killAppByPkg(pkg, VUserHandle.USER_ALL);
 				FileUtils.deleteDir(VEnvironment.getDataAppPackageDirectory(pkg));
 				PackageCache.remove(pkg);
+				mBroadcastSystem.stopApp(pkg);
 				notifyAppUninstalled(pkg);
 				return true;
 			}
@@ -268,5 +288,10 @@ public class VAppManagerService extends IAppManager.Stub {
 			}
 			return null;
 		}
+	}
+
+	public int getAppId(String pkg) {
+		AppSetting setting = findAppInfo(pkg);
+		return setting != null ? setting.appId : -1;
 	}
 }

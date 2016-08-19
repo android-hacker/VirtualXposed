@@ -11,7 +11,7 @@ import android.view.WindowManager;
  * @author Lody
  *
  */
-/* package */ abstract class BaseHook_ReplacePkgName extends Hook {
+/* package */ abstract class BaseReplacePkgName extends Hook {
 
 	private int cacheIndex = -1;
 

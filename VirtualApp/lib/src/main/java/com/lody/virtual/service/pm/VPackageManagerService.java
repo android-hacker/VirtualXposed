@@ -689,7 +689,6 @@ public class VPackageManagerService extends IPackageManager.Stub {
 				PackageParser.Package p = mPackages.get(providerInfo.packageName);
 				AppSetting settings = (AppSetting) p.mExtras;
 				ComponentFixer.fixComponentInfo(settings, providerInfo, userId);
-				providerInfo.applicationInfo.uid = VUserHandle.getUid(userId, settings.baseUid);
 				return providerInfo;
 			}
 		}
@@ -705,7 +704,6 @@ public class VPackageManagerService extends IPackageManager.Stub {
 				ApplicationInfo applicationInfo = PackageParser.generateApplicationInfo(pkg, flags);
 				AppSetting settings = (AppSetting) pkg.mExtras;
 				ComponentFixer.fixApplicationInfo(settings, applicationInfo, userId);
-				applicationInfo.uid = VUserHandle.getUid(userId, settings.baseUid);
 				return applicationInfo;
 			}
 		}
@@ -720,7 +718,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 			List<String> pkgList = new ArrayList<>(2);
 			for (PackageParser.Package p : mPackages.values()) {
 				AppSetting settings = (AppSetting) p.mExtras;
-				if (VUserHandle.getUid(userId, settings.baseUid) == uid) {
+				if (VUserHandle.getUid(userId, settings.appId) == uid) {
 					pkgList.add(p.packageName);
 				}
 			}
@@ -735,7 +733,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 			PackageParser.Package p = mPackages.get(packageName);
 			if (p != null) {
 				AppSetting settings = (AppSetting) p.mExtras;
-				return VUserHandle.getUid(userId, settings.baseUid);
+				return VUserHandle.getUid(userId, settings.appId);
 			}
 			return -1;
 		}

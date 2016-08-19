@@ -22,6 +22,8 @@ import android.os.Parcelable;
 import android.os.Process;
 import android.util.SparseArray;
 
+import com.lody.virtual.client.VClientImpl;
+
 import java.io.PrintWriter;
 
 /**
@@ -270,7 +272,7 @@ public final class VUserHandle implements Parcelable {
      */
     @SystemApi
     public static int myUserId() {
-        return getUserId(Process.myUid());
+        return getUserId(VClientImpl.getClient().getVUid());
     }
 
     /**
@@ -386,6 +388,6 @@ public final class VUserHandle implements Parcelable {
     }
 
     public static VUserHandle myUserHandle() {
-        return new VUserHandle(getUserId(Process.myUid()));
+        return new VUserHandle(myUserId());
     }
 }

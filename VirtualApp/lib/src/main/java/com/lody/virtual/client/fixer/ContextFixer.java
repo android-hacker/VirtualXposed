@@ -1,9 +1,7 @@
 package com.lody.virtual.client.fixer;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.hardware.Camera;
 import android.os.Build;
 import android.os.DropBoxManager;
 
@@ -15,7 +13,9 @@ import com.lody.virtual.client.hook.patchs.graphics.GraphicsStatsPatch;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.ReflectException;
 
-import java.lang.reflect.Method;
+import mirror.android.app.ContextImpl;
+import mirror.android.app.ContextImplKitkat;
+import mirror.android.content.ContentResolverJBMR2;
 
 /**
  * @author Lody
@@ -24,48 +24,7 @@ import java.lang.reflect.Method;
 public class ContextFixer {
 
 	private static final String TAG = ContextFixer.class.getSimpleName();
-	private static Class<?> CONTEXT_IMPL_CLASS = null;
-	private static Method m_setOuterContext = null;
 
-	static {
-		System.loadLibrary("GodinJniHook");
-		try {
-			CONTEXT_IMPL_CLASS = Class.forName("android.app.ContextImpl");
-		} catch (ClassNotFoundException e) {
-			// Ignore
-		}
-		try {
-			m_setOuterContext = CONTEXT_IMPL_CLASS.getDeclaredMethod("setOuterContext", Context.class);
-			if (!m_setOuterContext.isAccessible()) {
-				m_setOuterContext.setAccessible(true);
-			}
-		} catch (Throwable e) {
-			// Ignore
-		}
-	}
-
-	private static native boolean hookNativeMethod(Object method, String packageName);
-
-	private static boolean sNativeFixed = false;
-
-	public static void fixCamera() {
-		if (!sNativeFixed) {
-			try {
-				Method native_setup;
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-					native_setup = Reflect.on(Camera.class).exactMethod("native_setup",
-							new Class[]{Object.class, int.class, int.class, String.class});
-				} else {
-					native_setup = Reflect.on(Camera.class).exactMethod("native_setup",
-							new Class[]{Object.class, int.class, String.class});
-				}
-				hookNativeMethod(native_setup, VirtualCore.getCore().getHostPkg());
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
-			}
-			sNativeFixed = true;
-		}
-	}
 	/**
 	 * Fuck AppOps
 	 *
@@ -79,15 +38,11 @@ public class ContextFixer {
 			context = ((ContextWrapper) context).getBaseContext();
 			deep++;
 			if (deep >= 10) {
-				break;
+				return;
 			}
 		}
-		try {
-			Reflect.on(context).set("mPackageManager", null);
-			context.getPackageManager();
-		} catch (Throwable e) {
-			// Ignore
-		}
+		ContextImpl.mPackageManager.set(context, null);
+		context.getPackageManager();
 		if (!VirtualCore.getCore().isVAppProcess()) {
 			return;
 		}
@@ -100,34 +55,15 @@ public class ContextFixer {
 				e.printStackTrace();
 			}
 		}
-		String pkgName = VirtualCore.getCore().getHostPkg();
-		Reflect ref = Reflect.on(context);
-		try {
-			ref.set("mBasePackageName", pkgName);
-		} catch (Throwable e) {
-			// Ignore
-		}
-		try {
-			ref.set("mOpPackageName", pkgName);
-		} catch (Throwable e) {
-			// Ignore
+		String hostPkg = VirtualCore.getCore().getHostPkg();
+		ContextImpl.mBasePackageName.set(context, hostPkg);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+			ContextImplKitkat.mOpPackageName.set(context, hostPkg);
 		}
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-			try {
-				ContentResolver resolver = context.getContentResolver();
-				Reflect.on(resolver).set("mPackageName", pkgName);
-			} catch (Throwable e) {
-				// Ignore
-			}
+			ContentResolverJBMR2.mPackageName.set(context.getContentResolver(), hostPkg);
 		}
 	}
 
-	public static void setOuterContext(Context contextImpl, Context outerContext) {
-		try {
-			m_setOuterContext.invoke(contextImpl, outerContext);
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
-	}
 }

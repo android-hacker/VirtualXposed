@@ -6,14 +6,12 @@ import android.os.IBinder;
 import android.os.IInterface;
 import android.os.Parcel;
 import android.os.RemoteException;
-import android.os.ServiceManager;
 import android.text.TextUtils;
 
 import com.lody.virtual.client.interfaces.IHookObject;
 import com.lody.virtual.helper.utils.VLog;
 
 import java.io.FileDescriptor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -32,18 +30,20 @@ import java.util.Map;
 public abstract class HookBinder<Interface extends IInterface> implements IHookObject<Interface>, IBinder {
 
 	private static final String TAG = HookBinder.class.getSimpleName();
-	private static Map<String, IBinder> sCache;
 
-	static {
-		try {
-			Class.forName(ServiceManager.class.getName());
-			Field f_sCache = ServiceManager.class.getDeclaredField("sCache");
-			f_sCache.setAccessible(true);
-			sCache = (Map<String, IBinder>) f_sCache.get(null);
-		} catch (Throwable e) {
-			// 不考虑
+	public class AsBinder extends Hook {
+
+		@Override
+		public String getName() {
+			return "asBinder";
+		}
+
+		@Override
+		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+			return HookBinder.this;
 		}
 	}
+
 
 	private IBinder baseBinder;
 	private Interface mBaseObject;
@@ -51,14 +51,12 @@ public abstract class HookBinder<Interface extends IInterface> implements IHookO
 	/**
 	 * 内部维护的Hook集合
 	 */
-	private Map<String, Hook> internalHookMapping = new HashMap<String, Hook>();
+	private Map<String, Hook> internalHookMapping = new HashMap<String, Hook>(6); {
+		addHook(new AsBinder());
+	}
 
 	public HookBinder() {
 		bind();
-	}
-
-	public static Map<String, IBinder> getsCache() {
-		return sCache;
 	}
 
 	protected abstract IBinder queryBaseBinder();
@@ -125,6 +123,7 @@ public abstract class HookBinder<Interface extends IInterface> implements IHookO
 	}
 
 	public void injectService(String name) throws Throwable {
+		Map<String, IBinder> sCache = mirror.android.os.ServiceManager.sCache.get();
 		if (sCache != null) {
 			sCache.remove(name);
 			sCache.put(name, this);
@@ -134,6 +133,7 @@ public abstract class HookBinder<Interface extends IInterface> implements IHookO
 	}
 
 	public void restoreService(String name) {
+		Map<String, IBinder> sCache = mirror.android.os.ServiceManager.sCache.get();
 		if (sCache != null) {
 			if (sCache.remove(name) != null) {
 				sCache.put(name, baseBinder);

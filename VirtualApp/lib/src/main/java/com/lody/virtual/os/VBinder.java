@@ -1,9 +1,9 @@
 package com.lody.virtual.os;
 
 import android.os.Binder;
-import android.os.UserHandle;
 
-import com.lody.virtual.IOHook;
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.local.VActivityManager;
 
 /**
  * @author Lody
@@ -12,7 +12,8 @@ import com.lody.virtual.IOHook;
 public class VBinder {
 
     public static int getCallingUid() {
-        return IOHook.onGetCallingUid(Binder.getCallingUid());
+        VirtualCore core = VirtualCore.getCore();
+        return VActivityManager.get().getUidByPid(Binder.getCallingPid());
     }
 
     public static int getCallingPid() {

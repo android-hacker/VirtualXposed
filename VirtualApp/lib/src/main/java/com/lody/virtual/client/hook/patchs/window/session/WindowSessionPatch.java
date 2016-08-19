@@ -12,8 +12,8 @@ import android.view.IWindowSession;
  *
  * @see IWindowSession
  */
-@Patch({Hook_Add.class, Hook_AddToDisplay.class, Hook_AddToDisplayWithoutInputChannel.class,
-		Hook_AddWithoutInputChannel.class, Hook_Relayout.class})
+@Patch({Add.class, AddToDisplay.class, AddToDisplayWithoutInputChannel.class,
+		AddWithoutInputChannel.class, Relayout.class})
 public class WindowSessionPatch extends PatchObject<IWindowSession, HookObject<IWindowSession>> {
 
 	private IWindowSession session;

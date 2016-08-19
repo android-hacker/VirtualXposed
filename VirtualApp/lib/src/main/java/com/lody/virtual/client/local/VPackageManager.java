@@ -29,7 +29,7 @@ public class VPackageManager {
 	private static final VPackageManager sMgr = new VPackageManager();
 	private IPackageManager mRemote;
 
-	public static VPackageManager getInstance() {
+	public static VPackageManager get() {
 		return sMgr;
 	}
 

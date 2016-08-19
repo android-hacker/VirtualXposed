@@ -3,6 +3,7 @@ package com.lody.virtual.client.core;
 import android.app.Activity;
 import android.app.ActivityThread;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -18,6 +19,7 @@ import android.os.Looper;
 import android.os.Process;
 import android.os.RemoteException;
 import android.text.TextUtils;
+import android.util.LruCache;
 
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.env.VirtualRuntime;
@@ -26,16 +28,13 @@ import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.compat.ActivityThreadCompat;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.proto.InstallResult;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.service.IAppManager;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import dalvik.system.DexFile;
 
@@ -47,33 +46,32 @@ public final class VirtualCore {
 
 	private static VirtualCore gCore = new VirtualCore();
 	/**
-	 * 纯净无钩子的PackageManager
+	 * Client Package Manager
 	 */
 	private PackageManager unHookPackageManager;
 	/**
-	 * Host包名
+	 * Host package name
 	 */
-	private String pkgName;
+	private String hostPkgName;
 	/**
-	 * 在API 16以前, ActivityThread通过ThreadLocal管理, 非主线程调用为空, 故在此保存实例.
+	 * ActivityThread instance
 	 */
 	private ActivityThread mainThread;
 	private Context context;
 
-	private Object hostBindData;
 	/**
-	 * 主进程名
+	 * Main ProcessName
 	 */
 	private String mainProcessName;
 	/**
-	 * 当前进程名
+	 * Real Process Name
 	 */
 	private String processName;
 	private ProcessType processType;
 	private IAppManager mService;
 	private boolean isStartUp;
 	private PackageInfo hostPkgInfo;
-	private Map<ComponentName, ActivityInfo> activityInfoCache = new HashMap<ComponentName, ActivityInfo>();
+	private final LruCache<ComponentName, ActivityInfo> activityInfoCache = new LruCache<>(6);
 	private final int myUid = Process.myUid();
 	private int systemPid;
 
@@ -90,9 +88,6 @@ public final class VirtualCore {
 		return VUserHandle.getUserId(myUid);
 	}
 
-	public static Object getHostBindData() {
-		return getCore().hostBindData;
-	}
 
 	public static VirtualCore getCore() {
 		return gCore;
@@ -106,19 +101,6 @@ public final class VirtualCore {
 		return getCore().mainThread;
 	}
 
-	public static String getPermissionBroadcast() {
-		return "com.lody.virtual.permission.VIRTUAL_BROADCAST";
-	}
-
-	public static ComponentName getOriginComponentName(String action) {
-		String brc = String.format("%s.BRC_", getCore().getHostPkg());
-		if (action != null && action.startsWith(brc)) {
-			String comStr = action.replaceFirst(brc, "");
-			comStr = comStr.replace("_", "/");
-			return ComponentName.unflattenFromString(comStr);
-		}
-		return null;
-	}
 
 	public static String getReceiverAction(String packageName, String className) {
 		if (className != null && className.startsWith(".")) {
@@ -141,7 +123,7 @@ public final class VirtualCore {
 	}
 
 	public String getHostPkg() {
-		return pkgName;
+		return hostPkgName;
 	}
 
 	public PackageManager getUnHookPackageManager() {
@@ -156,11 +138,10 @@ public final class VirtualCore {
 			}
 			this.context = context;
 			mainThread = ActivityThread.currentActivityThread();
-			hostBindData = ActivityThreadCompat.getBoundApplication(mainThread);
 			unHookPackageManager = context.getPackageManager();
 			hostPkgInfo = unHookPackageManager.getPackageInfo(context.getPackageName(), PackageManager.GET_PROVIDERS);
 			// Host包名
-			pkgName = context.getApplicationInfo().packageName;
+			hostPkgName = context.getApplicationInfo().packageName;
 			// 主进程名
 			mainProcessName = context.getApplicationInfo().processName;
 			// 当前进程名
@@ -263,7 +244,7 @@ public final class VirtualCore {
 	}
 
 	public Intent getLaunchIntent(String packageName, int userId) {
-		VPackageManager pm = VPackageManager.getInstance();
+		VPackageManager pm = VPackageManager.get();
 		Intent intentToResolve = new Intent(Intent.ACTION_MAIN);
 		intentToResolve.addCategory(Intent.CATEGORY_INFO);
 		intentToResolve.setPackage(packageName);
@@ -350,10 +331,19 @@ public final class VirtualCore {
 	public synchronized ActivityInfo resolveActivityInfo(Intent intent, int userId) {
 		ActivityInfo activityInfo = null;
 		if (intent.getComponent() == null) {
-			ResolveInfo resolveInfo = VPackageManager.getInstance().resolveIntent(intent, intent.getType(), 0, 0);
+			ResolveInfo resolveInfo = VPackageManager.get().resolveIntent(intent, intent.getType(), 0, 0);
 			if (resolveInfo != null && resolveInfo.activityInfo != null) {
+				if (resolveInfo.activityInfo.targetActivity != null) {
+					ComponentName componentName = new ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.targetActivity);
+					resolveInfo.activityInfo = VPackageManager.get().getActivityInfo(componentName, 0, userId);
+					if (intent.getComponent() != null) {
+						intent.setComponent(componentName);
+					}
+				}
 				activityInfo = resolveInfo.activityInfo;
-				intent.setClassName(activityInfo.packageName, activityInfo.name);
+				if (intent.getComponent() == null) {
+					intent.setClassName(activityInfo.packageName, activityInfo.name);
+				}
 				activityInfoCache.put(intent.getComponent(), activityInfo);
 			}
 		} else {
@@ -365,7 +355,7 @@ public final class VirtualCore {
 	public synchronized ActivityInfo resolveActivityInfo(ComponentName componentName, int userId) {
 		ActivityInfo activityInfo = activityInfoCache.get(componentName);
 		if (activityInfo == null) {
-			activityInfo = VPackageManager.getInstance().getActivityInfo(componentName, 0, userId);
+			activityInfo = VPackageManager.get().getActivityInfo(componentName, 0, userId);
 			if (activityInfo != null) {
 				activityInfoCache.put(componentName, activityInfo);
 			}
@@ -375,7 +365,7 @@ public final class VirtualCore {
 
 	public ServiceInfo resolveServiceInfo(Intent intent, int userId) {
 		ServiceInfo serviceInfo = null;
-		ResolveInfo resolveInfo = VPackageManager.getInstance().resolveService(intent, intent.getType(), 0, userId);
+		ResolveInfo resolveInfo = VPackageManager.get().resolveService(intent, intent.getType(), 0, userId);
 		if (resolveInfo != null) {
 			serviceInfo = resolveInfo.serviceInfo;
 		}
@@ -417,6 +407,10 @@ public final class VirtualCore {
 
 	public int getSystemPid() {
 		return systemPid;
+	}
+
+	public ContentResolver getContentResolver() {
+		return context.getContentResolver();
 	}
 
 	/**

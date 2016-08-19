@@ -1,6 +1,8 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import java.lang.reflect.Field;
+import android.app.ActivityThread;
+import android.content.pm.IPackageManager;
+import android.os.IBinder;
 
 import com.lody.virtual.client.hook.base.HookBinder;
 import com.lody.virtual.client.hook.base.HookObject;
@@ -9,9 +11,7 @@ import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.base.ResultStaticHook;
 import com.lody.virtual.client.interfaces.IHookObject;
 
-import android.app.ActivityThread;
-import android.content.pm.IPackageManager;
-import android.os.IBinder;
+import java.lang.reflect.Field;
 
 /**
  * @author Lody
@@ -20,34 +20,36 @@ import android.os.IBinder;
  * @see IPackageManager
  * @see android.app.ApplicationPackageManager
  */
-@Patch({Hook_GetPackageInfo.class, Hook_GetApplicationInfo.class, Hook_GetActivityInfo.class, Hook_GetServiceInfo.class,
-		Hook_GetPermissions.class, Hook_GetProviderInfo.class, Hook_GetReceiverInfo.class,
-		Hook_GetPermissionFlags.class,
+@Patch({GetPackageInfo.class, GetApplicationInfo.class, GetActivityInfo.class, GetServiceInfo.class,
+		GetPermissions.class, GetProviderInfo.class, GetReceiverInfo.class,
+		GetPermissionFlags.class,
 
-		Hook_CheckSignatures.class,
+		CheckSignatures.class,
 
-		Hook_ResolveIntent.class, Hook_ResolveService.class, Hook_ResolveContentProvider.class,
+		ResolveIntent.class, ResolveService.class, ResolveContentProvider.class,
 
-		Hook_QueryIntentActivities.class, Hook_QueryIntentServices.class, Hook_QueryIntentReceivers.class,
-		Hook_QueryIntentContentProviders.class, Hook_QueryContentProviders.class,
+		QueryIntentActivities.class, QueryIntentServices.class, QueryIntentReceivers.class,
+		QueryIntentContentProviders.class, QueryContentProviders.class,
 
-		Hook_CheckPermission.class, Hook_RevokeRuntimePermission.class,
+		CheckPermission.class, RevokeRuntimePermission.class,
 
-		Hook_SetPackageStoppedState.class, Hook_GetInstalledPackages.class, Hook_GetInstalledApplications.class,
-		Hook_SetApplicationEnabledSetting.class, Hook_GetApplicationEnabledSetting.class,
-		Hook_SetApplicationBlockedSettingAsUser.class, Hook_GetApplicationBlockedSettingAsUser.class,
-		Hook_DeleteApplicationCacheFiles.class, Hook_GetInstallerPackageName.class,
+		SetPackageStoppedState.class, GetInstalledPackages.class, GetInstalledApplications.class,
+		SetApplicationEnabledSetting.class, GetApplicationEnabledSetting.class,
+		SetApplicationBlockedSettingAsUser.class, GetApplicationBlockedSettingAsUser.class,
+		DeleteApplicationCacheFiles.class, GetInstallerPackageName.class,
 
-		Hook_IsPackageAvailable.class, Hook_IsPackageForzen.class, Hook_GetComponentEnabledSetting.class,
-		Hook_SetComponentEnabledSetting.class,
+		IsPackageAvailable.class, IsPackageForzen.class, GetComponentEnabledSetting.class,
+		SetComponentEnabledSetting.class,
 
-		Hook_GetPackageUid.class, Hook_GetPackageGids.class, Hook_GetPackagesForUid.class,
+		GetPackageUid.class, GetPackageUidEtc.class,
+		GetPackageGids.class,  GetPackageGidsEtc.class,
+		GetPackagesForUid.class,
 
-		Hook_AddPackageToPreferred.class, Hook_RemovePackageFromPreferred.class,
-		Hook_ClearPackagePreferredActivities.class, Hook_GetPreferredActivities.class,
-		Hook_ClearPackagePersistentPreferredActivities.class, Hook_GetPermissionGroupInfo.class,
-		Hook_DeletePackage.class, Hook_GetPackageInstaller.class, Hook_AddOnPermissionsChangeListener.class,
-		Hook_RemoveOnPermissionsChangeListener.class, Hook_ActivitySupportsIntent.class,
+		AddPackageToPreferred.class, RemovePackageFromPreferred.class,
+		ClearPackagePreferredActivities.class, GetPreferredActivities.class,
+		ClearPackagePersistentPreferredActivities.class, GetPermissionGroupInfo.class,
+		DeletePackage.class, GetPackageInstaller.class, AddOnPermissionsChangeListener.class,
+		RemoveOnPermissionsChangeListener.class, ActivitySupportsIntent.class,
 
 })
 public final class PackageManagerPatch extends PatchObject<IPackageManager, HookObject<IPackageManager>> {

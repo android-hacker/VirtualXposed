@@ -2,7 +2,6 @@ package io.virtualapp.home;
 
 import android.app.Activity;
 
-
 import com.lody.virtual.client.local.VActivityManager;
 
 import io.virtualapp.VCommends;

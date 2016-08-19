@@ -30,8 +30,8 @@ public class VibratorPatch extends PatchObject<IVibratorService, HookVibratorBin
 	@Override
 	protected void applyHooks() {
 		super.applyHooks();
-		addHook(new ReplaceCallingPkgHook("vibrate")).replaceUid(0);
-		addHook(new ReplaceCallingPkgHook("vibratePattern")).replaceUid(0);
+		addHook(new ReplaceCallingPkgHook("vibrate"));
+		addHook(new ReplaceCallingPkgHook("vibratePattern"));
 	}
 
 	@Override

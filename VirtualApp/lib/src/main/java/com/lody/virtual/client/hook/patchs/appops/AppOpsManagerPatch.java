@@ -6,7 +6,6 @@ import android.os.Build;
 import android.os.ServiceManager;
 
 import com.android.internal.app.IAppOpsService;
-import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
@@ -71,9 +70,6 @@ public class AppOpsManagerPatch extends PatchObject<IAppOpsService, HookAppOpsBi
 				if (isAppPkg(pkg)) {
 					args[pkgIndex] = getHostPkg();
 				}
-			}
-			if (uidIndex != -1 && args.length > uidIndex && args[uidIndex] instanceof Integer) {
-				args[uidIndex] = VirtualCore.getCore().myUid();
 			}
 			return true;
 		}

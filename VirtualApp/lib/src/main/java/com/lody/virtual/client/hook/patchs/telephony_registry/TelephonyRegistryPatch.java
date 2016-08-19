@@ -11,8 +11,8 @@ import android.os.ServiceManager;
  * @author Lody
  *
  */
-@Patch({Hook_AddOnSubscriptionsChangedListener.class, Hook_RemoveOnSubscriptionsChangedListener.class,
-		Hook_Listen.class, Hook_ListenForSubscriber.class})
+@Patch({AddOnSubscriptionsChangedListener.class, RemoveOnSubscriptionsChangedListener.class,
+		Listen.class, ListenForSubscriber.class})
 public class TelephonyRegistryPatch extends PatchObject<ITelephonyRegistry, HookITelephonyRegistryBinder> {
 
 	@Override

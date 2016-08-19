@@ -2890,7 +2890,7 @@ public class PackageParser {
 
 		public Component(Package _owner) {
 			owner = _owner;
-			intents = null;
+			intents = new ArrayList<>(0);
 			className = null;
 		}
 

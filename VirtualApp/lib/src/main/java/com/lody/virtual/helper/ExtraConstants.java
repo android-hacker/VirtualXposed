@@ -37,4 +37,5 @@ public class ExtraConstants {
 	public static final String EXTRA_SENDER = "V.Extra.Sender";
 	public static final String EXTRA_TARGET_USER = "V.Extra.TargetUserId";
 	public static final String EXTRA_CALLER_USER = "V.Extra.CallerUserId";
+	public static final String EXTRA_CALLER_ACTIVITY = "V.Extra.CallerActivity";
 }

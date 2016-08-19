@@ -19,7 +19,7 @@ public final class AppSetting implements Parcelable {
 	public String libPath;
 	public String odexDir;
 	public boolean dependSystem;
-	public int baseUid;
+	public int appId;
 
 	public AppSetting() {
 
@@ -65,6 +65,6 @@ public final class AppSetting implements Parcelable {
 	};
 
 	public ApplicationInfo getApplicationInfo(int userId) {
-		return VPackageManager.getInstance().getApplicationInfo(packageName, 0, userId);
+		return VPackageManager.get().getApplicationInfo(packageName, 0, userId);
 	}
 }

@@ -5,7 +5,6 @@ import android.os.ServiceManager;
 import android.view.accessibility.IAccessibilityManager;
 
 import com.lody.virtual.client.hook.base.PatchObject;
-import com.lody.virtual.client.hook.base.StaticHook;
 import com.lody.virtual.client.hook.binders.HookAccessibilityBinder;
 
 /**
@@ -26,12 +25,6 @@ public class AccessibilityPatch extends PatchObject<IAccessibilityManager, HookA
     @Override
     protected void applyHooks() {
         super.applyHooks();
-        addHook(new StaticHook("addClient")).replaceLastUserId();
-        addHook(new StaticHook("sendAccessibilityEvent")).replaceLastUserId();
-        addHook(new StaticHook("getInstalledAccessibilityServiceList")).replaceLastUserId();
-        addHook(new StaticHook("getEnabledAccessibilityServiceList")).replaceLastUserId();
-        addHook(new StaticHook("interrupt")).replaceLastUserId();
-        addHook(new StaticHook("addAccessibilityInteractionConnection")).replaceLastUserId();
     }
 
     @Override

@@ -33,7 +33,7 @@ public class ServiceManagerNative {
 	public synchronized static IServiceFetcher getServiceFetcher() {
 		if (sFetcher == null) {
 			Context context = VirtualCore.getCore().getContext();
-			Bundle response = new ProviderCaller.Builder(context, SERVICE_CP_AUTH).methodName("@").call();
+			Bundle response = new ProviderCall.Builder(context, SERVICE_CP_AUTH).methodName("@").call();
 			if (response != null) {
 				IBinder binder = BundleCompat.getBinder(response, ExtraConstants.EXTRA_BINDER);
 				linkBinderDied(binder);
@@ -99,7 +99,7 @@ public class ServiceManagerNative {
 	}
 
 	public static void startup(Context context) {
-		new ProviderCaller.Builder(context, SERVICE_CP_AUTH).methodName(MethodConstants.INIT_SERVICE).call();
+		new ProviderCall.Builder(context, SERVICE_CP_AUTH).methodName(MethodConstants.INIT_SERVICE).call();
 	}
 
 }

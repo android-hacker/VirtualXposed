@@ -25,17 +25,6 @@ public abstract class Hook {
 		subModules.offer(module);
 	}
 
-	public void replaceUserId(final int index) {
-		addSubModule(new SubModule() {
-			@Override
-			public void apply(Object who, Method method, Object... args) {
-				if (args.length > index && args[index] instanceof Integer) {
-					args[index] = VirtualCore.getCore().myUserId();
-				}
-			}
-		});
-	}
-
 	public abstract class SubModule {
 		public abstract void apply(Object who, Method method, Object... args);
 	}
@@ -54,41 +43,8 @@ public abstract class Hook {
 		return true;
 	}
 
-	public Hook replaceUid(final int index) {
-		addSubModule(new SubModule() {
-			@Override
-			public void apply(Object who, Method method, Object... args) {
-				if (args.length > index && args[index] instanceof Integer) {
-					args[index] = VirtualCore.getCore().myUid();
-				}
-			}
-		});
-		return this;
-	}
 
-	public Hook replaceLastUserId() {
-		addSubModule(new SubModule() {
-			@Override
-			public void apply(Object who, Method method, Object... args) {
-				if (args.length > 0 && args[args.length - 1] instanceof Integer) {
-					args[args.length - 1] = VirtualCore.getCore().myUserId();
-				}
-			}
-		});
-		return this;
-	}
 
-	public Hook replaceLastOfUserId(final int lastIndex) {
-		addSubModule(new SubModule() {
-			@Override
-			public void apply(Object who, Method method, Object... args) {
-				if (args.length > 0 && args[args.length - lastIndex] instanceof Integer) {
-					args[args.length - lastIndex] = VirtualCore.getCore().myUserId();
-				}
-			}
-		});
-		return this;
-	}
 
 	/**
 	 * Hook回调
@@ -139,6 +95,10 @@ public abstract class Hook {
 
 	protected final boolean isMainProcess() {
 		return VirtualCore.getCore().isMainProcess();
+	}
+
+	protected final boolean isSystemProcess() {
+		return isMainProcess() || isServiceProcess();
 	}
 
 	protected final PackageManager getUnhookPM() {
