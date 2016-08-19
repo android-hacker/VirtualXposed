@@ -7,6 +7,9 @@ import android.content.pm.PackageManager;
 
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.proto.InstallResult;
+import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.os.VUserManager;
 
 import jonathanfinerty.once.Once;
 
@@ -41,10 +44,9 @@ public class VApp extends Application {
 	protected void attachBaseContext(Context base) {
 		try {
 			VirtualCore.getCore().startup(base);
-		} catch (Throwable throwable) {
-			throwable.printStackTrace();
+		} catch (Throwable e) {
+			e.printStackTrace();
 		}
-		VAppCrashHandler.getInstance().register();
 		super.attachBaseContext(base);
 	}
 
@@ -56,6 +58,7 @@ public class VApp extends Application {
 			Once.initialise(this);
 			// Install the Google mobile service
 			installGms();
+			VUserManager.get().getUserCount();
 		}
 	}
 
@@ -65,8 +68,11 @@ public class VApp extends Application {
 			try {
 				ApplicationInfo appInfo = pm.getApplicationInfo(pkg, 0);
 				String apkPath = appInfo.sourceDir;
-				VirtualCore.getCore().installApp(apkPath,
+				InstallResult res = VirtualCore.getCore().installApp(apkPath,
 						InstallStrategy.DEPEND_SYSTEM_IF_EXIST | InstallStrategy.TERMINATE_IF_EXIST);
+				if (!res.isSuccess) {
+					VLog.e("#####", "Unable to install app %s: %s.", appInfo.packageName, res.error);
+				}
 			} catch (Throwable e) {
 				// Ignore
 			}

@@ -29,7 +29,7 @@ public abstract class StubContentProvider extends BaseContentProvider {
 		IBinder token = BundleCompat.getBinder(extras, ExtraConstants.EXTRA_BINDER);
 		VClientImpl client = VClientImpl.getClient();
 		client.setToken(token);
-		VActivityManager.getInstance().attachClient(client);
+		VActivityManager.get().attachClient(client);
 	}
 
 	public static class C0 extends StubContentProvider {

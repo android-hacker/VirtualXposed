@@ -21,7 +21,7 @@ import android.os.ServiceManager;
  * @see android.hardware.display.DisplayManagerGlobal
  */
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-@Patch({Hook_CreateVirtualDisplay.class})
+@Patch({CreateVirtualDisplay.class})
 public class DisplayManagerPatch extends PatchObject<IDisplayManager, HookDisplayManagerBinder> {
 	@Override
 	protected HookDisplayManagerBinder initHookObject() {

@@ -1,23 +1,26 @@
 package com.lody.virtual.client.local;
 
 import android.app.Activity;
+import android.app.ActivityThread;
 import android.app.IServiceConnection;
 import android.app.Notification;
 import android.content.ComponentName;
+import android.content.ContentProviderNative;
+import android.content.IContentProvider;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.pm.ApplicationInfo;
+import android.content.pm.ProviderInfo;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.proto.AppTaskInfo;
-import com.lody.virtual.helper.proto.VActRedirectResult;
+import com.lody.virtual.helper.proto.PendingIntentData;
 import com.lody.virtual.helper.proto.VParceledListSlice;
-import com.lody.virtual.helper.proto.VRedirectActRequest;
-import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.service.IActivityManager;
 import com.lody.virtual.service.interfaces.IProcessObserver;
 
@@ -36,7 +39,7 @@ public class VActivityManager {
 
 	private Map<IBinder, LocalActivityRecord> mActivities = new HashMap<IBinder, LocalActivityRecord>(6);
 
-	public static VActivityManager getInstance() {
+	public static VActivityManager get() {
 		return sAM;
 	}
 
@@ -48,9 +51,9 @@ public class VActivityManager {
 		return service;
 	}
 
-	public VActRedirectResult redirectTargetActivity(VRedirectActRequest request) {
+	public Intent startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, int userId) {
 		try {
-			return getService().redirectTargetActivity(request);
+			return getService().startActivity(intent, info, resultTo, options, userId);
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
@@ -69,7 +72,7 @@ public class VActivityManager {
 		// 比如掌阅会崩溃,暂时从Activity里取,没调研兼容性=_=,先用着。
 		if (targetActInfo == null) {
 			try {
-				targetActInfo = Reflect.on(activity).get("mActivityInfo");
+				targetActInfo = mirror.android.app.Activity.mActivityInfo.get(activity);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -234,26 +237,10 @@ public class VActivityManager {
 	}
 
 
-	public void publishContentProviders(List<android.app.IActivityManager.ContentProviderHolder> holderList) {
-		try {
-			getService().publishContentProviders(holderList);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
 
-	public android.app.IActivityManager.ContentProviderHolder getContentProvider(String auth) {
+	public void attachClient(IBinder client) {
 		try {
-			return getService().getContentProvider(auth);
-		} catch (RemoteException e) {
-			return VirtualRuntime.crash(e);
-		}
-	}
-
-
-	public void attachClient(IBinder clinet) {
-		try {
-			getService().attachClient(clinet);
+			getService().attachClient(client);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -323,9 +310,9 @@ public class VActivityManager {
 		}
 	}
 
-	public void killAppByPkg(String pkg) {
+	public void killAppByPkg(String pkg, int userId) {
 		try {
-			getService().killAppByPkg(pkg);
+			getService().killAppByPkg(pkg, userId);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -363,11 +350,51 @@ public class VActivityManager {
 		}
 	}
 
-	public void ensureAppBound(String processName, ApplicationInfo appInfo) {
+	public void ensureAppBound(String processName, String packageName, int userId) {
 		try {
-			getService().ensureAppBound(processName, appInfo);
+			getService().ensureAppBound(processName, packageName, userId);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public int getUidByPid(int pid) {
+		try {
+			return getService().getUidByPid(pid);
+		} catch (RemoteException e) {
+			return VirtualRuntime.crash(e);
+		}
+	}
+
+	public int getSystemPid() {
+		try {
+			return getService().getSystemPid();
+		} catch (RemoteException e) {
+			return VirtualRuntime.crash(e);
+		}
+	}
+
+	public void sendActivityResult(IBinder resultTo, String resultWho, int requestCode) {
+		LocalActivityRecord r = mActivities.get(resultTo);
+		if (r != null && r.activity != null) {
+			ActivityThread mainThread = VirtualCore.mainThread();
+			mainThread.sendActivityResult(resultTo, resultWho, requestCode, 0, null);
+		}
+	}
+
+	public IContentProvider acquireProviderClient(int userId, ProviderInfo info) throws RemoteException {
+		return ContentProviderNative.asInterface(getService().acquireProviderClient(userId, info));
+	}
+
+	public PendingIntentData getPendingIntent(IBinder binder) throws RemoteException {
+		return getService().getPendingIntent(binder);
+	}
+
+	public void addPendingIntent(IBinder binder, String creator) throws RemoteException {
+		getService().addPendingIntent(binder, creator);
+	}
+
+	public void removePendingIntent(IBinder binder) throws RemoteException {
+		getService().removePendingIntent(binder);
 	}
 }

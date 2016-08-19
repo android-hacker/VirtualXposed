@@ -12,7 +12,7 @@ import android.os.storage.IMountService;
  *
  * @see IMountService
  */
-@Patch({Hook_GetVolumeList.class, Hook_Mkdirs.class,})
+@Patch({GetVolumeList.class, Mkdirs.class,})
 public class MountServicePatch extends PatchObject<IMountService, HookMountServiceBinder> {
 
 	@Override

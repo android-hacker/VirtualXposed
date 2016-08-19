@@ -33,6 +33,10 @@
             android:noHistory="true"
             android:taskAffinity="va.task.loading"/>
 
+        <activity
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+            android:name=".users.UserListActivity"/>
+
 
         <meta-data
             android:name="UMENG_APPKEY"

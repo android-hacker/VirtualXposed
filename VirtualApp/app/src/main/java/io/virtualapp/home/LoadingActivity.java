@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.proto.AppInfo;
+import com.lody.virtual.helper.proto.AppSetting;
 
 import io.virtualapp.R;
 import io.virtualapp.abs.ui.VUiKit;
@@ -22,11 +22,10 @@ import io.virtualapp.home.models.AppModel;
 public class LoadingActivity extends AppCompatActivity {
 
 	private static final String MODEL_ARGUMENT = "MODEL_ARGUMENT";
-
 	private AppModel appModel;
 
-	public static void launch(Context context, AppModel model) {
-		Intent intent = VirtualCore.getCore().getLaunchIntent(model.packageName);
+	public static void launch(Context context, AppModel model, int userId) {
+		Intent intent = VirtualCore.getCore().getLaunchIntent(model.packageName, userId);
 		if (intent != null) {
 			Intent loadingPageIntent = new Intent(context, LoadingActivity.class);
 			loadingPageIntent.putExtra(MODEL_ARGUMENT, model);
@@ -44,9 +43,9 @@ public class LoadingActivity extends AppCompatActivity {
 		appModel = getIntent().getParcelableExtra(MODEL_ARGUMENT);
 
 		VUiKit.defer().when(() -> {
-			AppInfo appInfo = VirtualCore.getCore().findApp(appModel.packageName);
-			if (appInfo != null) {
-				appModel = new AppModel(this, appInfo);
+			AppSetting appSetting = VirtualCore.getCore().findApp(appModel.packageName);
+			if (appSetting != null) {
+				appModel = new AppModel(this, appSetting);
 			}
 		}).done((res) -> {
 			ImageView iconView = (ImageView) findViewById(R.id.app_icon);

@@ -43,4 +43,12 @@ public class VLog {
 	public static String getStackTraceString(Throwable tr) {
 		return Log.getStackTraceString(tr);
 	}
+
+	public static void printStackTrace(String tag) {
+		Log.e(tag, getStackTraceString(new Exception()));
+	}
+
+	public static void e(String tag, Throwable e) {
+		Log.e(tag, getStackTraceString(e));
+	}
 }

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="virtual_installer">VirtualPackage Installer</string>
+    <string name="owner_name">Admin</string>
 </resources>

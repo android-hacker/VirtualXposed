@@ -1,16 +1,17 @@
 package com.lody.virtual.client.env;
 
 import android.content.pm.ApplicationInfo;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.compat.VMRuntimeCompat;
-import com.lody.virtual.helper.utils.Reflect;
-import com.lody.virtual.helper.utils.ReflectException;
 import com.lody.virtual.helper.utils.VLog;
+
+import mirror.android.ddm.DdmHandleAppName;
+import mirror.android.ddm.DdmHandleAppNameJBMR1;
 
 /**
  * @author Lody
@@ -43,12 +44,11 @@ public class VirtualRuntime {
 		}
 		sProcessName = processName;
 		Process.setArgV0(processName);
-		try {
-			Reflect.on("android.ddm.DdmHandleAppName").set("mAppName", processName);
-		} catch (ReflectException e) {
-			e.printStackTrace();
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+			DdmHandleAppNameJBMR1.setAppName.call(processName, 0);
+		} else {
+			DdmHandleAppName.setAppName.call(processName);
 		}
-		VMRuntimeCompat.registerAppInfo(appInfo.packageName, appInfo.dataDir, processName);
 	}
 
 	public static <T> T crash(RemoteException e) throws RuntimeException {

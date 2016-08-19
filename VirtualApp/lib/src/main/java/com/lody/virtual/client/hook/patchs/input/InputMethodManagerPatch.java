@@ -1,14 +1,14 @@
 package com.lody.virtual.client.hook.patchs.input;
 
-import java.lang.reflect.Field;
+import android.content.Context;
+import android.view.inputmethod.InputMethodManager;
 
 import com.android.internal.view.IInputMethodManager;
 import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.binders.HookIMMBinder;
 
-import android.content.Context;
-import android.view.inputmethod.InputMethodManager;
+import java.lang.reflect.Field;
 
 /**
  * @author Lody
@@ -18,7 +18,7 @@ import android.view.inputmethod.InputMethodManager;
  * @see IInputMethodManager
  *
  */
-@Patch({Hook_StartInput.class, Hook_WindowGainedFocus.class})
+@Patch({StartInput.class, WindowGainedFocus.class})
 public class InputMethodManagerPatch extends PatchObject<IInputMethodManager, HookIMMBinder> {
 
 	@Override
@@ -51,6 +51,11 @@ public class InputMethodManagerPatch extends PatchObject<IInputMethodManager, Ho
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	@Override
+	protected void applyHooks() {
+		super.applyHooks();
 	}
 
 	@Override

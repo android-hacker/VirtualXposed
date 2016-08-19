@@ -3,7 +3,6 @@ package com.lody.virtual.client.hook.patchs.appops;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
-import android.os.Process;
 import android.os.ServiceManager;
 
 import com.android.internal.app.IAppOpsService;
@@ -47,7 +46,6 @@ public class AppOpsManagerPatch extends PatchObject<IAppOpsService, HookAppOpsBi
 		addHook(new BaseHook("finishOperation", 2, 3));
 		addHook(new BaseHook("startWatchingMode", -1, 1));
 		addHook(new BaseHook("checkPackage", 0, 1));
-		addHook(new BaseHook("checkPackage", 0, 1));
 		addHook(new BaseHook("getOpsForPackage", 0, 1));
 		addHook(new BaseHook("setMode", 1, 2));
 		addHook(new BaseHook("checkAudioOperation", 2, 3));
@@ -72,9 +70,6 @@ public class AppOpsManagerPatch extends PatchObject<IAppOpsService, HookAppOpsBi
 				if (isAppPkg(pkg)) {
 					args[pkgIndex] = getHostPkg();
 				}
-			}
-			if (uidIndex != -1 && args.length > uidIndex && args[uidIndex] instanceof Integer) {
-				args[uidIndex] = Process.myUid();
 			}
 			return true;
 		}

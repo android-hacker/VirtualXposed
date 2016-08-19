@@ -24,8 +24,9 @@ public class ComponentUtils {
 	}
 
 	public static String getTaskAffinity(ActivityInfo activityInfo) {
+		int uid = activityInfo.applicationInfo.uid;
 		if (activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
-			return "SINGLE_INSTANCE_" + activityInfo.packageName + "/" + activityInfo.name;
+			return "SINGLE_INSTANCE_" + activityInfo.packageName + "/" + activityInfo.name + ":" + uid;
 		}
 		if (activityInfo.taskAffinity == null && activityInfo.applicationInfo.taskAffinity == null) {
 			return activityInfo.packageName;
@@ -63,7 +64,20 @@ public class ComponentUtils {
 
 
 	public static boolean isSharedPackage(String packageName) {
-		return packageName != null
-				&& VClientImpl.getClient().getSharedPackages().contains(packageName);
+		VClientImpl client = VClientImpl.getClient();
+		if (packageName == null || !client.isBound()) {
+			return false;
+		}
+		if (client.getCurrentPackage().equals(packageName)) {
+			return true;
+		}
+		if (packageName.equals("com.android.vending")) {
+			return true;
+		}
+		return client.getSharedPackages().contains(packageName);
+	}
+
+	public static String createAction(ActivityInfo info) {
+		return String.format("_VA_%s_%s", info.packageName, info.name);
 	}
 }

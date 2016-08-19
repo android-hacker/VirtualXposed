@@ -35,7 +35,7 @@ import io.virtualapp.home.models.AppModel;
 	}
 
 	/* package */ interface HomePresenter extends BasePresenter {
-		void launchApp(AppModel model);
+		void launchApp(AppModel model, int userId);
 
 		void dataChanged();
 

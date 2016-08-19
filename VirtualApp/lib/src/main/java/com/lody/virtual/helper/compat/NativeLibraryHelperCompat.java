@@ -1,19 +1,18 @@
 package com.lody.virtual.helper.compat;
 
+import android.annotation.TargetApi;
+import android.os.Build;
+
+import com.android.internal.content.NativeLibraryHelper;
+import com.lody.virtual.helper.utils.Reflect;
+import com.lody.virtual.helper.utils.VLog;
+
 import java.io.File;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
-import com.android.internal.content.NativeLibraryHelper;
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.utils.Reflect;
-import com.lody.virtual.helper.utils.VLog;
-
-import android.annotation.TargetApi;
-import android.os.Build;
 
 public class NativeLibraryHelperCompat {
 
@@ -53,7 +52,6 @@ public class NativeLibraryHelperCompat {
 			if (VMRuntimeCompat.is64Bit() && isVM64(abiSet)) {
 				if (Build.SUPPORTED_64_BIT_ABIS.length > 0) {
 					int abiIndex = NativeLibraryHelper.findSupportedAbi(handle, Build.SUPPORTED_64_BIT_ABIS);
-					VLog.d(TAG, "ABI Index = %s [%s].", abiIndex, apkFile.getPath());
 					if (abiIndex >= 0) {
 						abi = Build.SUPPORTED_64_BIT_ABIS[abiIndex];
 					}
@@ -61,7 +59,6 @@ public class NativeLibraryHelperCompat {
 			} else {
 				if (Build.SUPPORTED_32_BIT_ABIS.length > 0) {
 					int abiIndex = NativeLibraryHelper.findSupportedAbi(handle, Build.SUPPORTED_32_BIT_ABIS);
-					VLog.d(TAG, "ABI Index = %s [%s].", abiIndex, apkFile.getPath());
 					if (abiIndex >= 0) {
 						abi = Build.SUPPORTED_32_BIT_ABIS[abiIndex];
 					}
@@ -118,16 +115,12 @@ public class NativeLibraryHelperCompat {
 					supportedABIs.add(supportedAbi);
 				}
 			}
-			VLog.d(TAG, "supportedABIs : %s [%s].", supportedABIs, apk);
 			return supportedABIs;
 		} catch (Exception e) {
-			VLog.e(TAG, "Get supportedABIs failure: %s.", e.getMessage());
+			e.printStackTrace();
 		}
 
 		return null;
 	}
 
-	private static String getHostApk() {
-		return VirtualCore.getCore().getContext().getApplicationInfo().sourceDir;
-	}
 }

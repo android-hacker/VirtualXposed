@@ -49,7 +49,6 @@ import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
@@ -301,7 +300,7 @@ public class PackageParser {
 	}
 
 	public static boolean collectCertificates(Package pkg, int flags) {
-		String sourcePath = pkg.applicationInfo.publicSourceDir;
+		String sourcePath = pkg.mPath;
 		pkg.mSignatures = null;
 
 		WeakReference<byte[]> readBufferRef;
@@ -335,17 +334,6 @@ public class PackageParser {
 							+ "; ignoring!");
 					jarFile.close();
 					return false;
-				}
-				if (DEBUG_JAR) {
-					VLog.i(TAG, "File " + sourcePath + ": entry=" + jarEntry + " certs="
-							+ (certs != null ? certs.length : 0));
-					if (certs != null) {
-						final int N = certs.length;
-						for (int i = 0; i < N; i++) {
-							VLog.i(TAG, "  Public key: " + certs[i].getPublicKey().getEncoded() + " "
-									+ certs[i].getPublicKey());
-						}
-					}
 				}
 			} else {
 				Enumeration<JarEntry> entries = jarFile.entries();
@@ -406,21 +394,19 @@ public class PackageParser {
 
 			if (certs != null && certs.length > 0) {
 				final int N = certs.length;
-				pkg.mSignatures = new Signature[certs.length];
+				pkg.mSignatures = new Signature[N];
 				for (int i = 0; i < N; i++) {
-					pkg.mSignatures[i] = new Signature(certs[i].getEncoded());
+					try {
+						pkg.mSignatures[i] = new Signature(certs[i].getEncoded());
+					} catch (Throwable e) {
+						throw new RuntimeException("艹", e);
+					}
 				}
 			} else {
 				VLog.e(TAG, "Package " + pkg.packageName + " has no certificates; ignoring!");
 				return false;
 			}
-		} catch (CertificateEncodingException e) {
-			VLog.w(TAG, "Exception reading " + sourcePath, e);
-			return false;
-		} catch (IOException e) {
-			VLog.w(TAG, "Exception reading " + sourcePath, e);
-			return false;
-		} catch (RuntimeException e) {
+		} catch (Throwable e) {
 			VLog.w(TAG, "Exception reading " + sourcePath, e);
 			return false;
 		}
@@ -2904,7 +2890,7 @@ public class PackageParser {
 
 		public Component(Package _owner) {
 			owner = _owner;
-			intents = null;
+			intents = new ArrayList<>(0);
 			className = null;
 		}
 

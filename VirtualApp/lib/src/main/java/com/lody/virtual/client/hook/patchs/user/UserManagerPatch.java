@@ -47,6 +47,7 @@ public class UserManagerPatch extends PatchObject<IUserManager, HookUserBinder> 
 		addHook(new ResultStaticHook("getUsers", Collections.EMPTY_LIST));
 		addHook(new ResultStaticHook("createUser", null));
 		addHook(new ResultStaticHook("createProfileForUser", null));
+		addHook(new ResultStaticHook("getProfiles", Collections.EMPTY_LIST));
 	}
 
 	@Override

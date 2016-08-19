@@ -14,7 +14,7 @@ import android.os.ServiceManager;
  * @author Lody
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-@Patch({Hook_Schedule.class,})
+@Patch({Schedule.class,})
 public class JobPatch extends PatchObject<IJobScheduler, HookJobBinder> {
 	@Override
 	protected HookJobBinder initHookObject() {

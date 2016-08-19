@@ -14,7 +14,7 @@ import android.view.IGraphicsStats;
  *
  * @see IGraphicsStats
  */
-@Patch({Hook_RequestBufferForProcess.class})
+@Patch({RequestBufferForProcess.class})
 public class GraphicsStatsPatch extends PatchObject<IGraphicsStats, HookGraphicsStatsBinder> {
 
 	@Override

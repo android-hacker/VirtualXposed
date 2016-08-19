@@ -18,37 +18,41 @@ import com.lody.virtual.helper.proto.VParceledListSlice;
 
 interface IPackageManager {
 
+        int getPackageUid(String packageName, int userId);
+
+        String[] getPackagesForUid(int uid);
+
         List<String> getSharedLibraries(String pkgName);
 
-        int checkPermission(String permName, String pkgName);
+        int checkPermission(String permName, String pkgName, int userId);
 
-        PackageInfo getPackageInfo(String packageName, int flags);
+        PackageInfo getPackageInfo(String packageName, int flags, int userId);
 
-        ActivityInfo getActivityInfo(in ComponentName componentName, int flags);
+        ActivityInfo getActivityInfo(in ComponentName componentName, int flags, int userId);
 
         boolean activitySupportsIntent(in ComponentName component, in Intent intent,
                                            										  in String resolvedType);
-         ActivityInfo getReceiverInfo(in ComponentName componentName, int flags);
+         ActivityInfo getReceiverInfo(in ComponentName componentName, int flags, int userId);
 
-         ServiceInfo getServiceInfo(in ComponentName componentName, int flags);
+         ServiceInfo getServiceInfo(in ComponentName componentName, int flags, int userId);
 
-         ProviderInfo getProviderInfo(in ComponentName componentName, int flags);
+         ProviderInfo getProviderInfo(in ComponentName componentName, int flags, int userId);
 
-         ResolveInfo resolveIntent(in Intent intent, in String resolvedType, int flags);
+         ResolveInfo resolveIntent(in Intent intent, in String resolvedType, int flags, int userId);
 
-         List<ResolveInfo> queryIntentActivities(in Intent intent,in  String resolvedType, int flags);
+         List<ResolveInfo> queryIntentActivities(in Intent intent,in  String resolvedType, int flags, int userId);
 
-         List<ResolveInfo> queryIntentReceivers(in Intent intent, String resolvedType, int flags);
+         List<ResolveInfo> queryIntentReceivers(in Intent intent, String resolvedType, int flags, int userId);
 
-         ResolveInfo resolveService(in Intent intent, String resolvedType, int flags);
+         ResolveInfo resolveService(in Intent intent, String resolvedType, int flags, int userId);
 
-         List<ResolveInfo> queryIntentServices(in Intent intent, String resolvedType, int flags);
+         List<ResolveInfo> queryIntentServices(in Intent intent, String resolvedType, int flags, int userId);
 
-         List<ResolveInfo> queryIntentContentProviders(in Intent intent, String resolvedType, int flags);
+         List<ResolveInfo> queryIntentContentProviders(in Intent intent, String resolvedType, int flags, int userId);
 
-         VParceledListSlice getInstalledPackages(int flags);
+         VParceledListSlice getInstalledPackages(int flags, int userId);
 
-         VParceledListSlice getInstalledApplications(int flags);
+         VParceledListSlice getInstalledApplications(int flags, int userId);
 
          PermissionInfo getPermissionInfo(in String name, int flags);
 
@@ -58,15 +62,13 @@ interface IPackageManager {
 
          List<PermissionGroupInfo> getAllPermissionGroups(int flags);
 
-         ProviderInfo resolveContentProvider(in String name, int flags);
+         ProviderInfo resolveContentProvider(in String name, int flags, int userId);
 
-         ApplicationInfo getApplicationInfo(in String packageName, int flags);
+         ApplicationInfo getApplicationInfo(in String packageName, int flags, int userId);
 
-         VParceledListSlice queryContentProviders(in String processName, int flags);
+         VParceledListSlice queryContentProviders(in String processName, int uid, int flags);
 
-         List<ReceiverInfo> queryReceivers(in String processName, int flags);
+         List<ReceiverInfo> queryReceivers(in String processName, int uid, int flags);
 
          List<String> querySharedPackages(in String packageName);
-
-         List<IntentFilter> getReceiverIntentFilter(in ActivityInfo info);
 }
