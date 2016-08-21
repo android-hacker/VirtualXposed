@@ -311,10 +311,7 @@ public class PagerView extends ViewGroup implements PagerAdapter.OnDataChangeLis
 
 				if (isUnderBottomLine) {
 					if (onCrashItemListener != null) {
-						onCrashItemListener.onCrash(dragPosition, () -> {
-							removeViewAt(dragPosition);
-							mAdapter.delete(dragPosition);
-						});
+						onCrashItemListener.onCrash(dragPosition);
 					}
 					isUnderBottomLine = false;
 				}
@@ -881,15 +878,11 @@ public class PagerView extends ViewGroup implements PagerAdapter.OnDataChangeLis
 	}
 
 	public interface OnCrashItemListener {
-		void onCrash(int position, CrashConsumer consumer);
+		void onCrash(int position);
 	}
 
 	public interface OnItemClickListener<DataItem> {
 		void onClick(DataItem item, int pos);
-	}
-
-	public interface CrashConsumer {
-		void moveToCrash();
 	}
 
 	// 使用Map集合记录，防止动画执行混乱

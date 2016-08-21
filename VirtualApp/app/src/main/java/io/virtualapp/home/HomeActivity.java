@@ -75,10 +75,10 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 		mExplosionField = ExplosionField.attachToWindow(this);
 		mPagerView.setOnDragChangeListener(mPresenter::dragChange);
 		mPagerView.setOnEnterCrashListener(mPresenter::dragNearCrash);
-		mPagerView.setOnCrashItemListener((position, consumer) -> {
+		mPagerView.setOnCrashItemListener(position -> {
 			AppModel model = mAdapter.getItem(position);
 			View v = mPagerView.getChildAt(position);
-			mExplosionField.explode(v, view -> consumer.moveToCrash());
+			mExplosionField.explode(v, null);
 			mPresenter.deleteApp(model);
 		});
 		mPagerView.setOnItemClickListener((item, pos) -> {
