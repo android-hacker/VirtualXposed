@@ -6,5 +6,5 @@ import mirror.StaticFieldDef;
 
 public class ActivityManagerNative {
     public static Class<?> Class = ClassDef.init(ActivityManagerNative.class, "android.app.ActivityManagerNative");
-    public static StaticFieldDef gDefault;
+    public static StaticFieldDef<Object> gDefault;
 }

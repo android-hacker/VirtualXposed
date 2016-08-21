@@ -11,7 +11,6 @@ import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.interfaces.Injectable;
 import com.lody.virtual.client.local.VActivityManager;
-import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.VLog;
@@ -42,13 +41,13 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 	}
 
 	private static Handler getH() {
-		return (Handler) ActivityThread.mH.get(VirtualCore.mainThread());
+		return ActivityThread.mH.get(VirtualCore.mainThread());
 	}
 
 	private static Handler.Callback getHCallback() {
 		try {
 			Handler handler = getH();
-			return (Handler.Callback) mirror.android.os.Handler.mCallback.get(handler);
+			return mirror.android.os.Handler.mCallback.get(handler);
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
@@ -80,7 +79,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		// StubIntent
 		Intent stubIntent = ActivityThread.ActivityClientRecord.intent.get(r);
 		// TargetIntent
-		Intent targetIntent = stubIntent.getParcelableExtra(ExtraConstants.EXTRA_TARGET_INTENT);
+		Intent targetIntent = stubIntent.getParcelableExtra("_VA_|_intent_");
 
 		ComponentName component = targetIntent.getComponent();
 		String packageName = component.getPackageName();
@@ -89,16 +88,15 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		if (appSetting == null) {
 			return true;
 		}
-		ActivityInfo stubActInfo = stubIntent.getParcelableExtra(ExtraConstants.EXTRA_STUB_ACT_INFO);
-		ActivityInfo targetActInfo = stubIntent.getParcelableExtra(ExtraConstants.EXTRA_TARGET_ACT_INFO);
-		ActivityInfo callerActInfo = stubIntent.getParcelableExtra(ExtraConstants.EXTRA_CALLER);
+		ActivityInfo stubActInfo = stubIntent.getParcelableExtra("_VA_|_stub_activity_");
+		ActivityInfo targetActInfo = stubIntent.getParcelableExtra("_VA_|_target_activity_");
 
 		if (stubActInfo == null || targetActInfo == null) {
 			return true;
 		}
 		String processName = ComponentUtils.getProcessName(targetActInfo);
 		if (!VClientImpl.getClient().isBound()) {
-			int targetUser = stubIntent.getIntExtra(ExtraConstants.EXTRA_TARGET_USER, 0);
+			int targetUser = stubIntent.getIntExtra("_VA_|_user_id_", 0);
 			VActivityManager.get().ensureAppBound(processName, appSetting.packageName, targetUser);
 			getH().sendMessageDelayed(Message.obtain(msg), 5);
 			return false;
@@ -107,9 +105,8 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		targetIntent.setExtrasClassLoader(appClassLoader);
 		boolean error = false;
 		try {
-			targetIntent.putExtra(ExtraConstants.EXTRA_STUB_ACT_INFO, stubActInfo);
-			targetIntent.putExtra(ExtraConstants.EXTRA_TARGET_ACT_INFO, targetActInfo);
-			targetIntent.putExtra(ExtraConstants.EXTRA_CALLER, callerActInfo);
+			targetIntent.putExtra("_VA_|_stub_activity_", stubActInfo);
+			targetIntent.putExtra("_VA_|_target_activity_", targetActInfo);
 		} catch (Throwable e) {
 			error = true;
 			VLog.w(TAG, "Directly putExtra failed: %s.", e.getMessage());
@@ -118,9 +115,8 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 			ClassLoader oldParent = getClass().getClassLoader().getParent();
 			mirror.java.lang.ClassLoader.parent.set(getClass().getClassLoader(), appClassLoader);
 			try {
-				targetIntent.putExtra(ExtraConstants.EXTRA_STUB_ACT_INFO, stubActInfo);
-				targetIntent.putExtra(ExtraConstants.EXTRA_TARGET_ACT_INFO, targetActInfo);
-				targetIntent.putExtra(ExtraConstants.EXTRA_CALLER, callerActInfo);
+				targetIntent.putExtra("_VA_|_stub_activity_", stubActInfo);
+				targetIntent.putExtra("_VA_|_target_activity_", targetActInfo);
 			} catch (Throwable e) {
 				VLog.w(TAG, "Secondly putExtra failed: %s.", e.getMessage());
 			}

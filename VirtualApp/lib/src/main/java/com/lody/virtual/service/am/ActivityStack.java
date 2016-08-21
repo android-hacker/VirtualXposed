@@ -11,7 +11,6 @@ import android.os.RemoteException;
 
 import com.android.internal.content.ReferrerIntent;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.compat.IApplicationThreadCompat;
 import com.lody.virtual.helper.utils.ComponentUtils;
@@ -149,10 +148,10 @@ import java.util.ListIterator;
 			return null;
 		}
 		newIntent.setClassName(stubActInfo.packageName, stubActInfo.name);
-		newIntent.putExtra(ExtraConstants.EXTRA_TARGET_INTENT, intent);
-		newIntent.putExtra(ExtraConstants.EXTRA_STUB_ACT_INFO, stubActInfo);
-		newIntent.putExtra(ExtraConstants.EXTRA_TARGET_ACT_INFO, info);
-		newIntent.putExtra(ExtraConstants.EXTRA_TARGET_USER, userId);
+		newIntent.putExtra("_VA_|_intent_", intent);
+		newIntent.putExtra("_VA_|_stub_activity_", stubActInfo);
+		newIntent.putExtra("_VA_|_target_activity_", info);
+		newIntent.putExtra("_VA_|_user_id_", userId);
 		return newIntent;
 	}
 

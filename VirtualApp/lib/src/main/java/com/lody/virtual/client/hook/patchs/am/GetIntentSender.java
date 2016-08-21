@@ -13,7 +13,6 @@ import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.client.stub.KeepService;
-import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
@@ -72,7 +71,6 @@ import java.lang.reflect.Method;
 			newIntent.putExtra("_VA_|_vuid_", VClientImpl.getClient().getVUid());
 			newIntent.putExtra("_VA_|_type_", type);
 			newIntent.putExtra("_VA_|_intent_", intent);
-			newIntent.putExtra("_VA_|_what_", ExtraConstants.WHAT_PENDING_INTENT);
 			newIntent.putExtra("_VA_|_creator_", creator);
 			return newIntent;
 		}

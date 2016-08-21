@@ -58,7 +58,7 @@ public final class ClassDef {
                     try {
                         entry.getKey().set(null, entry.getValue());
                     } catch (Exception e) {
-                        //Ignore
+                       e.printStackTrace();
                     }
                 }
             }

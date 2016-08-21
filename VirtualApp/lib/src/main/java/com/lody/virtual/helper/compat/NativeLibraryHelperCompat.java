@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import mirror.dalvik.system.VMRuntime;
+
 public class NativeLibraryHelperCompat {
 
 	private static String TAG = NativeLibraryHelperCompat.class.getSimpleName();
@@ -49,7 +51,8 @@ public class NativeLibraryHelperCompat {
 			if (abiSet == null || abiSet.isEmpty()) {
 				return 0;
 			}
-			if (VMRuntimeCompat.is64Bit() && isVM64(abiSet)) {
+			boolean is64Bit = VMRuntime.is64Bit.call(VMRuntime.getRuntime.call());
+			if (is64Bit && isVM64(abiSet)) {
 				if (Build.SUPPORTED_64_BIT_ABIS.length > 0) {
 					int abiIndex = NativeLibraryHelper.findSupportedAbi(handle, Build.SUPPORTED_64_BIT_ABIS);
 					if (abiIndex >= 0) {

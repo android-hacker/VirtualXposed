@@ -5,7 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 @SuppressWarnings("unchecked")
-public class StaticMethodDef {
+public class StaticMethodDef<T> {
     private Method method;
 
     public StaticMethodDef(Class<?> cls, Field field) throws NoSuchMethodException {
@@ -27,17 +27,24 @@ public class StaticMethodDef {
         }
     }
 
-    public <T> T call(Object... params) {
-        Object obj = null;
+    public T call(Object... params) {
+        T obj = null;
         try {
-            obj = this.method.invoke(null, params);
+            obj = (T) method.invoke(null, params);
         } catch (Exception e) {
             //Ignore
         }
-        return (T) obj;
+        return obj;
     }
 
-    public <T> T callWithException(Object... params) throws InvocationTargetException, IllegalAccessException {
-        return (T) this.method.invoke(null, params);
+    public T callWithException(Object... params) throws Throwable {
+        try {
+            return (T) this.method.invoke(null, params);
+        } catch (InvocationTargetException e) {
+            if (e.getCause() != null) {
+                throw e.getCause();
+            }
+            throw e;
+        }
     }
 }

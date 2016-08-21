@@ -3,7 +3,7 @@ package mirror;
 import java.lang.reflect.Field;
 
 @SuppressWarnings("unchecked")
-public class StaticFieldDef {
+public class StaticFieldDef<T> {
     private Field field;
 
     public StaticFieldDef(Class<?> cls, Field field) throws NoSuchFieldException {
@@ -15,17 +15,17 @@ public class StaticFieldDef {
         return field.getType();
     }
 
-    public <T> T get() {
-        Object obj = null;
+    public T get() {
+        T obj = null;
         try {
-            obj = this.field.get(null);
+            obj = (T) this.field.get(null);
         } catch (Exception e) {
             //Ignore
         }
-        return (T) obj;
+        return obj;
     }
 
-    public void set(Object obj) {
+    public void set(T obj) {
         try {
             this.field.set(null, obj);
         } catch (Exception e) {

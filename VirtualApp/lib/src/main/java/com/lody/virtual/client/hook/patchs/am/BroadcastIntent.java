@@ -13,7 +13,6 @@ import android.text.TextUtils;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.utils.BitmapUtils;
 import com.lody.virtual.os.VUserHandle;
 
@@ -39,31 +38,56 @@ import java.lang.reflect.Method;
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		Intent intent = (Intent) args[1];
+		String type = (String) args[2];
 		handleIntent(intent);
-		int userId = VUserHandle.myUserId();
-		intent.setType("_VA_|U:" + userId);
-		// clear the permission
-		args[7] = null;
+		intent.setDataAndType(intent.getData(), type);
+		if (args[7] instanceof String || args[7] instanceof String[]) {
+			// clear the permission
+			args[7] = null;
+		}
 		return method.invoke(who, args);
 	}
 
 
 
-	private void handleIntent(final Intent intent) {
+	private Intent handleIntent(final Intent intent) {
 		final String action = intent.getAction();
 		if (Constants.ACTION_INSTALL_SHORTCUT.equals(action)) {
 			handleInstallShortcutIntent(intent);
+			return intent;
 		} else if (Constants.ACTION_UNINSTALL_SHORTCUT.equals(action)) {
 			handleUninstallShortcutIntent(intent);
+			return intent;
 		} else {
-			if (intent.getComponent() != null) {
-				ComponentName componentName = intent.getComponent();
-				intent.putExtra(ExtraConstants.EXTRA_COMPONENT, componentName);
-				intent.setComponent(null);
+			ComponentName component = intent.getComponent();
+			String pkg = intent.getPackage();
+			if (component != null) {
+				if (isAppPkg(component.getPackageName())) {
+					if (intent.getSelector() != null) {
+						intent.setPackage(component.getPackageName());
+					}
+					Intent newIntent = new Intent();
+					newIntent.putExtra("_VA_|_user_id_", VUserHandle.myUserId());
+					newIntent.setAction(String.format("_VA_%s_%s", component.getPackageName(), component.getClassName()));
+					newIntent.putExtra("_VA_|_component_", component);
+					newIntent.putExtra("_VA_|_intent_", new Intent(intent));
+					return newIntent;
+				}
+			} else if (pkg != null) {
+				if (isAppPkg(pkg)) {
+					Intent newIntent = intent.cloneFilter();
+					newIntent.putExtra("_VA_|_user-id_", VUserHandle.myUserId());
+					newIntent.putExtra("_VA_|_creator_", pkg);
+					newIntent.putExtra("_VA_|_intent_", new Intent(intent));
+					return newIntent;
+				}
 			} else {
-				String newAction = String.format("_VA_%s", action);
-				intent.setAction(newAction);
+				Intent newIntent = intent.cloneFilter();
+				newIntent.putExtra("_VA_|_user-id_", VUserHandle.myUserId());
+				newIntent.putExtra("_VA_|_intent_", new Intent(intent));
+				return newIntent;
 			}
+			return null;
 		}
 	}
 
@@ -77,8 +101,8 @@ import java.lang.reflect.Method;
 					Intent newShortcutIntent = new Intent();
 					newShortcutIntent.setClassName(getHostPkg(), Constants.SHORTCUT_PROXY_ACTIVITY_NAME);
 					newShortcutIntent.addCategory(Intent.CATEGORY_DEFAULT);
-					newShortcutIntent.putExtra(ExtraConstants.EXTRA_TARGET_INTENT, shortcut);
-					newShortcutIntent.putExtra(ExtraConstants.EXTRA_TARGET_URI, shortcut.toUri(0));
+					newShortcutIntent.putExtra("_VA_|_intent_", shortcut);
+					newShortcutIntent.putExtra("_VA_|_uri_", shortcut.toUri(0));
 					intent.removeExtra(Intent.EXTRA_SHORTCUT_INTENT);
 					intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, newShortcutIntent);
 
@@ -114,7 +138,7 @@ import java.lang.reflect.Method;
 			ComponentName componentName = shortcut.resolveActivity(getPM());
 			if (componentName != null && isAppPkg(componentName.getPackageName())) {
 				Intent newShortcutIntent = new Intent();
-				newShortcutIntent.putExtra(ExtraConstants.EXTRA_TARGET_URI, shortcut);
+				newShortcutIntent.putExtra("_VA_|_uri_", shortcut);
 				newShortcutIntent.setClassName(getHostPkg(), Constants.SHORTCUT_PROXY_ACTIVITY_NAME);
 				newShortcutIntent.removeExtra(Intent.EXTRA_SHORTCUT_INTENT);
 				intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, newShortcutIntent);

@@ -3,6 +3,7 @@ package com.lody.virtual.client.hook.base;
 import android.content.Context;
 import android.content.pm.PackageManager;
 
+import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.proto.AppSetting;
 
@@ -97,6 +98,10 @@ public abstract class Hook {
 		return VirtualCore.getCore().isMainProcess();
 	}
 
+	protected final int getVUid() {
+		return VClientImpl.getClient().getVUid();
+	}
+
 	protected final boolean isSystemProcess() {
 		return isMainProcess() || isServiceProcess();
 	}
@@ -104,6 +109,8 @@ public abstract class Hook {
 	protected final PackageManager getUnhookPM() {
 		return VirtualCore.getCore().getUnHookPackageManager();
 	}
+
+
 
 	@Override
 	public String toString() {

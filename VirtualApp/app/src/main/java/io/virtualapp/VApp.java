@@ -18,6 +18,8 @@ import jonathanfinerty.once.Once;
  */
 public class VApp extends Application {
 
+	private boolean needPreloadApps = true;
+
 	private static final String[] GMS_PKG = {
 			"com.android.vending",
 
@@ -39,6 +41,15 @@ public class VApp extends Application {
 	public static VApp getApp() {
 		return gDefault;
 	}
+
+	public boolean isNeedPreloadApps() {
+		if (needPreloadApps) {
+			needPreloadApps = false;
+			return true;
+		}
+		return false;
+	}
+
 
 	@Override
 	protected void attachBaseContext(Context base) {

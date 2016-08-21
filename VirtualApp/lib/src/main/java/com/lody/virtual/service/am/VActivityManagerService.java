@@ -36,8 +36,6 @@ import com.lody.virtual.client.IVClient;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.service.ProviderCall;
-import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.MethodConstants;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.compat.IApplicationThreadCompat;
 import com.lody.virtual.helper.proto.AppSetting;
@@ -853,8 +851,8 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		ProcessRecord app = new ProcessRecord(stubInfo, info, processName, providers, sharedPackages, usesLibraries, uid);
 		mPendingProcesses.put(processName, app.userId, app);
 		Bundle extras = new Bundle();
-		BundleCompat.putBinder(extras, ExtraConstants.EXTRA_BINDER, app);
-		ProviderCall.call(stubInfo, MethodConstants.INIT_PROCESS, null, extras);
+		BundleCompat.putBinder(extras, "_VA_|_binder_", app);
+		ProviderCall.call(stubInfo, "_VA_|_init_process_", null, extras);
 		return app;
 	}
 
@@ -1027,7 +1025,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			BroadcastReceiver resultReceiver, @Nullable Handler scheduler, int initialCode,
 			@Nullable String initialData, @Nullable Bundle initialExtras) {
 		Context context = VirtualCore.getCore().getContext();
-		intent.putExtra(ExtraConstants.EXTRA_CALLER_USER, user.getIdentifier());
+		intent.putExtra("_VA_|_user_id_", user.getIdentifier());
 		// TODO: checkPermission
 		context.sendOrderedBroadcast(intent, null/* permission */, resultReceiver, scheduler, initialCode, initialData,
 				initialExtras);
@@ -1035,49 +1033,47 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
 	public void sendBroadcastAsUser(Intent intent, VUserHandle user) {
 		Context context = VirtualCore.getCore().getContext();
-		intent.putExtra(ExtraConstants.EXTRA_CALLER_USER, user.getIdentifier());
+		intent.putExtra("_VA_|_user_id_", user.getIdentifier());
 		context.sendBroadcast(intent);
 	}
 
 	public void sendBroadcastAsUser(Intent intent, VUserHandle user, String permission) {
 		Context context = VirtualCore.getCore().getContext();
-		intent.putExtra(ExtraConstants.EXTRA_CALLER_USER, user.getIdentifier());
+		intent.putExtra("_VA_|_user_id_", user.getIdentifier());
 		// TODO: checkPermission
 		context.sendBroadcast(intent);
 	}
 
 	public boolean handleStaticBroadcast(int appId, ActivityInfo info, Intent intent, BroadcastReceiver receiver,
 			BroadcastReceiver.PendingResult result) {
-		int userId = parseIntentUserId(intent);
-		if (userId >= 0) {
-			int uid = VUserHandle.getUid(userId, appId);
-			handleStaticBroadcastAsUser(uid, info, intent, receiver, result);
-		} else if (userId == VUserHandle.USER_ALL) {
-			List<UserInfo> userList = VUserManager.get().getUsers(false);
-			if (userList.isEmpty()) {
+		// Maybe send from System
+		int userId = intent.getIntExtra("_VA_|_user_id_", VUserHandle.USER_ALL);
+		ComponentName component = intent.getParcelableExtra("_VA_|_component_");
+		Intent realIntent = intent.getParcelableExtra("_VA_|_intent_");
+		if (component != null) {
+			if (!ComponentUtils.toComponentName(info).equals(component)) {
 				return false;
 			}
+		}
+		if (realIntent == null) {
+			realIntent = intent;
+		}
+		if (userId >= 0) {
+			int uid = VUserHandle.getUid(userId, appId);
+			handleStaticBroadcastAsUser(uid, info, realIntent, receiver, result);
+		} else if (userId == VUserHandle.USER_ALL) {
+			List<UserInfo> userList = VUserManager.get().getUsers(false);
 			for (UserInfo userInfo : userList) {
 				int uid = VUserHandle.getUid(userInfo.id, appId);
-				handleStaticBroadcastAsUser(uid, info, intent, receiver, result);
+				handleStaticBroadcastAsUser(uid, info, realIntent, receiver, result);
 			}
 		} else {
+			VLog.w(TAG, "Unknown User for receive the broadcast : #%d.", userId);
 			return false;
 		}
 		return true;
 	}
 
-	private int parseIntentUserId(Intent intent) {
-		String type = intent.getType();
-		if (type != null && type.startsWith("_VA_|U:")) {
-			try {
-				return Integer.parseInt(type.substring("_VA_|U:".length()));
-			} catch (NumberFormatException e) {
-				e.printStackTrace();
-			}
-		}
-		return VUserHandle.USER_ALL;
-	}
 
 	public void handleStaticBroadcastAsUser(int uid, ActivityInfo info, Intent intent, BroadcastReceiver receiver,
 			BroadcastReceiver.PendingResult result) {

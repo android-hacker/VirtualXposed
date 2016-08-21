@@ -27,7 +27,6 @@ import com.lody.virtual.client.fixer.ContextFixer;
 import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.client.service.ServiceManagerNative;
-import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.proto.InstallResult;
@@ -265,7 +264,7 @@ public final class VirtualCore {
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		intent.setClassName(ris.get(0).activityInfo.packageName,
 				ris.get(0).activityInfo.name);
-		intent.putExtra(ExtraConstants.EXTRA_TARGET_USER, userId);
+		intent.putExtra("_VA_|_user_id_", userId);
 		return intent;
 	}
 
@@ -279,8 +278,8 @@ public final class VirtualCore {
 	public void addLoadingPage(Intent intent, IBinder token) {
 		if (token != null) {
 			Bundle bundle = new Bundle();
-			BundleCompat.putBinder(bundle, ExtraConstants.EXTRA_BINDER, token);
-			intent.putExtra(ExtraConstants.EXTRA_SENDER, bundle);
+			BundleCompat.putBinder(bundle, "_VA_|_loading_token_", token);
+			intent.putExtra("_VA_|_sender_", bundle);
 		}
 	}
 

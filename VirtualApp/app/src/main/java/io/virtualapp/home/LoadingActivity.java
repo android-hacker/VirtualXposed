@@ -8,7 +8,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.proto.AppSetting;
 
 import io.virtualapp.R;
@@ -22,6 +21,7 @@ import io.virtualapp.home.models.AppModel;
 public class LoadingActivity extends AppCompatActivity {
 
 	private static final String MODEL_ARGUMENT = "MODEL_ARGUMENT";
+	private static final String KEY_INTENT = "KEY_INTENT";
 	private AppModel appModel;
 
 	public static void launch(Context context, AppModel model, int userId) {
@@ -30,7 +30,7 @@ public class LoadingActivity extends AppCompatActivity {
 			Intent loadingPageIntent = new Intent(context, LoadingActivity.class);
 			loadingPageIntent.putExtra(MODEL_ARGUMENT, model);
 			loadingPageIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			loadingPageIntent.putExtra(ExtraConstants.EXTRA_INTENT, intent);
+			loadingPageIntent.putExtra(KEY_INTENT, intent);
 			context.startActivity(loadingPageIntent);
 		}
 	}
@@ -59,7 +59,7 @@ public class LoadingActivity extends AppCompatActivity {
 			nameView.setText(appModel.name);
 		}
 
-		Intent intent = getIntent().getParcelableExtra(ExtraConstants.EXTRA_INTENT);
+		Intent intent = getIntent().getParcelableExtra(KEY_INTENT);
 		VirtualCore.getCore().addLoadingPage(intent, this);
 		if (intent != null) {
 			VUiKit.defer().when(() -> {

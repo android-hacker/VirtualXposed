@@ -7,6 +7,6 @@ import mirror.MethodDef;
 
 public class Singleton {
     public static Class<?> Class = ClassDef.init(Singleton.class, "android.util.Singleton");
-    public static MethodDef get;
-    public static FieldDef mInstance;
+    public static MethodDef<Object> get;
+    public static FieldDef<Object> mInstance;
 }

@@ -3,7 +3,7 @@ package mirror;
 import java.lang.reflect.Field;
 
 @SuppressWarnings("unchecked")
-public class FieldDef {
+public class FieldDef<T> {
     private Field field;
 
     public FieldDef(Class<?> cls, Field field) throws NoSuchFieldException {
@@ -11,7 +11,7 @@ public class FieldDef {
         this.field.setAccessible(true);
     }
 
-    public <T> T get(Object object) {
+    public T get(Object object) {
         try {
             return (T) this.field.get(object);
         } catch (Exception e) {
@@ -19,7 +19,7 @@ public class FieldDef {
         }
     }
 
-    public void set(Object obj, Object value) {
+    public void set(Object obj, T value) {
         try {
             this.field.set(obj, value);
         } catch (Exception e) {

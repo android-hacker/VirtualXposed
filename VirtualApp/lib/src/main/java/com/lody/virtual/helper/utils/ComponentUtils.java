@@ -77,7 +77,4 @@ public class ComponentUtils {
 		return client.getSharedPackages().contains(packageName);
 	}
 
-	public static String createAction(ActivityInfo info) {
-		return String.format("_VA_%s_%s", info.packageName, info.name);
-	}
 }

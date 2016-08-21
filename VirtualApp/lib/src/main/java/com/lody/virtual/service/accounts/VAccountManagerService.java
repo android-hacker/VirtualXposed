@@ -57,7 +57,6 @@ import com.google.android.collect.Lists;
 import com.google.android.collect.Sets;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
-import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.os.VBinder;
 import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.os.VUserHandle;
@@ -2247,7 +2246,7 @@ public class VAccountManagerService
         cantAddAccount.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         long identityToken = clearCallingIdentity();
         try {
-            cantAddAccount.putExtra(ExtraConstants.EXTRA_TARGET_USER, userId);
+            cantAddAccount.putExtra("_VA_|_user_id_", userId);
             mContext.startActivity(cantAddAccount);
         } finally {
             restoreCallingIdentity(identityToken);
@@ -3163,7 +3162,7 @@ public class VAccountManagerService
             Intent intent = new Intent();
             intent.setAction(AccountManager.ACTION_AUTHENTICATOR_INTENT);
             intent.setComponent(authenticatorInfo.componentName);
-            intent.putExtra(ExtraConstants.EXTRA_TARGET_USER, mAccounts.userId);
+            intent.putExtra("_VA_|_user_id_", mAccounts.userId);
             if (Log.isLoggable(TAG, Log.VERBOSE)) {
                 Log.v(TAG, "performing bindService to " + authenticatorInfo.componentName);
             }

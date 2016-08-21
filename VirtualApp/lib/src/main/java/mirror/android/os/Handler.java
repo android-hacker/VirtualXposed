@@ -6,5 +6,5 @@ import mirror.FieldDef;
 
 public class Handler {
     public static Class<?> Class = ClassDef.init(Handler.class, "android.os.Handler");
-    public static FieldDef mCallback;
+    public static FieldDef<android.os.Handler.Callback> mCallback;
 }

@@ -1,17 +1,17 @@
 package com.lody.virtual.client.hook.patchs.window.session;
 
-import java.lang.reflect.Method;
+import android.view.WindowManager;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.helper.utils.ArrayUtils;
 
-import android.view.WindowManager;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
  *
  */
-/* package */ abstract class BaseReplacePkgName extends Hook {
+/*package*/ abstract class BaseReplacePkgName extends Hook {
 
 	private int cacheIndex = -1;
 

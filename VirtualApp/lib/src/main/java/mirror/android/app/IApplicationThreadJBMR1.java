@@ -18,5 +18,5 @@ public class IApplicationThreadJBMR1 {
     public static Class<?> Class = ClassDef.init(IApplicationThreadJBMR1.class, IApplicationThread.class);
 
     @MethodInfo({Intent.class, ActivityInfo.class, CompatibilityInfo.class, int.class, String.class, Bundle.class, boolean.class, int.class})
-    public static MethodDef scheduleReceiver;
+    public static MethodDef<Void> scheduleReceiver;
 }

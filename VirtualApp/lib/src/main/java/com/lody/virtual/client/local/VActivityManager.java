@@ -17,7 +17,6 @@ import android.os.RemoteException;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.service.ServiceManagerNative;
-import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.proto.AppTaskInfo;
 import com.lody.virtual.helper.proto.PendingIntentData;
 import com.lody.virtual.helper.proto.VParceledListSlice;
@@ -64,8 +63,8 @@ public class VActivityManager {
 		if (intent == null) {
 			return null;
 		}
-		ActivityInfo targetActInfo = intent.getParcelableExtra(ExtraConstants.EXTRA_TARGET_ACT_INFO);
-		ActivityInfo callerActInfo = intent.getParcelableExtra(ExtraConstants.EXTRA_CALLER);
+		ActivityInfo targetActInfo = intent.getParcelableExtra("_VA_|_target_activity_");
+		ActivityInfo callerActInfo = intent.getParcelableExtra("_VA_|_caller_activity_");
 
 		// NOTE:
 		// 此处在使用LocalActivityManager启动Activity的时候是空的,因为走不到replaceIntent里,

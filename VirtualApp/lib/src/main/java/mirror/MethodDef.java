@@ -5,7 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 @SuppressWarnings("unchecked")
-public class MethodDef {
+public class MethodDef<T> {
     private Method method;
 
     public MethodDef(Class<?> cls, Field field) throws NoSuchMethodException {
@@ -27,7 +27,7 @@ public class MethodDef {
         }
     }
 
-    public <T> T call(Object receiver, Object... args) {
+    public T call(Object receiver, Object... args) {
         try {
             return (T) this.method.invoke(receiver, args);
         } catch (Exception e) {
@@ -35,7 +35,14 @@ public class MethodDef {
         }
     }
 
-    public <T> T callWithException(Object receiver, Object... args) throws InvocationTargetException, IllegalAccessException {
-        return (T) this.method.invoke(receiver, args);
+    public T callWithException(Object receiver, Object... args) throws Throwable {
+        try {
+            return (T) this.method.invoke(receiver, args);
+        } catch (InvocationTargetException e) {
+            if (e.getCause() != null) {
+                throw e.getCause();
+            }
+            throw e;
+        }
     }
 }

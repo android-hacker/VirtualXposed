@@ -7,8 +7,6 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
-import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.MethodConstants;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.service.ServiceCache;
@@ -35,7 +33,7 @@ public class ServiceManagerNative {
 			Context context = VirtualCore.getCore().getContext();
 			Bundle response = new ProviderCall.Builder(context, SERVICE_CP_AUTH).methodName("@").call();
 			if (response != null) {
-				IBinder binder = BundleCompat.getBinder(response, ExtraConstants.EXTRA_BINDER);
+				IBinder binder = BundleCompat.getBinder(response, "_VA_|_binder_");
 				linkBinderDied(binder);
 				sFetcher = IServiceFetcher.Stub.asInterface(binder);
 			}
@@ -96,10 +94,6 @@ public class ServiceManagerNative {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	public static void startup(Context context) {
-		new ProviderCall.Builder(context, SERVICE_CP_AUTH).methodName(MethodConstants.INIT_SERVICE).call();
 	}
 
 }

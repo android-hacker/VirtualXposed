@@ -13,7 +13,6 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.HackServiceConnection;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VActivityManager;
-import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
@@ -43,7 +42,7 @@ import java.lang.reflect.Method;
 		int flags = (int) args[5];
 		int userId = VUserHandle.myUserId();
 		if (isServiceProcess()) {
-			userId = service.getIntExtra(ExtraConstants.EXTRA_TARGET_USER, VUserHandle.USER_NULL);
+			userId = service.getIntExtra("_VA_|_user_id_", VUserHandle.USER_NULL);
 		}
 		ServiceInfo serviceInfo = VirtualCore.getCore().resolveServiceInfo(service, userId);
 		if (serviceInfo != null) {

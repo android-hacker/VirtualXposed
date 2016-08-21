@@ -5,7 +5,6 @@ import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 
-import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.component.BaseService;
 
 /**
@@ -43,10 +42,7 @@ public class KeepService extends BaseService {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (intent != null) {
-			int what = intent.getIntExtra("_VA_|_what_", -1);
-			if (what == ExtraConstants.WHAT_PENDING_INTENT) {
-				handlePendingIntent(intent);
-			}
+			handlePendingIntent(intent);
 		}
 		return START_STICKY;
 	}

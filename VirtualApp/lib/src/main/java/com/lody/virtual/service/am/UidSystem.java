@@ -1,9 +1,9 @@
 package com.lody.virtual.service.am;
 
-import static android.os.Process.FIRST_APPLICATION_UID;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import static android.os.Process.FIRST_APPLICATION_UID;
 
 /**
  * @author Lody

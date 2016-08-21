@@ -1,53 +1,71 @@
 package mirror.android.app;
 
 
+import android.app.Application;
 import android.app.IActivityManager;
+import android.app.Instrumentation;
+import android.app.LoadedApk;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.ProviderInfo;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.IInterface;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
+import java.util.Map;
 
 import mirror.ClassDef;
+import mirror.CtorDef;
 import mirror.FieldDef;
 import mirror.MethodDef;
 import mirror.MethodInfo;
+import mirror.MethodReflectionInfo;
 import mirror.StaticFieldDef;
 import mirror.StaticIntFieldDef;
-import mirror.StaticMethodDef;
 
 public class ActivityThread {
     public static Class<?> Class = ClassDef.init(ActivityThread.class, "android.app.ActivityThread");
-    public static StaticMethodDef currentActivityThread;
-    public static MethodDef getHandler;
-    public static MethodDef installProvider;
-    public static FieldDef mBoundApplication;
-    public static FieldDef mH;
-    public static FieldDef mInitialApplication;
-    public static FieldDef mInstrumentation;
-    public static FieldDef mPackages;
-    public static FieldDef mProviderMap;
+    public static MethodDef<Handler> getHandler;
+    public static MethodDef<IActivityManager.ContentProviderHolder> installProvider;
+    public static FieldDef<Object> mBoundApplication;
+    public static FieldDef<Handler> mH;
+    public static FieldDef<Application> mInitialApplication;
+    public static FieldDef<Instrumentation> mInstrumentation;
+    public static FieldDef<Map<String, WeakReference<?>>> mPackages;
+    public static FieldDef<Map> mProviderMap;
     @MethodInfo({IBinder.class, List.class})
-    public static MethodDef performNewIntents;
-    public static StaticFieldDef sPackageManager;
+    public static MethodDef<Void> performNewIntents;
+    public static StaticFieldDef<IInterface> sPackageManager;
     @MethodInfo({IBinder.class, String.class, int.class, int.class, Intent.class})
-    public static MethodDef sendActivityResult;
+    public static MethodDef<Void> sendActivityResult;
 
     public static class ActivityClientRecord {
         public static Class<?> Class = ClassDef.init(ActivityClientRecord.class, "android.app.ActivityThread$ActivityClientRecord");
-        public static FieldDef activity;
-        public static FieldDef activityInfo;
-        public static FieldDef intent;
+        public static FieldDef<android.app.Activity> activity;
+        public static FieldDef<ActivityInfo> activityInfo;
+        public static FieldDef<Intent> intent;
         public static FieldDef token;
     }
 
+    public static class ProviderClientRecord {
+        public static Class<?> Class = ClassDef.init(ProviderClientRecord.class, "android.app.ActivityThread$ProviderClientRecord");
+        @MethodReflectionInfo({"android.app.ActivityThread", "java.lang.String", "android.content.IContentProvider", "android.content.ContentProvider"})
+        public static CtorDef<?> ctor;
+        public static FieldDef<String> mName;
+        public static FieldDef<IInterface> mProvider;
+    }
+
+
     public static class AppBindData {
         public static Class<?> Class = ClassDef.init(AppBindData.class, "android.app.ActivityThread$AppBindData");
-        public static FieldDef appInfo;
-        public static FieldDef info;
-        public static FieldDef processName;
+        public static FieldDef<ApplicationInfo> appInfo;
+        public static FieldDef<LoadedApk> info;
+        public static FieldDef<String> processName;
     }
 
     public static class H {

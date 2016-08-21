@@ -15,7 +15,6 @@ import com.lody.virtual.client.fixer.ContextFixer;
 import com.lody.virtual.client.interfaces.Injectable;
 import com.lody.virtual.client.local.LocalActivityRecord;
 import com.lody.virtual.client.local.VActivityManager;
-import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.compat.BundleCompat;
 
@@ -98,9 +97,9 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 		}
 		super.callActivityOnResume(activity);
 		Intent intent = activity.getIntent();
-		Bundle bundle = intent.getBundleExtra(ExtraConstants.EXTRA_SENDER);
+		Bundle bundle = intent.getBundleExtra("_VA_|_sender_");
 		if (bundle != null) {
-			IBinder loadingPageToken = BundleCompat.getBinder(bundle, ExtraConstants.EXTRA_BINDER);
+			IBinder loadingPageToken = BundleCompat.getBinder(bundle, "_VA_|_loading_token_");
 			ActivityManagerCompat.finishActivity(loadingPageToken, -1, null);
 		}
 	}

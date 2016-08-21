@@ -5,13 +5,14 @@ import android.app.Application;
 import android.app.Instrumentation;
 import android.app.LoadedApk;
 import android.content.ContentProviderClient;
+import android.content.ContentResolver;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.IContentProvider;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.content.res.CompatibilityInfo;
+import android.os.Build;
 import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.IBinder;
@@ -35,6 +36,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import mirror.android.app.ContextImpl;
+import mirror.dalvik.system.VMRuntime;
 
 /**
  * @author Lody
@@ -210,16 +212,13 @@ public class VClientImpl extends IVClient.Stub {
 		Context context;
 		try {
 			Context hostContext = VirtualCore.getCore().getContext();
-			while (hostContext instanceof ContextWrapper) {
-				hostContext = ((ContextWrapper) hostContext).getBaseContext();
-			}
 			context = hostContext.createPackageContext(data.appInfo.packageName, Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
 		} catch (PackageManager.NameNotFoundException e) {
 			throw new RuntimeException(e);
 		}
 		mBoundApplication.info = ContextImpl.mPackageInfo.get(context);
-
 		fixBoundApp(mBoundApplication);
+		VMRuntime.setTargetSdkVersion.call(VMRuntime.getRuntime.call(), data.appInfo.targetSdkVersion);
 		Application app = data.info.makeApplication(false, null);
 		mInitialApplication = app;
 		mirror.android.app.ActivityThread.mInitialApplication.set(mainThread, app);
@@ -239,7 +238,6 @@ public class VClientImpl extends IVClient.Stub {
 								+ ": " + e.toString(), e);
 			}
 		}
-
 		VActivityManager.get().appDoneExecuting();
 	}
 
@@ -281,7 +279,13 @@ public class VClientImpl extends IVClient.Stub {
 		IContentProvider provider = null;
 		String[] authorities = sSplitAuthorityPattern.split(info.authority);
 		String authority = (authorities == null || authorities.length == 0) ? info.authority : authorities[0];
-		ContentProviderClient client = VirtualCore.getCore().getContentResolver().acquireContentProviderClient(authority);
+		ContentResolver resolver = VirtualCore.getCore().getContext().getContentResolver();
+		ContentProviderClient client;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+			client = resolver.acquireUnstableContentProviderClient(authority);
+		} else {
+			client = resolver.acquireContentProviderClient(authority);
+		}
 		if (client != null) {
 			provider = mirror.android.content.ContentProviderClient.mContentProvider.get(client);
 			client.release();

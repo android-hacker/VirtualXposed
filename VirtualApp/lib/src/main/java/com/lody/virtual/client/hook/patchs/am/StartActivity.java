@@ -9,7 +9,6 @@ import android.os.IBinder;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.local.VActivityManager;
-import com.lody.virtual.helper.ExtraConstants;
 import com.lody.virtual.helper.utils.ArrayUtils;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
@@ -30,7 +29,7 @@ import java.lang.reflect.Method;
 		int userId = VUserHandle.myUserId();
 		if (VirtualCore.getCore().isMainProcess()) {
 			intent.setExtrasClassLoader(StartActivity.class.getClassLoader());
-			userId = intent.getIntExtra(ExtraConstants.EXTRA_TARGET_USER, userId);
+			userId = intent.getIntExtra("_VA_|_user_id_", userId);
 		}
 		return userId;
 	}
@@ -40,8 +39,10 @@ import java.lang.reflect.Method;
 		super.onHook(who, method, args);
 		int intentIndex = ArrayUtils.indexOfFirst(args, Intent.class);
 		int resultToIndex = ArrayUtils.indexOfObject(args, IBinder.class, 2);
+		String resolvedType = (String) args[intentIndex + 1];
 
 		Intent targetIntent = (Intent) args[intentIndex];
+		targetIntent.setDataAndType(targetIntent.getData(), resolvedType);
 		IBinder resultTo = resultToIndex != -1 ? (IBinder) args[resultToIndex] : null;
 		String resultWho = null;
 		int requestCode = 0;
@@ -71,7 +72,6 @@ import java.lang.reflect.Method;
 			}
 			return 0;
 		}
-
 		args[intentIndex] = resultIntent;
 		return method.invoke(who, args);
 	}

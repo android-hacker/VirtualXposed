@@ -7,5 +7,5 @@ import mirror.FieldDef;
  */
 
 public class ClassLoader {
-    public static FieldDef parent;
+    public static FieldDef<java.lang.ClassLoader> parent;
 }

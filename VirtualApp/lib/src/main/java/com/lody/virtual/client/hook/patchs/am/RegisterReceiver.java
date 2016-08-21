@@ -13,13 +13,14 @@ import com.lody.virtual.client.env.SpecialWidgetList;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.utils.HookUtils;
 import com.lody.virtual.helper.utils.Reflect;
-import com.lody.virtual.os.VUserHandle;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.WeakHashMap;
+
+import mirror.android.app.LoadedApk;
 
 /**
  * @author Lody
@@ -49,7 +50,6 @@ import java.util.WeakHashMap;
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		HookUtils.replaceFirstAppPkg(args);
-
 		args[IDX_RequiredPermission] = null;
 		IntentFilter filter = (IntentFilter) args[IDX_IntentFilter];
 		modifyIntentFilter(filter);
@@ -57,20 +57,23 @@ import java.util.WeakHashMap;
 			final IIntentReceiver old = (IIntentReceiver) args[IDX_IIntentReceiver];
 			// 防止重复代理
 			if (!ProxyIIntentReceiver.class.isInstance(old)) {
-
-				IBinder token = old.asBinder();
-				IIntentReceiver.Stub proxyIIntentReceiver = mProxyIIntentReceiver.get(token);
-				if (proxyIIntentReceiver == null) {
-					proxyIIntentReceiver = new ProxyIIntentReceiver(old);
-					mProxyIIntentReceiver.put(token, proxyIIntentReceiver);
-				}
-				try {
-					WeakReference WeakReference_mDispatcher = Reflect.on(old).get("mDispatcher");
-					Object mDispatcher = WeakReference_mDispatcher.get();
-					Reflect.on(mDispatcher).set("mIIntentReceiver", proxyIIntentReceiver);
+				final IBinder token = old.asBinder();
+				if (token != null) {
+					token.linkToDeath(new IBinder.DeathRecipient() {
+						@Override
+						public void binderDied() {
+							token.unlinkToDeath(this, 0);
+							mProxyIIntentReceiver.remove(token);
+						}
+					}, 0);
+					IIntentReceiver.Stub proxyIIntentReceiver = mProxyIIntentReceiver.get(token);
+					if (proxyIIntentReceiver == null) {
+						proxyIIntentReceiver = new ProxyIIntentReceiver(old);
+						mProxyIIntentReceiver.put(token, proxyIIntentReceiver);
+					}
+					WeakReference mDispatcher = LoadedApk.ReceiverDispatcher.InnerReceiver.mDispatcher.get(old);
+					LoadedApk.ReceiverDispatcher.mIIntentReceiver.set(mDispatcher.get(), proxyIIntentReceiver);
 					args[IDX_IIntentReceiver] = proxyIIntentReceiver;
-				} catch (Throwable e) {
-					e.printStackTrace();
 				}
 			}
 		}
@@ -89,9 +92,6 @@ import java.util.WeakHashMap;
 				}
 				String newAction = SpecialWidgetList.modifyAction(action);
 				if (newAction != null) {
-					iterator.set(newAction);
-				} else {
-					newAction = String.format("_VA_%s", action);
 					iterator.set(newAction);
 				}
 			}
@@ -115,13 +115,9 @@ import java.util.WeakHashMap;
 				boolean sticky, int sendingUser) throws RemoteException {
 			try {
 				String action = intent.getAction();
-				if (action.startsWith("_VA_")) {
-					intent.setAction(action.substring(4));
-				} else {
-					String oldAction = SpecialWidgetList.restoreAction(action);
-					if (oldAction != null) {
-						intent.setAction(oldAction);
-					}
+				String oldAction = SpecialWidgetList.restoreAction(action);
+				if (oldAction != null) {
+					intent.setAction(oldAction);
 				}
 				if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
 					old.performReceive(intent, resultCode, data, extras, ordered, sticky, sendingUser);
@@ -139,7 +135,7 @@ import java.util.WeakHashMap;
 		// @Override
 		public void performReceive(Intent intent, int resultCode, String data, Bundle extras, boolean ordered,
 				boolean sticky) throws android.os.RemoteException {
-			this.performReceive(intent, resultCode, data, extras, ordered, sticky, VUserHandle.USER_NULL);
+			this.performReceive(intent, resultCode, data, extras, ordered, sticky, 0);
 		}
 	}
 }

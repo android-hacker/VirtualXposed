@@ -1,17 +1,17 @@
 package com.lody.virtual.client.hook.patchs.window;
 
-import java.lang.reflect.Method;
+import android.view.IWindowSession;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.patchs.window.session.WindowSessionPatch;
 
-import android.view.IWindowSession;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
  *
  */
-/* package */ abstract class BasePatchSession extends Hook {
+/*package*/ abstract class BasePatchSession extends Hook {
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {

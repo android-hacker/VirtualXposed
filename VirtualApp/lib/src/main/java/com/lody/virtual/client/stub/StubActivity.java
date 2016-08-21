@@ -1,13 +1,12 @@
 package com.lody.virtual.client.stub;
 
-import com.lody.virtual.client.core.PatchManager;
-import com.lody.virtual.client.hook.patchs.am.HCallbackHook;
-import com.lody.virtual.helper.ExtraConstants;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
+
+import com.lody.virtual.client.core.PatchManager;
+import com.lody.virtual.client.hook.patchs.am.HCallbackHook;
 
 /**
  * @author Lody
@@ -19,8 +18,16 @@ public abstract class StubActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		Intent intent = getIntent().getParcelableExtra(ExtraConstants.EXTRA_TARGET_INTENT);
+		Intent stubIntent = getIntent();
+		try {
+			PatchManager.getInstance().checkEnv(HCallbackHook.class);
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+		// Note:
+		// ClassLoader of savedInstanceState is not exist now.
+		super.onCreate(null);
+		Intent intent = stubIntent.getParcelableExtra("_VA_|_intent_");
 		if (intent == null) {
 			if (DEBUG) {
 				Toast.makeText(this, "Ops...", Toast.LENGTH_SHORT).show();
@@ -28,11 +35,6 @@ public abstract class StubActivity extends Activity {
 		} else {
 			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 			// Fix : ActivityThread$mH
-			try {
-				PatchManager.getInstance().checkEnv(HCallbackHook.class);
-			} catch (Throwable e) {
-				e.printStackTrace();
-			}
 			overridePendingTransition(0, 0);
 			startActivity(intent);
 		}

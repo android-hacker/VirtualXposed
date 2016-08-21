@@ -1,13 +1,13 @@
 package com.lody.virtual.client.hook.patchs.display;
 
-import java.lang.reflect.Method;
+import android.hardware.display.IVirtualDisplayCallback;
+import android.media.projection.IMediaProjection;
+import android.view.Surface;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.utils.HookUtils;
 
-import android.hardware.display.IVirtualDisplayCallback;
-import android.media.projection.IMediaProjection;
-import android.view.Surface;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
