@@ -4,7 +4,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
-import java.util.Map;
 
 public final class ClassDef {
 
@@ -35,15 +34,12 @@ public final class ClassDef {
 
 
     public static Class init(Class mappingClass, Class<?> realClass) {
-        Map<Field, Object> mapping = new HashMap<>();
         Field[] fields = mappingClass.getDeclaredFields();
         for (Field field : fields) {
-            boolean retry = false;
             try {
                 if (Modifier.isStatic(field.getModifiers())) {
                     Constructor<?> constructor = REF_TYPES.get(field.getType());
                     if (constructor != null) {
-                        mapping.put(field, field.get(null));
                         field.set(null, constructor.newInstance(realClass, field));
                     }
                 }else {
@@ -51,16 +47,7 @@ public final class ClassDef {
                 }
             }
             catch (Exception e) {
-                retry = true;
-            }
-            if (retry) {
-                for (Map.Entry<Field, Object> entry : mapping.entrySet()) {
-                    try {
-                        entry.getKey().set(null, entry.getValue());
-                    } catch (Exception e) {
-                       e.printStackTrace();
-                    }
-                }
+                e.printStackTrace();
             }
         }
         return realClass;
