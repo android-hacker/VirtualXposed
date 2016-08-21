@@ -9,11 +9,8 @@ import java.util.Map;
 
 /**
  * @author Lody
- *
- *         特殊组件名单
- *
  */
-public final class SpecialWidgetList {
+public final class SpecialComponentList {
 
 	private static final List<String> ACTION_BLACK_LIST = new ArrayList<String>(1);
 

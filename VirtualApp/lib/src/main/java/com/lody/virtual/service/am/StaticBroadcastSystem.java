@@ -7,7 +7,7 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.os.Handler;
 
-import com.lody.virtual.client.env.SpecialWidgetList;
+import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.utils.collection.ArrayMap;
 import com.lody.virtual.service.pm.PackageParser;
@@ -65,11 +65,11 @@ public class StaticBroadcastSystem {
 		ListIterator<String> iterator = actions.listIterator();
 		while (iterator.hasNext()) {
 			String action = iterator.next();
-			if (SpecialWidgetList.isActionInBlackList(action)) {
+			if (SpecialComponentList.isActionInBlackList(action)) {
 				iterator.remove();
 				continue;
 			}
-			String newAction = SpecialWidgetList.modifyAction(action);
+			String newAction = SpecialComponentList.modifyAction(action);
 			if (newAction != null) {
 				iterator.set(newAction);
 			}

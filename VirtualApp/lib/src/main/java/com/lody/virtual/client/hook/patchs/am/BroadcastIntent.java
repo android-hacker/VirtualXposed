@@ -12,7 +12,7 @@ import android.text.TextUtils;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
-import com.lody.virtual.client.env.SpecialWidgetList;
+import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.helper.utils.BitmapUtils;
 import com.lody.virtual.os.VUserHandle;
@@ -63,7 +63,7 @@ import java.lang.reflect.Method;
 			handleUninstallShortcutIntent(intent);
 			return intent;
 		} else {
-			String newAction = SpecialWidgetList.modifyAction(action);
+			String newAction = SpecialComponentList.modifyAction(action);
 			if (newAction != null) {
 				intent.setAction(newAction);
 			}

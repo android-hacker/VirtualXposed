@@ -35,7 +35,7 @@ import android.util.Pair;
 import com.lody.virtual.client.IVClient;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
-import com.lody.virtual.client.env.SpecialWidgetList;
+import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.client.service.ProviderCall;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.compat.IApplicationThreadCompat;
@@ -1059,7 +1059,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		if (realIntent == null) {
 			realIntent = intent;
 		}
-		String originAction = SpecialWidgetList.restoreAction(realIntent.getAction());
+		String originAction = SpecialComponentList.restoreAction(realIntent.getAction());
 		if (originAction != null) {
 			realIntent.setAction(originAction);
 		}

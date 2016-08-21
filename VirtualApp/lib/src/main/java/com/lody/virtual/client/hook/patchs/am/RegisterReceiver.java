@@ -9,7 +9,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import com.lody.virtual.client.env.SpecialWidgetList;
+import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.utils.HookUtils;
 
@@ -85,11 +85,11 @@ import mirror.android.app.LoadedApk;
 			ListIterator<String> iterator = actions.listIterator();
 			while (iterator.hasNext()) {
 				String action = iterator.next();
-				if (SpecialWidgetList.isActionInBlackList(action)) {
+				if (SpecialComponentList.isActionInBlackList(action)) {
 					iterator.remove();
 					continue;
 				}
-				String newAction = SpecialWidgetList.modifyAction(action);
+				String newAction = SpecialComponentList.modifyAction(action);
 				if (newAction != null) {
 					iterator.set(newAction);
 				}
@@ -118,7 +118,7 @@ import mirror.android.app.LoadedApk;
 					intent = realIntent;
 				}
 				String action = intent.getAction();
-				String oldAction = SpecialWidgetList.restoreAction(action);
+				String oldAction = SpecialComponentList.restoreAction(action);
 				if (oldAction != null) {
 					intent.setAction(oldAction);
 				}
