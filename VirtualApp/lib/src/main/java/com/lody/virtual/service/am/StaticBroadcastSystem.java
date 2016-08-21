@@ -9,7 +9,6 @@ import android.os.Handler;
 
 import com.lody.virtual.client.env.SpecialWidgetList;
 import com.lody.virtual.helper.proto.AppSetting;
-import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.collection.ArrayMap;
 import com.lody.virtual.service.pm.PackageParser;
 import com.lody.virtual.service.pm.VAppManagerService;
@@ -62,7 +61,7 @@ public class StaticBroadcastSystem {
 	}
 
 	private void modifyFilter(IntentFilter filter) {
-		List<String> actions = Reflect.on(filter).get("mActions");
+		List<String> actions = mirror.android.content.IntentFilter.mActions.get(filter);
 		ListIterator<String> iterator = actions.listIterator();
 		while (iterator.hasNext()) {
 			String action = iterator.next();

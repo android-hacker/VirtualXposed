@@ -70,7 +70,6 @@ public class VAppManagerService extends IAppManager.Stub {
 	public static void systemReady() {
 		VAppManagerService instance = new VAppManagerService();
 		gService.set(instance);
-		instance.preloadAllApps();
 	}
 
 	public void preloadAllApps() {

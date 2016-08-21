@@ -49,7 +49,11 @@ public final class SpecialWidgetList {
 	}
 
 	public static String modifyAction(String originAction) {
-		return MODIFY_ACTION_MAP.get(originAction);
+		String newAction = MODIFY_ACTION_MAP.get(originAction);
+		if (newAction == null) {
+			return String.format("_VA_protected_%s", originAction);
+		}
+		return newAction;
 	}
 
 	public static String restoreAction(String action) {
@@ -59,6 +63,6 @@ public final class SpecialWidgetList {
 				return next.getKey();
 			}
 		}
-		return null;
+		return action.length() > "_VA_protected_".length() ?  action.substring("_VA_protected_".length()) : null;
 	}
 }

@@ -12,7 +12,6 @@ import android.os.RemoteException;
 import com.lody.virtual.client.env.SpecialWidgetList;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.utils.HookUtils;
-import com.lody.virtual.helper.utils.Reflect;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
@@ -82,7 +81,7 @@ import mirror.android.app.LoadedApk;
 
 	private void modifyIntentFilter(IntentFilter filter) {
 		if (filter != null) {
-			List<String> actions = Reflect.on(filter).get("mActions");
+			List<String> actions = mirror.android.content.IntentFilter.mActions.get(filter);
 			ListIterator<String> iterator = actions.listIterator();
 			while (iterator.hasNext()) {
 				String action = iterator.next();
@@ -114,6 +113,10 @@ import mirror.android.app.LoadedApk;
 		public void performReceive(Intent intent, int resultCode, String data, Bundle extras, boolean ordered,
 				boolean sticky, int sendingUser) throws RemoteException {
 			try {
+				Intent realIntent = intent.getParcelableExtra("_VA_|_intent_");
+				if (realIntent != null) {
+					intent = realIntent;
+				}
 				String action = intent.getAction();
 				String oldAction = SpecialWidgetList.restoreAction(action);
 				if (oldAction != null) {
@@ -128,7 +131,7 @@ import mirror.android.app.LoadedApk;
 					performReceive.invoke(old, intent, resultCode, data, extras, ordered, sticky);
 				}
 			} catch (Exception e) {
-				throw new RuntimeException(e);
+				e.printStackTrace();
 			}
 		}
 

@@ -12,6 +12,7 @@ import android.text.TextUtils;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
+import com.lody.virtual.client.env.SpecialWidgetList;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.helper.utils.BitmapUtils;
 import com.lody.virtual.os.VUserHandle;
@@ -39,7 +40,10 @@ import java.lang.reflect.Method;
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		Intent intent = (Intent) args[1];
 		String type = (String) args[2];
-		handleIntent(intent);
+		Intent newIntent = handleIntent(intent);
+		if (newIntent != null) {
+			args[1] = newIntent;
+		}
 		intent.setDataAndType(intent.getData(), type);
 		if (args[7] instanceof String || args[7] instanceof String[]) {
 			// clear the permission
@@ -59,6 +63,10 @@ import java.lang.reflect.Method;
 			handleUninstallShortcutIntent(intent);
 			return intent;
 		} else {
+			String newAction = SpecialWidgetList.modifyAction(action);
+			if (newAction != null) {
+				intent.setAction(newAction);
+			}
 			ComponentName component = intent.getComponent();
 			String pkg = intent.getPackage();
 			if (component != null) {
@@ -66,7 +74,7 @@ import java.lang.reflect.Method;
 					if (intent.getSelector() != null) {
 						intent.setPackage(component.getPackageName());
 					}
-					Intent newIntent = new Intent();
+					Intent newIntent = intent.cloneFilter();
 					newIntent.putExtra("_VA_|_user_id_", VUserHandle.myUserId());
 					newIntent.setAction(String.format("_VA_%s_%s", component.getPackageName(), component.getClassName()));
 					newIntent.putExtra("_VA_|_component_", component);
@@ -76,14 +84,14 @@ import java.lang.reflect.Method;
 			} else if (pkg != null) {
 				if (isAppPkg(pkg)) {
 					Intent newIntent = intent.cloneFilter();
-					newIntent.putExtra("_VA_|_user-id_", VUserHandle.myUserId());
+					newIntent.putExtra("_VA_|_user_id_", VUserHandle.myUserId());
 					newIntent.putExtra("_VA_|_creator_", pkg);
 					newIntent.putExtra("_VA_|_intent_", new Intent(intent));
 					return newIntent;
 				}
 			} else {
 				Intent newIntent = intent.cloneFilter();
-				newIntent.putExtra("_VA_|_user-id_", VUserHandle.myUserId());
+				newIntent.putExtra("_VA_|_user_id_", VUserHandle.myUserId());
 				newIntent.putExtra("_VA_|_intent_", new Intent(intent));
 				return newIntent;
 			}
