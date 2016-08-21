@@ -114,7 +114,13 @@ public class IOHook {
 		String dexOrJarPath = params[0];
 		String outputPath = params[1];
 		VLog.d(TAG, "DexOrJarPath = %s, OutputPath = %s.", dexOrJarPath, outputPath);
-		AppSetting info = sDexOverrideMap.get(dexOrJarPath);
+		String canonical = null;
+		try {
+			canonical = new File(dexOrJarPath).getCanonicalPath();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		AppSetting info = sDexOverrideMap.get(canonical);
 		if (info != null && !info.dependSystem) {
 			outputPath = info.getOdexFile().getPath();
 			params[1] = outputPath;
