@@ -204,11 +204,16 @@ public class VAppManagerService extends IAppManager.Stub {
 	public boolean uninstallApp(String pkg) {
 		synchronized (PackageCache.sPackageCaches) {
 			if (isAppInstalled(pkg)) {
-				VActivityManagerService.getService().killAppByPkg(pkg, VUserHandle.USER_ALL);
-				FileUtils.deleteDir(VEnvironment.getDataAppPackageDirectory(pkg));
-				PackageCache.remove(pkg);
-				mBroadcastSystem.stopApp(pkg);
-				notifyAppUninstalled(pkg);
+				try {
+					VActivityManagerService.getService().killAppByPkg(pkg, VUserHandle.USER_ALL);
+					FileUtils.deleteDir(VEnvironment.getDataAppPackageDirectory(pkg));
+					PackageCache.remove(pkg);
+					mBroadcastSystem.stopApp(pkg);
+				} catch (Exception e) {
+					e.printStackTrace();
+				} finally {
+					notifyAppUninstalled(pkg);
+				}
 				return true;
 			}
 		}
