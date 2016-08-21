@@ -218,7 +218,9 @@ public class VClientImpl extends IVClient.Stub {
 		}
 		mBoundApplication.info = ContextImpl.mPackageInfo.get(context);
 		fixBoundApp(mBoundApplication);
-		VMRuntime.setTargetSdkVersion.call(VMRuntime.getRuntime.call(), data.appInfo.targetSdkVersion);
+		if (VMRuntime.getRuntime != null) {
+			VMRuntime.setTargetSdkVersion.call(VMRuntime.getRuntime.call(), data.appInfo.targetSdkVersion);
+		}
 		Application app = data.info.makeApplication(false, null);
 		mInitialApplication = app;
 		mirror.android.app.ActivityThread.mInitialApplication.set(mainThread, app);
