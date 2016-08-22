@@ -5,12 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageParser;
 import android.os.Handler;
 
 import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.utils.collection.ArrayMap;
-import com.lody.virtual.service.pm.PackageParser;
 import com.lody.virtual.service.pm.VAppManagerService;
 
 import java.util.ArrayList;

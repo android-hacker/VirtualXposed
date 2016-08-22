@@ -18,6 +18,7 @@ public final class ClassDef {
             REF_TYPES.put(StaticFieldDef.class, StaticFieldDef.class.getConstructor(Class.class, Field.class));
             REF_TYPES.put(StaticIntFieldDef.class, StaticIntFieldDef.class.getConstructor(Class.class, Field.class));
             REF_TYPES.put(StaticMethodDef.class, StaticMethodDef.class.getConstructor(Class.class, Field.class));
+            REF_TYPES.put(CtorDef.class, CtorDef.class.getConstructor(Class.class, Field.class));
         }
         catch (Exception e) {
             e.printStackTrace();

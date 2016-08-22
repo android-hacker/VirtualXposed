@@ -1,5 +1,7 @@
 package com.lody.virtual.service.pm;
 
+import android.content.pm.PackageParser;
+
 import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.utils.collection.ArrayMap;
 
@@ -8,7 +10,8 @@ import com.lody.virtual.helper.utils.collection.ArrayMap;
  */
 
 public class PackageCache {
-	public static final ArrayMap<String, PackageParser.Package> sPackageCaches = new ArrayMap<>();
+
+	static final ArrayMap<String, PackageParser.Package> sPackageCaches = new ArrayMap<>();
 
 
 	public static void put(PackageParser.Package pkg, AppSetting appSetting) {

@@ -31,8 +31,9 @@ public class MethodDef<T> {
         try {
             return (T) this.method.invoke(receiver, args);
         } catch (Exception e) {
-            return null;
+            e.printStackTrace();
         }
+        return null;
     }
 
     public T callWithException(Object receiver, Object... args) throws Throwable {

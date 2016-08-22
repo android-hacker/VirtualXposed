@@ -1,6 +1,7 @@
 package com.lody.virtual.helper.proto;
 
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageParser;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -20,6 +21,7 @@ public final class AppSetting implements Parcelable {
 	public String odexDir;
 	public boolean dependSystem;
 	public int appId;
+	public transient PackageParser parser;
 
 	public AppSetting() {
 

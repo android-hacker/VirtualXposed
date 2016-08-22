@@ -3,16 +3,18 @@ package com.lody.virtual.service.pm;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageParser;
 import android.net.Uri;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
-import android.util.DisplayMetrics;
+import android.util.Pair;
 
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.helper.compat.NativeLibraryHelperCompat;
+import com.lody.virtual.helper.compat.PackageParserCompat;
 import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.proto.InstallResult;
 import com.lody.virtual.helper.utils.FileUtils;
@@ -60,12 +62,6 @@ public class VAppManagerService extends IAppManager.Stub {
 		return isBooting;
 	}
 
-	private static PackageParser.Package parsePackage(File apk, int flags) {
-		PackageParser parser = new PackageParser(apk.getPath());
-		DisplayMetrics metrics = new DisplayMetrics();
-		metrics.setToDefaults();
-		return parser.parsePackage(apk, apk.getPath(), metrics, flags);
-	}
 
 	public static void systemReady() {
 		VAppManagerService instance = new VAppManagerService();
@@ -115,8 +111,18 @@ public class VAppManagerService extends IAppManager.Stub {
 		if (!apk.exists() || !apk.isFile()) {
 			return InstallResult.makeFailure("APK File is not exist.");
 		}
-		PackageParser.Package pkg = parsePackage(apk, 0);
-		if (pkg == null || pkg.packageName == null) {
+		PackageParser.Package pkg = null;
+		PackageParser parser = null;
+		try {
+			Pair<PackageParser, PackageParser.Package> parseResult = PackageParserCompat.parsePackage(apk, 0);
+			if (parseResult != null) {
+				parser = parseResult.first;
+				pkg = parseResult.second;
+			}
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+		if (parser == null || pkg == null || pkg.packageName == null) {
 			return InstallResult.makeFailure("Unable to parse the package.");
 		}
 		InstallResult res = new InstallResult();
@@ -165,6 +171,7 @@ public class VAppManagerService extends IAppManager.Stub {
 			PackageCache.remove(pkg.packageName);
 		}
 		AppSetting appSetting = new AppSetting();
+		appSetting.parser = parser;
 		appSetting.dependSystem = dependSystem;
 		appSetting.apkPath = apk.getPath();
 		appSetting.libPath = libDir.getPath();

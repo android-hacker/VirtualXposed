@@ -8,6 +8,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageParser;
 import android.content.pm.PermissionGroupInfo;
 import android.content.pm.PermissionInfo;
 import android.content.pm.ProviderInfo;
@@ -25,6 +26,7 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.fixer.ComponentFixer;
 import com.lody.virtual.helper.compat.ObjectsCompat;
+import com.lody.virtual.helper.compat.PackageParserCompat;
 import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.proto.ReceiverInfo;
 import com.lody.virtual.helper.proto.VParceledListSlice;
@@ -249,6 +251,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		synchronized (mPackages) {
 			PackageParser.Package pkg = mPackages.get(packageName);
 			if (pkg != null) {
+				AppSetting setting = (AppSetting) pkg.mExtras;
 				if ((flags & PackageManager.GET_SIGNATURES) != 0 && pkg.mSignatures == null) {
 					if (pkg.mAppMetaData != null && pkg.mAppMetaData.containsKey(Constants.FEATURE_FAKE_SIGNATURE)) {
 						String sig = pkg.mAppMetaData.getString("fake-signature");
@@ -256,13 +259,12 @@ public class VPackageManagerService extends IPackageManager.Stub {
 							pkg.mSignatures = new Signature[] {new Signature(sig)};
 						}
 					} else {
-						PackageParser.collectCertificates(pkg, PackageParser.PARSE_IS_SYSTEM);
+						PackageParserCompat.collectCertificates(setting.parser, pkg, PackageParser.PARSE_IS_SYSTEM);
 					}
 				}
-				PackageInfo packageInfo = PackageParser.generatePackageInfo(pkg, mGids, flags,
+				PackageInfo packageInfo = PackageParserCompat.generatePackageInfo(pkg, flags,
 						getFirstInstallTime(packageName), getLastInstallTime(packageName));
 				if (packageInfo != null) {
-					AppSetting setting = (AppSetting) pkg.mExtras;
 					ComponentFixer.fixApplicationInfo(setting, packageInfo.applicationInfo, userId);
 					return packageInfo;
 				}
@@ -291,7 +293,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		synchronized (mPackages) {
 			PackageParser.Activity a = mActivities.mActivities.get(component);
 			if (a != null) {
-				ActivityInfo activityInfo = PackageParser.generateActivityInfo(a, flags);
+				ActivityInfo activityInfo = PackageParserCompat.generateActivityInfo(a, flags);
 				PackageParser.Package p = mPackages.get(activityInfo.packageName);
 				AppSetting settings = (AppSetting) p.mExtras;
 				ComponentFixer.fixComponentInfo(settings, activityInfo, userId);
@@ -324,7 +326,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		synchronized (mPackages) {
 			PackageParser.Activity a = mReceivers.mActivities.get(component);
 			if (a != null) {
-				ActivityInfo receiverInfo = PackageParser.generateActivityInfo(a, flags);
+				ActivityInfo receiverInfo = PackageParserCompat.generateActivityInfo(a, flags);
 				PackageParser.Package p = mPackages.get(receiverInfo.packageName);
 				AppSetting settings = (AppSetting) p.mExtras;
 				ComponentFixer.fixComponentInfo(settings, receiverInfo, userId);
@@ -340,7 +342,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		synchronized (mPackages) {
 			PackageParser.Service s = mServices.mServices.get(component);
 			if (s != null) {
-				ServiceInfo serviceInfo = PackageParser.generateServiceInfo(s, flags);
+				ServiceInfo serviceInfo = PackageParserCompat.generateServiceInfo(s, flags);
 				PackageParser.Package p = mPackages.get(serviceInfo.packageName);
 				AppSetting settings = (AppSetting) p.mExtras;
 				ComponentFixer.fixComponentInfo(settings, serviceInfo, userId);
@@ -356,7 +358,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		synchronized (mPackages) {
 			PackageParser.Provider p = mProvidersByComponent.get(component);
 			if (p != null) {
-				ProviderInfo providerInfo = PackageParser.generateProviderInfo(p, flags);
+				ProviderInfo providerInfo = PackageParserCompat.generateProviderInfo(p, flags);
 				PackageParser.Package pkg = mPackages.get(providerInfo.packageName);
 				AppSetting settings = (AppSetting) pkg.mExtras;
 				ComponentFixer.fixComponentInfo(settings, providerInfo, userId);
@@ -486,7 +488,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		synchronized (mPackages) {
 			for (PackageParser.Activity a : mReceivers.mActivities.values()) {
 				if (a.info.processName.equals(processName)) {
-					ActivityInfo receiverInfo = PackageParser.generateActivityInfo(a, flags);
+					ActivityInfo receiverInfo = PackageParserCompat.generateActivityInfo(a, flags);
 					if (receiverInfo != null) {
 						AppSetting settings = (AppSetting) mPackages.get(receiverInfo.packageName).mExtras;
 						ComponentFixer.fixComponentInfo(settings, receiverInfo, userId);
@@ -599,7 +601,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		synchronized (mPackages) {
 			for (PackageParser.Provider p : mProvidersByComponent.values()) {
 				if (p.info.processName.equals(processName)) {
-					ProviderInfo providerInfo = PackageParser.generateProviderInfo(p, flags);
+					ProviderInfo providerInfo = PackageParserCompat.generateProviderInfo(p, flags);
 					PackageParser.Package pkg = mPackages.get(providerInfo.packageName);
 					AppSetting setting = (AppSetting) pkg.mExtras;
 					ComponentFixer.fixApplicationInfo(setting, providerInfo.applicationInfo, userId);
@@ -643,7 +645,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		synchronized (mPackages) {
 			PackageParser.Permission p = mPermissions.get(name);
 			if (p != null) {
-				return PackageParser.generatePermissionInfo(p, flags);
+				return new PermissionInfo(p.info);
 			}
 		}
 		return null;
@@ -661,7 +663,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		synchronized (mPackages) {
 			PackageParser.PermissionGroup p = mPermissionGroups.get(name);
 			if (p != null) {
-				return PackageParser.generatePermissionGroupInfo(p, flags);
+				return new PermissionGroupInfo(p.info);
 			}
 		}
 		return null;
@@ -673,7 +675,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 			final int N = mPermissionGroups.size();
 			ArrayList<PermissionGroupInfo> out = new ArrayList<>(N);
 			for (PackageParser.PermissionGroup pg : mPermissionGroups.values()) {
-				out.add(PackageParser.generatePermissionGroupInfo(pg, flags));
+				out.add(new PermissionGroupInfo(pg.info));
 			}
 			return out;
 		}
@@ -685,7 +687,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		synchronized (mPackages) {
 			final PackageParser.Provider provider = mProvidersByAuthority.get(name);
 			if (provider != null) {
-				ProviderInfo providerInfo = PackageParser.generateProviderInfo(provider, flags);
+				ProviderInfo providerInfo = PackageParserCompat.generateProviderInfo(provider, flags);
 				PackageParser.Package p = mPackages.get(providerInfo.packageName);
 				AppSetting settings = (AppSetting) p.mExtras;
 				ComponentFixer.fixComponentInfo(settings, providerInfo, userId);
@@ -701,7 +703,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		synchronized (mPackages) {
 			PackageParser.Package pkg = mPackages.get(packageName);
 			if (pkg != null) {
-				ApplicationInfo applicationInfo = PackageParser.generateApplicationInfo(pkg, flags);
+				ApplicationInfo applicationInfo = PackageParserCompat.generateApplicationInfo(pkg, flags);
 				AppSetting settings = (AppSetting) pkg.mExtras;
 				ComponentFixer.fixApplicationInfo(settings, applicationInfo, userId);
 				return applicationInfo;
@@ -886,7 +888,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		@Override
 		protected ResolveInfo newResult(PackageParser.ActivityIntentInfo info, int match) {
 			final PackageParser.Activity activity = info.activity;
-			ActivityInfo ai = PackageParser.generateActivityInfo(activity, mFlags);
+			ActivityInfo ai = PackageParserCompat.generateActivityInfo(activity, mFlags);
 			if (ai == null) {
 				return null;
 			}
@@ -1047,7 +1049,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		@Override
 		protected ResolveInfo newResult(PackageParser.ServiceIntentInfo filter, int match) {
 			final PackageParser.Service service = filter.service;
-			ServiceInfo si = PackageParser.generateServiceInfo(service, mFlags);
+			ServiceInfo si = PackageParserCompat.generateServiceInfo(service, mFlags);
 			if (si == null) {
 				return null;
 			}
@@ -1213,7 +1215,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		@Override
 		protected ResolveInfo newResult(PackageParser.ProviderIntentInfo filter, int match) {
 			final PackageParser.Provider provider = filter.provider;
-			ProviderInfo pi = PackageParser.generateProviderInfo(provider, mFlags);
+			ProviderInfo pi = PackageParserCompat.generateProviderInfo(provider, mFlags);
 			if (pi == null) {
 				return null;
 			}

@@ -124,7 +124,7 @@ public abstract class RegisteredServicesCache<V> {
                     AtomicFile file = createFileForUser(user.id);
                     if (file.getBaseFile().exists()) {
                         if (DEBUG) {
-                            Slog.i(TAG, String.format("Loading u%s data from %s", user.id, file));
+                            Slog.i(TAG, String.format("Loading PackageUserState%s data from %s", user.id, file));
                         }
                         InputStream is = null;
                         try {
@@ -229,7 +229,7 @@ public abstract class RegisteredServicesCache<V> {
         public void onReceive(Context context, Intent intent) {
             int userId = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, -1);
             if (DEBUG) {
-                Slog.d(TAG, "u" + userId + " removed - cleaning up");
+                Slog.d(TAG, "PackageUserState" + userId + " removed - cleaning up");
             }
             onUserRemoved(userId);
         }
@@ -647,7 +647,7 @@ public abstract class RegisteredServicesCache<V> {
                         UserServices<V> userServices = mUserServices.get(user.id);
                         if (userServices != null) {
                             if (DEBUG) {
-                                Slog.i(TAG, "Migrating u" + user.id + " services "
+                                Slog.i(TAG, "Migrating PackageUserState" + user.id + " services "
                                         + userServices.persistentServices);
                             }
                             writePersistentServicesLocked(userServices, user.id);
