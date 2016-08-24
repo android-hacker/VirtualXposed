@@ -1,5 +1,5 @@
 //
-// Created by Xfast on 2016/7/21.
+// VirtualApp Native Project
 //
 #include "Hook.h"
 
@@ -7,19 +7,17 @@ static std::map<std::string/*orig_path*/, std::string/*new_path*/> IORedirectMap
 static std::map<std::string/*orig_path*/, std::string/*new_path*/> RootIORedirectMap;
 
 static inline void hook_template(const char *lib_so, const char *symbol, void *new_func, void **old_func) {
-    LOGI("hook symbol=%s, new_func=%p, old_func=%p", symbol, new_func, *old_func);
     void *handle = dlopen(lib_so, RTLD_GLOBAL | RTLD_LAZY);
     if (handle == NULL) {
-        LOGW("can't hook %s in %s: 'dlopen' %s FAILED!!!", symbol, lib_so, lib_so);
+        LOGW("Ops: unable to find the so : %s.", lib_so);
         return;
     }
     void *addr = dlsym(handle, symbol);
     if (addr == NULL) {
-        LOGW("can't hook %s in %s: 'dlsym' %s func FAILED!!!", symbol, lib_so, symbol);
+        LOGW("Ops: unable to find the symbol : %s.", symbol);
         return;
     }
     elfHookDirect((unsigned int) (addr), new_func, old_func);
-    LOGI("Hook %s in %s SUCCESS!", symbol, lib_so);
     dlclose(handle);
 }
 
@@ -77,7 +75,7 @@ const char *match_redirected_path(const char *_path) {
 
 
 void HOOK::redirect(const char *org_path, const char *new_path) {
-    LOGI("native add redirect: from %s to %s", org_path, new_path);
+    LOGI("Start redirect : from %s to %s", org_path, new_path);
     add_pair(org_path, new_path);
 }
 
@@ -96,7 +94,6 @@ const char *HOOK::restore(const char *path) {
 
 
 
-// we hook system call
 __BEGIN_DECLS
 
 // dlopen //TODO
@@ -471,7 +468,6 @@ __END_DECLS
 
 
 void HOOK::hook(int api_level) {
-    LOGI("Begin IO hooks...");
 
     //通用型
     HOOK_IO(__getcwd);
@@ -491,9 +487,6 @@ void HOOK::hook(int api_level) {
 //    HOOK_IO(vfork);
 
     if (api_level < ANDROID_L) {
-        //xxx型
-//        HOOK_IO(fchmod);
-//        HOOK_IO(fstat);
         HOOK_IO(link);
         HOOK_IO(symlink);
         HOOK_IO(readlink);
@@ -512,7 +505,6 @@ void HOOK::hook(int api_level) {
     }
 
     if (api_level >= ANDROID_L) {
-        ///xxxat型
         HOOK_IO(linkat);
         HOOK_IO(symlinkat);
         HOOK_IO(readlinkat);
@@ -528,5 +520,4 @@ void HOOK::hook(int api_level) {
         HOOK_IO(faccessat);
     }
 
-    LOGI("End IO hooks SUCCESS!!!");
 }

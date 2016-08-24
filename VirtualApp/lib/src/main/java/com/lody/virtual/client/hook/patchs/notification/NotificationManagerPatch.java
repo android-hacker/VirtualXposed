@@ -1,16 +1,17 @@
 package com.lody.virtual.client.hook.patchs.notification;
 
-import java.lang.reflect.Field;
+import android.app.INotificationManager;
+import android.app.NotificationManager;
+import android.os.Build;
+import android.widget.Toast;
 
 import com.lody.virtual.client.hook.base.HookObject;
 import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
+import com.lody.virtual.client.hook.base.StaticHook;
 
-import android.app.INotificationManager;
-import android.app.NotificationManager;
-import android.os.Build;
-import android.widget.Toast;
+import java.lang.reflect.Field;
 
 /**
  * @author Lody
@@ -20,8 +21,8 @@ import android.widget.Toast;
  * @see NotificationManager
  * @see Toast
  */
-@Patch({Hook_CancelAllNotifications.class, Hook_EnqueueNotificationWithTag.class, Hook_CancelNotificationWithTag.class,
-		Hook_EnqueueNotificationWithTagPriority.class, Hook_EnqueueNotification.class})
+@Patch({CancelAllNotifications.class, EnqueueNotificationWithTag.class, CancelNotificationWithTag.class,
+		EnqueueNotificationWithTagPriority.class, EnqueueNotification.class})
 public class NotificationManagerPatch extends PatchObject<INotificationManager, HookObject<INotificationManager>> {
 
 	public static INotificationManager getNM() {
@@ -39,6 +40,9 @@ public class NotificationManagerPatch extends PatchObject<INotificationManager, 
 		addHook(new ReplaceCallingPkgHook("enqueueToast"));
 		addHook(new ReplaceCallingPkgHook("cancelToast"));
 		addHook(new ReplaceCallingPkgHook("areNotificationsEnabledForPackage"));
+		addHook(new StaticHook("registerListener"));
+		addHook(new StaticHook("unregisterListener"));
+		addHook(new StaticHook("getAppActiveNotifications"));
 		if ("samsung".equalsIgnoreCase(Build.BRAND)) {
 			addHook(new ReplaceCallingPkgHook("removeEdgeNotification"));
 		}

@@ -1,16 +1,11 @@
 package com.lody.virtual.client.core;
 
-import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR1;
-import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR2;
-import static android.os.Build.VERSION_CODES.KITKAT;
-import static android.os.Build.VERSION_CODES.LOLLIPOP;
-import static android.os.Build.VERSION_CODES.LOLLIPOP_MR1;
-
-import java.util.HashMap;
-import java.util.Map;
+import android.os.Build;
+import android.provider.Settings;
 
 import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.delegate.AppInstrumentation;
+import com.lody.virtual.client.hook.patchs.accessibility.AccessibilityPatch;
 import com.lody.virtual.client.hook.patchs.account.AccountManagerPatch;
 import com.lody.virtual.client.hook.patchs.alerm.AlarmManagerPatch;
 import com.lody.virtual.client.hook.patchs.am.ActivityManagerPatch;
@@ -21,6 +16,7 @@ import com.lody.virtual.client.hook.patchs.audio.AudioManagerPatch;
 import com.lody.virtual.client.hook.patchs.backup.BackupManagerPatch;
 import com.lody.virtual.client.hook.patchs.camera.CameraPatch;
 import com.lody.virtual.client.hook.patchs.clipboard.ClipBoardPatch;
+import com.lody.virtual.client.hook.patchs.content.ContentServicePatch;
 import com.lody.virtual.client.hook.patchs.display.DisplayManagerPatch;
 import com.lody.virtual.client.hook.patchs.dropbox.DropBoxManagerPatch;
 import com.lody.virtual.client.hook.patchs.graphics.GraphicsStatsPatch;
@@ -49,8 +45,14 @@ import com.lody.virtual.client.interfaces.IHookObject;
 import com.lody.virtual.client.interfaces.Injectable;
 import com.lody.virtual.helper.utils.Reflect;
 
-import android.os.Build;
-import android.provider.Settings;
+import java.util.HashMap;
+import java.util.Map;
+
+import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR1;
+import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR2;
+import static android.os.Build.VERSION_CODES.KITKAT;
+import static android.os.Build.VERSION_CODES.LOLLIPOP;
+import static android.os.Build.VERSION_CODES.LOLLIPOP_MR1;
 
 /**
  * @author Lody
@@ -116,10 +118,18 @@ public final class PatchManager {
 	}
 
 	private void injectInternal() throws Throwable {
-		addPatch(new ActivityManagerPatch());
-		addPatch(new PackageManagerPatch());
-
+		if (VirtualCore.getCore().isMainProcess()) {
+			addPatch(new ActivityManagerPatch());
+			return;
+		} else if (VirtualCore.getCore().isServiceProcess()) {
+			addPatch(new ActivityManagerPatch());
+			addPatch(new PackageManagerPatch());
+			return;
+		}
 		if (VirtualCore.getCore().isVAppProcess()) {
+			addPatch(new ActivityManagerPatch());
+			addPatch(new PackageManagerPatch());
+//			addPatch(new LibCorePatch());
 			// ## Fuck the MIUI Security
 			if (MIUISecurityManagerPatch.needInject()) {
 				addPatch(new MIUISecurityManagerPatch());
@@ -144,6 +154,8 @@ public final class PatchManager {
 			addPatch(new AudioManagerPatch());
 			addPatch(new SearchManagerPatch());
 			addPatch(new AlarmManagerPatch());
+			addPatch(new AccessibilityPatch());
+			addPatch(new ContentServicePatch());
 
 			if (Build.VERSION.SDK_INT >= JELLY_BEAN_MR2) {
 				addPatch(new VibratorPatch());

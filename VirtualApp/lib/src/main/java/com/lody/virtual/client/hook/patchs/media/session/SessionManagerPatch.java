@@ -1,14 +1,14 @@
 package com.lody.virtual.client.hook.patchs.media.session;
 
-import com.lody.virtual.client.hook.base.Patch;
-import com.lody.virtual.client.hook.base.PatchObject;
-import com.lody.virtual.client.hook.binders.HookSessionBinder;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.session.ISessionManager;
 import android.os.Build;
 import android.os.ServiceManager;
+
+import com.lody.virtual.client.hook.base.Patch;
+import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.binders.HookSessionBinder;
 
 /**
  * @author Lody
@@ -18,7 +18,7 @@ import android.os.ServiceManager;
  * @see ISessionManager
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-@Patch({Hook_CreateSession.class})
+@Patch({CreateSession.class})
 public class SessionManagerPatch extends PatchObject<ISessionManager, HookSessionBinder> {
 	@Override
 	protected HookSessionBinder initHookObject() {
@@ -28,6 +28,11 @@ public class SessionManagerPatch extends PatchObject<ISessionManager, HookSessio
 	@Override
 	public void inject() throws Throwable {
 		getHookObject().injectService(Context.MEDIA_SESSION_SERVICE);
+	}
+
+	@Override
+	protected void applyHooks() {
+		super.applyHooks();
 	}
 
 	@Override

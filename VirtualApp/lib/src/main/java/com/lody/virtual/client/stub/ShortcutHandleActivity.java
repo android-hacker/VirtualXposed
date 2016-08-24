@@ -1,13 +1,13 @@
 package com.lody.virtual.client.stub;
 
-import java.net.URISyntaxException;
-
-import com.lody.virtual.helper.ExtraConstants;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+
+import com.lody.virtual.client.core.VirtualCore;
+
+import java.net.URISyntaxException;
 
 /**
  * @author Lody
@@ -15,23 +15,30 @@ import android.os.Bundle;
  */
 public class ShortcutHandleActivity extends Activity {
 
+	private static boolean needPreloadApp = false;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Intent intent = getIntent();
 		if (intent != null) {
+			if (needPreloadApp) {
+				// Ensure the all apps loaded.
+				VirtualCore.getCore().preloadAllApps();
+				needPreloadApp = false;
+			}
 			Intent forwardIntent = getTargetIntent();
 			if (forwardIntent != null) {
 				forwardIntent.putExtras(intent);
-				if (Build.VERSION.SDK_INT >= 15) {
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
 					forwardIntent.setSelector(null);
-					try {
-						startActivity(forwardIntent);
-					} catch (Throwable e) {
-						e.printStackTrace();
-					}
-					finish();
 				}
+				try {
+					startActivity(forwardIntent);
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
+				finish();
 			}
 		}
 	}
@@ -40,8 +47,8 @@ public class ShortcutHandleActivity extends Activity {
 		Intent intent = getIntent();
 		try {
 			if (intent != null) {
-				Intent targetIntent = intent.getParcelableExtra(ExtraConstants.EXTRA_TARGET_INTENT);
-				String targetUri = intent.getStringExtra(ExtraConstants.EXTRA_TARGET_URI);
+				Intent targetIntent = intent.getParcelableExtra("_VA_|_intent_");
+				String targetUri = intent.getStringExtra("_VA_|_uri_");
 				if (targetUri != null) {
 					try {
 						return Intent.parseUri(targetUri, 0);

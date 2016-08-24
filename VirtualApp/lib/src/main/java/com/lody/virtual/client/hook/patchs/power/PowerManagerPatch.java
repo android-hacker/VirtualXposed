@@ -1,17 +1,18 @@
 package com.lody.virtual.client.hook.patchs.power;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import android.content.Context;
+import android.os.IPowerManager;
+import android.os.ServiceManager;
 
 import com.lody.virtual.client.hook.base.HookBinder;
 import com.lody.virtual.client.hook.base.PatchObject;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
 import com.lody.virtual.client.hook.base.ReplaceSequencePkgHook;
+import com.lody.virtual.client.hook.base.ResultStaticHook;
 import com.lody.virtual.client.hook.binders.HookPowerBinder;
 
-import android.content.Context;
-import android.os.IPowerManager;
-import android.os.ServiceManager;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -56,8 +57,8 @@ public class PowerManagerPatch extends PatchObject<IPowerManager, HookPowerBinde
 					return onHandleError(e);
 				}
 			}
-
 		});
+		addHook(new ResultStaticHook("updateWakeLockWorkSource", 0));
 	}
 
 	private Object onHandleError(InvocationTargetException e) throws Throwable {

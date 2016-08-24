@@ -1,12 +1,14 @@
 package com.lody.virtual.client.hook.base;
 
-import java.lang.reflect.Method;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.proto.AppInfo;
-
 import android.content.Context;
 import android.content.pm.PackageManager;
+
+import com.lody.virtual.client.VClientImpl;
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.proto.AppSetting;
+
+import java.lang.reflect.Method;
+import java.util.LinkedList;
 
 /**
  * @author Lody
@@ -15,6 +17,18 @@ import android.content.pm.PackageManager;
 public abstract class Hook {
 
 	private boolean enable = true;
+	private LinkedList<SubModule> subModules;
+
+	public void addSubModule(SubModule module) {
+		if (subModules == null) {
+			subModules = new LinkedList<>();
+		}
+		subModules.offer(module);
+	}
+
+	public abstract class SubModule {
+		public abstract void apply(Object who, Method method, Object... args);
+	}
 
 	/**
 	 * @return Hook的方法名
@@ -22,8 +36,16 @@ public abstract class Hook {
 	public abstract String getName();
 
 	public boolean beforeHook(Object who, Method method, Object... args) {
+		if (subModules != null) {
+			for (SubModule subModule : subModules) {
+				subModule.apply(who, method, args);
+			}
+		}
 		return true;
 	}
+
+
+
 
 	/**
 	 * Hook回调
@@ -60,7 +82,7 @@ public abstract class Hook {
 		return VirtualCore.getCore().getContext();
 	}
 
-	protected final AppInfo findAppInfo(String pkg) {
+	protected final AppSetting findAppInfo(String pkg) {
 		return VirtualCore.getCore().findApp(pkg);
 	}
 
@@ -76,7 +98,22 @@ public abstract class Hook {
 		return VirtualCore.getCore().isMainProcess();
 	}
 
+	protected final int getVUid() {
+		return VClientImpl.getClient().getVUid();
+	}
+
+	protected final boolean isSystemProcess() {
+		return isMainProcess() || isServiceProcess();
+	}
+
 	protected final PackageManager getUnhookPM() {
 		return VirtualCore.getCore().getUnHookPackageManager();
+	}
+
+
+
+	@Override
+	public String toString() {
+		return "Hook${ " + getName() + " }";
 	}
 }

@@ -19,34 +19,18 @@ public class ArrayUtils {
 		return -1;
 	}
 
-	public static int indexOfFirstAssignable(Object[] array, Class<?> type) {
-		if (!isEmpty(array)) {
-			int N = -1;
-			for (Object one : array) {
-				N++;
-				if (one != null && type.isAssignableFrom(one.getClass())) {
-					return N;
-				}
+	public static int indexOfObject(Object[] array, Class<?> type, int sequence) {
+		if (array == null) {
+			return -1;
+		}
+		while (sequence < array.length) {
+			if (type.isInstance(array[sequence])) {
+				return sequence;
 			}
+			sequence++;
 		}
 		return -1;
 	}
-
-	public static int indexOfAssignable(Object[] array, Class<?> type, int sequence) {
-		if (!isEmpty(array)) {
-			int N = -1;
-			for (Object one : array) {
-				N++;
-				if (one != null && type.isAssignableFrom(one.getClass())) {
-					if (--sequence <= 0) {
-						return N;
-					}
-				}
-			}
-		}
-		return -1;
-	}
-
 	public static int indexOf(Object[] array, Class<?> type, int sequence) {
 		if (!isEmpty(array)) {
 			int N = -1;
@@ -76,15 +60,6 @@ public class ArrayUtils {
 
 	public static <T> boolean isEmpty(T[] array) {
 		return array == null || array.length == 0;
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <T> T getSecond(Object[] args, Class<?> clazz) {
-		int index = indexOf(args, clazz, 2);
-		if (index != -1) {
-			return (T) args[index];
-		}
-		return null;
 	}
 
 	@SuppressWarnings("unchecked")

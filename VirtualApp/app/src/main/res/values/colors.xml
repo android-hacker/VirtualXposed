@@ -19,4 +19,7 @@
         <item>@color/holo_red_dark</item>
     </integer-array>
 
+    <color name="transparent">#00000000</color>
+    <color name="black_20_transparent">#55000000</color>
+
 </resources>

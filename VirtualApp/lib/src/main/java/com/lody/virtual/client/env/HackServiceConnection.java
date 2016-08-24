@@ -1,16 +1,5 @@
 package com.lody.virtual.client.env;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Map;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.hook.binders.StubBinder;
-import com.lody.virtual.helper.utils.VLog;
-
 import android.app.IServiceConnection;
 import android.content.ComponentName;
 import android.content.Context;
@@ -18,6 +7,17 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.IInterface;
 import android.os.RemoteException;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.hook.binders.StubBinder;
+import com.lody.virtual.helper.utils.VLog;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Lody
@@ -166,7 +166,7 @@ public class HackServiceConnection extends IServiceConnection.Stub {
 			}
 		}
 		stringBuilder.append(")");
-		VLog.d("Hook-SecondaryService", stringBuilder.toString());
+		VLog.d(TAG, stringBuilder.toString());
 	}
 
 	@Override

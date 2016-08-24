@@ -23,5 +23,6 @@
         <item name="colorPrimaryDark">@android:color/background_dark</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
     </style>
 </resources>

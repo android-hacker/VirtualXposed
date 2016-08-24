@@ -1,8 +1,8 @@
 package com.lody.virtual.client.env;
 
-import com.lody.virtual.client.stub.ShortcutHandleActivity;
-
 import android.content.Intent;
+
+import com.lody.virtual.client.stub.ShortcutHandleActivity;
 
 /**
  * @author Lody
@@ -39,16 +39,21 @@ public class Constants {
 	 * patches/android_frameworks_base-M.patch.
 	 */
 	public static final String FEATURE_FAKE_SIGNATURE = "fake-signature";
-	public static final String VIRTUAL_ACTION_PACKAGE_ADDED = "Virtual." + Intent.ACTION_PACKAGE_ADDED;
-	public static final String VIRTUAL_ACTION_PACKAGE_REMOVED = "Virtual." + Intent.ACTION_PACKAGE_REMOVED;
-	public static final String VIRTUAL_ACTION_PACKAGE_CHANGED = "Virtual." + Intent.ACTION_PACKAGE_CHANGED;
+	public static final String ACTION_PACKAGE_ADDED = "virtual." + Intent.ACTION_PACKAGE_ADDED;
+	public static final String ACTION_PACKAGE_REMOVED = "virtual." + Intent.ACTION_PACKAGE_REMOVED;
+	public static final String ACTION_PACKAGE_CHANGED = "virtual." + Intent.ACTION_PACKAGE_CHANGED;
 	/**
 	 * The activity who handle the shortcut.
 	 */
-	public static String SHORTCUT_PROXY_ACTIVITY_NAME = ShortcutHandleActivity.class.getName();
+	public static final String SHORTCUT_PROXY_ACTIVITY_NAME = ShortcutHandleActivity.class.getName();
 
-	public static String ACTION_INSTALL_PACKAGE = "android.intent.action.VIRTUAL_INSTALL_PACKAGE";
+	public static final String ACTION_INSTALL_PACKAGE = "android.intent.action.VIRTUAL_INSTALL_PACKAGE";
 
-	public static String ACTION_UNINSTALL_PACKAGE = "android.intent.action.VIRTUAL_UNINSTALL_PACKAGE";
+	public static final String ACTION_UNINSTALL_PACKAGE = "android.intent.action.VIRTUAL_UNINSTALL_PACKAGE";
+	
+	public static final String ACTION_USER_ADDED = "virtual." + Intent.ACTION_USER_ADDED;
+	public static final String ACTION_USER_REMOVED = "virtual." + Intent.ACTION_USER_REMOVED;
+	public static final String ACTION_USER_INFO_CHANGED = "virtual." + Intent.ACTION_USER_INFO_CHANGED;
 
+	public static final String ACTION_USER_STARTED = "Virtual." + Intent.ACTION_USER_STARTED;
 }

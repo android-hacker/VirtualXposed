@@ -1,16 +1,19 @@
 package com.lody.virtual.client.hook.base;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.HashMap;
-import java.util.Map;
+import android.text.TextUtils;
 
 import com.lody.virtual.client.interfaces.IHookObject;
 import com.lody.virtual.helper.utils.VLog;
 
-import android.text.TextUtils;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import libcore.io.Os;
 
 /**
  * @author Lody
@@ -55,15 +58,16 @@ public class HookObject<T> implements IHookObject<T> {
 	 *            要添加的Hook
 	 */
 	@Override
-	public void addHook(Hook hook) {
+	public Hook addHook(Hook hook) {
 		if (hook != null && !TextUtils.isEmpty(hook.getName())) {
 			if (internalHookMapping.containsKey(hook.getName())) {
 				VLog.w(TAG, "Hook(%s) from class(%s) have been added, can't add again.", hook.getName(),
 						hook.getClass().getName());
-				return;
+				return hook;
 			}
 			internalHookMapping.put(hook.getName(), hook);
 		}
+		return hook;
 	}
 
 	/**
@@ -141,6 +145,9 @@ public class HookObject<T> implements IHookObject<T> {
 	private class HookHandler implements InvocationHandler {
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+			if (!(method.getDeclaringClass() == Os.class)) {
+				VLog.v("XXXXXXXXXXXXXXX", "%s call %s (%s).", method.getDeclaringClass().getSimpleName(), method.getName(), Arrays.toString(args));
+			}
 			Hook hook = getHook(method.getName());
 			try {
 				if (hook != null && hook.isEnable()) {
@@ -151,12 +158,14 @@ public class HookObject<T> implements IHookObject<T> {
 					}
 				}
 				return method.invoke(mBaseObject, args);
-			} catch (Throwable e) {
-				if (e instanceof InvocationTargetException) {
-					throw e.getCause();
-				} else {
-					throw e;
+			} catch (InvocationTargetException e) {
+				Throwable cause = e.getTargetException();
+				if (cause != null) {
+					throw cause;
 				}
+				throw e;
+			} catch (Throwable e) {
+				throw e;
 			}
 		}
 	}

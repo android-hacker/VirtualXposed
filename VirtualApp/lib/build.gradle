@@ -13,7 +13,7 @@ android {
             moduleName "iohook"
             stl "stlport_static"
             ldLibs "log"
-            abiFilters "armeabi"//, "x86"
+            abiFilters "armeabi", "x86"
         }
     }
     buildTypes {

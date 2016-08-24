@@ -1,5 +1,5 @@
 //
-// Created by Xfast on 2016/7/21.
+// VirtualApp Native Project
 //
 #include "core.h"
 
@@ -7,7 +7,19 @@
 JavaVM *g_vm;
 jclass g_jclass;
 
-void hook(JNIEnv *env, jclass jclazz, jint apiLevel) {
+
+
+void hook_native(JNIEnv *env, jclass jclazz, jobject javaMethod, jboolean isArt) {
+    static bool hasHooked = false;
+    if (hasHooked) {
+        return;
+    }
+    hookNative(javaMethod, isArt);
+    hasHooked = true;
+}
+
+
+void hook_io(JNIEnv *env, jclass jclazz, jint apiLevel) {
     static bool hasHooked = false;
     if (hasHooked) {
         return;
@@ -35,37 +47,46 @@ jstring restore(JNIEnv *env, jclass jclazz, jstring redirectedPath) {
 }
 
 
+
 static JNINativeMethod gMethods[] = {
-        NATIVE_METHOD((void *) redirect, "nativeRedirect", "(Ljava/lang/String;Ljava/lang/String;)V"),
-        NATIVE_METHOD((void *) hook,     "nativeHook",     "(I)V"),
-        //...hum
+        NATIVE_METHOD((void *) hook_io,  "nativeHook",                  "(I)V"),
+        NATIVE_METHOD((void *) redirect, "nativeRedirect",              "(Ljava/lang/String;Ljava/lang/String;)V"),
         NATIVE_METHOD((void *) query,    "nativeGetRedirectedPath",     "(Ljava/lang/String;)Ljava/lang/String;"),
         NATIVE_METHOD((void *) restore,  "nativeRestoreRedirectedPath", "(Ljava/lang/String;)Ljava/lang/String;"),
-//        NATIVE_METHOD((void *) reject,  "rejectPath",             "(Ljava/lang/String;)V"),
+
+        NATIVE_METHOD((void *) hook_native, "nativeHookNative", "(Ljava/lang/Object;Z)V"),
 };
 
 
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv *env;
-    if (vm->GetEnv((void **) &env, JNI_VERSION_1_4) != JNI_OK) {
-        LOGE("GetEnv() FAILED!!!");
+    if (vm->GetEnv((void **) &env, JNI_VERSION_1_6) != JNI_OK) {
         return JNI_ERR;
     }
     jclass javaClass = env->FindClass(JAVA_CLASS);
     if (javaClass == NULL) {
-        LOGE("unable to find class: %s", JAVA_CLASS);
+        LOGE("Ops: Unable to find hook class.");
         return JNI_ERR;
     }
-    env->UnregisterNatives(javaClass);
     if (env->RegisterNatives(javaClass, gMethods, NELEM(gMethods)) < 0) {
-        LOGE("register methods FAILED!!!");
+        LOGE("Ops: Unable to register the native methods.");
         return JNI_ERR;
     }
     g_vm = vm;
     g_jclass = (jclass) env->NewGlobalRef(javaClass);
     env->DeleteLocalRef(javaClass);
-    LOGI("JavaVM::GetEnv() SUCCESS!");
-    return JNI_VERSION_1_4;
+    return JNI_VERSION_1_6;
+}
+
+
+
+JNIEXPORT void JNICALL JNI_OnUnload(JavaVM* vm, void* reserved) {
+    JNIEnv *env;
+    if (vm->GetEnv((void **) &env, JNI_VERSION_1_6) != JNI_OK) {
+        return;
+    }
+    env->DeleteGlobalRef((jobject)g_vm);
+    env->DeleteGlobalRef((jobject)g_jclass);
 }
 

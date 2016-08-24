@@ -19,7 +19,7 @@ import android.os.ServiceManager;
  * @see android.media.MediaRouter
  */
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-@Patch({Hook_RegisterClientAsUser.class})
+@Patch({RegisterClientAsUser.class})
 public class MediaRouterServicePatch extends PatchObject<IMediaRouterService, HookMediaRouterBinder> {
 	@Override
 	protected HookMediaRouterBinder initHookObject() {

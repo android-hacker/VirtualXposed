@@ -1,72 +1,41 @@
 package com.lody.virtual.service.am;
 
-import android.util.SparseArray;
+import com.lody.virtual.helper.utils.collection.ArrayMap;
+import com.lody.virtual.helper.utils.collection.SparseArray;
 
-import java.util.HashMap;
-import java.util.Map;
+public class ProcessMap<E> {
+	final ArrayMap<String, SparseArray<E>> mMap = new ArrayMap<>();
 
-/**
- * @author Lody
- */
-
-public class ProcessMap {
-
-	final Map<String, Integer> mProcessByNames = new HashMap<>(10);
-	final SparseArray<ProcessRecord> mProcessByPids = new SparseArray<>(10);
-
-	public ProcessRecord get(int pid) {
-		return mProcessByPids.get(pid);
+	public E get(String name, int uid) {
+		SparseArray<E> uids = mMap.get(name);
+		if (uids == null)
+			return null;
+		return uids.get(uid);
 	}
 
-	public ProcessRecord get(String processName) {
-		Integer pid = mProcessByNames.get(processName);
-		if (pid != null) {
-			return get(pid);
+	public E put(String name, int uid, E value) {
+		SparseArray<E> uids = mMap.get(name);
+		if (uids == null) {
+			uids = new SparseArray<E>(2);
+			mMap.put(name, uids);
+		}
+		uids.put(uid, value);
+		return value;
+	}
+
+	public E remove(String name, int uid) {
+		SparseArray<E> uids = mMap.get(name);
+		if (uids != null) {
+			final E old = uids.removeReturnOld(uid);
+			if (uids.size() == 0) {
+				mMap.remove(name);
+			}
+			return old;
 		}
 		return null;
 	}
 
-	public ProcessRecord get(StubInfo stubInfo) {
-		for (int N = 0; N < mProcessByPids.size(); N++) {
-			ProcessRecord r = mProcessByPids.valueAt(N);
-			if (r.stubInfo.equals(stubInfo)) {
-				return r;
-			}
-		}
-		return null;
+	public ArrayMap<String, SparseArray<E>> getMap() {
+		return mMap;
 	}
-
-	public void put(ProcessRecord record) {
-		int pid = record.pid;
-		String processName = record.processName;
-		mProcessByNames.put(processName, pid);
-		mProcessByPids.put(pid, record);
-	}
-
-	public void foreach(Visitor visitor) {
-		for (int N = 0; N < mProcessByPids.size(); N++) {
-			ProcessRecord r = mProcessByPids.valueAt(N);
-			if (!visitor.accept(r)) {
-				break;
-			}
-		}
-	}
-
-	public ProcessRecord remove(int pid) {
-		ProcessRecord record = mProcessByPids.get(pid);
-		if (record != null) {
-			mProcessByNames.remove(record.processName);
-			mProcessByPids.remove(pid);
-		}
-		return record;
-	}
-
-	public interface Visitor {
-		/**
-		 *
-		 * @return should break foreach?
-		 */
-		boolean accept(ProcessRecord record);
-	}
-
 }

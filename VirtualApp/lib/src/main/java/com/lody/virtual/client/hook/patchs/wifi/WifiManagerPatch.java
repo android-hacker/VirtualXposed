@@ -15,7 +15,7 @@ import android.os.ServiceManager;
  * @see IWifiManager
  * @see android.net.wifi.WifiManager
  */
-@Patch({Hook_GetBatchedScanResults.class, Hook_GetScanResults.class, Hook_SetWifiEnabled.class})
+@Patch({GetBatchedScanResults.class, GetScanResults.class, SetWifiEnabled.class})
 public class WifiManagerPatch extends PatchObject<IWifiManager, HookWifiBinder> {
 	@Override
 	protected HookWifiBinder initHookObject() {

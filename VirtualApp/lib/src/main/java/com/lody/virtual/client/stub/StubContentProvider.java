@@ -1,14 +1,12 @@
 package com.lody.virtual.client.stub;
 
-import com.lody.virtual.client.VClientImpl;
-import com.lody.virtual.client.local.VActivityManager;
-import com.lody.virtual.helper.ExtraConstants;
-import com.lody.virtual.helper.MethodConstants;
-import com.lody.virtual.helper.compat.BundleCompat;
-import com.lody.virtual.helper.component.BaseContentProvider;
-
 import android.os.Bundle;
 import android.os.IBinder;
+
+import com.lody.virtual.client.VClientImpl;
+import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.helper.compat.BundleCompat;
+import com.lody.virtual.helper.component.BaseContentProvider;
 
 /**
  * @author Lody
@@ -18,7 +16,7 @@ public abstract class StubContentProvider extends BaseContentProvider {
 
 	@Override
 	public Bundle call(String method, String arg, Bundle extras) {
-		if (MethodConstants.INIT_PROCESS.equals(method)) {
+		if ("_VA_|_init_process_".equals(method)) {
 			initProcess(extras);
 			return null;
 		}
@@ -26,10 +24,10 @@ public abstract class StubContentProvider extends BaseContentProvider {
 	}
 
 	private void initProcess(Bundle extras) {
-		IBinder token = BundleCompat.getBinder(extras, ExtraConstants.EXTRA_BINDER);
+		IBinder token = BundleCompat.getBinder(extras,"_VA_|_binder_");
 		VClientImpl client = VClientImpl.getClient();
 		client.setToken(token);
-		VActivityManager.getInstance().attachClient(client);
+		VActivityManager.get().attachClient(client);
 	}
 
 	public static class C0 extends StubContentProvider {

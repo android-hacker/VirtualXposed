@@ -14,7 +14,7 @@ import android.os.ServiceManager;
  * @author Lody
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-@Patch({Hook_Connect.class, Hook_ConnectDevice.class, Hook_ConnectLegacy.class, Hook_ConnectPro.class,})
+@Patch({Connect.class, ConnectDevice.class, ConnectLegacy.class, ConnectPro.class,})
 public class CameraPatch extends PatchObject<ICameraService, HookCameraBinder> {
 
 	@Override

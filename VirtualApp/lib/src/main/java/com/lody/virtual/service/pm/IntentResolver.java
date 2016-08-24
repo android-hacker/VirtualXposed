@@ -16,6 +16,15 @@
 
 package com.lody.virtual.service.pm;
 
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.Uri;
+import android.os.Build;
+import android.util.Log;
+import android.util.LogPrinter;
+
+import com.lody.virtual.helper.utils.VLog;
+
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,16 +35,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
-import com.lody.virtual.helper.utils.VLog;
-
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.Uri;
-import android.os.Build;
-import android.util.Log;
-import android.util.LogPrinter;
-import android.util.Printer;
 
 /**
  * {@hide}
@@ -610,11 +609,6 @@ public abstract class IntentResolver<F extends IntentFilter, R extends Object> {
 		final String packageName = intent.getPackage();
 
 		final boolean excludingStopped = intent.isExcludingStopped();
-
-		final Printer logPrinter;
-		final PrintWriter logPrintWriter;
-		logPrinter = null;
-		logPrintWriter = null;
 
 		final int N = src != null ? src.length : 0;
 		boolean hasNonDefaults = false;

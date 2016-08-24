@@ -8,7 +8,7 @@ import com.lody.virtual.client.hook.base.Hook;
  */
 public interface IHookObject<T> {
 
-	void addHook(Hook hook);
+	Hook addHook(Hook hook);
 
 	Hook removeHook(String hookName);
 

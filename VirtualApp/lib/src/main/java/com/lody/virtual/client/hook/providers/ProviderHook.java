@@ -1,12 +1,16 @@
 package com.lody.virtual.client.hook.providers;
 
 import android.content.IContentProvider;
+import android.content.pm.ProviderInfo;
 import android.net.Uri;
 import android.os.Bundle;
+
+import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,13 +28,13 @@ public class ProviderHook implements InvocationHandler {
 	static {
 		PROVIDER_MAP.put("settings", new HookFetcher() {
 			@Override
-			public ProviderHook fetch(IContentProvider provider) {
+			public ProviderHook fetch(boolean external, ProviderInfo info, IContentProvider provider) {
 				return new SettingsProviderHook(provider);
 			}
 		});
 		PROVIDER_MAP.put("downloads", new HookFetcher() {
 			@Override
-			public ProviderHook fetch(IContentProvider provider) {
+			public ProviderHook fetch(boolean external, ProviderInfo info, IContentProvider provider) {
 				return new DownloadProviderHook(provider);
 			}
 		});
@@ -47,8 +51,11 @@ public class ProviderHook implements InvocationHandler {
 		if (fetcher == null) {
 			fetcher = new HookFetcher() {
 				@Override
-				public ProviderHook fetch(IContentProvider provider) {
-					return new ExternalProviderHook(provider);
+				public ProviderHook fetch(boolean external, ProviderInfo info, IContentProvider provider) {
+					if (external) {
+						return new ExternalProviderHook(provider);
+					}
+					return null;
 				}
 			};
 		}
@@ -65,6 +72,7 @@ public class ProviderHook implements InvocationHandler {
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+		VLog.d("###########", "call: %s (%s)", method.getName(), Arrays.toString(args));
 		try {
 			processArgs(method, args);
 		} catch (Throwable e) {
@@ -79,6 +87,7 @@ public class ProviderHook implements InvocationHandler {
 			}
 			return method.invoke(mBase, args);
 		} catch (Throwable e) {
+			VLog.d("###########", "call: %s (%s) with error", method.getName(), Arrays.toString(args));
 			if (e instanceof InvocationTargetException) {
 				throw e.getCause();
 			}
@@ -91,6 +100,6 @@ public class ProviderHook implements InvocationHandler {
 	}
 
 	public interface HookFetcher {
-		ProviderHook fetch(IContentProvider provider);
+		ProviderHook fetch(boolean external, ProviderInfo info, IContentProvider provider);
 	}
 }

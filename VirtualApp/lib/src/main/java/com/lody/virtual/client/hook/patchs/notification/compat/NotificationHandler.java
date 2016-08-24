@@ -9,6 +9,7 @@ import android.app.Notification;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Looper;
 import android.widget.RemoteViews;
 
 /**
@@ -85,6 +86,11 @@ public class NotificationHandler {
 	private Notification replaceNotification(Context context, String packageName, Notification notification)
 			throws PackageManager.NameNotFoundException, ClassNotFoundException, NoSuchMethodException,
 			InvocationTargetException, IllegalAccessException {
+		// notification Animation run need looper
+		// check before running.
+		if (Looper.myLooper() == null) {
+			Looper.prepare();
+		}
 		Context pluginContext = getContext(context, packageName);
 		if (pluginContext == null) {
 			return null;

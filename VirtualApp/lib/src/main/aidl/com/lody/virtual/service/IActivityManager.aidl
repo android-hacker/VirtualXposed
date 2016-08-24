@@ -1,10 +1,9 @@
 // IActivityManager.aidl
 package com.lody.virtual.service;
 
-import com.lody.virtual.helper.proto.VRedirectActRequest;
-import com.lody.virtual.helper.proto.VActRedirectResult;
 import com.lody.virtual.helper.proto.VParceledListSlice;
 import com.lody.virtual.helper.proto.AppTaskInfo;
+import com.lody.virtual.helper.proto.PendingIntentData;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.app.Notification;
@@ -14,6 +13,10 @@ import com.lody.virtual.service.interfaces.IProcessObserver;
 
 
 interface IActivityManager {
+
+    int getSystemPid();
+
+    int getUidByPid(int pid);
 
     void attachClient(in IBinder clinet);
 
@@ -27,7 +30,7 @@ interface IActivityManager {
 
     void killAllApps();
 
-    void killAppByPkg(String pkg);
+    void killAppByPkg(String pkg, int userId);
 
     void killApplicationProcess(String procName, int uid);
 
@@ -41,10 +44,10 @@ interface IActivityManager {
 
     void handleApplicationCrash();
 
-    void appDoneExecuting(in String packageName);
+    void appDoneExecuting();
 
 
-    VActRedirectResult redirectTargetActivity(in VRedirectActRequest request);
+    Intent startActivity(in Intent intent, in ActivityInfo info, in IBinder resultTo, in Bundle options, int userId);
 
     void onActivityCreated(in IBinder token, in ActivityInfo info, in ActivityInfo caller, int taskId);
 
@@ -85,8 +88,13 @@ interface IActivityManager {
 
     VParceledListSlice getServices(int maxNum, int flags);
 
-    void publishContentProviders(in List<ContentProviderHolder> holderList);
+    void ensureAppBound(in String processName, in String packageName, int userId);
 
-    ContentProviderHolder getContentProvider(String auth);
+    IBinder acquireProviderClient(int userId, in ProviderInfo info);
 
+    PendingIntentData getPendingIntent(IBinder binder);
+
+    void addPendingIntent(IBinder binder, String packageName);
+
+    void removePendingIntent(IBinder binder);
 }

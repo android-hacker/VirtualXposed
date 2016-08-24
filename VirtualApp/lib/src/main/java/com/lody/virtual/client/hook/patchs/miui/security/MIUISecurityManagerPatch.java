@@ -14,7 +14,7 @@ import miui.security.ISecurityManager;
 /**
  * @author Lody
  */
-@Patch({Hook_ActivityResume.class,})
+@Patch({ActivityResume.class,})
 public class MIUISecurityManagerPatch extends PatchObject<ISecurityManager, HookMIUISecurityBinder> {
 
 	private static final String TAG = MIUISecurityManagerPatch.class.getSimpleName();
