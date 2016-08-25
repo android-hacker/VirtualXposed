@@ -7,12 +7,9 @@ import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.RemoteException;
 
-import com.android.internal.content.ReferrerIntent;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
-import com.lody.virtual.helper.compat.IApplicationThreadCompat;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.os.VBinder;
 
@@ -20,6 +17,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+
+import mirror.android.app.IApplicationThread;
+import mirror.com.android.internal.content.ReferrerIntent;
 
 /**
  * @author Lody
@@ -33,11 +33,11 @@ import java.util.ListIterator;
 
 	public ActivityStack(VActivityManagerService mService) {
 		this.mService = mService;
-		mAM = (ActivityManager) VirtualCore.getCore().getContext().getSystemService(Context.ACTIVITY_SERVICE);
+		mAM = (ActivityManager) VirtualCore.get().getContext().getSystemService(Context.ACTIVITY_SERVICE);
 	}
 
 	public Intent startActivityLocked(int userId, Intent intent, ActivityInfo info, IBinder resultTo, Bundle options) {
-		boolean fromHost =  VBinder.getCallingUid() == VirtualCore.getCore().myUid();
+		boolean fromHost =  VBinder.getCallingUid() == VirtualCore.get().myUid();
 		Intent newIntent = new Intent();
 		if (fromHost) {
 			newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -158,16 +158,12 @@ import java.util.ListIterator;
 	private void scheduleNewIntent(Intent intent, ActivityInfo info, IBinder token, ProcessRecord record) {
 		List<Intent> intents = new ArrayList<>(1);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-			ReferrerIntent referrerIntent = new ReferrerIntent(intent, info.packageName);
+			Intent referrerIntent = ReferrerIntent.ctor.newInstance(intent, info.packageName);
 			intents.add(referrerIntent);
 		} else {
 			intents.add(intent);
 		}
-		try {
-			IApplicationThreadCompat.scheduleNewIntent(record.thread, intents, token);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
+		IApplicationThread.scheduleNewIntent.call(record.thread, intents, token);
 	}
 
 	public ActivityTaskRecord findTask(String affinity) {

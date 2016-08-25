@@ -43,13 +43,13 @@ public class InstallerActivity extends Activity {
 
 	public void installVirtualApp(String path) throws Throwable {
 		int flags = InstallStrategy.UPDATE_IF_EXIST | InstallStrategy.DEPEND_SYSTEM_IF_EXIST;
-		VirtualCore.getCore().installApp(path, flags);
+		VirtualCore.get().installApp(path, flags);
 		Toast.makeText(this, "Install finish!", Toast.LENGTH_SHORT).show();
 		finish();
 	}
 
 	public void unInstallVirtualApp(String packageName) {
-		VirtualCore.getCore().uninstallApp(packageName);
+		VirtualCore.get().uninstallApp(packageName);
 		Toast.makeText(this, "Uninstall finish!", Toast.LENGTH_SHORT).show();
 		finish();
 	}

@@ -1,7 +1,5 @@
 package com.lody.virtual.client.fixer;
 
-import com.lody.virtual.helper.utils.Reflect;
-
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.WallpaperManager;
@@ -15,6 +13,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 
+import mirror.com.android.internal.R_styleable;
+
 /**
  * @author Lody
  *
@@ -27,10 +27,9 @@ public final class ActivityFixer {
 	public static void fixActivity(Activity activity) {
 		Context baseContext = activity.getBaseContext();
 		try {
-			Reflect styleable = Reflect.on(com.android.internal.R.styleable.class);
-			TypedArray typedArray = activity.obtainStyledAttributes((int[]) styleable.get("Window"));
+			TypedArray typedArray = activity.obtainStyledAttributes((R_styleable.Window.get()));
 			if (typedArray != null) {
-				boolean showWallpaper = typedArray.getBoolean((Integer) styleable.get("Window_windowShowWallpaper"),
+				boolean showWallpaper = typedArray.getBoolean(R_styleable.Window_windowShowWallpaper.get(),
 						false);
 				if (showWallpaper) {
 					activity.getWindow().setBackgroundDrawable(WallpaperManager.getInstance(activity).getDrawable());

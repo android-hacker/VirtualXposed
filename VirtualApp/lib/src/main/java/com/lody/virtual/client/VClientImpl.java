@@ -1,21 +1,18 @@
 package com.lody.virtual.client;
 
-import android.app.ActivityThread;
 import android.app.Application;
 import android.app.Instrumentation;
-import android.app.LoadedApk;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.IContentProvider;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
-import android.content.res.CompatibilityInfo;
 import android.os.Build;
 import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.IInterface;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
@@ -35,7 +32,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import mirror.android.app.ActivityThread;
 import mirror.android.app.ContextImpl;
+import mirror.android.app.LoadedApk;
 import mirror.dalvik.system.VMRuntime;
 
 /**
@@ -81,8 +80,8 @@ public class VClientImpl extends IVClient.Stub {
 	}
 
 	public ClassLoader getClassLoader(ApplicationInfo appInfo) {
-		LoadedApk apk = VirtualCore.mainThread().getPackageInfoNoCheck(appInfo, CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO);
-		return apk.getClassLoader();
+		Context context = createPackageContext(appInfo.packageName);
+		return context.getClassLoader();
 	}
 
 
@@ -92,7 +91,7 @@ public class VClientImpl extends IVClient.Stub {
 		List<String> sharedPackages;
 		List<ProviderInfo> providers;
 		List<String> usesLibraries;
-		LoadedApk info;
+		Object info;
 		int vuid;
 	}
 
@@ -110,7 +109,7 @@ public class VClientImpl extends IVClient.Stub {
 
 	@Override
 	public IBinder getAppThread() throws RemoteException {
-		return VirtualCore.mainThread().getApplicationThread();
+		return ActivityThread.getApplicationThread.call(VirtualCore.mainThread());
 	}
 
 	@Override
@@ -173,7 +172,7 @@ public class VClientImpl extends IVClient.Stub {
 			e.printStackTrace();
 		}
 		IOHook.hookNative();
-		ActivityThread mainThread = VirtualCore.mainThread();
+		Object mainThread = VirtualCore.mainThread();
 		IOHook.startDexOverride();
 		List<String> libraries = new ArrayList<>();
 		if (data.usesLibraries != null) {
@@ -209,17 +208,11 @@ public class VClientImpl extends IVClient.Stub {
 			}
 		}
 		data.appInfo.sharedLibraryFiles = libraries.toArray(new String[libraries.size()]);
-		Context context;
-		try {
-			Context hostContext = VirtualCore.getCore().getContext();
-			context = hostContext.createPackageContext(data.appInfo.packageName, Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
-		} catch (PackageManager.NameNotFoundException e) {
-			throw new RuntimeException(e);
-		}
+		Context context = createPackageContext(data.appInfo.packageName);
 		mBoundApplication.info = ContextImpl.mPackageInfo.get(context);
 		fixBoundApp(mBoundApplication);
 		VMRuntime.setTargetSdkVersion.call(VMRuntime.getRuntime.call(), data.appInfo.targetSdkVersion);
-		Application app = data.info.makeApplication(false, null);
+		Application app = LoadedApk.makeApplication.call(data.info, false, null);
 		mInitialApplication = app;
 		mirror.android.app.ActivityThread.mInitialApplication.set(mainThread, app);
 		ContextFixer.fixContext(app);
@@ -241,8 +234,17 @@ public class VClientImpl extends IVClient.Stub {
 		VActivityManager.get().appDoneExecuting();
 	}
 
+	private Context createPackageContext(String packageName) {
+		try {
+			Context hostContext = VirtualCore.get().getContext();
+			return hostContext.createPackageContext(packageName, Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
+		} catch (PackageManager.NameNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	private void fixBoundApp(AppBindData data) {
-		ActivityThread thread = VirtualCore.mainThread();
+		Object thread = VirtualCore.mainThread();
 		mirror.android.app.ActivityThread.mBoundApplication.get(thread);
 		mirror.android.app.ActivityThread.AppBindData.appInfo.set(thread, data.appInfo);
 		mirror.android.app.ActivityThread.AppBindData.processName.set(thread, data.processName);
@@ -250,7 +252,7 @@ public class VClientImpl extends IVClient.Stub {
 	}
 
 	private void installContentProviders(Context context, List<ProviderInfo> providers) {
-		ActivityThread mainThread = VirtualCore.mainThread();
+		Object mainThread = VirtualCore.mainThread();
 		for (ProviderInfo cpi : providers) {
 			mirror.android.app.ActivityThread.installProvider(mainThread, context, cpi);
 		}
@@ -276,10 +278,10 @@ public class VClientImpl extends IVClient.Stub {
 		if (!isBound() || !isProviderInitialized) {
 			lock.block();
 		}
-		IContentProvider provider = null;
+		IInterface provider = null;
 		String[] authorities = sSplitAuthorityPattern.split(info.authority);
 		String authority = (authorities == null || authorities.length == 0) ? info.authority : authorities[0];
-		ContentResolver resolver = VirtualCore.getCore().getContext().getContentResolver();
+		ContentResolver resolver = VirtualCore.get().getContext().getContentResolver();
 		ContentProviderClient client;
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 			client = resolver.acquireUnstableContentProviderClient(authority);

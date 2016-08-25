@@ -8,6 +8,7 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.service.ServiceManagerNative;
+import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.service.IAccountManager;
 
 /**
@@ -32,81 +33,9 @@ public class VAccountManager {
 		return mRemote;
 	}
 
-	public String getPassword(Account account) {
+	public AuthenticatorDescription[] getAuthenticatorTypes() {
 		try {
-			return getRemote().getPassword(account);
-		} catch (RemoteException e) {
-			return VirtualRuntime.crash(e);
-		}
-	}
-
-	public String getUserData(Account account, String key) {
-		try {
-			return getRemote().getUserData(account, key);
-		} catch (RemoteException e) {
-			return VirtualRuntime.crash(e);
-		}
-	}
-
-	public AuthenticatorDescription[] getAuthenticatorTypes(int userId) {
-		try {
-			return getRemote().getAuthenticatorTypes(userId);
-		} catch (RemoteException e) {
-			return VirtualRuntime.crash(e);
-		}
-	}
-
-	public Account[] getAccounts(String accountType) {
-		try {
-			return getRemote().getAccounts(accountType);
-		} catch (RemoteException e) {
-			return VirtualRuntime.crash(e);
-		}
-	}
-
-	public Account[] getAccountsForPackage(String packageName, int uid) {
-		try {
-			return getRemote().getAccountsForPackage(packageName, uid);
-		} catch (RemoteException e) {
-			return VirtualRuntime.crash(e);
-		}
-	}
-
-	public Account[] getAccountsByTypeForPackage(String type, String packageName) {
-		try {
-			return getRemote().getAccountsByTypeForPackage(type, packageName);
-		} catch (RemoteException e) {
-			return VirtualRuntime.crash(e);
-		}
-	}
-
-	public Account[] getAccountsAsUser(String accountType, int userId) {
-		try {
-			return getRemote().getAccountsAsUser(accountType, userId);
-		} catch (RemoteException e) {
-			return VirtualRuntime.crash(e);
-		}
-	}
-
-	public void hasFeatures(IAccountManagerResponse response, Account account, String[] features) {
-		try {
-			getRemote().hasFeatures(response, account, features);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void getAccountsByFeatures(IAccountManagerResponse response, String accountType, String[] features) {
-		try {
-			getRemote().getAccountsByFeatures(response, accountType, features);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public boolean addAccountExplicitly(Account account, String password, Bundle extras) {
-		try {
-			return getRemote().addAccountExplicitly(account, password, extras);
+			return getRemote().getAuthenticatorTypes(VUserHandle.myUserId());
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
@@ -114,135 +43,55 @@ public class VAccountManager {
 
 	public void removeAccount(IAccountManagerResponse response, Account account, boolean expectActivityLaunch) {
 		try {
-			getRemote().removeAccount(response, account, expectActivityLaunch);
+			getRemote().removeAccount(VUserHandle.myUserId(), response, account, expectActivityLaunch);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void removeAccountAsUser(IAccountManagerResponse response, Account account, boolean expectActivityLaunch, int userId) {
+	public void getAuthToken(IAccountManagerResponse response, Account account, String authTokenType, boolean notifyOnAuthFailure, boolean expectActivityLaunch, Bundle loginOptions) {
 		try {
-			getRemote().removeAccountAsUser(response, account, expectActivityLaunch, userId);
+			getRemote().getAuthToken(VUserHandle.myUserId(), response, account, authTokenType, notifyOnAuthFailure, expectActivityLaunch, loginOptions);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public boolean removeAccountExplicitly(Account account) {
+	public boolean addAccountExplicitly(Account account, String password, Bundle extras) {
 		try {
-			return getRemote().removeAccountExplicitly(account);
+			return getRemote().addAccountExplicitly(VUserHandle.myUserId(), account, password, extras);
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
 	}
 
-	public void copyAccountToUser(IAccountManagerResponse response, Account account, int userFrom, int userTo) {
+	public Account[] getAccounts(String type) {
 		try {
-			getRemote().copyAccountToUser(response, account, userFrom, userTo);
+			return getRemote().getAccounts(VUserHandle.myUserId(), type);
 		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void invalidateAuthToken(String accountType, String authToken) {
-		try {
-			getRemote().invalidateAuthToken(accountType, authToken);
-		} catch (RemoteException e) {
-			e.printStackTrace();
+			return VirtualRuntime.crash(e);
 		}
 	}
 
 	public String peekAuthToken(Account account, String authTokenType) {
 		try {
-			return getRemote().peekAuthToken(account, authTokenType);
+			return getRemote().peekAuthToken(VUserHandle.myUserId(), account, authTokenType);
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
 	}
 
-	public void setAuthToken(Account account, String authTokenType, String authToken) {
+	public String getPreviousName(Account account) {
 		try {
-			getRemote().setAuthToken(account, authTokenType, authToken);
+			return getRemote().getPreviousName(VUserHandle.myUserId(), account);
 		} catch (RemoteException e) {
-			e.printStackTrace();
+			return VirtualRuntime.crash(e);
 		}
 	}
 
-	public void setPassword(Account account, String password) {
+	public void hasFeatures(IAccountManagerResponse response, Account account, String[] features) {
 		try {
-			getRemote().setPassword(account, password);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void clearPassword(Account account) {
-		try {
-			getRemote().clearPassword(account);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void setUserData(Account account, String key, String value) {
-		try {
-			getRemote().setUserData(account, key, value);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void updateAppPermission(Account account, String authTokenType, int uid, boolean value) {
-		try {
-			getRemote().updateAppPermission(account, authTokenType, uid, value);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void getAuthToken(IAccountManagerResponse response, Account account, String authTokenType, boolean notifyOnAuthFailure, boolean expectActivityLaunch, Bundle options) {
-		try {
-			getRemote().getAuthToken(response, account, authTokenType, notifyOnAuthFailure, expectActivityLaunch, options);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void addAccount(IAccountManagerResponse response, String accountType, String authTokenType, String[] requiredFeatures, boolean expectActivityLaunch, Bundle options) {
-		try {
-			getRemote().addAccount(response, accountType, authTokenType, requiredFeatures, expectActivityLaunch, options);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void addAccountAsUser(IAccountManagerResponse response, String accountType, String authTokenType, String[] requiredFeatures, boolean expectActivityLaunch, Bundle options, int userId) {
-		try {
-			getRemote().addAccountAsUser(response, accountType, authTokenType, requiredFeatures, expectActivityLaunch, options, userId);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void updateCredentials(IAccountManagerResponse response, Account account, String authTokenType, boolean expectActivityLaunch, Bundle options) {
-		try {
-			getRemote().updateCredentials(response, account, authTokenType, expectActivityLaunch, options);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void editProperties(IAccountManagerResponse response, String accountType, boolean expectActivityLaunch) {
-		try {
-			getRemote().editProperties(response, accountType, expectActivityLaunch);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void confirmCredentialsAsUser(IAccountManagerResponse response, Account account, Bundle options, boolean expectActivityLaunch, int userId) {
-		try {
-			getRemote().confirmCredentialsAsUser(response, account, options, expectActivityLaunch, userId);
+			getRemote().hasFeatures(VUserHandle.myUserId(), response, account, features);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -250,63 +99,127 @@ public class VAccountManager {
 
 	public boolean accountAuthenticated(Account account) {
 		try {
-			return getRemote().accountAuthenticated(account);
+			return getRemote().accountAuthenticated(VUserHandle.myUserId(), account);
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
 	}
 
-	public void getAuthTokenLabel(IAccountManagerResponse response, String accountType, String authTokenType) {
+	public void clearPassword(Account account) {
 		try {
-			getRemote().getAuthTokenLabel(response, accountType, authTokenType);
+			getRemote().clearPassword(VUserHandle.myUserId(), account);
 		} catch (RemoteException e) {
 			e.printStackTrace();
-		}
-	}
-
-	public boolean addSharedAccountAsUser(Account account, int userId) {
-		try {
-			return getRemote().addSharedAccountAsUser(account, userId);
-		} catch (RemoteException e) {
-			return VirtualRuntime.crash(e);
-		}
-	}
-
-	public Account[] getSharedAccountsAsUser(int userId) {
-		try {
-			return getRemote().getSharedAccountsAsUser(userId);
-		} catch (RemoteException e) {
-			return VirtualRuntime.crash(e);
-		}
-	}
-
-	public boolean removeSharedAccountAsUser(Account account, int userId) {
-		try {
-			return getRemote().removeSharedAccountAsUser(account, userId);
-		} catch (RemoteException e) {
-			return VirtualRuntime.crash(e);
 		}
 	}
 
 	public void renameAccount(IAccountManagerResponse response, Account accountToRename, String newName) {
 		try {
-			getRemote().renameAccount(response, accountToRename, newName);
+			getRemote().renameAccount(VUserHandle.myUserId(), response, accountToRename, newName);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public String getPreviousName(Account account) {
+	public void setPassword(Account account, String password) {
 		try {
-			return getRemote().getPreviousName(account);
+			getRemote().setPassword(VUserHandle.myUserId(), account, password);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void addAccount(IAccountManagerResponse response, String accountType, String authTokenType, String[] requiredFeatures, boolean expectActivityLaunch, Bundle optionsIn) {
+		try {
+			getRemote().addAccount(VUserHandle.myUserId(), response, accountType, authTokenType, requiredFeatures, expectActivityLaunch, optionsIn);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void updateCredentials(IAccountManagerResponse response, Account account, String authTokenType, boolean expectActivityLaunch, Bundle loginOptions) {
+		try {
+			getRemote().updateCredentials(VUserHandle.myUserId(), response, account, authTokenType, expectActivityLaunch, loginOptions);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public boolean removeAccountExplicitly(Account account) {
+		try {
+			return getRemote().removeAccountExplicitly(VUserHandle.myUserId(), account);
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
 	}
 
-	public boolean renameSharedAccountAsUser(Account accountToRename, String newName, int userId) {
+	public void setUserData(Account account, String key, String value) {
 		try {
-			return getRemote().renameSharedAccountAsUser(accountToRename, newName, userId);
+			getRemote().setUserData(VUserHandle.myUserId(), account, key, value);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void editProperties(IAccountManagerResponse response, String accountType, boolean expectActivityLaunch) {
+		try {
+			getRemote().editProperties(VUserHandle.myUserId(), response, accountType, expectActivityLaunch);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void getAuthTokenLabel(IAccountManagerResponse response, String accountType, String authTokenType) {
+		try {
+			getRemote().getAuthTokenLabel(VUserHandle.myUserId(), response, accountType, authTokenType);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void confirmCredentials(IAccountManagerResponse response, Account account, Bundle options, boolean expectActivityLaunch) {
+		try {
+			getRemote().confirmCredentials(VUserHandle.myUserId(), response, account, options, expectActivityLaunch);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void invalidateAuthToken(String accountType, String authToken) {
+		try {
+			getRemote().invalidateAuthToken(VUserHandle.myUserId(), accountType, authToken);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void getAccountsByFeatures(IAccountManagerResponse response, String type, String[] features) {
+		try {
+			getRemote().getAccountsByFeatures(VUserHandle.myUserId(), response, type, features);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void setAuthToken(Account account, String authTokenType, String authToken) {
+		try {
+			getRemote().setAuthToken(VUserHandle.myUserId(), account, authTokenType, authToken);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public Object getPassword(Account account) {
+		try {
+			return getRemote().getPassword(VUserHandle.myUserId(), account);
+		} catch (RemoteException e) {
+			return VirtualRuntime.crash(e);
+		}
+	}
+
+	public String getUserData(Account account, String key) {
+		try {
+			return getRemote().getUserData(VUserHandle.myUserId(), account, key);
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}

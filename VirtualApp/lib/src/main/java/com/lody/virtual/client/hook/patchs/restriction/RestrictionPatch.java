@@ -1,35 +1,35 @@
 package com.lody.virtual.client.hook.patchs.restriction;
 
-import com.lody.virtual.client.hook.base.PatchObject;
-import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
-import com.lody.virtual.client.hook.binders.HookRestrictionBinder;
-
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.IRestrictionsManager;
 import android.os.Build;
-import android.os.ServiceManager;
+
+import com.lody.virtual.client.hook.base.PatchDelegate;
+import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
+import com.lody.virtual.client.hook.binders.RestrictionBinderDelegate;
+
+import mirror.android.os.ServiceManager;
 
 /**
  * @author Lody
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class RestrictionPatch extends PatchObject<IRestrictionsManager, HookRestrictionBinder> {
+public class RestrictionPatch extends PatchDelegate<RestrictionBinderDelegate> {
 
 	@Override
-	protected HookRestrictionBinder initHookObject() {
-		return new HookRestrictionBinder();
+	protected RestrictionBinderDelegate createHookDelegate() {
+		return new RestrictionBinderDelegate();
 	}
 
 	@Override
 	public void inject() throws Throwable {
-		getHookObject().injectService(Context.RESTRICTIONS_SERVICE);
+		getHookDelegate().replaceService(Context.RESTRICTIONS_SERVICE);
 
 	}
 
 	@Override
-	protected void applyHooks() {
-		super.applyHooks();
+	protected void onBindHooks() {
+		super.onBindHooks();
 		addHook(new ReplaceCallingPkgHook("getApplicationRestrictions"));
 		addHook(new ReplaceCallingPkgHook("notifyPermissionResponse"));
 		addHook(new ReplaceCallingPkgHook("requestPermission"));
@@ -37,7 +37,7 @@ public class RestrictionPatch extends PatchObject<IRestrictionsManager, HookRest
 
 	@Override
 	public boolean isEnvBad() {
-		return ServiceManager.getService(Context.RESTRICTIONS_SERVICE) != getHookObject();
+		return ServiceManager.getService.call(Context.RESTRICTIONS_SERVICE) != getHookDelegate();
 	}
 
 }

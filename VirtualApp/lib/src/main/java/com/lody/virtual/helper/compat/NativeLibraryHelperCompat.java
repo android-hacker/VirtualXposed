@@ -3,7 +3,6 @@ package com.lody.virtual.helper.compat;
 import android.annotation.TargetApi;
 import android.os.Build;
 
-import com.android.internal.content.NativeLibraryHelper;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
 
@@ -14,6 +13,7 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import mirror.com.android.internal.content.NativeLibraryHelper;
 import mirror.dalvik.system.VMRuntime;
 
 public class NativeLibraryHelperCompat {
@@ -41,7 +41,7 @@ public class NativeLibraryHelperCompat {
 	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 	private static int copyNativeBinariesAfterL(File apkFile, File sharedLibraryDir) {
 		try {
-			NativeLibraryHelper.Handle handle = NativeLibraryHelper.Handle.create(apkFile);
+			Object handle = NativeLibraryHelper.Handle.create.call(apkFile);
 			if (handle == null) {
 				return -1;
 			}
@@ -54,14 +54,14 @@ public class NativeLibraryHelperCompat {
 			boolean is64Bit = VMRuntime.is64Bit.call(VMRuntime.getRuntime.call());
 			if (is64Bit && isVM64(abiSet)) {
 				if (Build.SUPPORTED_64_BIT_ABIS.length > 0) {
-					int abiIndex = NativeLibraryHelper.findSupportedAbi(handle, Build.SUPPORTED_64_BIT_ABIS);
+					int abiIndex = NativeLibraryHelper.findSupportedAbi.call(handle, Build.SUPPORTED_64_BIT_ABIS);
 					if (abiIndex >= 0) {
 						abi = Build.SUPPORTED_64_BIT_ABIS[abiIndex];
 					}
 				}
 			} else {
 				if (Build.SUPPORTED_32_BIT_ABIS.length > 0) {
-					int abiIndex = NativeLibraryHelper.findSupportedAbi(handle, Build.SUPPORTED_32_BIT_ABIS);
+					int abiIndex = NativeLibraryHelper.findSupportedAbi.call(handle, Build.SUPPORTED_32_BIT_ABIS);
 					if (abiIndex >= 0) {
 						abi = Build.SUPPORTED_32_BIT_ABIS[abiIndex];
 					}
@@ -74,7 +74,7 @@ public class NativeLibraryHelperCompat {
 			} else {
 				VLog.d(TAG, "Choose ABI : %s [%s].", abi, apkFile.getPath());
 			}
-			return NativeLibraryHelper.copyNativeBinaries(handle, sharedLibraryDir, abi);
+			return NativeLibraryHelper.copyNativeBinaries.call(handle, sharedLibraryDir, abi);
 		} catch (Throwable e) {
 			VLog.d(TAG, "copyNativeBinaries with error : %s", e.getLocalizedMessage());
 			e.printStackTrace();

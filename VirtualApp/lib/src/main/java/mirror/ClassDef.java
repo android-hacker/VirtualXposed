@@ -48,7 +48,7 @@ public final class ClassDef {
                 }
             }
             catch (Exception e) {
-                e.printStackTrace();
+                // Ignore
             }
         }
         return realClass;

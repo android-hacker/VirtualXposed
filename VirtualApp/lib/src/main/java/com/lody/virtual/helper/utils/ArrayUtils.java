@@ -1,10 +1,37 @@
 package com.lody.virtual.helper.utils;
 
+import com.lody.virtual.helper.compat.ObjectsCompat;
+
 /**
  * @author Lody
  *
  */
 public class ArrayUtils {
+
+	public static <T> boolean contains(T[] array, T value) {
+		return indexOf(array, value) != -1;
+	}
+	public static boolean contains(int[] array, int value) {
+		if (array == null) return false;
+		for (int element : array) {
+			if (element == value) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Return first index of {@code value} in {@code array}, or {@code -1} if
+	 * not found.
+	 */
+	public static <T> int indexOf(T[] array, T value) {
+		if (array == null) return -1;
+		for (int i = 0; i < array.length; i++) {
+			if (ObjectsCompat.equals(array[i], value)) return i;
+		}
+		return -1;
+	}
 
 	public static int indexOfFirst(Object[] array, Class<?> type) {
 		if (!isEmpty(array)) {

@@ -31,7 +31,6 @@ import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.proto.ReceiverInfo;
 import com.lody.virtual.helper.proto.VParceledListSlice;
 import com.lody.virtual.helper.utils.ComponentUtils;
-import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.service.IPackageManager;
 
@@ -55,7 +54,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 
 	private static final boolean DEBUG_SHOW_INFO = false;
 	private static final AtomicReference<VPackageManagerService> gService = new AtomicReference<>();
-	private static final Comparator<ResolveInfo> mResolvePrioritySorter = new Comparator<ResolveInfo>() {
+	static final Comparator<ResolveInfo> mResolvePrioritySorter = new Comparator<ResolveInfo>() {
 		public int compare(ResolveInfo r1, ResolveInfo r2) {
 			int v1 = r1.priority;
 			int v2 = r2.priority;
@@ -75,9 +74,6 @@ public class VPackageManagerService extends IPackageManager.Stub {
 			if (v1 != v2) {
 				return (v1 > v2) ? -1 : 1;
 			}
-			if (r1.system != r2.system) {
-				return r1.system ? -1 : 1;
-			}
 			return 0;
 		}
 	};
@@ -92,7 +88,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 	final ActivityIntentResolver mActivities = new ActivityIntentResolver();
 	final ServiceIntentResolver mServices = new ServiceIntentResolver();
 	final ActivityIntentResolver mReceivers = new ActivityIntentResolver();
-	final ProviderIntentResolver mProviders = new ProviderIntentResolver();
+	final ProviderIntentResolver mProviders = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ?  new ProviderIntentResolver() : null;
 
 	final HashMap<ComponentName, PackageParser.Provider> mProvidersByComponent = new HashMap<>();
 
@@ -102,21 +98,15 @@ public class VPackageManagerService extends IPackageManager.Stub {
 
 	private final Map<String, PackageParser.Package> mPackages = PackageCache.sPackageCaches;
 
-	private int[] mGids;
 
-
-	public VPackageManagerService(int[] gids) {
-		this.mGids = gids;
-	}
 
 	public static void systemReady() {
-		int[] gids = VirtualCore.getCore().getGids();
-		VPackageManagerService instance = new VPackageManagerService(gids);
-		new VUserManagerService(VirtualCore.getCore().getContext(), instance, new char[0], instance.mPackages);
+		VPackageManagerService instance = new VPackageManagerService();
+		new VUserManagerService(VirtualCore.get().getContext(), instance, new char[0], instance.mPackages);
 		gService.set(instance);
 	}
 
-	public static VPackageManagerService getService() {
+	public static VPackageManagerService get() {
 		return gService.get();
 	}
 
@@ -243,7 +233,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 				|| "android.permission.INTERACT_ACROSS_USERS_FULL".equals(permName)) {
 			return PackageManager.PERMISSION_DENIED;
 		}
-		return VirtualCore.getCore().getPackageManager().checkPermission(permName, VirtualCore.getCore().getHostPkg());
+		return VirtualCore.get().getPackageManager().checkPermission(permName, VirtualCore.get().getHostPkg());
 	}
 
 	@Override
@@ -282,7 +272,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 	}
 
 	public void checkUserId(int userId) {
-		if (!VUserManagerService.getInstance().exists(userId)) {
+		if (!VUserManagerService.get().exists(userId)) {
 			throw new SecurityException("The userId: " + userId + " is not exist.");
 		}
 	}
@@ -906,7 +896,6 @@ public class VPackageManagerService extends IPackageManager.Stub {
 			res.labelRes = info.labelRes;
 			res.nonLocalizedLabel = info.nonLocalizedLabel;
 			res.icon = info.icon;
-			res.system = isSystemApp(res.activityInfo.applicationInfo);
 			return res;
 		}
 
@@ -917,12 +906,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 
 		@Override
 		protected void dumpFilter(PrintWriter out, String prefix, PackageParser.ActivityIntentInfo filter) {
-			out.print(prefix);
-			out.print(Integer.toHexString(System.identityHashCode(filter.activity)));
-			out.print(' ');
-			filter.activity.printComponentShortName(out);
-			out.print(" filter ");
-			out.println(Integer.toHexString(System.identityHashCode(filter)));
+
 		}
 
 		@Override
@@ -931,17 +915,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		}
 
 		protected void dumpFilterLabel(PrintWriter out, String prefix, Object label, int count) {
-			PackageParser.Activity activity = (PackageParser.Activity) label;
-			out.print(prefix);
-			out.print(Integer.toHexString(System.identityHashCode(activity)));
-			out.print(' ');
-			activity.printComponentShortName(out);
-			if (count > 1) {
-				out.print(" (");
-				out.print(count);
-				out.print(" filters)");
-			}
-			out.println();
+
 		}
 	}
 
@@ -992,10 +966,6 @@ public class VPackageManagerService extends IPackageManager.Stub {
 			int j;
 			for (j = 0; j < NI; j++) {
 				PackageParser.ServiceIntentInfo intent = s.intents.get(j);
-				if (DEBUG_SHOW_INFO) {
-					Log.v(TAG, "    IntentFilter:");
-					intent.dump(new LogPrinter(Log.VERBOSE, TAG), "      ");
-				}
 				addFilter(intent);
 			}
 		}
@@ -1010,10 +980,6 @@ public class VPackageManagerService extends IPackageManager.Stub {
 			int j;
 			for (j = 0; j < NI; j++) {
 				PackageParser.ServiceIntentInfo intent = s.intents.get(j);
-				if (DEBUG_SHOW_INFO) {
-					Log.v(TAG, "    IntentFilter:");
-					intent.dump(new LogPrinter(Log.VERBOSE, TAG), "      ");
-				}
 				removeFilter(intent);
 			}
 		}
@@ -1065,7 +1031,6 @@ public class VPackageManagerService extends IPackageManager.Stub {
 			res.labelRes = filter.labelRes;
 			res.nonLocalizedLabel = filter.nonLocalizedLabel;
 			res.icon = filter.icon;
-			res.system = isSystemApp(res.serviceInfo.applicationInfo);
 			return res;
 		}
 
@@ -1076,12 +1041,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 
 		@Override
 		protected void dumpFilter(PrintWriter out, String prefix, PackageParser.ServiceIntentInfo filter) {
-			out.print(prefix);
-			out.print(Integer.toHexString(System.identityHashCode(filter.service)));
-			out.print(' ');
-			filter.service.printComponentShortName(out);
-			out.print(" filter ");
-			out.println(Integer.toHexString(System.identityHashCode(filter)));
+
 		}
 
 		@Override
@@ -1090,183 +1050,8 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		}
 
 		protected void dumpFilterLabel(PrintWriter out, String prefix, Object label, int count) {
-			PackageParser.Service service = (PackageParser.Service) label;
-			out.print(prefix);
-			out.print(Integer.toHexString(System.identityHashCode(service)));
-			out.print(' ');
-			service.printComponentShortName(out);
-			if (count > 1) {
-				out.print(" (");
-				out.print(count);
-				out.print(" filters)");
-			}
-			out.println();
+
 		}
 	}
 
-	private final class ProviderIntentResolver extends IntentResolver<PackageParser.ProviderIntentInfo, ResolveInfo> {
-		private final HashMap<ComponentName, PackageParser.Provider> mProviders = new HashMap<>();
-		private int mFlags;
-
-		public List<ResolveInfo> queryIntent(Intent intent, String resolvedType, boolean defaultOnly) {
-			mFlags = defaultOnly ? PackageManager.MATCH_DEFAULT_ONLY : 0;
-			return super.queryIntent(intent, resolvedType, defaultOnly);
-		}
-
-		public List<ResolveInfo> queryIntent(Intent intent, String resolvedType, int flags) {
-			mFlags = flags;
-			return super.queryIntent(intent, resolvedType, (flags & PackageManager.MATCH_DEFAULT_ONLY) != 0);
-		}
-
-		public List<ResolveInfo> queryIntentForPackage(Intent intent, String resolvedType, int flags,
-				ArrayList<PackageParser.Provider> packageProviders) {
-			if (packageProviders == null) {
-				return null;
-			}
-			mFlags = flags;
-			final boolean defaultOnly = (flags & PackageManager.MATCH_DEFAULT_ONLY) != 0;
-			final int N = packageProviders.size();
-			ArrayList<PackageParser.ProviderIntentInfo[]> listCut = new ArrayList<>(N);
-
-			ArrayList<PackageParser.ProviderIntentInfo> intentFilters;
-			for (int i = 0; i < N; ++i) {
-				intentFilters = packageProviders.get(i).intents;
-				if (intentFilters != null && intentFilters.size() > 0) {
-					PackageParser.ProviderIntentInfo[] array = new PackageParser.ProviderIntentInfo[intentFilters
-							.size()];
-					intentFilters.toArray(array);
-					listCut.add(array);
-				}
-			}
-			return super.queryIntentFromList(intent, resolvedType, defaultOnly, listCut);
-		}
-
-		public final void addProvider(PackageParser.Provider p) {
-			if (mProviders.containsKey(p.getComponentName())) {
-				VLog.w(TAG, "Provider " + p.getComponentName() + " already defined; ignoring");
-				return;
-			}
-
-			mProviders.put(p.getComponentName(), p);
-			if (DEBUG_SHOW_INFO) {
-				Log.v(TAG, "  " + (p.info.nonLocalizedLabel != null ? p.info.nonLocalizedLabel : p.info.name) + ":");
-				Log.v(TAG, "    Class=" + p.info.name);
-			}
-			final int NI = p.intents.size();
-			int j;
-			for (j = 0; j < NI; j++) {
-				PackageParser.ProviderIntentInfo intent = p.intents.get(j);
-				if (DEBUG_SHOW_INFO) {
-					Log.v(TAG, "    IntentFilter:");
-					intent.dump(new LogPrinter(Log.VERBOSE, TAG), "      ");
-				}
-				addFilter(intent);
-			}
-		}
-
-		public final void removeProvider(PackageParser.Provider p) {
-			mProviders.remove(p.getComponentName());
-			if (DEBUG_SHOW_INFO) {
-				Log.v(TAG, "  " + (p.info.nonLocalizedLabel != null ? p.info.nonLocalizedLabel : p.info.name) + ":");
-				Log.v(TAG, "    Class=" + p.info.name);
-			}
-			final int NI = p.intents.size();
-			int j;
-			for (j = 0; j < NI; j++) {
-				PackageParser.ProviderIntentInfo intent = p.intents.get(j);
-				if (DEBUG_SHOW_INFO) {
-					Log.v(TAG, "    IntentFilter:");
-					intent.dump(new LogPrinter(Log.VERBOSE, TAG), "      ");
-				}
-				removeFilter(intent);
-			}
-		}
-
-		@TargetApi(Build.VERSION_CODES.KITKAT)
-		@Override
-		protected boolean allowFilterResult(PackageParser.ProviderIntentInfo filter, List<ResolveInfo> dest) {
-			ProviderInfo filterPi = filter.provider.info;
-			for (int i = dest.size() - 1; i >= 0; i--) {
-				ProviderInfo destPi = dest.get(i).providerInfo;
-				if (ObjectsCompat.equals(destPi.name, filterPi.name)
-						&& ObjectsCompat.equals(destPi.packageName, filterPi.packageName)) {
-					return false;
-				}
-			}
-			return true;
-		}
-
-		@Override
-		protected PackageParser.ProviderIntentInfo[] newArray(int size) {
-			return new PackageParser.ProviderIntentInfo[size];
-		}
-
-		@Override
-		protected boolean isFilterStopped(PackageParser.ProviderIntentInfo filter) {
-			return false;
-		}
-
-		@Override
-		protected boolean isPackageForFilter(String packageName, PackageParser.ProviderIntentInfo info) {
-			return packageName.equals(info.provider.owner.packageName);
-		}
-
-		@TargetApi(Build.VERSION_CODES.KITKAT)
-		@Override
-		protected ResolveInfo newResult(PackageParser.ProviderIntentInfo filter, int match) {
-			final PackageParser.Provider provider = filter.provider;
-			ProviderInfo pi = PackageParserCompat.generateProviderInfo(provider, mFlags);
-			if (pi == null) {
-				return null;
-			}
-			final ResolveInfo res = new ResolveInfo();
-			res.providerInfo = pi;
-			if ((mFlags & PackageManager.GET_RESOLVED_FILTER) != 0) {
-				res.filter = filter;
-			}
-			res.priority = filter.getPriority();
-			res.preferredOrder = provider.owner.mPreferredOrder;
-			res.match = match;
-			res.isDefault = filter.hasDefault;
-			res.labelRes = filter.labelRes;
-			res.nonLocalizedLabel = filter.nonLocalizedLabel;
-			res.icon = filter.icon;
-			res.system = isSystemApp(res.providerInfo.applicationInfo);
-			return res;
-		}
-
-		@Override
-		protected void sortResults(List<ResolveInfo> results) {
-			Collections.sort(results, mResolvePrioritySorter);
-		}
-
-		@Override
-		protected void dumpFilter(PrintWriter out, String prefix, PackageParser.ProviderIntentInfo filter) {
-			out.print(prefix);
-			out.print(Integer.toHexString(System.identityHashCode(filter.provider)));
-			out.print(' ');
-			filter.provider.printComponentShortName(out);
-			out.print(" filter ");
-			out.println(Integer.toHexString(System.identityHashCode(filter)));
-		}
-
-		@Override
-		protected Object filterToLabel(PackageParser.ProviderIntentInfo filter) {
-			return filter.provider;
-		}
-
-		protected void dumpFilterLabel(PrintWriter out, String prefix, Object label, int count) {
-			PackageParser.Provider provider = (PackageParser.Provider) label;
-			out.print(prefix);
-			out.print(Integer.toHexString(System.identityHashCode(provider)));
-			out.print(' ');
-			provider.printComponentShortName(out);
-			if (count > 1) {
-				out.print(" (");
-				out.print(count);
-				out.print(" filters)");
-			}
-			out.println();
-		}
-	}
 }

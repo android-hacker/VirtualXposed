@@ -1,26 +1,22 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
-import android.os.Bundle;
-import android.os.IBinder;
 import android.os.IInterface;
 
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.client.stub.KeepService;
+import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
 
 /**
  * @author Lody
- * @see android.app.ActivityManagerNative#getIntentSender(int, String, IBinder,
- *      String, int, Intent[], String[], int, Bundle, int)
  */
 /* package */ class GetIntentSender extends BaseStartActivity {
 
@@ -51,7 +47,7 @@ import java.lang.reflect.Method;
 		if (args.length > 7 && args[7] instanceof Integer) {
             args[7] = PendingIntent.FLAG_UPDATE_CURRENT;
         }
-		args[0] = ActivityManager.INTENT_SENDER_SERVICE;
+		args[0] = ActivityManagerCompat.INTENT_SENDER_SERVICE;
 		args[6] = new String[] {null};
 		IInterface sender = (IInterface) method.invoke(who, args);
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2 && sender != null && creator != null) {
@@ -61,8 +57,9 @@ import java.lang.reflect.Method;
 	}
 
 	private Intent redirectIntentSender(int type, String creator, Intent intent) {
-		if (type == ActivityManager.INTENT_SENDER_ACTIVITY || type == ActivityManager.INTENT_SENDER_SERVICE) {
-			ActivityInfo activityInfo = VirtualCore.getCore().resolveActivityInfo(intent, VUserHandle.myUserId());
+		if (type == ActivityManagerCompat.INTENT_SENDER_ACTIVITY
+				|| type == ActivityManagerCompat.INTENT_SENDER_SERVICE) {
+			ActivityInfo activityInfo = VirtualCore.get().resolveActivityInfo(intent, VUserHandle.myUserId());
 			if (activityInfo == null || !isAppPkg(activityInfo.packageName)) {
 				return null;
 			}

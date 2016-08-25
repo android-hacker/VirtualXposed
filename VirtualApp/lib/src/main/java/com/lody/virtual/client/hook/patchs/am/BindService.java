@@ -1,12 +1,12 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import android.app.IApplicationThread;
 import android.app.IServiceConnection;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.IInterface;
 
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
@@ -34,7 +34,7 @@ import java.lang.reflect.Method;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		IApplicationThread caller = (IApplicationThread) args[0];
+		IInterface caller = (IInterface) args[0];
 		IBinder token = (IBinder) args[1];
 		Intent service = (Intent) args[2];
 		String resolvedType = (String) args[3];
@@ -44,7 +44,7 @@ import java.lang.reflect.Method;
 		if (isServiceProcess()) {
 			userId = service.getIntExtra("_VA_|_user_id_", VUserHandle.USER_NULL);
 		}
-		ServiceInfo serviceInfo = VirtualCore.getCore().resolveServiceInfo(service, userId);
+		ServiceInfo serviceInfo = VirtualCore.get().resolveServiceInfo(service, userId);
 		if (serviceInfo != null) {
 			String pkgName = serviceInfo.packageName;
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

@@ -22,7 +22,7 @@ import android.app.Notification;
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		String pkgName = (String) args[0];
 		boolean needDeal = false;
-		if (!VirtualCore.getCore().isHostPackageName(pkgName)) {
+		if (!VirtualCore.get().isHostPackageName(pkgName)) {
 			args[0] = getHostPkg();
 			needDeal = true;
 		}

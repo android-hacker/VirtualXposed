@@ -2,11 +2,17 @@ package com.lody.virtual.client.interfaces;
 
 import com.lody.virtual.client.hook.base.Hook;
 
+import java.util.Map;
+
 /**
  * @author Lody
  *
  */
-public interface IHookObject<T> {
+public interface IHookObject {
+
+	void copyHooks(IHookObject from);
+
+	Map<String, Hook> getAllHooks();
 
 	Hook addHook(Hook hook);
 
@@ -18,9 +24,9 @@ public interface IHookObject<T> {
 
 	<H extends Hook> H getHook(String name);
 
-	T getProxyObject();
+	Object getProxyInterface();
 
-	T getBaseObject();
+	Object getBaseInterface();
 
 	int getHookCount();
 

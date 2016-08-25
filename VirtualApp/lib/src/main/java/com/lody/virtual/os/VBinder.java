@@ -12,7 +12,7 @@ import com.lody.virtual.client.local.VActivityManager;
 public class VBinder {
 
     public static int getCallingUid() {
-        VirtualCore core = VirtualCore.getCore();
+        VirtualCore core = VirtualCore.get();
         return VActivityManager.get().getUidByPid(Binder.getCallingPid());
     }
 

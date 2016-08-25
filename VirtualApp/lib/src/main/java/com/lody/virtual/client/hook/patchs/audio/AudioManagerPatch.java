@@ -1,27 +1,27 @@
 package com.lody.virtual.client.hook.patchs.audio;
 
 import android.content.Context;
-import android.media.IAudioService;
-import android.os.ServiceManager;
 
-import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
-import com.lody.virtual.client.hook.binders.HookAudioBinder;
+import com.lody.virtual.client.hook.binders.AudioBinderDelegate;
+
+import mirror.android.os.ServiceManager;
 
 /**
  * @author Lody
  */
 
-public class AudioManagerPatch extends PatchObject<IAudioService, HookAudioBinder> {
+public class AudioManagerPatch extends PatchDelegate<AudioBinderDelegate> {
 
 	@Override
-	protected HookAudioBinder initHookObject() {
-		return new HookAudioBinder();
+	protected AudioBinderDelegate createHookDelegate() {
+		return new AudioBinderDelegate();
 	}
 
 	@Override
-	protected void applyHooks() {
-		super.applyHooks();
+	protected void onBindHooks() {
+		super.onBindHooks();
 		addHook(new ReplaceLastPkgHook("adjustVolume"));
 		addHook(new ReplaceLastPkgHook("adjustLocalOrRemoteStreamVolume"));
 		addHook(new ReplaceLastPkgHook("adjustSuggestedStreamVolume"));
@@ -35,11 +35,11 @@ public class AudioManagerPatch extends PatchObject<IAudioService, HookAudioBinde
 
 	@Override
 	public void inject() throws Throwable {
-		getHookObject().injectService(Context.AUDIO_SERVICE);
+		ServiceManager.sCache.get().put(Context.AUDIO_SERVICE, getHookDelegate());
 	}
 
 	@Override
 	public boolean isEnvBad() {
-		return ServiceManager.getService(Context.AUDIO_SERVICE) != getHookObject();
+		return ServiceManager.getService.call(Context.AUDIO_SERVICE) != getHookDelegate();
 	}
 }

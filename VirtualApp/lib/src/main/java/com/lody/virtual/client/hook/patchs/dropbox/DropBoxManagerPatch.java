@@ -1,36 +1,36 @@
 package com.lody.virtual.client.hook.patchs.dropbox;
 
-import com.android.internal.os.IDropBoxManagerService;
-import com.lody.virtual.client.hook.base.PatchObject;
-import com.lody.virtual.client.hook.base.ResultStaticHook;
-import com.lody.virtual.client.hook.binders.HookDropBoxBinder;
-
 import android.content.Context;
-import android.os.ServiceManager;
+
+import com.lody.virtual.client.hook.base.PatchDelegate;
+import com.lody.virtual.client.hook.base.ResultStaticHook;
+import com.lody.virtual.client.hook.binders.DropBoxBinderDelegate;
+
+import mirror.android.os.ServiceManager;
 
 /**
  * @author Lody
  */
-public class DropBoxManagerPatch extends PatchObject<IDropBoxManagerService, HookDropBoxBinder> {
+public class DropBoxManagerPatch extends PatchDelegate<DropBoxBinderDelegate> {
 
 	@Override
-	protected HookDropBoxBinder initHookObject() {
-		return new HookDropBoxBinder();
+	protected DropBoxBinderDelegate createHookDelegate() {
+		return new DropBoxBinderDelegate();
 	}
 
 	@Override
 	public void inject() throws Throwable {
-		getHookObject().injectService(Context.DROPBOX_SERVICE);
+		getHookDelegate().replaceService(Context.DROPBOX_SERVICE);
 	}
 
 	@Override
-	protected void applyHooks() {
-		super.applyHooks();
+	protected void onBindHooks() {
+		super.onBindHooks();
 		addHook(new ResultStaticHook("getNextEntry", null));
 	}
 
 	@Override
 	public boolean isEnvBad() {
-		return getHookObject() != ServiceManager.getService(Context.DROPBOX_SERVICE);
+		return getHookDelegate() != ServiceManager.getService.call(Context.DROPBOX_SERVICE);
 	}
 }

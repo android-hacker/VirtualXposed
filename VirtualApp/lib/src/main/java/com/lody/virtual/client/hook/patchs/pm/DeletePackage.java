@@ -1,18 +1,16 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import java.lang.reflect.Method;
+import android.content.pm.IPackageDeleteObserver2;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 
-import android.content.pm.IPackageDeleteObserver2;
+import java.lang.reflect.Method;
+
 
 /**
  * @author Lody
  *
- *
- * @see android.content.pm.IPackageManager#deletePackage(String,
- *      IPackageDeleteObserver2, int, int)
  */
 /* package */ class DeletePackage extends Hook {
 
@@ -26,10 +24,10 @@ import android.content.pm.IPackageDeleteObserver2;
 		String pkgName = (String) args[0];
 		if (isAppPkg(pkgName)) {
 			try {
-				VirtualCore.getCore().uninstallApp(pkgName);
+				VirtualCore.get().uninstallApp(pkgName);
 				IPackageDeleteObserver2 observer = (IPackageDeleteObserver2) args[1];
 				if (observer != null) {
-					observer.onPackageDeleted(pkgName, 0, "Delete success.");
+					observer.onPackageDeleted(pkgName, 0, "done.");
 				}
 			} catch (Throwable e) {
 				// Ignore

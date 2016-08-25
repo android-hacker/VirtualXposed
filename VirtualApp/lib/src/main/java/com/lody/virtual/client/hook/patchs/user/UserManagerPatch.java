@@ -3,38 +3,36 @@ package com.lody.virtual.client.hook.patchs.user;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
-import android.os.IUserManager;
-import android.os.ServiceManager;
 
-import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
 import com.lody.virtual.client.hook.base.ResultStaticHook;
-import com.lody.virtual.client.hook.binders.HookUserBinder;
+import com.lody.virtual.client.hook.binders.UserBinderDelegate;
 
 import java.util.Collections;
+
+import mirror.android.os.ServiceManager;
 
 /**
  * @author Lody
  *
- *
- * @see IUserManager
  */
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-public class UserManagerPatch extends PatchObject<IUserManager, HookUserBinder> {
+public class UserManagerPatch extends PatchDelegate<UserBinderDelegate> {
 
 	@Override
-	protected HookUserBinder initHookObject() {
-		return new HookUserBinder();
+	protected UserBinderDelegate createHookDelegate() {
+		return new UserBinderDelegate();
 	}
 
 	@Override
 	public void inject() throws Throwable {
-		getHookObject().injectService(Context.USER_SERVICE);
+		getHookDelegate().replaceService(Context.USER_SERVICE);
 	}
 
 	@Override
-	protected void applyHooks() {
-		super.applyHooks();
+	protected void onBindHooks() {
+		super.onBindHooks();
 		addHook(new ReplaceCallingPkgHook("setApplicationRestrictions"));
 		addHook(new ReplaceCallingPkgHook("getApplicationRestrictions"));
 		addHook(new ReplaceCallingPkgHook("getApplicationRestrictionsForUser"));
@@ -52,6 +50,6 @@ public class UserManagerPatch extends PatchObject<IUserManager, HookUserBinder> 
 
 	@Override
 	public boolean isEnvBad() {
-		return getHookObject() != ServiceManager.getService(Context.USER_SERVICE);
+		return getHookDelegate() != ServiceManager.getService.call(Context.USER_SERVICE);
 	}
 }

@@ -1,31 +1,30 @@
 package com.lody.virtual.client.hook.patchs.phonesubinfo;
 
-import android.os.ServiceManager;
-
-import com.android.internal.telephony.IPhoneSubInfo;
-import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
-import com.lody.virtual.client.hook.binders.HookPhoneSubInfoBinder;
+import com.lody.virtual.client.hook.binders.PhoneSubInfoBinderDelegate;
+
+import mirror.android.os.ServiceManager;
 
 /**
  * @author Lody
  *
  */
-public class PhoneSubInfoPatch extends PatchObject<IPhoneSubInfo, HookPhoneSubInfoBinder> {
+public class PhoneSubInfoPatch extends PatchDelegate<PhoneSubInfoBinderDelegate> {
 	@Override
-	protected HookPhoneSubInfoBinder initHookObject() {
-		return new HookPhoneSubInfoBinder();
+	protected PhoneSubInfoBinderDelegate createHookDelegate() {
+		return new PhoneSubInfoBinderDelegate();
 	}
 
 	@Override
 	public void inject() throws Throwable {
-		getHookObject().injectService("iphonesubinfo");
+		getHookDelegate().replaceService("iphonesubinfo");
 	}
 
 	@Override
-	protected void applyHooks() {
-		super.applyHooks();
+	protected void onBindHooks() {
+		super.onBindHooks();
 		addHook(new ReplaceLastPkgHook("getNaiForSubscriber"));
 		addHook(new ReplaceLastPkgHook("getImeiForSubscriber"));
 		addHook(new ReplaceCallingPkgHook("getDeviceSvn"));
@@ -53,6 +52,6 @@ public class PhoneSubInfoPatch extends PatchObject<IPhoneSubInfo, HookPhoneSubIn
 
 	@Override
 	public boolean isEnvBad() {
-		return getHookObject() != ServiceManager.getService("iphonesubinfo");
+		return getHookDelegate() != ServiceManager.getService.call("iphonesubinfo");
 	}
 }

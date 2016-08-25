@@ -1,32 +1,30 @@
 package com.lody.virtual.client.hook.patchs.mount;
 
 import com.lody.virtual.client.hook.base.Patch;
-import com.lody.virtual.client.hook.base.PatchObject;
-import com.lody.virtual.client.hook.binders.HookMountServiceBinder;
+import com.lody.virtual.client.hook.base.PatchDelegate;
+import com.lody.virtual.client.hook.binders.MountServiceBinderDelegate;
 
-import android.os.ServiceManager;
-import android.os.storage.IMountService;
+import mirror.android.os.ServiceManager;
+
 
 /**
  * @author Lody
- *
- * @see IMountService
  */
 @Patch({GetVolumeList.class, Mkdirs.class,})
-public class MountServicePatch extends PatchObject<IMountService, HookMountServiceBinder> {
+public class MountServicePatch extends PatchDelegate<MountServiceBinderDelegate> {
 
 	@Override
-	protected HookMountServiceBinder initHookObject() {
-		return new HookMountServiceBinder();
+	protected MountServiceBinderDelegate createHookDelegate() {
+		return new MountServiceBinderDelegate();
 	}
 
 	@Override
 	public void inject() throws Throwable {
-		getHookObject().injectService(HookMountServiceBinder.SERVICE_NAME);
+		getHookDelegate().replaceService("mount");
 	}
 
 	@Override
 	public boolean isEnvBad() {
-		return ServiceManager.getService(HookMountServiceBinder.SERVICE_NAME) != getHookObject();
+		return ServiceManager.getService.call("mount") != getHookDelegate();
 	}
 }

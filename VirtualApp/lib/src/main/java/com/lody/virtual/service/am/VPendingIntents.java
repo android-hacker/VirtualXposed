@@ -35,13 +35,13 @@ public final class VPendingIntents {
         }
     };
 
-    public final PendingIntentData getPendingIntent(IBinder binder) {
+    final PendingIntentData getPendingIntent(IBinder binder) {
         synchronized (mLruHistory) {
             return mLruHistory.get(binder);
         }
     }
 
-    public final void addPendingIntent(IBinder binder, String creator) {
+    final void addPendingIntent(IBinder binder, String creator) {
         synchronized (mLruHistory) {
             if (mLruHistory.isEmpty()) {
                 mHandler.postDelayed(mCleanScheduler, 300000);
@@ -55,7 +55,7 @@ public final class VPendingIntents {
         }
     }
 
-    public final void removePendingIntent(IBinder binder) {
+    final void removePendingIntent(IBinder binder) {
         synchronized (mLruHistory) {
             mLruHistory.remove(binder);
             if (mLruHistory.isEmpty()) {

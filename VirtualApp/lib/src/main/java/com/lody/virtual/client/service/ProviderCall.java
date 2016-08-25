@@ -3,9 +3,7 @@ package com.lody.virtual.client.service;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.Parcelable;
 
 import com.lody.virtual.client.core.VirtualCore;
@@ -20,7 +18,7 @@ import java.io.Serializable;
 public class ProviderCall {
 
 	public static Bundle call(StubInfo stubInfo, String methodName, String arg, Bundle bundle) {
-		return call(stubInfo.providerInfo.authority, VirtualCore.getCore().getContext(), methodName, arg, bundle);
+		return call(stubInfo.providerInfo.authority, VirtualCore.get().getContext(), methodName, arg, bundle);
 	}
 
 	public static Bundle call(String authority, Context context, String methodName, String arg, Bundle bundle) {
@@ -56,14 +54,7 @@ public class ProviderCall {
 
 		public Builder addArg(String key, Object value) {
 			if (value != null) {
-				if (value instanceof IBinder) {
-					if (Build.VERSION.SDK_INT >= 18) {
-						bundle.putBinder(key, (IBinder) value);
-					} else {
-						// noinspection deprecation
-						bundle.putIBinder(key, (IBinder) value);
-					}
-				} else if (value instanceof Boolean) {
+				 if (value instanceof Boolean) {
 					bundle.putBoolean(key, (Boolean) value);
 				} else if (value instanceof Integer) {
 					bundle.putInt(key, (Integer) value);

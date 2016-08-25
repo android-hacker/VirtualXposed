@@ -1,8 +1,5 @@
 package io.virtualapp.enter.splash;
 
-import com.lody.virtual.client.core.VirtualCore;
-
-import io.virtualapp.VApp;
 import io.virtualapp.abs.ui.VUiKit;
 
 /**
@@ -23,9 +20,7 @@ import io.virtualapp.abs.ui.VUiKit;
 		mView.startLoading();
 		VUiKit.defer().when(() -> {
 			long before = System.currentTimeMillis();
-			if (VApp.getApp().isNeedPreloadApps()) {
-				VirtualCore.getCore().preloadAllApps();
-			}
+			// Do some thing
 			long delta = System.currentTimeMillis() - before;
 			if (delta < 500) {
 				try {

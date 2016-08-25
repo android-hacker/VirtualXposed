@@ -1,7 +1,6 @@
 package com.lody.virtual.client.core;
 
 import android.app.Activity;
-import android.app.ActivityThread;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -36,6 +35,7 @@ import com.lody.virtual.service.IAppManager;
 import java.util.List;
 
 import dalvik.system.DexFile;
+import mirror.android.app.ActivityThread;
 
 /**
  * @author Lody
@@ -55,7 +55,7 @@ public final class VirtualCore {
 	/**
 	 * ActivityThread instance
 	 */
-	private ActivityThread mainThread;
+	private Object mainThread;
 	private Context context;
 
 	/**
@@ -75,9 +75,7 @@ public final class VirtualCore {
 	private int systemPid;
 
 
-	private VirtualCore() {
-
-	}
+	private VirtualCore() {}
 
 	public int myUid() {
 		return myUid;
@@ -88,16 +86,16 @@ public final class VirtualCore {
 	}
 
 
-	public static VirtualCore getCore() {
+	public static VirtualCore get() {
 		return gCore;
 	}
 
 	public static PackageManager getPM() {
-		return getCore().getPackageManager();
+		return get().getPackageManager();
 	}
 
-	public static ActivityThread mainThread() {
-		return getCore().mainThread;
+	public static Object mainThread() {
+		return get().mainThread;
 	}
 
 
@@ -106,7 +104,7 @@ public final class VirtualCore {
 			className = packageName + className;
 		}
 		String extAction = packageName + "_" + className;
-		return String.format("%s.BRC_%s", getCore().getHostPkg(), extAction);
+		return String.format("%s.BRC_%s", get().getHostPkg(), extAction);
 	}
 
 	public int[] getGids() {
@@ -136,7 +134,7 @@ public final class VirtualCore {
 				throw new IllegalStateException("VirtualCore.startup() must called in main thread.");
 			}
 			this.context = context;
-			mainThread = ActivityThread.currentActivityThread();
+			mainThread = ActivityThread.currentActivityThread.call();
 			unHookPackageManager = context.getPackageManager();
 			hostPkgInfo = unHookPackageManager.getPackageInfo(context.getPackageName(), PackageManager.GET_PROVIDERS);
 			// Host包名
@@ -144,7 +142,7 @@ public final class VirtualCore {
 			// 主进程名
 			mainProcessName = context.getApplicationInfo().processName;
 			// 当前进程名
-			processName = mainThread.getProcessName();
+			processName = ActivityThread.getProcessName.call(mainThread);
 			if (processName.equals(mainProcessName)) {
 				processType = ProcessType.Main;
 			} else if (processName.endsWith(Constants.SERVER_PROCESS_NAME)) {
@@ -158,8 +156,8 @@ public final class VirtualCore {
 				systemPid = VActivityManager.get().getSystemPid();
 			}
 			PatchManager patchManager = PatchManager.getInstance();
+			patchManager.init();
 			patchManager.injectAll();
-			patchManager.checkEnv();
 			ContextFixer.fixContext(context);
 			isStartUp = true;
 		}
@@ -271,7 +269,7 @@ public final class VirtualCore {
 
 	public void addLoadingPage(Intent intent, Activity activity) {
 		if (activity != null) {
-			addLoadingPage(intent, activity.getActivityToken());
+			addLoadingPage(intent, mirror.android.app.Activity.mToken.get(activity));
 		}
 	}
 
@@ -315,8 +313,8 @@ public final class VirtualCore {
 	public Resources getResources(String pkg) {
 		AppSetting appSetting = findApp(pkg);
 		if (appSetting != null) {
-			AssetManager assets = new AssetManager();
-			assets.addAssetPath(appSetting.apkPath);
+			AssetManager assets = mirror.android.content.res.AssetManager.ctor.newInstance();
+			mirror.android.content.res.AssetManager.addAssetPath.call(assets, appSetting.apkPath);
 			Resources hostRes = context.getResources();
 			return new Resources(assets, hostRes.getDisplayMetrics(), hostRes.getConfiguration());
 		}

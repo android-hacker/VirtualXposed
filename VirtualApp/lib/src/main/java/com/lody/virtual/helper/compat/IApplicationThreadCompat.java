@@ -1,18 +1,16 @@
 package com.lody.virtual.helper.compat;
 
-import android.app.IApplicationThread;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
-import android.content.res.CompatibilityInfo;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.IInterface;
 import android.os.RemoteException;
 
-import com.android.internal.content.ReferrerIntent;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.List;
+import mirror.android.app.IApplicationThread;
+import mirror.android.app.IApplicationThreadICSMR1;
+import mirror.android.app.IApplicationThreadKitkat;
+import mirror.android.content.res.CompatibilityInfo;
 
 /**
  * @author Lody
@@ -20,86 +18,45 @@ import java.util.List;
 
 public class IApplicationThreadCompat {
 
-	public static void scheduleCreateService(IApplicationThread appThread, IBinder token, ServiceInfo info,
+	public static void scheduleCreateService(IInterface appThread, IBinder token, ServiceInfo info,
 			int processState) throws RemoteException {
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-			appThread.scheduleCreateService(token, info, CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO,
+			IApplicationThreadKitkat.scheduleCreateService.call(appThread, token, info, CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO.get(),
 						processState);
 		} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-			try {
-				Method scheduleCreateService = IApplicationThread.class.getDeclaredMethod("scheduleCreateService",
-						IBinder.class, ServiceInfo.class, CompatibilityInfo.class);
-				scheduleCreateService.setAccessible(true);
-				scheduleCreateService.invoke(appThread, token, info, CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO);
-			} catch (Throwable e) {
-				handleException(e);
-			}
+			IApplicationThreadICSMR1.scheduleCreateService.call(appThread, token, info, CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO.get());
 		} else {
-			try {
-				Method scheduleCreateService = IApplicationThread.class.getDeclaredMethod("scheduleCreateService",
-						IBinder.class, ServiceInfo.class);
-				scheduleCreateService.setAccessible(true);
-				scheduleCreateService.invoke(appThread, token, info);
-			} catch (Throwable e) {
-				handleException(e);
-			}
+			IApplicationThread.scheduleCreateService.call(appThread, token, info);
 		}
 
 	}
 
-	public static void scheduleBindService(IApplicationThread appThread, IBinder token, Intent intent, boolean rebind,
+	public static void scheduleBindService(IInterface appThread, IBinder token, Intent intent, boolean rebind,
 			int processState) throws RemoteException {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-			appThread.scheduleBindService(token, intent, rebind, processState);
+			IApplicationThreadKitkat.scheduleBindService.call(appThread, token, intent, rebind, processState);
 		} else {
-			try {
-				Method scheduleCreateService = IApplicationThread.class.getDeclaredMethod("scheduleBindService",
-						IBinder.class, Intent.class, boolean.class);
-				scheduleCreateService.invoke(appThread, token, intent, rebind);
-			} catch (Throwable e) {
-				handleException(e);
-			}
+			IApplicationThread.scheduleCreateService.call(appThread, token, intent, rebind);
 		}
 	}
 
-	public static void scheduleUnbindService(IApplicationThread appThread, IBinder token, Intent intent) throws RemoteException {
-		appThread.scheduleUnbindService(token, intent);
+	public static void scheduleUnbindService(IInterface appThread, IBinder token, Intent intent) throws RemoteException {
+		IApplicationThread.scheduleUnbindService.call(appThread, token, intent);
 	}
 
-	public static void scheduleServiceArgs(IApplicationThread appThread, IBinder token, boolean taskRemoved,
+	public static void scheduleServiceArgs(IInterface appThread, IBinder token, boolean taskRemoved,
 			int startId, int flags, Intent args) throws RemoteException {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-			appThread.scheduleServiceArgs(token, taskRemoved, startId, flags, args);
+			IApplicationThreadICSMR1.scheduleServiceArgs.call(appThread, token, taskRemoved, startId, flags, args);
 		} else {
-			try {
-				Method scheduleCreateService = IApplicationThread.class.getDeclaredMethod("scheduleServiceArgs",
-						IBinder.class, int.class, int.class, Intent.class);
-				scheduleCreateService.invoke(appThread, token, startId, flags, args);
-			} catch (Throwable e) {
-				handleException(e);
-			}
+			IApplicationThread.scheduleServiceArgs.call(appThread, token, startId, flags, args);
 		}
 	}
 
-	private static void handleException(Throwable e) throws RemoteException {
-		if (e instanceof InvocationTargetException) {
-			Throwable cause = e.getCause();
-			if (cause instanceof RemoteException) {
-				throw (RemoteException) cause;
-			} else {
-				cause.printStackTrace();
-				throw new RemoteException(cause.getMessage());
-			}
-		}
+
+	public static void scheduleStopService(IInterface appThread, IBinder token) throws RemoteException {
+		IApplicationThread.scheduleStopService.call(appThread, token);
 	}
 
-	public static void scheduleStopService(IApplicationThread appThread, IBinder token) throws RemoteException {
-		appThread.scheduleStopService(token);
-	}
-
-	public static void scheduleNewIntent(IApplicationThread appThread, List intents, IBinder token) throws RemoteException {
-			// noinspection unchecked
-		appThread.scheduleNewIntent((List<ReferrerIntent>) intents, token);
-	}
 }

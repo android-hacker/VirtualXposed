@@ -1,5 +1,9 @@
 package mirror.android.app;
 
+import java.lang.ref.WeakReference;
+
+import android.app.Application;
+import android.app.Instrumentation;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IIntentReceiver;
@@ -7,15 +11,17 @@ import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.os.IInterface;
 
-import java.lang.ref.WeakReference;
-
 import mirror.ClassDef;
 import mirror.FieldDef;
 import mirror.MethodDef;
+import mirror.MethodInfo;
+import mirror.StaticMethodDef;
 
 public class LoadedApk {
     public static Class Class = ClassDef.init(LoadedApk.class, "android.app.LoadedApk");
     public static FieldDef<ApplicationInfo> mApplicationInfo;
+    @MethodInfo({boolean.class, Instrumentation.class})
+    public static MethodDef<Application> makeApplication;
 
     public static class ReceiverDispatcher {
         public static Class Class = ClassDef.init(ReceiverDispatcher.class, "android.app.LoadedApk$ReceiverDispatcher");

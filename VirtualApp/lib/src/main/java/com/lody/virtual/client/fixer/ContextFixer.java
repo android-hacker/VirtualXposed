@@ -7,7 +7,7 @@ import android.os.DropBoxManager;
 
 import com.lody.virtual.client.core.PatchManager;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.hook.binders.HookDropBoxBinder;
+import com.lody.virtual.client.hook.binders.DropBoxBinderDelegate;
 import com.lody.virtual.client.hook.patchs.dropbox.DropBoxManagerPatch;
 import com.lody.virtual.client.hook.patchs.graphics.GraphicsStatsPatch;
 import com.lody.virtual.helper.utils.Reflect;
@@ -43,19 +43,19 @@ public class ContextFixer {
 		}
 		ContextImpl.mPackageManager.set(context, null);
 		context.getPackageManager();
-		if (!VirtualCore.getCore().isVAppProcess()) {
+		if (!VirtualCore.get().isVAppProcess()) {
 			return;
 		}
 		DropBoxManager dm = (DropBoxManager) context.getSystemService(Context.DROPBOX_SERVICE);
-		HookDropBoxBinder boxBinder = PatchManager.getInstance().getHookObject(DropBoxManagerPatch.class);
+		DropBoxBinderDelegate boxBinder = PatchManager.getInstance().getHookObject(DropBoxManagerPatch.class);
 		if (boxBinder != null) {
 			try {
-				Reflect.on(dm).set("mService", boxBinder.getProxyObject());
+				Reflect.on(dm).set("mService", boxBinder.getProxyInterface());
 			} catch (ReflectException e) {
 				e.printStackTrace();
 			}
 		}
-		String hostPkg = VirtualCore.getCore().getHostPkg();
+		String hostPkg = VirtualCore.get().getHostPkg();
 		ContextImpl.mBasePackageName.set(context, hostPkg);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 			ContextImplKitkat.mOpPackageName.set(context, hostPkg);

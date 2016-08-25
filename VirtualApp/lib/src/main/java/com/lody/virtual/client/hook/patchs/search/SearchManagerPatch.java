@@ -1,15 +1,15 @@
 package com.lody.virtual.client.hook.patchs.search;
 
 import android.annotation.TargetApi;
-import android.app.ISearchManager;
 import android.content.Context;
 import android.os.Build;
-import android.os.ServiceManager;
 
 import com.lody.virtual.client.hook.base.Patch;
-import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.base.StaticHook;
-import com.lody.virtual.client.hook.binders.HookSearchBinder;
+import com.lody.virtual.client.hook.binders.SearchBinderDelegate;
+
+import mirror.android.os.ServiceManager;
 
 /**
  * @author Lody
@@ -17,25 +17,25 @@ import com.lody.virtual.client.hook.binders.HookSearchBinder;
  */
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 @Patch({GetSearchableInfo.class,})
-public class SearchManagerPatch extends PatchObject<ISearchManager, HookSearchBinder> {
+public class SearchManagerPatch extends PatchDelegate<SearchBinderDelegate> {
 	@Override
-	protected HookSearchBinder initHookObject() {
-		return new HookSearchBinder();
+	protected SearchBinderDelegate createHookDelegate() {
+		return new SearchBinderDelegate();
 	}
 
 	@Override
 	public void inject() throws Throwable {
-		getHookObject().injectService(Context.SEARCH_SERVICE);
+		getHookDelegate().replaceService(Context.SEARCH_SERVICE);
 	}
 
 	@Override
-	protected void applyHooks() {
-		super.applyHooks();
+	protected void onBindHooks() {
+		super.onBindHooks();
 		addHook(new StaticHook("launchLegacyAssist"));
 	}
 
 	@Override
 	public boolean isEnvBad() {
-		return getHookObject() != ServiceManager.getService(Context.SEARCH_SERVICE);
+		return getHookDelegate() != ServiceManager.getService.call(Context.SEARCH_SERVICE);
 	}
 }

@@ -1,14 +1,14 @@
 package com.lody.virtual.service.am;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import android.app.IApplicationThread;
 import android.app.IServiceConnection;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.os.IBinder;
+import android.os.IInterface;
 import android.os.RemoteException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ServiceRecord {
 	public final List<ServiceBoundRecord> mBoundRecords = new ArrayList<>();
@@ -20,7 +20,7 @@ public class ServiceRecord {
 	public IBinder token;
 	public int startId;
 	public IBinder binder;
-	public IApplicationThread targetAppThread;
+	public IInterface targetAppThread;
 	public boolean doRebind = false;
 
 	public boolean hasSomeBound() {

@@ -1,13 +1,10 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import android.app.IApplicationThread;
 import android.content.ComponentName;
-import android.content.IIntentReceiver;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.lody.virtual.client.core.VirtualCore;
@@ -23,9 +20,6 @@ import java.lang.reflect.Method;
  * @author Lody
  *
  *
- * @see android.app.ActivityManagerNative#broadcastIntent(IApplicationThread,
- *      Intent, String, IIntentReceiver, int, String, Bundle, String[], int,
- *      Bundle, boolean, boolean, int)
  */
 /* package */ class BroadcastIntent extends Hook {
 
@@ -118,7 +112,7 @@ import java.lang.reflect.Method;
 					Intent.ShortcutIconResource icon = intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE);
 					if (icon != null && !TextUtils.equals(icon.packageName, getHostPkg())) {
 						try {
-							Resources resources = VirtualCore.getCore().getResources(pkg);
+							Resources resources = VirtualCore.get().getResources(pkg);
 							if (resources != null) {
 								int resId = resources.getIdentifier(icon.resourceName, "drawable", pkg);
 								if (resId > 0) {

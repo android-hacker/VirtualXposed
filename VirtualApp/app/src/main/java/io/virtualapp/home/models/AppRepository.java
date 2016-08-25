@@ -52,10 +52,10 @@ public class AppRepository implements AppDataSource {
 	@Override
 	public Promise<List<AppModel>, Throwable, Void> getVirtualApps() {
 		return VUiKit.defer().when(() -> {
-			List<AppSetting> infos = VirtualCore.getCore().getAllApps();
+			List<AppSetting> infos = VirtualCore.get().getAllApps();
 			List<AppModel> models = new ArrayList<AppModel>();
 			for (AppSetting info : infos) {
-				if (VirtualCore.getCore().getLaunchIntent(info.packageName, VUserHandle.USER_OWNER) != null) {
+				if (VirtualCore.get().getLaunchIntent(info.packageName, VUserHandle.USER_OWNER) != null) {
 					models.add(new AppModel(mContext, info));
 				}
 			}
@@ -106,7 +106,7 @@ public class AppRepository implements AppDataSource {
 
 	private List<AppModel> pkgInfosToAppModels(Context context, List<PackageInfo> pkgList, boolean fastOpen) {
 		List<AppModel> models = new ArrayList<>(pkgList.size());
-		String hostPkg = VirtualCore.getCore().getHostPkg();
+		String hostPkg = VirtualCore.get().getHostPkg();
 		for (PackageInfo pkg : pkgList) {
 			if (hostPkg.equals(pkg.packageName)) {
 				continue;
@@ -114,7 +114,7 @@ public class AppRepository implements AppDataSource {
 			if (isSystemApplication(pkg)) {
 				continue;
 			}
-			if (VirtualCore.getCore().isAppInstalled(pkg.packageName)) {
+			if (VirtualCore.get().isAppInstalled(pkg.packageName)) {
 				continue;
 			}
 			AppModel model = new AppModel(context, pkg);
@@ -131,12 +131,12 @@ public class AppRepository implements AppDataSource {
 		if (app.fastOpen) {
 			flags |= InstallStrategy.DEPEND_SYSTEM_IF_EXIST;
 		}
-		VirtualCore.getCore().installApp(app.path, flags);
+		VirtualCore.get().installApp(app.path, flags);
 	}
 
 	@Override
 	public void removeVirtualApp(AppModel app) throws Throwable {
-		VirtualCore.getCore().uninstallApp(app.packageName);
+		VirtualCore.get().uninstallApp(app.packageName);
 	}
 
 }

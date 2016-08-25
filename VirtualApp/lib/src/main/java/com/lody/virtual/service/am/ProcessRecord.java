@@ -1,10 +1,10 @@
 package com.lody.virtual.service.am;
 
-import android.app.IApplicationThread;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ProviderInfo;
 import android.os.Binder;
 import android.os.ConditionVariable;
+import android.os.IInterface;
 
 import com.lody.virtual.client.IVClient;
 import com.lody.virtual.os.VUserHandle;
@@ -25,7 +25,7 @@ public final class ProcessRecord extends Binder {
 	final List<String> sharedPackages;
 	final List<String> usesLibraries;
 	public IVClient client;
-	public IApplicationThread thread;
+	public IInterface thread;
 	public int pid;
 	public int uid;
 	public int userId;

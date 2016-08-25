@@ -1,28 +1,25 @@
 package com.lody.virtual.service.pm;
 
-import android.Manifest;
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.IStopUserCallback;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Binder;
-import android.util.Slog;
 import android.util.SparseArray;
-import android.util.TimeUtils;
 import android.util.Xml;
 
-import com.android.internal.util.ArrayUtils;
-import com.android.internal.util.FastXmlSerializer;
 import com.lody.virtual.R;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
+import com.lody.virtual.helper.compat.ActivityManagerCompat;
+import com.lody.virtual.helper.utils.ArrayUtils;
 import com.lody.virtual.helper.utils.AtomicFile;
+import com.lody.virtual.helper.utils.FastXmlSerializer;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VBinder;
 import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.os.VUserHandle;
@@ -101,7 +98,7 @@ public class VUserManagerService extends IUserManager.Stub {
 
     private static VUserManagerService sInstance;
 
-    public static VUserManagerService getInstance() {
+    public static VUserManagerService get() {
         synchronized (VUserManagerService.class) {
             return sInstance;
         }
@@ -160,7 +157,7 @@ public class VUserManagerService extends IUserManager.Stub {
                 }
                 for (int i = 0; i < partials.size(); i++) {
                     UserInfo ui = partials.get(i);
-                    Slog.w(LOG_TAG, "Removing partially created user #" + i
+                    VLog.w(LOG_TAG, "Removing partially created user #" + i
                             + " (name=" + ui.name + ")");
                     removeUserStateLocked(ui.id);
                 }
@@ -202,7 +199,7 @@ public class VUserManagerService extends IUserManager.Stub {
         UserInfo ui = mUsers.get(userId);
         // If it is partial and not in the process of being removed, return as unknown user.
         if (ui != null && ui.partial && !mRemovingUserIds.contains(userId)) {
-            Slog.w(LOG_TAG, "getUserInfo: unknown user #" + userId);
+            VLog.w(LOG_TAG, "getUserInfo: unknown user #" + userId);
             return null;
         }
         return ui;
@@ -221,7 +218,7 @@ public class VUserManagerService extends IUserManager.Stub {
         synchronized (mPackagesLock) {
             UserInfo info = mUsers.get(userId);
             if (info == null || info.partial) {
-                Slog.w(LOG_TAG, "setUserName: unknown user #" + userId);
+                VLog.w(LOG_TAG, "setUserName: unknown user #" + userId);
                 return;
             }
             if (name != null && !name.equals(info.name)) {
@@ -241,7 +238,7 @@ public class VUserManagerService extends IUserManager.Stub {
         synchronized (mPackagesLock) {
             UserInfo info = mUsers.get(userId);
             if (info == null || info.partial) {
-                Slog.w(LOG_TAG, "setUserIcon: unknown user #" + userId);
+                VLog.w(LOG_TAG, "setUserIcon: unknown user #" + userId);
                 return;
             }
             writeBitmapLocked(info, bitmap);
@@ -252,9 +249,9 @@ public class VUserManagerService extends IUserManager.Stub {
 
     private void sendUserInfoChangedBroadcast(int userId) {
         Intent changedIntent = new Intent(Constants.ACTION_USER_INFO_CHANGED);
-        changedIntent.putExtra(Intent.EXTRA_USER_HANDLE, userId);
+        changedIntent.putExtra("_VA_|_uid_", userId);
         changedIntent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
-        VActivityManagerService.getService().sendBroadcastAsUser(changedIntent, new VUserHandle(userId));
+        VActivityManagerService.get().sendBroadcastAsUser(changedIntent, new VUserHandle(userId));
     }
 
     @Override
@@ -263,7 +260,7 @@ public class VUserManagerService extends IUserManager.Stub {
         synchronized (mPackagesLock) {
             UserInfo info = mUsers.get(userId);
             if (info == null || info.partial) {
-                Slog.w(LOG_TAG, "getUserIcon: unknown user #" + userId);
+                VLog.w(LOG_TAG, "getUserIcon: unknown user #" + userId);
                 return null;
             }
             if (info.iconPath == null) {
@@ -316,7 +313,7 @@ public class VUserManagerService extends IUserManager.Stub {
         synchronized (mPackagesLock) {
             UserInfo info = mUsers.get(userId);
             if (info == null || info.partial) {
-                Slog.w(LOG_TAG, "makeInitialized: unknown user #" + userId);
+                VLog.w(LOG_TAG, "makeInitialized: unknown user #" + userId);
             }
             if ((info.flags&UserInfo.FLAG_INITIALIZED) == 0) {
                 info.flags |= UserInfo.FLAG_INITIALIZED;
@@ -343,7 +340,7 @@ public class VUserManagerService extends IUserManager.Stub {
      */
     private static void checkManageUsersPermission(String message) {
         final int uid = VBinder.getCallingUid();
-        if (uid != VirtualCore.getCore().myUid()) {
+        if (uid != VirtualCore.get().myUid()) {
             throw new SecurityException("You need MANAGE_USERS permission to: " + message);
         }
     }
@@ -369,7 +366,7 @@ public class VUserManagerService extends IUserManager.Stub {
                 // What the ... !
             }
         } catch (FileNotFoundException e) {
-            Slog.w(LOG_TAG, "Error setting photo for user ", e);
+            VLog.w(LOG_TAG, "Error setting photo for user ", e);
         }
     }
 
@@ -413,7 +410,7 @@ public class VUserManagerService extends IUserManager.Stub {
             }
 
             if (type != XmlPullParser.START_TAG) {
-                Slog.e(LOG_TAG, "Unable to read user list");
+                VLog.e(LOG_TAG, "Unable to read user list");
                 fallbackToSingleUserLocked();
                 return;
             }
@@ -473,14 +470,14 @@ public class VUserManagerService extends IUserManager.Stub {
             // Assign a proper name for the owner, if not initialized correctly before
             UserInfo user = mUsers.get(VUserHandle.USER_OWNER);
             if ("Primary".equals(user.name)) {
-                user.name = mContext.getResources().getString(com.android.internal.R.string.owner_name);
+                user.name = "Admin";
                 writeUserLocked(user);
             }
             userVersion = 1;
         }
 
         if (userVersion < USER_VERSION) {
-            Slog.w(LOG_TAG, "User version " + mUserVersion + " didn't upgrade as expected to "
+            VLog.w(LOG_TAG, "User version " + mUserVersion + " didn't upgrade as expected to "
                     + USER_VERSION);
         } else {
             mUserVersion = userVersion;
@@ -544,7 +541,7 @@ public class VUserManagerService extends IUserManager.Stub {
             serializer.endDocument();
             userFile.finishWrite(fos);
         } catch (Exception ioe) {
-            Slog.e(LOG_TAG, "Error writing user info " + userInfo.id + "\n" + ioe);
+            VLog.e(LOG_TAG, "Error writing user info " + userInfo.id + "\n" + ioe);
             userFile.failWrite(fos);
         }
     }
@@ -587,7 +584,7 @@ public class VUserManagerService extends IUserManager.Stub {
             userListFile.finishWrite(fos);
         } catch (Exception e) {
             userListFile.failWrite(fos);
-            Slog.e(LOG_TAG, "Error writing user list");
+            VLog.e(LOG_TAG, "Error writing user list");
         }
     }
 
@@ -614,14 +611,14 @@ public class VUserManagerService extends IUserManager.Stub {
             }
 
             if (type != XmlPullParser.START_TAG) {
-                Slog.e(LOG_TAG, "Unable to read user " + id);
+                VLog.e(LOG_TAG, "Unable to read user " + id);
                 return null;
             }
 
             if (parser.getName().equals(TAG_USER)) {
                 int storedId = readIntAttribute(parser, ATTR_ID, -1);
                 if (storedId != id) {
-                    Slog.e(LOG_TAG, "User id does not match the file name");
+                    VLog.e(LOG_TAG, "User id does not match the file name");
                     return null;
                 }
                 serialNumber = readIntAttribute(parser, ATTR_SERIAL_NO, id);
@@ -713,9 +710,9 @@ public class VUserManagerService extends IUserManager.Stub {
                 }
             }
             Intent addedIntent = new Intent(Constants.ACTION_USER_ADDED);
-            addedIntent.putExtra(Intent.EXTRA_USER_HANDLE, userInfo.id);
-            VActivityManagerService.getService().sendBroadcastAsUser(addedIntent, VUserHandle.ALL,
-                        Manifest.permission.MANAGE_USERS);
+            addedIntent.putExtra("_VA_|_uid_", userInfo.id);
+            VActivityManagerService.get().sendBroadcastAsUser(addedIntent, VUserHandle.ALL,
+                        null);
         } finally {
             Binder.restoreCallingIdentity(ident);
         }
@@ -742,8 +739,8 @@ public class VUserManagerService extends IUserManager.Stub {
             user.partial = true;
             writeUserLocked(user);
         }
-        if (DBG) Slog.i(LOG_TAG, "Stopping user " + userHandle);
-        int res = VActivityManagerService.getService().stopUser(userHandle,
+        if (DBG) VLog.i(LOG_TAG, "Stopping user " + userHandle);
+        int res = VActivityManagerService.get().stopUser(userHandle,
                     new IStopUserCallback.Stub() {
                         @Override
                         public void userStopped(int userId) {
@@ -753,24 +750,24 @@ public class VUserManagerService extends IUserManager.Stub {
                         public void userStopAborted(int userId) {
                         }
             });
-        return res == ActivityManager.USER_OP_SUCCESS;
+        return res == ActivityManagerCompat.USER_OP_SUCCESS;
     }
 
     void finishRemoveUser(final int userHandle) {
-        if (DBG) Slog.i(LOG_TAG, "finishRemoveUser " + userHandle);
+        if (DBG) VLog.i(LOG_TAG, "finishRemoveUser " + userHandle);
         // Let other services shutdown any activity and clean up their state before completely
         // wiping the user's system directory and removing from the user list
         long ident = Binder.clearCallingIdentity();
         try {
             Intent addedIntent = new Intent(Constants.ACTION_USER_REMOVED);
-            addedIntent.putExtra(Intent.EXTRA_USER_HANDLE, userHandle);
-            VActivityManagerService.getService().sendOrderedBroadcastAsUser(addedIntent, VUserHandle.ALL,
-                    Manifest.permission.MANAGE_USERS,
+            addedIntent.putExtra("_VA_|_uid_", userHandle);
+            VActivityManagerService.get().sendOrderedBroadcastAsUser(addedIntent, VUserHandle.ALL,
+                   null,
                     new BroadcastReceiver() {
                         @Override
                         public void onReceive(Context context, Intent intent) {
                             if (DBG) {
-                                Slog.i(LOG_TAG,
+                                VLog.i(LOG_TAG,
                                         "USER_REMOVED broadcast sent, cleaning up user data "
                                         + userHandle);
                             }
@@ -866,7 +863,7 @@ public class VUserManagerService extends IUserManager.Stub {
             UserInfo user = mUsers.get(userId);
             long now = System.currentTimeMillis();
             if (user == null || user.partial) {
-                Slog.w(LOG_TAG, "userForeground: unknown user #" + userId);
+                VLog.w(LOG_TAG, "userForeground: unknown user #" + userId);
                 return;
             }
             if (now > EPOCH_PLUS_30_YEARS) {
@@ -898,46 +895,6 @@ public class VUserManagerService extends IUserManager.Stub {
 
     @Override
     protected void dump(FileDescriptor fd, PrintWriter pw, String[] args) {
-        if (mContext.checkCallingOrSelfPermission(android.Manifest.permission.DUMP)
-                != PackageManager.PERMISSION_GRANTED) {
-            pw.println("Permission Denial: can't dump VUserManager from from pid="
-                    + VBinder.getCallingPid()
-                    + ", uid=" + VBinder.getCallingUid()
-                    + " without permission "
-                    + android.Manifest.permission.DUMP);
-            return;
-        }
 
-        long now = System.currentTimeMillis();
-        StringBuilder sb = new StringBuilder();
-        synchronized (mPackagesLock) {
-            pw.println("Users:");
-            for (int i = 0; i < mUsers.size(); i++) {
-                UserInfo user = mUsers.valueAt(i);
-                if (user == null) continue;
-                pw.print("  "); pw.print(user); pw.print(" serialNo="); pw.print(user.serialNumber);
-                if (mRemovingUserIds.contains(mUsers.keyAt(i))) pw.print(" <removing> ");
-                if (user.partial) pw.print(" <partial>");
-                pw.println();
-                pw.print("    Created: ");
-                if (user.creationTime == 0) {
-                    pw.println("<unknown>");
-                } else {
-                    sb.setLength(0);
-                    TimeUtils.formatDuration(now - user.creationTime, sb);
-                    sb.append(" ago");
-                    pw.println(sb);
-                }
-                pw.print("    Last logged in: ");
-                if (user.lastLoggedInTime == 0) {
-                    pw.println("<unknown>");
-                } else {
-                    sb.setLength(0);
-                    TimeUtils.formatDuration(now - user.lastLoggedInTime, sb);
-                    sb.append(" ago");
-                    pw.println(sb);
-                }
-            }
-        }
     }
 }

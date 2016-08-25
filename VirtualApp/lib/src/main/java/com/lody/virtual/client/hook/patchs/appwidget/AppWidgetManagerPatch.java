@@ -1,40 +1,36 @@
 package com.lody.virtual.client.hook.patchs.appwidget;
 
-import com.android.internal.appwidget.IAppWidgetService;
-import com.lody.virtual.client.hook.base.PatchObject;
-import com.lody.virtual.client.hook.base.ResultStaticHook;
-import com.lody.virtual.client.hook.binders.HookAppWidgetBinder;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
-import android.os.ServiceManager;
+
+import com.lody.virtual.client.hook.base.PatchDelegate;
+import com.lody.virtual.client.hook.base.ResultStaticHook;
+import com.lody.virtual.client.hook.binders.AppWidgetBinderDelegate;
+
+import mirror.android.os.ServiceManager;
 
 /**
  * @author Lody
  *
- *
- *         Hook桌面小组件服务
- *
- * @see IAppWidgetService
  * @see android.appwidget.AppWidgetManager
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class AppWidgetManagerPatch extends PatchObject<IAppWidgetService, HookAppWidgetBinder> {
+public class AppWidgetManagerPatch extends PatchDelegate<AppWidgetBinderDelegate> {
 
 	@Override
-	protected HookAppWidgetBinder initHookObject() {
-		return new HookAppWidgetBinder();
+	protected AppWidgetBinderDelegate createHookDelegate() {
+		return new AppWidgetBinderDelegate();
 	}
 
 	@Override
 	public void inject() throws Throwable {
-		getHookObject().injectService(Context.APPWIDGET_SERVICE);
+		getHookDelegate().replaceService(Context.APPWIDGET_SERVICE);
 	}
 
 	@Override
-	protected void applyHooks() {
-		super.applyHooks();
+	protected void onBindHooks() {
+		super.onBindHooks();
 		addHook(new ResultStaticHook("startListening", new int[0]));
 		addHook(new ResultStaticHook("stopListening", 0));
 		addHook(new ResultStaticHook("allocateAppWidgetId", 0));
@@ -63,6 +59,6 @@ public class AppWidgetManagerPatch extends PatchObject<IAppWidgetService, HookAp
 
 	@Override
 	public boolean isEnvBad() {
-		return ServiceManager.getService(Context.APPWIDGET_SERVICE) != getHookObject();
+		return ServiceManager.getService.call(Context.APPWIDGET_SERVICE) != getHookDelegate();
 	}
 }

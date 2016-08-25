@@ -32,9 +32,9 @@ import java.util.List;
 		int userId = VUserHandle.myUserId();
 		List<PackageInfo> packageInfos;
 		if (isAppProcess()) {
-			packageInfos = new ArrayList<PackageInfo>(VirtualCore.getCore().getAppCount());
+			packageInfos = new ArrayList<PackageInfo>(VirtualCore.get().getAppCount());
 		} else {
-			packageInfos = VirtualCore.getCore().getUnHookPackageManager().getInstalledPackages(flags);
+			packageInfos = VirtualCore.get().getUnHookPackageManager().getInstalledPackages(flags);
 		}
 		packageInfos.addAll(VPackageManager.get().getInstalledPackages(flags, userId));
 		if (ParceledListSliceCompat.isReturnParceledListSlice(method)) {

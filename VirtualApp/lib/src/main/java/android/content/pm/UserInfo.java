@@ -2,8 +2,6 @@ package android.content.pm;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.SystemProperties;
-import android.os.UserHandle;
 
 /**
  * Per-user information.
@@ -111,14 +109,6 @@ public class UserInfo implements Parcelable {
         return (flags & FLAG_DISABLED) != FLAG_DISABLED;
     }
 
-    /**
-     * @return true if this user can be switched to.
-     **/
-    public boolean supportsSwitchTo() {
-        // TODO remove fw.show_hidden_users when we have finished developing managed profiles.
-        return !isManagedProfile() || SystemProperties.getBoolean("fw.show_hidden_users", false);
-    }
-
     public UserInfo() {
     }
 
@@ -133,10 +123,6 @@ public class UserInfo implements Parcelable {
         partial = orig.partial;
         profileGroupId = orig.profileGroupId;
         guestToRemove = orig.guestToRemove;
-    }
-
-    public UserHandle getUserHandle() {
-        return new UserHandle(id);
     }
 
     @Override

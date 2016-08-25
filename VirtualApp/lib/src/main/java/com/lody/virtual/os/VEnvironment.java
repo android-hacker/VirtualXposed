@@ -30,7 +30,7 @@ public class VEnvironment {
 
 
     private static Context getContext() {
-        return VirtualCore.getCore().getContext();
+        return VirtualCore.get().getContext();
     }
 
     private static File ensureCreated(File folder) {
@@ -65,7 +65,4 @@ public class VEnvironment {
         return ensureCreated(new File(getDataAppDirectory(), "system"));
     }
 
-    public static File redirectSDCard(int userId, String path) {
-        return ensureCreated(new File(path, "VSD/" + userId));
-    }
 }

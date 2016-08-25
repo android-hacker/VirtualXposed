@@ -1,12 +1,12 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import android.app.IApplicationThread;
 import android.content.IIntentReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.IInterface;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.env.SpecialComponentList;
@@ -20,11 +20,10 @@ import java.util.ListIterator;
 import java.util.WeakHashMap;
 
 import mirror.android.app.LoadedApk;
+import mirror.android.content.IIntentReceiverJB;
 
 /**
  * @author Lody
- * @see android.app.IActivityManager#registerReceiver(IApplicationThread,
- *      String, IIntentReceiver, IntentFilter, String, int)
  */
 /* package */ class RegisterReceiver extends Hook {
 
@@ -39,7 +38,7 @@ import mirror.android.app.LoadedApk;
 			? 3
 			: 2;
 
-	private WeakHashMap<IBinder, IIntentReceiver.Stub> mProxyIIntentReceiver = new WeakHashMap<>();
+	private WeakHashMap<IBinder, IIntentReceiver> mProxyIIntentReceiver = new WeakHashMap<>();
 
 	@Override
 	public String getName() {
@@ -53,8 +52,7 @@ import mirror.android.app.LoadedApk;
 		IntentFilter filter = (IntentFilter) args[IDX_IntentFilter];
 		modifyIntentFilter(filter);
 		if (args.length > IDX_IIntentReceiver && IIntentReceiver.class.isInstance(args[IDX_IIntentReceiver])) {
-			final IIntentReceiver old = (IIntentReceiver) args[IDX_IIntentReceiver];
-			// 防止重复代理
+			final IInterface old = (IInterface) args[IDX_IIntentReceiver];
 			if (!ProxyIIntentReceiver.class.isInstance(old)) {
 				final IBinder token = old.asBinder();
 				if (token != null) {
@@ -65,7 +63,7 @@ import mirror.android.app.LoadedApk;
 							mProxyIIntentReceiver.remove(token);
 						}
 					}, 0);
-					IIntentReceiver.Stub proxyIIntentReceiver = mProxyIIntentReceiver.get(token);
+					IIntentReceiver proxyIIntentReceiver = mProxyIIntentReceiver.get(token);
 					if (proxyIIntentReceiver == null) {
 						proxyIIntentReceiver = new ProxyIIntentReceiver(old);
 						mProxyIIntentReceiver.put(token, proxyIIntentReceiver);
@@ -103,39 +101,30 @@ import mirror.android.app.LoadedApk;
 	}
 
 	private static class ProxyIIntentReceiver extends IIntentReceiver.Stub {
-		IIntentReceiver old;
+		IInterface old;
 
-		ProxyIIntentReceiver(IIntentReceiver old) {
+		ProxyIIntentReceiver(IInterface old) {
 			this.old = old;
 		}
 
-		@Override
 		public void performReceive(Intent intent, int resultCode, String data, Bundle extras, boolean ordered,
 				boolean sticky, int sendingUser) throws RemoteException {
-			try {
-				Intent realIntent = intent.getParcelableExtra("_VA_|_intent_");
-				if (realIntent != null) {
-					intent = realIntent;
-				}
-				String action = intent.getAction();
-				String oldAction = SpecialComponentList.restoreAction(action);
-				if (oldAction != null) {
-					intent.setAction(oldAction);
-				}
-				if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
-					old.performReceive(intent, resultCode, data, extras, ordered, sticky, sendingUser);
-				} else {
-					Method performReceive = old.getClass().getDeclaredMethod("performReceive", Intent.class, int.class,
-							String.class, Bundle.class, boolean.class, boolean.class);
-					performReceive.setAccessible(true);
-					performReceive.invoke(old, intent, resultCode, data, extras, ordered, sticky);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			Intent realIntent = intent.getParcelableExtra("_VA_|_intent_");
+			if (realIntent != null) {
+                intent = realIntent;
+            }
+			String action = intent.getAction();
+			String oldAction = SpecialComponentList.restoreAction(action);
+			if (oldAction != null) {
+                intent.setAction(oldAction);
+            }
+			if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
+                IIntentReceiverJB.performReceive.call(old, intent, resultCode, data, extras, ordered, sticky, sendingUser);
+            } else {
+                mirror.android.content.IIntentReceiver.performReceive.call(old, intent, resultCode, data, extras, ordered, sticky);
+            }
 		}
 
-		// @Override
 		public void performReceive(Intent intent, int resultCode, String data, Bundle extras, boolean ordered,
 				boolean sticky) throws android.os.RemoteException {
 			this.performReceive(intent, resultCode, data, extras, ordered, sticky, 0);

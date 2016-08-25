@@ -9,6 +9,8 @@ import android.text.TextUtils;
 import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.os.VEnvironment;
 
+import mirror.android.content.pm.ApplicationInfoL;
+
 /**
  * @author Lody
  */
@@ -24,19 +26,13 @@ public class ComponentFixer {
 		applicationInfo.name = fixComponentClassName(setting.packageName, applicationInfo.name);
 		applicationInfo.publicSourceDir = setting.apkPath;
 		applicationInfo.sourceDir = setting.apkPath;
-		try {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-				applicationInfo.splitSourceDirs = new String[]{setting.apkPath};
-				applicationInfo.splitPublicSourceDirs = applicationInfo.splitSourceDirs;
-			}
-		} catch (Throwable e) {
-			// ignore
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			applicationInfo.splitSourceDirs = new String[]{setting.apkPath};
+			applicationInfo.splitPublicSourceDirs = applicationInfo.splitSourceDirs;
 		}
-		try {
-			applicationInfo.scanSourceDir = applicationInfo.dataDir;
-			applicationInfo.scanPublicSourceDir = applicationInfo.dataDir;
-		} catch (Throwable e) {
-			// Ignore
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			ApplicationInfoL.scanSourceDir.set(applicationInfo, applicationInfo.dataDir);
+			ApplicationInfoL.scanPublicSourceDir.set(applicationInfo, applicationInfo.dataDir);
 		}
 		applicationInfo.enabled = true;
 		applicationInfo.nativeLibraryDir = setting.libPath;

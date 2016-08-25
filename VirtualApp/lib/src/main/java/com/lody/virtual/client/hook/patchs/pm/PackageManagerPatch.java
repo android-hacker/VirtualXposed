@@ -1,24 +1,19 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import android.app.ActivityThread;
-import android.content.pm.IPackageManager;
-import android.os.IBinder;
+import android.os.IInterface;
 
-import com.lody.virtual.client.hook.base.HookBinder;
-import com.lody.virtual.client.hook.base.HookObject;
+import com.lody.virtual.client.hook.base.HookBinderDelegate;
+import com.lody.virtual.client.hook.base.HookDelegate;
 import com.lody.virtual.client.hook.base.Patch;
-import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.base.ResultStaticHook;
-import com.lody.virtual.client.interfaces.IHookObject;
 
-import java.lang.reflect.Field;
+import mirror.android.app.ActivityThread;
 
 /**
  * @author Lody
  *
  *
- * @see IPackageManager
- * @see android.app.ApplicationPackageManager
  */
 @Patch({GetPackageInfo.class, GetApplicationInfo.class, GetActivityInfo.class, GetServiceInfo.class,
 		GetPermissions.class, GetProviderInfo.class, GetReceiverInfo.class,
@@ -52,20 +47,21 @@ import java.lang.reflect.Field;
 		RemoveOnPermissionsChangeListener.class, ActivitySupportsIntent.class,
 
 })
-public final class PackageManagerPatch extends PatchObject<IPackageManager, HookObject<IPackageManager>> {
+public final class PackageManagerPatch extends PatchDelegate<HookDelegate<IInterface>> {
 
-	public static IPackageManager getPM() {
-		return ActivityThread.getPackageManager();
+	@Override
+	protected HookDelegate<IInterface> createHookDelegate() {
+		return new HookDelegate<IInterface>() {
+			@Override
+			protected IInterface createInterface() {
+				return ActivityThread.sPackageManager.get();
+			}
+		};
 	}
 
 	@Override
-	protected HookObject<IPackageManager> initHookObject() {
-		return new HookObject<IPackageManager>(getPM());
-	}
-
-	@Override
-	protected void applyHooks() {
-		super.applyHooks();
+	protected void onBindHooks() {
+		super.onBindHooks();
 		addHook(new ResultStaticHook("addPermissionAsync", true));
 		addHook(new ResultStaticHook("addPermission", true));
 	}
@@ -73,31 +69,22 @@ public final class PackageManagerPatch extends PatchObject<IPackageManager, Hook
 	@Override
 	public void inject() throws Throwable {
 
-		// NOTE:所有进程共享一个包管理器
-		Field fPM = ActivityThread.class.getDeclaredField("sPackageManager");
-		fPM.setAccessible(true);
-		IHookObject<IPackageManager> hookedPMObject = getHookObject();
-		final IPackageManager hookedPM = hookedPMObject.getProxyObject();
-		fPM.set(null, hookedPM);
-		final IBinder baseBinder = hookedPM.asBinder();
+		final IInterface hookedPM = getHookDelegate().getProxyInterface();
+		ActivityThread.sPackageManager.set(hookedPM);
 
-		HookBinder<IPackageManager> pmHookBinder = new HookBinder<IPackageManager>() {
+		HookBinderDelegate pmHookBinder = new HookBinderDelegate() {
 			@Override
-			protected IBinder queryBaseBinder() {
-				return baseBinder;
-			}
-
-			@Override
-			protected IPackageManager createInterface(IBinder baseBinder) {
-				return hookedPM;
+			protected IInterface createInterface() {
+				return getHookDelegate().getBaseInterface();
 			}
 		};
-		pmHookBinder.injectService("package");
+		pmHookBinder.copyHooks(getHookDelegate());
+		pmHookBinder.replaceService("package");
 
 	}
 
 	@Override
 	public boolean isEnvBad() {
-		return getHookObject().getProxyObject() != getPM();
+		return getHookDelegate().getProxyInterface() != ActivityThread.sPackageManager.get();
 	}
 }

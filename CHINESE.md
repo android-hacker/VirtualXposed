@@ -49,7 +49,8 @@ VirtualApp允许你在App内创建一个虚拟空间，你可以在虚拟空间�
 文档
 -------------
 
-VirtualApp 目前暂时**没有文档**，Please read the fucking source code。
+<https://github.com/prife/VirtualAppDoc>
+ 
 
 License
 -------

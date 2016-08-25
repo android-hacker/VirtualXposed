@@ -13,7 +13,7 @@ public class BundleCompat {
 		if (Build.VERSION.SDK_INT >= 18) {
 			return bundle.getBinder(key);
 		} else {
-			return bundle.getIBinder(key);
+			return mirror.android.os.Bundle.getIBinder.call(bundle, key);
 		}
 	}
 
@@ -21,7 +21,7 @@ public class BundleCompat {
 		if (Build.VERSION.SDK_INT >= 18) {
 			bundle.putBinder(key, value);
 		} else {
-			bundle.putIBinder(key, value);
+			mirror.android.os.Bundle.putIBinder.call(bundle, key, value);
 		}
 	}
 

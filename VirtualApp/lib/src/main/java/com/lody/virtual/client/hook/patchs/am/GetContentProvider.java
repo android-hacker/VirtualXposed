@@ -1,10 +1,7 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import android.app.IActivityManager;
-import android.app.IApplicationThread;
-import android.content.IContentProvider;
 import android.content.pm.ProviderInfo;
-import android.os.IBinder;
+import android.os.IInterface;
 
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.hook.base.Hook;
@@ -14,14 +11,10 @@ import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
 
+import mirror.android.app.IActivityManager;
+
 /**
  * @author Lody
- *
- *
- * @see IActivityManager#getContentProvider(IApplicationThread, String, int,
- *      boolean)
- * @see IActivityManager#getContentProviderExternal(String, int, IBinder)
- *
  */
 /* package */ class GetContentProvider extends Hook {
 	@Override
@@ -36,12 +29,12 @@ import java.lang.reflect.Method;
 		ProviderInfo info = VPackageManager.get().resolveContentProvider(name, 0, userId);
 		if (info != null) {
 			if (info.processName.equals(VirtualRuntime.getProcessName())) {
-				return new IActivityManager.ContentProviderHolder(info);
+				return IActivityManager.ContentProviderHolder.ctor.newInstance(info);
 			}
-			IContentProvider client = VActivityManager.get().acquireProviderClient(userId, info);
-			IActivityManager.ContentProviderHolder holder = new IActivityManager.ContentProviderHolder(info);
-			holder.provider = client;
-			holder.noReleaseNeeded = true;
+			IInterface client = VActivityManager.get().acquireProviderClient(userId, info);
+			Object holder = IActivityManager.ContentProviderHolder.ctor.newInstance(info);
+			IActivityManager.ContentProviderHolder.provider.set(holder, client);
+			IActivityManager.ContentProviderHolder.noReleaseNeeded.set(holder, true);
 			return holder;
 		} else {
 			return method.invoke(who, args);

@@ -1,42 +1,41 @@
 package com.lody.virtual.client.hook.patchs.vibrator;
 
 import android.content.Context;
-import android.os.IVibratorService;
-import android.os.ServiceManager;
 
-import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
-import com.lody.virtual.client.hook.binders.HookVibratorBinder;
+import com.lody.virtual.client.hook.binders.VibratorBinderDelegate;
+
+import mirror.android.os.ServiceManager;
 
 /**
  * @author Lody
  *
  *
- * @see IVibratorService
  * @see android.os.Vibrator
  */
-public class VibratorPatch extends PatchObject<IVibratorService, HookVibratorBinder> {
+public class VibratorPatch extends PatchDelegate<VibratorBinderDelegate> {
 
 	@Override
-	protected HookVibratorBinder initHookObject() {
-		return new HookVibratorBinder();
+	protected VibratorBinderDelegate createHookDelegate() {
+		return new VibratorBinderDelegate();
 	}
 
 	@Override
 	public void inject() throws Throwable {
-		getHookObject().injectService(Context.VIBRATOR_SERVICE);
+		getHookDelegate().replaceService(Context.VIBRATOR_SERVICE);
 	}
 
 	@Override
-	protected void applyHooks() {
-		super.applyHooks();
+	protected void onBindHooks() {
+		super.onBindHooks();
 		addHook(new ReplaceCallingPkgHook("vibrate"));
 		addHook(new ReplaceCallingPkgHook("vibratePattern"));
 	}
 
 	@Override
 	public boolean isEnvBad() {
-		return getHookObject() != ServiceManager.getService(Context.VIBRATOR_SERVICE);
+		return getHookDelegate() != ServiceManager.getService.call(Context.VIBRATOR_SERVICE);
 	}
 
 }

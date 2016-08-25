@@ -1,22 +1,5 @@
-/*
- * Copyright (C) 2009 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.lody.virtual.helper.utils;
 
-import android.os.FileUtils;
 import android.util.Log;
 
 import java.io.File;
@@ -25,6 +8,22 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+/**
+ * Static library support version of the framework's {@link android.util.AtomicFile},
+ * a helper class for performing atomic operations on a file by creating a
+ * backup file until a write has successfully completed.
+ * <p>
+ * Atomic file guarantees file integrity by ensuring that a file has
+ * been completely written and sync'd to disk before removing its backup.
+ * As long as the backup file exists, the original file is considered
+ * to be invalid (left over from a previous attempt to write the file).
+ * </p><p>
+ * Atomic file does not confer any file locking semantics.
+ * Do not use this class when the file may be accessed or modified concurrently
+ * by multiple threads or processes.  The caller is responsible for ensuring
+ * appropriate mutual exclusion invariants whenever it accesses the file.
+ * </p>
+ */
 public class AtomicFile {
     private final File mBaseName;
     private final File mBackupName;
@@ -85,13 +84,9 @@ public class AtomicFile {
             str = new FileOutputStream(mBaseName);
         } catch (FileNotFoundException e) {
             File parent = mBaseName.getParentFile();
-            if (!parent.mkdirs()) {
+            if (!parent.mkdir()) {
                 throw new IOException("Couldn't create directory " + mBaseName);
             }
-            FileUtils.setPermissions(
-                parent.getPath(),
-                FileUtils.S_IRWXU|FileUtils.S_IRWXG|FileUtils.S_IXOTH,
-                -1, -1);
             try {
                 str = new FileOutputStream(mBaseName);
             } catch (FileNotFoundException e2) {
@@ -109,7 +104,7 @@ public class AtomicFile {
      */
     public void finishWrite(FileOutputStream str) {
         if (str != null) {
-            FileUtils.sync(str);
+            sync(str);
             try {
                 str.close();
                 mBackupName.delete();
@@ -126,7 +121,7 @@ public class AtomicFile {
      */
     public void failWrite(FileOutputStream str) {
         if (str != null) {
-            FileUtils.sync(str);
+            sync(str);
             try {
                 str.close();
                 mBaseName.delete();
@@ -134,31 +129,6 @@ public class AtomicFile {
             } catch (IOException e) {
                 Log.w("AtomicFile", "failWrite: Got exception:", e);
             }
-        }
-    }
-
-    /** @hide
-     * @deprecated This is not safe.
-     */
-    @Deprecated public void truncate() throws IOException {
-        try {
-            FileOutputStream fos = new FileOutputStream(mBaseName);
-            FileUtils.sync(fos);
-            fos.close();
-        } catch (FileNotFoundException e) {
-            throw new IOException("Couldn't append " + mBaseName);
-        } catch (IOException e) {
-        }
-    }
-
-    /** @hide
-     * @deprecated This is not safe.
-     */
-    @Deprecated public FileOutputStream openAppend() throws IOException {
-        try {
-            return new FileOutputStream(mBaseName, true);
-        } catch (FileNotFoundException e) {
-            throw new IOException("Couldn't append " + mBaseName);
         }
     }
 
@@ -180,20 +150,6 @@ public class AtomicFile {
             mBackupName.renameTo(mBaseName);
         }
         return new FileInputStream(mBaseName);
-    }
-
-    /**
-     * Gets the last modified time of the atomic file.
-     * {@hide}
-     *
-     * @return last modified time in milliseconds since epoch.
-     * @throws IOException
-     */
-    public long getLastModifiedTime() throws IOException {
-        if (mBackupName.exists()) {
-            return mBackupName.lastModified();
-        }
-        return mBaseName.lastModified();
     }
 
     /**
@@ -226,5 +182,16 @@ public class AtomicFile {
         } finally {
             stream.close();
         }
+    }
+
+    static boolean sync(FileOutputStream stream) {
+        try {
+            if (stream != null) {
+                stream.getFD().sync();
+            }
+            return true;
+        } catch (IOException e) {
+        }
+        return false;
     }
 }

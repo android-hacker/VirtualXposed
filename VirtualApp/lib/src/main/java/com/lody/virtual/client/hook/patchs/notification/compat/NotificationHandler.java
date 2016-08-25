@@ -46,7 +46,7 @@ public class NotificationHandler {
 	}
 
 	private Context getContext() {
-		return VirtualCore.getCore().getContext();
+		return VirtualCore.get().getContext();
 	}
 
 	public Result dealNotification(Context context, Notification notification, String packageName) throws Exception {
@@ -56,7 +56,7 @@ public class NotificationHandler {
 		// return result;
 		// }
 		if (DOPEN_NOT_DEAL) {
-			if (VirtualCore.getCore().isOutsideInstalled(packageName)) {
+			if (VirtualCore.get().isOutsideInstalled(packageName)) {
 				// 双开模式，直接替换icon
 				NotificaitionUtils.fixNotificationIcon(context, notification);
 				result.code = RESULT_CODE_DEAL_OK;
