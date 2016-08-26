@@ -48,7 +48,9 @@ import mirror.android.util.Singleton;
 		SetPackageAskScreenCompat.class, GetPackageAskScreenCompat.class,
 		CheckPermission.class, PublishContentProviders.class, GetCurrentUser.class,
 		UnstableProviderDied.class, GetCallingActivity.class, FinishActivity.class,
-		GetServices.class,})
+		GetServices.class,
+
+		SetTaskDescription.class,})
 
 public class ActivityManagerPatch extends PatchDelegate<HookDelegate<IInterface>> {
 
