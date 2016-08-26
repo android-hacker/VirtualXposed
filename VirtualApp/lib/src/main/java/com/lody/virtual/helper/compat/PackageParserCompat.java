@@ -190,18 +190,18 @@ public class PackageParserCompat {
 
 	public static PackageInfo generatePackageInfo(Package p, int flags, long firstInstallTime, long lastUpdateTime) {
 		if (SDK >= M) {
+
 			return PackageParserMarshmallow.generatePackageInfo.call(p, gids, flags, firstInstallTime, lastUpdateTime,
 					null, sUserState);
 
-		} else if (SDK >= LOLLIPOP_MR1) {
-
-			return PackageParserLollipop22.generatePackageInfo.call(p, gids, flags, firstInstallTime, lastUpdateTime,
-					null, sUserState);
-
 		} else if (SDK >= LOLLIPOP) {
-
-			return PackageParserLollipop.generatePackageInfo.call(p, gids, flags, firstInstallTime, lastUpdateTime,
-					null, sUserState);
+			if (PackageParserLollipop22.generatePackageInfo != null) {
+				return PackageParserLollipop22.generatePackageInfo.call(p, gids, flags, firstInstallTime, lastUpdateTime,
+						null, sUserState);
+			} else {
+				return PackageParserLollipop.generatePackageInfo.call(p, gids, flags, firstInstallTime, lastUpdateTime,
+						null, sUserState);
+			}
 
 		} else if (SDK >= JELLY_BEAN_MR1) {
 

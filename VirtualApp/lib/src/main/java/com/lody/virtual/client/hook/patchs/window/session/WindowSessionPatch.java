@@ -16,15 +16,16 @@ import com.lody.virtual.client.hook.base.PatchDelegate;
 public class WindowSessionPatch extends PatchDelegate<HookDelegate<IInterface>> {
 
 	public WindowSessionPatch(IInterface session) {
-		attachInterface(session);
+		super(session);
 	}
 
 	@Override
 	public HookDelegate<IInterface> createHookDelegate() {
+
 		return new HookDelegate<IInterface>() {
 			@Override
 			protected IInterface createInterface() {
-				return (IInterface) WindowSessionPatch.this.baseObject;
+				return (IInterface) baseObject;
 			}
 		};
 	}

@@ -15,9 +15,6 @@ import java.util.Map;
 /**
  * @author Lody
  *
- *
- *         对一个要Hook的对象进行包装.
- *
  */
 @SuppressWarnings("unchecked")
 public abstract class HookDelegate<T> implements IHookObject {
@@ -43,6 +40,8 @@ public abstract class HookDelegate<T> implements IHookObject {
 				proxyInterfaces = mBaseInterface.getClass().getInterfaces();
 			}
 			mProxyInterface = (T) Proxy.newProxyInstance(mBaseInterface.getClass().getClassLoader(), proxyInterfaces, new HookHandler());
+		} else {
+			VLog.d(TAG, "Unable to build HookDelegate: %s.", getClass().getName());
 		}
 	}
 

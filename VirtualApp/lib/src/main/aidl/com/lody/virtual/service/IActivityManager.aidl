@@ -14,6 +14,8 @@ import com.lody.virtual.service.interfaces.IProcessObserver;
 
 interface IActivityManager {
 
+    int getFreeStubCount();
+
     int getSystemPid();
 
     int getUidByPid(int pid);

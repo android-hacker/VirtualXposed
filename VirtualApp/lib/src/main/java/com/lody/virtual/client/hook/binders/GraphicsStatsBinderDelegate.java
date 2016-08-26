@@ -18,6 +18,9 @@ public class GraphicsStatsBinderDelegate extends HookBinderDelegate {
 	@Override
 	protected IInterface createInterface() {
 		IBinder binder = ServiceManager.getService.call("graphicsstats");
-		return IGraphicsStats.Stub.asInterface.call(binder);
+		if (binder != null) {
+			return IGraphicsStats.Stub.asInterface.call(binder);
+		}
+		return null;
 	}
 }

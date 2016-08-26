@@ -17,6 +17,6 @@ public class ClipboardBinderDelegate extends HookBinderDelegate {
 	@Override
 	protected IInterface createInterface() {
 		getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-		return ClipboardManager.sService.get();
+		return ClipboardManager.getService.call();
 	}
 }

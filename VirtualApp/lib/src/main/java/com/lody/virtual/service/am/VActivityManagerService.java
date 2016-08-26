@@ -612,7 +612,6 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			}
 			r.lastActivityTime = SystemClock.uptimeMillis();
 			r.addToBoundIntent(service, connection);
-
 			return 1;
 		}
 	}
@@ -686,23 +685,23 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	public void publishService(IBinder token, Intent intent, IBinder service) {
 		synchronized (this) {
 			ServiceRecord r = findRecord(token);
-			if (r == null) {
-				return;
-			}
-			List<IServiceConnection> allConnections = r.getAllConnections();
-			if (allConnections.isEmpty()) {
-				return;
-			}
-			for (IServiceConnection connection : allConnections) {
-				if (connection.asBinder().isBinderAlive()) {
-					ComponentName componentName = new ComponentName(r.serviceInfo.packageName, r.serviceInfo.name);
-					try {
-						connection.connected(componentName, service);
-					} catch (Exception e) {
-						e.printStackTrace();
+			if (r != null) {
+				r.binder = service;
+				List<IServiceConnection> allConnections = r.getAllConnections();
+				if (allConnections.isEmpty()) {
+					return;
+				}
+				for (IServiceConnection connection : allConnections) {
+					if (connection.asBinder().isBinderAlive()) {
+						ComponentName componentName = new ComponentName(r.serviceInfo.packageName, r.serviceInfo.name);
+						try {
+							connection.connected(componentName, service);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					} else {
+						allConnections.remove(connection);
 					}
-				} else {
-					allConnections.remove(connection);
 				}
 			}
 		}
@@ -807,7 +806,16 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		record.lock.open();
 	}
 
+	@Override
+	public int getFreeStubCount() {
+		return stubInfoMap.size() - mPidsSelfLocked.size();
+	}
+
 	public ProcessRecord startProcessIfNeedLocked(String processName, int userId, String packageName) {
+		if (VActivityManagerService.get().getFreeStubCount() < 3) {
+			// run GC
+			VActivityManagerService.get().killAllApps();
+		}
 		ApplicationInfo info = VPackageManagerService.get().getApplicationInfo(packageName, 0, userId);
 		synchronized (this) {
 			AppSetting setting = VAppManagerService.get().findAppInfo(info.packageName);

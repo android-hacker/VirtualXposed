@@ -10,6 +10,9 @@ import com.lody.virtual.helper.utils.ArrayUtils;
 public class HookUtils {
 
 	public static String replaceFirstAppPkg(Object[] args) {
+		if (args == null) {
+			return null;
+		}
 		int index = ArrayUtils.indexOfFirst(args, String.class);
 		if (index != -1) {
 			String pkg = (String) args[index];
@@ -19,15 +22,6 @@ public class HookUtils {
 			return pkg;
 		}
 		return null;
-	}
-
-	public static void replaceAppPkg(Object[] args) {
-		for (int N = 0; N < args.length; N++) {
-			if (args[N] instanceof String && VirtualCore.get().isAppInstalled((String) args[N])) {
-				args[N] = VirtualCore.get().getHostPkg();
-				break;
-			}
-		}
 	}
 
 	public static void replaceLastAppPkg(Object[] args) {

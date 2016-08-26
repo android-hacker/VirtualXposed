@@ -20,6 +20,7 @@ import com.lody.virtual.client.hook.patchs.dropbox.DropBoxManagerPatch;
 import com.lody.virtual.client.hook.patchs.graphics.GraphicsStatsPatch;
 import com.lody.virtual.client.hook.patchs.imms.MmsPatch;
 import com.lody.virtual.client.hook.patchs.input.InputMethodManagerPatch;
+import com.lody.virtual.client.hook.patchs.isub.ISubPatch;
 import com.lody.virtual.client.hook.patchs.job.JobPatch;
 import com.lody.virtual.client.hook.patchs.location.LocationManagerPatch;
 import com.lody.virtual.client.hook.patchs.media.router.MediaRouterServicePatch;
@@ -119,11 +120,11 @@ public final class PatchManager {
 		if (VirtualCore.get().isVAppProcess()) {
 			addPatch(new ActivityManagerPatch());
 			addPatch(new PackageManagerPatch());
-//			addPatch(new LibCorePatch());
 			// ## End
 			addPatch(HCallbackHook.getDefault());
 			addPatch(AppInstrumentation.getDefault());
 
+			addPatch(new ISubPatch());
 			addPatch(new DropBoxManagerPatch());
 			addPatch(new NotificationManagerPatch());
 			addPatch(new LocationManagerPatch());
@@ -138,7 +139,6 @@ public final class PatchManager {
 			addPatch(new AccountManagerPatch());
 			addPatch(new AudioManagerPatch());
 			addPatch(new SearchManagerPatch());
-			addPatch(new AlarmManagerPatch());
 			addPatch(new ContentServicePatch());
 
 			if (Build.VERSION.SDK_INT >= JELLY_BEAN_MR2) {
@@ -161,6 +161,7 @@ public final class PatchManager {
 				addPatch(new RestrictionPatch());
 			}
 			if (Build.VERSION.SDK_INT >= KITKAT) {
+				addPatch(new AlarmManagerPatch());
 				addPatch(new AppOpsManagerPatch());
 				addPatch(new MediaRouterServicePatch());
 			}

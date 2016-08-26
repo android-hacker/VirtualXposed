@@ -8,9 +8,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.IInterface;
 
-import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.env.HackServiceConnection;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.os.VUserHandle;
@@ -19,11 +17,6 @@ import java.lang.reflect.Method;
 
 /**
  * @author Lody
- *         <p>
- *         <p>
- *         原型: public int bindService(IApplicationThreadKitkat caller, IBinder token,
- *         Intent service, String resolvedType, IServiceConnection connection,
- *         int flags, String callingPackage, int userId)
  */
 /* package */ class BindService extends Hook {
 
@@ -51,7 +44,6 @@ import java.lang.reflect.Method;
 				service.setComponent(new ComponentName(serviceInfo.packageName, serviceInfo.name));
 			}
 			if (isAppPkg(pkgName)) {
-				connection = new HackServiceConnection(VClientImpl.getClient().getCurrentApplication(), connection);
 				return VActivityManager.get().bindService(caller.asBinder(), token, service, resolvedType,
 						connection, flags);
 			}
