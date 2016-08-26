@@ -1,10 +1,10 @@
 package com.lody.virtual.client.stub;
 
-import android.app.ActivityManager;
 import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 
+import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.component.BaseService;
 
 /**
@@ -54,7 +54,7 @@ public class KeepService extends BaseService {
 			return;
 		}
 		switch (flags) {
-			case ActivityManager.INTENT_SENDER_ACTIVITY : {
+			case ActivityManagerCompat.INTENT_SENDER_ACTIVITY : {
 				originIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				try {
 					startActivity(originIntent);
@@ -63,7 +63,7 @@ public class KeepService extends BaseService {
 				}
 				break;
 			}
-			case ActivityManager.INTENT_SENDER_SERVICE : {
+			case ActivityManagerCompat.INTENT_SENDER_SERVICE : {
 				try {
 					startService(originIntent);
 				} catch (Throwable e) {

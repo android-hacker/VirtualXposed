@@ -11,6 +11,18 @@ public class StaticMethodDef<T> {
     public StaticMethodDef(Class<?> cls, Field field) throws NoSuchMethodException {
         if (field.isAnnotationPresent(MethodInfo.class)) {
             Class<?>[] types = field.getAnnotation(MethodInfo.class).value();
+            for (int i = 0; i < types.length; i++) {
+                Class<?> clazz = types[i];
+                if (clazz.getClassLoader() == getClass().getClassLoader()) {
+                    try {
+                        Class.forName(clazz.getName());
+                        Class<?> realClass = (Class<?>) clazz.getField("Class").get(null);
+                        types[i] = realClass;
+                    } catch (Throwable e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
             this.method = cls.getDeclaredMethod(field.getName(), types);
             this.method.setAccessible(true);
         } else if (field.isAnnotationPresent(MethodReflectionInfo.class)) {

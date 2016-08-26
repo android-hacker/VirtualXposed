@@ -222,7 +222,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 		if (resultCode == RESULT_OK && requestCode == VCommends.REQUEST_SELECT_APP && data != null) {
 			AppModel model = data.getParcelableExtra(VCommends.EXTRA_APP_MODEL);
 			mPresenter.addApp(model);
-			AppSetting info = VirtualCore.getCore().findApp(model.packageName);
+			AppSetting info = VirtualCore.get().findApp(model.packageName);
 			if (info != null) {
 				if (info.dependSystem) {
 					mPresenter.dataChanged();
@@ -233,7 +233,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 				VUiKit.defer().when(() -> {
 					try {
 						model.loadData(info.getApplicationInfo(VUserHandle.USER_OWNER));
-						VirtualCore.getCore().preOpt(info.packageName);
+						VirtualCore.get().preOpt(info.packageName);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}

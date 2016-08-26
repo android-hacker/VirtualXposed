@@ -1,11 +1,11 @@
 package com.lody.virtual.client.hook.patchs.persistent_data_block;
 
-import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.base.ResultStaticHook;
-import com.lody.virtual.client.hook.binders.HookPersistentDataBlockServiceBinder;
+import com.lody.virtual.client.hook.binders.PersistentDataBlockServiceBinderDelegate;
 
-import android.os.ServiceManager;
-import android.service.persistentdata.IPersistentDataBlockService;
+import mirror.android.os.ServiceManager;
+
 
 /**
  * @author Lody
@@ -13,21 +13,21 @@ import android.service.persistentdata.IPersistentDataBlockService;
 
 public class PersistentDataBlockServicePatch
 		extends
-			PatchObject<IPersistentDataBlockService, HookPersistentDataBlockServiceBinder> {
+		PatchDelegate<PersistentDataBlockServiceBinderDelegate> {
 
 	@Override
-	protected HookPersistentDataBlockServiceBinder initHookObject() {
-		return new HookPersistentDataBlockServiceBinder();
+	protected PersistentDataBlockServiceBinderDelegate createHookDelegate() {
+		return new PersistentDataBlockServiceBinderDelegate();
 	}
 
 	@Override
 	public void inject() throws Throwable {
-		getHookObject().injectService(HookPersistentDataBlockServiceBinder.SERVICE_NAME);
+		getHookDelegate().replaceService("persistent_data_block");
 	}
 
 	@Override
-	protected void applyHooks() {
-		super.applyHooks();
+	protected void onBindHooks() {
+		super.onBindHooks();
 		addHook(new ResultStaticHook("write", -1));
 		addHook(new ResultStaticHook("read", new byte[0]));
 		addHook(new ResultStaticHook("wipe", null));
@@ -39,6 +39,6 @@ public class PersistentDataBlockServicePatch
 
 	@Override
 	public boolean isEnvBad() {
-		return getHookObject() != ServiceManager.getService(HookPersistentDataBlockServiceBinder.SERVICE_NAME);
+		return getHookDelegate() != ServiceManager.getService.call("persistent_data_block");
 	}
 }

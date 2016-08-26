@@ -1,6 +1,5 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
@@ -9,6 +8,7 @@ import android.os.IBinder;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.utils.ArrayUtils;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
 
 	private static int getUserId(Intent intent) {
 		int userId = VUserHandle.myUserId();
-		if (VirtualCore.getCore().isMainProcess()) {
+		if (VirtualCore.get().isMainProcess()) {
 			intent.setExtrasClassLoader(StartActivity.class.getClassLoader());
 			userId = intent.getIntExtra("_VA_|_user_id_", userId);
 		}
@@ -57,7 +57,7 @@ import java.lang.reflect.Method;
 			args[intentIndex - 1] = getHostPkg();
 		}
 
-		ActivityInfo targetActInfo = VirtualCore.getCore().resolveActivityInfo(targetIntent, userId);
+		ActivityInfo targetActInfo = VirtualCore.get().resolveActivityInfo(targetIntent, userId);
 		if (targetActInfo == null) {
 			return method.invoke(who, args);
 		}
@@ -79,7 +79,7 @@ import java.lang.reflect.Method;
 	@Override
 	public Object afterHook(Object who, Method method, Object[] args, Object result) throws Throwable {
 		int res = (int) result;
-		if (res == ActivityManager.START_TASK_TO_FRONT) {
+		if (res == ActivityManagerCompat.START_TASK_TO_FRONT) {
 			VLog.w(getName(), "Hit <START_TASK_TO_FRONT>.");
 		}
 		return res;

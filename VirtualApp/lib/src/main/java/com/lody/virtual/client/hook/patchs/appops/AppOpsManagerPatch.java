@@ -3,43 +3,40 @@ package com.lody.virtual.client.hook.patchs.appops;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
-import android.os.ServiceManager;
 
-import com.android.internal.app.IAppOpsService;
-import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
 import com.lody.virtual.client.hook.base.StaticHook;
-import com.lody.virtual.client.hook.binders.HookAppOpsBinder;
+import com.lody.virtual.client.hook.binders.AppOpsBinderDelegate;
 
 import java.lang.reflect.Method;
+
+import mirror.android.os.ServiceManager;
 
 /**
  * @author Lody
  *
- *
- *
- *         Fuck the AppOpsService.
+ *  Fuck the AppOpsService.
  *
  * @see android.app.AppOpsManager
- * @see IAppOpsService
  */
 @TargetApi(Build.VERSION_CODES.KITKAT)
-public class AppOpsManagerPatch extends PatchObject<IAppOpsService, HookAppOpsBinder> {
+public class AppOpsManagerPatch extends PatchDelegate<AppOpsBinderDelegate> {
 
 	@Override
-	protected HookAppOpsBinder initHookObject() {
-		return new HookAppOpsBinder();
+	protected AppOpsBinderDelegate createHookDelegate() {
+		return new AppOpsBinderDelegate();
 	}
 
 	@Override
 	public void inject() throws Throwable {
-		getHookObject().injectService(Context.APP_OPS_SERVICE);
+		getHookDelegate().replaceService(Context.APP_OPS_SERVICE);
 	}
 
 	@Override
-	protected void applyHooks() {
-		super.applyHooks();
+	protected void onBindHooks() {
+		super.onBindHooks();
 		addHook(new BaseHook("checkOperation", 1, 2));
 		addHook(new BaseHook("noteOperation", 1, 2));
 		addHook(new BaseHook("startOperation", 2, 3));
@@ -77,7 +74,7 @@ public class AppOpsManagerPatch extends PatchObject<IAppOpsService, HookAppOpsBi
 
 	@Override
 	public boolean isEnvBad() {
-		return ServiceManager.getService(Context.APP_OPS_SERVICE) != getHookObject();
+		return ServiceManager.getService.call(Context.APP_OPS_SERVICE) != getHookDelegate();
 	}
 
 }

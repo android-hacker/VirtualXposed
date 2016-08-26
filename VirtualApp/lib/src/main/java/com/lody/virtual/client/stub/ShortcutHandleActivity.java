@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
-import com.lody.virtual.client.core.VirtualCore;
-
 import java.net.URISyntaxException;
 
 /**
@@ -15,18 +13,12 @@ import java.net.URISyntaxException;
  */
 public class ShortcutHandleActivity extends Activity {
 
-	private static boolean needPreloadApp = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Intent intent = getIntent();
 		if (intent != null) {
-			if (needPreloadApp) {
-				// Ensure the all apps loaded.
-				VirtualCore.getCore().preloadAllApps();
-				needPreloadApp = false;
-			}
 			Intent forwardIntent = getTargetIntent();
 			if (forwardIntent != null) {
 				forwardIntent.putExtras(intent);

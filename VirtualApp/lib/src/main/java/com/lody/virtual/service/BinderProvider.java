@@ -29,19 +29,19 @@ public final class BinderProvider extends BaseContentProvider {
 	public boolean onCreate() {
 		Context context = getContext();
 		KeepService.startup(context);
-		if (!VirtualCore.getCore().isStartup()) {
+		if (!VirtualCore.get().isStartup()) {
 			return true;
 		}
 		VPackageManagerService.systemReady();
-		addService(ServiceManagerNative.PACKAGE_MANAGER, VPackageManagerService.getService());
+		addService(ServiceManagerNative.PACKAGE_MANAGER, VPackageManagerService.get());
 		VActivityManagerService.systemReady(context);
-		addService(ServiceManagerNative.ACTIVITY_MANAGER, VActivityManagerService.getService());
-		addService(ServiceManagerNative.USER_MANAGER, VUserManagerService.getInstance());
+		addService(ServiceManagerNative.ACTIVITY_MANAGER, VActivityManagerService.get());
+		addService(ServiceManagerNative.USER_MANAGER, VUserManagerService.get());
 		VAppManagerService.systemReady();
-		addService(ServiceManagerNative.APP_MANAGER, VAppManagerService.getService());
-		VAccountManagerService.systemReady(context);
-		addService(ServiceManagerNative.ACCOUNT_MANAGER, VAccountManagerService.getSingleton());
-		addService(ServiceManagerNative.INTENT_FILTER_MANAGER, IntentFilterService.getService());
+		addService(ServiceManagerNative.APP_MANAGER, VAppManagerService.get());
+		VAccountManagerService.systemReady();
+		addService(ServiceManagerNative.ACCOUNT_MANAGER, VAccountManagerService.get());
+		addService(ServiceManagerNative.INTENT_FILTER_MANAGER, IntentFilterService.get());
 		return true;
 	}
 

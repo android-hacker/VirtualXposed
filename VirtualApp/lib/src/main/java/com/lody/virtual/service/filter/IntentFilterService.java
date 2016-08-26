@@ -13,7 +13,7 @@ public class IntentFilterService extends IIntentFilterObserver.Stub {
 	public static IntentFilterService sService = new IntentFilterService();
 	public IIntentFilterObserver callBack;
 
-	public static IntentFilterService getService() {
+	public static IntentFilterService get() {
 		return sService;
 	}
 

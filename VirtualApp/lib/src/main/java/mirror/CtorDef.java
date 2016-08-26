@@ -26,7 +26,7 @@ public class CtorDef<T> {
         } else {
             ctor = cls.getDeclaredConstructor();
         }
-        if (!ctor.isAccessible()) {
+        if (ctor != null && !ctor.isAccessible()) {
             ctor.setAccessible(true);
         }
     }

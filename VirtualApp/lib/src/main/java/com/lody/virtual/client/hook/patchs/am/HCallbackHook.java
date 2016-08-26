@@ -84,7 +84,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		ComponentName component = targetIntent.getComponent();
 		String packageName = component.getPackageName();
 
-		AppSetting appSetting = VirtualCore.getCore().findApp(packageName);
+		AppSetting appSetting = VirtualCore.get().findApp(packageName);
 		if (appSetting == null) {
 			return true;
 		}

@@ -30,7 +30,7 @@ public class ServiceManagerNative {
 
 	public synchronized static IServiceFetcher getServiceFetcher() {
 		if (sFetcher == null) {
-			Context context = VirtualCore.getCore().getContext();
+			Context context = VirtualCore.get().getContext();
 			Bundle response = new ProviderCall.Builder(context, SERVICE_CP_AUTH).methodName("@").call();
 			if (response != null) {
 				IBinder binder = BundleCompat.getBinder(response, "_VA_|_binder_");
@@ -58,7 +58,7 @@ public class ServiceManagerNative {
 	}
 
 	public static IBinder getService(String name) {
-		if (VirtualCore.getCore().isServiceProcess()) {
+		if (VirtualCore.get().isServiceProcess()) {
 			return ServiceCache.getService(name);
 		}
 		IServiceFetcher fetcher = getServiceFetcher();

@@ -13,8 +13,8 @@ public class HookUtils {
 		int index = ArrayUtils.indexOfFirst(args, String.class);
 		if (index != -1) {
 			String pkg = (String) args[index];
-			if (VirtualCore.getCore().isAppInstalled(pkg)) {
-				args[index] = VirtualCore.getCore().getHostPkg();
+			if (VirtualCore.get().isAppInstalled(pkg)) {
+				args[index] = VirtualCore.get().getHostPkg();
 			}
 			return pkg;
 		}
@@ -23,8 +23,8 @@ public class HookUtils {
 
 	public static void replaceAppPkg(Object[] args) {
 		for (int N = 0; N < args.length; N++) {
-			if (args[N] instanceof String && VirtualCore.getCore().isAppInstalled((String) args[N])) {
-				args[N] = VirtualCore.getCore().getHostPkg();
+			if (args[N] instanceof String && VirtualCore.get().isAppInstalled((String) args[N])) {
+				args[N] = VirtualCore.get().getHostPkg();
 				break;
 			}
 		}
@@ -34,8 +34,8 @@ public class HookUtils {
 		int index = ArrayUtils.indexOfLast(args, String.class);
 		if (index != -1) {
 			String pkg = (String) args[index];
-			if (VirtualCore.getCore().isAppInstalled(pkg)) {
-				args[index] = VirtualCore.getCore().getHostPkg();
+			if (VirtualCore.get().isAppInstalled(pkg)) {
+				args[index] = VirtualCore.get().getHostPkg();
 			}
 		}
 	}
@@ -44,8 +44,8 @@ public class HookUtils {
 		int index = ArrayUtils.indexOf(args, String.class, sequence);
 		if (index != -1) {
 			String pkg = (String) args[index];
-			if (VirtualCore.getCore().isAppInstalled(pkg)) {
-				args[index] = VirtualCore.getCore().getHostPkg();
+			if (VirtualCore.get().isAppInstalled(pkg)) {
+				args[index] = VirtualCore.get().getHostPkg();
 			}
 		}
 	}

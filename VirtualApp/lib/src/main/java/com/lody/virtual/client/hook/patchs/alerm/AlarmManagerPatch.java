@@ -1,37 +1,37 @@
 package com.lody.virtual.client.hook.patchs.alerm;
 
-import android.app.IAlarmManager;
 import android.content.Context;
-import android.os.ServiceManager;
 
 import com.lody.virtual.client.hook.base.Patch;
-import com.lody.virtual.client.hook.base.PatchObject;
-import com.lody.virtual.client.hook.binders.HookAlarmBinder;
+import com.lody.virtual.client.hook.base.PatchDelegate;
+import com.lody.virtual.client.hook.binders.AlarmBinderDelegate;
+
+import mirror.android.os.ServiceManager;
 
 /**
  * @author Lody
  *
  */
 @Patch({Set.class})
-public class AlarmManagerPatch extends PatchObject<IAlarmManager, HookAlarmBinder> {
+public class AlarmManagerPatch extends PatchDelegate<AlarmBinderDelegate> {
 
 	@Override
-	protected HookAlarmBinder initHookObject() {
-		return new HookAlarmBinder();
+	protected AlarmBinderDelegate createHookDelegate() {
+		return new AlarmBinderDelegate();
 	}
 
 	@Override
 	public void inject() throws Throwable {
-		getHookObject().injectService(Context.ALARM_SERVICE);
+		getHookDelegate().replaceService(Context.ALARM_SERVICE);
 	}
 
 	@Override
-	protected void applyHooks() {
-		super.applyHooks();
+	protected void onBindHooks() {
+		super.onBindHooks();
 	}
 
 	@Override
 	public boolean isEnvBad() {
-		return getHookObject() != ServiceManager.getService(Context.ALARM_SERVICE);
+		return getHookDelegate() != ServiceManager.getService.call(Context.ALARM_SERVICE);
 	}
 }

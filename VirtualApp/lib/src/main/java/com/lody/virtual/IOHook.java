@@ -26,7 +26,7 @@ public class IOHook {
 	private static Map<String, AppSetting> sDexOverrideMap;
 
 	public static void startDexOverride() {
-		List<AppSetting> appSettings = VirtualCore.getCore().getAllApps();
+		List<AppSetting> appSettings = VirtualCore.get().getAllApps();
 		sDexOverrideMap = new HashMap<>(appSettings.size());
 		for (AppSetting info : appSettings) {
 			try {

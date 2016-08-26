@@ -1,9 +1,6 @@
 package com.lody.virtual.service.am;
 
-import android.annotation.Nullable;
 import android.app.ActivityManager;
-import android.app.ApplicationThreadNative;
-import android.app.IApplicationThread;
 import android.app.IServiceConnection;
 import android.app.IStopUserCallback;
 import android.app.Notification;
@@ -19,12 +16,12 @@ import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ServiceInfo;
 import android.content.pm.UserInfo;
-import android.content.res.CompatibilityInfo;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.IInterface;
 import android.os.Parcel;
 import android.os.Process;
 import android.os.RemoteException;
@@ -67,11 +64,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
+import mirror.android.app.ApplicationThreadNative;
 import mirror.android.app.IApplicationThreadICSMR1;
 import mirror.android.app.IApplicationThreadJBMR1;
 import mirror.android.app.IApplicationThreadKitkat;
+import mirror.android.content.res.CompatibilityInfo;
 
-import static android.app.ActivityThread.SERVICE_DONE_EXECUTING_STOP;
 import static android.os.Process.killProcess;
 
 /**
@@ -80,22 +78,29 @@ import static android.os.Process.killProcess;
  */
 public class VActivityManagerService extends IActivityManager.Stub {
 
+	/** Type for IActivityManager.serviceDoneExecuting: anonymous operation */
+	public static final int SERVICE_DONE_EXECUTING_ANON = 0;
+	/** Type for IActivityManager.serviceDoneExecuting: done with an onStart call */
+	public static final int SERVICE_DONE_EXECUTING_START = 1;
+	/** Type for IActivityManager.serviceDoneExecuting: done stopping (destroying) service */
+	public static final int SERVICE_DONE_EXECUTING_STOP = 2;
+
 	private static final boolean BROADCAST_NOT_STARTED_PKG = false;
 
 	private static final AtomicReference<VActivityManagerService> sService = new AtomicReference<>();
 	private static final String TAG = VActivityManagerService.class.getSimpleName();
-	final SparseArray<ProcessRecord> mPidsSelfLocked = new SparseArray<ProcessRecord>();
+	private final SparseArray<ProcessRecord> mPidsSelfLocked = new SparseArray<ProcessRecord>();
 	private final Map<String, StubInfo> stubInfoMap = new ConcurrentHashMap<String, StubInfo>();
 	private final Set<String> stubProcessList = new HashSet<String>();
 	private final ActivityStack mMainStack = new ActivityStack(this);
 	private final List<ServiceRecord> mHistory = new ArrayList<ServiceRecord>();
 	private final ProcessMap<ProcessRecord> mProcessNames = new ProcessMap<ProcessRecord>();
-	private ActivityManager am = (ActivityManager) VirtualCore.getCore().getContext()
+	private ActivityManager am = (ActivityManager) VirtualCore.get().getContext()
 			.getSystemService(Context.ACTIVITY_SERVICE);
 	private ProcessMap<ProcessRecord> mPendingProcesses = new ProcessMap<>();
 	private final VPendingIntents mPendingIntents = new VPendingIntents();
 
-	public static VActivityManagerService getService() {
+	public static VActivityManagerService get() {
 		return sService.get();
 	}
 
@@ -105,7 +110,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
 	private static ServiceInfo resolveServiceInfo(Intent service, int userId) {
 		if (service != null) {
-			ServiceInfo serviceInfo = VirtualCore.getCore().resolveServiceInfo(service, userId);
+			ServiceInfo serviceInfo = VirtualCore.get().resolveServiceInfo(service, userId);
 			if (serviceInfo != null) {
 				return serviceInfo;
 			}
@@ -208,7 +213,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
 	@Override
 	public int getSystemPid() {
-		return VirtualCore.getCore().myUid();
+		return VirtualCore.get().myUid();
 	}
 
 	@Override
@@ -333,14 +338,14 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	@Override
 	public void ensureAppBound(String processName, String packageName, int userId) {
 		int pid = getCallingPid();
-		int appId = VAppManagerService.getService().getAppId(packageName);
+		int appId = VAppManagerService.get().getAppId(packageName);
 		int uid = VUserHandle.getUid(userId, appId);
 		ProcessRecord app = findProcess(pid);
 		if (app == null) {
 			app = mPendingProcesses.get(processName, appId);
 		}
 		if (app == null && processName != null) {
-			ApplicationInfo appInfo = VPackageManagerService.getService().getApplicationInfo(packageName, 0, userId);
+			ApplicationInfo appInfo = VPackageManagerService.get().getApplicationInfo(packageName, 0, userId);
 			appInfo.flags |= ApplicationInfo.FLAG_HAS_CODE;
 			String stubProcessName = getProcessName(pid);
 			StubInfo stubInfo = null;
@@ -475,7 +480,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		if (targetApp.thread == null) {
 			targetApp.attachLock.block();
 		}
-		IApplicationThread appThread = targetApp.thread;
+		IInterface appThread = targetApp.thread;
 		ServiceRecord r = findRecord(serviceInfo);
 		if (r == null) {
 			r = new ServiceRecord();
@@ -742,9 +747,9 @@ public class VActivityManagerService extends IActivityManager.Stub {
 				killProcess(callingPid);
 				return;
 			}
-			IApplicationThread thread = null;
+			IInterface thread = null;
 			try {
-				thread = ApplicationThreadNative.asInterface(client.getAppThread());
+				thread = ApplicationThreadNative.asInterface.call(client.getAppThread());
 			} catch (RemoteException e) {
 				// client has dead
 			}
@@ -803,9 +808,9 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	public ProcessRecord startProcessIfNeedLocked(String processName, int userId, String packageName) {
-		ApplicationInfo info = VPackageManagerService.getService().getApplicationInfo(packageName, 0, userId);
+		ApplicationInfo info = VPackageManagerService.get().getApplicationInfo(packageName, 0, userId);
 		synchronized (this) {
-			AppSetting setting = VAppManagerService.getService().findAppInfo(info.packageName);
+			AppSetting setting = VAppManagerService.get().findAppInfo(info.packageName);
 			int uid = VUserHandle.getUid(userId, setting.appId);
 			ProcessRecord app = mProcessNames.get(processName, uid);
 			if (app != null) {
@@ -845,7 +850,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	private ProcessRecord performStartProcessLocked(int uid, StubInfo stubInfo, ApplicationInfo info, String processName) {
-		VPackageManagerService pm = VPackageManagerService.getService();
+		VPackageManagerService pm = VPackageManagerService.get();
 		List<String> sharedPackages = pm.querySharedPackages(info.packageName);
 		List<ProviderInfo> providers = pm.queryContentProviders(processName, 0, 0).getList();
 		List<String> usesLibraries = pm.getSharedLibraries(info.packageName);
@@ -1022,10 +1027,10 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		return 0;
 	}
 
-	public void sendOrderedBroadcastAsUser(Intent intent, VUserHandle user, @Nullable String receiverPermission,
-			BroadcastReceiver resultReceiver, @Nullable Handler scheduler, int initialCode,
-			@Nullable String initialData, @Nullable Bundle initialExtras) {
-		Context context = VirtualCore.getCore().getContext();
+	public void sendOrderedBroadcastAsUser(Intent intent, VUserHandle user, String receiverPermission,
+			BroadcastReceiver resultReceiver, Handler scheduler, int initialCode,
+			String initialData, Bundle initialExtras) {
+		Context context = VirtualCore.get().getContext();
 		intent.putExtra("_VA_|_user_id_", user.getIdentifier());
 		// TODO: checkPermission
 		context.sendOrderedBroadcast(intent, null/* permission */, resultReceiver, scheduler, initialCode, initialData,
@@ -1033,13 +1038,13 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	public void sendBroadcastAsUser(Intent intent, VUserHandle user) {
-		Context context = VirtualCore.getCore().getContext();
+		Context context = VirtualCore.get().getContext();
 		intent.putExtra("_VA_|_user_id_", user.getIdentifier());
 		context.sendBroadcast(intent);
 	}
 
 	public void sendBroadcastAsUser(Intent intent, VUserHandle user, String permission) {
-		Context context = VirtualCore.getCore().getContext();
+		Context context = VirtualCore.get().getContext();
 		intent.putExtra("_VA_|_user_id_", user.getIdentifier());
 		// TODO: checkPermission
 		context.sendBroadcast(intent);
@@ -1094,8 +1099,8 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		}
 	}
 
-	private void handleBroadcastIntent(IApplicationThread thread, int sendingUser, ActivityInfo info, Intent intent,
-			boolean sync, BroadcastReceiver.PendingResult result) {
+	private void handleBroadcastIntent(IInterface thread, int sendingUser, ActivityInfo info, Intent intent,
+									   boolean sync, BroadcastReceiver.PendingResult result) {
 		ComponentName componentName = ComponentUtils.toComponentName(info);
 		if (intent.getComponent() != null && !componentName.equals(intent.getComponent())) {
 			return;
@@ -1105,15 +1110,15 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		}
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 			IApplicationThreadKitkat.scheduleReceiver.call(thread, intent, info,
-					CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO, result.getResultCode(), result.getResultData(),
+					CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO.get(), result.getResultCode(), result.getResultData(),
 					result.getResultExtras(false), sync, sendingUser, 0);
 		} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
 			IApplicationThreadJBMR1.scheduleReceiver.call(thread, intent, info,
-					CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO, result.getResultCode(), result.getResultData(),
+					CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO.get(), result.getResultCode(), result.getResultData(),
 					result.getResultExtras(false), sync, sendingUser);
 		} else {
 			IApplicationThreadICSMR1.scheduleReceiver.call(thread, intent, info,
-					CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO, result.getResultCode(), result.getResultData(),
+					CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO.get(), result.getResultCode(), result.getResultData(),
 					result.getResultExtras(false), sync);
 		}
 	}

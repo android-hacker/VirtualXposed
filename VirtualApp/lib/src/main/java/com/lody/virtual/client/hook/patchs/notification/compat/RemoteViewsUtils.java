@@ -67,7 +67,7 @@ class RemoteViewsUtils {
 	public View createView(final Context context, RemoteViews remoteViews, boolean isBig, boolean systemId) {
 		if (remoteViews == null)
 			return null;
-		Context base = VirtualCore.getCore().getContext();
+		Context base = VirtualCore.get().getContext();
 		init(base);
 		// TODO 需要适配
 		int height = isBig ? notification_max_height : notification_min_height;

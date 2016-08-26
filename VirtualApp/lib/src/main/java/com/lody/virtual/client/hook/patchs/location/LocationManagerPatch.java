@@ -1,36 +1,31 @@
 package com.lody.virtual.client.hook.patchs.location;
 
 import android.content.Context;
-import android.location.ILocationManager;
-import android.location.LocationRequest;
 import android.os.Build;
-import android.os.ServiceManager;
 import android.text.TextUtils;
 
-import com.lody.virtual.client.hook.base.HookBinder;
-import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
-import com.lody.virtual.client.hook.binders.HookLocationBinder;
-import com.lody.virtual.helper.utils.ArrayUtils;
+import com.lody.virtual.client.hook.binders.LocationBinderDelegate;
 
 import java.lang.reflect.Method;
+
+import mirror.android.location.LocationRequestL;
+import mirror.android.os.ServiceManager;
 
 /**
  * @author Lody
  *
- *
- * @see ILocationManager
  */
-public class LocationManagerPatch extends PatchObject<ILocationManager, HookLocationBinder> {
+public class LocationManagerPatch extends PatchDelegate<LocationBinderDelegate> {
 	@Override
-	protected HookLocationBinder initHookObject() {
-		return new HookLocationBinder();
+	protected LocationBinderDelegate createHookDelegate() {
+		return new LocationBinderDelegate();
 	}
 
 	@Override
 	public void inject() throws Throwable {
-		HookBinder<ILocationManager> hookBinder = getHookObject();
-		hookBinder.injectService(Context.LOCATION_SERVICE);
+		getHookDelegate().replaceService(Context.LOCATION_SERVICE);
 	}
 
 	private static class BaseHook extends ReplaceLastPkgHook {
@@ -40,13 +35,13 @@ public class LocationManagerPatch extends PatchObject<ILocationManager, HookLoca
 		}
 		@Override
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
-			LocationRequest request = ArrayUtils.getFirst(args, LocationRequest.class);
-			if (request != null) {
-				try {
-					request.setWorkSource(null);
-					request.setHideFromAppOps(false);
-				} catch (Throwable e) {
-					e.printStackTrace();
+			if (args.length > 0) {
+				Object request = args[0];
+				if (LocationRequestL.mHideFromAppOps != null) {
+					LocationRequestL.mHideFromAppOps.set(request, false);
+				}
+				if (LocationRequestL.mWorkSource != null) {
+					LocationRequestL.mWorkSource.set(request, null);
 				}
 			}
 			return super.onHook(who, method, args);
@@ -54,8 +49,8 @@ public class LocationManagerPatch extends PatchObject<ILocationManager, HookLoca
 	}
 
 	@Override
-	protected void applyHooks() {
-		super.applyHooks();
+	protected void onBindHooks() {
+		super.onBindHooks();
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			addHook(new ReplaceLastPkgHook("addTestProvider"));
 			addHook(new ReplaceLastPkgHook("removeTestProvider"));
@@ -95,6 +90,6 @@ public class LocationManagerPatch extends PatchObject<ILocationManager, HookLoca
 
 	@Override
 	public boolean isEnvBad() {
-		return ServiceManager.getService(Context.LOCATION_SERVICE) != getHookObject();
+		return ServiceManager.getService.call(Context.LOCATION_SERVICE) != getHookDelegate();
 	}
 }

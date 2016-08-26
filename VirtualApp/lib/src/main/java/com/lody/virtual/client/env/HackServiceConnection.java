@@ -100,7 +100,7 @@ public class HackServiceConnection extends IServiceConnection.Stub {
 													.equals(name)) {
 										args[args.length - 1] = modifyObject(args[args.length - 1]);
 									}
-									String hostPkg = VirtualCore.getCore().getHostPkg();
+									String hostPkg = VirtualCore.get().getHostPkg();
 									String pkg = context.getPackageName();
 									int i = 0;
 									while (i < args.length) {

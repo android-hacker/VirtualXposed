@@ -67,11 +67,11 @@ public abstract class Hook {
 	}
 
 	public final boolean isAppPkg(String pkg) {
-		return VirtualCore.getCore().isAppInstalled(pkg);
+		return VirtualCore.get().isAppInstalled(pkg);
 	}
 
 	public final String getHostPkg() {
-		return VirtualCore.getCore().getHostPkg();
+		return VirtualCore.get().getHostPkg();
 	}
 
 	protected final PackageManager getPM() {
@@ -79,23 +79,23 @@ public abstract class Hook {
 	}
 
 	protected final Context getHostContext() {
-		return VirtualCore.getCore().getContext();
+		return VirtualCore.get().getContext();
 	}
 
 	protected final AppSetting findAppInfo(String pkg) {
-		return VirtualCore.getCore().findApp(pkg);
+		return VirtualCore.get().findApp(pkg);
 	}
 
 	protected final boolean isAppProcess() {
-		return VirtualCore.getCore().isVAppProcess();
+		return VirtualCore.get().isVAppProcess();
 	}
 
 	protected final boolean isServiceProcess() {
-		return VirtualCore.getCore().isServiceProcess();
+		return VirtualCore.get().isServiceProcess();
 	}
 
 	protected final boolean isMainProcess() {
-		return VirtualCore.getCore().isMainProcess();
+		return VirtualCore.get().isMainProcess();
 	}
 
 	protected final int getVUid() {
@@ -107,7 +107,7 @@ public abstract class Hook {
 	}
 
 	protected final PackageManager getUnhookPM() {
-		return VirtualCore.getCore().getUnHookPackageManager();
+		return VirtualCore.get().getUnHookPackageManager();
 	}
 
 

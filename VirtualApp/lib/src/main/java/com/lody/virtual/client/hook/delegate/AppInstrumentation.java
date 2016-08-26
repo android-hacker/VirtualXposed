@@ -3,7 +3,6 @@ package com.lody.virtual.client.hook.delegate;
 import android.app.Activity;
 import android.app.Application;
 import android.app.Instrumentation;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -17,6 +16,8 @@ import com.lody.virtual.client.local.LocalActivityRecord;
 import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.compat.BundleCompat;
+
+import mirror.android.app.ActivityThread;
 
 /**
  * @author Lody
@@ -42,31 +43,28 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 	}
 
 	private static AppInstrumentation create() {
-		Instrumentation instrumentation = getCurrentInstrumentation();
+		Instrumentation instrumentation = ActivityThread.mInstrumentation.get(VirtualCore.mainThread());
 		if (instrumentation instanceof AppInstrumentation) {
 			return (AppInstrumentation) instrumentation;
 		}
 		return new AppInstrumentation(instrumentation);
 	}
 
-	public static Instrumentation getCurrentInstrumentation() {
-		return VirtualCore.mainThread().getInstrumentation();
-	}
 
 	@Override
 	public void inject() throws Throwable {
-		mirror.android.app.ActivityThread.mInstrumentation.set(VirtualCore.mainThread(), this);
+		ActivityThread.mInstrumentation.set(VirtualCore.mainThread(), this);
 	}
 
 	@Override
 	public boolean isEnvBad() {
-		return getCurrentInstrumentation() != this;
+		return ActivityThread.mInstrumentation.get(VirtualCore.mainThread()) != this;
 	}
 
 	@Override
 	public void callActivityOnCreate(Activity activity, Bundle icicle) {
 		String pkg = activity.getPackageName();
-		boolean isApp = VirtualCore.getCore().isAppInstalled(pkg);
+		boolean isApp = VirtualCore.get().isAppInstalled(pkg);
 		if (isApp) {
 			LocalActivityRecord r = VActivityManager.get().onActivityCreate(activity);
 			ContextFixer.fixContext(activity);
@@ -91,7 +89,7 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 	@Override
 	public void callActivityOnResume(Activity activity) {
 		String pkg = activity.getPackageName();
-		boolean isApp = VirtualCore.getCore().isAppInstalled(pkg);
+		boolean isApp = VirtualCore.get().isAppInstalled(pkg);
 		if (isApp) {
 			VActivityManager.get().onActivityResumed(activity);
 		}
@@ -107,7 +105,7 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 	@Override
 	public void callActivityOnDestroy(Activity activity) {
 		String pkg = activity.getPackageName();
-		boolean isApp = VirtualCore.getCore().isAppInstalled(pkg);
+		boolean isApp = VirtualCore.get().isAppInstalled(pkg);
 		if (isApp) {
 			VActivityManager.get().onActivityDestroy(activity);
 		}
@@ -119,9 +117,4 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 		super.callApplicationOnCreate(app);
 	}
 
-	@Override
-	public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token, Activity target,
-			Intent intent, int requestCode, Bundle options) {
-		return super.execStartActivity(who, contextThread, token, target, intent, requestCode, options);
-	}
 }

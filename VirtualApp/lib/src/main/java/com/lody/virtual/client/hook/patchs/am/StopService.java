@@ -1,16 +1,16 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.os.IInterface;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VActivityManager;
 
-import android.app.IApplicationThread;
-import android.content.ComponentName;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -27,7 +27,7 @@ import android.content.pm.ResolveInfo;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		IApplicationThread caller = (IApplicationThread) args[0];
+		IInterface caller = (IInterface) args[0];
 		Intent intent = (Intent) args[1];
 		String resolvedType = (String) args[2];
 		ComponentName componentName = intent.getComponent();

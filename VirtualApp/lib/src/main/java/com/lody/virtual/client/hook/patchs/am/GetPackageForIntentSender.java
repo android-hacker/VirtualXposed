@@ -1,7 +1,6 @@
 package com.lody.virtual.client.hook.patchs.am;
 
 import android.app.PendingIntent;
-import android.content.IIntentSender;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
@@ -17,8 +16,6 @@ import mirror.android.app.PendingIntentJBMR2;
 
 /**
  * @author Lody
- *
- * @see android.app.ActivityManagerNative#getPackageForIntentSender(IIntentSender)
  *
  */
 

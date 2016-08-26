@@ -43,7 +43,7 @@ public class VirtualRuntime {
 			sInitialPackageName = appInfo.packageName;
 		}
 		sProcessName = processName;
-		Process.setArgV0(processName);
+		mirror.android.os.Process.setArgV0.call(processName);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
 			DdmHandleAppNameJBMR1.setAppName.call(processName, 0);
 		} else {
@@ -60,7 +60,7 @@ public class VirtualRuntime {
 
 	public static void exit() {
 		VLog.d(VirtualRuntime.class.getSimpleName(), "Exit process : %s (%s).", getProcessName(),
-				VirtualCore.getCore().getProcessName());
+				VirtualCore.get().getProcessName());
 		Process.killProcess(Process.myPid());
 	}
 

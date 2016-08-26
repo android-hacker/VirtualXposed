@@ -1,39 +1,39 @@
 package com.lody.virtual.client.hook.patchs.account;
 
 import android.accounts.Account;
-import android.accounts.IAccountManager;
 import android.accounts.IAccountManagerResponse;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Process;
-import android.os.ServiceManager;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.hook.base.PatchObject;
-import com.lody.virtual.client.hook.binders.HookAccountBinder;
+import com.lody.virtual.client.hook.base.PatchDelegate;
+import com.lody.virtual.client.hook.binders.AccountBinderDelegate;
 import com.lody.virtual.client.local.VAccountManager;
-import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
+
+import mirror.android.os.ServiceManager;
 
 /**
  * @author Lody
  */
-public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccountBinder> {
+public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
+
+	private VAccountManager mgr = VAccountManager.get();
 
 	@Override
-	protected HookAccountBinder initHookObject() {
-		return new HookAccountBinder();
+	protected AccountBinderDelegate createHookDelegate() {
+		return new AccountBinderDelegate();
 	}
 
 	@Override
 	public void inject() throws Throwable {
-		getHookObject().injectService(Context.ACCOUNT_SERVICE);
+		getHookDelegate().replaceService(Context.ACCOUNT_SERVICE);
 	}
 
 	@Override
-	protected void applyHooks() {
-		super.applyHooks();
+	protected void onBindHooks() {
+		super.onBindHooks();
 		addHook(new getPassword());
 		addHook(new getUserData());
 		addHook(new getAuthenticatorTypes());
@@ -73,7 +73,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 
 	@Override
 	public boolean isEnvBad() {
-		return ServiceManager.getService(Context.ACCOUNT_SERVICE) != getHookObject();
+		return ServiceManager.getService.call(Context.ACCOUNT_SERVICE) != getHookDelegate();
 	}
 
 
@@ -86,7 +86,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 		@Override
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
-			return VAccountManager.get().getPassword(account);
+			return mgr.getPassword(account);
 		}
 	}
 
@@ -100,7 +100,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
 			String key = (String) args[1];
-			return VAccountManager.get().getUserData(account, key);
+			return mgr.getUserData(account, key);
 		}
 	}
 
@@ -112,8 +112,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 
 		@Override
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
-			int userId = VUserHandle.myUserId();
-			return VAccountManager.get().getAuthenticatorTypes(userId);
+			return mgr.getAuthenticatorTypes();
 		}
 	}
 
@@ -126,7 +125,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 		@Override
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			String accountType = (String) args[0];
-			return VAccountManager.get().getAccounts(accountType);
+			return mgr.getAccounts(accountType);
 		}
 	}
 
@@ -139,11 +138,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 		@Override
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			String packageName = (String) args[0];
-			int uid = Process.myUid();
-			if (args.length > 1) {
-				uid = (int) args[1];
-			}
-			return VAccountManager.get().getAccountsForPackage(packageName, uid);
+			return mgr.getAccounts(null);
 		}
 	}
 
@@ -157,7 +152,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			String type = (String) args[0];
 			String packageName = (String) args[1];
-			return VAccountManager.get().getAccountsByTypeForPackage(type, packageName);
+			return mgr.getAccounts(type);
 		}
 	}
 
@@ -170,8 +165,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 		@Override
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			String accountType = (String) args[0];
-			int userId = VUserHandle.myUserId();
-			return VAccountManager.get().getAccountsAsUser(accountType, userId);
+			return mgr.getAccounts(accountType);
 		}
 	}
 
@@ -186,7 +180,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			Account account = (Account) args[1];
 			String[] features = (String[]) args[2];
-			VAccountManager.get().hasFeatures(response, account, features);
+			mgr.hasFeatures(response, account, features);
 			return 0;
 		}
 	}
@@ -202,7 +196,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			String accountType = (String) args[1];
 			String[] features = (String[]) args[2];
-			VAccountManager.get().getAccountsByFeatures(response, accountType, features);
+			mgr.getAccountsByFeatures(response, accountType, features);
 			return 0;
 		}
 	}
@@ -218,7 +212,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 			Account account = (Account) args[0];
 			String password = (String) args[1];
 			Bundle extras = (Bundle) args[2];
-			return VAccountManager.get().addAccountExplicitly(account, password, extras);
+			return mgr.addAccountExplicitly(account, password, extras);
 		}
 	}
 
@@ -233,7 +227,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			Account account = (Account) args[1];
 			boolean expectActivityLaunch = (boolean) args[2];
-			VAccountManager.get().removeAccount(response, account, expectActivityLaunch);
+			mgr.removeAccount(response, account, expectActivityLaunch);
 			return 0;
 		}
 	}
@@ -249,8 +243,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			Account account = (Account) args[1];
 			boolean expectActivityLaunch = (boolean) args[2];
-			int userId = VUserHandle.myUserId();
-			VAccountManager.get().removeAccountAsUser(response, account, expectActivityLaunch, userId);
+			mgr.removeAccount(response, account, expectActivityLaunch);
 			return 0;
 		}
 	}
@@ -264,7 +257,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 		@Override
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
-			return VAccountManager.get().removeAccountExplicitly(account);
+			return mgr.removeAccountExplicitly(account);
 		}
 	}
 
@@ -280,7 +273,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 			Account account = (Account) args[1];
 			int userFrom = (int) args[2];
 			int userTo = (int) args[3];
-			VAccountManager.get().copyAccountToUser(response, account, userFrom, userTo);
+			method.invoke(who, args);
 			return 0;
 		}
 	}
@@ -295,7 +288,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			String accountType = (String) args[0];
 			String authToken = (String) args[1];
-			VAccountManager.get().invalidateAuthToken(accountType, authToken);
+			mgr.invalidateAuthToken(accountType, authToken);
 			return 0;
 		}
 	}
@@ -310,7 +303,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
 			String authTokenType = (String) args[1];
-			return VAccountManager.get().peekAuthToken(account, authTokenType);
+			return mgr.peekAuthToken(account, authTokenType);
 		}
 	}
 
@@ -325,7 +318,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 			Account account = (Account) args[0];
 			String authTokenType = (String) args[1];
 			String authToken = (String) args[2];
-			VAccountManager.get().setAuthToken(account, authTokenType, authToken);
+			mgr.setAuthToken(account, authTokenType, authToken);
 			return 0;
 		}
 	}
@@ -340,7 +333,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
 			String password = (String) args[1];
-			VAccountManager.get().setPassword(account, password);
+			mgr.setPassword(account, password);
 			return 0;
 		}
 	}
@@ -354,7 +347,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 		@Override
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
-			VAccountManager.get().clearPassword(account);
+			mgr.clearPassword(account);
 			return 0;
 		}
 	}
@@ -370,7 +363,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 			Account account = (Account) args[0];
 			String key = (String) args[1];
 			String value = (String) args[2];
-			VAccountManager.get().setUserData(account, key, value);
+			mgr.setUserData(account, key, value);
 			return 0;
 		}
 	}
@@ -387,7 +380,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 			String authTokenType = (String) args[1];
 			int uid = (int) args[2];
 			boolean val = (boolean) args[3];
-			VAccountManager.get().updateAppPermission(account, authTokenType, uid, val);
+			method.invoke(who, args);
 			return 0;
 		}
 	}
@@ -406,7 +399,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 			boolean notifyOnAuthFailure = (boolean) args[3];
 			boolean expectActivityLaunch = (boolean) args[4];
 			Bundle options = (Bundle) args[5];
-			VAccountManager.get().getAuthToken(response, account, authTokenType, notifyOnAuthFailure, expectActivityLaunch, options);
+			mgr.getAuthToken(response, account, authTokenType, notifyOnAuthFailure, expectActivityLaunch, options);
 			return 0;
 		}
 	}
@@ -425,7 +418,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 			String[] requiredFeatures = (String[]) args[3];
 			boolean expectActivityLaunch = (boolean) args[4];
 			Bundle options = (Bundle) args[5];
-			VAccountManager.get().addAccount(response, accountType, authTokenType, requiredFeatures, expectActivityLaunch, options);
+			mgr.addAccount(response, accountType, authTokenType, requiredFeatures, expectActivityLaunch, options);
 			return 0;
 		}
 	}
@@ -444,8 +437,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 			String[] requiredFeatures = (String[]) args[3];
 			boolean expectActivityLaunch = (boolean) args[4];
 			Bundle options = (Bundle) args[5];
-			int userId = (int) args[6];
-			VAccountManager.get().addAccountAsUser(response, accountType, authTokenType, requiredFeatures, expectActivityLaunch, options, userId);
+			mgr.addAccount(response, accountType, authTokenType, requiredFeatures, expectActivityLaunch, options);
 			return 0;
 		}
 	}
@@ -463,7 +455,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 			String authTokenType = (String) args[2];
 			boolean expectActivityLaunch = (boolean) args[3];
 			Bundle options = (Bundle) args[4];
-			VAccountManager.get().updateCredentials(response, account, authTokenType, expectActivityLaunch, options);
+			mgr.updateCredentials(response, account, authTokenType, expectActivityLaunch, options);
 			return 0;
 		}
 	}
@@ -479,7 +471,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			String authTokenType = (String) args[1];
 			boolean expectActivityLaunch = (boolean) args[2];
-			VAccountManager.get().editProperties(response, authTokenType, expectActivityLaunch);
+			mgr.editProperties(response, authTokenType, expectActivityLaunch);
 			return 0;
 		}
 	}
@@ -496,8 +488,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 			Account account = (Account) args[1];
 			Bundle options = (Bundle) args[2];
 			boolean expectActivityLaunch = (boolean) args[3];
-			int userId = (int) args[4];
-			VAccountManager.get().confirmCredentialsAsUser(response, account, options, expectActivityLaunch, userId);
+			mgr.confirmCredentials(response, account, options, expectActivityLaunch);
 			return 0;
 
 		}
@@ -512,7 +503,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 		@Override
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
-			return VAccountManager.get().accountAuthenticated(account);
+			return mgr.accountAuthenticated(account);
 		}
 	}
 
@@ -527,7 +518,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			String accountType = (String) args[1];
 			String authTokenType = (String) args[2];
-			VAccountManager.get().getAuthTokenLabel(response, accountType, authTokenType);
+			mgr.getAuthTokenLabel(response, accountType, authTokenType);
 			return 0;
 		}
 	}
@@ -542,7 +533,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
 			int userId = (int) args[1];
-			return VAccountManager.get().addSharedAccountAsUser(account, userId);
+			return method.invoke(who, args);
 		}
 	}
 
@@ -555,7 +546,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 		@Override
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			int userId = (int) args[0];
-			return VAccountManager.get().getSharedAccountsAsUser(userId);
+			return method.invoke(who, args);
 		}
 	}
 
@@ -569,7 +560,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
 			int userId = (int) args[1];
-			return VAccountManager.get().removeSharedAccountAsUser(account, userId);
+			return method.invoke(who, args);
 		}
 	}
 
@@ -584,7 +575,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			Account accountToRename = (Account) args[1];
 			String newName = (String) args[2];
-			VAccountManager.get().renameAccount(response, accountToRename, newName);
+			mgr.renameAccount(response, accountToRename, newName);
 			return 0;
 		}
 	}
@@ -598,7 +589,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 		@Override
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
-			return VAccountManager.get().getPreviousName(account);
+			return mgr.getPreviousName(account);
 		}
 	}
 
@@ -613,7 +604,7 @@ public class AccountManagerPatch extends PatchObject<IAccountManager, HookAccoun
 			Account accountToRename = (Account) args[0];
 			String newName = (String) args[1];
 			int userId = (int) args[2];
-			return VAccountManager.get().renameSharedAccountAsUser(accountToRename, newName, userId);
+			return method.invoke(who, args);
 		}
 	}
 }

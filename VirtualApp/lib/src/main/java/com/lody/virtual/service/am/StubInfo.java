@@ -1,13 +1,13 @@
 package com.lody.virtual.service.am;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.lody.virtual.helper.utils.Reflect;
-
 import android.content.pm.ActivityInfo;
 import android.content.pm.ProviderInfo;
 import android.text.TextUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import mirror.com.android.internal.R_styleable;
 
 public class StubInfo {
 	public String processName;
@@ -31,11 +31,10 @@ public class StubInfo {
 		boolean isTranslucent = false;
 		boolean showWallpaper = false;
 		try {
-			Reflect style = Reflect.on(com.android.internal.R.styleable.class);
-			int[] R_Styleable_Window = style.get("Window");
-			int R_Styleable_Window_windowIsTranslucent = style.get("Window_windowIsTranslucent");
-			int R_Styleable_Window_windowIsFloating = style.get("Window_windowIsFloating");
-			int R_Styleable_Window_windowShowWallpaper = style.get("Window_windowShowWallpaper");
+			int[] R_Styleable_Window = R_styleable.Window.get();
+			int R_Styleable_Window_windowIsTranslucent = R_styleable.Window_windowIsTranslucent.get();
+			int R_Styleable_Window_windowIsFloating = R_styleable.Window_windowIsFloating.get();
+			int R_Styleable_Window_windowShowWallpaper = R_styleable.Window_windowShowWallpaper.get();
 
 			AttributeCache.Entry ent = AttributeCache.instance().get(targetInfo.packageName, targetInfo.theme,
 					R_Styleable_Window);

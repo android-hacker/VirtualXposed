@@ -1,17 +1,15 @@
 package com.lody.virtual.client.local;
 
 import android.app.Activity;
-import android.app.ActivityThread;
 import android.app.IServiceConnection;
 import android.app.Notification;
 import android.content.ComponentName;
-import android.content.ContentProviderNative;
-import android.content.IContentProvider;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ProviderInfo;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.IInterface;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.core.VirtualCore;
@@ -26,6 +24,9 @@ import com.lody.virtual.service.interfaces.IProcessObserver;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import mirror.android.app.ActivityThread;
+import mirror.android.content.ContentProviderNative;
 
 /**
  * @author Lody
@@ -77,14 +78,14 @@ public class VActivityManager {
 			}
 		}
 
-		IBinder token = activity.getActivityToken();
+		IBinder token = mirror.android.app.Activity.mToken.get(activity);
 		LocalActivityRecord r = new LocalActivityRecord();
 		r.activityInfo = targetActInfo;
 		r.activity = activity;
 		r.targetIntent = intent;
 		mActivities.put(token, r);
 		try {
-			getService().onActivityCreated(activity.getActivityToken(), targetActInfo, callerActInfo,
+			getService().onActivityCreated(token, targetActInfo, callerActInfo,
 					activity.getTaskId());
 		} catch (RemoteException e) {
 			e.printStackTrace();
@@ -97,7 +98,7 @@ public class VActivityManager {
 	}
 
 	public void onActivityResumed(Activity activity) {
-		IBinder token = activity.getActivityToken();
+		IBinder token = mirror.android.app.Activity.mToken.get(activity);
 		try {
 			getService().onActivityResumed(token);
 		} catch (RemoteException e) {
@@ -106,7 +107,7 @@ public class VActivityManager {
 	}
 
 	public void onActivityDestroy(Activity activity) {
-		IBinder token = activity.getActivityToken();
+		IBinder token = mirror.android.app.Activity.mToken.get(activity);
 		mActivities.remove(token);
 		try {
 			getService().onActivityDestroyed(token);
@@ -376,13 +377,13 @@ public class VActivityManager {
 	public void sendActivityResult(IBinder resultTo, String resultWho, int requestCode) {
 		LocalActivityRecord r = mActivities.get(resultTo);
 		if (r != null && r.activity != null) {
-			ActivityThread mainThread = VirtualCore.mainThread();
-			mainThread.sendActivityResult(resultTo, resultWho, requestCode, 0, null);
+			Object mainThread = VirtualCore.mainThread();
+			ActivityThread.sendActivityResult.call(mainThread, resultTo, resultWho, requestCode, 0, null);
 		}
 	}
 
-	public IContentProvider acquireProviderClient(int userId, ProviderInfo info) throws RemoteException {
-		return ContentProviderNative.asInterface(getService().acquireProviderClient(userId, info));
+	public IInterface acquireProviderClient(int userId, ProviderInfo info) throws RemoteException {
+		return ContentProviderNative.asInterface.call(getService().acquireProviderClient(userId, info));
 	}
 
 	public PendingIntentData getPendingIntent(IBinder binder) throws RemoteException {

@@ -1,6 +1,7 @@
 package com.lody.virtual.client.hook.patchs.window;
 
-import android.view.IWindowSession;
+
+import android.os.IInterface;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.patchs.window.session.WindowSessionPatch;
@@ -16,14 +17,14 @@ import java.lang.reflect.Method;
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		Object session = method.invoke(who, args);
-		if (session instanceof IWindowSession) {
-			return patchSession((IWindowSession) session);
+		if (session instanceof IInterface) {
+			return patchSession((IInterface) session);
 		}
 		return session;
 	}
 
-	private Object patchSession(IWindowSession session) {
+	private Object patchSession(IInterface session) {
 		WindowSessionPatch windowSessionPatch = new WindowSessionPatch(session);
-		return windowSessionPatch.getHookObject().getProxyObject();
+		return windowSessionPatch.getHookDelegate().getProxyInterface();
 	}
 }

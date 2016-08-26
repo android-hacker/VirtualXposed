@@ -1,7 +1,7 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
-import android.content.pm.IPackageInstaller;
-import android.content.pm.IPackageManager;
+
+import android.os.IInterface;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.utils.HookUtils;
@@ -13,7 +13,6 @@ import java.lang.reflect.Proxy;
 /**
  * @author Lody
  *
- * @see IPackageManager#getPackageInstaller()
  *
  */
 
@@ -26,9 +25,9 @@ import java.lang.reflect.Proxy;
 
 	@Override
 	public Object onHook(final Object who, Method method, Object... args) throws Throwable {
-		final IPackageInstaller installer = (IPackageInstaller) method.invoke(who, args);
+		final IInterface installer = (IInterface) method.invoke(who, args);
 
-		return Proxy.newProxyInstance(installer.getClass().getClassLoader(), new Class[]{IPackageInstaller.class},
+		return Proxy.newProxyInstance(installer.getClass().getClassLoader(), installer.getClass().getInterfaces(),
 				new InvocationHandler() {
 					@Override
 					public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {

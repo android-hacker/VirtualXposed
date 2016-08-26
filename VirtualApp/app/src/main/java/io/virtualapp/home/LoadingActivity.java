@@ -25,7 +25,7 @@ public class LoadingActivity extends AppCompatActivity {
 	private AppModel appModel;
 
 	public static void launch(Context context, AppModel model, int userId) {
-		Intent intent = VirtualCore.getCore().getLaunchIntent(model.packageName, userId);
+		Intent intent = VirtualCore.get().getLaunchIntent(model.packageName, userId);
 		if (intent != null) {
 			Intent loadingPageIntent = new Intent(context, LoadingActivity.class);
 			loadingPageIntent.putExtra(MODEL_ARGUMENT, model);
@@ -43,7 +43,7 @@ public class LoadingActivity extends AppCompatActivity {
 		appModel = getIntent().getParcelableExtra(MODEL_ARGUMENT);
 
 		VUiKit.defer().when(() -> {
-			AppSetting appSetting = VirtualCore.getCore().findApp(appModel.packageName);
+			AppSetting appSetting = VirtualCore.get().findApp(appModel.packageName);
 			if (appSetting != null) {
 				appModel = new AppModel(this, appSetting);
 			}
@@ -60,13 +60,13 @@ public class LoadingActivity extends AppCompatActivity {
 		}
 
 		Intent intent = getIntent().getParcelableExtra(KEY_INTENT);
-		VirtualCore.getCore().addLoadingPage(intent, this);
+		VirtualCore.get().addLoadingPage(intent, this);
 		if (intent != null) {
 			VUiKit.defer().when(() -> {
 				long startTime = System.currentTimeMillis();
 				if (!appModel.fastOpen) {
 					try {
-						VirtualCore.getCore().preOpt(appModel.packageName);
+						VirtualCore.get().preOpt(appModel.packageName);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}

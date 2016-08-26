@@ -16,7 +16,6 @@
 
 package com.lody.virtual.os;
 
-import android.annotation.SystemApi;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.Process;
@@ -108,7 +107,7 @@ public final class VUserHandle implements Parcelable {
     public static final boolean isIsolated(int uid) {
         if (uid > 0) {
             final int appId = getAppId(uid);
-            return appId >= Process.FIRST_ISOLATED_UID && appId <= Process.LAST_ISOLATED_UID;
+            return appId >= FIRST_ISOLATED_UID && appId <= LAST_ISOLATED_UID;
         } else {
             return false;
         }
@@ -174,22 +173,6 @@ public final class VUserHandle implements Parcelable {
         return uid % PER_USER_RANGE;
     }
 
-    /**
-     * Returns the gid shared between all apps with this userId.
-     * @hide
-     */
-    public static int getUserGid(int userId) {
-        return getUid(userId, Process.SHARED_USER_GID);
-    }
-
-    /**
-     * Returns the shared app gid for a given uid or appId.
-     * @hide
-     */
-    public static int getSharedAppGid(int id) {
-        return Process.FIRST_SHARED_APPLICATION_GID + (id % PER_USER_RANGE)
-                - Process.FIRST_APPLICATION_UID;
-    }
 
     /**
      * Returns the app id for a given shared app gid.
@@ -197,18 +180,46 @@ public final class VUserHandle implements Parcelable {
      */
     public static int getAppIdFromSharedAppGid(int gid) {
         final int noUserGid = getAppId(gid);
-        if (noUserGid < Process.FIRST_SHARED_APPLICATION_GID ||
-                noUserGid > Process.LAST_SHARED_APPLICATION_GID) {
+        if (noUserGid < FIRST_SHARED_APPLICATION_GID ||
+                noUserGid > LAST_SHARED_APPLICATION_GID) {
             throw new IllegalArgumentException(Integer.toString(gid) + " is not a shared app gid");
         }
-        return (noUserGid + Process.FIRST_APPLICATION_UID) - Process.FIRST_SHARED_APPLICATION_GID;
+        return (noUserGid + Process.FIRST_APPLICATION_UID) - FIRST_SHARED_APPLICATION_GID;
     }
+
+    /**
+     * First gid for applications to share resources. Used when forward-locking
+     * is enabled but all UserHandles need to be able to read the resources.
+     * @hide
+     */
+    public static final int FIRST_SHARED_APPLICATION_GID = 50000;
+
+    /**
+     * Last gid for applications to share resources. Used when forward-locking
+     * is enabled but all UserHandles need to be able to read the resources.
+     * @hide
+     */
+    public static final int LAST_SHARED_APPLICATION_GID = 59999;
 
     /**
      * Generate a text representation of the uid, breaking out its individual
      * components -- user, app, isolated, etc.
      * @hide
      */
+
+    /**
+     * First uid used for fully isolated sandboxed processes (with no permissions of their own)
+     * @hide
+     */
+    public static final int FIRST_ISOLATED_UID = 99000;
+
+    /**
+     * Last uid used for fully isolated sandboxed processes (with no permissions of their own)
+     * @hide
+     */
+    public static final int LAST_ISOLATED_UID = 99999;
+
+
     public static void formatUid(StringBuilder sb, int uid) {
         if (uid < Process.FIRST_APPLICATION_UID) {
             sb.append(uid);
@@ -216,9 +227,9 @@ public final class VUserHandle implements Parcelable {
             sb.append('u');
             sb.append(getUserId(uid));
             final int appId = getAppId(uid);
-            if (appId >= Process.FIRST_ISOLATED_UID && appId <= Process.LAST_ISOLATED_UID) {
+            if (appId >= FIRST_ISOLATED_UID && appId <= LAST_ISOLATED_UID) {
                 sb.append('i');
-                sb.append(appId - Process.FIRST_ISOLATED_UID);
+                sb.append(appId - FIRST_ISOLATED_UID);
             } else if (appId >= Process.FIRST_APPLICATION_UID) {
                 sb.append('a');
                 sb.append(appId - Process.FIRST_APPLICATION_UID);
@@ -252,9 +263,9 @@ public final class VUserHandle implements Parcelable {
             pw.print('u');
             pw.print(getUserId(uid));
             final int appId = getAppId(uid);
-            if (appId >= Process.FIRST_ISOLATED_UID && appId <= Process.LAST_ISOLATED_UID) {
+            if (appId >= FIRST_ISOLATED_UID && appId <= LAST_ISOLATED_UID) {
                 pw.print('i');
-                pw.print(appId - Process.FIRST_ISOLATED_UID);
+                pw.print(appId - FIRST_ISOLATED_UID);
             } else if (appId >= Process.FIRST_APPLICATION_UID) {
                 pw.print('a');
                 pw.print(appId - Process.FIRST_APPLICATION_UID);
@@ -270,7 +281,6 @@ public final class VUserHandle implements Parcelable {
      * @return user id of the current process
      * @hide
      */
-    @SystemApi
     public static int myUserId() {
         return getUserId(VClientImpl.getClient().getVUid());
     }
@@ -280,7 +290,6 @@ public final class VUserHandle implements Parcelable {
      * @return true if this VUserHandle refers to the owner user; false otherwise.
      * @hide
      */
-    @SystemApi
     public final boolean isOwner() {
         return this.equals(OWNER);
     }
@@ -294,7 +303,6 @@ public final class VUserHandle implements Parcelable {
      * Returns the userId stored in this VUserHandle.
      * @hide
      */
-    @SystemApi
     public int getIdentifier() {
         return mHandle;
     }

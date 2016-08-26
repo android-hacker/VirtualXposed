@@ -1,16 +1,16 @@
 package com.lody.virtual.client.hook.binders;
 
-import java.io.FileDescriptor;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
-
 import android.os.IBinder;
 import android.os.IInterface;
 import android.os.Parcel;
 import android.os.RemoteException;
 import android.util.Pair;
+
+import java.io.FileDescriptor;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 
 /**
  * @author Lody
@@ -21,9 +21,9 @@ public abstract class StubBinder implements IBinder {
 	private IBinder mBase;
 	private IInterface mInterface;
 
-	public StubBinder(ClassLoader classLoader, IBinder mBase) {
+	public StubBinder(ClassLoader classLoader, IBinder base) {
 		this.mClassLoader = classLoader;
-		this.mBase = mBase;
+		this.mBase = base;
 	}
 
 	@Override

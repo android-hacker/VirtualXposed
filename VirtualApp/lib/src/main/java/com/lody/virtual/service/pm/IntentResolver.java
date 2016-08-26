@@ -20,8 +20,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Build;
-import android.util.Log;
-import android.util.LogPrinter;
 
 import com.lody.virtual.helper.utils.VLog;
 
@@ -42,8 +40,7 @@ import java.util.Set;
 public abstract class IntentResolver<F extends IntentFilter, R extends Object> {
 	final private static String TAG = "IntentResolver";
 	final private static boolean DEBUG = false;
-	final private static boolean localLOGV = DEBUG || false;
-	final private static boolean localVerificationLOGV = DEBUG || false;
+	final private static boolean localLOGV = DEBUG;
 	// Sorts a List of IntentFilter objects into descending priority order.
 	@SuppressWarnings("rawtypes")
 	private static final Comparator mResolvePrioritySorter = new Comparator() {
@@ -98,11 +95,6 @@ public abstract class IntentResolver<F extends IntentFilter, R extends Object> {
 	}
 
 	public void addFilter(F f) {
-		if (localLOGV) {
-			VLog.v(TAG, "Adding filter: " + f);
-			f.dump(new LogPrinter(Log.VERBOSE, TAG, Log.LOG_ID_SYSTEM), "      ");
-			VLog.v(TAG, "    Building Lookup Maps:");
-		}
 
 		mFilters.add(f);
 		int numS = register_intent_filter(f, f.schemesIterator(), mSchemeToFilter, "      Scheme: ");
@@ -141,11 +133,6 @@ public abstract class IntentResolver<F extends IntentFilter, R extends Object> {
 		if (s1 != s2) {
 			return false;
 		}
-		for (int i = 0; i < s1; i++) {
-			if (!f2.hasExactDataType(f1.getDataType(i))) {
-				return false;
-			}
-		}
 		s1 = f1.countDataSchemes();
 		s2 = f2.countDataSchemes();
 		if (s1 != s2) {
@@ -161,31 +148,16 @@ public abstract class IntentResolver<F extends IntentFilter, R extends Object> {
 		if (s1 != s2) {
 			return false;
 		}
-		for (int i = 0; i < s1; i++) {
-			if (!f2.hasDataAuthority(f1.getDataAuthority(i))) {
-				return false;
-			}
-		}
 		s1 = f1.countDataPaths();
 		s2 = f2.countDataPaths();
 		if (s1 != s2) {
 			return false;
-		}
-		for (int i = 0; i < s1; i++) {
-			if (!f2.hasDataPath(f1.getDataPath(i))) {
-				return false;
-			}
 		}
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 			s1 = f1.countDataSchemeSpecificParts();
 			s2 = f2.countDataSchemeSpecificParts();
 			if (s1 != s2) {
 				return false;
-			}
-			for (int i = 0; i < s1; i++) {
-				if (!f2.hasDataSchemeSpecificPart(f1.getDataSchemeSpecificPart(i))) {
-					return false;
-				}
 			}
 		}
 		return true;
@@ -240,11 +212,6 @@ public abstract class IntentResolver<F extends IntentFilter, R extends Object> {
 	}
 
 	void removeFilterInternal(F f) {
-		if (localLOGV) {
-			VLog.v(TAG, "Removing filter: " + f);
-			f.dump(new LogPrinter(Log.VERBOSE, TAG, Log.LOG_ID_SYSTEM), "      ");
-			VLog.v(TAG, "    Cleaning Lookup Maps:");
-		}
 
 		int numS = unregister_intent_filter(f, f.schemesIterator(), mSchemeToFilter, "      Scheme: ");
 		int numT = unregister_mime_types(f, "      Type: ");
@@ -404,22 +371,6 @@ public abstract class IntentResolver<F extends IntentFilter, R extends Object> {
 	 */
 	protected boolean isFilterStopped(F filter) {
 		return false;
-	}
-
-	/**
-	 * Returns whether the given filter is "verified" that is whether it has
-	 * been verified against its data URIs.
-	 *
-	 * The verification would happen only and only if the Intent action is
-	 * {@link android.content.Intent#ACTION_VIEW} and the Intent category is
-	 * {@link android.content.Intent#CATEGORY_BROWSABLE} and the Intent data
-	 * scheme is "http" or "https".
-	 *
-	 * @see android.content.IntentFilter#setAutoVerify(boolean)
-	 * @see android.content.IntentFilter#getAutoVerify()
-	 */
-	protected boolean isFilterVerified(F filter) {
-		return filter.isVerified();
 	}
 
 	/**
@@ -608,18 +559,12 @@ public abstract class IntentResolver<F extends IntentFilter, R extends Object> {
 		final Uri data = intent.getData();
 		final String packageName = intent.getPackage();
 
-		final boolean excludingStopped = intent.isExcludingStopped();
-
 		final int N = src != null ? src.length : 0;
 		boolean hasNonDefaults = false;
 		int i;
 		F filter;
 		for (i = 0; i < N && (filter = src[i]) != null; i++) {
 			int match;
-
-			if (excludingStopped && isFilterStopped(filter)) {
-				continue;
-			}
 
 			// Is delivery being limited to filters owned by a particular
 			// package?

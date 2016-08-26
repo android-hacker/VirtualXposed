@@ -51,9 +51,9 @@ public class Constants {
 
 	public static final String ACTION_UNINSTALL_PACKAGE = "android.intent.action.VIRTUAL_UNINSTALL_PACKAGE";
 	
-	public static final String ACTION_USER_ADDED = "virtual." + Intent.ACTION_USER_ADDED;
-	public static final String ACTION_USER_REMOVED = "virtual." + Intent.ACTION_USER_REMOVED;
-	public static final String ACTION_USER_INFO_CHANGED = "virtual." + Intent.ACTION_USER_INFO_CHANGED;
+	public static final String ACTION_USER_ADDED = "virtual." + "android.intent.action.USER_ADDED";
+	public static final String ACTION_USER_REMOVED = "virtual." + "android.intent.action.USER_REMOVED";
+	public static final String ACTION_USER_INFO_CHANGED = "virtual." + "android.intent.action.USER_CHANGED";
 
-	public static final String ACTION_USER_STARTED = "Virtual." + Intent.ACTION_USER_STARTED;
+	public static final String ACTION_USER_STARTED = "Virtual." + "android.intent.action.USER_STARTED";
 }

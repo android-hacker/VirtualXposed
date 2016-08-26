@@ -222,7 +222,7 @@ import java.util.Map;
 				notification1.bigContentView = notification.bigContentView;
 			}
 		}
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.L) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			notification1.publicVersion = notification.publicVersion;
 			if (notification1.headsUpContentView == null) {
 				notification1.headsUpContentView = notification.headsUpContentView;
@@ -233,7 +233,7 @@ import java.util.Map;
 	}
 
 	private static boolean isHostPackageName(String pkg) {
-		return VirtualCore.getCore().isHostPackageName(pkg);
+		return VirtualCore.get().isHostPackageName(pkg);
 	}
 
 	private static Notification.Builder createBuilder(Context context, Notification notification) {
@@ -251,7 +251,7 @@ import java.util.Map;
 		}
 		if (Build.VERSION.SDK_INT >= 20) {
 			builder.setGroup(notification.getGroup());
-			builder.setGroupSummary(notification.isGroupSummary());
+//			builder.setGroupSummary(notification.isGroupSummary());
 			builder.setPriority(notification.priority);
 			builder.setSortKey(notification.getSortKey());
 		}

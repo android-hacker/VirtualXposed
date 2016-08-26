@@ -1,9 +1,9 @@
 package com.lody.virtual.client.hook.providers;
 
-import android.content.IContentProvider;
 import android.content.pm.ProviderInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IInterface;
 
 import com.lody.virtual.helper.utils.VLog;
 
@@ -17,7 +17,6 @@ import java.util.Map;
 /**
  * @author Lody
  *
- * @see android.content.IContentProvider
  *
  */
 
@@ -28,13 +27,13 @@ public class ProviderHook implements InvocationHandler {
 	static {
 		PROVIDER_MAP.put("settings", new HookFetcher() {
 			@Override
-			public ProviderHook fetch(boolean external, ProviderInfo info, IContentProvider provider) {
+			public ProviderHook fetch(boolean external, ProviderInfo info, IInterface provider) {
 				return new SettingsProviderHook(provider);
 			}
 		});
 		PROVIDER_MAP.put("downloads", new HookFetcher() {
 			@Override
-			public ProviderHook fetch(boolean external, ProviderInfo info, IContentProvider provider) {
+			public ProviderHook fetch(boolean external, ProviderInfo info, IInterface provider) {
 				return new DownloadProviderHook(provider);
 			}
 		});
@@ -51,7 +50,7 @@ public class ProviderHook implements InvocationHandler {
 		if (fetcher == null) {
 			fetcher = new HookFetcher() {
 				@Override
-				public ProviderHook fetch(boolean external, ProviderInfo info, IContentProvider provider) {
+				public ProviderHook fetch(boolean external, ProviderInfo info, IInterface provider) {
 					if (external) {
 						return new ExternalProviderHook(provider);
 					}
@@ -63,6 +62,7 @@ public class ProviderHook implements InvocationHandler {
 	}
 
 	public Bundle call(Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
+
 		return (Bundle) method.invoke(mBase, args);
 	}
 
@@ -72,7 +72,6 @@ public class ProviderHook implements InvocationHandler {
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		VLog.d("###########", "call: %s (%s)", method.getName(), Arrays.toString(args));
 		try {
 			processArgs(method, args);
 		} catch (Throwable e) {
@@ -100,6 +99,6 @@ public class ProviderHook implements InvocationHandler {
 	}
 
 	public interface HookFetcher {
-		ProviderHook fetch(boolean external, ProviderInfo info, IContentProvider provider);
+		ProviderHook fetch(boolean external, ProviderInfo info, IInterface provider);
 	}
 }

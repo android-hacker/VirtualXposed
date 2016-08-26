@@ -1,23 +1,23 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import android.app.IActivityManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.IBinder;
-import android.os.ServiceManager;
+import android.os.IInterface;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.hook.base.HookBinder;
-import com.lody.virtual.client.hook.base.HookObject;
+import com.lody.virtual.client.hook.base.HookBinderDelegate;
+import com.lody.virtual.client.hook.base.HookDelegate;
 import com.lody.virtual.client.hook.base.Patch;
-import com.lody.virtual.client.hook.base.PatchObject;
+import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
 import com.lody.virtual.client.hook.base.StaticHook;
 
 import java.lang.reflect.Method;
 
 import mirror.android.app.ActivityManagerNative;
+import mirror.android.app.IActivityManager;
+import mirror.android.os.ServiceManager;
 import mirror.android.util.Singleton;
 
 /**
@@ -48,46 +48,45 @@ import mirror.android.util.Singleton;
 		SetPackageAskScreenCompat.class, GetPackageAskScreenCompat.class,
 		CheckPermission.class, PublishContentProviders.class, GetCurrentUser.class,
 		UnstableProviderDied.class, GetCallingActivity.class, FinishActivity.class,
-		GetServices.class,
+		GetServices.class,})
 
-		SetTaskDescription.class,})
-
-public class ActivityManagerPatch extends PatchObject<IActivityManager, HookObject<IActivityManager>> {
+public class ActivityManagerPatch extends PatchDelegate<HookDelegate<IInterface>> {
 
 
 	@Override
-	protected HookObject<IActivityManager> initHookObject() {
-		return new HookObject<>(android.app.ActivityManagerNative.getDefault());
+	protected HookDelegate<IInterface> createHookDelegate() {
+		return new HookDelegate<IInterface>() {
+			@Override
+			protected IInterface createInterface() {
+				return ActivityManagerNative.getDefault.call();
+			}
+		};
 	}
 
 	@Override
 	public void inject() throws Throwable {
-		if (ActivityManagerNative.gDefault.type() == IActivityManager.class) {
-			ActivityManagerNative.gDefault.set(getHookObject().getProxyObject());
+		if (ActivityManagerNative.gDefault.type() == IActivityManager.Class) {
+			ActivityManagerNative.gDefault.set(getHookDelegate().getProxyInterface());
 
-		} else if (ActivityManagerNative.gDefault.type() == android.util.Singleton.class) {
+		} else if (ActivityManagerNative.gDefault.type() == Singleton.Class) {
 			Object gDefault = ActivityManagerNative.gDefault.get();
-			Singleton.mInstance.set(gDefault, getHookObject().getProxyObject());
+			Singleton.mInstance.set(gDefault, getHookDelegate().getProxyInterface());
 		}
 
-		HookBinder<IActivityManager> hookAMBinder = new HookBinder<IActivityManager>() {
+		HookBinderDelegate hookAMBinder = new HookBinderDelegate() {
 			@Override
-			protected IBinder queryBaseBinder() {
-				return ServiceManager.getService(Context.ACTIVITY_SERVICE);
-			}
-
-			@Override
-			protected IActivityManager createInterface(IBinder baseBinder) {
-				return getHookObject().getProxyObject();
+			protected IInterface createInterface() {
+				return getHookDelegate().getBaseInterface();
 			}
 		};
-		hookAMBinder.injectService(Context.ACTIVITY_SERVICE);
+		hookAMBinder.copyHooks(getHookDelegate());
+		ServiceManager.sCache.get().put(Context.ACTIVITY_SERVICE, hookAMBinder);
 	}
 
 	@Override
-	protected void applyHooks() {
-		super.applyHooks();
-		if (VirtualCore.getCore().isVAppProcess()) {
+	protected void onBindHooks() {
+		super.onBindHooks();
+		if (VirtualCore.get().isVAppProcess()) {
 			addHook(new isUserRunning());
 			addHook(new ReplaceCallingPkgHook("setAppLockedVerifying"));
 			addHook(new StaticHook("checkUriPermission") {
@@ -114,6 +113,6 @@ public class ActivityManagerPatch extends PatchObject<IActivityManager, HookObje
 
 	@Override
 	public boolean isEnvBad() {
-		return android.app.ActivityManagerNative.getDefault() != getHookObject().getProxyObject();
+		return ActivityManagerNative.getDefault.call() != getHookDelegate().getProxyInterface();
 	}
 }

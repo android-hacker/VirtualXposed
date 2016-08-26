@@ -45,8 +45,8 @@ public class VAppManagerService extends IAppManager.Stub {
 
 	private final StaticBroadcastSystem mBroadcastSystem =
 			new StaticBroadcastSystem(
-			VirtualCore.getCore().getContext(),
-					VActivityManagerService.getService(),
+			VirtualCore.get().getContext(),
+					VActivityManagerService.get(),
 			this
 			);
 
@@ -54,7 +54,7 @@ public class VAppManagerService extends IAppManager.Stub {
 
 	private RemoteCallbackList<IAppObserver> mRemoteCallbackList = new RemoteCallbackList<IAppObserver>();
 
-	public static VAppManagerService getService() {
+	public static VAppManagerService get() {
 		return gService.get();
 	}
 
@@ -65,6 +65,7 @@ public class VAppManagerService extends IAppManager.Stub {
 
 	public static void systemReady() {
 		VAppManagerService instance = new VAppManagerService();
+		instance.preloadAllApps();
 		gService.set(instance);
 	}
 
@@ -77,7 +78,7 @@ public class VAppManagerService extends IAppManager.Stub {
 			if (!storeFile.exists()) {
 				ApplicationInfo appInfo = null;
 				try {
-					appInfo = VirtualCore.getCore().getUnHookPackageManager()
+					appInfo = VirtualCore.get().getUnHookPackageManager()
 							.getApplicationInfo(pkgName, 0);
 				} catch (PackageManager.NameNotFoundException e) {
 					// Ignore
@@ -147,7 +148,7 @@ public class VAppManagerService extends IAppManager.Stub {
 			return InstallResult.makeFailure("Unable to create lib dir.");
 		}
 		boolean dependSystem = (flags & InstallStrategy.DEPEND_SYSTEM_IF_EXIST) != 0
-				&& VirtualCore.getCore().isOutsideInstalled(pkg.packageName);
+				&& VirtualCore.get().isOutsideInstalled(pkg.packageName);
 
 		if (!onlyScan) {
 			if (res.isUpdate) {
@@ -211,7 +212,7 @@ public class VAppManagerService extends IAppManager.Stub {
 		synchronized (PackageCache.sPackageCaches) {
 			if (isAppInstalled(pkg)) {
 				try {
-					VActivityManagerService.getService().killAppByPkg(pkg, VUserHandle.USER_ALL);
+					VActivityManagerService.get().killAppByPkg(pkg, VUserHandle.USER_ALL);
 					FileUtils.deleteDir(VEnvironment.getDataAppPackageDirectory(pkg));
 					PackageCache.remove(pkg);
 					mBroadcastSystem.stopApp(pkg);
@@ -255,7 +256,7 @@ public class VAppManagerService extends IAppManager.Stub {
 		Intent virtualIntent = new Intent(Constants.ACTION_PACKAGE_ADDED);
 		Uri uri = Uri.fromParts("package", pkgName, null);
 		virtualIntent.setData(uri);
-		VirtualCore.getCore().getContext().sendBroadcast(virtualIntent);
+		VirtualCore.get().getContext().sendBroadcast(virtualIntent);
 	}
 
 	private void notifyAppUninstalled(String pkgName) {
@@ -271,7 +272,7 @@ public class VAppManagerService extends IAppManager.Stub {
 		Intent virtualIntent = new Intent(Constants.ACTION_PACKAGE_REMOVED);
 		Uri uri = Uri.fromParts("package", pkgName, null);
 		virtualIntent.setData(uri);
-		VirtualCore.getCore().getContext().sendBroadcast(virtualIntent);
+		VirtualCore.get().getContext().sendBroadcast(virtualIntent);
 	}
 
 	@Override

@@ -40,7 +40,7 @@ import static android.os.Build.VERSION_CODES.M;
 public class PackageParserCompat {
 
 	private static final int SDK = Build.VERSION.SDK_INT;
-	private static final int[] gids = VirtualCore.getCore().getGids();
+	private static final int[] gids = VirtualCore.get().getGids();
 	private static final int myUserId = VUserHandle.getUserId(Process.myUid());
 	private static final Object sUserState = SDK >= JELLY_BEAN_MR1 ? PackageUserState.ctor.newInstance() : null;
 

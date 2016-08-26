@@ -18,7 +18,7 @@ public class PackageCache {
 		synchronized (PackageCache.class) {
 			pkg.mExtras = appSetting;
 			sPackageCaches.put(pkg.packageName, pkg);
-			VPackageManagerService.getService().analyzePackageLocked(pkg);
+			VPackageManagerService.get().analyzePackageLocked(pkg);
 		}
 	}
 
@@ -29,7 +29,7 @@ public class PackageCache {
 	public static void remove(String packageName) {
 		synchronized (PackageCache.class) {
 			sPackageCaches.remove(packageName);
-			VPackageManagerService.getService().deletePackageLocked(packageName);
+			VPackageManagerService.get().deletePackageLocked(packageName);
 		}
 	}
 }

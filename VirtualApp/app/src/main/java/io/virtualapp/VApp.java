@@ -9,7 +9,6 @@ import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.proto.InstallResult;
 import com.lody.virtual.helper.utils.VLog;
-import com.lody.virtual.os.VUserManager;
 
 import jonathanfinerty.once.Once;
 
@@ -17,8 +16,6 @@ import jonathanfinerty.once.Once;
  * @author Lody
  */
 public class VApp extends Application {
-
-	private boolean needPreloadApps = true;
 
 	private static final String[] GMS_PKG = {
 			"com.android.vending",
@@ -42,44 +39,35 @@ public class VApp extends Application {
 		return gDefault;
 	}
 
-	public boolean isNeedPreloadApps() {
-		if (needPreloadApps) {
-			needPreloadApps = false;
-			return true;
-		}
-		return false;
-	}
-
 
 	@Override
 	protected void attachBaseContext(Context base) {
+		super.attachBaseContext(base);
 		try {
-			VirtualCore.getCore().startup(base);
+			VirtualCore.get().startup(base);
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
-		super.attachBaseContext(base);
 	}
 
 	@Override
 	public void onCreate() {
 		gDefault = this;
 		super.onCreate();
-		if (VirtualCore.getCore().isMainProcess()) {
+		if (VirtualCore.get().isMainProcess()) {
 			Once.initialise(this);
 			// Install the Google mobile service
 			installGms();
-			VUserManager.get().getUserCount();
 		}
 	}
 
 	private void installGms() {
-		PackageManager pm = VirtualCore.getCore().getUnHookPackageManager();
+		PackageManager pm = VirtualCore.get().getUnHookPackageManager();
 		for (String pkg : GMS_PKG) {
 			try {
 				ApplicationInfo appInfo = pm.getApplicationInfo(pkg, 0);
 				String apkPath = appInfo.sourceDir;
-				InstallResult res = VirtualCore.getCore().installApp(apkPath,
+				InstallResult res = VirtualCore.get().installApp(apkPath,
 						InstallStrategy.DEPEND_SYSTEM_IF_EXIST | InstallStrategy.TERMINATE_IF_EXIST);
 				if (!res.isSuccess) {
 					VLog.e("#####", "Unable to install app %s: %s.", appInfo.packageName, res.error);
