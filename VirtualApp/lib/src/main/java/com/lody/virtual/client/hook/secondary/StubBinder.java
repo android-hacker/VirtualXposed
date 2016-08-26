@@ -1,4 +1,4 @@
-package com.lody.virtual.client.hook.binders;
+package com.lody.virtual.client.hook.secondary;
 
 import android.os.IBinder;
 import android.os.IInterface;

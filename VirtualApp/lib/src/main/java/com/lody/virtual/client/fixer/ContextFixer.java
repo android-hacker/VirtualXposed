@@ -60,7 +60,6 @@ public class ContextFixer {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 			ContextImplKitkat.mOpPackageName.set(context, hostPkg);
 		}
-
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
 			ContentResolverJBMR2.mPackageName.set(context.getContentResolver(), hostPkg);
 		}

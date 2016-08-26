@@ -927,7 +927,6 @@ public class VAccountManagerService extends IAccountManager.Stub {
 	 */
 	private void deserializeAllAccounts() {
 		File accountFile = new File(VEnvironment.getSystemSecureDirectory(), "accounts.ini");
-		cache.authenticators.clear();
 		refreshAuthenticatorCache(null);
 		if (accountFile.exists()) {
 			accountsByUserId.clear();
@@ -989,7 +988,8 @@ public class VAccountManagerService extends IAccountManager.Stub {
 
 
 
-	private void refreshAuthenticatorCache(String packageName) {
+	public void refreshAuthenticatorCache(String packageName) {
+		cache.authenticators.clear();
 		Intent intent = new Intent(AccountManager.ACTION_AUTHENTICATOR_INTENT);
 		if (packageName != null) {
 			intent.setPackage(packageName);

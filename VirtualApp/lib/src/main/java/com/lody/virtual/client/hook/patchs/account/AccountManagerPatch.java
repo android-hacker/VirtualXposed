@@ -19,7 +19,7 @@ import mirror.android.os.ServiceManager;
  */
 public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 
-	private VAccountManager mgr = VAccountManager.get();
+	private static VAccountManager Mgr = VAccountManager.get();
 
 	@Override
 	protected AccountBinderDelegate createHookDelegate() {
@@ -77,7 +77,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 	}
 
 
-	private class getPassword extends Hook {
+	private static class getPassword extends Hook {
 		@Override
 		public String getName() {
 			return "getPassword";
@@ -86,11 +86,11 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		@Override
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
-			return mgr.getPassword(account);
+			return Mgr.getPassword(account);
 		}
 	}
 
-	private class getUserData extends Hook {
+	private static class getUserData extends Hook {
 		@Override
 		public String getName() {
 			return "getUserData";
@@ -100,11 +100,11 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
 			String key = (String) args[1];
-			return mgr.getUserData(account, key);
+			return Mgr.getUserData(account, key);
 		}
 	}
 
-	private class getAuthenticatorTypes extends Hook {
+	private static class getAuthenticatorTypes extends Hook {
 		@Override
 		public String getName() {
 			return "getAuthenticatorTypes";
@@ -112,11 +112,11 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 
 		@Override
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
-			return mgr.getAuthenticatorTypes();
+			return Mgr.getAuthenticatorTypes();
 		}
 	}
 
-	private class getAccounts extends Hook {
+	private static class getAccounts extends Hook {
 		@Override
 		public String getName() {
 			return "getAccounts";
@@ -125,11 +125,11 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		@Override
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			String accountType = (String) args[0];
-			return mgr.getAccounts(accountType);
+			return Mgr.getAccounts(accountType);
 		}
 	}
 
-	private class getAccountsForPackage extends Hook {
+	private static class getAccountsForPackage extends Hook {
 		@Override
 		public String getName() {
 			return "getAccountsForPackage";
@@ -138,11 +138,11 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		@Override
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			String packageName = (String) args[0];
-			return mgr.getAccounts(null);
+			return Mgr.getAccounts(null);
 		}
 	}
 
-	private class getAccountsByTypeForPackage extends Hook {
+	private static class getAccountsByTypeForPackage extends Hook {
 		@Override
 		public String getName() {
 			return "getAccountsByTypeForPackage";
@@ -152,11 +152,11 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			String type = (String) args[0];
 			String packageName = (String) args[1];
-			return mgr.getAccounts(type);
+			return Mgr.getAccounts(type);
 		}
 	}
 
-	private class getAccountsAsUser extends Hook {
+	private static class getAccountsAsUser extends Hook {
 		@Override
 		public String getName() {
 			return "getAccountsAsUser";
@@ -165,11 +165,11 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		@Override
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			String accountType = (String) args[0];
-			return mgr.getAccounts(accountType);
+			return Mgr.getAccounts(accountType);
 		}
 	}
 
-	private class hasFeatures extends Hook {
+	private static class hasFeatures extends Hook {
 		@Override
 		public String getName() {
 			return "hasFeatures";
@@ -180,12 +180,12 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			Account account = (Account) args[1];
 			String[] features = (String[]) args[2];
-			mgr.hasFeatures(response, account, features);
+			Mgr.hasFeatures(response, account, features);
 			return 0;
 		}
 	}
 
-	private class getAccountsByFeatures extends Hook {
+	private static class getAccountsByFeatures extends Hook {
 		@Override
 		public String getName() {
 			return "getAccountsByFeatures";
@@ -196,12 +196,12 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			String accountType = (String) args[1];
 			String[] features = (String[]) args[2];
-			mgr.getAccountsByFeatures(response, accountType, features);
+			Mgr.getAccountsByFeatures(response, accountType, features);
 			return 0;
 		}
 	}
 
-	private class addAccountExplicitly extends Hook {
+	private static class addAccountExplicitly extends Hook {
 		@Override
 		public String getName() {
 			return "addAccountExplicitly";
@@ -212,11 +212,11 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 			Account account = (Account) args[0];
 			String password = (String) args[1];
 			Bundle extras = (Bundle) args[2];
-			return mgr.addAccountExplicitly(account, password, extras);
+			return Mgr.addAccountExplicitly(account, password, extras);
 		}
 	}
 
-	private class removeAccount extends Hook {
+	private static class removeAccount extends Hook {
 		@Override
 		public String getName() {
 			return "removeAccount";
@@ -227,12 +227,12 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			Account account = (Account) args[1];
 			boolean expectActivityLaunch = (boolean) args[2];
-			mgr.removeAccount(response, account, expectActivityLaunch);
+			Mgr.removeAccount(response, account, expectActivityLaunch);
 			return 0;
 		}
 	}
 
-	private class removeAccountAsUser extends Hook {
+	private static class removeAccountAsUser extends Hook {
 		@Override
 		public String getName() {
 			return "removeAccountAsUser";
@@ -243,12 +243,12 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			Account account = (Account) args[1];
 			boolean expectActivityLaunch = (boolean) args[2];
-			mgr.removeAccount(response, account, expectActivityLaunch);
+			Mgr.removeAccount(response, account, expectActivityLaunch);
 			return 0;
 		}
 	}
 
-	private class removeAccountExplicitly extends Hook {
+	private static class removeAccountExplicitly extends Hook {
 		@Override
 		public String getName() {
 			return "removeAccountExplicitly";
@@ -257,11 +257,11 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		@Override
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
-			return mgr.removeAccountExplicitly(account);
+			return Mgr.removeAccountExplicitly(account);
 		}
 	}
 
-	private class copyAccountToUser extends Hook {
+	private static class copyAccountToUser extends Hook {
 		@Override
 		public String getName() {
 			return "copyAccountToUser";
@@ -278,7 +278,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 	}
 
-	private class invalidateAuthToken extends Hook {
+	private static class invalidateAuthToken extends Hook {
 		@Override
 		public String getName() {
 			return "invalidateAuthToken";
@@ -288,12 +288,12 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			String accountType = (String) args[0];
 			String authToken = (String) args[1];
-			mgr.invalidateAuthToken(accountType, authToken);
+			Mgr.invalidateAuthToken(accountType, authToken);
 			return 0;
 		}
 	}
 
-	private class peekAuthToken extends Hook {
+	private static class peekAuthToken extends Hook {
 		@Override
 		public String getName() {
 			return "peekAuthToken";
@@ -303,11 +303,11 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
 			String authTokenType = (String) args[1];
-			return mgr.peekAuthToken(account, authTokenType);
+			return Mgr.peekAuthToken(account, authTokenType);
 		}
 	}
 
-	private class setAuthToken extends Hook {
+	private static class setAuthToken extends Hook {
 		@Override
 		public String getName() {
 			return "setAuthToken";
@@ -318,12 +318,12 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 			Account account = (Account) args[0];
 			String authTokenType = (String) args[1];
 			String authToken = (String) args[2];
-			mgr.setAuthToken(account, authTokenType, authToken);
+			Mgr.setAuthToken(account, authTokenType, authToken);
 			return 0;
 		}
 	}
 
-	private class setPassword extends Hook {
+	private static class setPassword extends Hook {
 		@Override
 		public String getName() {
 			return "setPassword";
@@ -333,12 +333,12 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
 			String password = (String) args[1];
-			mgr.setPassword(account, password);
+			Mgr.setPassword(account, password);
 			return 0;
 		}
 	}
 
-	private class clearPassword extends Hook {
+	private static class clearPassword extends Hook {
 		@Override
 		public String getName() {
 			return "clearPassword";
@@ -347,12 +347,12 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		@Override
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
-			mgr.clearPassword(account);
+			Mgr.clearPassword(account);
 			return 0;
 		}
 	}
 
-	private class setUserData extends Hook {
+	private static class setUserData extends Hook {
 		@Override
 		public String getName() {
 			return "setUserData";
@@ -363,12 +363,12 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 			Account account = (Account) args[0];
 			String key = (String) args[1];
 			String value = (String) args[2];
-			mgr.setUserData(account, key, value);
+			Mgr.setUserData(account, key, value);
 			return 0;
 		}
 	}
 
-	private class updateAppPermission extends Hook {
+	private static class updateAppPermission extends Hook {
 		@Override
 		public String getName() {
 			return "updateAppPermission";
@@ -385,7 +385,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 	}
 
-	private class getAuthToken extends Hook {
+	private static class getAuthToken extends Hook {
 		@Override
 		public String getName() {
 			return "getAuthToken";
@@ -399,12 +399,12 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 			boolean notifyOnAuthFailure = (boolean) args[3];
 			boolean expectActivityLaunch = (boolean) args[4];
 			Bundle options = (Bundle) args[5];
-			mgr.getAuthToken(response, account, authTokenType, notifyOnAuthFailure, expectActivityLaunch, options);
+			Mgr.getAuthToken(response, account, authTokenType, notifyOnAuthFailure, expectActivityLaunch, options);
 			return 0;
 		}
 	}
 
-	private class addAccount extends Hook {
+	private static class addAccount extends Hook {
 		@Override
 		public String getName() {
 			return "addAccount";
@@ -418,12 +418,12 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 			String[] requiredFeatures = (String[]) args[3];
 			boolean expectActivityLaunch = (boolean) args[4];
 			Bundle options = (Bundle) args[5];
-			mgr.addAccount(response, accountType, authTokenType, requiredFeatures, expectActivityLaunch, options);
+			Mgr.addAccount(response, accountType, authTokenType, requiredFeatures, expectActivityLaunch, options);
 			return 0;
 		}
 	}
 
-	private class addAccountAsUser extends Hook {
+	private static class addAccountAsUser extends Hook {
 		@Override
 		public String getName() {
 			return "addAccountAsUser";
@@ -437,12 +437,12 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 			String[] requiredFeatures = (String[]) args[3];
 			boolean expectActivityLaunch = (boolean) args[4];
 			Bundle options = (Bundle) args[5];
-			mgr.addAccount(response, accountType, authTokenType, requiredFeatures, expectActivityLaunch, options);
+			Mgr.addAccount(response, accountType, authTokenType, requiredFeatures, expectActivityLaunch, options);
 			return 0;
 		}
 	}
 
-	private class updateCredentials extends Hook {
+	private static class updateCredentials extends Hook {
 		@Override
 		public String getName() {
 			return "updateCredentials";
@@ -455,12 +455,12 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 			String authTokenType = (String) args[2];
 			boolean expectActivityLaunch = (boolean) args[3];
 			Bundle options = (Bundle) args[4];
-			mgr.updateCredentials(response, account, authTokenType, expectActivityLaunch, options);
+			Mgr.updateCredentials(response, account, authTokenType, expectActivityLaunch, options);
 			return 0;
 		}
 	}
 
-	private class editProperties extends Hook {
+	private static class editProperties extends Hook {
 		@Override
 		public String getName() {
 			return "editProperties";
@@ -471,12 +471,12 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			String authTokenType = (String) args[1];
 			boolean expectActivityLaunch = (boolean) args[2];
-			mgr.editProperties(response, authTokenType, expectActivityLaunch);
+			Mgr.editProperties(response, authTokenType, expectActivityLaunch);
 			return 0;
 		}
 	}
 
-	private class confirmCredentialsAsUser extends Hook {
+	private static class confirmCredentialsAsUser extends Hook {
 		@Override
 		public String getName() {
 			return "confirmCredentialsAsUser";
@@ -488,13 +488,13 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 			Account account = (Account) args[1];
 			Bundle options = (Bundle) args[2];
 			boolean expectActivityLaunch = (boolean) args[3];
-			mgr.confirmCredentials(response, account, options, expectActivityLaunch);
+			Mgr.confirmCredentials(response, account, options, expectActivityLaunch);
 			return 0;
 
 		}
 	}
 
-	private class accountAuthenticated extends Hook {
+	private static class accountAuthenticated extends Hook {
 		@Override
 		public String getName() {
 			return "accountAuthenticated";
@@ -503,11 +503,11 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		@Override
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
-			return mgr.accountAuthenticated(account);
+			return Mgr.accountAuthenticated(account);
 		}
 	}
 
-	private class getAuthTokenLabel extends Hook {
+	private static class getAuthTokenLabel extends Hook {
 		@Override
 		public String getName() {
 			return "getAuthTokenLabel";
@@ -518,12 +518,12 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			String accountType = (String) args[1];
 			String authTokenType = (String) args[2];
-			mgr.getAuthTokenLabel(response, accountType, authTokenType);
+			Mgr.getAuthTokenLabel(response, accountType, authTokenType);
 			return 0;
 		}
 	}
 
-	private class addSharedAccountAsUser extends Hook {
+	private static class addSharedAccountAsUser extends Hook {
 		@Override
 		public String getName() {
 			return "addSharedAccountAsUser";
@@ -537,7 +537,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 	}
 
-	private class getSharedAccountsAsUser extends Hook {
+	private static class getSharedAccountsAsUser extends Hook {
 		@Override
 		public String getName() {
 			return "getSharedAccountsAsUser";
@@ -550,7 +550,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 	}
 
-	private class removeSharedAccountAsUser extends Hook {
+	private static class removeSharedAccountAsUser extends Hook {
 		@Override
 		public String getName() {
 			return "removeSharedAccountAsUser";
@@ -564,7 +564,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 	}
 
-	private class renameAccount extends Hook {
+	private static class renameAccount extends Hook {
 		@Override
 		public String getName() {
 			return "renameAccount";
@@ -575,12 +575,12 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			Account accountToRename = (Account) args[1];
 			String newName = (String) args[2];
-			mgr.renameAccount(response, accountToRename, newName);
+			Mgr.renameAccount(response, accountToRename, newName);
 			return 0;
 		}
 	}
 
-	private class getPreviousName extends Hook {
+	private static class getPreviousName extends Hook {
 		@Override
 		public String getName() {
 			return "getPreviousName";
@@ -589,11 +589,11 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		@Override
 		public Object onHook(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
-			return mgr.getPreviousName(account);
+			return Mgr.getPreviousName(account);
 		}
 	}
 
-	private class renameSharedAccountAsUser extends Hook {
+	private static class renameSharedAccountAsUser extends Hook {
 		@Override
 		public String getName() {
 			return "renameSharedAccountAsUser";

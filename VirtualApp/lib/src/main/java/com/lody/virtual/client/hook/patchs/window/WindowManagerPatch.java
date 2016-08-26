@@ -6,7 +6,7 @@ import android.os.Build;
 import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.base.StaticHook;
-import com.lody.virtual.client.hook.binders.WindowManagerBinderDelegate;
+import com.lody.virtual.client.hook.binders.WindowBinderDelegate;
 
 import mirror.android.os.ServiceManager;
 import mirror.android.view.Display;
@@ -18,11 +18,11 @@ import mirror.com.android.internal.policy.PhoneWindow;
  */
 @Patch({OverridePendingAppTransition.class, OverridePendingAppTransitionInPlace.class, OpenSession.class,
 		SetAppStartingWindow.class})
-public class WindowManagerPatch extends PatchDelegate<WindowManagerBinderDelegate> {
+public class WindowManagerPatch extends PatchDelegate<WindowBinderDelegate> {
 
 	@Override
-	protected WindowManagerBinderDelegate createHookDelegate() {
-		return new WindowManagerBinderDelegate();
+	protected WindowBinderDelegate createHookDelegate() {
+		return new WindowBinderDelegate();
 	}
 
 	@Override
@@ -33,7 +33,9 @@ public class WindowManagerPatch extends PatchDelegate<WindowManagerBinderDelegat
 				WindowManagerGlobal.sWindowManagerService.set(getHookDelegate().getProxyInterface());
 			}
 		} else {
-			Display.sWindowManager.set(getHookDelegate().getProxyInterface());
+			if (Display.sWindowManager != null) {
+				Display.sWindowManager.set(getHookDelegate().getProxyInterface());
+			}
 		}
 		if (PhoneWindow.Class != null) {
 			PhoneWindow.sWindowManager.set(getHookDelegate().getProxyInterface());

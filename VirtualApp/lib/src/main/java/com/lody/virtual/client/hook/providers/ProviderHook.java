@@ -10,6 +10,7 @@ import com.lody.virtual.helper.utils.VLog;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -86,7 +87,7 @@ public class ProviderHook implements InvocationHandler {
 			}
 			return method.invoke(mBase, args);
 		} catch (Throwable e) {
-			VLog.d("###########", "call: %s (%s) with error", method.getName(), Arrays.toString(args));
+			VLog.d("ProviderHook", "call: %s (%s) with error", method.getName(), Arrays.toString(args));
 			if (e instanceof InvocationTargetException) {
 				throw e.getCause();
 			}
@@ -96,6 +97,13 @@ public class ProviderHook implements InvocationHandler {
 
 	protected void processArgs(Method method, Object... args) {
 
+	}
+
+	public static IInterface createProxy(IInterface provider, ProviderHook hook) {
+		if (provider == null || hook == null) {
+			return null;
+		}
+		return (IInterface) Proxy.newProxyInstance(provider.getClass().getClassLoader(), provider.getClass().getInterfaces(), hook);
 	}
 
 	public interface HookFetcher {

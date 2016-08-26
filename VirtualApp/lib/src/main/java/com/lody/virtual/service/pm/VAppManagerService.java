@@ -22,6 +22,7 @@ import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.service.IAppManager;
+import com.lody.virtual.service.accounts.VAccountManagerService;
 import com.lody.virtual.service.am.StaticBroadcastSystem;
 import com.lody.virtual.service.am.UidSystem;
 import com.lody.virtual.service.am.VActivityManagerService;
@@ -186,9 +187,9 @@ public class VAppManagerService extends IAppManager.Stub {
 
 		PackageCache.put(pkg, appSetting);
 		mBroadcastSystem.startApp(pkg);
-
-
-		notifyAppInstalled(pkg.packageName);
+		if (!onlyScan) {
+			notifyAppInstalled(pkg.packageName);
+		}
 		res.isSuccess = true;
 		return res;
 	}
@@ -257,6 +258,7 @@ public class VAppManagerService extends IAppManager.Stub {
 		Uri uri = Uri.fromParts("package", pkgName, null);
 		virtualIntent.setData(uri);
 		VirtualCore.get().getContext().sendBroadcast(virtualIntent);
+		VAccountManagerService.get().refreshAuthenticatorCache(null);
 	}
 
 	private void notifyAppUninstalled(String pkgName) {
@@ -273,6 +275,7 @@ public class VAppManagerService extends IAppManager.Stub {
 		Uri uri = Uri.fromParts("package", pkgName, null);
 		virtualIntent.setData(uri);
 		VirtualCore.get().getContext().sendBroadcast(virtualIntent);
+		VAccountManagerService.get().refreshAuthenticatorCache(null);
 	}
 
 	@Override

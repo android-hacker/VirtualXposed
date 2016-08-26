@@ -13,7 +13,7 @@ import mirror.android.view.IWindowManager;
  * @author Lody
  *
  */
-public class WindowManagerBinderDelegate extends HookBinderDelegate {
+public class WindowBinderDelegate extends HookBinderDelegate {
 
 	@Override
 	protected IInterface createInterface() {

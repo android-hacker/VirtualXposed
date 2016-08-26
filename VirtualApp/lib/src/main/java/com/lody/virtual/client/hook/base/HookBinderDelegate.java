@@ -17,9 +17,6 @@ import mirror.android.os.ServiceManager;
 
 /**
  * @author Lody
- *
- *
- *         掌握ServiceManager中的实权.代理所有接口.
  */
 @SuppressWarnings("unchecked")
 public abstract class HookBinderDelegate extends HookDelegate<IInterface> implements IBinder {
@@ -27,16 +24,23 @@ public abstract class HookBinderDelegate extends HookDelegate<IInterface> implem
 	private IBinder mBaseBinder;
 	public HookBinderDelegate(Class<?>... proxyInterfaces) {
 		super(proxyInterfaces);
-		addHook(new AsBinder());
-		mBaseBinder = getBaseInterface().asBinder();
+		init();
 	}
 
 	public HookBinderDelegate() {
 		super();
+		init();
+	}
+
+	private void init() {
+		mBaseBinder = getBaseInterface() != null ? getBaseInterface().asBinder() : null;
+		addHook(new AsBinder());
 	}
 
 	public void replaceService(String name) {
-		ServiceManager.sCache.get().put(name, this);
+		if (mBaseBinder != null) {
+			ServiceManager.sCache.get().put(name, this);
+		}
 	}
 
 	private final class AsBinder extends Hook {

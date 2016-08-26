@@ -397,4 +397,5 @@ public class VActivityManager {
 	public void removePendingIntent(IBinder binder) throws RemoteException {
 		getService().removePendingIntent(binder);
 	}
+
 }
