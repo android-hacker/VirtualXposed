@@ -10,6 +10,7 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.helper.utils.collection.ArrayMap;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
@@ -23,6 +24,8 @@ import java.util.Map;
  */
 
 public class HackServiceConnection extends IServiceConnection.Stub {
+
+	public static ArrayMap<IBinder, HackServiceConnection> sHackConns = new ArrayMap<>();
 
 	private static final String TAG = HackServiceConnection.class.getSimpleName();
 

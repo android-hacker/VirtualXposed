@@ -1,16 +1,17 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
+import android.app.IServiceConnection;
 
 import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.hook.secondary.HackServiceConnection;
 import com.lody.virtual.client.local.VActivityManager;
 
-import android.app.IServiceConnection;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
  *
- *         原型: public boolean unbindService(IServiceConnection connection)
+ * public boolean unbindService(IServiceConnection connection)
  */
 /* package */ class UnbindService extends Hook {
 
@@ -21,8 +22,12 @@ import android.app.IServiceConnection;
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		IServiceConnection connection = (IServiceConnection) args[0];
-		return VActivityManager.get().unbindService(connection);
+		IServiceConnection conn = (IServiceConnection) args[0];
+		if (conn != null) {
+			HackServiceConnection hackConn = HackServiceConnection.sHackConns.remove(conn.asBinder());
+			return VActivityManager.get().unbindService(hackConn != null ? hackConn : conn);
+		}
+		return false;
 	}
 
 	@Override
