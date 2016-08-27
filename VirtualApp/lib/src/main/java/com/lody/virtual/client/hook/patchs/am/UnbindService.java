@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
 		IServiceConnection conn = (IServiceConnection) args[0];
 		if (conn != null) {
-			HackServiceConnection hackConn = HackServiceConnection.sHackConns.remove(conn.asBinder());
+			HackServiceConnection hackConn = null;//HackServiceConnection.sHackConns.remove(conn.asBinder());
 			return VActivityManager.get().unbindService(hackConn != null ? hackConn : conn);
 		}
 		return false;
