@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
+import android.os.Binder;
 import android.os.Build;
 import android.os.ConditionVariable;
 import android.os.Handler;
@@ -218,7 +219,7 @@ public class VClientImpl extends IVClient.Stub {
 		ContextFixer.fixContext(app);
 		List<ProviderInfo> providers = data.providers;
 		if (providers != null) {
-			installContentProviders(app, providers);
+			installContentProviders(providers);
 		}
 		isProviderInitialized = true;
 		lock.open();
@@ -251,10 +252,14 @@ public class VClientImpl extends IVClient.Stub {
 		mirror.android.app.ActivityThread.AppBindData.info.set(thread, data.info);
 	}
 
-	private void installContentProviders(Context context, List<ProviderInfo> providers) {
-		Object mainThread = VirtualCore.mainThread();
-		for (ProviderInfo cpi : providers) {
-			mirror.android.app.ActivityThread.installProvider(mainThread, context, cpi);
+	private void installContentProviders(List<ProviderInfo> providers) {
+		long origId = Binder.clearCallingIdentity();
+		try {
+			for (ProviderInfo cpi : providers) {
+				acquireProviderClient(cpi);
+			}
+		} finally {
+			Binder.restoreCallingIdentity(origId);
 		}
 	}
 
@@ -275,8 +280,10 @@ public class VClientImpl extends IVClient.Stub {
 
 	@Override
 	public IBinder acquireProviderClient(ProviderInfo info) {
-		if (!isBound() || !isProviderInitialized) {
-			lock.block();
+		if (Binder.getCallingPid() != Process.myPid()) {
+			if (!isBound() || !isProviderInitialized) {
+				lock.block();
+			}
 		}
 		IInterface provider = null;
 		String[] authorities = sSplitAuthorityPattern.split(info.authority);

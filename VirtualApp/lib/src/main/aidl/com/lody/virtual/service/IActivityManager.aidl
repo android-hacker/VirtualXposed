@@ -48,8 +48,7 @@ interface IActivityManager {
 
     void appDoneExecuting();
 
-
-    Intent startActivity(in Intent intent, in ActivityInfo info, in IBinder resultTo, in Bundle options, int userId);
+    Intent startActivity(in Intent intent, in ActivityInfo info, in IBinder resultTo, in Bundle options, in boolean fromHost, int userId);
 
     void onActivityCreated(in IBinder token, in ActivityInfo info, in ActivityInfo caller, int taskId);
 

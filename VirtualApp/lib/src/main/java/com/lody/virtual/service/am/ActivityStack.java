@@ -35,14 +35,15 @@ import mirror.com.android.internal.content.ReferrerIntent;
 		mAM = (ActivityManager) VirtualCore.get().getContext().getSystemService(Context.ACTIVITY_SERVICE);
 	}
 
-	public Intent startActivityLocked(int userId, Intent intent, ActivityInfo info, IBinder resultTo, Bundle options) {
+	public Intent startActivityLocked(int userId, Intent intent, ActivityInfo info, IBinder resultTo, boolean fromHost, Bundle options) {
 		Intent newIntent = new Intent();
-		String taskAffinity = ComponentUtils.getTaskAffinity(info);
+		newIntent.setType(intent.getComponent().flattenToString());
+		String taskAffinity = ComponentUtils.getTaskAffinity(info, userId);
 		ActivityRecord sourceRecord = findRecord(resultTo);
-		if (sourceRecord == null) {
-			newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			newIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-		}
+        if (fromHost && findTask(taskAffinity) == null) {
+            newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            newIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+        }
 		int launchFlags = intent.getFlags();
 		if ((launchFlags & Intent.FLAG_ACTIVITY_CLEAR_TASK) != 0) {
             ActivityTaskRecord task = findTask(taskAffinity);
@@ -102,7 +103,7 @@ import mirror.com.android.internal.content.ReferrerIntent;
         }
 		if (sourceRecord != null && sourceRecord.caller != null) {
             if (sourceRecord.activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
-                String comebackTaskAffinity = ComponentUtils.getTaskAffinity(sourceRecord.caller);
+                String comebackTaskAffinity = ComponentUtils.getTaskAffinity(sourceRecord.caller, userId);
                 ActivityTaskRecord comebackTask = findTask(comebackTaskAffinity);
                 if (comebackTask != null) {
                     mAM.moveTaskToFront(comebackTask.taskId, 0);

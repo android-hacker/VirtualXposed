@@ -23,18 +23,17 @@ public class ComponentUtils {
 		return processName;
 	}
 
-	public static String getTaskAffinity(ActivityInfo activityInfo) {
-		int uid = activityInfo.applicationInfo.uid;
+	public static String getTaskAffinity(ActivityInfo activityInfo, int userId) {
 		if (activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
-			return "SINGLE_INSTANCE_" + activityInfo.packageName + "/" + activityInfo.name + ":" + uid;
+			return "SINGLE_INSTANCE_" + activityInfo.packageName + "/" + activityInfo.name + ":" + userId;
 		}
 		if (activityInfo.taskAffinity == null && activityInfo.applicationInfo.taskAffinity == null) {
-			return activityInfo.packageName;
+			return activityInfo.packageName + ":" + userId;
 		}
 		if (activityInfo.taskAffinity != null) {
-			return activityInfo.taskAffinity;
+			return activityInfo.taskAffinity + ":" + userId;
 		}
-		return activityInfo.applicationInfo.taskAffinity;
+		return activityInfo.applicationInfo.taskAffinity + ":" + userId;
 	}
 
 	public static boolean isSameComponent(ComponentInfo first, ComponentInfo second) {
