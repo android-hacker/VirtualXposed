@@ -190,9 +190,9 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	@Override
-	public Intent startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, int userId) {
+	public Intent startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, boolean fromHost, int userId) {
 		synchronized (this) {
-			return mMainStack.startActivityLocked(userId, intent, info, resultTo, options);
+			return mMainStack.startActivityLocked(userId, intent, info, resultTo, fromHost, options);
 		}
 	}
 
@@ -223,7 +223,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			if (task == null) {
 				task = new ActivityTaskRecord();
 				task.taskId = taskId;
-				task.rootAffinity = ComponentUtils.getTaskAffinity(targetActInfo);
+				task.rootAffinity = ComponentUtils.getTaskAffinity(targetActInfo, VBinder.getCallingUid());
 				task.baseActivity = new ComponentName(targetActInfo.packageName, targetActInfo.name);
 				mMainStack.mTasks.add(task);
 			}

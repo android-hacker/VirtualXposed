@@ -51,9 +51,9 @@ public class VActivityManager {
 		return service;
 	}
 
-	public Intent startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, int userId) {
+	public Intent startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, boolean fromHost, int userId) {
 		try {
-			return getService().startActivity(intent, info, resultTo, options, userId);
+			return getService().startActivity(intent, info, resultTo, options, fromHost, userId);
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}

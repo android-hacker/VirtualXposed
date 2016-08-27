@@ -65,7 +65,7 @@ import java.lang.reflect.Method;
 		if (!isAppPkg(packageName)) {
 			return method.invoke(who, args);
 		}
-		Intent resultIntent = VActivityManager.get().startActivity(targetIntent, targetActInfo, resultTo, options, userId);
+		Intent resultIntent = VActivityManager.get().startActivity(targetIntent, targetActInfo, resultTo, options, !isAppProcess(), userId);
 		if (resultIntent == null) {
 			if (resultTo != null) {
 				VActivityManager.get().sendActivityResult(resultTo, resultWho, requestCode);
