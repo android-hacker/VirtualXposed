@@ -35,15 +35,20 @@ import mirror.com.android.internal.content.ReferrerIntent;
 		mAM = (ActivityManager) VirtualCore.get().getContext().getSystemService(Context.ACTIVITY_SERVICE);
 	}
 
+	@SuppressWarnings("deprecation")
 	public Intent startActivityLocked(int userId, Intent intent, ActivityInfo info, IBinder resultTo, boolean fromHost, Bundle options) {
 		Intent newIntent = new Intent();
 		newIntent.setType(intent.getComponent().flattenToString());
 		String taskAffinity = ComponentUtils.getTaskAffinity(info, userId);
 		ActivityRecord sourceRecord = findRecord(resultTo);
-        if (fromHost && findTask(taskAffinity) == null) {
-            newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            newIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-        }
+		if (fromHost && findTask(taskAffinity) == null) {
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+				newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+			else
+				newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+			newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			newIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+		}
 		int launchFlags = intent.getFlags();
 		if ((launchFlags & Intent.FLAG_ACTIVITY_CLEAR_TASK) != 0) {
             ActivityTaskRecord task = findTask(taskAffinity);
