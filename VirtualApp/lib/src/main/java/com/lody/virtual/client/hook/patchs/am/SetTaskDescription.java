@@ -11,6 +11,7 @@ import android.os.IBinder;
 
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.os.VUserManager;
 
 import java.lang.reflect.Method;
 
@@ -22,7 +23,7 @@ import java.lang.reflect.Method;
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 /* package */ class SetTaskDescription extends Hook {
-	static final String VACLIENT_SUFFIX = "[VA]";
+	//static final String VACLIENT_SUFFIX = "[VA]";
 	@Override
 	public String getName() {
 		return "setTaskDescription";
@@ -34,12 +35,13 @@ import java.lang.reflect.Method;
 
 		String label = td.getLabel();
 		Bitmap icon = td.getIcon();
-		if ((label == null || !label.endsWith(VACLIENT_SUFFIX)) || icon == null) {
+		if ((label == null || !label.contains("[VA")) || icon == null) {
+			String suffix = String.format("[VA:%s]", VUserManager.get().getUserName());
 			Application app = VClientImpl.getClient().getCurrentApplication();
 			if (label == null) {
-				label = app.getApplicationInfo().loadLabel(app.getPackageManager()) + VACLIENT_SUFFIX;
+				label = app.getApplicationInfo().loadLabel(app.getPackageManager()) + suffix;
 			} else {
-				label += VACLIENT_SUFFIX;
+				label += suffix;
 			}
 
 			if (icon == null) {
