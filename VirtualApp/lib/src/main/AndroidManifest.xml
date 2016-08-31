@@ -207,9 +207,14 @@
 
     <application>
         <activity
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:name="com.lody.virtual.client.stub.ShortcutHandleActivity"
             android:exported="true"
             />
+
+        <activity android:name=".client.stub.StubPendingActivity" android:process=":x"/>
+        <service android:name=".client.stub.StubPendingService" android:process=":x"/>
+        <receiver android:name=".client.stub.StubPendingReceiver" android:process=":x"/>
 
         <service
             android:name="com.lody.virtual.client.stub.KeepService"

@@ -2,13 +2,15 @@ package com.lody.virtual.helper.utils;
 
 import android.util.Log;
 
+import com.lody.virtual.BuildConfig;
+
 /**
  * @author Lody
  *
  */
 public class VLog {
 
-	public static boolean OPEN_LOG = true;
+	public static boolean OPEN_LOG = BuildConfig.DEBUG;
 
 	public static void i(String tag, String msg, Object... format) {
 		if (OPEN_LOG) {

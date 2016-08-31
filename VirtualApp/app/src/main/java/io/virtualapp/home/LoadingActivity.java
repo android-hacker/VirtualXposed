@@ -60,7 +60,7 @@ public class LoadingActivity extends AppCompatActivity {
 		}
 
 		Intent intent = getIntent().getParcelableExtra(KEY_INTENT);
-		VirtualCore.get().addLoadingPage(intent, this);
+		VirtualCore.get().setLoadingPage(intent, this);
 		if (intent != null) {
 			VUiKit.defer().when(() -> {
 				long startTime = System.currentTimeMillis();

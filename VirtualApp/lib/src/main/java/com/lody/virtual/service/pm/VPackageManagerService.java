@@ -253,7 +253,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 					}
 				}
 				PackageInfo packageInfo = PackageParserCompat.generatePackageInfo(pkg, flags,
-						getFirstInstallTime(packageName), getLastInstallTime(packageName));
+						getFirstInstallTime(pkg), getLastInstallTime(pkg));
 				if (packageInfo != null) {
 					ComponentFixer.fixApplicationInfo(setting, packageInfo.applicationInfo, userId);
 					return packageInfo;
@@ -263,12 +263,14 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		return null;
 	}
 
-	private long getLastInstallTime(String packageName) {
-		return 0;
+	private long getLastInstallTime(PackageParser.Package p) {
+		AppSetting setting = (AppSetting) p.mExtras;
+		return new File(setting.apkPath).lastModified();
 	}
 
-	private long getFirstInstallTime(String packageName) {
-		return 0;
+	private long getFirstInstallTime(PackageParser.Package p) {
+		AppSetting setting = (AppSetting) p.mExtras;
+		return new File(setting.apkPath).lastModified();
 	}
 
 	public void checkUserId(int userId) {

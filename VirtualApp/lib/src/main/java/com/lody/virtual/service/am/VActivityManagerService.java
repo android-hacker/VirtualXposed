@@ -27,7 +27,6 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.text.TextUtils;
-import android.util.Pair;
 
 import com.lody.virtual.client.IVClient;
 import com.lody.virtual.client.core.VirtualCore;
@@ -56,7 +55,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -190,9 +188,9 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	@Override
-	public Intent startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, boolean fromHost, int userId) {
+	public int startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, int userId) {
 		synchronized (this) {
-			return mMainStack.startActivityLocked(userId, intent, info, resultTo, fromHost, options);
+			return mMainStack.startActivityLocked(userId, intent, info, resultTo, options, userId);
 		}
 	}
 
@@ -217,74 +215,33 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	@Override
-	public void onActivityCreated(IBinder token, ActivityInfo targetActInfo, ActivityInfo callerActInfo, int taskId) {
-		synchronized (mMainStack) {
-			ActivityTaskRecord task = mMainStack.findTask(taskId);
-			if (task == null) {
-				task = new ActivityTaskRecord();
-				task.taskId = taskId;
-				task.rootAffinity = ComponentUtils.getTaskAffinity(targetActInfo, VBinder.getCallingUid());
-				task.baseActivity = new ComponentName(targetActInfo.packageName, targetActInfo.name);
-				mMainStack.mTasks.add(task);
-			}
-			ActivityRecord record = new ActivityRecord();
-			record.activityInfo = targetActInfo;
-			record.token = token;
-			record.caller = callerActInfo;
-			record.pid = VBinder.getCallingPid();
-			task.activityList.add(record);
-			task.activities.put(token, record);
+	public void onActivityCreated(ComponentName component, IBinder token, Intent intent, String affinity, int taskId, int launchMode, int flags, int clearTargetOrder) {
+		int pid = Binder.getCallingPid();
+		ProcessRecord targetApp = findProcess(pid);
+		if (targetApp != null) {
+			mMainStack.onActivityCreated(targetApp, component, token, intent, affinity, taskId, launchMode, flags, clearTargetOrder);
 		}
 	}
 
 	@Override
-	public void onActivityResumed(IBinder token) {
-		synchronized (mMainStack) {
-			ActivityTaskRecord r = mMainStack.findTask(token);
-			if (r != null) {
-				ActivityRecord record = r.activities.get(token);
-				if (r.activityList.peekLast() != record) {
-					r.activityList.remove(record);
-					r.activityList.addLast(record);
-				}
-			}
-		}
+	public void onActivityResumed(int userId, IBinder token) {
+		mMainStack.onActivityResumed(userId, token);
 	}
 
 	@Override
-	public void onActivityDestroyed(IBinder token) {
-		synchronized (mMainStack) {
-			ActivityTaskRecord r = mMainStack.findTask(token);
-			if (r != null) {
-				ActivityRecord record = r.activities.remove(token);
-				r.activityList.remove(record);
-				if (r.activityList.isEmpty()) {
-					mMainStack.mTasks.remove(r);
-				}
-			}
-		}
+	public boolean onActivityDestroyed(int userId, IBinder token) {
+		return mMainStack.onActivityDestroyed(userId, token);
 	}
 
 	@Override
 	public AppTaskInfo getTaskInfo(int taskId) {
-		synchronized (mMainStack) {
-			ActivityTaskRecord r = mMainStack.findTask(taskId);
-			if (r != null) {
-				return r.toTaskInfo();
-			}
-		}
+
 		return null;
 	}
 
 	@Override
 	public String getPackageForToken(IBinder token) {
-		synchronized (mMainStack) {
-			ActivityRecord r = mMainStack.findRecord(token);
-			if (r != null) {
-				return r.caller != null ? r.caller.packageName : null;
-			}
-			return null;
-		}
+		return null;
 	}
 
 	private synchronized int getTopTaskId() {
@@ -295,15 +252,6 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		return -1;
 	}
 
-	public ActivityTaskRecord getTopTask() {
-		synchronized (mMainStack) {
-			int taskId = getTopTaskId();
-			if (taskId == -1) {
-				return null;
-			}
-			return mMainStack.findTask(taskId);
-		}
-	}
 
 	public void processDead(ProcessRecord record) {
 		synchronized (mHistory) {
@@ -314,24 +262,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 					iterator.remove();
 				}
 			}
-		}
-		synchronized (mMainStack) {
-			int pid = record.pid;
-			List<Pair<ActivityTaskRecord, ActivityRecord>> removeRecordList = new LinkedList<>();
-			for (ActivityTaskRecord task : mMainStack.mTasks) {
-				for (ActivityRecord r : task.activities.values()) {
-					if (r.pid == pid) {
-						removeRecordList.add(Pair.create(task, r));
-					}
-				}
-			}
-			for (Pair<ActivityTaskRecord, ActivityRecord> pair : removeRecordList) {
-				ActivityTaskRecord taskRecord = pair.first;
-				ActivityRecord r = pair.second;
-				taskRecord.activities.remove(r.token);
-				taskRecord.activityList.remove(r);
-			}
-			mMainStack.trimTasks();
+			mMainStack.processDied(record);
 		}
 	}
 
@@ -385,27 +316,12 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	public ActivityInfo getCallingActivity(IBinder token) {
-		synchronized (mMainStack) {
-			ActivityRecord r = mMainStack.findRecord(token);
-			if (r != null) {
-				return r.caller;
-			}
-			return null;
-		}
+		return null;
 	}
 
 	@Override
 	public ActivityInfo getActivityInfo(IBinder token) {
-		synchronized (mMainStack) {
-			if (token == null) {
-				return null;
-			}
-			ActivityRecord r = mMainStack.findRecord(token);
-			if (r != null) {
-				return r.activityInfo;
-			}
-			return null;
-		}
+		return null;
 	}
 
 	@Override

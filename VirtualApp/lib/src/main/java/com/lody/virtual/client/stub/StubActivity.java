@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import com.lody.virtual.BuildConfig;
 import com.lody.virtual.client.core.PatchManager;
 import com.lody.virtual.client.hook.patchs.am.HCallbackHook;
 
@@ -14,7 +15,7 @@ import com.lody.virtual.client.hook.patchs.am.HCallbackHook;
  */
 public abstract class StubActivity extends Activity {
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = BuildConfig.DEBUG;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -27,14 +28,13 @@ public abstract class StubActivity extends Activity {
 		// Note:
 		// ClassLoader of savedInstanceState is not exist now.
 		super.onCreate(null);
-		Intent intent = stubIntent.getParcelableExtra("_VA_|_intent_");
+		Intent intent = stubIntent.getParcelableExtra("intent");
 		if (intent == null) {
 			if (DEBUG) {
 				Toast.makeText(this, "Ops...", Toast.LENGTH_SHORT).show();
 			}
 		} else {
 			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-			// Fix : ActivityThread$mH
 			overridePendingTransition(0, 0);
 			startActivity(intent);
 		}

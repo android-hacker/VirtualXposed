@@ -1,15 +1,18 @@
 package com.lody.virtual.client;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.app.Instrumentation;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.IBinder;
@@ -28,14 +31,14 @@ import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
 
-import java.io.File;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import mirror.android.app.ActivityThread;
 import mirror.android.app.ContextImpl;
 import mirror.android.app.LoadedApk;
+import mirror.com.android.internal.content.ReferrerIntent;
 import mirror.dalvik.system.VMRuntime;
 
 /**
@@ -45,9 +48,11 @@ import mirror.dalvik.system.VMRuntime;
 public class VClientImpl extends IVClient.Stub {
 
 	private static final int BIND_APPLICATION = 10;
+	private static final int NEW_INTENT = 11;
 
 	private static final String TAG = VClientImpl.class.getSimpleName();
 
+	@SuppressLint("StaticFieldLeak")
 	private static final VClientImpl gClient = new VClientImpl();
 	private Instrumentation mInstrumentation = AppInstrumentation.getDefault();
 	private static final Pattern sSplitAuthorityPattern = Pattern.compile(";");
@@ -86,6 +91,11 @@ public class VClientImpl extends IVClient.Stub {
 	}
 
 
+	private final class NewIntentData {
+		String creator;
+		IBinder token;
+		Intent intent;
+	}
 	private final class AppBindData {
 		String processName;
 		ApplicationInfo appInfo;
@@ -135,10 +145,27 @@ public class VClientImpl extends IVClient.Stub {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 				case BIND_APPLICATION: {
-					handleBindApplication((AppBindData)msg.obj);
+					handleBindApplication((AppBindData) msg.obj);
+				} break;
+				case NEW_INTENT: {
+					handleNewIntent((NewIntentData) msg.obj);
 				} break;
 			}
 		}
+	}
+
+	private void handleNewIntent(NewIntentData data) {
+		Intent intent;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+			intent = ReferrerIntent.ctor.newInstance(data.intent, data.creator);
+		} else {
+			intent = data.intent;
+		}
+		ActivityThread.performNewIntents.call(
+				VirtualCore.mainThread(),
+				data.token,
+				Collections.singletonList(intent)
+		);
 	}
 
 	private void handleBindApplication(AppBindData data) {
@@ -175,40 +202,6 @@ public class VClientImpl extends IVClient.Stub {
 		IOHook.hookNative();
 		Object mainThread = VirtualCore.mainThread();
 		IOHook.startDexOverride();
-		List<String> libraries = new ArrayList<>();
-		if (data.usesLibraries != null) {
-			boolean fail = false;
-			for (String library : data.usesLibraries) {
-				if (library.equals("android.test.runner")) {
-					continue;
-				}
-				try {
-					ApplicationInfo info = VirtualCore.getPM().getApplicationInfo(library, 0);
-					if (info.sourceDir != null) {
-						libraries.add(info.sourceDir);
-					}
-				} catch (Throwable e) {
-					fail = true;
-				}
-				if (fail) {
-					File file = new File("/system/framework/" + library + ".jar");
-					if (file.exists()) {
-						libraries.add(file.getPath());
-						fail = false;
-					} else {
-						file = new File("/system/framework/" + library + ".boot.jar");
-						if (file.exists()) {
-							libraries.add(file.getPath());
-							fail = false;
-						}
-					}
-				}
-				if (fail) {
-					VLog.w(TAG, "Unable to detect the library : %s.", library);
-				}
-			}
-		}
-		data.appInfo.sharedLibraryFiles = libraries.toArray(new String[libraries.size()]);
 		Context context = createPackageContext(data.appInfo.packageName);
 		mBoundApplication.info = ContextImpl.mPackageInfo.get(context);
 		fixBoundApp(mBoundApplication);
@@ -300,5 +293,24 @@ public class VClientImpl extends IVClient.Stub {
 			client.release();
 		}
 		return provider != null ? provider.asBinder() : null;
+	}
+
+
+	@Override
+	public void finishActivity(IBinder token) {
+		VActivityManager.get().finishActivity(token);
+	}
+
+	@Override
+	public void scheduleNewIntent(String creator, IBinder token, Intent intent) {
+		NewIntentData data = new NewIntentData();
+		data.creator = creator;
+		data.token = token;
+		data.intent = intent;
+		sendMessage(NEW_INTENT, data);
+	}
+	@Override
+	public boolean startActivityFromToken(IBinder token, Intent intent, Bundle options) {
+		return VActivityManager.get().startActivityFromToken(token, intent, options);
 	}
 }

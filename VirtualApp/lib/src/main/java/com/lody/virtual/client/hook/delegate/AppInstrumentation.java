@@ -12,7 +12,7 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.fixer.ActivityFixer;
 import com.lody.virtual.client.fixer.ContextFixer;
 import com.lody.virtual.client.interfaces.Injectable;
-import com.lody.virtual.client.local.LocalActivityRecord;
+import com.lody.virtual.client.local.ActivityClientRecord;
 import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.compat.BundleCompat;
@@ -66,12 +66,16 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 		String pkg = activity.getPackageName();
 		boolean isApp = VirtualCore.get().isAppInstalled(pkg);
 		if (isApp) {
-			LocalActivityRecord r = VActivityManager.get().onActivityCreate(activity);
+			IBinder token = mirror.android.app.Activity.mToken.get(activity);
+			ActivityClientRecord r = VActivityManager.get().getActivityRecord(token);
+			if (r != null) {
+				r.activity = activity;
+			}
 			ContextFixer.fixContext(activity);
 			ActivityFixer.fixActivity(activity);
 			ActivityInfo info = null;
 			if (r != null) {
-				info = r.activityInfo;
+				info = r.info;
 			}
 			if (info != null) {
 				if (info.theme != 0) {
@@ -102,15 +106,6 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 		}
 	}
 
-	@Override
-	public void callActivityOnDestroy(Activity activity) {
-		String pkg = activity.getPackageName();
-		boolean isApp = VirtualCore.get().isAppInstalled(pkg);
-		if (isApp) {
-			VActivityManager.get().onActivityDestroy(activity);
-		}
-		super.callActivityOnDestroy(activity);
-	}
 
 	@Override
 	public void callApplicationOnCreate(Application app) {

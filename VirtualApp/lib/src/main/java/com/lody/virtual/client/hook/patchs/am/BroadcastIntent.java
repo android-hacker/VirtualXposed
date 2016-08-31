@@ -12,7 +12,7 @@ import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.helper.utils.BitmapUtils;
-import com.lody.virtual.os.VUserHandle;
+import com.lody.virtual.helper.utils.ComponentUtils;
 
 import java.lang.reflect.Method;
 
@@ -61,35 +61,7 @@ import java.lang.reflect.Method;
 			if (newAction != null) {
 				intent.setAction(newAction);
 			}
-			ComponentName component = intent.getComponent();
-			String pkg = intent.getPackage();
-			if (component != null) {
-				if (isAppPkg(component.getPackageName())) {
-					if (intent.getSelector() != null) {
-						intent.setPackage(component.getPackageName());
-					}
-					Intent newIntent = intent.cloneFilter();
-					newIntent.putExtra("_VA_|_user_id_", VUserHandle.myUserId());
-					newIntent.setAction(String.format("_VA_%s_%s", component.getPackageName(), component.getClassName()));
-					newIntent.putExtra("_VA_|_component_", component);
-					newIntent.putExtra("_VA_|_intent_", new Intent(intent));
-					return newIntent;
-				}
-			} else if (pkg != null) {
-				if (isAppPkg(pkg)) {
-					Intent newIntent = intent.cloneFilter();
-					newIntent.putExtra("_VA_|_user_id_", VUserHandle.myUserId());
-					newIntent.putExtra("_VA_|_creator_", pkg);
-					newIntent.putExtra("_VA_|_intent_", new Intent(intent));
-					return newIntent;
-				}
-			} else {
-				Intent newIntent = intent.cloneFilter();
-				newIntent.putExtra("_VA_|_user_id_", VUserHandle.myUserId());
-				newIntent.putExtra("_VA_|_intent_", new Intent(intent));
-				return newIntent;
-			}
-			return null;
+			return ComponentUtils.redirectBroadcastIntent(intent);
 		}
 	}
 

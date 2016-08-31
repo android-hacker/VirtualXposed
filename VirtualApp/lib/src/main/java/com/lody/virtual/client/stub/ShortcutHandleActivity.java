@@ -17,11 +17,11 @@ public class ShortcutHandleActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		finish();
 		Intent intent = getIntent();
 		if (intent != null) {
 			Intent forwardIntent = getTargetIntent();
 			if (forwardIntent != null) {
-				forwardIntent.putExtras(intent);
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
 					forwardIntent.setSelector(null);
 				}
@@ -30,7 +30,6 @@ public class ShortcutHandleActivity extends Activity {
 				} catch (Throwable e) {
 					e.printStackTrace();
 				}
-				finish();
 			}
 		}
 	}

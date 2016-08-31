@@ -48,13 +48,13 @@ interface IActivityManager {
 
     void appDoneExecuting();
 
-    Intent startActivity(in Intent intent, in ActivityInfo info, in IBinder resultTo, in Bundle options, in boolean fromHost, int userId);
+    int startActivity(in Intent intent, in ActivityInfo info, in IBinder resultTo, in Bundle options, int userId);
 
-    void onActivityCreated(in IBinder token, in ActivityInfo info, in ActivityInfo caller, int taskId);
+    void onActivityCreated(in ComponentName component, in IBinder token, in Intent intent, in String affinity, int taskId, int launchMode, int flags, int clearTargetOrder);
 
-    void onActivityResumed(in IBinder token);
+    void onActivityResumed(int userId, in IBinder token);
 
-    void onActivityDestroyed(in IBinder token);
+    boolean onActivityDestroyed(int userId, in IBinder token);
 
     ActivityInfo getCallingActivity(in IBinder token);
 

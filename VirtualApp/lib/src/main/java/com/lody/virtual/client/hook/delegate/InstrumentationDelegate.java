@@ -4,6 +4,7 @@ package com.lody.virtual.client.hook.delegate;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
+import android.app.Fragment;
 import android.app.Instrumentation;
 import android.app.UiAutomation;
 import android.content.ComponentName;
@@ -15,8 +16,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PersistableBundle;
+import android.os.UserHandle;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+
+import com.lody.virtual.helper.utils.Mark;
+import com.lody.virtual.helper.utils.Reflect;
 
 /**
  * @author Lody
@@ -342,4 +347,50 @@ public class InstrumentationDelegate extends Instrumentation {
 	public UiAutomation getUiAutomation() {
 		return base.getUiAutomation();
 	}
+
+
+	@Mark
+	public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token, Activity target,
+											Intent intent, int requestCode) {
+
+		return Reflect.on(base).call("execStartActivity", who, contextThread, token, target, intent, requestCode).get();
+	}
+
+
+	@Mark
+	public ActivityResult execStartActivity(Context context, IBinder contextThread, IBinder token, Activity target,
+											Intent intent, int requestCode, Bundle options, UserHandle userHandle) {
+
+		return Reflect.on(base).call("execStartActivity", context, contextThread, token, target, intent, requestCode, options, userHandle).get();
+	}
+
+
+
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+	@Mark
+	public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token, Activity target,
+											Intent intent, int requestCode, Bundle options) {
+		return Reflect.on(base).call("execStartActivity", who, contextThread, token, target, intent, requestCode, options).get();
+	}
+
+
+	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+	@Mark
+	public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token, Fragment fragment,
+											Intent intent, int requestCode) {
+		return Reflect.on(base).call("execStartActivity", who, contextThread, token, fragment, intent, requestCode).get();
+	}
+
+
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+	@Mark
+	public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token, Fragment fragment,
+											Intent intent, int requestCode, Bundle options) {
+		return Reflect.on(base).call("execStartActivity", who, contextThread, token, fragment, intent,requestCode, options).get();
+	}
+
+
+
+
+
 }

@@ -51,7 +51,7 @@ public class ActivityThread {
         public static FieldDef<android.app.Activity> activity;
         public static FieldDef<ActivityInfo> activityInfo;
         public static FieldDef<Intent> intent;
-        public static FieldDef token;
+        public static FieldDef<IBinder> token;
     }
 
     public static class ProviderClientRecord {

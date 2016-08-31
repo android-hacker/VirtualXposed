@@ -14,6 +14,7 @@ public class StartActivityIntentSender extends Hook {
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+
 		return super.onHook(who, method, args);
 	}
 }

@@ -23,7 +23,9 @@ public class PackageCache {
 	}
 
 	public static PackageParser.Package get(String packageName) {
-		return sPackageCaches.get(packageName);
+		synchronized (PackageCache.class) {
+			return sPackageCaches.get(packageName);
+		}
 	}
 
 	public static void remove(String packageName) {

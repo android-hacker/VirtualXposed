@@ -1,7 +1,5 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
-
 /**
  * @author Lody
  */
@@ -10,10 +8,5 @@ import java.lang.reflect.Method;
 	@Override
 	public String getName() {
 		return "startActivityAsCaller";
-	}
-
-	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		return super.onHook(who, method, args);
 	}
 }
