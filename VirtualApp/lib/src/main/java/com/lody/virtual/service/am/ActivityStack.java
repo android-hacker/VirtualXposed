@@ -166,6 +166,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		return marked;
 	}
 
+	@SuppressWarnings("deprecation")
 	public int startActivityLocked(int userId, Intent intent, ActivityInfo info, IBinder resultTo, Bundle options,
 			int requestCode) {
 		Intent destIntent;
@@ -261,6 +262,10 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 				destIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				destIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
 				destIntent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+					destIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+				else
+					destIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 					VirtualCore.get().getContext().startActivity(destIntent, options);
 				} else {
