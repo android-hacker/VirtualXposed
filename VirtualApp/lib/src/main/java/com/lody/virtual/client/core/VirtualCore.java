@@ -256,7 +256,6 @@ public final class VirtualCore {
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		intent.setClassName(ris.get(0).activityInfo.packageName,
 				ris.get(0).activityInfo.name);
-		intent.putExtra("_VA_|_user_id_", userId);
 		return intent;
 	}
 

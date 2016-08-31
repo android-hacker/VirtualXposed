@@ -32,14 +32,6 @@ import mirror.android.app.ActivityThread;
 		return "startActivity";
 	}
 
-	private static int getUserId(Intent intent) {
-		int userId = VUserHandle.myUserId();
-		if (VirtualCore.get().isMainProcess()) {
-			intent.setExtrasClassLoader(StartActivity.class.getClassLoader());
-			userId = intent.getIntExtra("_VA_|_user_id_", userId);
-		}
-		return userId;
-	}
 
 	@Override
 	public Object onHook(Object who, Method method, Object... args) throws Throwable {
@@ -50,7 +42,7 @@ import mirror.android.app.ActivityThread;
 		String resolvedType = (String) args[intentIndex + 1];
 		Intent intent = (Intent) args[intentIndex];
 		IBinder resultTo = resultToIndex >= 0 ? (IBinder) args[resultToIndex] : null;
-		int userId = getUserId(intent);
+		int userId = VUserHandle.myUserId();
 
 		if (ComponentUtils.isStubComponent(intent)) {
 			return method.invoke(who, args);

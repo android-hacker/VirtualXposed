@@ -13,6 +13,19 @@ import mirror.android.app.IActivityManagerL;
  */
 
 public class ActivityManagerCompat {
+
+	/**
+	 * Result for IActivityManager.startActivity: an error where the
+	 * given Intent could not be resolved to an activity.
+	 */
+	public static final int START_INTENT_NOT_RESOLVED = -1;
+
+	/**
+	 * Result for IActivityManager.startActivity: trying to start a background user
+	 * activity that shouldn't be displayed for all users.
+	 */
+	public static final int START_NOT_CURRENT_USER_ACTIVITY = -8;
+
 	/**
 	 * Result for IActivityManaqer.startActivity: activity wasn't really started, but
 	 * a task was simply brought to the foreground.

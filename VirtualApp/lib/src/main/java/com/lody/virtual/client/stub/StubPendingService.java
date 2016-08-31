@@ -21,6 +21,7 @@ public class StubPendingService extends BaseService {
         if (realIntent != null) {
             startService(realIntent);
         }
-        return super.onStartCommand(intent, flags, startId);
+        stopSelf();
+        return START_NOT_STICKY;
     }
 }

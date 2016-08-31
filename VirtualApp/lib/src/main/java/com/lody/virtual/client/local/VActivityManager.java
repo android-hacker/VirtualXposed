@@ -16,6 +16,7 @@ import android.os.RemoteException;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.service.ServiceManagerNative;
+import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.proto.AppTaskInfo;
 import com.lody.virtual.helper.proto.PendingIntentData;
 import com.lody.virtual.helper.proto.VParceledListSlice;
@@ -63,6 +64,18 @@ public class VActivityManager {
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
+	}
+
+	public int startActivity(Intent intent, int userId) {
+		if (userId == -1) {
+			return ActivityManagerCompat.START_NOT_CURRENT_USER_ACTIVITY;
+		}
+		ActivityInfo info = VirtualCore.get().resolveActivityInfo(intent, userId);
+		if (info == null) {
+			return ActivityManagerCompat.START_INTENT_NOT_RESOLVED;
+		}
+		return startActivity(intent, info, null, null, userId);
+
 	}
 
 	public ActivityClientRecord onActivityCreate(ComponentName component, IBinder token, ActivityInfo info, Intent intent, String affinity, int taskId , int launchMode, int flags, int clearTargetOrder) {
