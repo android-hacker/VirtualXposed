@@ -48,7 +48,6 @@ import java.lang.reflect.Method;
 		if (args.length > 7 && args[7] instanceof Integer) {
             args[7] = PendingIntent.FLAG_UPDATE_CURRENT;
         }
-		args[0] = ActivityManagerCompat.INTENT_SENDER_SERVICE;
 		args[6] = new String[] {null};
 		IInterface sender = (IInterface) method.invoke(who, args);
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2 && sender != null && creator != null) {
@@ -68,6 +67,7 @@ import java.lang.reflect.Method;
 				if (info != null) {
 					ok = true;
 					newIntent.setClass(getHostContext(), StubPendingActivity.class);
+					newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				}
 
 			} break;
