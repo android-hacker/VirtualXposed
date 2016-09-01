@@ -168,7 +168,7 @@ public class VUserManagerService extends IUserManager.Stub {
 
     @Override
     public List<UserInfo> getUsers(boolean excludeDying) {
-        checkManageUsersPermission("query users");
+        //checkManageUsersPermission("query users");
         synchronized (mPackagesLock) {
             ArrayList<UserInfo> users = new ArrayList<UserInfo>(mUsers.size());
             for (int i = 0; i < mUsers.size(); i++) {
@@ -186,7 +186,7 @@ public class VUserManagerService extends IUserManager.Stub {
 
     @Override
     public UserInfo getUserInfo(int userId) {
-        checkManageUsersPermission("query user");
+        //checkManageUsersPermission("query user");
         synchronized (mPackagesLock) {
             return getUserInfoLocked(userId);
         }
@@ -256,7 +256,7 @@ public class VUserManagerService extends IUserManager.Stub {
 
     @Override
     public Bitmap getUserIcon(int userId) {
-        checkManageUsersPermission("read users");
+        //checkManageUsersPermission("read users");
         synchronized (mPackagesLock) {
             UserInfo info = mUsers.get(userId);
             if (info == null || info.partial) {
