@@ -20,7 +20,7 @@ public class ServiceRecord {
 	public IBinder token;
 	public int startId;
 	public IBinder binder;
-	public IInterface targetAppThread;
+	public IInterface appThread;
 	public boolean doRebind = false;
 
 	public boolean hasSomeBound() {

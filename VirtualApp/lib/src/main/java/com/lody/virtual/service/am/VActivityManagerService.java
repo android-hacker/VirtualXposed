@@ -401,7 +401,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			r.uid = targetApp.uid;
 			r.startId = 0;
 			r.activeSince = SystemClock.elapsedRealtime();
-			r.targetAppThread = appThread;
+			r.appThread = appThread;
 			r.token = new Binder();
 			r.serviceInfo = serviceInfo;
 			try {
@@ -438,7 +438,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			}
 			if (!r.hasSomeBound()) {
 				try {
-					IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
+					IApplicationThreadCompat.scheduleStopService(r.appThread, r.token);
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}
@@ -454,12 +454,9 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	public boolean stopServiceToken(ComponentName className, IBinder token, int startId) {
 		synchronized (this) {
 			ServiceRecord r = findRecord(token);
-			if (r == null) {
-				return false;
-			}
-			if (r.startId == startId) {
+			if (r != null && r.startId == startId) {
 				try {
-					IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
+					IApplicationThreadCompat.scheduleStopService(r.appThread, r.token);
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}
@@ -481,12 +478,12 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	@Override
 	public int bindService(IBinder caller, IBinder token, Intent service, String resolvedType,
 			IServiceConnection connection, int flags) {
-		return bindServiceAsUser(caller, token, service, resolvedType, connection, flags,
+		return bindServiceAsUser(caller, token, service, connection, flags,
 				VUserHandle.getCallingUserId());
 	}
 
-	public int bindServiceAsUser(IBinder caller, IBinder token, Intent service, String resolvedType,
-			IServiceConnection connection, int flags, int userId) {
+	public int bindServiceAsUser(IBinder caller, IBinder token, Intent service,
+								 IServiceConnection connection, int flags, int userId) {
 		synchronized (this) {
 			ServiceInfo serviceInfo = resolveServiceInfo(service, userId);
 			if (serviceInfo == null) {
@@ -502,23 +499,20 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			if (r == null) {
 				return 0;
 			}
-			if (r.binder != null && r.binder.isBinderAlive()) {
-				if (r.doRebind) {
-					try {
-						IApplicationThreadCompat.scheduleBindService(r.targetAppThread, r.token, service, true, 0);
-					} catch (RemoteException e) {
-						e.printStackTrace();
-					}
-				}
-				ComponentName componentName = new ComponentName(r.serviceInfo.packageName, r.serviceInfo.name);
+			if (r.binder == null || !r.binder.isBinderAlive()) {
 				try {
-					connection.connected(componentName, r.binder);
-				} catch (Exception e) {
+					IApplicationThreadCompat.scheduleBindService(r.appThread, r.token, service, r.doRebind, 0);
+				} catch (RemoteException e) {
 					e.printStackTrace();
 				}
-			} else {
+			} else if (r.doRebind){
 				try {
-					IApplicationThreadCompat.scheduleBindService(r.targetAppThread, r.token, service, r.doRebind, 0);
+					IApplicationThreadCompat.scheduleBindService(r.appThread, r.token, service, true, 0);
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
+				try {
+					connection.connected(new ComponentName(r.serviceInfo.packageName, r.serviceInfo.name), r.binder);
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}
@@ -538,13 +532,13 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			}
 			Intent intent = r.removedConnection(connection);
 			try {
-				IApplicationThreadCompat.scheduleUnbindService(r.targetAppThread, r.token, intent);
+				IApplicationThreadCompat.scheduleUnbindService(r.appThread, r.token, intent);
 			} catch (RemoteException e) {
 				e.printStackTrace();
 			}
 			if (r.startId <= 0 && r.getAllConnections().isEmpty()) {
 				try {
-					IApplicationThreadCompat.scheduleStopService(r.targetAppThread, r.token);
+					IApplicationThreadCompat.scheduleStopService(r.appThread, r.token);
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}
@@ -601,9 +595,6 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			if (r != null) {
 				r.binder = service;
 				List<IServiceConnection> allConnections = r.getAllConnections();
-				if (allConnections.isEmpty()) {
-					return;
-				}
 				for (IServiceConnection connection : allConnections) {
 					if (connection.asBinder().isBinderAlive()) {
 						ComponentName componentName = new ComponentName(r.serviceInfo.packageName, r.serviceInfo.name);
@@ -613,7 +604,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 							e.printStackTrace();
 						}
 					} else {
-						allConnections.remove(connection);
+						r.removedConnection(connection);
 					}
 				}
 			}
@@ -753,11 +744,6 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		}
 	}
 
-	private void checkApplicationInfo(ApplicationInfo info) {
-		if (info.uid == 0) {
-			VLog.e(TAG, "CheckApplicationInfo failed: uid = 0.");
-		}
-	}
 
 	@Override
 	public int getUidByPid(int pid) {
