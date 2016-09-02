@@ -16,7 +16,6 @@ import java.lang.reflect.Method;
  *
  *         Android 4.4+
  *
- *         @see android.content.pm.IPackageManager#queryIntentContentProviders(Intent, String, int, int)
  */
 @SuppressWarnings("unchecked")
 @TargetApi(Build.VERSION_CODES.KITKAT)

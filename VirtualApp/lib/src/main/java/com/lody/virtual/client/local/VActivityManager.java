@@ -383,7 +383,7 @@ public class VActivityManager {
 
 	public boolean startActivityFromToken(IBinder token, Intent intent, Bundle options) {
 		ActivityClientRecord r = getActivityRecord(token);
-		if (r != null) {
+		if (r != null && r.activity != null) {
 			intent.setExtrasClassLoader(StubActivityRecord.class.getClassLoader());
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 				r.activity.startActivity(intent, options);

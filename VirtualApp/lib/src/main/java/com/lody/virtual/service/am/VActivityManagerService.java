@@ -402,7 +402,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			r.startId = 0;
 			r.activeSince = SystemClock.elapsedRealtime();
 			r.appThread = appThread;
-			r.token = new Binder();
+			r.token = new VServiceToken();
 			r.serviceInfo = serviceInfo;
 			try {
 				IApplicationThreadCompat.scheduleCreateService(appThread, r.token, r.serviceInfo, 0);
@@ -597,7 +597,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 				List<IServiceConnection> allConnections = r.getAllConnections();
 				for (IServiceConnection connection : allConnections) {
 					if (connection.asBinder().isBinderAlive()) {
-						ComponentName componentName = new ComponentName(r.serviceInfo.packageName, r.serviceInfo.name);
+						ComponentName componentName = ComponentUtils.toComponentName(r.serviceInfo);
 						try {
 							connection.connected(componentName, service);
 						} catch (Exception e) {

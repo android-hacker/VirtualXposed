@@ -8,6 +8,7 @@ import android.widget.Toast;
 import com.lody.virtual.BuildConfig;
 import com.lody.virtual.client.core.PatchManager;
 import com.lody.virtual.client.hook.patchs.am.HCallbackHook;
+import com.lody.virtual.helper.proto.StubActivityRecord;
 
 /**
  * @author Lody
@@ -28,14 +29,13 @@ public abstract class StubActivity extends Activity {
 		// Note:
 		// ClassLoader of savedInstanceState is not exist now.
 		super.onCreate(null);
-		Intent intent = stubIntent.getParcelableExtra("intent");
-		if (intent == null) {
+		StubActivityRecord r = stubIntent.getParcelableExtra("_VA_|_stub_");
+		if (r == null) {
 			if (DEBUG) {
 				Toast.makeText(this, "Ops...", Toast.LENGTH_SHORT).show();
 			}
 		} else {
-			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-			overridePendingTransition(0, 0);
+			Intent intent = r.intent;
 			startActivity(intent);
 		}
 		finish();
