@@ -22,7 +22,7 @@ import android.os.IBinder;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		ComponentName componentName = (ComponentName) args[0];
 		IBinder token = (IBinder) args[1];
 		int startId = (int) args[2];

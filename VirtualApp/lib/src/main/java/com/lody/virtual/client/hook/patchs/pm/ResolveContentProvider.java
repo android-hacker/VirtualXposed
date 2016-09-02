@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		String name = (String) args[0];
 		int flags = (int) args[1];
 		int userId = VUserHandle.myUserId();

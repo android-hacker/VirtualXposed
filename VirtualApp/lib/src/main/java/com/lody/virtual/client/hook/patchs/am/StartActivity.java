@@ -30,8 +30,8 @@ import java.lang.reflect.Method;
 
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		super.onHook(who, method, args);
+	public Object call(Object who, Method method, Object... args) throws Throwable {
+		super.call(who, method, args);
 		int intentIndex = ArrayUtils.indexOfFirst(args, Intent.class);
 		int resultToIndex = ArrayUtils.indexOfObject(args, IBinder.class, 2);
 

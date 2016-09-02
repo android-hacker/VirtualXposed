@@ -23,7 +23,7 @@ import java.util.List;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		List<AppSetting> settings = VirtualCore.get().getAllApps();
 		List<String> pkgList = new ArrayList<>(settings.size());
 		for (AppSetting setting : settings) {

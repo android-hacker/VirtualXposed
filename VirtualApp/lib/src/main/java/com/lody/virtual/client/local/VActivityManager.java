@@ -139,17 +139,17 @@ public class VActivityManager {
 	}
 
 
-	public ComponentName startService(IBinder caller, Intent service, String resolvedType) {
+	public ComponentName startService(IInterface caller, Intent service, String resolvedType) {
 		try {
-			return getService().startService(caller, service, resolvedType);
+			return getService().startService(caller != null ? caller.asBinder() : null, service, resolvedType);
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
 	}
 
-	public int stopService(IBinder caller, Intent service, String resolvedType) {
+	public int stopService(IInterface caller, Intent service, String resolvedType) {
 		try {
-			return getService().stopService(caller, service, resolvedType);
+			return getService().stopService(caller != null ? caller.asBinder() : null, service, resolvedType);
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}

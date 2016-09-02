@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		HookUtils.replaceFirstAppPkg(args);
 		return method.invoke(who, args);
 	}

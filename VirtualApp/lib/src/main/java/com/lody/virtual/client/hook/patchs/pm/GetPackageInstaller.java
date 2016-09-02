@@ -24,7 +24,7 @@ import java.lang.reflect.Proxy;
 	}
 
 	@Override
-	public Object onHook(final Object who, Method method, Object... args) throws Throwable {
+	public Object call(final Object who, Method method, Object... args) throws Throwable {
 		final IInterface installer = (IInterface) method.invoke(who, args);
 
 		return Proxy.newProxyInstance(installer.getClass().getClassLoader(), installer.getClass().getInterfaces(),

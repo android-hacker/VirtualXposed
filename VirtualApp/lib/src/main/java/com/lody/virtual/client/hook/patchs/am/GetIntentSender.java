@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		String creator = (String) args[1];
 		args[1] = getHostPkg();
 		String[] resolvedTypes = (String[]) args[6];

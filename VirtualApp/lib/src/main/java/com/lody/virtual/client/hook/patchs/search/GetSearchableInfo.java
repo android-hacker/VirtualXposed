@@ -22,7 +22,7 @@ import android.content.pm.ActivityInfo;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		ComponentName component = (ComponentName) args[0];
 		if (component != null) {
 			ActivityInfo activityInfo = VirtualCore.getPM().getActivityInfo(component, 0);

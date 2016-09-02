@@ -21,7 +21,7 @@ public class GetCallingActivity extends Hook {
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		IBinder token = (IBinder) args[0];
 		return VActivityManager.get().getCallingActivity(token);
 	}

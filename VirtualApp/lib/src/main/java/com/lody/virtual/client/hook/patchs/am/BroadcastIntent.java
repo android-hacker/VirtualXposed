@@ -32,7 +32,7 @@ import java.lang.reflect.Method;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		Intent intent = (Intent) args[1];
 		String type = (String) args[2];
 		Intent newIntent = handleIntent(intent);

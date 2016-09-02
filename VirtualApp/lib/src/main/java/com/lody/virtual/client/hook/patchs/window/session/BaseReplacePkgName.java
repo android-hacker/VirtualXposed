@@ -16,7 +16,7 @@ import java.lang.reflect.Method;
 	private int cacheIndex = -1;
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		if (cacheIndex == -1) {
 			cacheIndex = ArrayUtils.indexOfFirst(args, WindowManager.LayoutParams.class);
 		}

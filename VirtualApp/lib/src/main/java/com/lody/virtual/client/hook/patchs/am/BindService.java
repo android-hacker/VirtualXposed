@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		IInterface caller = (IInterface) args[0];
 		IBinder token = (IBinder) args[1];
 		Intent service = (Intent) args[2];

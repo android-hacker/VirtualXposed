@@ -25,7 +25,7 @@ import mirror.android.app.IActivityManager;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		String name = (String) args[getProviderNameIndex()];
 		int userId = VUserHandle.myUserId();
 		Object holder;

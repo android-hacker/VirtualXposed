@@ -22,7 +22,7 @@ public class FinishActivity extends Hook {
 	}
 
 	@Override
-	public Object afterHook(Object who, Method method, Object[] args, Object result) throws Throwable {
+	public Object afterCall(Object who, Method method, Object[] args, Object result) throws Throwable {
 		IBinder token = (IBinder) args[0];
 		ActivityClientRecord r = VActivityManager.get().getActivityRecord(token);
 		if (r != null && r.activity != null && r.info.getThemeResource() != 0) {
@@ -48,7 +48,7 @@ public class FinishActivity extends Hook {
 				}
 			}
 		}
-		return super.afterHook(who, method, args, result);
+		return super.afterCall(who, method, args, result);
 	}
 
 	@Override

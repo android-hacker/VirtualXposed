@@ -22,7 +22,7 @@ import java.util.List;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 
 		int flags = (Integer) args[0];
 		int userId = VUserHandle.myUserId();

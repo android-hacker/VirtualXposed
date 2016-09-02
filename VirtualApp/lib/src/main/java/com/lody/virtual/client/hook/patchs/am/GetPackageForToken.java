@@ -22,12 +22,12 @@ public class GetPackageForToken extends Hook {
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		IBinder token = (IBinder) args[0];
 		String pkg = VActivityManager.get().getPackageForToken(token);
 		if (pkg != null) {
 			return pkg;
 		}
-		return super.onHook(who, method, args);
+		return super.call(who, method, args);
 	}
 }

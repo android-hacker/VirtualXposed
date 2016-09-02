@@ -21,7 +21,7 @@ import java.lang.reflect.Method;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		IServiceConnection conn = (IServiceConnection) args[0];
 		if (conn != null) {
 			HackServiceConnection hackConn = null;//HackServiceConnection.sHackConns.remove(conn.asBinder());

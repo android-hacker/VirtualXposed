@@ -34,9 +34,9 @@ public class PowerManagerPatch extends PatchDelegate<PowerBinderDelegate> {
 		super.onBindHooks();
 		addHook(new ReplaceSequencePkgHook("acquireWakeLock", 2) {
 			@Override
-			public Object onHook(Object who, Method method, Object... args) throws Throwable {
+			public Object call(Object who, Method method, Object... args) throws Throwable {
 				try {
-					return super.onHook(who, method, args);
+					return super.call(who, method, args);
 				} catch (InvocationTargetException e) {
 					return onHandleError(e);
 				}
@@ -45,9 +45,9 @@ public class PowerManagerPatch extends PatchDelegate<PowerBinderDelegate> {
 		addHook(new ReplaceLastPkgHook("acquireWakeLockWithUid") {
 
 			@Override
-			public Object onHook(Object who, Method method, Object... args) throws Throwable {
+			public Object call(Object who, Method method, Object... args) throws Throwable {
 				try {
-					return super.onHook(who, method, args);
+					return super.call(who, method, args);
 				} catch (InvocationTargetException e) {
 					return onHandleError(e);
 				}

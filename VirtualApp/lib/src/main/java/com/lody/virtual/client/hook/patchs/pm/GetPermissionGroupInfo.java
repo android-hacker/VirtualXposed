@@ -22,14 +22,14 @@ public class GetPermissionGroupInfo extends Hook {
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		String name = (String) args[0];
 		int flags = (int) args[1];
 		PermissionGroupInfo info = VPackageManager.get().getPermissionGroupInfo(name, flags);
 		if (info != null) {
 			return info;
 		}
-		return super.onHook(who, method, args);
+		return super.call(who, method, args);
 	}
 
 	@Override

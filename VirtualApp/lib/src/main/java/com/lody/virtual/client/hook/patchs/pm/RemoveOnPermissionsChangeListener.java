@@ -16,7 +16,7 @@ public class RemoveOnPermissionsChangeListener extends Hook {
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		return 0;
 	}
 }

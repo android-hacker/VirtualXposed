@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		if (args.length > 1 && args[0] instanceof String && args[1] instanceof Integer) {
 			String procName = (String) args[0];
 			int uid = (int) args[1];

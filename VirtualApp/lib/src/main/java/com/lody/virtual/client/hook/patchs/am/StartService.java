@@ -14,10 +14,6 @@ import java.lang.reflect.Method;
 /**
  * @author Lody
  *
- *
- *         原型: public ComponentName startService( IApplicationThreadKitkat caller,
- *         Intent service, String resolvedType, String callingPackage, int
- *         userId )
  */
 /* package */ class StartService extends Hook {
 
@@ -27,15 +23,17 @@ import java.lang.reflect.Method;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		IInterface appThread = (IInterface) args[0];
 		Intent service = (Intent) args[1];
 		String resolvedType = (String) args[2];
-		if (service != null && service.getComponent() != null
+		if (service.getComponent() != null
 				&& getHostPkg().equals(service.getComponent().getPackageName())) {
 			// for server process
 			return method.invoke(who, args);
 		}
+		service.setDataAndType(service.getData(), resolvedType);
+
 		ServiceInfo serviceInfo = VirtualCore.get().resolveServiceInfo(service, VUserHandle.myUserId());
 		if (serviceInfo != null) {
 			String pkgName = serviceInfo.packageName;
@@ -43,7 +41,7 @@ import java.lang.reflect.Method;
 				return method.invoke(who, args);
 			}
 			if (isAppPkg(pkgName)) {
-				return VActivityManager.get().startService(service, resolvedType);
+				return VActivityManager.get().startService(appThread, service, resolvedType);
 			}
 		}
 		return method.invoke(who, args);

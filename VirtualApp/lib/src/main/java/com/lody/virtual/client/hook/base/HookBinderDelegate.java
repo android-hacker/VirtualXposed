@@ -51,7 +51,7 @@ public abstract class HookBinderDelegate extends HookDelegate<IInterface> implem
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			return HookBinderDelegate.this;
 		}
 	}

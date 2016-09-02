@@ -16,7 +16,7 @@ public class UnstableProviderDied extends Hook {
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		if (args[0] == null) {
 			return 0;
 		}

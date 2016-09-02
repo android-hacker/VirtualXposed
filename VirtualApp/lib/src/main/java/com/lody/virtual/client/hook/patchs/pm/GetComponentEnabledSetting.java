@@ -18,7 +18,7 @@ import android.content.ComponentName;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		// NOTE: 有4个状态: 0默认 1可用 2禁止 3User Disable
 		ComponentName component = (ComponentName) args[0];
 		if (component != null) {

@@ -19,7 +19,7 @@ import android.app.Notification;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		String pkgName = (String) args[0];
 		boolean needDeal = false;
 		if (!VirtualCore.get().isHostPackageName(pkgName)) {

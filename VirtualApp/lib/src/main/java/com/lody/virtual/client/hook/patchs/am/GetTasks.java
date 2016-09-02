@@ -24,7 +24,7 @@ import android.app.ActivityManager;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		List<ActivityManager.RunningTaskInfo> runningTaskInfos = (List<ActivityManager.RunningTaskInfo>) method
 				.invoke(who, args);
 		for (int i = 0; i < runningTaskInfos.size(); i++) {

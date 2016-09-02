@@ -25,7 +25,7 @@ import android.view.inputmethod.EditorInfo;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		if (noEditorInfo == null) {
 			editorInfoIndex = ArrayUtils.indexOfFirst(args, EditorInfo.class);
 			noEditorInfo = editorInfoIndex == -1;

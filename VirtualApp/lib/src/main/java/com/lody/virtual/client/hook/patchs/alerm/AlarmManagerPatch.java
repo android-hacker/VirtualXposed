@@ -49,7 +49,7 @@ public class AlarmManagerPatch extends PatchDelegate<AlarmBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			return null;
 		}
 	}
@@ -61,7 +61,7 @@ public class AlarmManagerPatch extends PatchDelegate<AlarmBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			if (Build.VERSION.SDK_INT >= 21) {
 				return false;
 			}
@@ -77,7 +77,7 @@ public class AlarmManagerPatch extends PatchDelegate<AlarmBinderDelegate> {
         }
 
         @Override
-        public boolean beforeHook(Object who, Method method, Object... args) {
+        public boolean beforeCall(Object who, Method method, Object... args) {
             int index = ArrayUtils.indexOfFirst(args, WorkSource.class);
             if (index >= 0) {
                 args[index] = null;

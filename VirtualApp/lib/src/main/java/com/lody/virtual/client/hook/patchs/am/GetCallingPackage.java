@@ -21,7 +21,7 @@ import android.os.IBinder;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		IBinder token = (IBinder) args[0];
 		String pkg = VActivityManager.get().getPackageForToken(token);
 		if (pkg != null) {
