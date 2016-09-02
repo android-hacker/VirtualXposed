@@ -41,7 +41,7 @@ import java.lang.reflect.Method;
 		if (componentName != null) {
 			String pkgName = componentName.getPackageName();
 			if (isAppPkg(pkgName)) {
-				return VActivityManager.get().stopService(caller.asBinder(), intent, resolvedType);
+				return VActivityManager.get().stopService(intent, resolvedType);
 			}
 		}
 		return method.invoke(who, args);

@@ -215,11 +215,11 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	@Override
-	public void onActivityCreated(ComponentName component, ComponentName caller, IBinder token, Intent intent, String affinity, int taskId, int launchMode, int flags, int clearTargetOrder) {
+	public void onActivityCreated(ComponentName component, ComponentName caller, IBinder token, Intent intent, String affinity, int taskId, int launchMode, int flags) {
 		int pid = Binder.getCallingPid();
 		ProcessRecord targetApp = findProcess(pid);
 		if (targetApp != null) {
-			mMainStack.onActivityCreated(targetApp, component, caller, token, intent, affinity, taskId, launchMode, flags, clearTargetOrder);
+			mMainStack.onActivityCreated(targetApp, component, caller, token, intent, affinity, taskId, launchMode, flags);
 		}
 	}
 
@@ -371,12 +371,12 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	@Override
 	public ComponentName startService(IBinder caller, Intent service, String resolvedType) {
 		synchronized (this) {
-			return startServiceCommon(caller, service, resolvedType, true);
+			return startServiceCommon(service, true);
 		}
 	}
 
-	private ComponentName startServiceCommon(IBinder caller, Intent service, String resolvedType,
-			boolean scheduleServiceArgs) {
+	private ComponentName startServiceCommon(Intent service,
+											 boolean scheduleServiceArgs) {
 		int userId = VUserHandle.getCallingUserId();
 		ServiceInfo serviceInfo = resolveServiceInfo(service, userId);
 		if (serviceInfo == null) {
@@ -495,7 +495,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			ServiceRecord r = findRecord(serviceInfo);
 			if (r == null) {
 				if ((flags & Context.BIND_AUTO_CREATE) != 0) {
-					startServiceCommon(caller, service, resolvedType, false);
+					startServiceCommon(service, false);
 					r = findRecord(serviceInfo);
 				}
 			}

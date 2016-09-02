@@ -11,6 +11,7 @@ import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.interfaces.Injectable;
 import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.helper.proto.StubActivityRecord;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.VLog;
 
@@ -78,27 +79,28 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 	private boolean handleLaunchActivity(Message msg) {
 		Object r = msg.obj;
 		Intent stubIntent = ActivityThread.ActivityClientRecord.intent.get(r);
-		Intent intent = stubIntent.getParcelableExtra("intent");
-		ComponentName caller = stubIntent.getParcelableExtra("caller");
-		int clearTarget = stubIntent.getIntExtra("clear_target", 0);
-		if (intent == null) {
+		stubIntent.setExtrasClassLoader(StubActivityRecord.class.getClassLoader());
+		StubActivityRecord saveInstance = stubIntent.getParcelableExtra("_VA_|_stub_");
+		if (saveInstance == null) {
 			return true;
 		}
+		Intent intent = saveInstance.intent;
+		ComponentName caller = saveInstance.caller;
 		IBinder token = ActivityThread.ActivityClientRecord.token.get(r);
-		ActivityInfo info = stubIntent.getParcelableExtra("info");
+		ActivityInfo info = saveInstance.info;
 		int taskId = IActivityManager.getTaskForActivity.call(
 				ActivityManagerNative.getDefault.call(),
 				token,
 				false
 		);
-		VActivityManager.get().onActivityCreate(ComponentUtils.toComponentName(info), caller, token, info, intent, ComponentUtils.getTaskAffinity(info), taskId, info.launchMode, info.flags, clearTarget);
+		VActivityManager.get().onActivityCreate(ComponentUtils.toComponentName(info), caller, token, info, intent, ComponentUtils.getTaskAffinity(info), taskId, info.launchMode, info.flags);
 
 		ComponentName component = intent.getComponent();
 		String packageName = component.getPackageName();
 		String processName = info.processName;
 
 		if (!VClientImpl.getClient().isBound()) {
-			int targetUser = stubIntent.getIntExtra("user_id", 0);
+			int targetUser = saveInstance.userId;
 			VActivityManager.get().ensureAppBound(processName, packageName, targetUser);
 			getH().sendMessageDelayed(Message.obtain(msg), 5);
 			return false;

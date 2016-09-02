@@ -14,6 +14,7 @@ import android.os.RemoteException;
 import android.util.SparseArray;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.proto.StubActivityRecord;
 import com.lody.virtual.helper.utils.ComponentUtils;
 
 import java.util.ArrayList;
@@ -34,8 +35,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 	private final VActivityManagerService mService;
 
 	/**
-	 * [Key] = TaskId
-	 * [Value] = TaskRecord
+	 * [Key] = TaskId [Value] = TaskRecord
 	 */
 	private final SparseArray<TaskRecord> mHistory = new SparseArray<>();
 
@@ -59,12 +59,10 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		}
 	};
 
-
 	public ActivityStack(VActivityManagerService mService) {
 		this.mService = mService;
 		mAM = (ActivityManager) VirtualCore.get().getContext().getSystemService(Context.ACTIVITY_SERVICE);
 	}
-
 
 	private static void removeFlags(Intent intent, int flags) {
 		intent.setFlags(intent.getFlags() & ~flags);
@@ -92,7 +90,6 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 			e.printStackTrace();
 		}
 	}
-
 
 	private TaskRecord findTaskByAffinityLocked(int userId, String affinity) {
 		for (int i = 0; i < this.mHistory.size(); i++) {
@@ -141,21 +138,23 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 	private boolean markTaskByClearTarget(TaskRecord task, ClearTarget clearTarget, ComponentName component) {
 		boolean marked = false;
 		switch (clearTarget) {
-			case TASK: {
+			case TASK : {
 				for (ActivityRecord r : task.activities) {
 					r.marked = true;
 					marked = true;
 				}
-			} break;
-			case ACTIVITY: {
+			}
+				break;
+			case ACTIVITY : {
 				for (ActivityRecord r : task.activities) {
 					if (r.component.equals(component)) {
 						r.marked = true;
 						marked = true;
 					}
 				}
-			} break;
-			case TOP: {
+			}
+				break;
+			case TOP : {
 				int N = task.activities.size();
 				while (N-- > 0) {
 					ActivityRecord r = task.activities.get(N);
@@ -170,11 +169,11 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 					}
 				}
 
-			} break;
+			}
+				break;
 		}
 		return marked;
 	}
-
 
 	private void optimizedTasksLocked() {
 		ArrayList<ActivityManager.RecentTaskInfo> recentTask = new ArrayList<>(mAM.getRecentTasks(Integer.MAX_VALUE,
@@ -196,10 +195,6 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 			}
 		}
 	}
-
-
-
-
 
 	@SuppressWarnings("deprecation")
 	public int startActivityLocked(int userId, Intent intent, ActivityInfo info, IBinder resultTo, Bundle options,
@@ -248,22 +243,26 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 							? ReuseTarget.MULTIPLE
 							: ReuseTarget.AFFINITY;
 				}
-			} break;
+			}
+				break;
 			case LAUNCH_SINGLE_TASK : {
 				clearTarget = ClearTarget.TOP;
 				reuseTarget = containFlags(intent, Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
 						? ReuseTarget.MULTIPLE
 						: ReuseTarget.AFFINITY;
-			} break;
+			}
+				break;
 			case LAUNCH_SINGLE_INSTANCE : {
 				clearTarget = ClearTarget.TOP;
 				reuseTarget = ReuseTarget.AFFINITY;
-			} break;
+			}
+				break;
 			default : {
 				if (containFlags(intent, Intent.FLAG_ACTIVITY_SINGLE_TOP)) {
 					clearTarget = ClearTarget.TOP;
 				}
-			} break;
+			}
+				break;
 		}
 		if (clearTarget == ClearTarget.NOTHING) {
 			if (containFlags(intent, Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)) {
@@ -319,21 +318,20 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 			boolean delivered = false;
 			mAM.moveTaskToFront(reuseTask.taskId, 0);
 			if (clearTarget == ClearTarget.TOP) {
-                taskMarked = markTaskByClearTarget(reuseTask, clearTarget, intent.getComponent());
-                ActivityRecord topRecord = topActivityInTask(reuseTask);
+				taskMarked = markTaskByClearTarget(reuseTask, clearTarget, intent.getComponent());
+				ActivityRecord topRecord = topActivityInTask(reuseTask);
 				// Target activity is on top
-                if (topRecord != null && topRecord.component.equals(intent.getComponent())) {
-                    deliverNewIntentLocked(sourceRecord, topRecord, intent);
-                    delivered = true;
-                }
-            }
+				if (topRecord != null && topRecord.component.equals(intent.getComponent())) {
+					deliverNewIntentLocked(sourceRecord, topRecord, intent);
+					delivered = true;
+				}
+			}
 			if (!delivered) {
-                destIntent = startActivityProcess(userId, sourceRecord, intent, info
-				);
-                if (destIntent != null) {
-                    startActivityFromSourceTask(reuseTask, destIntent, info, options);
-                }
-            }
+				destIntent = startActivityProcess(userId, sourceRecord, intent, info);
+				if (destIntent != null) {
+					startActivityFromSourceTask(reuseTask, destIntent, info, options);
+				}
+			}
 		}
 		if (taskMarked) {
 			scheduleFinishMarkedActivity();
@@ -362,6 +360,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 	}
 
 	private Intent startActivityProcess(int userId, ActivityRecord sourceRecord, Intent intent, ActivityInfo info) {
+		intent = new Intent(intent);
 		ProcessRecord targetApp = mService.startProcessIfNeedLocked(info.processName, userId, info.packageName);
 		if (targetApp == null) {
 			return null;
@@ -374,17 +373,14 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 			component = ComponentUtils.toComponentName(info);
 		}
 		targetIntent.setType(component.flattenToString());
-		targetIntent.putExtra("intent", new Intent(intent));
-		targetIntent.putExtra("info", info);
-		if (sourceRecord != null) {
-			targetIntent.putExtra("caller", sourceRecord.component);
-		}
-		targetIntent.putExtra("user_id", userId);
+		StubActivityRecord saveInstance = new StubActivityRecord(intent, info,
+				sourceRecord != null ? sourceRecord.component : null, userId);
+		targetIntent.putExtra("_VA_|_stub_", saveInstance);
 		return targetIntent;
 	}
 
-
-	public void onActivityCreated(ProcessRecord targetApp, ComponentName component, ComponentName caller, IBinder token, Intent taskRoot, String affinity, int taskId, int launchMode, int flags, int clearTargetOrder) {
+	public void onActivityCreated(ProcessRecord targetApp, ComponentName component, ComponentName caller, IBinder token,
+								  Intent taskRoot, String affinity, int taskId, int launchMode, int flags) {
 		synchronized (mHistory) {
 			optimizedTasksLocked();
 			TaskRecord task = mHistory.get(taskId);
@@ -392,7 +388,8 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 				task = new TaskRecord(taskId, targetApp.userId, affinity, taskRoot);
 				mHistory.put(taskId, task);
 			}
-			ActivityRecord record = new ActivityRecord(task, component, token, targetApp.userId, targetApp, launchMode, flags, affinity);
+			ActivityRecord record = new ActivityRecord(task, component, caller, token, targetApp.userId, targetApp, launchMode,
+					flags, affinity);
 			task.activities.add(record);
 		}
 	}

@@ -19,6 +19,7 @@ import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.proto.AppTaskInfo;
 import com.lody.virtual.helper.proto.PendingIntentData;
+import com.lody.virtual.helper.proto.StubActivityRecord;
 import com.lody.virtual.helper.proto.VParceledListSlice;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.service.IActivityManager;
@@ -77,12 +78,12 @@ public class VActivityManager {
 
 	}
 
-	public ActivityClientRecord onActivityCreate(ComponentName component, ComponentName caller, IBinder token, ActivityInfo info, Intent intent, String affinity, int taskId , int launchMode, int flags, int clearTargetOrder) {
+	public ActivityClientRecord onActivityCreate(ComponentName component, ComponentName caller, IBinder token, ActivityInfo info, Intent intent, String affinity, int taskId, int launchMode, int flags) {
 		ActivityClientRecord r = new ActivityClientRecord();
 		r.info = info;
 		mActivities.put(token, r);
 		try {
-			getService().onActivityCreated(component, caller, token, intent, affinity, taskId, launchMode, flags, clearTargetOrder);
+			getService().onActivityCreated(component, caller, token, intent, affinity, taskId, launchMode, flags);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -383,7 +384,7 @@ public class VActivityManager {
 	public boolean startActivityFromToken(IBinder token, Intent intent, Bundle options) {
 		ActivityClientRecord r = getActivityRecord(token);
 		if (r != null) {
-			intent.setExtrasClassLoader(r.activity.getClassLoader());
+			intent.setExtrasClassLoader(StubActivityRecord.class.getClassLoader());
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 				r.activity.startActivity(intent, options);
 			} else {

@@ -12,15 +12,11 @@ import android.util.TypedValue;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.local.ActivityClientRecord;
 import com.lody.virtual.client.local.VActivityManager;
-import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.utils.ArrayUtils;
 import com.lody.virtual.helper.utils.ComponentUtils;
-import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
-
-import mirror.android.app.ActivityThread;
 
 /**
  * @author Lody
@@ -41,6 +37,7 @@ import mirror.android.app.ActivityThread;
 
 		String resolvedType = (String) args[intentIndex + 1];
 		Intent intent = (Intent) args[intentIndex];
+		intent.setDataAndType(intent.getData(), resolvedType);
 		IBinder resultTo = resultToIndex >= 0 ? (IBinder) args[resultToIndex] : null;
 		int userId = VUserHandle.myUserId();
 
@@ -70,8 +67,6 @@ import mirror.android.app.ActivityThread;
 				}
 			}
 		}
-
-		intent.setDataAndType(intent.getData(), resolvedType);
 		String resultWho = null;
 		int requestCode = 0;
 		Bundle options = ArrayUtils.getFirst(args, Bundle.class);
@@ -84,31 +79,11 @@ import mirror.android.app.ActivityThread;
 			args[intentIndex - 1] = getHostPkg();
 		}
 
-
-		String packageName = activityInfo.packageName;
-		if (!isAppPkg(packageName)) {
-			return method.invoke(who, args);
-		}
 		int res = VActivityManager.get().startActivity(intent, activityInfo, resultTo, options, userId);
 		if (res != 0 && resultTo != null && requestCode > 0) {
-			ActivityThread.sendActivityResult.call(
-					VirtualCore.mainThread(),
-					resultTo,
-					resultWho,
-					requestCode,
-					0,
-					null
-			);
+			VActivityManager.get().sendActivityResult(resultTo, resultWho, requestCode);
 		}
 		return res;
 	}
 
-	@Override
-	public Object afterHook(Object who, Method method, Object[] args, Object result) throws Throwable {
-		int res = (int) result;
-		if (res == ActivityManagerCompat.START_TASK_TO_FRONT) {
-			VLog.w(getName(), "Hit <START_TASK_TO_FRONT>.");
-		}
-		return res;
-	}
 }

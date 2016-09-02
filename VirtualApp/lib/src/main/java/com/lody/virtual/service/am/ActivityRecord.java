@@ -19,9 +19,10 @@ import android.os.IBinder;
 	public boolean marked;
 	public String affinity;
 
-	public ActivityRecord(TaskRecord task, ComponentName component, IBinder token, int userId, ProcessRecord process, int launchMode, int flags, String affinity) {
+	public ActivityRecord(TaskRecord task, ComponentName component, ComponentName caller, IBinder token, int userId, ProcessRecord process, int launchMode, int flags, String affinity) {
 		this.task = task;
 		this.component = component;
+		this.caller = caller;
 		this.token = token;
 		this.userId = userId;
 		this.process = process;
@@ -29,4 +30,5 @@ import android.os.IBinder;
 		this.flags = flags;
 		this.affinity = affinity;
 	}
+
 }
