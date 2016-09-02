@@ -274,7 +274,7 @@ public class VClientImpl extends IVClient.Stub {
 	@Override
 	public IBinder acquireProviderClient(ProviderInfo info) {
 		if (Binder.getCallingPid() != Process.myPid()) {
-			if (!isBound() || !isProviderInitialized) {
+			if (!isBound() && !isProviderInitialized) {
 				lock.block();
 			}
 		}
