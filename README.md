@@ -21,6 +21,8 @@ in the end, it evolved into a `Virtual Container`.
 
 Get started
 -----------
+If you use latest android studio (version 2.0 or above), please disable `Instant Run`.
+Open `Setting | Build,Exception,Deployment`, and disable `Enable Instant Run to hot swap...`
 
 1. Add **all permissions** your host and your plugins need to use.
 
@@ -30,7 +32,7 @@ Get started
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         try {
-            VirtualCore.getCore().startup(base);
+            VirtualCore.get().startup(base);
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -39,24 +41,29 @@ Get started
 
 3. For **Install a virtual App**, use this function:
 ```java
-    VirtualCore.getCore().installApp({APK PATH}, flags);
+    VirtualCore.get().installApp({APK PATH}, flags);
     
 ```
 
 4. For **Launch a virtual App**, use this function:
 ```java
-    VirtualCore.getCore().launchApp({PackageName});
+    //VirtualApp support multi-user-mode which can run multiple instances of a same app.
+    //if you don't need this feature, just set `{userId}` to 0.
+    Intent intent = VirtualCore.get().getLaunchIntent({PackageName}, {userId});
+    VActivityManager.get().startActivity(intent, {userId});
 ```
 
 5. For **uninstall a virtual App**, use this function:
 ```java
-    VirtualCore.getCore().uninstallApp({PackageName});
+    VirtualCore.get().uninstallApp({PackageName});
 ```
 
 6. If you need to get the `details of App`, use this function:
 ```java
-    VirtualCore.getCore().findApp({PackageName});
+    VirtualCore.get().findApp({PackageName});
 ```
+
+More details, please read the source code of demo app, :-)
 
 Documentation
 -------------
