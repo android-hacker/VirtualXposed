@@ -20,7 +20,6 @@ import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.proto.AppTaskInfo;
 import com.lody.virtual.helper.proto.PendingIntentData;
 import com.lody.virtual.helper.proto.VParceledListSlice;
-import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.service.IActivityManager;
 import com.lody.virtual.service.interfaces.IProcessObserver;
@@ -78,12 +77,12 @@ public class VActivityManager {
 
 	}
 
-	public ActivityClientRecord onActivityCreate(ComponentName component, IBinder token, ActivityInfo info, Intent intent, String affinity, int taskId , int launchMode, int flags, int clearTargetOrder) {
+	public ActivityClientRecord onActivityCreate(ComponentName component, ComponentName caller, IBinder token, ActivityInfo info, Intent intent, String affinity, int taskId , int launchMode, int flags, int clearTargetOrder) {
 		ActivityClientRecord r = new ActivityClientRecord();
 		r.info = info;
 		mActivities.put(token, r);
 		try {
-			getService().onActivityCreated(component, token, intent, affinity, taskId, launchMode, flags, clearTargetOrder);
+			getService().onActivityCreated(component, caller, token, intent, affinity, taskId, launchMode, flags, clearTargetOrder);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -122,9 +121,9 @@ public class VActivityManager {
 		}
 	}
 
-	public ActivityInfo getCallingActivity(IBinder token) {
+	public ComponentName getCallingActivity(IBinder token) {
 		try {
-			return getService().getCallingActivity(token);
+			return getService().getCallingActivity(VUserHandle.myUserId(), token);
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
@@ -132,19 +131,12 @@ public class VActivityManager {
 
 	public String getPackageForToken(IBinder token) {
 		try {
-			return getService().getPackageForToken(token);
+			return getService().getPackageForToken(VUserHandle.myUserId(), token);
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
 	}
 
-	public ActivityInfo getActivityInfo(IBinder token) {
-		try {
-			return getService().getActivityInfo(token);
-		} catch (RemoteException e) {
-			return VirtualRuntime.crash(e);
-		}
-	}
 
 	public ComponentName startService(IBinder caller, Intent service, String resolvedType) {
 		try {
@@ -389,7 +381,6 @@ public class VActivityManager {
 	}
 
 	public boolean startActivityFromToken(IBinder token, Intent intent, Bundle options) {
-		VLog.d("VAM", "startActivity : %s, %s.", String.valueOf(token), String.valueOf(intent));
 		ActivityClientRecord r = getActivityRecord(token);
 		if (r != null) {
 			intent.setExtrasClassLoader(r.activity.getClassLoader());

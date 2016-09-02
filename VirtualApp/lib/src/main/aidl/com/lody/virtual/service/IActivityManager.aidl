@@ -50,19 +50,17 @@ interface IActivityManager {
 
     int startActivity(in Intent intent, in ActivityInfo info, in IBinder resultTo, in Bundle options, int userId);
 
-    void onActivityCreated(in ComponentName component, in IBinder token, in Intent intent, in String affinity, int taskId, int launchMode, int flags, int clearTargetOrder);
+    void onActivityCreated(in ComponentName component, in ComponentName caller, in IBinder token, in Intent intent, in String affinity, int taskId, int launchMode, int flags, int clearTargetOrder);
 
     void onActivityResumed(int userId, in IBinder token);
 
     boolean onActivityDestroyed(int userId, in IBinder token);
 
-    ActivityInfo getCallingActivity(in IBinder token);
+    ComponentName getCallingActivity(int userId, in IBinder token);
 
     AppTaskInfo getTaskInfo(int taskId);
 
-    String getPackageForToken(in IBinder token);
-
-    ActivityInfo getActivityInfo(in IBinder token);
+    String getPackageForToken(int userId, in IBinder token);
 
 
     ComponentName startService(in IBinder caller,in Intent service, String resolvedType);

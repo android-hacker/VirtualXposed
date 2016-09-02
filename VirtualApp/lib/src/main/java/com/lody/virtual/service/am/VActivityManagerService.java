@@ -215,11 +215,11 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	@Override
-	public void onActivityCreated(ComponentName component, IBinder token, Intent intent, String affinity, int taskId, int launchMode, int flags, int clearTargetOrder) {
+	public void onActivityCreated(ComponentName component, ComponentName caller, IBinder token, Intent intent, String affinity, int taskId, int launchMode, int flags, int clearTargetOrder) {
 		int pid = Binder.getCallingPid();
 		ProcessRecord targetApp = findProcess(pid);
 		if (targetApp != null) {
-			mMainStack.onActivityCreated(targetApp, component, token, intent, affinity, taskId, launchMode, flags, clearTargetOrder);
+			mMainStack.onActivityCreated(targetApp, component, caller, token, intent, affinity, taskId, launchMode, flags, clearTargetOrder);
 		}
 	}
 
@@ -240,8 +240,8 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	@Override
-	public String getPackageForToken(IBinder token) {
-		return null;
+	public String getPackageForToken(int userId, IBinder token) {
+		return mMainStack.getPackageForToken(userId, token);
 	}
 
 	private synchronized int getTopTaskId() {
@@ -315,14 +315,11 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		return null;
 	}
 
-	public ActivityInfo getCallingActivity(IBinder token) {
-		return null;
+	@Override
+	public ComponentName getCallingActivity(int userId, IBinder token) {
+		return mMainStack.getCallingActivity(userId, token);
 	}
 
-	@Override
-	public ActivityInfo getActivityInfo(IBinder token) {
-		return null;
-	}
 
 	@Override
 	public boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {

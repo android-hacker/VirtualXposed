@@ -13,6 +13,7 @@ import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.helper.utils.BitmapUtils;
 import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
 
@@ -77,6 +78,7 @@ import java.lang.reflect.Method;
 					newShortcutIntent.addCategory(Intent.CATEGORY_DEFAULT);
 					newShortcutIntent.putExtra("_VA_|_intent_", shortcut);
 					newShortcutIntent.putExtra("_VA_|_uri_", shortcut.toUri(0));
+					newShortcutIntent.putExtra("_VA_|_user_id_", VUserHandle.myUserId());
 					intent.removeExtra(Intent.EXTRA_SHORTCUT_INTENT);
 					intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, newShortcutIntent);
 

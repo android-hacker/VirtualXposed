@@ -79,6 +79,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		Object r = msg.obj;
 		Intent stubIntent = ActivityThread.ActivityClientRecord.intent.get(r);
 		Intent intent = stubIntent.getParcelableExtra("intent");
+		ComponentName caller = stubIntent.getParcelableExtra("caller");
 		int clearTarget = stubIntent.getIntExtra("clear_target", 0);
 		if (intent == null) {
 			return true;
@@ -90,7 +91,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 				token,
 				false
 		);
-		VActivityManager.get().onActivityCreate(new ComponentName(info.packageName, info.name), token, info, intent, ComponentUtils.getTaskAffinity(info), taskId, info.launchMode, info.flags, clearTarget);
+		VActivityManager.get().onActivityCreate(ComponentUtils.toComponentName(info), caller, token, info, intent, ComponentUtils.getTaskAffinity(info), taskId, info.launchMode, info.flags, clearTarget);
 
 		ComponentName component = intent.getComponent();
 		String packageName = component.getPackageName();

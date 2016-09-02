@@ -10,6 +10,7 @@ import android.os.IBinder;
 /* package */ class ActivityRecord {
 	public TaskRecord task;
 	public ComponentName component;
+	public ComponentName caller;
 	public IBinder token;
 	public int userId;
 	public ProcessRecord process;
