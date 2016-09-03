@@ -3,6 +3,7 @@ package mirror.android.app;
 
 import android.app.Application;
 import android.app.Instrumentation;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -68,11 +69,13 @@ public class ActivityThread {
         public static FieldDef<ApplicationInfo> appInfo;
         public static FieldDef<Object> info;
         public static FieldDef<String> processName;
+        public static FieldDef<ComponentName> instrumentationName;
     }
 
     public static class H {
         public static Class<?> Class = ClassDef.init(H.class, "android.app.ActivityThread$H");
         public static StaticIntFieldDef LAUNCH_ACTIVITY;
+        public static StaticIntFieldDef CREATE_SERVICE;
     }
 
 

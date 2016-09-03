@@ -334,13 +334,6 @@ public class VActivityManager {
 		}
 	}
 
-	public void ensureAppBound(String processName, String packageName, int userId) {
-		try {
-			getService().ensureAppBound(processName, packageName, userId);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
 
 	public int getUidByPid(int pid) {
 		try {

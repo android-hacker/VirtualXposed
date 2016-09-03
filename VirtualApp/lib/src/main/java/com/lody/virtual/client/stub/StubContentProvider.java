@@ -25,8 +25,9 @@ public abstract class StubContentProvider extends BaseContentProvider {
 
 	private void initProcess(Bundle extras) {
 		IBinder token = BundleCompat.getBinder(extras,"_VA_|_binder_");
+		int vuid = extras.getInt("_VA_|_vuid_");
 		VClientImpl client = VClientImpl.getClient();
-		client.setToken(token);
+		client.initProcess(token, vuid);
 		VActivityManager.get().attachClient(client);
 	}
 

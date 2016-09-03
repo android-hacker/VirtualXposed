@@ -87,8 +87,6 @@ interface IActivityManager {
 
     VParceledListSlice getServices(int maxNum, int flags);
 
-    void ensureAppBound(in String processName, in String packageName, int userId);
-
     IBinder acquireProviderClient(int userId, in ProviderInfo info);
 
     PendingIntentData getPendingIntent(IBinder binder);

@@ -180,7 +180,6 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 	 * all data struct about the task in AMS are released, while the client's process is still alive.
 	 * So remove related data in VA as well. A new TaskRecord will be recreated in `onActivityCreated`
 	 *
-	 *  @see ActivityManager#removeTask(int)
 	 */
 	private void optimizedTasksLocked() {
 		@SuppressWarnings("deprecation")

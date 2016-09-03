@@ -8,7 +8,6 @@ import android.content.pm.ComponentInfo;
 import android.content.pm.PackageInfo;
 import android.os.Build;
 
-import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.compat.ObjectsCompat;
 
@@ -97,20 +96,6 @@ public class ComponentUtils {
 		return applicationInfo != null && (ApplicationInfo.FLAG_SYSTEM & applicationInfo.flags) != 0;
 	}
 
-
-	public static boolean isSharedPackage(String packageName) {
-		VClientImpl client = VClientImpl.getClient();
-		if (packageName == null || !client.isBound()) {
-			return false;
-		}
-		if (client.getCurrentPackage().equals(packageName)) {
-			return true;
-		}
-		if (packageName.equals("com.android.vending")) {
-			return true;
-		}
-		return client.getSharedPackages().contains(packageName);
-	}
 
 	public static boolean isStubComponent(Intent intent) {
 		return intent != null

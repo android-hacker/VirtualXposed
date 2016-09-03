@@ -266,31 +266,6 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		}
 	}
 
-	@Override
-	public void ensureAppBound(String processName, String packageName, int userId) {
-		int pid = getCallingPid();
-		int appId = VAppManagerService.get().getAppId(packageName);
-		int uid = VUserHandle.getUid(userId, appId);
-		ProcessRecord app = findProcess(pid);
-		if (app == null) {
-			app = mPendingProcesses.get(processName, appId);
-		}
-		if (app == null && processName != null) {
-			ApplicationInfo appInfo = VPackageManagerService.get().getApplicationInfo(packageName, 0, userId);
-			appInfo.flags |= ApplicationInfo.FLAG_HAS_CODE;
-			String stubProcessName = getProcessName(pid);
-			StubInfo stubInfo = null;
-			for (StubInfo info : getStubs()) {
-				if (info.processName.equals(stubProcessName)) {
-					stubInfo = info;
-					break;
-				}
-			}
-			if (stubInfo != null) {
-				performStartProcessLocked(uid, stubInfo, appInfo, processName);
-			}
-		}
-	}
 
 	@Override
 	public IBinder acquireProviderClient(int userId, ProviderInfo info) {
@@ -389,9 +364,6 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		if (targetApp == null) {
 			VLog.e(TAG, "Unable to start new Process for : " + ComponentUtils.toComponentName(serviceInfo));
 			return null;
-		}
-		if (targetApp.appThread == null) {
-			targetApp.attachLock.block();
 		}
 		IInterface appThread = targetApp.appThread;
 		ServiceRecord r = findRecord(serviceInfo);
@@ -701,11 +673,6 @@ public class VActivityManagerService extends IActivityManager.Stub {
 				mPidsSelfLocked.put(app.pid, app);
 			}
 			app.attachLock.open();
-			try {
-				client.bindApplication(app.processName, app.info, app.sharedPackages, app.providers, app.usesLibraries, app.uid);
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 
@@ -763,15 +730,16 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		return Process.myUid();
 	}
 
-	private ProcessRecord performStartProcessLocked(int uid, StubInfo stubInfo, ApplicationInfo info, String processName) {
+	private ProcessRecord performStartProcessLocked(int vuid, StubInfo stubInfo, ApplicationInfo info, String processName) {
 		VPackageManagerService pm = VPackageManagerService.get();
 		List<String> sharedPackages = pm.querySharedPackages(info.packageName);
-		List<ProviderInfo> providers = pm.queryContentProviders(processName, 0, 0).getList();
+		List<ProviderInfo> providers = pm.queryContentProviders(processName, VUserHandle.getUserId(vuid), 0).getList();
 		List<String> usesLibraries = pm.getSharedLibraries(info.packageName);
-		ProcessRecord app = new ProcessRecord(stubInfo, info, processName, providers, sharedPackages, usesLibraries, uid);
+		ProcessRecord app = new ProcessRecord(stubInfo, info, processName, providers, sharedPackages, usesLibraries, vuid);
 		mPendingProcesses.put(processName, app.userId, app);
 		Bundle extras = new Bundle();
 		BundleCompat.putBinder(extras, "_VA_|_binder_", app);
+		extras.putInt( "_VA_|_vuid_", vuid);
 		ProviderCall.call(stubInfo, "_VA_|_init_process_", null, extras);
 		return app;
 	}

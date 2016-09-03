@@ -9,6 +9,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.ComponentInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.os.Binder;
@@ -30,6 +31,7 @@ import com.lody.virtual.client.fixer.ContextFixer;
 import com.lody.virtual.client.hook.delegate.AppInstrumentation;
 import com.lody.virtual.client.hook.secondary.ProxyServiceFactory;
 import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
 
@@ -47,9 +49,8 @@ import mirror.dalvik.system.VMRuntime;
  * @author Lody
  */
 
-public class VClientImpl extends IVClient.Stub {
+public final class VClientImpl extends IVClient.Stub {
 
-	private static final int BIND_APPLICATION = 10;
 	private static final int NEW_INTENT = 11;
 
 	private static final String TAG = VClientImpl.class.getSimpleName();
@@ -58,21 +59,15 @@ public class VClientImpl extends IVClient.Stub {
 	private static final VClientImpl gClient = new VClientImpl();
 	private Instrumentation mInstrumentation = AppInstrumentation.getDefault();
 	private static final Pattern sSplitAuthorityPattern = Pattern.compile(";");
-	private boolean isProviderInitialized = false;
 
 	private IBinder token;
+	private int vuid;
 	private final H mH = new H();
 	private AppBindData mBoundApplication;
 	private Application mInitialApplication;
 
-	private final ConditionVariable lock = new ConditionVariable();
-
 	public boolean isBound() {
 		return mBoundApplication != null;
-	}
-
-	public List<String> getSharedPackages() {
-		return mBoundApplication.sharedPackages;
 	}
 
 	public Application getCurrentApplication() {
@@ -84,7 +79,7 @@ public class VClientImpl extends IVClient.Stub {
 	}
 
 	public int getVUid() {
-		return mBoundApplication != null ? mBoundApplication.vuid : -1;
+		return vuid;
 	}
 
 	public ClassLoader getClassLoader(ApplicationInfo appInfo) {
@@ -101,11 +96,8 @@ public class VClientImpl extends IVClient.Stub {
 	private final class AppBindData {
 		String processName;
 		ApplicationInfo appInfo;
-		List<String> sharedPackages;
 		List<ProviderInfo> providers;
-		List<String> usesLibraries;
 		Object info;
-		int vuid;
 	}
 
 	private void sendMessage(int what, Object obj) {
@@ -130,11 +122,12 @@ public class VClientImpl extends IVClient.Stub {
 		return token;
 	}
 
-	public void setToken(IBinder token) {
+	public void initProcess(IBinder token, int vuid) {
 		if (this.token != null) {
 			throw new IllegalStateException("Token is exist!");
 		}
 		this.token = token;
+		this.vuid = vuid;
 	}
 
 	private class H extends Handler {
@@ -146,9 +139,6 @@ public class VClientImpl extends IVClient.Stub {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-				case BIND_APPLICATION: {
-					handleBindApplication((AppBindData) msg.obj);
-				} break;
 				case NEW_INTENT: {
 					handleNewIntent((NewIntentData) msg.obj);
 				} break;
@@ -170,10 +160,28 @@ public class VClientImpl extends IVClient.Stub {
 		);
 	}
 
-	private void handleBindApplication(AppBindData data) {
-		VLog.d(TAG, "VClient bound, uid : %d, dataPath : %s, processName : %s.", data.vuid, data.appInfo.dataDir, data.processName);
+	public void bindApplicationCheckThread(final ComponentInfo info) {
+		if (Looper.getMainLooper() == Looper.myLooper()) {
+			bindApplication(info, null);
+		} else {
+			final ConditionVariable lock = new ConditionVariable();
+			VirtualRuntime.getUIHandler().post(new Runnable() {
+				@Override
+				public void run() {
+					bindApplication(info, lock);
+				}
+			});
+			lock.block();
+		}
+	}
+
+	private void bindApplication(ComponentInfo info, ConditionVariable lock) {
+		AppBindData data = new AppBindData();
+		data.appInfo = info.applicationInfo;
+		data.processName = info.processName;
+		data.providers = VPackageManager.get().queryContentProviders(info.processName, vuid, PackageManager.GET_META_DATA);
 		mBoundApplication = data;
-		isProviderInitialized = false;
+		VirtualRuntime.setupRuntime(data.processName, data.appInfo);
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public synchronized void start() {
@@ -216,8 +224,9 @@ public class VClientImpl extends IVClient.Stub {
 		if (providers != null) {
 			installContentProviders(providers);
 		}
-		isProviderInitialized = true;
-		lock.open();
+		if (lock != null) {
+			lock.open();
+		}
 		try {
 			mInstrumentation.callApplicationOnCreate(app);
 			mInitialApplication = ActivityThread.mInitialApplication.get(mainThread);
@@ -242,10 +251,11 @@ public class VClientImpl extends IVClient.Stub {
 
 	private void fixBoundApp(AppBindData data) {
 		Object thread = VirtualCore.mainThread();
-		mirror.android.app.ActivityThread.mBoundApplication.get(thread);
-		mirror.android.app.ActivityThread.AppBindData.appInfo.set(thread, data.appInfo);
-		mirror.android.app.ActivityThread.AppBindData.processName.set(thread, data.processName);
-		mirror.android.app.ActivityThread.AppBindData.info.set(thread, data.info);
+		Object boundApp = mirror.android.app.ActivityThread.mBoundApplication.get(thread);
+		mirror.android.app.ActivityThread.AppBindData.appInfo.set(boundApp, data.appInfo);
+		mirror.android.app.ActivityThread.AppBindData.processName.set(boundApp, data.processName);
+		mirror.android.app.ActivityThread.AppBindData.info.set(boundApp, data.info);
+		mirror.android.app.ActivityThread.AppBindData.instrumentationName.set(boundApp, new ComponentName(data.appInfo.packageName, Instrumentation.class.getName()));
 	}
 
 	private void installContentProviders(List<ProviderInfo> providers) {
@@ -261,25 +271,9 @@ public class VClientImpl extends IVClient.Stub {
 
 
 	@Override
-	public void bindApplication(String processName, ApplicationInfo appInfo, List<String> sharedPackages,
-			List<ProviderInfo> providers, List<String> usesLibraries, int vuid) {
-		VirtualRuntime.setupRuntime(processName, appInfo);
-		final AppBindData appBindData = new AppBindData();
-		appBindData.processName = processName;
-		appBindData.appInfo = appInfo;
-		appBindData.sharedPackages = sharedPackages;
-		appBindData.providers = providers;
-		appBindData.usesLibraries = usesLibraries;
-		appBindData.vuid = vuid;
-		sendMessage(BIND_APPLICATION, appBindData);
-	}
-
-	@Override
 	public IBinder acquireProviderClient(ProviderInfo info) {
-		if (Binder.getCallingPid() != Process.myPid()) {
-			if (!isBound() && !isProviderInitialized) {
-				lock.block();
-			}
+		if (!VClientImpl.getClient().isBound()) {
+			VClientImpl.getClient().bindApplicationCheckThread(info);
 		}
 		IInterface provider = null;
 		String[] authorities = sSplitAuthorityPattern.split(info.authority);
@@ -318,7 +312,6 @@ public class VClientImpl extends IVClient.Stub {
 	public boolean startActivityFromToken(IBinder token, Intent intent, Bundle options) {
 		return VActivityManager.get().startActivityFromToken(token, intent, options);
 	}
-
 
 	@Override
 	public IBinder createProxyService(ComponentName component, IBinder binder) {

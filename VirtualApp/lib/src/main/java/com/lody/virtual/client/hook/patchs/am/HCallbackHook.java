@@ -3,6 +3,7 @@ package com.lody.virtual.client.hook.patchs.am;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ServiceInfo;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -13,6 +14,7 @@ import com.lody.virtual.client.interfaces.Injectable;
 import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.proto.StubActivityRecord;
 import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
 
 import mirror.android.app.ActivityManagerNative;
@@ -27,12 +29,12 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 
 
 	public static final int LAUNCH_ACTIVITY = ActivityThread.H.LAUNCH_ACTIVITY.get();
+	public static final int CREATE_SERVICE = ActivityThread.H.CREATE_SERVICE.get();
 
 	private static final String TAG = HCallbackHook.class.getSimpleName();
 	private static final HCallbackHook sCallback = new HCallbackHook();
 
 
-	private boolean mCalling = false;
 	private Handler.Callback otherCallback;
 
 	private HCallbackHook() {
@@ -58,22 +60,17 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 
 	@Override
 	public boolean handleMessage(Message msg) {
-		if (!mCalling) {
-			mCalling = true;
-			try {
-				if (LAUNCH_ACTIVITY == msg.what) {
-					if (!handleLaunchActivity(msg)) {
-						return true;
-					}
-				}
-				if (otherCallback != null) {
-					return otherCallback.handleMessage(msg);
-				}
-			} finally {
-				mCalling = false;
+		if (LAUNCH_ACTIVITY == msg.what) {
+			if (!handleLaunchActivity(msg)) {
+				return true;
+			}
+		} else if (CREATE_SERVICE == msg.what) {
+			if (!VClientImpl.getClient().isBound()) {
+				ServiceInfo info = Reflect.on(msg.obj).get("info");
+				VClientImpl.getClient().bindApplicationCheckThread(info);
 			}
 		}
-		return false;
+		return otherCallback != null && otherCallback.handleMessage(msg);
 	}
 
 	private boolean handleLaunchActivity(Message msg) {
@@ -88,6 +85,9 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		ComponentName caller = saveInstance.caller;
 		IBinder token = ActivityThread.ActivityClientRecord.token.get(r);
 		ActivityInfo info = saveInstance.info;
+		if (!VClientImpl.getClient().isBound()) {
+			VClientImpl.getClient().bindApplicationCheckThread(info);
+		}
 		int taskId = IActivityManager.getTaskForActivity.call(
 				ActivityManagerNative.getDefault.call(),
 				token,
@@ -95,16 +95,6 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		);
 		VActivityManager.get().onActivityCreate(ComponentUtils.toComponentName(info), caller, token, info, intent, ComponentUtils.getTaskAffinity(info), taskId, info.launchMode, info.flags);
 
-		ComponentName component = intent.getComponent();
-		String packageName = component.getPackageName();
-		String processName = info.processName;
-
-		if (!VClientImpl.getClient().isBound()) {
-			int targetUser = saveInstance.userId;
-			VActivityManager.get().ensureAppBound(processName, packageName, targetUser);
-			getH().sendMessageDelayed(Message.obtain(msg), 5);
-			return false;
-		}
 		ClassLoader appClassLoader = VClientImpl.getClient().getClassLoader(info.applicationInfo);
 		intent.setExtrasClassLoader(appClassLoader);
 		ActivityThread.ActivityClientRecord.intent.set(r, intent);

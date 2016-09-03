@@ -13,5 +13,4 @@ interface IVClient {
     IBinder acquireProviderClient(in ProviderInfo info);
     IBinder getAppThread();
     IBinder getToken();
-    void bindApplication(in String processName, in ApplicationInfo info, in List<String> sharedPackages, in List<ProviderInfo> providerInfos, in List<String> usesLibraries, int vuid);
 }

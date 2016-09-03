@@ -51,19 +51,23 @@ import java.lang.reflect.Method;
 		if (resultTo != null) {
 			ActivityClientRecord r = VActivityManager.get().getActivityRecord(resultTo);
 			if (r != null) {
-				TypedValue out = new TypedValue();
-				Resources.Theme theme = r.activity.getResources().newTheme();
-				theme.applyStyle(activityInfo.getThemeResource(), true);
-				if (theme.resolveAttribute(android.R.attr.windowAnimationStyle, out, true)) {
+				try {
+					TypedValue out = new TypedValue();
+					Resources.Theme theme = r.activity.getResources().newTheme();
+					theme.applyStyle(activityInfo.getThemeResource(), true);
+					if (theme.resolveAttribute(android.R.attr.windowAnimationStyle, out, true)) {
 
-					TypedArray array = theme.obtainStyledAttributes(out.data,
-							new int[]{
-									android.R.attr.activityOpenEnterAnimation,
-									android.R.attr.activityOpenExitAnimation
-							});
+						TypedArray array = theme.obtainStyledAttributes(out.data,
+								new int[]{
+										android.R.attr.activityOpenEnterAnimation,
+										android.R.attr.activityOpenExitAnimation
+								});
 
-					r.activity.overridePendingTransition(array.getResourceId(0, 0), array.getResourceId(1, 0));
-					array.recycle();
+						r.activity.overridePendingTransition(array.getResourceId(0, 0), array.getResourceId(1, 0));
+						array.recycle();
+					}
+				} catch (Throwable e) {
+					// Ignore
 				}
 			}
 		}
