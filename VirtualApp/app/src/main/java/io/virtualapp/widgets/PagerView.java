@@ -282,19 +282,23 @@ public class PagerView extends ViewGroup implements PagerAdapter.OnDataChangeLis
 			case MotionEvent.ACTION_MOVE :
 				int deltaX = (int) (mLastMotionX - x);
 
-				if (IsCanMove(deltaX) && Math.abs(deltaX) > thresholdX && mode != MODE_DRAG) {
-					mLastMotionX = x;
-					scrollBy(deltaX, 0);
-					mode = MODE_SCROLL;
-				} else if (mode == MODE_DRAG) {
+                if (IsCanMove(deltaX) && Math.abs(deltaX) > thresholdX && mode != MODE_DRAG && mode != MODE_SCROLL) {
+                    mLastMotionX = x;
+                    scrollBy(deltaX, 0);
+                    mode = MODE_SCROLL;
+                } else if (mode == MODE_SCROLL) {
+                    mLastMotionX = x;
+                    scrollBy(deltaX, 0);
+                    mode = MODE_SCROLL;
+                } else if (mode == MODE_DRAG) {
 
-				} else {
-					mode = MODE_FREE;
-				}
+                } else {
+                    mode = MODE_FREE;
+                }
 
-				if (mode == MODE_DRAG) {
-					onDrag((int) x, (int) y);
-				}
+                if (mode == MODE_DRAG) {
+                    onDrag((int) x, (int) y);
+                }
 				break;
 			case MotionEvent.ACTION_UP :
 				float distance = ev.getRawX() - startX;
