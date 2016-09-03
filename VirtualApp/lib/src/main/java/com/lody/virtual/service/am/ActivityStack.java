@@ -175,7 +175,15 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		return marked;
 	}
 
+	/**
+	 * App started in VA may be removed in OverView screen, then AMS.removeTask will be invoked,
+	 * all data struct about the task in AMS are released, while the client's process is still alive.
+	 * So remove related data in VA as well. A new TaskRecord will be recreated in `onActivityCreated`
+	 *
+	 *  @see ActivityManager#removeTask(int)
+	 */
 	private void optimizedTasksLocked() {
+		@SuppressWarnings("deprecation")
 		ArrayList<ActivityManager.RecentTaskInfo> recentTask = new ArrayList<>(mAM.getRecentTasks(Integer.MAX_VALUE,
 				ActivityManager.RECENT_WITH_EXCLUDED | ActivityManager.RECENT_IGNORE_UNAVAILABLE));
 		int N = mHistory.size();
@@ -191,7 +199,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 				}
 			}
 			if (!taskAlive) {
-				mHistory.remove(N);
+				mHistory.removeAt(N);
 			}
 		}
 	}
@@ -272,6 +280,9 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		if (sourceTask == null && reuseTarget == ReuseTarget.CURRENT) {
 			reuseTarget = ReuseTarget.AFFINITY;
 		}
+
+		optimizedTasksLocked();
+
 		String affinity = ComponentUtils.getTaskAffinity(info);
 		TaskRecord reuseTask = null;
 		switch (reuseTarget) {
@@ -288,7 +299,6 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 				break;
 		}
 
-		optimizedTasksLocked();
 		boolean taskMarked = false;
 		if (reuseTask == null) {
 			destIntent = startActivityProcess(userId, null, intent, info);
