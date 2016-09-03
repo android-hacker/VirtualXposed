@@ -390,10 +390,10 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			VLog.e(TAG, "Unable to start new Process for : " + ComponentUtils.toComponentName(serviceInfo));
 			return null;
 		}
-		if (targetApp.thread == null) {
+		if (targetApp.appThread == null) {
 			targetApp.attachLock.block();
 		}
-		IInterface appThread = targetApp.thread;
+		IInterface appThread = targetApp.appThread;
 		ServiceRecord r = findRecord(serviceInfo);
 		if (r == null) {
 			r = new ServiceRecord();
@@ -401,7 +401,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			r.uid = targetApp.uid;
 			r.startId = 0;
 			r.activeSince = SystemClock.elapsedRealtime();
-			r.appThread = appThread;
+			r.process = targetApp;
 			r.token = new VServiceToken();
 			r.serviceInfo = serviceInfo;
 			try {
@@ -438,7 +438,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			}
 			if (!r.hasSomeBound()) {
 				try {
-					IApplicationThreadCompat.scheduleStopService(r.appThread, r.token);
+					IApplicationThreadCompat.scheduleStopService(r.process.appThread, r.token);
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}
@@ -456,7 +456,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			ServiceRecord r = findRecord(token);
 			if (r != null && r.startId == startId) {
 				try {
-					IApplicationThreadCompat.scheduleStopService(r.appThread, r.token);
+					IApplicationThreadCompat.scheduleStopService(r.process.appThread, r.token);
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}
@@ -499,20 +499,19 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			if (r == null) {
 				return 0;
 			}
-			if (r.binder == null || !r.binder.isBinderAlive()) {
-				try {
-					IApplicationThreadCompat.scheduleBindService(r.appThread, r.token, service, r.doRebind, 0);
-				} catch (RemoteException e) {
-					e.printStackTrace();
+			if (r.binder != null && r.binder.isBinderAlive()) {
+				if (r.doRebind) {
+					try {
+						IApplicationThreadCompat.scheduleBindService(r.process.appThread, r.token, service, true, 0);
+					} catch (RemoteException e) {
+						e.printStackTrace();
+					}
 				}
-			} else if (r.doRebind){
+				ComponentName componentName = new ComponentName(r.serviceInfo.packageName, r.serviceInfo.name);
+				connectService(r.process.client, connection, componentName, r.binder);
+			} else {
 				try {
-					IApplicationThreadCompat.scheduleBindService(r.appThread, r.token, service, true, 0);
-				} catch (RemoteException e) {
-					e.printStackTrace();
-				}
-				try {
-					connection.connected(new ComponentName(r.serviceInfo.packageName, r.serviceInfo.name), r.binder);
+					IApplicationThreadCompat.scheduleBindService(r.process.appThread, r.token, service, r.doRebind, 0);
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}
@@ -532,13 +531,13 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			}
 			Intent intent = r.removedConnection(connection);
 			try {
-				IApplicationThreadCompat.scheduleUnbindService(r.appThread, r.token, intent);
+				IApplicationThreadCompat.scheduleUnbindService(r.process.appThread, r.token, intent);
 			} catch (RemoteException e) {
 				e.printStackTrace();
 			}
 			if (r.startId <= 0 && r.getAllConnections().isEmpty()) {
 				try {
-					IApplicationThreadCompat.scheduleStopService(r.appThread, r.token);
+					IApplicationThreadCompat.scheduleStopService(r.process.appThread, r.token);
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}
@@ -582,7 +581,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			}
 			ServiceRecord r = findRecord(serviceInfo);
 			if (r != null) {
-				return r.token;
+				return r.binder;
 			}
 			return null;
 		}
@@ -595,19 +594,27 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			if (r != null) {
 				r.binder = service;
 				List<IServiceConnection> allConnections = r.getAllConnections();
-				for (IServiceConnection connection : allConnections) {
-					if (connection.asBinder().isBinderAlive()) {
-						ComponentName componentName = ComponentUtils.toComponentName(r.serviceInfo);
-						try {
-							connection.connected(componentName, service);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+				for (IServiceConnection conn : allConnections) {
+					if (conn.asBinder().isBinderAlive()) {
+						ComponentName component = ComponentUtils.toComponentName(r.serviceInfo);
+						connectService(r.process.client, conn, component, service);
 					} else {
-						r.removedConnection(connection);
+						r.removedConnection(conn);
 					}
 				}
 			}
+		}
+	}
+
+	private void connectService(IVClient client, IServiceConnection conn, ComponentName component, IBinder service) {
+		try {
+			IBinder proxyService = client.createProxyService(component, service);
+			if (proxyService != null) {
+				service = proxyService;
+			}
+			conn.connected(component, service);
+		} catch (RemoteException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -686,7 +693,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 				e.printStackTrace();
 			}
 			app.client = client;
-			app.thread = thread;
+			app.appThread = thread;
 			app.pid = callingPid;
 			mPendingProcesses.remove(app.processName, app.userId);
 			synchronized (mProcessNames) {
@@ -999,8 +1006,8 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			if (BROADCAST_NOT_STARTED_PKG && r == null) {
 				r = startProcessIfNeedLocked(info.processName, VUserHandle.getUserId(uid), info.packageName);
 			}
-			if (r != null && r.thread != null) {
-				handleBroadcastIntent(r.thread, VUserHandle.getUserId(uid), info, intent, receiver.isOrderedBroadcast(),
+			if (r != null && r.appThread != null) {
+				handleBroadcastIntent(r.appThread, VUserHandle.getUserId(uid), info, intent, receiver.isOrderedBroadcast(),
 						result);
 			}
 		}

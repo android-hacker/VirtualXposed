@@ -21,6 +21,7 @@ import com.lody.virtual.helper.proto.AppTaskInfo;
 import com.lody.virtual.helper.proto.PendingIntentData;
 import com.lody.virtual.helper.proto.StubActivityRecord;
 import com.lody.virtual.helper.proto.VParceledListSlice;
+import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.service.IActivityManager;
 import com.lody.virtual.service.interfaces.IProcessObserver;
@@ -431,6 +432,13 @@ public class VActivityManager {
 				}
 				mirror.android.app.Activity.mFinished.set(activity, true);
 			}
+		}
+	}
+
+	public void sendBroadcast(Intent intent, int userId) {
+		Intent newIntent = ComponentUtils.redirectBroadcastIntent(intent, userId);
+		if (newIntent != null) {
+			VirtualCore.get().getContext().sendBroadcast(newIntent);
 		}
 	}
 }

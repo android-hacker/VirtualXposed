@@ -29,6 +29,7 @@ import android.util.SparseArray;
 import android.util.Xml;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.compat.AccountManagerCompat;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VEnvironment;
@@ -64,7 +65,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 
     private Context mContext = VirtualCore.get().getContext();
 
-    private static final String TAG = VAccountManagerService.class.getName();
+    private static final String TAG = VAccountManagerService.class.getSimpleName();
 
 	private final SparseArray<List<VAccount>> accountsByUserId = new SparseArray<>();
 
@@ -625,10 +626,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 
 	@Override
 	public boolean removeAccountExplicitly(int userId, Account account) {
-		if (account == null) {
-			return false;
-		}
-		return removeAccountInternal(userId, account);
+		return account != null && removeAccountInternal(userId, account);
 	}
 
 	@Override
@@ -881,16 +879,15 @@ public class VAccountManagerService extends IAccountManager.Stub {
 	}
 
     private void sendAccountsChangedBroadcast(int userId) {
-        Intent intent = new Intent(String.format("_VA_protected_%s", AccountManager.LOGIN_ACCOUNTS_CHANGED_ACTION));
-        intent.putExtra("_VA_|_user_id_", userId);
-        mContext.sendBroadcast(intent);
+        Intent intent = new Intent(AccountManager.LOGIN_ACCOUNTS_CHANGED_ACTION);
+		VActivityManager.get().sendBroadcast(intent, userId);
 		broadcastCheckInNow(userId);
     }
 
 	private void broadcastCheckInNow(int userId) {
 		lastAccountChangeTime = System.currentTimeMillis();
 		serializeAllAccounts();
-		mContext.sendBroadcast(new Intent(String.format("_VA_protected_%s","android.server.checkin.CHECKIN_NOW")));
+		VActivityManager.get().sendBroadcast(new Intent("android.server.checkin.CHECKIN_NOW"), userId);
 	}
 
     /**

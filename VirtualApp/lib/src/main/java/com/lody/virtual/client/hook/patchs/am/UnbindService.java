@@ -3,7 +3,6 @@ package com.lody.virtual.client.hook.patchs.am;
 import android.app.IServiceConnection;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.hook.secondary.HackServiceConnection;
 import com.lody.virtual.client.local.VActivityManager;
 
 import java.lang.reflect.Method;
@@ -23,11 +22,7 @@ import java.lang.reflect.Method;
 	@Override
 	public Object call(Object who, Method method, Object... args) throws Throwable {
 		IServiceConnection conn = (IServiceConnection) args[0];
-		if (conn != null) {
-			HackServiceConnection hackConn = HackServiceConnection.sHackConns.remove(conn.asBinder());
-			return VActivityManager.get().unbindService(hackConn != null ? hackConn : conn);
-		}
-		return false;
+		return VActivityManager.get().unbindService(conn);
 	}
 
 	@Override

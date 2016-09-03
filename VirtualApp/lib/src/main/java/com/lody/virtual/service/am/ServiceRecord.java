@@ -4,7 +4,6 @@ import android.app.IServiceConnection;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.os.IBinder;
-import android.os.IInterface;
 import android.os.RemoteException;
 
 import java.util.ArrayList;
@@ -20,7 +19,7 @@ public class ServiceRecord {
 	public IBinder token;
 	public int startId;
 	public IBinder binder;
-	public IInterface appThread;
+	public ProcessRecord process;
 	public boolean doRebind = false;
 
 	public boolean hasSomeBound() {

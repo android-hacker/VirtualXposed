@@ -3,6 +3,7 @@ package com.lody.virtual.client;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.app.Instrumentation;
+import android.content.ComponentName;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -27,6 +28,7 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.fixer.ContextFixer;
 import com.lody.virtual.client.hook.delegate.AppInstrumentation;
+import com.lody.virtual.client.hook.secondary.ProxyServiceFactory;
 import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
@@ -218,6 +220,7 @@ public class VClientImpl extends IVClient.Stub {
 		lock.open();
 		try {
 			mInstrumentation.callApplicationOnCreate(app);
+			mInitialApplication = ActivityThread.mInitialApplication.get(mainThread);
 		} catch (Exception e) {
 			if (!mInstrumentation.onException(app, e)) {
 				throw new RuntimeException(
@@ -309,8 +312,18 @@ public class VClientImpl extends IVClient.Stub {
 		data.intent = intent;
 		sendMessage(NEW_INTENT, data);
 	}
+
+
 	@Override
 	public boolean startActivityFromToken(IBinder token, Intent intent, Bundle options) {
 		return VActivityManager.get().startActivityFromToken(token, intent, options);
 	}
+
+
+	@Override
+	public IBinder createProxyService(ComponentName component, IBinder binder) {
+		return ProxyServiceFactory.getProxyService(getCurrentApplication(), component, binder);
+	}
+
+
 }

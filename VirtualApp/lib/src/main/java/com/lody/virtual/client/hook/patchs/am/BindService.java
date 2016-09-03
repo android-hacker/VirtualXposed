@@ -8,10 +8,8 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.IInterface;
 
-import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.hook.secondary.HackServiceConnection;
 import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.os.VUserHandle;
 
@@ -46,11 +44,6 @@ import java.lang.reflect.Method;
 				service.setComponent(new ComponentName(serviceInfo.packageName, serviceInfo.name));
 			}
 			if (isAppPkg(pkgName)) {
-				HackServiceConnection hackConn = HackServiceConnection.sHackConns.get(conn.asBinder());
-				if (hackConn == null) {
-					hackConn = new HackServiceConnection(VClientImpl.getClient().getCurrentApplication(), conn);
-					HackServiceConnection.sHackConns.put(conn.asBinder(), hackConn);
-				}
 				return VActivityManager.get().bindService(caller.asBinder(), token, service, resolvedType,
 						conn, flags);
 			}

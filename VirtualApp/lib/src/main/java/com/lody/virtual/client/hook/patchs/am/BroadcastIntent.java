@@ -62,7 +62,7 @@ import java.lang.reflect.Method;
 			if (newAction != null) {
 				intent.setAction(newAction);
 			}
-			return ComponentUtils.redirectBroadcastIntent(intent);
+			return ComponentUtils.redirectBroadcastIntent(intent, VUserHandle.myUserId());
 		}
 	}
 

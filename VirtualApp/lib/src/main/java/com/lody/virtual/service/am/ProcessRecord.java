@@ -25,7 +25,7 @@ public final class ProcessRecord extends Binder {
 	final List<String> sharedPackages;
 	final List<String> usesLibraries;
 	public IVClient client;
-	public IInterface thread;
+	public IInterface appThread;
 	public int pid;
 	public int uid;
 	public int userId;
