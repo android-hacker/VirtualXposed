@@ -195,7 +195,6 @@ void hookNative(jobject javaMethod, jboolean isArt) {
 
     void* vmHandle = dlopen(vmSoName, 0);
     if (!vmHandle) {
-        LOGE("Unable to open the %s.", vmSoName);
         vmHandle = RTLD_DEFAULT;
     }
     gOffset.g_sym_IPCThreadState_self = dlsym(RTLD_DEFAULT, "_ZN7android14IPCThreadState4selfEv");

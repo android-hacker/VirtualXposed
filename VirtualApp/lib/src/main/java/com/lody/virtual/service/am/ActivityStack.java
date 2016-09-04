@@ -43,15 +43,19 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 
 		@Override
 		public void handleMessage(Message msg) {
-			int N = mHistory.size();
-			while (N-- > 0) {
-				TaskRecord task = mHistory.valueAt(N);
-				for (ActivityRecord r : task.activities) {
-					if (r.marked) {
-						try {
-							r.process.client.finishActivity(r.token);
-						} catch (RemoteException e) {
-							e.printStackTrace();
+			synchronized (mHistory) {
+				int N = mHistory.size();
+				while (N-- > 0) {
+					final TaskRecord task = mHistory.valueAt(N);
+					synchronized (task) {
+						for (ActivityRecord r : task.activities) {
+							if (r.marked) {
+								try {
+									r.process.client.finishActivity(r.token);
+								} catch (RemoteException e) {
+									e.printStackTrace();
+								}
+							}
 						}
 					}
 				}
@@ -181,7 +185,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 	 * So remove related data in VA as well. A new TaskRecord will be recreated in `onActivityCreated`
 	 *
 	 */
-	private void optimizedTasksLocked() {
+	private void optimizeTasksLocked() {
 		@SuppressWarnings("deprecation")
 		ArrayList<ActivityManager.RecentTaskInfo> recentTask = new ArrayList<>(mAM.getRecentTasks(Integer.MAX_VALUE,
 				ActivityManager.RECENT_WITH_EXCLUDED | ActivityManager.RECENT_IGNORE_UNAVAILABLE));
@@ -195,6 +199,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 				if (info.id == task.taskId) {
 					taskAlive = true;
 					iterator.remove();
+					break;
 				}
 			}
 			if (!taskAlive) {
@@ -206,6 +211,9 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 	@SuppressWarnings("deprecation")
 	public int startActivityLocked(int userId, Intent intent, ActivityInfo info, IBinder resultTo, Bundle options,
 			int requestCode) {
+
+		optimizeTasksLocked();
+
 		Intent destIntent;
 		ActivityRecord sourceRecord = findActivityByToken(userId, resultTo);
 		TaskRecord sourceTask = sourceRecord != null ? sourceRecord.task : null;
@@ -280,8 +288,6 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 			reuseTarget = ReuseTarget.AFFINITY;
 		}
 
-		optimizedTasksLocked();
-
 		String affinity = ComponentUtils.getTaskAffinity(info);
 		TaskRecord reuseTask = null;
 		switch (reuseTarget) {
@@ -335,15 +341,15 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 					delivered = true;
 				}
 			}
+			if (taskMarked) {
+				scheduleFinishMarkedActivity();
+			}
 			if (!delivered) {
 				destIntent = startActivityProcess(userId, sourceRecord, intent, info);
 				if (destIntent != null) {
 					startActivityFromSourceTask(reuseTask, destIntent, info, options);
 				}
 			}
-		}
-		if (taskMarked) {
-			scheduleFinishMarkedActivity();
 		}
 
 		return 0;
@@ -391,7 +397,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 	public void onActivityCreated(ProcessRecord targetApp, ComponentName component, ComponentName caller, IBinder token,
 								  Intent taskRoot, String affinity, int taskId, int launchMode, int flags) {
 		synchronized (mHistory) {
-			optimizedTasksLocked();
+			optimizeTasksLocked();
 			TaskRecord task = mHistory.get(taskId);
 			if (task == null) {
 				task = new TaskRecord(taskId, targetApp.userId, affinity, taskRoot);
@@ -405,7 +411,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 
 	public void onActivityResumed(int userId, IBinder token) {
 		synchronized (mHistory) {
-			optimizedTasksLocked();
+			optimizeTasksLocked();
 			ActivityRecord r = findActivityByToken(userId, token);
 			if (r != null) {
 				r.task.activities.remove(r);
@@ -416,7 +422,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 
 	public boolean onActivityDestroyed(int userId, IBinder token) {
 		synchronized (mHistory) {
-			optimizedTasksLocked();
+			optimizeTasksLocked();
 			ActivityRecord r = findActivityByToken(userId, token);
 			if (r != null) {
 				r.task.activities.remove(r);
@@ -431,7 +437,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 
 	public void processDied(ProcessRecord record) {
 		synchronized (mHistory) {
-			optimizedTasksLocked();
+			optimizeTasksLocked();
 			int N = mHistory.size();
 			while (N-- > 0) {
 				TaskRecord task = mHistory.valueAt(N);

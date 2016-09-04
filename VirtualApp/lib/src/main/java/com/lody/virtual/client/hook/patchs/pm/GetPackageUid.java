@@ -9,7 +9,6 @@ import java.lang.reflect.Method;
 /**
  * @author Lody
  *
- * @see android.content.pm.IPackageManager#getPackageUid(String, int)
  */
 /* package */ class GetPackageUid extends Hook {
 
@@ -20,11 +19,7 @@ import java.lang.reflect.Method;
 
 	@Override
 	public Object call(Object who, Method method, Object... args) throws Throwable {
-		String pkgName = (String) args[0];
-		if (isAppPkg(pkgName)) {
-			return Process.myUid();
-		}
-		return method.invoke(who, args);
+		return Process.myUid();
 	}
 
 	@Override

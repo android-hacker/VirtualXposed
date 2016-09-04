@@ -17,7 +17,6 @@ public abstract class Hook {
 	private boolean enable = true;
 
 
-
 	/**
 	 * @return Hook的方法名
 	 */

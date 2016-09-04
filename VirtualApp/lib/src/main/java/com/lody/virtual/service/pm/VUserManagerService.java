@@ -757,7 +757,7 @@ public class VUserManagerService extends IUserManager.Stub {
         if (DBG) VLog.i(LOG_TAG, "finishRemoveUser " + userHandle);
         // Let other services shutdown any activity and clean up their state before completely
         // wiping the user's system directory and removing from the user list
-        long ident = Binder.clearCallingIdentity();
+        long identity = Binder.clearCallingIdentity();
         try {
             Intent addedIntent = new Intent(Constants.ACTION_USER_REMOVED);
             addedIntent.putExtra("_VA_|_uid_", userHandle);
@@ -784,7 +784,7 @@ public class VUserManagerService extends IUserManager.Stub {
                     },
                     null, Activity.RESULT_OK, null, null);
         } finally {
-            Binder.restoreCallingIdentity(ident);
+            Binder.restoreCallingIdentity(identity);
         }
     }
 

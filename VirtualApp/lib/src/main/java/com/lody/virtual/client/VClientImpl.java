@@ -169,6 +169,7 @@ public final class VClientImpl extends IVClient.Stub {
 				@Override
 				public void run() {
 					bindApplication(info, lock);
+					lock.open();
 				}
 			});
 			lock.block();

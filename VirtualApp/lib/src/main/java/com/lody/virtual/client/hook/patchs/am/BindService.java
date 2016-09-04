@@ -39,14 +39,11 @@ import java.lang.reflect.Method;
 		}
 		ServiceInfo serviceInfo = VirtualCore.get().resolveServiceInfo(service, userId);
 		if (serviceInfo != null) {
-			String pkgName = serviceInfo.packageName;
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 				service.setComponent(new ComponentName(serviceInfo.packageName, serviceInfo.name));
 			}
-			if (isAppPkg(pkgName)) {
-				return VActivityManager.get().bindService(caller.asBinder(), token, service, resolvedType,
-						conn, flags);
-			}
+			return VActivityManager.get().bindService(caller.asBinder(), token, service, resolvedType,
+                    conn, flags);
 		}
 		return method.invoke(who, args);
 	}

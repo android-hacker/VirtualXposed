@@ -22,19 +22,16 @@ import java.lang.reflect.Method;
 	@Override
 	public Object call(Object who, Method method, Object... args) throws Throwable {
 		String pkgName = (String) args[0];
-		if (isAppPkg(pkgName)) {
-			try {
-				VirtualCore.get().uninstallApp(pkgName);
-				IPackageDeleteObserver2 observer = (IPackageDeleteObserver2) args[1];
-				if (observer != null) {
-					observer.onPackageDeleted(pkgName, 0, "done.");
-				}
-			} catch (Throwable e) {
-				// Ignore
-			}
-			return 0;
-		}
-		return method.invoke(who, args);
+		try {
+            VirtualCore.get().uninstallApp(pkgName);
+            IPackageDeleteObserver2 observer = (IPackageDeleteObserver2) args[1];
+            if (observer != null) {
+                observer.onPackageDeleted(pkgName, 0, "done.");
+            }
+        } catch (Throwable e) {
+            // Ignore
+        }
+		return 0;
 	}
 
 }

@@ -1,11 +1,11 @@
 package com.lody.virtual.client.hook.patchs.input;
 
-import java.lang.reflect.Method;
+import android.view.inputmethod.EditorInfo;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.helper.utils.ArrayUtils;
 
-import android.view.inputmethod.EditorInfo;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -33,10 +33,7 @@ import android.view.inputmethod.EditorInfo;
 		if (!noEditorInfo) {
 			EditorInfo attribute = (EditorInfo) args[editorInfoIndex];
 			if (attribute != null) {
-				String pkgName = attribute.packageName;
-				if (isAppPkg(pkgName)) {
-					attribute.packageName = getHostPkg();
-				}
+				attribute.packageName = getHostPkg();
 			}
 		}
 		return method.invoke(who, args);

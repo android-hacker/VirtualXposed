@@ -23,10 +23,7 @@ import java.lang.reflect.Method;
 		if (cacheIndex != -1) {
 			WindowManager.LayoutParams attrs = (WindowManager.LayoutParams) args[cacheIndex];
 			if (attrs != null) {
-				String pkgName = attrs.packageName;
-				if (isAppPkg(pkgName)) {
-					attrs.packageName = getHostPkg();
-				}
+				attrs.packageName = getHostPkg();
 			}
 		}
 		return method.invoke(who, args);

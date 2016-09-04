@@ -26,7 +26,7 @@ import android.content.pm.ActivityInfo;
 		ComponentName component = (ComponentName) args[0];
 		if (component != null) {
 			ActivityInfo activityInfo = VirtualCore.getPM().getActivityInfo(component, 0);
-			if (activityInfo != null && isAppPkg(activityInfo.packageName)) {
+			if (activityInfo != null) {
 				return null;
 			}
 		}

@@ -107,19 +107,17 @@ public class ComponentUtils {
 		ComponentName component = intent.getComponent();
 		String pkg = intent.getPackage();
 		if (component != null) {
-			if (VirtualCore.get().isAppInstalled(component.getPackageName())) {
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-					if (intent.getSelector() != null) {
-						intent.setPackage(component.getPackageName());
-					}
-				}
-				Intent newIntent = intent.cloneFilter();
-				newIntent.putExtra("_VA_|_user_id_", userId);
-				newIntent.setAction(String.format("_VA_%s_%s", component.getPackageName(), component.getClassName()));
-				newIntent.putExtra("_VA_|_component_", component);
-				newIntent.putExtra("_VA_|_intent_", new Intent(intent));
-				return newIntent;
-			}
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+                if (intent.getSelector() != null) {
+                    intent.setPackage(component.getPackageName());
+                }
+            }
+			Intent newIntent = intent.cloneFilter();
+			newIntent.putExtra("_VA_|_user_id_", userId);
+			newIntent.setAction(String.format("_VA_%s_%s", component.getPackageName(), component.getClassName()));
+			newIntent.putExtra("_VA_|_component_", component);
+			newIntent.putExtra("_VA_|_intent_", new Intent(intent));
+			return newIntent;
 		} else if (pkg != null) {
 			if (VirtualCore.get().isAppInstalled(pkg)) {
 				Intent newIntent = intent.cloneFilter();

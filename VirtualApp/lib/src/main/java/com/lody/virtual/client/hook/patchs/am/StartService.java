@@ -40,9 +40,7 @@ import java.lang.reflect.Method;
 			if (pkgName.equals(getHostPkg())) {
 				return method.invoke(who, args);
 			}
-			if (isAppPkg(pkgName)) {
-				return VActivityManager.get().startService(appThread, service, resolvedType);
-			}
+			return VActivityManager.get().startService(appThread, service, resolvedType);
 		}
 		return method.invoke(who, args);
 	}

@@ -63,40 +63,32 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 
 	@Override
 	public void callActivityOnCreate(Activity activity, Bundle icicle) {
-		String pkg = activity.getPackageName();
-		boolean isApp = VirtualCore.get().isAppInstalled(pkg);
-		if (isApp) {
-			IBinder token = mirror.android.app.Activity.mToken.get(activity);
-			ActivityClientRecord r = VActivityManager.get().getActivityRecord(token);
-			if (r != null) {
-				r.activity = activity;
-			}
-			ContextFixer.fixContext(activity);
-			ActivityFixer.fixActivity(activity);
-			ActivityInfo info = null;
-			if (r != null) {
-				info = r.info;
-			}
-			if (info != null) {
-				if (info.theme != 0) {
-					activity.setTheme(info.theme);
-				}
-				if (activity.getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-						&& info.screenOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
-					activity.setRequestedOrientation(info.screenOrientation);
-				}
-			}
-		}
+		IBinder token = mirror.android.app.Activity.mToken.get(activity);
+		ActivityClientRecord r = VActivityManager.get().getActivityRecord(token);
+		if (r != null) {
+            r.activity = activity;
+        }
+		ContextFixer.fixContext(activity);
+		ActivityFixer.fixActivity(activity);
+		ActivityInfo info = null;
+		if (r != null) {
+            info = r.info;
+        }
+		if (info != null) {
+            if (info.theme != 0) {
+                activity.setTheme(info.theme);
+            }
+            if (activity.getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                    && info.screenOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
+                activity.setRequestedOrientation(info.screenOrientation);
+            }
+        }
 		super.callActivityOnCreate(activity, icicle);
 	}
 
 	@Override
 	public void callActivityOnResume(Activity activity) {
-		String pkg = activity.getPackageName();
-		boolean isApp = VirtualCore.get().isAppInstalled(pkg);
-		if (isApp) {
-			VActivityManager.get().onActivityResumed(activity);
-		}
+		VActivityManager.get().onActivityResumed(activity);
 		super.callActivityOnResume(activity);
 		Intent intent = activity.getIntent();
 		Bundle bundle = intent.getBundleExtra("_VA_|_sender_");

@@ -39,11 +39,8 @@ import java.lang.reflect.Method;
 				componentName = new ComponentName(resolveInfo.serviceInfo.packageName, resolveInfo.serviceInfo.name);
 			}
 		}
-		if (componentName != null) {
-			String pkgName = componentName.getPackageName();
-			if (isAppPkg(pkgName)) {
-				return VActivityManager.get().stopService(caller, intent, resolvedType);
-			}
+		if (componentName != null && !getHostPkg().equals(componentName.getPackageName())) {
+			return VActivityManager.get().stopService(caller, intent, resolvedType);
 		}
 		return method.invoke(who, args);
 	}
