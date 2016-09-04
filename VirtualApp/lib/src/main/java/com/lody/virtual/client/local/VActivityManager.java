@@ -59,21 +59,21 @@ public class VActivityManager {
 		return mRemote;
 	}
 
-	public Intent startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, int userId) {
+	public int startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, int requestCode) {
 		try {
-			return getService().startActivity(intent, info, resultTo, options, userId);
+			return getService().startActivity(intent, info, resultTo, options, requestCode, VUserHandle.myUserId());
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
 	}
 
-	public Intent startActivity(Intent intent, int userId) {
+	public int startActivity(Intent intent, int userId) {
 		if (userId == -1) {
-			return null;
+			return ActivityManagerCompat.START_NOT_CURRENT_USER_ACTIVITY;
 		}
 		ActivityInfo info = VirtualCore.get().resolveActivityInfo(intent, userId);
 		if (info == null) {
-			return null;
+			return ActivityManagerCompat.START_INTENT_NOT_RESOLVED;
 		}
 		return startActivity(intent, info, null, null, userId);
 
@@ -374,20 +374,15 @@ public class VActivityManager {
 		getService().removePendingIntent(binder);
 	}
 
-	public boolean startActivityFromToken(IBinder token, final Intent intent, final Bundle options) {
-		final ActivityClientRecord r = getActivityRecord(token);
+	public boolean startActivityFromToken(IBinder token, Intent intent, int requestCode, Bundle options) {
+		ActivityClientRecord r = getActivityRecord(token);
 		if (r != null && r.activity != null) {
 			intent.setExtrasClassLoader(StubActivityRecord.class.getClassLoader());
-			VirtualRuntime.getUIHandler().post(new Runnable() {
-				@Override
-				public void run() {
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-						r.activity.startActivity(intent, options);
-					} else {
-						r.activity.startActivity(intent);
-					}
-				}
-			});
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+				r.activity.startActivityForResult(intent, requestCode, options);
+			} else {
+				r.activity.startActivityForResult(intent, requestCode);
+			}
 			return true;
 		}
 		return false;

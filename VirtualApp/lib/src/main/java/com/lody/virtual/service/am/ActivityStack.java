@@ -209,17 +209,12 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 	}
 
 	@SuppressWarnings("deprecation")
-	public Intent startActivityLocked(int userId, Intent intent, ActivityInfo info, IBinder resultTo, Bundle options,
+	public int startActivityLocked(int userId, Intent intent, ActivityInfo info, IBinder resultTo, Bundle options,
 			int requestCode) {
 
 		optimizeTasksLocked();
 
-		boolean needResult =
-				requestCode >= 0
-				&& !containFlags(intent, Intent.FLAG_ACTIVITY_NEW_TASK)
-				&& !containFlags(intent, Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-		Intent destIntent = null;
+		Intent destIntent;
 		ActivityRecord sourceRecord = findActivityByToken(userId, resultTo);
 		TaskRecord sourceTask = sourceRecord != null ? sourceRecord.task : null;
 
@@ -322,15 +317,18 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 				} else {
 					destIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
 				}
+
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 					VirtualCore.get().getContext().startActivity(destIntent, options);
 				} else {
 					VirtualCore.get().getContext().startActivity(destIntent);
 				}
+
 			}
 		} else if (clearTarget != ClearTarget.TOP && ComponentUtils.isSameIntent(intent, reuseTask.taskRoot)) {
 			// In this case, we only need to move the task to front.
 			mAM.moveTaskToFront(reuseTask.taskId, 0);
+
 		} else {
 			boolean delivered = false;
 			mAM.moveTaskToFront(reuseTask.taskId, 0);
@@ -348,15 +346,13 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 			}
 			if (!delivered) {
 				destIntent = startActivityProcess(userId, sourceRecord, intent, info);
-				if (!needResult && destIntent != null) {
-					startActivityFromSourceTask(reuseTask, destIntent, info, options);
+				if (destIntent != null) {
+					startActivityFromSourceTask(reuseTask, destIntent, info, requestCode, options);
 				}
 			}
 		}
-		if (needResult) {
-			return destIntent;
-		}
-		return null;
+
+		return 0;
 	}
 
 	private void scheduleFinishMarkedActivity() {
@@ -364,12 +360,12 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		mTaskHandler.sendEmptyMessage(0);
 	}
 
-	private boolean startActivityFromSourceTask(TaskRecord task, Intent intent, ActivityInfo info, Bundle options) {
+	private boolean startActivityFromSourceTask(TaskRecord task, Intent intent, ActivityInfo info, int requestCode, Bundle options) {
 		ActivityRecord top = topActivityInTask(task);
 		if (top != null) {
 			if (startActivityProcess(task.userId, top, intent, info) != null) {
 				try {
-					return top.process.client.startActivityFromToken(top.token, intent, options);
+					return top.process.client.startActivityFromToken(top.token, intent, requestCode, options);
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}

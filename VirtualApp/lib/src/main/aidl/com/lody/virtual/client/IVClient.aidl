@@ -6,7 +6,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.ProviderInfo;
 
 interface IVClient {
-    boolean startActivityFromToken(in IBinder token,in Intent intent, in Bundle options);
+    boolean startActivityFromToken(in IBinder token,in Intent intent, int requestCode, in Bundle options);
     void scheduleNewIntent(in String creator, in IBinder token, in Intent intent);
     void finishActivity(in IBinder token);
     IBinder createProxyService(in ComponentName component, in IBinder binder);

@@ -337,8 +337,8 @@ public final class VClientImpl extends IVClient.Stub {
 
 
 	@Override
-	public boolean startActivityFromToken(IBinder token, Intent intent, Bundle options) {
-		return VActivityManager.get().startActivityFromToken(token, intent, options);
+	public boolean startActivityFromToken(IBinder token, Intent intent, int requestCode, Bundle options) {
+		return VActivityManager.get().startActivityFromToken(token, intent, requestCode, options);
 	}
 
 	@Override

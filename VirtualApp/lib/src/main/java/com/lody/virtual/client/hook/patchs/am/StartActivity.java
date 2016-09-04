@@ -23,11 +23,11 @@ import java.lang.reflect.Method;
  */
 /* package */ class StartActivity extends BaseStartActivity {
 
-
 	@Override
 	public String getName() {
 		return "startActivity";
 	}
+
 
 	@Override
 	public Object call(Object who, Method method, Object... args) throws Throwable {
@@ -60,29 +60,19 @@ import java.lang.reflect.Method;
 			args[intentIndex - 1] = getHostPkg();
 		}
 
-		Intent res = VActivityManager.get().startActivity(intent, activityInfo, resultTo, options, userId);
-		// If activity has been started by VAMS, res will be null,
-		// else, res will be the intent we need to start.
-		if (res == null) {
-			if (resultTo != null && requestCode > 0) {
-				// caller need to a result, give a sugar for it.
-				VActivityManager.get().sendActivityResult(resultTo, resultWho, requestCode);
-			}
-			return 0;
+		int res = VActivityManager.get().startActivity(intent, activityInfo, resultTo, options, requestCode);
+		if (res != 0 && resultTo != null && requestCode > 0) {
+			VActivityManager.get().sendActivityResult(resultTo, resultWho, requestCode);
 		}
-
-		// We force to start the new Intent.
-		args[intentIndex] = res;
-
 		if (resultTo != null) {
-			// Only for outside-installed app.
 			ActivityClientRecord r = VActivityManager.get().getActivityRecord(resultTo);
-			if (r != null && r.activity != null && !r.activity.isTaskRoot()) {
+			if (r != null && r.activity != null) {
 				try {
 					TypedValue out = new TypedValue();
 					Resources.Theme theme = r.activity.getResources().newTheme();
 					theme.applyStyle(activityInfo.getThemeResource(), true);
 					if (theme.resolveAttribute(android.R.attr.windowAnimationStyle, out, true)) {
+
 						TypedArray array = theme.obtainStyledAttributes(out.data,
 								new int[]{
 										android.R.attr.activityOpenEnterAnimation,
@@ -97,7 +87,7 @@ import java.lang.reflect.Method;
 				}
 			}
 		}
-		return method.invoke(who, args);
+		return res;
 	}
 
 }

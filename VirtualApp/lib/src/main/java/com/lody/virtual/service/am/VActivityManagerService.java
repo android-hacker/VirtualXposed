@@ -68,6 +68,7 @@ import mirror.android.app.IApplicationThreadJBMR1;
 import mirror.android.app.IApplicationThreadKitkat;
 import mirror.android.content.res.CompatibilityInfo;
 
+import static android.os.Process.killProcess;
 import static com.lody.virtual.os.VUserHandle.getUserId;
 
 /**
@@ -188,9 +189,9 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	@Override
-	public Intent startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, int userId) {
+	public int startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, int requestCode, int userId) {
 		synchronized (this) {
-			return mMainStack.startActivityLocked(userId, intent, info, resultTo, options, userId);
+			return mMainStack.startActivityLocked(userId, intent, info, resultTo, options, requestCode);
 		}
 	}
 
@@ -638,12 +639,6 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			}
 		}
 		return null;
-	}
-
-
-	private static void killProcess(int pid) {
-		VLog.d("TTTTTTTTT", ">>>>>>>> kill process : " + pid);
-		Process.killProcess(pid);
 	}
 
 
