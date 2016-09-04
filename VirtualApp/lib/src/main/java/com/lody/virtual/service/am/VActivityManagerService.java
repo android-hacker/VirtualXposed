@@ -50,6 +50,7 @@ import com.lody.virtual.service.IActivityManager;
 import com.lody.virtual.service.interfaces.IProcessObserver;
 import com.lody.virtual.service.pm.VAppManagerService;
 import com.lody.virtual.service.pm.VPackageManagerService;
+import com.lody.virtual.service.secondary.BinderDelegateService;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -259,7 +260,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			ListIterator<ServiceRecord> iterator = mHistory.listIterator();
 			while (iterator.hasNext()) {
 				ServiceRecord r = iterator.next();
-				if (ComponentUtils.getProcessName(r.serviceInfo).equals(record.processName)) {
+				if (r.process.pid == record.pid) {
 					iterator.remove();
 				}
 			}
@@ -466,7 +467,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 					}
 				}
 				ComponentName componentName = new ComponentName(r.serviceInfo.packageName, r.serviceInfo.name);
-				connectService(r.process.client, connection, componentName, r.binder);
+				connectService(connection, componentName, r.binder);
 			} else {
 				try {
 					IApplicationThreadCompat.scheduleBindService(r.process.appThread, r.token, service, r.doRebind, 0);
@@ -556,7 +557,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 				for (IServiceConnection conn : allConnections) {
 					if (conn.asBinder().isBinderAlive()) {
 						ComponentName component = ComponentUtils.toComponentName(r.serviceInfo);
-						connectService(r.process.client, conn, component, service);
+						connectService(conn, component, service);
 					} else {
 						r.removedConnection(conn);
 					}
@@ -565,13 +566,10 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		}
 	}
 
-	private void connectService(IVClient client, IServiceConnection conn, ComponentName component, IBinder service) {
+	private void connectService(IServiceConnection conn, ComponentName component, IBinder service) {
 		try {
-			IBinder proxyService = client.createProxyService(component, service);
-			if (proxyService != null) {
-				service = proxyService;
-			}
-			conn.connected(component, service);
+			BinderDelegateService delegateService = new BinderDelegateService(component, service);
+			conn.connected(component, delegateService);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}

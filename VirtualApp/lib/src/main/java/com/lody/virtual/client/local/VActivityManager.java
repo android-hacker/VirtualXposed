@@ -172,9 +172,9 @@ public class VActivityManager {
 		}
 	}
 
-	public int bindService(IBinder caller, IBinder token, Intent service, String resolvedType, IServiceConnection connection, int flags) {
+	public int bindService(IBinder caller, IBinder token, Intent service, String resolvedType, IServiceConnection connection, int flags, int userId) {
 		try {
-			return getService().bindService(caller, token, service, resolvedType, connection, flags, VUserHandle.myUserId());
+			return getService().bindService(caller, token, service, resolvedType, connection, flags, userId);
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}

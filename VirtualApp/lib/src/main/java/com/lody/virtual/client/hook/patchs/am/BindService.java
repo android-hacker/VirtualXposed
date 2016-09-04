@@ -10,6 +10,7 @@ import android.os.IInterface;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.hook.secondary.ServiceConnectionDelegate;
 import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.os.VUserHandle;
 
@@ -42,8 +43,9 @@ import java.lang.reflect.Method;
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 				service.setComponent(new ComponentName(serviceInfo.packageName, serviceInfo.name));
 			}
+			conn = ServiceConnectionDelegate.getDelegate(conn);
 			return VActivityManager.get().bindService(caller.asBinder(), token, service, resolvedType,
-                    conn, flags);
+                    conn, flags, userId);
 		}
 		return method.invoke(who, args);
 	}

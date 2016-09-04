@@ -7,7 +7,6 @@ import android.os.IBinder;
 import android.os.IInterface;
 
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
@@ -27,14 +26,6 @@ public class ProxyServiceFactory {
 	private static Map<String, ServiceFetcher> sHookSecondaryServiceMap = new HashMap<>();
 
 	static {
-		sHookSecondaryServiceMap.put("ru.zdevs.zarchiver.service.ZArchiverServiceConnect", new ServiceFetcher() {
-			@Override
-			public IBinder getService(final Context context, ClassLoader classLoader, final IBinder binder) {
-				return null;
-			}
-		});
-
-
 		sHookSecondaryServiceMap.put("com.google.android.auth.IAuthManagerService", new ServiceFetcher() {
 			@Override
 			public IBinder getService(final Context context, ClassLoader classLoader, IBinder binder) {
@@ -45,7 +36,6 @@ public class ProxyServiceFactory {
 							@Override
 							public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 								if (args != null && args.length > 0) {
-									dumpCallingInfo(false, method, args);
 									for (Object arg : args) {
 										if (arg instanceof Bundle) {
 											Bundle bundle = (Bundle) arg;
@@ -57,7 +47,6 @@ public class ProxyServiceFactory {
 											}
 										}
 									}
-									dumpCallingInfo(true, method, args);
 								}
 								return method.invoke(base, args);
 							}
@@ -76,9 +65,6 @@ public class ProxyServiceFactory {
 						return new InvocationHandler() {
 							@Override
 							public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-								if (args != null && args.length > 0) {
-									dumpCallingInfo(false, method, args);
-								}
 								return method.invoke(base, args);
 							}
 						};
@@ -97,13 +83,12 @@ public class ProxyServiceFactory {
 						return new InvocationHandler() {
 							@Override
 							public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-								dumpCallingInfo(false, method, args);
 								if (args != null && args.length > 0) {
 									String name = args[args.length - 1].getClass().getName();
 									if ("com.google.android.gms.common.internal.GetServiceRequest".equals(name)
 											|| "com.google.android.gms.common.internal.ValidateAccountRequest"
 													.equals(name)) {
-										args[args.length - 1] = modifyObject(args[args.length - 1]);
+										args[args.length - 1] = replaceObjectPkgFields(args[args.length - 1]);
 									}
 									String hostPkg = VirtualCore.get().getHostPkg();
 									String pkg = context.getPackageName();
@@ -115,13 +100,12 @@ public class ProxyServiceFactory {
 										i++;
 									}
 								}
-								dumpCallingInfo(true, method, args);
 								return method.invoke(base, args);
 							}
 						};
 					}
 
-					private Object modifyObject(Object object) {
+					private Object replaceObjectPkgFields(Object object) {
 						for (Field field : object.getClass().getDeclaredFields()) {
 							field.setAccessible(true);
 							if ((field.getModifiers() & Modifier.STATIC) == 0) {
@@ -142,29 +126,6 @@ public class ProxyServiceFactory {
 		});
 	}
 
-	private static void dumpCallingInfo(boolean hooked, Method method, Object[] args) {
-		StringBuilder stringBuilder = new StringBuilder(20);
-		stringBuilder.append(hooked ? "after-" : "before-");
-		stringBuilder.append("call ");
-		stringBuilder.append(method.getDeclaringClass().getName());
-		stringBuilder.append(".");
-		stringBuilder.append(method.getName());
-		stringBuilder.append("(");
-		if (args != null) {
-			for (Object arg : args) {
-				if (arg == null) {
-					stringBuilder.append("null, ");
-				} else {
-					stringBuilder.append(arg.getClass().getSimpleName());
-					stringBuilder.append("(");
-					stringBuilder.append(arg.toString());
-					stringBuilder.append("), ");
-				}
-			}
-		}
-		stringBuilder.append(")");
-		VLog.d(TAG, stringBuilder.toString());
-	}
 
 	public static IBinder getProxyService(Context context, ComponentName component, IBinder binder) {
 		if (context == null) {
