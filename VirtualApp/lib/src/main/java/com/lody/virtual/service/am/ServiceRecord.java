@@ -13,8 +13,6 @@ public class ServiceRecord {
 	public final List<ServiceBoundRecord> mBoundRecords = new ArrayList<>();
 	public long activeSince;
 	public long lastActivityTime;
-	public int pid;
-	public int uid;
 	public ServiceInfo serviceInfo;
 	public IBinder token;
 	public int startId;

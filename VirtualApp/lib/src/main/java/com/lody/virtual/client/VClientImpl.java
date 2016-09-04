@@ -29,21 +29,26 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.fixer.ContextFixer;
 import com.lody.virtual.client.hook.delegate.AppInstrumentation;
+import com.lody.virtual.client.hook.providers.ProviderHook;
 import com.lody.virtual.client.hook.secondary.ProxyServiceFactory;
 import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import dalvik.system.PathClassLoader;
 import mirror.android.app.ActivityThread;
 import mirror.android.app.ContextImpl;
 import mirror.android.app.LoadedApk;
 import mirror.com.android.internal.content.ReferrerIntent;
 import mirror.dalvik.system.VMRuntime;
+
+import static com.lody.virtual.os.VUserHandle.getUserId;
 
 /**
  * @author Lody
@@ -118,7 +123,7 @@ public final class VClientImpl extends IVClient.Stub {
 	}
 
 	@Override
-	public IBinder getToken() throws RemoteException {
+	public IBinder getToken() {
 		return token;
 	}
 
@@ -178,7 +183,7 @@ public final class VClientImpl extends IVClient.Stub {
 
 	private void bindApplication(ComponentInfo info, ConditionVariable lock) {
 		AppBindData data = new AppBindData();
-		data.appInfo = info.applicationInfo;
+		data.appInfo = VPackageManager.get().getApplicationInfo(info.packageName, 0, getUserId(vuid));
 		data.processName = info.processName;
 		data.providers = VPackageManager.get().queryContentProviders(info.processName, vuid, PackageManager.GET_META_DATA);
 		mBoundApplication = data;
@@ -217,6 +222,7 @@ public final class VClientImpl extends IVClient.Stub {
 		mBoundApplication.info = ContextImpl.mPackageInfo.get(context);
 		fixBoundApp(mBoundApplication);
 		VMRuntime.setTargetSdkVersion.call(VMRuntime.getRuntime.call(), data.appInfo.targetSdkVersion);
+
 		Application app = LoadedApk.makeApplication.call(data.info, false, null);
 		mInitialApplication = app;
 		mirror.android.app.ActivityThread.mInitialApplication.set(mainThread, app);
@@ -257,6 +263,16 @@ public final class VClientImpl extends IVClient.Stub {
 		mirror.android.app.ActivityThread.AppBindData.processName.set(boundApp, data.processName);
 		mirror.android.app.ActivityThread.AppBindData.info.set(boundApp, data.info);
 		mirror.android.app.ActivityThread.AppBindData.instrumentationName.set(boundApp, new ComponentName(data.appInfo.packageName, Instrumentation.class.getName()));
+		// T_T   T_T   T_T   T_T   T_T   T_T   T_T   T_T
+		// Gms use the {com.android.location.provider.jar}
+		// T_T   T_T   T_T   T_T   T_T   T_T   T_T   T_T
+		if (data.processName.equals("com.google.android.gms.persistent")) {
+			File file = new File("/system/framework/com.android.location.provider.jar");
+			if (file.exists()) {
+				PathClassLoader parent = new PathClassLoader(file.getPath(), ClassLoader.getSystemClassLoader().getParent());
+				Reflect.on(mBoundApplication.info).set("mBaseClassLoader", parent);
+			}
+		}
 	}
 
 	private void installContentProviders(List<ProviderInfo> providers) {
@@ -286,8 +302,19 @@ public final class VClientImpl extends IVClient.Stub {
 		} else {
 			client = resolver.acquireContentProviderClient(authority);
 		}
-		if (client != null) {
+		if (client != null && !ProviderHook.class.isInstance(client)) {
 			provider = mirror.android.content.ContentProviderClient.mContentProvider.get(client);
+			ProviderHook.HookFetcher fetcher = ProviderHook.fetchHook(authority);
+			if (fetcher != null) {
+				ProviderHook hook = fetcher.fetch(false, info, provider);
+				if (hook != null) {
+					IInterface proxyProvider = ProviderHook.createProxy(provider, hook);
+					if (proxyProvider != null) {
+						mirror.android.content.ContentProviderClient.mContentProvider.set(client, provider);
+						provider = proxyProvider;
+					}
+				}
+			}
 			client.release();
 		}
 		return provider != null ? provider.asBinder() : null;

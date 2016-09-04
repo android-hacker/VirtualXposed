@@ -20,8 +20,6 @@ interface IActivityManager {
 
     int getUidByPid(int pid);
 
-    void attachClient(in IBinder clinet);
-
     boolean isAppProcess(String processName);
 
     boolean isAppPid(int pid);
@@ -63,29 +61,29 @@ interface IActivityManager {
     String getPackageForToken(int userId, in IBinder token);
 
 
-    ComponentName startService(in IBinder caller,in Intent service, String resolvedType);
+    ComponentName startService(in IBinder caller,in Intent service, String resolvedType, int userId);
 
-    int stopService(in IBinder caller, in Intent service, String resolvedType);
+    int stopService(in IBinder caller, in Intent service, String resolvedType, int userId);
 
-    boolean stopServiceToken(in ComponentName className, in IBinder token, int startId);
+    boolean stopServiceToken(in ComponentName className, in IBinder token, int startId, int userId);
 
     void setServiceForeground(in ComponentName className, in IBinder token, int id,
-                            in Notification notification, boolean keepNotification);
+                            in Notification notification, boolean keepNotification, int userId);
 
     int bindService(in IBinder caller, in IBinder token, in Intent service,
-                    String resolvedType, in IServiceConnection connection, int flags);
+                    String resolvedType, in IServiceConnection connection, int flags, int userId);
 
-    boolean unbindService(in IServiceConnection connection);
+    boolean unbindService(in IServiceConnection connection, int userId);
 
-    void unbindFinished(in IBinder token, in Intent service, in boolean doRebind);
+    void unbindFinished(in IBinder token, in Intent service, in boolean doRebind, int userId);
 
-    void serviceDoneExecuting(in IBinder token, in int type, in int startId, in int res);
+    void serviceDoneExecuting(in IBinder token, in int type, in int startId, in int res, int userId);
 
-    IBinder peekService(in Intent service, String resolvedType);
+    IBinder peekService(in Intent service, String resolvedType, int userId);
 
-    void publishService(in IBinder token, in Intent intent, in IBinder service);
+    void publishService(in IBinder token, in Intent intent, in IBinder service, int userId);
 
-    VParceledListSlice getServices(int maxNum, int flags);
+    VParceledListSlice getServices(int maxNum, int flags, int userId);
 
     IBinder acquireProviderClient(int userId, in ProviderInfo info);
 
@@ -94,4 +92,6 @@ interface IActivityManager {
     void addPendingIntent(IBinder binder, String packageName);
 
     void removePendingIntent(IBinder binder);
+
+    void processRestarted(in String packageName, in String processName, int userId);
 }

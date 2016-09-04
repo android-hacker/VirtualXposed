@@ -85,6 +85,9 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		ComponentName caller = saveInstance.caller;
 		IBinder token = ActivityThread.ActivityClientRecord.token.get(r);
 		ActivityInfo info = saveInstance.info;
+		if (VClientImpl.getClient().getToken() == null) {
+			VActivityManager.get().processRestarted(info.packageName, info.processName, saveInstance.userId);
+		}
 		if (!VClientImpl.getClient().isBound()) {
 			VClientImpl.getClient().bindApplicationCheckThread(info);
 		}
