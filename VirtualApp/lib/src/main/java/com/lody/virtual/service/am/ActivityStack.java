@@ -16,6 +16,7 @@ import android.util.SparseArray;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.proto.StubActivityRecord;
 import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -317,17 +318,16 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 				} else {
 					destIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
 				}
-
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 					VirtualCore.get().getContext().startActivity(destIntent, options);
 				} else {
 					VirtualCore.get().getContext().startActivity(destIntent);
 				}
-
 			}
 		} else if (clearTarget != ClearTarget.TOP && ComponentUtils.isSameIntent(intent, reuseTask.taskRoot)) {
 			// In this case, we only need to move the task to front.
 			mAM.moveTaskToFront(reuseTask.taskId, 0);
+			VLog.d("ActivityStack", "Only moveTaskToFront : " + intent);
 
 		} else {
 			boolean delivered = false;
@@ -351,7 +351,6 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 				}
 			}
 		}
-
 		return 0;
 	}
 

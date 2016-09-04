@@ -23,11 +23,11 @@ import java.lang.reflect.Method;
  */
 /* package */ class StartActivity extends BaseStartActivity {
 
+
 	@Override
 	public String getName() {
 		return "startActivity";
 	}
-
 
 	@Override
 	public Object call(Object who, Method method, Object... args) throws Throwable {
@@ -48,29 +48,6 @@ import java.lang.reflect.Method;
 		if (activityInfo == null) {
 			return method.invoke(who, args);
 		}
-		if (resultTo != null) {
-			ActivityClientRecord r = VActivityManager.get().getActivityRecord(resultTo);
-			if (r != null) {
-				try {
-					TypedValue out = new TypedValue();
-					Resources.Theme theme = r.activity.getResources().newTheme();
-					theme.applyStyle(activityInfo.getThemeResource(), true);
-					if (theme.resolveAttribute(android.R.attr.windowAnimationStyle, out, true)) {
-
-						TypedArray array = theme.obtainStyledAttributes(out.data,
-								new int[]{
-										android.R.attr.activityOpenEnterAnimation,
-										android.R.attr.activityOpenExitAnimation
-								});
-
-						r.activity.overridePendingTransition(array.getResourceId(0, 0), array.getResourceId(1, 0));
-						array.recycle();
-					}
-				} catch (Throwable e) {
-					// Ignore
-				}
-			}
-		}
 		String resultWho = null;
 		int requestCode = 0;
 		Bundle options = ArrayUtils.getFirst(args, Bundle.class);
@@ -84,8 +61,30 @@ import java.lang.reflect.Method;
 		}
 
 		int res = VActivityManager.get().startActivity(intent, activityInfo, resultTo, options, userId);
-		if (res != 0 && resultTo != null && requestCode > 0) {
+		if (resultTo != null && requestCode > 0) {
 			VActivityManager.get().sendActivityResult(resultTo, resultWho, requestCode);
+		}
+		if (resultTo != null) {
+			ActivityClientRecord r = VActivityManager.get().getActivityRecord(resultTo);
+			if (r != null && r.activity != null && !r.activity.isTaskRoot()) {
+				try {
+					TypedValue out = new TypedValue();
+					Resources.Theme theme = r.activity.getResources().newTheme();
+					theme.applyStyle(activityInfo.getThemeResource(), true);
+					if (theme.resolveAttribute(android.R.attr.windowAnimationStyle, out, true)) {
+						TypedArray array = theme.obtainStyledAttributes(out.data,
+								new int[]{
+										android.R.attr.activityOpenEnterAnimation,
+										android.R.attr.activityOpenExitAnimation
+								});
+
+						r.activity.overridePendingTransition(array.getResourceId(0, 0), array.getResourceId(1, 0));
+						array.recycle();
+					}
+				} catch (Throwable e) {
+					// Ignore
+				}
+			}
 		}
 		return res;
 	}

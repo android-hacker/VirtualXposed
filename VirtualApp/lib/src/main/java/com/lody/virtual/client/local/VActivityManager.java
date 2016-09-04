@@ -374,15 +374,20 @@ public class VActivityManager {
 		getService().removePendingIntent(binder);
 	}
 
-	public boolean startActivityFromToken(IBinder token, Intent intent, Bundle options) {
-		ActivityClientRecord r = getActivityRecord(token);
+	public boolean startActivityFromToken(IBinder token, final Intent intent, final Bundle options) {
+		final ActivityClientRecord r = getActivityRecord(token);
 		if (r != null && r.activity != null) {
 			intent.setExtrasClassLoader(StubActivityRecord.class.getClassLoader());
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-				r.activity.startActivity(intent, options);
-			} else {
-				r.activity.startActivity(intent);
-			}
+			VirtualRuntime.getUIHandler().post(new Runnable() {
+				@Override
+				public void run() {
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+						r.activity.startActivity(intent, options);
+					} else {
+						r.activity.startActivity(intent);
+					}
+				}
+			});
 			return true;
 		}
 		return false;

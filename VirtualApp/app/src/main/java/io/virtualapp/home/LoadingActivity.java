@@ -10,7 +10,6 @@ import android.widget.TextView;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.proto.AppSetting;
-import com.lody.virtual.helper.utils.VLog;
 
 import io.virtualapp.R;
 import io.virtualapp.abs.ui.VUiKit;
@@ -84,10 +83,8 @@ public class LoadingActivity extends AppCompatActivity {
 						e.printStackTrace();
 					}
 				}
-			}).done((res) -> {
-				VLog.d("TTTTTTT", "launch : " + intent.getComponent());
-				VActivityManager.get().startActivity(intent, userId);
-			});
+			}).done((res) ->
+					VActivityManager.get().startActivity(intent, userId));
 		}
 	}
 
