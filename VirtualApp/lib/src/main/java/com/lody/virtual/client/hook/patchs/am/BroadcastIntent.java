@@ -33,11 +33,11 @@ import java.lang.reflect.Method;
 	public Object call(Object who, Method method, Object... args) throws Throwable {
 		Intent intent = (Intent) args[1];
 		String type = (String) args[2];
+		intent.setDataAndType(intent.getData(), type);
 		Intent newIntent = handleIntent(intent);
 		if (newIntent != null) {
 			args[1] = newIntent;
 		}
-		intent.setDataAndType(intent.getData(), type);
 		if (args[7] instanceof String || args[7] instanceof String[]) {
 			// clear the permission
 			args[7] = null;
