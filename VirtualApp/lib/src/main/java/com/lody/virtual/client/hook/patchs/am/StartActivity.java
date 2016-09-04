@@ -60,11 +60,22 @@ import java.lang.reflect.Method;
 			args[intentIndex - 1] = getHostPkg();
 		}
 
-		int res = VActivityManager.get().startActivity(intent, activityInfo, resultTo, options, userId);
-		if (resultTo != null && requestCode > 0) {
-			VActivityManager.get().sendActivityResult(resultTo, resultWho, requestCode);
+		Intent res = VActivityManager.get().startActivity(intent, activityInfo, resultTo, options, userId);
+		// If activity has been started by VAMS, res will be null,
+		// else, res will be the intent we need to start.
+		if (res == null) {
+			if (resultTo != null && requestCode > 0) {
+				// caller need to a result, give a sugar for it.
+				VActivityManager.get().sendActivityResult(resultTo, resultWho, requestCode);
+			}
+			return 0;
 		}
+
+		// We force to start the new Intent.
+		args[intentIndex] = res;
+
 		if (resultTo != null) {
+			// Only for outside-installed app.
 			ActivityClientRecord r = VActivityManager.get().getActivityRecord(resultTo);
 			if (r != null && r.activity != null && !r.activity.isTaskRoot()) {
 				try {
@@ -86,7 +97,7 @@ import java.lang.reflect.Method;
 				}
 			}
 		}
-		return res;
+		return method.invoke(who, args);
 	}
 
 }

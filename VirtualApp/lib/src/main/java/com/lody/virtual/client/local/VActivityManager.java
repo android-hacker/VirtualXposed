@@ -59,7 +59,7 @@ public class VActivityManager {
 		return mRemote;
 	}
 
-	public int startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, int userId) {
+	public Intent startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, int userId) {
 		try {
 			return getService().startActivity(intent, info, resultTo, options, userId);
 		} catch (RemoteException e) {
@@ -67,13 +67,13 @@ public class VActivityManager {
 		}
 	}
 
-	public int startActivity(Intent intent, int userId) {
+	public Intent startActivity(Intent intent, int userId) {
 		if (userId == -1) {
-			return ActivityManagerCompat.START_NOT_CURRENT_USER_ACTIVITY;
+			return null;
 		}
 		ActivityInfo info = VirtualCore.get().resolveActivityInfo(intent, userId);
 		if (info == null) {
-			return ActivityManagerCompat.START_INTENT_NOT_RESOLVED;
+			return null;
 		}
 		return startActivity(intent, info, null, null, userId);
 

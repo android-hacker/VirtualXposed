@@ -16,7 +16,6 @@ import android.util.SparseArray;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.proto.StubActivityRecord;
 import com.lody.virtual.helper.utils.ComponentUtils;
-import com.lody.virtual.helper.utils.VLog;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -210,12 +209,17 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 	}
 
 	@SuppressWarnings("deprecation")
-	public int startActivityLocked(int userId, Intent intent, ActivityInfo info, IBinder resultTo, Bundle options,
+	public Intent startActivityLocked(int userId, Intent intent, ActivityInfo info, IBinder resultTo, Bundle options,
 			int requestCode) {
 
 		optimizeTasksLocked();
 
-		Intent destIntent;
+		boolean needResult =
+				requestCode >= 0
+				&& !containFlags(intent, Intent.FLAG_ACTIVITY_NEW_TASK)
+				&& !containFlags(intent, Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+		Intent destIntent = null;
 		ActivityRecord sourceRecord = findActivityByToken(userId, resultTo);
 		TaskRecord sourceTask = sourceRecord != null ? sourceRecord.task : null;
 
@@ -327,8 +331,6 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		} else if (clearTarget != ClearTarget.TOP && ComponentUtils.isSameIntent(intent, reuseTask.taskRoot)) {
 			// In this case, we only need to move the task to front.
 			mAM.moveTaskToFront(reuseTask.taskId, 0);
-			VLog.d("ActivityStack", "Only moveTaskToFront : " + intent);
-
 		} else {
 			boolean delivered = false;
 			mAM.moveTaskToFront(reuseTask.taskId, 0);
@@ -346,12 +348,15 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 			}
 			if (!delivered) {
 				destIntent = startActivityProcess(userId, sourceRecord, intent, info);
-				if (destIntent != null) {
+				if (!needResult && destIntent != null) {
 					startActivityFromSourceTask(reuseTask, destIntent, info, options);
 				}
 			}
 		}
-		return 0;
+		if (needResult) {
+			return destIntent;
+		}
+		return null;
 	}
 
 	private void scheduleFinishMarkedActivity() {
