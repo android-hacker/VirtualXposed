@@ -22,7 +22,7 @@ import android.os.IBinder;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		IBinder token = (IBinder) args[0];
 		Intent intent = (Intent) args[1];
 		IBinder service = (IBinder) args[2];

@@ -18,7 +18,7 @@ public class GetCurrentUser extends Hook {
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		try {
 			return new UserInfo(0, "user", UserInfo.FLAG_PRIMARY);
 		} catch (Throwable e) {

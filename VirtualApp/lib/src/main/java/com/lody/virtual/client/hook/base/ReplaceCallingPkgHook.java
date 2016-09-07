@@ -15,8 +15,8 @@ public class ReplaceCallingPkgHook extends StaticHook {
 	}
 
 	@Override
-	public boolean beforeHook(Object who, Method method, Object... args) {
+	public boolean beforeCall(Object who, Method method, Object... args) {
 		HookUtils.replaceFirstAppPkg(args);
-		return super.beforeHook(who, method, args);
+		return super.beforeCall(who, method, args);
 	}
 }

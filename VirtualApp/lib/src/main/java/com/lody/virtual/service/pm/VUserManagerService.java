@@ -168,7 +168,7 @@ public class VUserManagerService extends IUserManager.Stub {
 
     @Override
     public List<UserInfo> getUsers(boolean excludeDying) {
-        checkManageUsersPermission("query users");
+        //checkManageUsersPermission("query users");
         synchronized (mPackagesLock) {
             ArrayList<UserInfo> users = new ArrayList<UserInfo>(mUsers.size());
             for (int i = 0; i < mUsers.size(); i++) {
@@ -186,7 +186,7 @@ public class VUserManagerService extends IUserManager.Stub {
 
     @Override
     public UserInfo getUserInfo(int userId) {
-        checkManageUsersPermission("query user");
+        //checkManageUsersPermission("query user");
         synchronized (mPackagesLock) {
             return getUserInfoLocked(userId);
         }
@@ -256,7 +256,7 @@ public class VUserManagerService extends IUserManager.Stub {
 
     @Override
     public Bitmap getUserIcon(int userId) {
-        checkManageUsersPermission("read users");
+        //checkManageUsersPermission("read users");
         synchronized (mPackagesLock) {
             UserInfo info = mUsers.get(userId);
             if (info == null || info.partial) {
@@ -757,7 +757,7 @@ public class VUserManagerService extends IUserManager.Stub {
         if (DBG) VLog.i(LOG_TAG, "finishRemoveUser " + userHandle);
         // Let other services shutdown any activity and clean up their state before completely
         // wiping the user's system directory and removing from the user list
-        long ident = Binder.clearCallingIdentity();
+        long identity = Binder.clearCallingIdentity();
         try {
             Intent addedIntent = new Intent(Constants.ACTION_USER_REMOVED);
             addedIntent.putExtra("_VA_|_uid_", userHandle);
@@ -784,7 +784,7 @@ public class VUserManagerService extends IUserManager.Stub {
                     },
                     null, Activity.RESULT_OK, null, null);
         } finally {
-            Binder.restoreCallingIdentity(ident);
+            Binder.restoreCallingIdentity(identity);
         }
     }
 

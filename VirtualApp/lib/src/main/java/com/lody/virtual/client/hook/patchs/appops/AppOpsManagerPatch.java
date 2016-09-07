@@ -61,12 +61,9 @@ public class AppOpsManagerPatch extends PatchDelegate<AppOpsBinderDelegate> {
 		}
 
 		@Override
-		public boolean beforeHook(Object who, Method method, Object... args) {
+		public boolean beforeCall(Object who, Method method, Object... args) {
 			if (pkgIndex != -1 && args.length > pkgIndex && args[pkgIndex] instanceof String) {
-				String pkg = (String) args[pkgIndex];
-				if (isAppPkg(pkg)) {
-					args[pkgIndex] = getHostPkg();
-				}
+				args[pkgIndex] = getHostPkg();
 			}
 			return true;
 		}

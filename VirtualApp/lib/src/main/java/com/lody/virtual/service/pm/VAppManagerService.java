@@ -299,7 +299,10 @@ public class VAppManagerService extends IAppManager.Stub {
 	public AppSetting findAppInfo(String pkg) {
 		synchronized (PackageCache.class) {
 			if (pkg != null) {
-				return (AppSetting) PackageCache.sPackageCaches.get(pkg).mExtras;
+				PackageParser.Package p = PackageCache.get(pkg);
+				if (p != null) {
+					return (AppSetting) p.mExtras;
+				}
 			}
 			return null;
 		}

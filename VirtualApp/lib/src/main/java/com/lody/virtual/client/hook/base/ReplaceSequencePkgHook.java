@@ -18,8 +18,8 @@ public class ReplaceSequencePkgHook extends StaticHook {
 	}
 
 	@Override
-	public boolean beforeHook(Object who, Method method, Object... args) {
+	public boolean beforeCall(Object who, Method method, Object... args) {
 		HookUtils.replaceSequenceAppPkg(args, sequence);
-		return super.beforeHook(who, method, args);
+		return super.beforeCall(who, method, args);
 	}
 }

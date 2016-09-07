@@ -21,15 +21,15 @@ import com.lody.virtual.client.hook.utils.HookUtils;
 	}
 
 	@Override
-	public boolean beforeHook(Object who, Method method, Object... args) {
+	public boolean beforeCall(Object who, Method method, Object... args) {
 		HookUtils.replaceFirstAppPkg(args);
-		return super.beforeHook(who, method, args);
+		return super.beforeCall(who, method, args);
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		try {
-			return super.onHook(who, method, args);
+			return super.call(who, method, args);
 		} catch (InvocationTargetException e) {
 			if (!(e.getCause() instanceof SecurityException)) {
 				throw e.getCause();

@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ProviderInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.IInterface;
@@ -15,9 +16,13 @@ import android.os.RemoteException;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.service.ServiceManagerNative;
+import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.proto.AppTaskInfo;
 import com.lody.virtual.helper.proto.PendingIntentData;
+import com.lody.virtual.helper.proto.StubActivityRecord;
 import com.lody.virtual.helper.proto.VParceledListSlice;
+import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.service.IActivityManager;
 import com.lody.virtual.service.interfaces.IProcessObserver;
 
@@ -25,7 +30,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import mirror.android.app.ActivityManagerNative;
 import mirror.android.app.ActivityThread;
+import mirror.android.app.IActivityManagerICS;
+import mirror.android.app.IActivityManagerL;
 import mirror.android.content.ContentProviderNative;
 
 /**
@@ -35,84 +43,75 @@ public class VActivityManager {
 
 	private static final VActivityManager sAM = new VActivityManager();
 
-	private IActivityManager service;
+	private IActivityManager mRemote;
 
-	private Map<IBinder, LocalActivityRecord> mActivities = new HashMap<IBinder, LocalActivityRecord>(6);
+	private final Map<IBinder, ActivityClientRecord> mActivities = new HashMap<IBinder, ActivityClientRecord>(6);
 
 	public static VActivityManager get() {
 		return sAM;
 	}
 
 	public IActivityManager getService() {
-		if (service == null) {
-			service = IActivityManager.Stub
+		if (mRemote == null) {
+			mRemote = IActivityManager.Stub
 					.asInterface(ServiceManagerNative.getService(ServiceManagerNative.ACTIVITY_MANAGER));
 		}
-		return service;
+		return mRemote;
 	}
 
-	public Intent startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, boolean fromHost, int userId) {
+	public int startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, int requestCode) {
 		try {
-			return getService().startActivity(intent, info, resultTo, options, fromHost, userId);
+			return getService().startActivity(intent, info, resultTo, options, requestCode, VUserHandle.myUserId());
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
 	}
 
-	public LocalActivityRecord onActivityCreate(Activity activity) {
-		Intent intent = activity.getIntent();
-		if (intent == null) {
-			return null;
+	public int startActivity(Intent intent, int userId) {
+		if (userId == -1) {
+			return ActivityManagerCompat.START_NOT_CURRENT_USER_ACTIVITY;
 		}
-		ActivityInfo targetActInfo = intent.getParcelableExtra("_VA_|_target_activity_");
-		ActivityInfo callerActInfo = intent.getParcelableExtra("_VA_|_caller_activity_");
-
-		// NOTE:
-		// 此处在使用LocalActivityManager启动Activity的时候是空的,因为走不到replaceIntent里,
-		// 比如掌阅会崩溃,暂时从Activity里取,没调研兼容性=_=,先用着。
-		if (targetActInfo == null) {
-			try {
-				targetActInfo = mirror.android.app.Activity.mActivityInfo.get(activity);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+		ActivityInfo info = VirtualCore.get().resolveActivityInfo(intent, userId);
+		if (info == null) {
+			return ActivityManagerCompat.START_INTENT_NOT_RESOLVED;
 		}
+		return startActivity(intent, info, null, null, userId);
 
-		IBinder token = mirror.android.app.Activity.mToken.get(activity);
-		LocalActivityRecord r = new LocalActivityRecord();
-		r.activityInfo = targetActInfo;
-		r.activity = activity;
-		r.targetIntent = intent;
+	}
+
+	public ActivityClientRecord onActivityCreate(ComponentName component, ComponentName caller, IBinder token, ActivityInfo info, Intent intent, String affinity, int taskId, int launchMode, int flags) {
+		ActivityClientRecord r = new ActivityClientRecord();
+		r.info = info;
 		mActivities.put(token, r);
 		try {
-			getService().onActivityCreated(token, targetActInfo, callerActInfo,
-					activity.getTaskId());
+			getService().onActivityCreated(component, caller, token, intent, affinity, taskId, launchMode, flags);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
 		return r;
 	}
 
-	public LocalActivityRecord getActivityRecord(IBinder token) {
-		return token == null ? null : mActivities.get(token);
+	public ActivityClientRecord getActivityRecord(IBinder token) {
+		synchronized (mActivities) {
+			return token == null ? null : mActivities.get(token);
+		}
 	}
 
 	public void onActivityResumed(Activity activity) {
 		IBinder token = mirror.android.app.Activity.mToken.get(activity);
 		try {
-			getService().onActivityResumed(token);
+			getService().onActivityResumed(VUserHandle.myUserId(), token);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void onActivityDestroy(Activity activity) {
-		IBinder token = mirror.android.app.Activity.mToken.get(activity);
+	public boolean onActivityDestroy(IBinder token) {
 		mActivities.remove(token);
 		try {
-			getService().onActivityDestroyed(token);
+			return getService().onActivityDestroyed(VUserHandle.myUserId(), token);
 		} catch (RemoteException e) {
-			e.printStackTrace();
+			return VirtualRuntime.crash(e);
 		}
 	}
 
@@ -124,9 +123,9 @@ public class VActivityManager {
 		}
 	}
 
-	public ActivityInfo getCallingActivity(IBinder token) {
+	public ComponentName getCallingActivity(IBinder token) {
 		try {
-			return getService().getCallingActivity(token);
+			return getService().getCallingActivity(VUserHandle.myUserId(), token);
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
@@ -134,31 +133,24 @@ public class VActivityManager {
 
 	public String getPackageForToken(IBinder token) {
 		try {
-			return getService().getPackageForToken(token);
+			return getService().getPackageForToken(VUserHandle.myUserId(), token);
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
 	}
 
-	public ActivityInfo getActivityInfo(IBinder token) {
+
+	public ComponentName startService(IInterface caller, Intent service, String resolvedType) {
 		try {
-			return getService().getActivityInfo(token);
+			return getService().startService(caller != null ? caller.asBinder() : null, service, resolvedType, VUserHandle.myUserId());
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
 	}
 
-	public ComponentName startService(IBinder caller, Intent service, String resolvedType) {
+	public int stopService(IInterface caller, Intent service, String resolvedType) {
 		try {
-			return getService().startService(caller, service, resolvedType);
-		} catch (RemoteException e) {
-			return VirtualRuntime.crash(e);
-		}
-	}
-
-	public int stopService(IBinder caller, Intent service, String resolvedType) {
-		try {
-			return getService().stopService(caller, service, resolvedType);
+			return getService().stopService(caller != null ? caller.asBinder() : null, service, resolvedType, VUserHandle.myUserId());
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
@@ -166,7 +158,7 @@ public class VActivityManager {
 
 	public boolean stopServiceToken(ComponentName className, IBinder token, int startId) {
 		try {
-			return getService().stopServiceToken(className, token, startId);
+			return getService().stopServiceToken(className, token, startId, VUserHandle.myUserId());
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
@@ -174,15 +166,15 @@ public class VActivityManager {
 
 	public void setServiceForeground(ComponentName className, IBinder token, int id, Notification notification, boolean keepNotification) {
 		try {
-			getService().setServiceForeground(className, token, id, notification, keepNotification);
+			getService().setServiceForeground(className, token, id, notification, keepNotification, VUserHandle.myUserId());
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public int bindService(IBinder caller, IBinder token, Intent service, String resolvedType, IServiceConnection connection, int flags) {
+	public int bindService(IBinder caller, IBinder token, Intent service, String resolvedType, IServiceConnection connection, int flags, int userId) {
 		try {
-			return getService().bindService(caller, token, service, resolvedType, connection, flags);
+			return getService().bindService(caller, token, service, resolvedType, connection, flags, userId);
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
@@ -190,7 +182,7 @@ public class VActivityManager {
 
 	public boolean unbindService(IServiceConnection connection) {
 		try {
-			return getService().unbindService(connection);
+			return getService().unbindService(connection, VUserHandle.myUserId());
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
@@ -198,7 +190,7 @@ public class VActivityManager {
 
 	public void unbindFinished(IBinder token, Intent service, boolean doRebind) {
 		try {
-			getService().unbindFinished(token, service, doRebind);
+			getService().unbindFinished(token, service, doRebind, VUserHandle.myUserId());
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -206,7 +198,7 @@ public class VActivityManager {
 
 	public void serviceDoneExecuting(IBinder token, int type, int startId, int res) {
 		try {
-			getService().serviceDoneExecuting(token, type, startId, res);
+			getService().serviceDoneExecuting(token, type, startId, res, VUserHandle.myUserId());
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -214,7 +206,7 @@ public class VActivityManager {
 
 	public IBinder peekService(Intent service, String resolvedType) {
 		try {
-			return getService().peekService(service, resolvedType);
+			return getService().peekService(service, resolvedType, VUserHandle.myUserId());
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
@@ -222,7 +214,7 @@ public class VActivityManager {
 
 	public void publishService(IBinder token, Intent intent, IBinder service) {
 		try {
-			getService().publishService(token, intent, service);
+			getService().publishService(token, intent, service, VUserHandle.myUserId());
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -230,17 +222,16 @@ public class VActivityManager {
 
 	public VParceledListSlice getServices(int maxNum, int flags) {
 		try {
-			return getService().getServices(maxNum, flags);
+			return getService().getServices(maxNum, flags, VUserHandle.myUserId());
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
 	}
 
 
-
-	public void attachClient(IBinder client) {
+	public void processRestarted(String packageName, String processName, int userId) {
 		try {
-			getService().attachClient(client);
+			getService().processRestarted(packageName, processName, userId);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -286,14 +277,6 @@ public class VActivityManager {
 		}
 	}
 
-	public void dump() {
-		try {
-			getService().dump();
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public void killApplicationProcess(String procName, int uid) {
 		try {
 			getService().killApplicationProcess(procName, uid);
@@ -310,9 +293,9 @@ public class VActivityManager {
 		}
 	}
 
-	public void killAppByPkg(String pkg, int userId) {
+	public void killAppByPkg(String pkg) {
 		try {
-			getService().killAppByPkg(pkg, userId);
+			getService().killAppByPkg(pkg, VUserHandle.myUserId());
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -350,13 +333,6 @@ public class VActivityManager {
 		}
 	}
 
-	public void ensureAppBound(String processName, String packageName, int userId) {
-		try {
-			getService().ensureAppBound(processName, packageName, userId);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
 
 	public int getUidByPid(int pid) {
 		try {
@@ -375,7 +351,7 @@ public class VActivityManager {
 	}
 
 	public void sendActivityResult(IBinder resultTo, String resultWho, int requestCode) {
-		LocalActivityRecord r = mActivities.get(resultTo);
+		ActivityClientRecord r = mActivities.get(resultTo);
 		if (r != null && r.activity != null) {
 			Object mainThread = VirtualCore.mainThread();
 			ActivityThread.sendActivityResult.call(mainThread, resultTo, resultWho, requestCode, 0, null);
@@ -398,4 +374,63 @@ public class VActivityManager {
 		getService().removePendingIntent(binder);
 	}
 
+	public boolean startActivityFromToken(IBinder token, Intent intent, int requestCode, Bundle options) {
+		ActivityClientRecord r = getActivityRecord(token);
+		if (r != null && r.activity != null) {
+			intent.setExtrasClassLoader(StubActivityRecord.class.getClassLoader());
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+				r.activity.startActivityForResult(intent, requestCode, options);
+			} else {
+				r.activity.startActivityForResult(intent, requestCode);
+			}
+			return true;
+		}
+		return false;
+	}
+
+	public void finishActivity(IBinder token) {
+		ActivityClientRecord r = getActivityRecord(token);
+		if (r != null) {
+			Activity activity = r.activity;
+			while (true) {
+				// We shouldn't use Activity.getParent(),
+				// because It may be overwritten.
+				Activity parent = mirror.android.app.Activity.mParent.get(activity);
+				if (parent == null) {
+					break;
+				}
+				activity = parent;
+			}
+			// We shouldn't use Activity.isFinishing(),
+			// because It may be overwritten.
+			if (!mirror.android.app.Activity.mFinished.get(activity)) {
+				int resultCode = mirror.android.app.Activity.mResultCode.get(activity);
+				Intent resultData = mirror.android.app.Activity.mResultData.get(activity);
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+					IActivityManagerL.finishActivity.call(
+							ActivityManagerNative.getDefault.call(),
+							token,
+							resultCode,
+							resultData,
+							false
+					);
+				} else {
+					IActivityManagerICS.finishActivity.call(
+							ActivityManagerNative.getDefault.call(),
+							token,
+							resultCode,
+							resultData
+					);
+				}
+				mirror.android.app.Activity.mFinished.set(activity, true);
+			}
+		}
+	}
+
+	public void sendBroadcast(Intent intent, int userId) {
+		Intent newIntent = ComponentUtils.redirectBroadcastIntent(intent, userId);
+		if (newIntent != null) {
+			VirtualCore.get().getContext().sendBroadcast(newIntent);
+		}
+	}
 }

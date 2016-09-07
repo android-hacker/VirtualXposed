@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		ComponentName componentName = (ComponentName) args[0];
 		int flags = (int) args[1];
 		if (getHostPkg().equals(componentName.getPackageName())) {

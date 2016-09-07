@@ -26,10 +26,11 @@ import java.lang.reflect.Method;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		IInterface caller = (IInterface) args[0];
 		Intent intent = (Intent) args[1];
 		String resolvedType = (String) args[2];
+		intent.setDataAndType(intent.getData(), resolvedType);
 		ComponentName componentName = intent.getComponent();
 		PackageManager pm = VirtualCore.getPM();
 		if (componentName == null) {
@@ -38,11 +39,8 @@ import java.lang.reflect.Method;
 				componentName = new ComponentName(resolveInfo.serviceInfo.packageName, resolveInfo.serviceInfo.name);
 			}
 		}
-		if (componentName != null) {
-			String pkgName = componentName.getPackageName();
-			if (isAppPkg(pkgName)) {
-				return VActivityManager.get().stopService(caller.asBinder(), intent, resolvedType);
-			}
+		if (componentName != null && !getHostPkg().equals(componentName.getPackageName())) {
+			return VActivityManager.get().stopService(caller, intent, resolvedType);
 		}
 		return method.invoke(who, args);
 	}

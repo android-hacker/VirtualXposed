@@ -25,43 +25,43 @@ import mirror.android.app.IActivityManager;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		String name = (String) args[getProviderNameIndex()];
 		int userId = VUserHandle.myUserId();
-		Object holder;
 		ProviderInfo info = VPackageManager.get().resolveContentProvider(name, 0, userId);
 		if (info != null) {
 			if (info.processName.equals(VirtualRuntime.getProcessName())) {
 				return IActivityManager.ContentProviderHolder.ctor.newInstance(info);
 			}
 			IInterface client = VActivityManager.get().acquireProviderClient(userId, info);
-			holder = IActivityManager.ContentProviderHolder.ctor.newInstance(info);
+			Object holder = IActivityManager.ContentProviderHolder.ctor.newInstance(info);
 			IActivityManager.ContentProviderHolder.info.set(holder, info);
 			IActivityManager.ContentProviderHolder.provider.set(holder, client);
 			IActivityManager.ContentProviderHolder.noReleaseNeeded.set(holder, true);
+			return holder;
 		} else {
-			 holder = method.invoke(who, args);
-		}
-		if (holder == null) {
-			return null;
-		}
-		boolean externalCP = info == null;
-		if (externalCP) {
-			info = IActivityManager.ContentProviderHolder.info.get(holder);
-			if (!shouldVisible(info)) {
-				return null;
+			Object holder = method.invoke(who, args);
+			if (holder != null) {
+				info = IActivityManager.ContentProviderHolder.info.get(holder);
+				if (!shouldVisible(info)) {
+					return null;
+				}
+				IInterface provider = IActivityManager.ContentProviderHolder.provider.get(holder);
+				if (!ProviderHook.class.isInstance(provider)) {
+					ProviderHook.HookFetcher fetcher = ProviderHook.fetchHook(info.authority);
+					if (fetcher != null) {
+						ProviderHook hook = fetcher.fetch(true, info, provider);
+						if (hook != null) {
+							IInterface proxyProvider = ProviderHook.createProxy(provider, hook);
+							if (proxyProvider != null) {
+								IActivityManager.ContentProviderHolder.provider.set(holder, proxyProvider);
+							}
+						}
+					}
+				}
 			}
+			return holder;
 		}
-		IInterface client = IActivityManager.ContentProviderHolder.provider.get(holder);
-		ProviderHook.HookFetcher fetcher = ProviderHook.fetchHook(info.authority);
-		if (fetcher != null) {
-			ProviderHook hook = fetcher.fetch(externalCP, info, client);
-			IInterface proxyClient = ProviderHook.createProxy(client, hook);
-			if (proxyClient != null) {
-				IActivityManager.ContentProviderHolder.provider.set(holder, proxyClient);
-			}
-		}
-		return holder;
 	}
 
 	private boolean shouldVisible(ProviderInfo info) {

@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.proto.AppSetting;
 
 import io.virtualapp.R;
@@ -22,6 +23,7 @@ public class LoadingActivity extends AppCompatActivity {
 
 	private static final String MODEL_ARGUMENT = "MODEL_ARGUMENT";
 	private static final String KEY_INTENT = "KEY_INTENT";
+	private static final String KEY_USER = "KEY_USER";
 	private AppModel appModel;
 
 	public static void launch(Context context, AppModel model, int userId) {
@@ -31,6 +33,7 @@ public class LoadingActivity extends AppCompatActivity {
 			loadingPageIntent.putExtra(MODEL_ARGUMENT, model);
 			loadingPageIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			loadingPageIntent.putExtra(KEY_INTENT, intent);
+			loadingPageIntent.putExtra(KEY_USER, userId);
 			context.startActivity(loadingPageIntent);
 		}
 	}
@@ -41,6 +44,7 @@ public class LoadingActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_loading);
 
 		appModel = getIntent().getParcelableExtra(MODEL_ARGUMENT);
+		int userId = getIntent().getIntExtra(KEY_USER, -1);
 
 		VUiKit.defer().when(() -> {
 			AppSetting appSetting = VirtualCore.get().findApp(appModel.packageName);
@@ -60,7 +64,7 @@ public class LoadingActivity extends AppCompatActivity {
 		}
 
 		Intent intent = getIntent().getParcelableExtra(KEY_INTENT);
-		VirtualCore.get().addLoadingPage(intent, this);
+		VirtualCore.get().setLoadingPage(intent, this);
 		if (intent != null) {
 			VUiKit.defer().when(() -> {
 				long startTime = System.currentTimeMillis();
@@ -79,7 +83,8 @@ public class LoadingActivity extends AppCompatActivity {
 						e.printStackTrace();
 					}
 				}
-			}).done((res) -> startActivity(intent));
+			}).done((res) ->
+					VActivityManager.get().startActivity(intent, userId));
 		}
 	}
 

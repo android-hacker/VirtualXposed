@@ -20,13 +20,13 @@ import java.lang.reflect.Method;
 	}
 
 	@Override
-	public boolean beforeHook(Object who, Method method, Object... args) {
+	public boolean beforeCall(Object who, Method method, Object... args) {
 		HookUtils.replaceFirstAppPkg(args);
-		return super.beforeHook(who, method, args);
+		return super.beforeCall(who, method, args);
 	}
 
 	@Override
-	public Object afterHook(Object who, Method method, Object[] args, Object result) throws Throwable {
+	public Object afterCall(Object who, Method method, Object[] args, Object result) throws Throwable {
 		return result;
 	}
 }

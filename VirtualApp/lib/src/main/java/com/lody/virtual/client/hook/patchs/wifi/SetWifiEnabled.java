@@ -19,7 +19,7 @@ import com.lody.virtual.client.hook.utils.HookUtils;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		// 部分设备有callingPkg参数，部分设备没有
 		HookUtils.replaceFirstAppPkg(args);
 		return method.invoke(who, args);

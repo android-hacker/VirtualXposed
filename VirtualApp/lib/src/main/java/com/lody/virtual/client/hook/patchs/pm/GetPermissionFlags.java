@@ -20,7 +20,7 @@ import android.os.Build;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		// TODO
 		return method.invoke(who, args);
 	}

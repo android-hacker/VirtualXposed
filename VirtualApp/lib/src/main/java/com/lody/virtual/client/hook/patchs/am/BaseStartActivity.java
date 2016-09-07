@@ -14,7 +14,7 @@ import android.os.RemoteException;
 public abstract class BaseStartActivity extends Hook {
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		int indexOfIntent = ArrayUtils.indexOfFirst(args, Intent.class);
 		if (indexOfIntent != -1)
 			args[indexOfIntent] = filterIntent((Intent) args[indexOfIntent]);

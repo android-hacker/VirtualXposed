@@ -1,5 +1,6 @@
 package com.lody.virtual.client.core;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -43,6 +44,7 @@ import mirror.android.app.ActivityThread;
  */
 public final class VirtualCore {
 
+	@SuppressLint("StaticFieldLeak")
 	private static VirtualCore gCore = new VirtualCore();
 	/**
 	 * Client Package Manager
@@ -98,14 +100,6 @@ public final class VirtualCore {
 		return get().mainThread;
 	}
 
-
-	public static String getReceiverAction(String packageName, String className) {
-		if (className != null && className.startsWith(".")) {
-			className = packageName + className;
-		}
-		String extAction = packageName + "_" + className;
-		return String.format("%s.BRC_%s", get().getHostPkg(), extAction);
-	}
 
 	public int[] getGids() {
 		return hostPkgInfo.gids;
@@ -262,18 +256,17 @@ public final class VirtualCore {
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		intent.setClassName(ris.get(0).activityInfo.packageName,
 				ris.get(0).activityInfo.name);
-		intent.putExtra("_VA_|_user_id_", userId);
 		return intent;
 	}
 
 
-	public void addLoadingPage(Intent intent, Activity activity) {
+	public void setLoadingPage(Intent intent, Activity activity) {
 		if (activity != null) {
-			addLoadingPage(intent, mirror.android.app.Activity.mToken.get(activity));
+			setLoadingPage(intent, mirror.android.app.Activity.mToken.get(activity));
 		}
 	}
 
-	public void addLoadingPage(Intent intent, IBinder token) {
+	public void setLoadingPage(Intent intent, IBinder token) {
 		if (token != null) {
 			Bundle bundle = new Bundle();
 			BundleCompat.putBinder(bundle, "_VA_|_loading_token_", token);
@@ -325,6 +318,7 @@ public final class VirtualCore {
 		return TextUtils.equals(pkgName, context.getPackageName());
 	}
 
+
 	public synchronized ActivityInfo resolveActivityInfo(Intent intent, int userId) {
 		ActivityInfo activityInfo = null;
 		if (intent.getComponent() == null) {
@@ -369,8 +363,8 @@ public final class VirtualCore {
 		return serviceInfo;
 	}
 
-	public void killApp(String pkg, int userId) {
-		VActivityManager.get().killAppByPkg(pkg, userId);
+	public void killApp(String pkg) {
+		VActivityManager.get().killAppByPkg(pkg);
 	}
 
 	public void killAllApps() {

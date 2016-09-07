@@ -26,7 +26,7 @@ import static android.content.pm.PackageManager.GET_DISABLED_COMPONENTS;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		ComponentName componentName = (ComponentName) args[0];
 		if (getHostPkg().equals(componentName.getPackageName())) {
 			return method.invoke(who, args);

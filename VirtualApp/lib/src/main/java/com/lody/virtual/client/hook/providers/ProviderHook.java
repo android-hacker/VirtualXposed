@@ -62,6 +62,7 @@ public class ProviderHook implements InvocationHandler {
 		return fetcher;
 	}
 
+
 	public Bundle call(Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
 
 		return (Bundle) method.invoke(mBase, args);

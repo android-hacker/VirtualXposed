@@ -1,16 +1,12 @@
 package com.lody.virtual.client.hook.secondary;
 
-import android.app.IServiceConnection;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.IInterface;
-import android.os.RemoteException;
 
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.utils.VLog;
-import com.lody.virtual.helper.utils.collection.ArrayMap;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
@@ -23,11 +19,9 @@ import java.util.Map;
  * @author Lody
  */
 
-public class HackServiceConnection extends IServiceConnection.Stub {
+public class ProxyServiceFactory {
 
-	public static ArrayMap<IBinder, HackServiceConnection> sHackConns = new ArrayMap<>();
-
-	private static final String TAG = HackServiceConnection.class.getSimpleName();
+	private static final String TAG = ProxyServiceFactory.class.getSimpleName();
 
 	private static Map<String, ServiceFetcher> sHookSecondaryServiceMap = new HashMap<>();
 
@@ -42,7 +36,6 @@ public class HackServiceConnection extends IServiceConnection.Stub {
 							@Override
 							public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 								if (args != null && args.length > 0) {
-									dumpCallingInfo(false, method, args);
 									for (Object arg : args) {
 										if (arg instanceof Bundle) {
 											Bundle bundle = (Bundle) arg;
@@ -54,7 +47,6 @@ public class HackServiceConnection extends IServiceConnection.Stub {
 											}
 										}
 									}
-									dumpCallingInfo(true, method, args);
 								}
 								return method.invoke(base, args);
 							}
@@ -73,9 +65,6 @@ public class HackServiceConnection extends IServiceConnection.Stub {
 						return new InvocationHandler() {
 							@Override
 							public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-								if (args != null && args.length > 0) {
-									dumpCallingInfo(false, method, args);
-								}
 								return method.invoke(base, args);
 							}
 						};
@@ -94,13 +83,12 @@ public class HackServiceConnection extends IServiceConnection.Stub {
 						return new InvocationHandler() {
 							@Override
 							public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-								dumpCallingInfo(false, method, args);
 								if (args != null && args.length > 0) {
 									String name = args[args.length - 1].getClass().getName();
 									if ("com.google.android.gms.common.internal.GetServiceRequest".equals(name)
 											|| "com.google.android.gms.common.internal.ValidateAccountRequest"
 													.equals(name)) {
-										args[args.length - 1] = modifyObject(args[args.length - 1]);
+										args[args.length - 1] = replaceObjectPkgFields(args[args.length - 1]);
 									}
 									String hostPkg = VirtualCore.get().getHostPkg();
 									String pkg = context.getPackageName();
@@ -112,13 +100,12 @@ public class HackServiceConnection extends IServiceConnection.Stub {
 										i++;
 									}
 								}
-								dumpCallingInfo(true, method, args);
 								return method.invoke(base, args);
 							}
 						};
 					}
 
-					private Object modifyObject(Object object) {
+					private Object replaceObjectPkgFields(Object object) {
 						for (Field field : object.getClass().getDeclaredFields()) {
 							field.setAccessible(true);
 							if ((field.getModifiers() & Modifier.STATIC) == 0) {
@@ -139,59 +126,28 @@ public class HackServiceConnection extends IServiceConnection.Stub {
 		});
 	}
 
-	private Context mContext;
-	private IServiceConnection mConnection;
 
-	public HackServiceConnection(Context context, IServiceConnection connection) {
-		this.mContext = context;
-		this.mConnection = connection;
-	}
-
-	private static void dumpCallingInfo(boolean hooked, Method method, Object[] args) {
-		StringBuilder stringBuilder = new StringBuilder(20);
-		stringBuilder.append(hooked ? "after-" : "before-");
-		stringBuilder.append("call ");
-		stringBuilder.append(method.getDeclaringClass().getName());
-		stringBuilder.append(".");
-		stringBuilder.append(method.getName());
-		stringBuilder.append("(");
-		if (args != null) {
-			for (Object arg : args) {
-				if (arg == null) {
-					stringBuilder.append("null, ");
-				} else {
-					stringBuilder.append(arg.getClass().getSimpleName());
-					stringBuilder.append("(");
-					stringBuilder.append(arg.toString());
-					stringBuilder.append("), ");
-				}
-			}
+	public static IBinder getProxyService(Context context, ComponentName component, IBinder binder) {
+		if (context == null) {
+			return null;
 		}
-		stringBuilder.append(")");
-		VLog.d(TAG, stringBuilder.toString());
-	}
-
-	@Override
-	public void connected(ComponentName component, IBinder binder) throws RemoteException {
 		try {
 			String description = binder.getInterfaceDescriptor();
 			ServiceFetcher fetcher = sHookSecondaryServiceMap.get(description);
 			if (fetcher != null) {
-				IBinder res = fetcher.getService(mContext, mContext.getClassLoader(), binder);
+				IBinder res = fetcher.getService(context, context.getClassLoader(), binder);
 				if (res != null) {
-					binder = res;
+					return res;
 				}
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
-		mConnection.connected(component, binder);
+		return null;
 	}
 
-	@Override
-	public IBinder asBinder() {
-		return mConnection.asBinder();
-	}
+
+
 
 	private interface ServiceFetcher {
 		IBinder getService(Context context, ClassLoader classLoader, IBinder binder);

@@ -10,14 +10,14 @@ import com.lody.virtual.client.stub.ShortcutHandleActivity;
  */
 public class Constants {
 
-	public static final String META_KEY_IDENTITY = "X-Identity";
+	public static String META_KEY_IDENTITY = "X-Identity";
 
-	public static final String META_VALUE_STUB = "Stub-User";
+	public static String META_VALUE_STUB = "Stub-User";
 
 	/**
 	 * Server process name of VA
 	 */
-	public static final String SERVER_PROCESS_NAME = ":x";
+	public static String SERVER_PROCESS_NAME = ":x";
 	/**
 	 * Install shortcut action
 	 */
@@ -45,11 +45,11 @@ public class Constants {
 	/**
 	 * The activity who handle the shortcut.
 	 */
-	public static final String SHORTCUT_PROXY_ACTIVITY_NAME = ShortcutHandleActivity.class.getName();
+	public static String SHORTCUT_PROXY_ACTIVITY_NAME = ShortcutHandleActivity.class.getName();
 
-	public static final String ACTION_INSTALL_PACKAGE = "android.intent.action.VIRTUAL_INSTALL_PACKAGE";
+	public static String ACTION_INSTALL_PACKAGE = "android.intent.action.VIRTUAL_INSTALL_PACKAGE";
 
-	public static final String ACTION_UNINSTALL_PACKAGE = "android.intent.action.VIRTUAL_UNINSTALL_PACKAGE";
+	public static String ACTION_UNINSTALL_PACKAGE = "android.intent.action.VIRTUAL_UNINSTALL_PACKAGE";
 	
 	public static final String ACTION_USER_ADDED = "virtual." + "android.intent.action.USER_ADDED";
 	public static final String ACTION_USER_REMOVED = "virtual." + "android.intent.action.USER_REMOVED";

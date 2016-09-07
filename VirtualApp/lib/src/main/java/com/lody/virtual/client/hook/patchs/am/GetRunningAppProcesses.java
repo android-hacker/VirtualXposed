@@ -21,7 +21,7 @@ import java.util.List;
 	}
 
 	@Override
-	public synchronized Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public synchronized Object call(Object who, Method method, Object... args) throws Throwable {
 		List<ActivityManager.RunningAppProcessInfo> infoList = (List<ActivityManager.RunningAppProcessInfo>) method
 				.invoke(who, args);
 		if (infoList != null) {

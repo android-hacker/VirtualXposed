@@ -1,10 +1,10 @@
 package com.lody.virtual.client.hook.patchs.input;
 
-import java.lang.reflect.Method;
+import android.view.inputmethod.EditorInfo;
 
 import com.lody.virtual.client.hook.base.Hook;
 
-import android.view.inputmethod.EditorInfo;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -21,13 +21,10 @@ import android.view.inputmethod.EditorInfo;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		if (args.length > 2 && args[2] instanceof EditorInfo) {
 			EditorInfo attribute = (EditorInfo) args[2];
-			String pkgName = attribute.packageName;
-			if (isAppPkg(pkgName)) {
-				attribute.packageName = getHostPkg();
-			}
+			attribute.packageName = getHostPkg();
 		}
 		return method.invoke(who, args);
 	}

@@ -22,7 +22,7 @@ public class CheckPermission extends Hook {
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		String permission = (String) args[0];
 		if (Manifest.permission.ACCOUNT_MANAGER.equals(permission)) {
 			return PackageManager.PERMISSION_GRANTED;

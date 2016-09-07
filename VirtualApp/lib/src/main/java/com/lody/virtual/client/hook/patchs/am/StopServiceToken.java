@@ -1,12 +1,12 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
+import android.content.ComponentName;
+import android.os.IBinder;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VActivityManager;
 
-import android.content.ComponentName;
-import android.os.IBinder;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
@@ -22,15 +22,12 @@ import android.os.IBinder;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		ComponentName componentName = (ComponentName) args[0];
 		IBinder token = (IBinder) args[1];
 		int startId = (int) args[2];
 		if (componentName != null) {
-			String pkgName = componentName.getPackageName();
-			if (isAppPkg(pkgName)) {
-				return VActivityManager.get().stopServiceToken(componentName, token, startId);
-			}
+			return VActivityManager.get().stopServiceToken(componentName, token, startId);
 		}
 		return method.invoke(who, args);
 	}

@@ -93,7 +93,7 @@ public class ActivityManagerPatch extends PatchDelegate<HookDelegate<IInterface>
 			addHook(new ReplaceCallingPkgHook("setAppLockedVerifying"));
 			addHook(new StaticHook("checkUriPermission") {
 				@Override
-				public Object afterHook(Object who, Method method, Object[] args, Object result) throws Throwable {
+				public Object afterCall(Object who, Method method, Object[] args, Object result) throws Throwable {
 					return PackageManager.PERMISSION_GRANTED;
 				}
 			});
@@ -107,7 +107,7 @@ public class ActivityManagerPatch extends PatchDelegate<HookDelegate<IInterface>
 		}
 
 		@Override
-		public boolean beforeHook(Object who, Method method, Object... args) {
+		public boolean beforeCall(Object who, Method method, Object... args) {
 			int userId = (int) args[0];
 			return userId == 0;
 		}

@@ -14,11 +14,10 @@ import java.lang.reflect.Method;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		String pkgName = (String) args[0];
-		if (isAppPkg(pkgName)) {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
+		if (args[0] instanceof String) {
 			args[0] = getHostPkg();
 		}
-		return super.onHook(who, method, args);
+		return super.call(who, method, args);
 	}
 }

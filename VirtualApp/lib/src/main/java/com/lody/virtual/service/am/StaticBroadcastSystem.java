@@ -24,10 +24,10 @@ import java.util.ListIterator;
 public class StaticBroadcastSystem {
 
 	private final ArrayMap<String, List<BroadcastReceiver>> mReceivers = new ArrayMap<>();
-	private Context mContext;
-	private StaticScheduler mScheduler;
-	private VActivityManagerService mAMS;
-	private VAppManagerService mApp;
+	private final Context mContext;
+	private final StaticScheduler mScheduler;
+	private final VActivityManagerService mAMS;
+	private final VAppManagerService mApp;
 
 	public StaticBroadcastSystem(Context context, VActivityManagerService ams, VAppManagerService app) {
 		this.mContext = context;
@@ -104,8 +104,10 @@ public class StaticBroadcastSystem {
 		public void onReceive(Context context, Intent intent) {
 			if (!mApp.isBooting()) {
 				PendingResult result = goAsync();
-				if (!mAMS.handleStaticBroadcast(appId, info, intent, this, result)) {
-					result.finish();
+				synchronized (mAMS) {
+					if (!mAMS.handleStaticBroadcast(appId, info, intent, this, result)) {
+						result.finish();
+					}
 				}
 			}
 		}

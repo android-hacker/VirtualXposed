@@ -16,7 +16,6 @@ import java.lang.reflect.Method;
  *
  *         Android 4.4+
  *
- *         @see android.content.pm.IPackageManager#queryIntentContentProviders(Intent, String, int, int)
  */
 @SuppressWarnings("unchecked")
 @TargetApi(Build.VERSION_CODES.KITKAT)
@@ -28,7 +27,7 @@ import java.lang.reflect.Method;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		int userId = VUserHandle.myUserId();
 		return VPackageManager.get().queryIntentContentProviders((Intent) args[0], (String) args[1],
 				(Integer) args[2], userId);

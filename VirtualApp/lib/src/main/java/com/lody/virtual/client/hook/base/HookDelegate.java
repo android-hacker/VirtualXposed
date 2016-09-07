@@ -154,9 +154,9 @@ public abstract class HookDelegate<T> implements IHookObject {
 			Hook hook = getHook(method.getName());
 			try {
 				if (hook != null && hook.isEnable()) {
-					if (hook.beforeHook(mBaseInterface, method, args)) {
-						Object res = hook.onHook(mBaseInterface, method, args);
-						res = hook.afterHook(mBaseInterface, method, args, res);
+					if (hook.beforeCall(mBaseInterface, method, args)) {
+						Object res = hook.call(mBaseInterface, method, args);
+						res = hook.afterCall(mBaseInterface, method, args, res);
 						return res;
 					}
 				}

@@ -1,9 +1,15 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
+import android.content.pm.ProviderInfo;
+
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VPackageManager;
+import com.lody.virtual.helper.compat.ParceledListSliceCompat;
 
 import java.lang.reflect.Method;
+import java.util.List;
+
+import mirror.android.content.pm.ParceledListSlice;
 
 /**
  * @author Lody
@@ -24,10 +30,14 @@ import java.lang.reflect.Method;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		String processName = (String) args[0];
 		int flags = (int) args[2];
-		return VPackageManager.get().queryContentProviders(processName, flags, 0);
+		List<ProviderInfo> infos = VPackageManager.get().queryContentProviders(processName, flags, 0);
+		if (ParceledListSliceCompat.isReturnParceledListSlice(method)) {
+			return ParceledListSliceCompat.create(infos);
+		}
+		return infos;
 	}
 
 }

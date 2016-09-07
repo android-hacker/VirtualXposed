@@ -4,7 +4,6 @@ import android.app.IServiceConnection;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.os.IBinder;
-import android.os.IInterface;
 import android.os.RemoteException;
 
 import java.util.ArrayList;
@@ -14,13 +13,11 @@ public class ServiceRecord {
 	public final List<ServiceBoundRecord> mBoundRecords = new ArrayList<>();
 	public long activeSince;
 	public long lastActivityTime;
-	public int pid;
-	public int uid;
 	public ServiceInfo serviceInfo;
 	public IBinder token;
 	public int startId;
 	public IBinder binder;
-	public IInterface targetAppThread;
+	public ProcessRecord process;
 	public boolean doRebind = false;
 
 	public boolean hasSomeBound() {

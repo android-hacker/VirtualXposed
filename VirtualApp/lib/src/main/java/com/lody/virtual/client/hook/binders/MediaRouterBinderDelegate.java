@@ -20,6 +20,9 @@ public class MediaRouterBinderDelegate extends HookBinderDelegate {
     @Override
     public IInterface createInterface() {
         IBinder binder = ServiceManager.getService.call(Context.MEDIA_ROUTER_SERVICE);
-        return IMediaRouterService.Stub.asInterface.call(binder);
+        if (IMediaRouterService.Stub.asInterface != null) {
+            return IMediaRouterService.Stub.asInterface.call(binder);
+        }
+        return null;
     }
 }

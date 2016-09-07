@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
+import com.lody.virtual.client.local.VActivityManager;
+
 import java.net.URISyntaxException;
 
 /**
@@ -17,20 +19,20 @@ public class ShortcutHandleActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		finish();
 		Intent intent = getIntent();
 		if (intent != null) {
+			int userId = intent.getIntExtra("_VA_|_user_id_", 0);
 			Intent forwardIntent = getTargetIntent();
 			if (forwardIntent != null) {
-				forwardIntent.putExtras(intent);
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
 					forwardIntent.setSelector(null);
 				}
 				try {
-					startActivity(forwardIntent);
+					VActivityManager.get().startActivity(forwardIntent, userId);
 				} catch (Throwable e) {
 					e.printStackTrace();
 				}
-				finish();
 			}
 		}
 	}

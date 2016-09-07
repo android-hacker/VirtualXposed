@@ -34,7 +34,7 @@ public class LocationManagerPatch extends PatchDelegate<LocationBinderDelegate> 
 			super(name);
 		}
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			if (args.length > 0) {
 				Object request = args[0];
 				if (LocationRequestL.mHideFromAppOps != null) {
@@ -44,7 +44,7 @@ public class LocationManagerPatch extends PatchDelegate<LocationBinderDelegate> 
 					LocationRequestL.mWorkSource.set(request, null);
 				}
 			}
-			return super.onHook(who, method, args);
+			return super.call(who, method, args);
 		}
 	}
 

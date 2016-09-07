@@ -46,7 +46,7 @@ import mirror.android.content.IIntentReceiverJB;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
+	public Object call(Object who, Method method, Object... args) throws Throwable {
 		HookUtils.replaceFirstAppPkg(args);
 		args[IDX_RequiredPermission] = null;
 		IntentFilter filter = (IntentFilter) args[IDX_IntentFilter];

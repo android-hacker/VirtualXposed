@@ -84,7 +84,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
 			return Mgr.getPassword(account);
 		}
@@ -97,7 +97,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
 			String key = (String) args[1];
 			return Mgr.getUserData(account, key);
@@ -111,7 +111,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			return Mgr.getAuthenticatorTypes();
 		}
 	}
@@ -123,7 +123,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			String accountType = (String) args[0];
 			return Mgr.getAccounts(accountType);
 		}
@@ -136,7 +136,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			String packageName = (String) args[0];
 			return Mgr.getAccounts(null);
 		}
@@ -149,7 +149,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			String type = (String) args[0];
 			String packageName = (String) args[1];
 			return Mgr.getAccounts(type);
@@ -163,7 +163,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			String accountType = (String) args[0];
 			return Mgr.getAccounts(accountType);
 		}
@@ -176,7 +176,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			Account account = (Account) args[1];
 			String[] features = (String[]) args[2];
@@ -192,7 +192,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			String accountType = (String) args[1];
 			String[] features = (String[]) args[2];
@@ -208,7 +208,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
 			String password = (String) args[1];
 			Bundle extras = (Bundle) args[2];
@@ -223,7 +223,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			Account account = (Account) args[1];
 			boolean expectActivityLaunch = (boolean) args[2];
@@ -239,7 +239,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			Account account = (Account) args[1];
 			boolean expectActivityLaunch = (boolean) args[2];
@@ -255,7 +255,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
 			return Mgr.removeAccountExplicitly(account);
 		}
@@ -268,7 +268,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			Account account = (Account) args[1];
 			int userFrom = (int) args[2];
@@ -285,7 +285,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			String accountType = (String) args[0];
 			String authToken = (String) args[1];
 			Mgr.invalidateAuthToken(accountType, authToken);
@@ -300,7 +300,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
 			String authTokenType = (String) args[1];
 			return Mgr.peekAuthToken(account, authTokenType);
@@ -314,7 +314,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
 			String authTokenType = (String) args[1];
 			String authToken = (String) args[2];
@@ -330,7 +330,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
 			String password = (String) args[1];
 			Mgr.setPassword(account, password);
@@ -345,7 +345,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
 			Mgr.clearPassword(account);
 			return 0;
@@ -359,7 +359,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
 			String key = (String) args[1];
 			String value = (String) args[2];
@@ -375,7 +375,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
 			String authTokenType = (String) args[1];
 			int uid = (int) args[2];
@@ -392,7 +392,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			Account account = (Account) args[1];
 			String authTokenType = (String) args[2];
@@ -411,7 +411,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			String accountType = (String) args[1];
 			String authTokenType = (String) args[2];
@@ -430,7 +430,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			String accountType = (String) args[1];
 			String authTokenType = (String) args[2];
@@ -449,7 +449,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			Account account = (Account) args[1];
 			String authTokenType = (String) args[2];
@@ -467,7 +467,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			String authTokenType = (String) args[1];
 			boolean expectActivityLaunch = (boolean) args[2];
@@ -483,7 +483,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			Account account = (Account) args[1];
 			Bundle options = (Bundle) args[2];
@@ -501,7 +501,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
 			return Mgr.accountAuthenticated(account);
 		}
@@ -514,7 +514,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			String accountType = (String) args[1];
 			String authTokenType = (String) args[2];
@@ -530,7 +530,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
 			int userId = (int) args[1];
 			return method.invoke(who, args);
@@ -544,7 +544,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			int userId = (int) args[0];
 			return method.invoke(who, args);
 		}
@@ -557,7 +557,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
 			int userId = (int) args[1];
 			return method.invoke(who, args);
@@ -571,7 +571,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			IAccountManagerResponse response = (IAccountManagerResponse) args[0];
 			Account accountToRename = (Account) args[1];
 			String newName = (String) args[2];
@@ -587,7 +587,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			Account account = (Account) args[0];
 			return Mgr.getPreviousName(account);
 		}
@@ -600,7 +600,7 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		}
 
 		@Override
-		public Object onHook(Object who, Method method, Object... args) throws Throwable {
+		public Object call(Object who, Method method, Object... args) throws Throwable {
 			Account accountToRename = (Account) args[0];
 			String newName = (String) args[1];
 			int userId = (int) args[2];

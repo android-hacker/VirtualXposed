@@ -16,8 +16,8 @@ import java.lang.reflect.Method;
 	}
 
 	@Override
-	public Object onHook(Object who, Method method, Object... args) throws Throwable {
-		return method.invoke(who, args);
+	public Object call(Object who, Method method, Object... args) throws Throwable {
+		return "com.android.vending";
 	}
 
 	@Override
