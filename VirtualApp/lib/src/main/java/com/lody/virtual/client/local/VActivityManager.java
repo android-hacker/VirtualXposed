@@ -13,6 +13,7 @@ import android.os.IBinder;
 import android.os.IInterface;
 import android.os.RemoteException;
 
+import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.service.ServiceManagerNative;
@@ -21,6 +22,8 @@ import com.lody.virtual.helper.proto.AppTaskInfo;
 import com.lody.virtual.helper.proto.PendingIntentData;
 import com.lody.virtual.helper.proto.StubActivityRecord;
 import com.lody.virtual.helper.proto.VParceledListSlice;
+import com.lody.virtual.helper.utils.ArrayUtils;
+import com.lody.virtual.helper.utils.ClassUtils;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.service.IActivityManager;
@@ -34,6 +37,7 @@ import mirror.android.app.ActivityManagerNative;
 import mirror.android.app.ActivityThread;
 import mirror.android.app.IActivityManagerICS;
 import mirror.android.app.IActivityManagerL;
+import mirror.android.app.IApplicationThread;
 import mirror.android.content.ContentProviderNative;
 
 /**
@@ -374,15 +378,38 @@ public class VActivityManager {
 		getService().removePendingIntent(binder);
 	}
 
-	public boolean startActivityFromToken(IBinder token, Intent intent, int requestCode, Bundle options) {
-		ActivityClientRecord r = getActivityRecord(token);
+	public boolean startActivityFromToken(IBinder resultTo, Intent intent, int requestCode, Bundle options) {
+		ActivityClientRecord r = getActivityRecord(resultTo);
 		if (r != null && r.activity != null) {
 			intent.setExtrasClassLoader(StubActivityRecord.class.getClassLoader());
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-				r.activity.startActivityForResult(intent, requestCode, options);
-			} else {
-				r.activity.startActivityForResult(intent, requestCode);
+			String resultWho = mirror.android.app.Activity.mEmbeddedID.get(r.activity);
+			Class<?>[] types = mirror.android.app.IActivityManager.startActivity.paramList();
+			Object[] args = new Object[types.length];
+			if (types[0] == IApplicationThread.Class) {
+				args[0] = VClientImpl.getClient().getAppThread();
 			}
+			int intentIndex = ArrayUtils.protoIndexOf(types, Intent.class);
+			int resultToIndex = ArrayUtils.protoIndexOf(types, IBinder.class, 2);
+			int optionsIndex = ArrayUtils.protoIndexOf(types, Bundle.class);
+			int resultWhoIndex = resultToIndex + 1;
+			int requestCodeIndex = resultToIndex + 2;
+
+			args[intentIndex] = intent;
+			args[resultToIndex] = resultTo;
+			args[resultWhoIndex] = resultWho;
+			args[requestCodeIndex] = requestCode;
+			if (optionsIndex != -1) {
+				args[optionsIndex] = options;
+			}
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+				args[intentIndex - 1] = VirtualCore.get().getHostPkg();
+			}
+			ClassUtils.fixArgs(types, args);
+
+			mirror.android.app.IActivityManager.startActivity.call(
+					ActivityManagerNative.getDefault.call(),
+					(Object[]) args
+			);
 			return true;
 		}
 		return false;

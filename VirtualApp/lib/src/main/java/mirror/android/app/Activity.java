@@ -18,4 +18,5 @@ public class Activity {
     public static IntFieldDef mResultCode;
     public static FieldDef<Intent> mResultData;
     public static FieldDef<IBinder> mToken;
+    public static FieldDef<String> mEmbeddedID;
 }

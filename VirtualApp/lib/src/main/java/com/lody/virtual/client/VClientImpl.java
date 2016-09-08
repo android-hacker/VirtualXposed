@@ -22,7 +22,6 @@ import android.os.IInterface;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
-import android.os.RemoteException;
 
 import com.lody.virtual.IOHook;
 import com.lody.virtual.client.core.VirtualCore;
@@ -118,7 +117,7 @@ public final class VClientImpl extends IVClient.Stub {
 	}
 
 	@Override
-	public IBinder getAppThread() throws RemoteException {
+	public IBinder getAppThread() {
 		return ActivityThread.getApplicationThread.call(VirtualCore.mainThread());
 	}
 

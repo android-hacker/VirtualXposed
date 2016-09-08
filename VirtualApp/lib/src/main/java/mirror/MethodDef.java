@@ -77,4 +77,8 @@ public class MethodDef<T> {
             throw e;
         }
     }
+
+    public Class<?>[] paramList() {
+        return method.getParameterTypes();
+    }
 }

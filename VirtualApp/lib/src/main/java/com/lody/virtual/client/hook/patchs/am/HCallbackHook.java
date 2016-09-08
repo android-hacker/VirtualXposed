@@ -76,9 +76,8 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 	private boolean handleLaunchActivity(Message msg) {
 		Object r = msg.obj;
 		Intent stubIntent = ActivityThread.ActivityClientRecord.intent.get(r);
-		stubIntent.setExtrasClassLoader(StubActivityRecord.class.getClassLoader());
-		StubActivityRecord saveInstance = stubIntent.getParcelableExtra("_VA_|_stub_");
-		if (saveInstance == null) {
+		StubActivityRecord saveInstance = new StubActivityRecord(stubIntent);
+		if (saveInstance.intent == null) {
 			return true;
 		}
 		Intent intent = saveInstance.intent;

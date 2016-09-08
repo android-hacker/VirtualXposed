@@ -3,14 +3,12 @@ package com.lody.virtual.helper.proto;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.os.Parcel;
-import android.os.Parcelable;
 
 /**
  * @author Lody
  */
 
-public class StubActivityRecord implements Parcelable {
+public class StubActivityRecord  {
         public Intent intent;
         public ActivityInfo info;
         public ComponentName caller;
@@ -23,35 +21,17 @@ public class StubActivityRecord implements Parcelable {
             this.userId = userId;
         }
 
-        @Override
-        public int describeContents() {
-            return 0;
+        public StubActivityRecord(Intent stub) {
+            this.intent = stub.getParcelableExtra("_VA_|_intent_");
+            this.info = stub.getParcelableExtra("_VA_|_info_");
+            this.caller = stub.getParcelableExtra("_VA_|_caller_");
+            this.userId = stub.getIntExtra("_VA_|_user_id_", 0);
         }
 
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            dest.writeParcelable(intent, flags);
-            dest.writeParcelable(info, flags);
-            dest.writeParcelable(caller, flags);
-            dest.writeInt(userId);
-        }
-
-        protected StubActivityRecord(Parcel in) {
-            intent = in.readParcelable(Intent.class.getClassLoader());
-            info = in.readParcelable(ActivityInfo.class.getClassLoader());
-            caller = in.readParcelable(ComponentName.class.getClassLoader());
-            userId = in.readInt();
-        }
-
-        public static final Parcelable.Creator<StubActivityRecord> CREATOR = new Parcelable.Creator<StubActivityRecord>() {
-            @Override
-            public StubActivityRecord createFromParcel(Parcel source) {
-                return new StubActivityRecord(source);
-            }
-
-            @Override
-            public StubActivityRecord[] newArray(int size) {
-                return new StubActivityRecord[size];
-            }
-        };
+    public void saveToIntent(Intent stub) {
+        stub.putExtra("_VA_|_intent_", intent);
+        stub.putExtra("_VA_|_info_", info);
+        stub.putExtra("_VA_|_caller_", caller);
+        stub.putExtra("_VA_|_user_id_", userId);
+    }
 }

@@ -786,7 +786,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 				synchronized (authTokenRecords) {
 					for (AuthTokenRecord record : authTokenRecords) {
 						if (record.userId == userId && record.account.equals(accountToRename)) {
-							record.account = accountToRename;
+							record.account = newAccount;
 						}
 					}
 				}
@@ -794,7 +794,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 				return newAccount;
 			}
 		}
-		return accountToRename;
+		return null;
 	}
 
 	@Override

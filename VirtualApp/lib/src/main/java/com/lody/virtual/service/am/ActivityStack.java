@@ -47,7 +47,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 				int N = mHistory.size();
 				while (N-- > 0) {
 					final TaskRecord task = mHistory.valueAt(N);
-					synchronized (task) {
+					synchronized (task.activities) {
 						for (ActivityRecord r : task.activities) {
 							if (r.marked) {
 								try {
@@ -390,7 +390,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		targetIntent.setType(component.flattenToString());
 		StubActivityRecord saveInstance = new StubActivityRecord(intent, info,
 				sourceRecord != null ? sourceRecord.component : null, userId);
-		targetIntent.putExtra("_VA_|_stub_", saveInstance);
+		saveInstance.saveToIntent(targetIntent);
 		return targetIntent;
 	}
 

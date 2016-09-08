@@ -14,4 +14,14 @@ public class ClassUtils {
 			return false;
 		}
 	}
+
+	public static void fixArgs(Class<?>[] types, Object[] args) {
+		for (int i = 0; i < types.length; i++) {
+			if (types[i] == int.class && args[i] == null) {
+				args[i] = 0;
+			} else if (types[i] == boolean.class && args[i] == null) {
+				args[i] = false;
+			}
+		}
+	}
 }

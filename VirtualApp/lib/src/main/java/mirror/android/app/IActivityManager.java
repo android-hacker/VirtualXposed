@@ -21,6 +21,7 @@ public class IActivityManager {
     public static MethodDef<Void> setRequestedOrientation;
     @MethodInfo({IBinder.class, String.class, int.class, int.class})
     public static MethodDef<Void> overridePendingTransition;
+    public static MethodDef<Integer> startActivity;
 
     public static class ContentProviderHolder {
         @MethodInfo(ProviderInfo.class)
