@@ -5,18 +5,18 @@ import android.os.IInterface;
 
 import java.util.Map;
 
-import mirror.ClassDef;
-import mirror.MethodInfo;
-import mirror.StaticFieldDef;
-import mirror.StaticMethodDef;
+import mirror.RefClass;
+import mirror.MethodParams;
+import mirror.RefStaticObject;
+import mirror.RefStaticMethod;
 
 public class ServiceManager {
-    public static Class<?> Class = ClassDef.init(ServiceManager.class, "android.os.ServiceManager");
-    @MethodInfo({String.class, IBinder.class})
-    public static StaticMethodDef<Void> addService;
-    public static StaticMethodDef<IBinder> checkService;
-    public static StaticMethodDef<IInterface> getIServiceManager;
-    public static StaticMethodDef<IBinder> getService;
-    public static StaticMethodDef<String[]> listServices;
-    public static StaticFieldDef<Map<String, IBinder>> sCache;
+    public static Class<?> TYPE = RefClass.load(ServiceManager.class, "android.os.ServiceManager");
+    @MethodParams({String.class, IBinder.class})
+    public static RefStaticMethod<Void> addService;
+    public static RefStaticMethod<IBinder> checkService;
+    public static RefStaticMethod<IInterface> getIServiceManager;
+    public static RefStaticMethod<IBinder> getService;
+    public static RefStaticMethod<String[]> listServices;
+    public static RefStaticObject<Map<String, IBinder>> sCache;
 }

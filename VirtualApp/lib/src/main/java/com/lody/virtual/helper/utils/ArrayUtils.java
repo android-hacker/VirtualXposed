@@ -33,6 +33,14 @@ public class ArrayUtils {
 		return -1;
 	}
 
+	public static int protoIndexOf(Class<?>[] array, Class<?> type) {
+		if (array == null) return -1;
+		for (int i = 0; i < array.length; i++) {
+			if (array[i] == type) return i;
+		}
+		return -1;
+	}
+
 	public static int indexOfFirst(Object[] array, Class<?> type) {
 		if (!isEmpty(array)) {
 			int N = -1;
@@ -46,6 +54,20 @@ public class ArrayUtils {
 		return -1;
 	}
 
+	public static int protoIndexOf(Class<?>[] array, Class<?> type, int sequence) {
+		if (array == null) {
+			return -1;
+		}
+		while (sequence < array.length) {
+			if (type == array[sequence]) {
+				return sequence;
+			}
+			sequence++;
+		}
+		return -1;
+	}
+
+
 	public static int indexOfObject(Object[] array, Class<?> type, int sequence) {
 		if (array == null) {
 			return -1;
@@ -58,6 +80,8 @@ public class ArrayUtils {
 		}
 		return -1;
 	}
+
+
 	public static int indexOf(Object[] array, Class<?> type, int sequence) {
 		if (!isEmpty(array)) {
 			int N = -1;

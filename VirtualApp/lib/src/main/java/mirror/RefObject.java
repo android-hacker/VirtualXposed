@@ -3,10 +3,10 @@ package mirror;
 import java.lang.reflect.Field;
 
 @SuppressWarnings("unchecked")
-public class FieldDef<T> {
+public class RefObject<T> {
     private Field field;
 
-    public FieldDef(Class<?> cls, Field field) throws NoSuchFieldException {
+    public RefObject(Class<?> cls, Field field) throws NoSuchFieldException {
         this.field = cls.getDeclaredField(field.getName());
         this.field.setAccessible(true);
     }

@@ -17,7 +17,7 @@ public class ISubBinderDelegate extends HookBinderDelegate {
     @Override
     protected IInterface createInterface() {
         IBinder binder = ServiceManager.getService.call("isub");
-        if (ISub.Stub.Class != null) {
+        if (ISub.Stub.TYPE != null) {
             return ISub.Stub.asInterface.call(binder);
         }
         return null;

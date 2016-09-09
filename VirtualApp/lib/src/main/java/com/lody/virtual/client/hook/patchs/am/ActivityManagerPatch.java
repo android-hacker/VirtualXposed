@@ -11,6 +11,7 @@ import com.lody.virtual.client.hook.base.HookDelegate;
 import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
+import com.lody.virtual.client.hook.base.ReplaceLastUidHook;
 import com.lody.virtual.client.hook.base.StaticHook;
 
 import java.lang.reflect.Method;
@@ -67,10 +68,10 @@ public class ActivityManagerPatch extends PatchDelegate<HookDelegate<IInterface>
 
 	@Override
 	public void inject() throws Throwable {
-		if (ActivityManagerNative.gDefault.type() == IActivityManager.Class) {
+		if (ActivityManagerNative.gDefault.type() == IActivityManager.TYPE) {
 			ActivityManagerNative.gDefault.set(getHookDelegate().getProxyInterface());
 
-		} else if (ActivityManagerNative.gDefault.type() == Singleton.Class) {
+		} else if (ActivityManagerNative.gDefault.type() == Singleton.TYPE) {
 			Object gDefault = ActivityManagerNative.gDefault.get();
 			Singleton.mInstance.set(gDefault, getHookDelegate().getProxyInterface());
 		}
@@ -89,6 +90,9 @@ public class ActivityManagerPatch extends PatchDelegate<HookDelegate<IInterface>
 	protected void onBindHooks() {
 		super.onBindHooks();
 		if (VirtualCore.get().isVAppProcess()) {
+			addHook(new ReplaceLastUidHook("checkPermissionWithToken"));
+
+
 			addHook(new isUserRunning());
 			addHook(new ReplaceCallingPkgHook("setAppLockedVerifying"));
 			addHook(new StaticHook("checkUriPermission") {
@@ -107,7 +111,7 @@ public class ActivityManagerPatch extends PatchDelegate<HookDelegate<IInterface>
 		}
 
 		@Override
-		public boolean beforeCall(Object who, Method method, Object... args) {
+		public Object call(Object who, Method method, Object... args) {
 			int userId = (int) args[0];
 			return userId == 0;
 		}

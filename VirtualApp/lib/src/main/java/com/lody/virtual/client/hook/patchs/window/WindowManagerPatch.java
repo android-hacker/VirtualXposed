@@ -37,7 +37,7 @@ public class WindowManagerPatch extends PatchDelegate<WindowBinderDelegate> {
 				Display.sWindowManager.set(getHookDelegate().getProxyInterface());
 			}
 		}
-		if (PhoneWindow.Class != null) {
+		if (PhoneWindow.TYPE != null) {
 			PhoneWindow.sWindowManager.set(getHookDelegate().getProxyInterface());
 		}
 	}

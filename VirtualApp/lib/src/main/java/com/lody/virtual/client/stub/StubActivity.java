@@ -29,8 +29,8 @@ public abstract class StubActivity extends Activity {
 		// Note:
 		// ClassLoader of savedInstanceState is not exist now.
 		super.onCreate(null);
-		StubActivityRecord r = stubIntent.getParcelableExtra("_VA_|_stub_");
-		if (r == null) {
+		StubActivityRecord r = new StubActivityRecord(stubIntent);
+		if (r.intent == null) {
 			if (DEBUG) {
 				Toast.makeText(this, "Ops...", Toast.LENGTH_SHORT).show();
 			}

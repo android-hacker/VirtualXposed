@@ -2,11 +2,11 @@ package mirror.android.app;
 
 import java.io.File;
 
-import mirror.ClassDef;
-import mirror.FieldDef;
+import mirror.RefClass;
+import mirror.RefObject;
 
 public class ContextImplICS {
-    public static Class<?> Class = ClassDef.init(ContextImplICS.class, "android.app.ContextImpl");
-    public static FieldDef<File> mExternalCacheDir;
-    public static FieldDef<File> mExternalFilesDir;
+    public static Class<?> TYPE = RefClass.load(ContextImplICS.class, "android.app.ContextImpl");
+    public static RefObject<File> mExternalCacheDir;
+    public static RefObject<File> mExternalFilesDir;
 }

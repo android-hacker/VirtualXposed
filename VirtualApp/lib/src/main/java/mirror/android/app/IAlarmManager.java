@@ -3,19 +3,19 @@ package mirror.android.app;
 import android.os.IBinder;
 import android.os.IInterface;
 
-import mirror.ClassDef;
-import mirror.MethodInfo;
-import mirror.StaticMethodDef;
+import mirror.RefClass;
+import mirror.MethodParams;
+import mirror.RefStaticMethod;
 
 /**
  * @author Lody
  */
 
 public class IAlarmManager {
-    public static Class<?> Class = ClassDef.init(IAlarmManager.class, "android.app.IAlarmManager");
+    public static Class<?> TYPE = RefClass.load(IAlarmManager.class, "android.app.IAlarmManager");
     public static class Stub {
-        public static Class<?> Class = ClassDef.init(Stub.class, "android.app.IAlarmManager$Stub");
-        @MethodInfo({IBinder.class})
-        public static StaticMethodDef<IInterface> asInterface;
+        public static Class<?> TYPE = RefClass.load(Stub.class, "android.app.IAlarmManager$Stub");
+        @MethodParams({IBinder.class})
+        public static RefStaticMethod<IInterface> asInterface;
     }
 }

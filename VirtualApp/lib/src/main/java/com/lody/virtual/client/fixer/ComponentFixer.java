@@ -3,7 +3,6 @@ package com.lody.virtual.client.fixer;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ComponentInfo;
 import android.os.Build;
-import android.os.Process;
 import android.text.TextUtils;
 
 import com.lody.virtual.helper.proto.AppSetting;
@@ -37,7 +36,7 @@ public class ComponentFixer {
 		applicationInfo.enabled = true;
 		applicationInfo.nativeLibraryDir = setting.libPath;
 		applicationInfo.dataDir = VEnvironment.getDataUserPackageDirectory(userId, setting.packageName).getPath();
-		applicationInfo.uid = Process.myUid();
+		applicationInfo.uid = setting.appId;
 	}
 
 	private static String fixComponentClassName(String pkgName, String className) {

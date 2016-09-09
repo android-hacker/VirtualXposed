@@ -1,11 +1,11 @@
 package mirror.java.lang;
 
-import mirror.FieldDef;
+import mirror.RefObject;
 
 /**
  * @author Lody
  */
 
 public class ClassLoader {
-    public static FieldDef<java.lang.ClassLoader> parent;
+    public static RefObject<java.lang.ClassLoader> parent;
 }

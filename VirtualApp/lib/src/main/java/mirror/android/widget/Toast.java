@@ -2,12 +2,12 @@ package mirror.android.widget;
 
 import android.os.IInterface;
 
-import mirror.ClassDef;
-import mirror.StaticFieldDef;
+import mirror.RefClass;
+import mirror.RefStaticObject;
 
 public class Toast {
-    public static Class<?> Class = ClassDef.init(Toast.class, android.widget.Toast.class);
+    public static Class<?> TYPE = RefClass.load(Toast.class, android.widget.Toast.class);
 
-    public static StaticFieldDef<IInterface> sService;
+    public static RefStaticObject<IInterface> sService;
 
 }

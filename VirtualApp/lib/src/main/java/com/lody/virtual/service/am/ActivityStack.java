@@ -7,19 +7,25 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.os.RemoteException;
 import android.util.SparseArray;
 
+import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.VirtualRuntime;
+import com.lody.virtual.helper.proto.AppTaskInfo;
 import com.lody.virtual.helper.proto.StubActivityRecord;
+import com.lody.virtual.helper.utils.ArrayUtils;
+import com.lody.virtual.helper.utils.ClassUtils;
 import com.lody.virtual.helper.utils.ComponentUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
+
+import mirror.android.app.ActivityManagerNative;
+import mirror.android.app.IApplicationThread;
 
 import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_INSTANCE;
 import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TASK;
@@ -31,7 +37,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 
 /* package */ class ActivityStack {
 
-	final ActivityManager mAM;
+	private final ActivityManager mAM;
 	private final VActivityManagerService mService;
 
 	/**
@@ -39,10 +45,9 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 	 */
 	private final SparseArray<TaskRecord> mHistory = new SparseArray<>();
 
-	private Handler mTaskHandler = new Handler() {
-
+	private final Runnable mCleanTaskScheduler = new Runnable() {
 		@Override
-		public void handleMessage(Message msg) {
+		public void run() {
 			synchronized (mHistory) {
 				int N = mHistory.size();
 				while (N-- > 0) {
@@ -63,7 +68,8 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		}
 	};
 
-	public ActivityStack(VActivityManagerService mService) {
+
+	ActivityStack(VActivityManagerService mService) {
 		this.mService = mService;
 		mAM = (ActivityManager) VirtualCore.get().getContext().getSystemService(Context.ACTIVITY_SERVICE);
 	}
@@ -147,8 +153,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 					r.marked = true;
 					marked = true;
 				}
-			}
-				break;
+			} break;
 			case ACTIVITY : {
 				for (ActivityRecord r : task.activities) {
 					if (r.component.equals(component)) {
@@ -156,8 +161,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 						marked = true;
 					}
 				}
-			}
-				break;
+			} break;
 			case TOP : {
 				int N = task.activities.size();
 				while (N-- > 0) {
@@ -172,9 +176,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 						task.activities.get(N).marked = true;
 					}
 				}
-
-			}
-				break;
+			} break;
 		}
 		return marked;
 	}
@@ -186,7 +188,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 	 *
 	 */
 	private void optimizeTasksLocked() {
-		@SuppressWarnings("deprecation")
+		//noinspection deprecation
 		ArrayList<ActivityManager.RecentTaskInfo> recentTask = new ArrayList<>(mAM.getRecentTasks(Integer.MAX_VALUE,
 				ActivityManager.RECENT_WITH_EXCLUDED | ActivityManager.RECENT_IGNORE_UNAVAILABLE));
 		int N = mHistory.size();
@@ -208,9 +210,8 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		}
 	}
 
-	@SuppressWarnings("deprecation")
-	public int startActivityLocked(int userId, Intent intent, ActivityInfo info, IBinder resultTo, Bundle options,
-			int requestCode) {
+	int startActivityLocked(int userId, Intent intent, ActivityInfo info, IBinder resultTo, Bundle options,
+							String resultWho, int requestCode) {
 
 		optimizeTasksLocked();
 
@@ -313,6 +314,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 				destIntent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
 
 				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+					//noinspection deprecation
 					destIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 				} else {
 					destIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
@@ -328,7 +330,6 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		} else if (clearTarget != ClearTarget.TOP && ComponentUtils.isSameIntent(intent, reuseTask.taskRoot)) {
 			// In this case, we only need to move the task to front.
 			mAM.moveTaskToFront(reuseTask.taskId, 0);
-
 		} else {
 			boolean delivered = false;
 			mAM.moveTaskToFront(reuseTask.taskId, 0);
@@ -347,7 +348,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 			if (!delivered) {
 				destIntent = startActivityProcess(userId, sourceRecord, intent, info);
 				if (destIntent != null) {
-					startActivityFromSourceTask(reuseTask, destIntent, info, requestCode, options);
+					startActivityFromSourceTask(reuseTask, destIntent, info, resultWho, requestCode, options);
 				}
 			}
 		}
@@ -356,22 +357,48 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 	}
 
 	private void scheduleFinishMarkedActivity() {
-		mTaskHandler.removeMessages(0);
-		mTaskHandler.sendEmptyMessage(0);
+		VirtualRuntime.getUIHandler().removeCallbacks(mCleanTaskScheduler);
+		VirtualRuntime.getUIHandler().post(mCleanTaskScheduler);
 	}
 
-	private boolean startActivityFromSourceTask(TaskRecord task, Intent intent, ActivityInfo info, int requestCode, Bundle options) {
+	private boolean startActivityFromSourceTask(TaskRecord task, Intent intent, ActivityInfo info, String resultWho, int requestCode, Bundle options) {
 		ActivityRecord top = topActivityInTask(task);
 		if (top != null) {
 			if (startActivityProcess(task.userId, top, intent, info) != null) {
-				try {
-					return top.process.client.startActivityFromToken(top.token, intent, requestCode, options);
-				} catch (RemoteException e) {
-					e.printStackTrace();
-				}
+				realStartActivityLocked(top.token, intent, resultWho, requestCode, options);
 			}
 		}
 		return false;
+	}
+
+	private void realStartActivityLocked(IBinder resultTo, Intent intent, String resultWho, int requestCode, Bundle options) {
+		Class<?>[] types = mirror.android.app.IActivityManager.startActivity.paramList();
+		Object[] args = new Object[types.length];
+		if (types[0] == IApplicationThread.TYPE) {
+			args[0] = VClientImpl.getClient().getAppThread();
+		}
+		int intentIndex = ArrayUtils.protoIndexOf(types, Intent.class);
+		int resultToIndex = ArrayUtils.protoIndexOf(types, IBinder.class, 2);
+		int optionsIndex = ArrayUtils.protoIndexOf(types, Bundle.class);
+		int resultWhoIndex = resultToIndex + 1;
+		int requestCodeIndex = resultToIndex + 2;
+
+		args[intentIndex] = intent;
+		args[resultToIndex] = resultTo;
+		args[resultWhoIndex] = resultWho;
+		args[requestCodeIndex] = requestCode;
+		if (optionsIndex != -1) {
+			args[optionsIndex] = options;
+		}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+			args[intentIndex - 1] = VirtualCore.get().getHostPkg();
+		}
+		ClassUtils.fixArgs(types, args);
+
+		mirror.android.app.IActivityManager.startActivity.call(
+				ActivityManagerNative.getDefault.call(),
+				(Object[]) args
+		);
 	}
 
 	private Intent startActivityProcess(int userId, ActivityRecord sourceRecord, Intent intent, ActivityInfo info) {
@@ -390,12 +417,12 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		targetIntent.setType(component.flattenToString());
 		StubActivityRecord saveInstance = new StubActivityRecord(intent, info,
 				sourceRecord != null ? sourceRecord.component : null, userId);
-		targetIntent.putExtra("_VA_|_stub_", saveInstance);
+		saveInstance.saveToIntent(targetIntent);
 		return targetIntent;
 	}
 
-	public void onActivityCreated(ProcessRecord targetApp, ComponentName component, ComponentName caller, IBinder token,
-								  Intent taskRoot, String affinity, int taskId, int launchMode, int flags) {
+	void onActivityCreated(ProcessRecord targetApp, ComponentName component, ComponentName caller, IBinder token,
+						   Intent taskRoot, String affinity, int taskId, int launchMode, int flags) {
 		synchronized (mHistory) {
 			optimizeTasksLocked();
 			TaskRecord task = mHistory.get(taskId);
@@ -409,7 +436,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		}
 	}
 
-	public void onActivityResumed(int userId, IBinder token) {
+	void onActivityResumed(int userId, IBinder token) {
 		synchronized (mHistory) {
 			optimizeTasksLocked();
 			ActivityRecord r = findActivityByToken(userId, token);
@@ -420,7 +447,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		}
 	}
 
-	public boolean onActivityDestroyed(int userId, IBinder token) {
+	boolean onActivityDestroyed(int userId, IBinder token) {
 		synchronized (mHistory) {
 			optimizeTasksLocked();
 			ActivityRecord r = findActivityByToken(userId, token);
@@ -435,7 +462,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		}
 	}
 
-	public void processDied(ProcessRecord record) {
+	void processDied(ProcessRecord record) {
 		synchronized (mHistory) {
 			optimizeTasksLocked();
 			int N = mHistory.size();
@@ -456,7 +483,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		}
 	}
 
-	public String getPackageForToken(int userId, IBinder token) {
+	String getPackageForToken(int userId, IBinder token) {
 		synchronized (mHistory) {
 			ActivityRecord r = findActivityByToken(userId, token);
 			if (r != null) {
@@ -466,7 +493,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		}
 	}
 
-	public ComponentName getCallingActivity(int userId, IBinder token) {
+	ComponentName getCallingActivity(int userId, IBinder token) {
 		synchronized (mHistory) {
 			ActivityRecord r = findActivityByToken(userId, token);
 			if (r != null) {
@@ -476,11 +503,21 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		}
 	}
 
-	enum ClearTarget {
+	AppTaskInfo getTaskInfo(int taskId) {
+		synchronized (mHistory) {
+			TaskRecord task = mHistory.get(taskId);
+			if (task != null) {
+				return task.getAppTaskInfo();
+			}
+			return null;
+		}
+	}
+
+	private enum ClearTarget {
 		NOTHING, TASK, ACTIVITY, TOP
 	}
 
-	enum ReuseTarget {
+	private enum ReuseTarget {
 		CURRENT, AFFINITY, DOCUMENT, MULTIPLE
 	}
 }

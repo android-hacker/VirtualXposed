@@ -3,20 +3,20 @@ package mirror.android.content;
 import android.content.Intent;
 import android.os.Bundle;
 
-import mirror.ClassDef;
-import mirror.MethodDef;
-import mirror.MethodInfo;
+import mirror.RefClass;
+import mirror.RefMethod;
+import mirror.MethodParams;
 
 /**
  * @author Lody
  */
 
 public class IIntentReceiver {
-    public static Class<?> Class = ClassDef.init(IIntentReceiver.class, "android.content.IIntentReceiver");
+    public static Class<?> TYPE = RefClass.load(IIntentReceiver.class, "android.content.IIntentReceiver");
 
-    @MethodInfo({Intent.class, int.class,
+    @MethodParams({Intent.class, int.class,
             String.class, Bundle.class, boolean.class, boolean.class})
-    public static MethodDef<Void> performReceive;
+    public static RefMethod<Void> performReceive;
 
 
 }

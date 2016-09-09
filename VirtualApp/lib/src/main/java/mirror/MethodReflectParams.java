@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface MethodInfo {
-    Class<?>[] value();
+public @interface MethodReflectParams {
+    String[] value();
 }

@@ -13,6 +13,12 @@ import mirror.android.app.IActivityManagerL;
  */
 
 public class ActivityManagerCompat {
+	/** Type for IActivityManager.serviceDoneExecuting: anonymous operation */
+	public static final int SERVICE_DONE_EXECUTING_ANON = 0;
+	/** Type for IActivityManager.serviceDoneExecuting: done with an onStart call */
+	public static final int SERVICE_DONE_EXECUTING_START = 1;
+	/** Type for IActivityManager.serviceDoneExecuting: done stopping (destroying) service */
+	public static final int SERVICE_DONE_EXECUTING_STOP = 2;
 
 	/**
 	 * Result for IActivityManager.startActivity: an error where the

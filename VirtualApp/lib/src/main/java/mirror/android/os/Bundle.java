@@ -2,20 +2,20 @@ package mirror.android.os;
 
 import android.os.IBinder;
 
-import mirror.ClassDef;
-import mirror.MethodDef;
-import mirror.MethodInfo;
+import mirror.RefClass;
+import mirror.RefMethod;
+import mirror.MethodParams;
 
 /**
  * @author Lody
  */
 
 public class Bundle {
-    public static Class<?> Class = ClassDef.init(Bundle.class, android.os.Bundle.class);
+    public static Class<?> TYPE = RefClass.load(Bundle.class, android.os.Bundle.class);
 
-    @MethodInfo({String.class, IBinder.class})
-    public static MethodDef<Void> putIBinder;
+    @MethodParams({String.class, IBinder.class})
+    public static RefMethod<Void> putIBinder;
 
-    @MethodInfo({String.class})
-    public static MethodDef<IBinder> getIBinder;
+    @MethodParams({String.class})
+    public static RefMethod<IBinder> getIBinder;
 }

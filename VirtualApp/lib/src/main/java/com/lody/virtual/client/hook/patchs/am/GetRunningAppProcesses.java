@@ -33,7 +33,7 @@ import java.util.List;
 						info.processName = processName;
 					}
 					info.pkgList = pkgList.toArray(new String[pkgList.size()]);
-					info.uid = VActivityManager.get().getUidByPid(info.pid);
+//					info.uid = VActivityManager.get().getUidByPid(info.pid);
 				}
 			}
 		}

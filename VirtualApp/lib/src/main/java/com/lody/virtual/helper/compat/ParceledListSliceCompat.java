@@ -13,7 +13,7 @@ import mirror.android.content.pm.ParceledListSliceJBMR2;
 public class ParceledListSliceCompat {
 
 	public static boolean isReturnParceledListSlice(Method method) {
-		return method != null && method.getReturnType() == ParceledListSlice.Class;
+		return method != null && method.getReturnType() == ParceledListSlice.TYPE;
 	}
 
 	public static  Object create(List list) {

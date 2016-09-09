@@ -3,16 +3,16 @@ package mirror.android.app;
 import android.content.Intent;
 import android.os.IBinder;
 
-import mirror.ClassDef;
-import mirror.MethodDef;
-import mirror.MethodInfo;
+import mirror.RefClass;
+import mirror.RefMethod;
+import mirror.MethodParams;
 
 /**
  * @author Lody
  */
 
 public class IActivityManagerL {
-    public static Class<?> Class = ClassDef.init(IActivityManagerL.class, "android.app.IActivityManager");
-    @MethodInfo({IBinder.class, int.class, Intent.class, boolean.class})
-    public static MethodDef<Boolean> finishActivity;
+    public static Class<?> TYPE = RefClass.load(IActivityManagerL.class, "android.app.IActivityManager");
+    @MethodParams({IBinder.class, int.class, Intent.class, boolean.class})
+    public static RefMethod<Boolean> finishActivity;
 }

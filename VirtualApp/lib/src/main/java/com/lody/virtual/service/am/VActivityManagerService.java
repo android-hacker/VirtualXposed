@@ -33,6 +33,7 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.client.service.ProviderCall;
+import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.compat.IApplicationThreadCompat;
 import com.lody.virtual.helper.proto.AppSetting;
@@ -77,13 +78,6 @@ import static com.lody.virtual.os.VUserHandle.getUserId;
  *
  */
 public class VActivityManagerService extends IActivityManager.Stub {
-
-	/** Type for IActivityManager.serviceDoneExecuting: anonymous operation */
-	public static final int SERVICE_DONE_EXECUTING_ANON = 0;
-	/** Type for IActivityManager.serviceDoneExecuting: done with an onStart call */
-	public static final int SERVICE_DONE_EXECUTING_START = 1;
-	/** Type for IActivityManager.serviceDoneExecuting: done stopping (destroying) service */
-	public static final int SERVICE_DONE_EXECUTING_STOP = 2;
 
 	private static final boolean BROADCAST_NOT_STARTED_PKG = false;
 
@@ -181,18 +175,18 @@ public class VActivityManagerService extends IActivityManager.Stub {
 				&& TextUtils.equals(metaData.getString(Constants.META_KEY_IDENTITY), Constants.META_VALUE_STUB);
 	}
 
-	public Collection<StubInfo> getStubs() {
+	private Collection<StubInfo> getStubs() {
 		return stubInfoMap.values();
 	}
 
-	public Set<String> getStubProcessList() {
+	private Set<String> getStubProcessList() {
 		return Collections.unmodifiableSet(stubProcessList);
 	}
 
 	@Override
-	public int startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, int requestCode, int userId) {
+	public int startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, String resultWho, int requestCode, int userId) {
 		synchronized (this) {
-			return mMainStack.startActivityLocked(userId, intent, info, resultTo, options, requestCode);
+			return mMainStack.startActivityLocked(userId, intent, info, resultTo, options, resultWho, requestCode);
 		}
 	}
 
@@ -237,21 +231,12 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
 	@Override
 	public AppTaskInfo getTaskInfo(int taskId) {
-
-		return null;
+		return mMainStack.getTaskInfo(taskId);
 	}
 
 	@Override
 	public String getPackageForToken(int userId, IBinder token) {
 		return mMainStack.getPackageForToken(userId, token);
-	}
-
-	private synchronized int getTopTaskId() {
-		List<ActivityManager.RunningTaskInfo> taskInfos = am.getRunningTasks(1);
-		if (taskInfos.size() > 0) {
-			return taskInfos.get(0).id;
-		}
-		return -1;
 	}
 
 
@@ -526,7 +511,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			if (r == null) {
 				return;
 			}
-			if (SERVICE_DONE_EXECUTING_STOP == type) {
+			if (ActivityManagerCompat.SERVICE_DONE_EXECUTING_STOP == type) {
 				mHistory.remove(r);
 			}
 		}
@@ -640,7 +625,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 
-	public void attachClient(int pid, final IBinder clientBinder) {
+	private void attachClient(int pid, final IBinder clientBinder) {
 		final IVClient client = IVClient.Stub.asInterface(clientBinder);
 		if (client == null) {
             killProcess(pid);

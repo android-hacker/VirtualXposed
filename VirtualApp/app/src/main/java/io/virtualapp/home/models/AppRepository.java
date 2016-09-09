@@ -95,7 +95,7 @@ public class AppRepository implements AppDataSource {
 					pkgInfo.applicationInfo.sourceDir = f.getAbsolutePath();
 					pkgInfo.applicationInfo.publicSourceDir = f.getAbsolutePath();
 				} catch (Exception e) {
-					e.printStackTrace();
+					// Ignore
 				}
 				if (pkgInfo != null)
 					pkgs.add(pkgInfo);

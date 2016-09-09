@@ -1,7 +1,7 @@
 package mirror.com.android.internal.view;
 
-import mirror.ClassDef;
+import mirror.RefClass;
 
 public class IInputMethodManager {
-    public static Class<?> Class = ClassDef.init(IInputMethodManager.class, "com.android.internal.view.IInputMethodManager");
+    public static Class<?> TYPE = RefClass.load(IInputMethodManager.class, "com.android.internal.view.IInputMethodManager");
 }

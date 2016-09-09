@@ -2,10 +2,10 @@ package mirror.android.view;
 
 import android.os.IInterface;
 
-import mirror.ClassDef;
-import mirror.StaticFieldDef;
+import mirror.RefClass;
+import mirror.RefStaticObject;
 
 public class WindowManagerGlobal {
-    public static Class<?> Class = ClassDef.init(WindowManagerGlobal.class, "android.view.WindowManagerGlobal");
-    public static StaticFieldDef<IInterface> sWindowManagerService;
+    public static Class<?> TYPE = RefClass.load(WindowManagerGlobal.class, "android.view.WindowManagerGlobal");
+    public static RefStaticObject<IInterface> sWindowManagerService;
 }

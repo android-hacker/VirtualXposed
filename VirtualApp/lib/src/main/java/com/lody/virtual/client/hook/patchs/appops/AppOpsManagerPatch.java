@@ -65,6 +65,9 @@ public class AppOpsManagerPatch extends PatchDelegate<AppOpsBinderDelegate> {
 			if (pkgIndex != -1 && args.length > pkgIndex && args[pkgIndex] instanceof String) {
 				args[pkgIndex] = getHostPkg();
 			}
+			if (uidIndex != -1 && args[uidIndex] instanceof Integer) {
+				args[uidIndex] = getRealUid();
+			}
 			return true;
 		}
 	}

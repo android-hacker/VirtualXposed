@@ -2,10 +2,10 @@ package mirror.android.view;
 
 import android.os.IInterface;
 
-import mirror.ClassDef;
-import mirror.StaticFieldDef;
+import mirror.RefClass;
+import mirror.RefStaticObject;
 
 public class Display {
-    public static Class<?> Class = ClassDef.init(Display.class, android.view.Display.class);
-    public static StaticFieldDef<IInterface> sWindowManager;
+    public static Class<?> TYPE = RefClass.load(Display.class, android.view.Display.class);
+    public static RefStaticObject<IInterface> sWindowManager;
 }

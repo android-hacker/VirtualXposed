@@ -1,17 +1,17 @@
 package mirror.android.content.res;
 
-import mirror.ClassDef;
-import mirror.CtorDef;
-import mirror.MethodDef;
-import mirror.MethodInfo;
+import mirror.RefClass;
+import mirror.RefConstructor;
+import mirror.RefMethod;
+import mirror.MethodParams;
 
 /**
  * @author Lody
  */
 
 public class AssetManager {
-    public static Class<?> Class = ClassDef.init(AssetManager.class, android.content.res.AssetManager.class);
-    public static CtorDef<android.content.res.AssetManager> ctor;
-    @MethodInfo(String.class)
-    public static MethodDef<Integer> addAssetPath;
+    public static Class<?> TYPE = RefClass.load(AssetManager.class, android.content.res.AssetManager.class);
+    public static RefConstructor<android.content.res.AssetManager> ctor;
+    @MethodParams(String.class)
+    public static RefMethod<Integer> addAssetPath;
 }

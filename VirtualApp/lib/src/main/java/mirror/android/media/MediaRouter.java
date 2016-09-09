@@ -2,21 +2,21 @@ package mirror.android.media;
 
 import android.os.IInterface;
 
-import mirror.ClassDef;
-import mirror.FieldDef;
-import mirror.StaticFieldDef;
+import mirror.RefClass;
+import mirror.RefObject;
+import mirror.RefStaticObject;
 
 public class MediaRouter {
-    public static Class<?> Class = ClassDef.init(MediaRouter.class, android.media.MediaRouter.class);
-    public static StaticFieldDef sStatic;
+    public static Class<?> TYPE = RefClass.load(MediaRouter.class, android.media.MediaRouter.class);
+    public static RefStaticObject sStatic;
 
     public static class Static {
-        public static Class<?> Class = ClassDef.init(Static.class, "android.media.MediaRouter$Static");
-        public static FieldDef<IInterface> mAudioService;
+        public static Class<?> TYPE = RefClass.load(Static.class, "android.media.MediaRouter$Static");
+        public static RefObject<IInterface> mAudioService;
     }
 
     public static class StaticKitkat {
-        public static Class<?> Class = ClassDef.init(StaticKitkat.class, "android.media.MediaRouter$Static");
-        public static FieldDef<IInterface> mMediaRouterService;
+        public static Class<?> TYPE = RefClass.load(StaticKitkat.class, "android.media.MediaRouter$Static");
+        public static RefObject<IInterface> mMediaRouterService;
     }
 }
