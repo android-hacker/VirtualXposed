@@ -1,11 +1,15 @@
 package com.lody.virtual;
 
+import android.os.Binder;
 import android.os.Build;
 
+import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
+import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.os.VUserHandle;
 
 import java.io.File;
 import java.io.IOException;
@@ -107,23 +111,27 @@ public class IOHook {
 	}
 
 	public static int onGetCallingUid(int originUid) {
-		return originUid;
+		int callingPid = Binder.getCallingPid();
+		int vuid = VActivityManager.get().getUidByPid(callingPid);
+		if (vuid != -1) {
+			return VUserHandle.getAppId(vuid);
+		}
+		return onGetUid(originUid);
 	}
 
 	public static void onOpenDexFileNative(String[] params) {
 		String dexOrJarPath = params[0];
 		String outputPath = params[1];
 		VLog.d(TAG, "DexOrJarPath = %s, OutputPath = %s.", dexOrJarPath, outputPath);
-		String canonical = null;
 		try {
-			canonical = new File(dexOrJarPath).getCanonicalPath();
+			String canonical = new File(dexOrJarPath).getCanonicalPath();
+			AppSetting info = sDexOverrideMap.get(canonical);
+			if (info != null && !info.dependSystem) {
+				outputPath = info.getOdexFile().getPath();
+				params[1] = outputPath;
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-		AppSetting info = sDexOverrideMap.get(canonical);
-		if (info != null && !info.dependSystem) {
-			outputPath = info.getOdexFile().getPath();
-			params[1] = outputPath;
 		}
 	}
 
@@ -132,7 +140,6 @@ public class IOHook {
     private static native void nativeHookNative(Object method, boolean isArt);
 
 	private static native void nativeMark();
-
 
 
 	private static native String nativeRestoreRedirectedPath(String redirectedPath);
@@ -144,6 +151,6 @@ public class IOHook {
 	private static native void nativeHook(int apiLevel);
 
 	public static int onGetUid(int uid) {
-		return uid;
+		return VClientImpl.getClient().getBaseVUid();
 	}
 }

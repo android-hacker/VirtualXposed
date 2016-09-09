@@ -10,6 +10,7 @@ import com.lody.virtual.client.core.VirtualCore;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -48,7 +49,14 @@ public class ProxyServiceFactory {
 										}
 									}
 								}
-								return method.invoke(base, args);
+								try {
+									return method.invoke(base, args);
+								} catch (InvocationTargetException e) {
+									if (e.getCause() != null) {
+										throw e.getCause();
+									}
+									throw e;
+								}
 							}
 						};
 					}
@@ -65,7 +73,14 @@ public class ProxyServiceFactory {
 						return new InvocationHandler() {
 							@Override
 							public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-								return method.invoke(base, args);
+								try {
+									return method.invoke(base, args);
+								} catch (InvocationTargetException e) {
+									if (e.getCause() != null) {
+										throw e.getCause();
+									}
+									throw e;
+								}
 							}
 						};
 					}
@@ -100,7 +115,14 @@ public class ProxyServiceFactory {
 										i++;
 									}
 								}
-								return method.invoke(base, args);
+								try {
+									return method.invoke(base, args);
+								} catch (InvocationTargetException e) {
+									if (e.getCause() != null) {
+										throw e.getCause();
+									}
+									throw e;
+								}
 							}
 						};
 					}

@@ -33,6 +33,7 @@ import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.os.VUserHandle;
 
 import java.io.File;
 import java.util.Collections;
@@ -42,6 +43,8 @@ import java.util.regex.Pattern;
 import dalvik.system.PathClassLoader;
 import mirror.android.app.ActivityThread;
 import mirror.android.app.ContextImpl;
+import mirror.android.app.ContextImplICS;
+import mirror.android.app.ContextImplKitkat;
 import mirror.android.app.LoadedApk;
 import mirror.com.android.internal.content.ReferrerIntent;
 import mirror.dalvik.system.VMRuntime;
@@ -83,6 +86,10 @@ public final class VClientImpl extends IVClient.Stub {
 
 	public int getVUid() {
 		return vuid;
+	}
+
+	public int getBaseVUid() {
+		return VUserHandle.getAppId(vuid);
 	}
 
 	public ClassLoader getClassLoader(ApplicationInfo appInfo) {
@@ -217,6 +224,25 @@ public final class VClientImpl extends IVClient.Stub {
 		Object mainThread = VirtualCore.mainThread();
 		IOHook.startDexOverride();
 		Context context = createPackageContext(data.appInfo.packageName);
+		System.setProperty("java.io.tmpdir", context.getCacheDir().getAbsolutePath());
+		File filesDir = new File(info.applicationInfo.dataDir, "files");
+		File cacheDir = new File(info.applicationInfo.dataDir, "cache");
+		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+			if (ContextImplICS.mExternalFilesDir != null) {
+				ContextImplICS.mExternalFilesDir.set(context, filesDir);
+			}
+			if (ContextImplICS.mExternalCacheDir != null) {
+				ContextImplICS.mExternalCacheDir.set(context, cacheDir);
+			}
+		} else {
+			if (ContextImplKitkat.mExternalCacheDirs != null) {
+				ContextImplKitkat.mExternalCacheDirs.set(context, new File[] {cacheDir});
+			}
+			if (ContextImplKitkat.mExternalFilesDirs != null) {
+				ContextImplKitkat.mExternalFilesDirs.set(context, new File[] {filesDir});
+			}
+
+		}
 		mBoundApplication.info = ContextImpl.mPackageInfo.get(context);
 		fixBoundApp(mBoundApplication);
 		VMRuntime.setTargetSdkVersion.call(VMRuntime.getRuntime.call(), data.appInfo.targetSdkVersion);
@@ -225,9 +251,9 @@ public final class VClientImpl extends IVClient.Stub {
 		mInitialApplication = app;
 		mirror.android.app.ActivityThread.mInitialApplication.set(mainThread, app);
 		ContextFixer.fixContext(app);
-		List<ProviderInfo> providers = data.providers;
+		List<ProviderInfo> providers = VPackageManager.get().queryContentProviders(data.processName, vuid, PackageManager.GET_META_DATA);
 		if (providers != null) {
-			installContentProviders(providers);
+			installContentProviders(app, providers);
 		}
 		if (lock != null) {
 			lock.open();
@@ -273,11 +299,14 @@ public final class VClientImpl extends IVClient.Stub {
 		}
 	}
 
-	private void installContentProviders(List<ProviderInfo> providers) {
+	private void installContentProviders(Context app, List<ProviderInfo> providers) {
 		long origId = Binder.clearCallingIdentity();
+		Object mainThread = VirtualCore.mainThread();
 		try {
 			for (ProviderInfo cpi : providers) {
-				acquireProviderClient(cpi);
+				if (cpi.enabled) {
+					ActivityThread.installProvider(mainThread, app, cpi);
+				}
 			}
 		} finally {
 			Binder.restoreCallingIdentity(origId);
@@ -338,5 +367,10 @@ public final class VClientImpl extends IVClient.Stub {
 		return ProxyServiceFactory.getProxyService(getCurrentApplication(), component, binder);
 	}
 
-
+	@Override
+	public String getDebugInfo() {
+		return "process : " + VirtualRuntime.getProcessName() + "\n" +
+				"initialPkg : " + VirtualRuntime.getInitialPackageName() + "\n" +
+				"vuid : " + vuid;
+	}
 }

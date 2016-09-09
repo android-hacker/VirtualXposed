@@ -12,4 +12,5 @@ interface IVClient {
     IBinder acquireProviderClient(in ProviderInfo info);
     IBinder getAppThread();
     IBinder getToken();
+    String getDebugInfo();
 }
