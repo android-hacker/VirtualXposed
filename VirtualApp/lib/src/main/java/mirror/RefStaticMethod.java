@@ -16,7 +16,7 @@ public class RefStaticMethod<T> {
                 if (clazz.getClassLoader() == getClass().getClassLoader()) {
                     try {
                         Class.forName(clazz.getName());
-                        Class<?> realClass = (Class<?>) clazz.getField("Class").get(null);
+                        Class<?> realClass = (Class<?>) clazz.getField("TYPE").get(null);
                         types[i] = realClass;
                     } catch (Throwable e) {
                         throw new RuntimeException(e);
