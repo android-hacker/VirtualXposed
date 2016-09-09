@@ -1,11 +1,11 @@
 package mirror.android.os;
 
-import mirror.ClassDef;
-import mirror.MethodInfo;
-import mirror.StaticMethodDef;
+import mirror.RefClass;
+import mirror.MethodParams;
+import mirror.RefStaticMethod;
 
 public class Process {
-    public static Class<?> Class = ClassDef.init(Process.class, android.os.Process.class);
-    @MethodInfo({String.class})
-    public static StaticMethodDef<Void> setArgV0;
+    public static Class<?> TYPE = RefClass.load(Process.class, android.os.Process.class);
+    @MethodParams({String.class})
+    public static RefStaticMethod<Void> setArgV0;
 }

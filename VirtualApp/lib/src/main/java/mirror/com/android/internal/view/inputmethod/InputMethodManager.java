@@ -2,10 +2,10 @@ package mirror.com.android.internal.view.inputmethod;
 
 import android.os.IInterface;
 
-import mirror.ClassDef;
-import mirror.FieldDef;
+import mirror.RefClass;
+import mirror.RefObject;
 
 public class InputMethodManager {
-    public static Class<?> Class = ClassDef.init(InputMethodManager.class, android.view.inputmethod.InputMethodManager.class);
-    public static FieldDef<IInterface> mService;
+    public static Class<?> TYPE = RefClass.load(InputMethodManager.class, android.view.inputmethod.InputMethodManager.class);
+    public static RefObject<IInterface> mService;
 }

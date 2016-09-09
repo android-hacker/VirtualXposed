@@ -5,18 +5,18 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.IBinder;
 
-import mirror.BooleanFieldDef;
-import mirror.ClassDef;
-import mirror.FieldDef;
-import mirror.IntFieldDef;
+import mirror.RefBoolean;
+import mirror.RefClass;
+import mirror.RefObject;
+import mirror.RefInt;
 
 public class Activity {
-    public static Class<?> Class = ClassDef.init(Activity.class, "android.app.Activity");
-    public static FieldDef<ActivityInfo> mActivityInfo;
-    public static BooleanFieldDef mFinished;
-    public static FieldDef<android.app.Activity> mParent;
-    public static IntFieldDef mResultCode;
-    public static FieldDef<Intent> mResultData;
-    public static FieldDef<IBinder> mToken;
-    public static FieldDef<String> mEmbeddedID;
+    public static Class<?> TYPE = RefClass.load(Activity.class, "android.app.Activity");
+    public static RefObject<ActivityInfo> mActivityInfo;
+    public static RefBoolean mFinished;
+    public static RefObject<android.app.Activity> mParent;
+    public static RefInt mResultCode;
+    public static RefObject<Intent> mResultData;
+    public static RefObject<IBinder> mToken;
+    public static RefObject<String> mEmbeddedID;
 }

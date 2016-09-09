@@ -67,10 +67,10 @@ public class ActivityManagerPatch extends PatchDelegate<HookDelegate<IInterface>
 
 	@Override
 	public void inject() throws Throwable {
-		if (ActivityManagerNative.gDefault.type() == IActivityManager.Class) {
+		if (ActivityManagerNative.gDefault.type() == IActivityManager.TYPE) {
 			ActivityManagerNative.gDefault.set(getHookDelegate().getProxyInterface());
 
-		} else if (ActivityManagerNative.gDefault.type() == Singleton.Class) {
+		} else if (ActivityManagerNative.gDefault.type() == Singleton.TYPE) {
 			Object gDefault = ActivityManagerNative.gDefault.get();
 			Singleton.mInstance.set(gDefault, getHookDelegate().getProxyInterface());
 		}

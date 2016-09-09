@@ -2,10 +2,10 @@ package mirror.android.content;
 
 import android.content.ContentResolver;
 
-import mirror.ClassDef;
-import mirror.FieldDef;
+import mirror.RefClass;
+import mirror.RefObject;
 
 public class ContentResolverJBMR2 {
-    public static Class Class = ClassDef.init(ContentResolverJBMR2.class, ContentResolver.class);;
-    public static FieldDef<String> mPackageName;
+    public static Class Class = RefClass.load(ContentResolverJBMR2.class, ContentResolver.class);;
+    public static RefObject<String> mPackageName;
 }

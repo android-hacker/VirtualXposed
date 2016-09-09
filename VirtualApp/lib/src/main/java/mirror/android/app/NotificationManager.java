@@ -2,14 +2,14 @@ package mirror.android.app;
 
 import android.os.IInterface;
 
-import mirror.ClassDef;
-import mirror.StaticFieldDef;
-import mirror.StaticMethodDef;
+import mirror.RefClass;
+import mirror.RefStaticObject;
+import mirror.RefStaticMethod;
 
 public class NotificationManager {
-    public static Class<?> Class = ClassDef.init(NotificationManager.class, "android.app.NotificationManager");
+    public static Class<?> TYPE = RefClass.load(NotificationManager.class, "android.app.NotificationManager");
 
-    public static StaticMethodDef<IInterface> getService;
-    public static StaticFieldDef<IInterface> sService;
+    public static RefStaticMethod<IInterface> getService;
+    public static RefStaticObject<IInterface> sService;
 
 }

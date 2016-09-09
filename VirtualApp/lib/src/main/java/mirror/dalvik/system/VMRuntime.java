@@ -1,18 +1,18 @@
 package mirror.dalvik.system;
 
-import mirror.ClassDef;
-import mirror.MethodDef;
-import mirror.MethodInfo;
-import mirror.StaticMethodDef;
+import mirror.RefClass;
+import mirror.RefMethod;
+import mirror.MethodParams;
+import mirror.RefStaticMethod;
 
 /**
  * @author Lody
  */
 
 public class VMRuntime {
-        public static Class<?> Class = ClassDef.init(VMRuntime.class, "dalvik.system.VMRuntime");
-        public static StaticMethodDef<Object> getRuntime;
-        @MethodInfo({int.class})
-        public static MethodDef<Void> setTargetSdkVersion;
-        public static MethodDef<Boolean> is64Bit;
+        public static Class<?> TYPE = RefClass.load(VMRuntime.class, "dalvik.system.VMRuntime");
+        public static RefStaticMethod<Object> getRuntime;
+        @MethodParams({int.class})
+        public static RefMethod<Void> setTargetSdkVersion;
+        public static RefMethod<Boolean> is64Bit;
 }

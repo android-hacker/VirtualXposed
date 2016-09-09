@@ -2,12 +2,12 @@ package mirror.android.app;
 
 import java.io.File;
 
-import mirror.ClassDef;
-import mirror.FieldDef;
+import mirror.RefClass;
+import mirror.RefObject;
 
 public class ContextImplKitkat {
-    public static Class<?> Class = ClassDef.init(ContextImplKitkat.class, "android.app.ContextImpl");
-    public static FieldDef<File[]> mExternalCacheDirs;
-    public static FieldDef<File[]> mExternalFilesDirs;
-    public static FieldDef<String> mOpPackageName;
+    public static Class<?> TYPE = RefClass.load(ContextImplKitkat.class, "android.app.ContextImpl");
+    public static RefObject<File[]> mExternalCacheDirs;
+    public static RefObject<File[]> mExternalFilesDirs;
+    public static RefObject<String> mOpPackageName;
 }

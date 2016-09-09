@@ -2,10 +2,10 @@ package mirror;
 
 import java.lang.reflect.Field;
 
-public class BooleanFieldDef {
+public class RefBoolean {
     private Field field;
 
-    public BooleanFieldDef(Class<?> cls, Field field) throws NoSuchFieldException {
+    public RefBoolean(Class<?> cls, Field field) throws NoSuchFieldException {
             this.field = cls.getDeclaredField(field.getName());
             this.field.setAccessible(true);
     }

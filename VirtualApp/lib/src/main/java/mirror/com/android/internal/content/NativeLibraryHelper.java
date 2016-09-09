@@ -2,27 +2,27 @@ package mirror.com.android.internal.content;
 
 import java.io.File;
 
-import mirror.ClassDef;
-import mirror.MethodInfo;
-import mirror.StaticMethodDef;
+import mirror.RefClass;
+import mirror.MethodParams;
+import mirror.RefStaticMethod;
 
 /**
  * @author Lody
  */
 
 public class NativeLibraryHelper {
-    public static Class<?> Class = ClassDef.init(NativeLibraryHelper.class, "com.android.internal.content.NativeLibraryHelper");
+    public static Class<?> TYPE = RefClass.load(NativeLibraryHelper.class, "com.android.internal.content.NativeLibraryHelper");
 
-    @MethodInfo({Handle.class, File.class, String.class})
-    public static StaticMethodDef<Integer> copyNativeBinaries;
+    @MethodParams({Handle.class, File.class, String.class})
+    public static RefStaticMethod<Integer> copyNativeBinaries;
 
-    @MethodInfo({Handle.class, String[].class})
-    public static StaticMethodDef<Integer> findSupportedAbi;
+    @MethodParams({Handle.class, String[].class})
+    public static RefStaticMethod<Integer> findSupportedAbi;
 
     public static class Handle {
-        public static Class<?> Class = ClassDef.init(Handle.class, "com.android.internal.content.NativeLibraryHelper$Handle");
+        public static Class<?> TYPE = RefClass.load(Handle.class, "com.android.internal.content.NativeLibraryHelper$Handle");
 
-        @MethodInfo({File.class})
-        public static StaticMethodDef<Object> create;
+        @MethodParams({File.class})
+        public static RefStaticMethod<Object> create;
     }
 }

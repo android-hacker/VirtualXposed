@@ -374,7 +374,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 	private void realStartActivityLocked(IBinder resultTo, Intent intent, String resultWho, int requestCode, Bundle options) {
 		Class<?>[] types = mirror.android.app.IActivityManager.startActivity.paramList();
 		Object[] args = new Object[types.length];
-		if (types[0] == IApplicationThread.Class) {
+		if (types[0] == IApplicationThread.TYPE) {
 			args[0] = VClientImpl.getClient().getAppThread();
 		}
 		int intentIndex = ArrayUtils.protoIndexOf(types, Intent.class);

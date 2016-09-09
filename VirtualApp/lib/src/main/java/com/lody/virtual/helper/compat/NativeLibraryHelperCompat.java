@@ -30,7 +30,7 @@ public class NativeLibraryHelperCompat {
 
 	private static int copyNativeBinariesBeforeL(File apkFile, File sharedLibraryDir) {
 		try {
-			return Reflect.on(NativeLibraryHelper.Class).call("copyNativeBinariesIfNeededLI", apkFile, sharedLibraryDir)
+			return Reflect.on(NativeLibraryHelper.TYPE).call("copyNativeBinariesIfNeededLI", apkFile, sharedLibraryDir)
 					.get();
 		} catch (Throwable e) {
 			e.printStackTrace();

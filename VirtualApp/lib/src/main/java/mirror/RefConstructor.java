@@ -3,15 +3,15 @@ package mirror;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 
-public class CtorDef<T> {
+public class RefConstructor<T> {
     private Constructor<?> ctor;
 
-    public CtorDef(Class<?> cls, Field field) throws NoSuchMethodException {
-        if (field.isAnnotationPresent(MethodInfo.class)) {
-            Class<?>[] types = field.getAnnotation(MethodInfo.class).value();
+    public RefConstructor(Class<?> cls, Field field) throws NoSuchMethodException {
+        if (field.isAnnotationPresent(MethodParams.class)) {
+            Class<?>[] types = field.getAnnotation(MethodParams.class).value();
             ctor = cls.getDeclaredConstructor(types);
-        } else if (field.isAnnotationPresent(MethodReflectionInfo.class)) {
-            String[] values = field.getAnnotation(MethodReflectionInfo.class).value();
+        } else if (field.isAnnotationPresent(MethodReflectParams.class)) {
+            String[] values = field.getAnnotation(MethodReflectParams.class).value();
             Class[] parameterTypes = new Class[values.length];
             int N = 0;
             while (N < values.length) {

@@ -6,32 +6,32 @@ import android.os.IBinder;
 
 import java.util.List;
 
-import mirror.ClassDef;
-import mirror.MethodDef;
-import mirror.MethodInfo;
+import mirror.RefClass;
+import mirror.RefMethod;
+import mirror.MethodParams;
 
 /**
  * @author Lody
  */
 
 public class IApplicationThread {
-    public static Class<?> Class = ClassDef.init(IApplicationThread.class, "android.app.IApplicationThread");
+    public static Class<?> TYPE = RefClass.load(IApplicationThread.class, "android.app.IApplicationThread");
 
-    @MethodInfo({List.class, IBinder.class})
-    public static MethodDef<Void> scheduleNewIntent;
+    @MethodParams({List.class, IBinder.class})
+    public static RefMethod<Void> scheduleNewIntent;
 
-    @MethodInfo({IBinder.class, ServiceInfo.class})
-    public static MethodDef<Void> scheduleCreateService;
+    @MethodParams({IBinder.class, ServiceInfo.class})
+    public static RefMethod<Void> scheduleCreateService;
 
-    @MethodInfo({IBinder.class, Intent.class, boolean.class})
-    public static MethodDef<Void> scheduleBindService;
+    @MethodParams({IBinder.class, Intent.class, boolean.class})
+    public static RefMethod<Void> scheduleBindService;
 
-    @MethodInfo({IBinder.class, Intent.class})
-    public static MethodDef<Void> scheduleUnbindService;
+    @MethodParams({IBinder.class, Intent.class})
+    public static RefMethod<Void> scheduleUnbindService;
 
-    @MethodInfo({IBinder.class, int.class, int.class, Intent.class})
-    public static MethodDef<Void> scheduleServiceArgs;
+    @MethodParams({IBinder.class, int.class, int.class, Intent.class})
+    public static RefMethod<Void> scheduleServiceArgs;
 
-    @MethodInfo({IBinder.class})
-    public static MethodDef<Void> scheduleStopService;
+    @MethodParams({IBinder.class})
+    public static RefMethod<Void> scheduleStopService;
 }

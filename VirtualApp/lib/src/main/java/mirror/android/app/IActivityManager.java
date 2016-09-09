@@ -5,31 +5,31 @@ import android.os.IBinder;
 import android.os.IInterface;
 import android.os.Parcelable;
 
-import mirror.BooleanFieldDef;
-import mirror.ClassDef;
-import mirror.CtorDef;
-import mirror.FieldDef;
-import mirror.MethodDef;
-import mirror.MethodInfo;
-import mirror.StaticFieldDef;
+import mirror.RefBoolean;
+import mirror.RefClass;
+import mirror.RefConstructor;
+import mirror.RefObject;
+import mirror.RefMethod;
+import mirror.MethodParams;
+import mirror.RefStaticObject;
 
 public class IActivityManager {
-    public static Class<?> Class = ClassDef.init(IActivityManager.class, "android.app.IActivityManager");
-    @MethodInfo({IBinder.class, boolean.class})
-    public static MethodDef<Integer> getTaskForActivity;
-    @MethodInfo({IBinder.class, int.class})
-    public static MethodDef<Void> setRequestedOrientation;
-    @MethodInfo({IBinder.class, String.class, int.class, int.class})
-    public static MethodDef<Void> overridePendingTransition;
-    public static MethodDef<Integer> startActivity;
+    public static Class<?> TYPE = RefClass.load(IActivityManager.class, "android.app.IActivityManager");
+    @MethodParams({IBinder.class, boolean.class})
+    public static RefMethod<Integer> getTaskForActivity;
+    @MethodParams({IBinder.class, int.class})
+    public static RefMethod<Void> setRequestedOrientation;
+    @MethodParams({IBinder.class, String.class, int.class, int.class})
+    public static RefMethod<Void> overridePendingTransition;
+    public static RefMethod<Integer> startActivity;
 
     public static class ContentProviderHolder {
-        @MethodInfo(ProviderInfo.class)
-        public static CtorDef<Object> ctor;
-        public static StaticFieldDef<Parcelable.Creator> CREATOR;
-        public static Class<?> Class = ClassDef.init(ContentProviderHolder.class, "android.app.IActivityManager$ContentProviderHolder");
-        public static FieldDef<ProviderInfo> info;
-        public static FieldDef<IInterface> provider;
-        public static BooleanFieldDef noReleaseNeeded;
+        @MethodParams(ProviderInfo.class)
+        public static RefConstructor<Object> ctor;
+        public static RefStaticObject<Parcelable.Creator> CREATOR;
+        public static Class<?> TYPE = RefClass.load(ContentProviderHolder.class, "android.app.IActivityManager$ContentProviderHolder");
+        public static RefObject<ProviderInfo> info;
+        public static RefObject<IInterface> provider;
+        public static RefBoolean noReleaseNeeded;
     }
 }

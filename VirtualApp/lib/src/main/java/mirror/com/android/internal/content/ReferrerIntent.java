@@ -2,16 +2,16 @@ package mirror.com.android.internal.content;
 
 import android.content.Intent;
 
-import mirror.ClassDef;
-import mirror.CtorDef;
-import mirror.MethodInfo;
+import mirror.RefClass;
+import mirror.RefConstructor;
+import mirror.MethodParams;
 
 /**
  * @author Lody
  */
 
 public class ReferrerIntent {
-    public static Class<?> Class = ClassDef.init(ReferrerIntent.class, "com.android.internal.content.ReferrerIntent");
-    @MethodInfo({Intent.class, String.class})
-    public static CtorDef<Intent> ctor;
+    public static Class<?> TYPE = RefClass.load(ReferrerIntent.class, "com.android.internal.content.ReferrerIntent");
+    @MethodParams({Intent.class, String.class})
+    public static RefConstructor<Intent> ctor;
 }

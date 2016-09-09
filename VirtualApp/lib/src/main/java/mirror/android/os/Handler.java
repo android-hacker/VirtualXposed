@@ -1,10 +1,10 @@
 package mirror.android.os;
 
 
-import mirror.ClassDef;
-import mirror.FieldDef;
+import mirror.RefClass;
+import mirror.RefObject;
 
 public class Handler {
-    public static Class<?> Class = ClassDef.init(Handler.class, "android.os.Handler");
-    public static FieldDef<android.os.Handler.Callback> mCallback;
+    public static Class<?> TYPE = RefClass.load(Handler.class, "android.os.Handler");
+    public static RefObject<android.os.Handler.Callback> mCallback;
 }

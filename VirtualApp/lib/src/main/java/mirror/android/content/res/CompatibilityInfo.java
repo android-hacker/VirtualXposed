@@ -1,14 +1,14 @@
 package mirror.android.content.res;
 
 import android.content.pm.ApplicationInfo;
-import mirror.ClassDef;
-import mirror.CtorDef;
-import mirror.MethodInfo;
-import mirror.StaticFieldDef;
+import mirror.RefClass;
+import mirror.RefConstructor;
+import mirror.MethodParams;
+import mirror.RefStaticObject;
 
 public class CompatibilityInfo {
-    public static Class<?> Class = ClassDef.init(CompatibilityInfo.class, "android.content.res.CompatibilityInfo");
-    @MethodInfo({ApplicationInfo.class, int.class, int.class, boolean.class})
-    public static CtorDef ctor;
-    public static StaticFieldDef<Object> DEFAULT_COMPATIBILITY_INFO;
+    public static Class<?> TYPE = RefClass.load(CompatibilityInfo.class, "android.content.res.CompatibilityInfo");
+    @MethodParams({ApplicationInfo.class, int.class, int.class, boolean.class})
+    public static RefConstructor ctor;
+    public static RefStaticObject<Object> DEFAULT_COMPATIBILITY_INFO;
 }

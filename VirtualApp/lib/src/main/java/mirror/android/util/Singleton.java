@@ -1,12 +1,12 @@
 package mirror.android.util;
 
 
-import mirror.ClassDef;
-import mirror.FieldDef;
-import mirror.MethodDef;
+import mirror.RefClass;
+import mirror.RefObject;
+import mirror.RefMethod;
 
 public class Singleton {
-    public static Class<?> Class = ClassDef.init(Singleton.class, "android.util.Singleton");
-    public static MethodDef<Object> get;
-    public static FieldDef<Object> mInstance;
+    public static Class<?> TYPE = RefClass.load(Singleton.class, "android.util.Singleton");
+    public static RefMethod<Object> get;
+    public static RefObject<Object> mInstance;
 }

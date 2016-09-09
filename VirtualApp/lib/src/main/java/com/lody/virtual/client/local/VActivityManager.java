@@ -418,4 +418,5 @@ public class VActivityManager {
 			VirtualCore.get().getContext().sendBroadcast(newIntent);
 		}
 	}
+
 }

@@ -3,16 +3,16 @@ package mirror.com.android.internal.telephony;
 import android.os.IBinder;
 import android.os.IInterface;
 
-import mirror.ClassDef;
-import mirror.MethodInfo;
-import mirror.StaticMethodDef;
+import mirror.RefClass;
+import mirror.MethodParams;
+import mirror.RefStaticMethod;
 
 public class IMms {
-    public static Class<?> Class = ClassDef.init(IMms.class, "com.android.internal.telephony.IMms");
+    public static Class<?> TYPE = RefClass.load(IMms.class, "com.android.internal.telephony.IMms");
 
     public static class Stub {
-        public static Class<?> Class = ClassDef.init(Stub.class, "com.android.internal.telephony.IMms$Stub");
-        @MethodInfo({IBinder.class})
-        public static StaticMethodDef<IInterface> asInterface;
+        public static Class<?> TYPE = RefClass.load(Stub.class, "com.android.internal.telephony.IMms$Stub");
+        @MethodParams({IBinder.class})
+        public static RefStaticMethod<IInterface> asInterface;
     }
 }

@@ -1,11 +1,11 @@
 package mirror.android.ddm;
 
-import mirror.ClassDef;
-import mirror.MethodInfo;
-import mirror.StaticMethodDef;
+import mirror.RefClass;
+import mirror.MethodParams;
+import mirror.RefStaticMethod;
 
 public class DdmHandleAppNameJBMR1 {
-    public static Class Class = ClassDef.init(DdmHandleAppNameJBMR1.class, "android.ddm.DdmHandleAppName");
-    @MethodInfo({String.class, int.class})
-    public static StaticMethodDef<Void> setAppName;
+    public static Class Class = RefClass.load(DdmHandleAppNameJBMR1.class, "android.ddm.DdmHandleAppName");
+    @MethodParams({String.class, int.class})
+    public static RefStaticMethod<Void> setAppName;
 }

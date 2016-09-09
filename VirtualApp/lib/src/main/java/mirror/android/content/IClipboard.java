@@ -1,7 +1,7 @@
 package mirror.android.content;
 
-import mirror.ClassDef;
+import mirror.RefClass;
 
 public class IClipboard {
-    public static Class<?> Class = ClassDef.init(IClipboard.class, "android.content.IClipboard");
+    public static Class<?> TYPE = RefClass.load(IClipboard.class, "android.content.IClipboard");
 }

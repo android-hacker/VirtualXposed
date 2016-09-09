@@ -3,16 +3,16 @@ package mirror.android.app;
 import android.os.IBinder;
 import android.os.IInterface;
 
-import mirror.ClassDef;
-import mirror.MethodInfo;
-import mirror.StaticMethodDef;
+import mirror.RefClass;
+import mirror.MethodParams;
+import mirror.RefStaticMethod;
 
 /**
  * @author Lody
  */
 public class ApplicationThreadNative {
-    public static Class<?> Class = ClassDef.init(ApplicationThreadNative.class, "android.app.ApplicationThreadNative");
+    public static Class<?> TYPE = RefClass.load(ApplicationThreadNative.class, "android.app.ApplicationThreadNative");
 
-    @MethodInfo({IBinder.class})
-    public static StaticMethodDef<IInterface> asInterface;
+    @MethodParams({IBinder.class})
+    public static RefStaticMethod<IInterface> asInterface;
 }
