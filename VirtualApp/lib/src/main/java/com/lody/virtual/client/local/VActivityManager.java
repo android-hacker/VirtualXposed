@@ -77,6 +77,7 @@ public class VActivityManager {
 		return startActivity(intent, info, null, null, null, 0, userId);
 	}
 
+
 	public ActivityClientRecord onActivityCreate(ComponentName component, ComponentName caller, IBinder token, ActivityInfo info, Intent intent, String affinity, int taskId, int launchMode, int flags) {
 		ActivityClientRecord r = new ActivityClientRecord();
 		r.info = info;
