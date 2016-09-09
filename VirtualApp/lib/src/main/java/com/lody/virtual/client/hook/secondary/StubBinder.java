@@ -16,12 +16,12 @@ import java.lang.reflect.Proxy;
  * @author Lody
  */
 
-public abstract class StubBinder implements IBinder {
+abstract class StubBinder implements IBinder {
 	private ClassLoader mClassLoader;
 	private IBinder mBase;
 	private IInterface mInterface;
 
-	public StubBinder(ClassLoader classLoader, IBinder base) {
+	StubBinder(ClassLoader classLoader, IBinder base) {
 		this.mClassLoader = classLoader;
 		this.mBase = base;
 	}
@@ -45,14 +45,36 @@ public abstract class StubBinder implements IBinder {
 	public IInterface queryLocalInterface(String descriptor) {
 		if (mInterface == null) {
 			StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-			if (stackTrace != null && stackTrace.length > 1) {
-				Pair<Class<?>, IInterface> res = getStubInterface(mBase, stackTrace);
-				if (res == null) {
-					return null;
-				}
-				InvocationHandler handler = createHandler(res.first, res.second);
-				mInterface = (IInterface) Proxy.newProxyInstance(mClassLoader, new Class[]{res.first}, handler);
+			if (stackTrace == null || stackTrace.length <= 1) {
+				return null;
 			}
+			Class<?> aidlType = null;
+			IInterface targetInterface = null;
+
+			for (StackTraceElement element : stackTrace) {
+				if (element.isNativeMethod()) {
+					continue;
+				}
+				try {
+                    Method method = mClassLoader.loadClass(element.getClassName())
+                            .getDeclaredMethod(element.getMethodName(), IBinder.class);
+                    if ((method.getModifiers() & Modifier.STATIC) != 0) {
+                        method.setAccessible(true);
+                        Class<?> returnType = method.getReturnType();
+                        if (returnType.isInterface() && IInterface.class.isAssignableFrom(returnType)) {
+                            aidlType = returnType;
+                            targetInterface = (IInterface) method.invoke(null, mBase);
+                        }
+                    }
+                } catch (Exception e) {
+                    // go to the next cycle
+                }
+			}
+			if (aidlType == null || targetInterface == null) {
+                return null;
+            }
+			InvocationHandler handler = createHandler(aidlType, targetInterface);
+			mInterface = (IInterface) Proxy.newProxyInstance(mClassLoader, new Class[]{aidlType}, handler);
 		}
 		return mInterface;
 
@@ -67,27 +89,7 @@ public abstract class StubBinder implements IBinder {
 	 *
 	 */
 	private Pair<Class<?>, IInterface> getStubInterface(IBinder binder, StackTraceElement[] stackTraceElements) {
-		for (int i = 1; i < stackTraceElements.length; i++) {
-			StackTraceElement stackTraceElement = stackTraceElements[i];
-			if (!stackTraceElement.isNativeMethod()) {
-				try {
-					Method method = mClassLoader.loadClass(stackTraceElement.getClassName())
-							.getDeclaredMethod(stackTraceElement.getMethodName(), IBinder.class);
-					if ((method.getModifiers() & Modifier.STATIC) != 0) {
-						method.setAccessible(true);
-						Class<?> returnType = method.getReturnType();
-						if (returnType.isInterface() && IInterface.class.isAssignableFrom(returnType)) {
-							IInterface iInterface = (IInterface) method.invoke(null, binder);
-							if (iInterface != null) {
-								return new Pair<Class<?>, IInterface>(returnType, iInterface);
-							}
-						}
-					}
-				} catch (Exception e) {
-					// go to the next cycle
-				}
-			}
-		}
+
 		return null;
 	}
 

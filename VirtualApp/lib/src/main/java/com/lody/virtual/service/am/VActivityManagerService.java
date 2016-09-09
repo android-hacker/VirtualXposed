@@ -175,11 +175,11 @@ public class VActivityManagerService extends IActivityManager.Stub {
 				&& TextUtils.equals(metaData.getString(Constants.META_KEY_IDENTITY), Constants.META_VALUE_STUB);
 	}
 
-	public Collection<StubInfo> getStubs() {
+	private Collection<StubInfo> getStubs() {
 		return stubInfoMap.values();
 	}
 
-	public Set<String> getStubProcessList() {
+	private Set<String> getStubProcessList() {
 		return Collections.unmodifiableSet(stubProcessList);
 	}
 
