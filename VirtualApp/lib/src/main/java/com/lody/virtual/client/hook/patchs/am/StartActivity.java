@@ -60,7 +60,7 @@ import java.lang.reflect.Method;
 			args[intentIndex - 1] = getHostPkg();
 		}
 
-		int res = VActivityManager.get().startActivity(intent, activityInfo, resultTo, options, requestCode);
+		int res = VActivityManager.get().startActivity(intent, activityInfo, resultTo, options, resultWho, requestCode, VUserHandle.myUserId());
 		if (res != 0 && resultTo != null && requestCode > 0) {
 			VActivityManager.get().sendActivityResult(resultTo, resultWho, requestCode);
 		}

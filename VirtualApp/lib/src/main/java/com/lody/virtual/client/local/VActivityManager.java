@@ -13,17 +13,13 @@ import android.os.IBinder;
 import android.os.IInterface;
 import android.os.RemoteException;
 
-import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.proto.AppTaskInfo;
 import com.lody.virtual.helper.proto.PendingIntentData;
-import com.lody.virtual.helper.proto.StubActivityRecord;
 import com.lody.virtual.helper.proto.VParceledListSlice;
-import com.lody.virtual.helper.utils.ArrayUtils;
-import com.lody.virtual.helper.utils.ClassUtils;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.service.IActivityManager;
@@ -37,7 +33,6 @@ import mirror.android.app.ActivityManagerNative;
 import mirror.android.app.ActivityThread;
 import mirror.android.app.IActivityManagerICS;
 import mirror.android.app.IActivityManagerL;
-import mirror.android.app.IApplicationThread;
 import mirror.android.content.ContentProviderNative;
 
 /**
@@ -63,24 +58,23 @@ public class VActivityManager {
 		return mRemote;
 	}
 
-	public int startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, int requestCode) {
+	public int startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, String resultWho, int requestCode, int userId) {
 		try {
-			return getService().startActivity(intent, info, resultTo, options, requestCode, VUserHandle.myUserId());
+			return getService().startActivity(intent, info, resultTo, options, resultWho, requestCode, userId);
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
 	}
 
 	public int startActivity(Intent intent, int userId) {
-		if (userId == -1) {
+		if (userId < 0) {
 			return ActivityManagerCompat.START_NOT_CURRENT_USER_ACTIVITY;
 		}
 		ActivityInfo info = VirtualCore.get().resolveActivityInfo(intent, userId);
 		if (info == null) {
 			return ActivityManagerCompat.START_INTENT_NOT_RESOLVED;
 		}
-		return startActivity(intent, info, null, null, userId);
-
+		return startActivity(intent, info, null, null, null, 0, userId);
 	}
 
 	public ActivityClientRecord onActivityCreate(ComponentName component, ComponentName caller, IBinder token, ActivityInfo info, Intent intent, String affinity, int taskId, int launchMode, int flags) {
@@ -376,43 +370,6 @@ public class VActivityManager {
 
 	public void removePendingIntent(IBinder binder) throws RemoteException {
 		getService().removePendingIntent(binder);
-	}
-
-	public boolean startActivityFromToken(IBinder resultTo, Intent intent, int requestCode, Bundle options) {
-		ActivityClientRecord r = getActivityRecord(resultTo);
-		if (r != null && r.activity != null) {
-			intent.setExtrasClassLoader(StubActivityRecord.class.getClassLoader());
-			String resultWho = mirror.android.app.Activity.mEmbeddedID.get(r.activity);
-			Class<?>[] types = mirror.android.app.IActivityManager.startActivity.paramList();
-			Object[] args = new Object[types.length];
-			if (types[0] == IApplicationThread.Class) {
-				args[0] = VClientImpl.getClient().getAppThread();
-			}
-			int intentIndex = ArrayUtils.protoIndexOf(types, Intent.class);
-			int resultToIndex = ArrayUtils.protoIndexOf(types, IBinder.class, 2);
-			int optionsIndex = ArrayUtils.protoIndexOf(types, Bundle.class);
-			int resultWhoIndex = resultToIndex + 1;
-			int requestCodeIndex = resultToIndex + 2;
-
-			args[intentIndex] = intent;
-			args[resultToIndex] = resultTo;
-			args[resultWhoIndex] = resultWho;
-			args[requestCodeIndex] = requestCode;
-			if (optionsIndex != -1) {
-				args[optionsIndex] = options;
-			}
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-				args[intentIndex - 1] = VirtualCore.get().getHostPkg();
-			}
-			ClassUtils.fixArgs(types, args);
-
-			mirror.android.app.IActivityManager.startActivity.call(
-					ActivityManagerNative.getDefault.call(),
-					(Object[]) args
-			);
-			return true;
-		}
-		return false;
 	}
 
 	public void finishActivity(IBinder token) {

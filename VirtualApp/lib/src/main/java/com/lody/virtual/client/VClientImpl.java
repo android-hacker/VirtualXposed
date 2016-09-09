@@ -334,12 +334,6 @@ public final class VClientImpl extends IVClient.Stub {
 		sendMessage(NEW_INTENT, data);
 	}
 
-
-	@Override
-	public boolean startActivityFromToken(IBinder token, Intent intent, int requestCode, Bundle options) {
-		return VActivityManager.get().startActivityFromToken(token, intent, requestCode, options);
-	}
-
 	@Override
 	public IBinder createProxyService(ComponentName component, IBinder binder) {
 		return ProxyServiceFactory.getProxyService(getCurrentApplication(), component, binder);
