@@ -1,7 +1,7 @@
 package com.lc.interceptor.client.hook.patch.interceptor.wifi;
 
 /**
- * Created by legency on 2016/8/21.
+ * @author legency
  */
 public class Interceptor_GetConnectionInfo extends BaseInterceptorWifi {
 

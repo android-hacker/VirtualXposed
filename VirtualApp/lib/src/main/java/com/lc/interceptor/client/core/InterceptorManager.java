@@ -4,6 +4,7 @@ import com.lc.interceptor.client.hook.base.InterceptorHook;
 import com.lc.interceptor.client.hook.patch.interceptor.connectivity.Interceptor_GetActiveNetworkInfo;
 import com.lc.interceptor.client.hook.patch.interceptor.location.Interceptor_RemoveUpdates;
 import com.lc.interceptor.client.hook.patch.interceptor.location.Interceptor_RequestLocationUpdates;
+import com.lc.interceptor.client.hook.patch.interceptor.telephony.Interceptor_GetActivePhoneTypeForSlot;
 import com.lc.interceptor.client.hook.patch.interceptor.telephony.Interceptor_GetActivePhoneTypeForSubscriber;
 import com.lc.interceptor.client.hook.patch.interceptor.telephony.Interceptor_GetAllCellInfo;
 import com.lc.interceptor.client.hook.patch.interceptor.telephony.Interceptor_GetAllCellInfoUsingSubId;
@@ -17,7 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by lichen:) on 2016/9/1.
+ * @author Junelegency
+ *
  */
 public class InterceptorManager {
 
@@ -31,6 +33,7 @@ public class InterceptorManager {
         interceptorHooks.add(new Interceptor_RequestLocationUpdates());
 
         // telephony interceptor
+        interceptorHooks.add(new Interceptor_GetActivePhoneTypeForSlot());
         interceptorHooks.add(new Interceptor_GetActivePhoneTypeForSubscriber());
         interceptorHooks.add(new Interceptor_GetAllCellInfo());
         interceptorHooks.add(new Interceptor_GetAllCellInfoUsingSubId());

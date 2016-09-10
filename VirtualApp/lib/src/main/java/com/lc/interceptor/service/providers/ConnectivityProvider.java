@@ -9,7 +9,7 @@ import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.patchs.connectivity.ConnectivityPatch;
 
 /**
- * Created by lichen:) on 2016/9/9.
+ * @author legency
  */
 public class ConnectivityProvider extends InterceptorDataProvider {
 
@@ -23,7 +23,7 @@ public class ConnectivityProvider extends InterceptorDataProvider {
      * @see com.lc.interceptor.client.hook.patch.interceptor.connectivity.Interceptor_GetActiveNetworkInfo
      */
     private NetworkInfo getActiveNetworkInfo() {
-        return new NetworkInfoMirror().setNetworkType(ConnectivityManager.TYPE_WIFI).setSubtype(0)
+        return new NetworkInfoMirror.Builder().setNetworkType(ConnectivityManager.TYPE_WIFI).setSubtype(0)
                 .setTypeName("WIFI").setAvailable(true).
                         setDetailedState(NetworkInfo.DetailedState.CONNECTED).
                         setExtraInfo("wifi_test_name").create();

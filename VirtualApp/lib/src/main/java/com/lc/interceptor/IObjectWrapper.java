@@ -3,11 +3,21 @@ package com.lc.interceptor;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.lc.interceptor.service.providers.base.InterceptorDataProvider;
+
 /**
- * Created by lichen:) on 2016/9/9.
+ * @author legency
  */
 public class IObjectWrapper<T> implements Parcelable{
+    public IObjectWrapper() {
+    }
+
     public IObjectWrapper(T parcelable) {
+        if(parcelable instanceof InterceptorDataProvider) {
+            //Reflect get the original object when void returns
+            //可能是void 的返回值
+            parcelable = null;
+        }
         this.parcelable = parcelable;
     }
 

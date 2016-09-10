@@ -9,7 +9,8 @@ import com.lody.virtual.client.hook.utils.HookUtils;
 import java.lang.reflect.Method;
 
 /**
- * Created by legency on 2016/8/21.
+ * @author Junelegency
+ *
  */
 public class Interceptor_RemoveUpdates extends InterceptorHook {
 

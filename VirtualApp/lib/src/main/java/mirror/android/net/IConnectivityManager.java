@@ -9,7 +9,8 @@ import mirror.RefStaticMethod;
 
 
 /**
- * Created by lichen:) on 2016/9/1.
+ * @author Junelegency
+ *
  */
 public class IConnectivityManager {
     public static Class<?> TYPE = RefClass.load(IConnectivityManager.class, "android.net.IConnectivityManager");

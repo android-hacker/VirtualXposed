@@ -9,7 +9,8 @@ import com.lody.virtual.client.hook.patchs.location.LocationManagerPatch;
 import java.lang.reflect.Method;
 
 /**
- * Created by legency on 2016/8/21.
+ * @author Junelegency
+ *
  */
 public class Interceptor_RequestLocationUpdates extends InterceptorServiceHook {
 

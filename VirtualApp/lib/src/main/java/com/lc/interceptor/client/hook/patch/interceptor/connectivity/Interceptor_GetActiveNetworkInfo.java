@@ -5,8 +5,8 @@ import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.patchs.connectivity.ConnectivityPatch;
 
 /**
- * 获取当前 连接
- * Created by legency on 2016/8/19.
+ * @author Junelegency
+ *
  */
 public class Interceptor_GetActiveNetworkInfo extends InterceptorServiceHook {
 
