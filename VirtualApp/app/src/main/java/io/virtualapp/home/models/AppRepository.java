@@ -37,6 +37,9 @@ public class AppRepository implements AppDataSource {
 				.add(sdCardPath + File.separator + "tencent" + File.separator + "tassistant" + File.separator + "apk");
 		sdCardScanPaths.add(sdCardPath + File.separator + "BaiduAsa9103056");
 		sdCardScanPaths.add(sdCardPath + File.separator + "360Download");
+		sdCardScanPaths.add(sdCardPath + File.separator + "pp/downloader");
+		sdCardScanPaths.add(sdCardPath + File.separator + "pp/downloader/apk");
+		sdCardScanPaths.add(sdCardPath + File.separator + "pp/downloader/silent/apk");
 	}
 
 	private Context mContext;

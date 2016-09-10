@@ -21,6 +21,7 @@ import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.LruCache;
 
+import com.lc.interceptor.client.core.InterceptorManager;
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.fixer.ContextFixer;
@@ -75,6 +76,7 @@ public final class VirtualCore {
 	private final LruCache<ComponentName, ActivityInfo> activityInfoCache = new LruCache<>(6);
 	private final int myUid = Process.myUid();
 	private int systemPid;
+    private boolean isInterceptorEnabled = false;
 
 
 	private VirtualCore() {}
@@ -152,7 +154,10 @@ public final class VirtualCore {
 			PatchManager patchManager = PatchManager.getInstance();
 			patchManager.init();
 			patchManager.injectAll();
-			ContextFixer.fixContext(context);
+            if (isInterceptorEnabled) {
+                patchManager.applyInterceptors(InterceptorManager.getInterceptors());
+            }
+            ContextFixer.fixContext(context);
 			isStartUp = true;
 		}
 	}
@@ -274,7 +279,11 @@ public final class VirtualCore {
 		}
 	}
 
-	public AppSetting findApp(String pkg) {
+    public void setInterceptorEnabled(boolean interceptorEnabled) {
+        isInterceptorEnabled = interceptorEnabled;
+    }
+
+    public AppSetting findApp(String pkg) {
 		try {
 			return getService().findAppInfo(pkg);
 		} catch (RemoteException e) {
