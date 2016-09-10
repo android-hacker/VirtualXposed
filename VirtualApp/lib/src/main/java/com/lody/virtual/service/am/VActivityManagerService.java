@@ -699,10 +699,8 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		int uid = VUserHandle.getUid(userId, setting.appId);
 		ProcessRecord app = mProcessNames.get(processName, uid);
 		if (app != null) {
-            if (!app.pkgList.contains(info.packageName)) {
-                app.pkgList.add(info.packageName);
-            }
-            return app;
+			app.pkgList.add(info.packageName);
+			return app;
         }
 		app = mPendingProcesses.get(processName, userId);
 		if (app != null) {

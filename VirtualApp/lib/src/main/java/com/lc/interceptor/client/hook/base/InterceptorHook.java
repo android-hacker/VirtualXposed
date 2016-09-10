@@ -20,7 +20,7 @@ public abstract class InterceptorHook extends Hook {
     }
 
     public boolean isOnHookEnabled(){
-        return  true;
+        return true;
     }
 
     @Override

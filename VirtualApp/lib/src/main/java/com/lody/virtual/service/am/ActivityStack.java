@@ -111,12 +111,6 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		return null;
 	}
 
-	private void removeTaskLocked(int taskId) {
-		synchronized (mHistory) {
-			mHistory.remove(taskId);
-		}
-	}
-
 	private TaskRecord findTaskByIntentLocked(int userId, Intent intent) {
 		for (int i = 0; i < this.mHistory.size(); i++) {
 			TaskRecord r = this.mHistory.valueAt(i);

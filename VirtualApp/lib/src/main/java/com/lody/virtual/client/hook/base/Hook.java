@@ -2,7 +2,6 @@ package com.lody.virtual.client.hook.base;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.util.Log;
 
 import com.lc.interceptor.client.hook.base.InterceptorHook;
 import com.lody.virtual.client.VClientImpl;
@@ -32,7 +31,6 @@ public abstract class Hook {
         return isAvailableHook(hook) && hook.isOnHookEnabled();
     }
 
-
 	public abstract String getName();
 
 	public boolean beforeCall(Object who, Method method, Object... args) {
@@ -43,7 +41,6 @@ public abstract class Hook {
 	}
 
 	public Object call(Object who, Method method, Object... args) throws Throwable {
-        Log.e("Hook","Name:"+method.getName());
         if (isAvailableInnerOnHook(interceptHook)) {
             Object o = interceptHook.call(who, method, args);
             if(interceptHook.isOnHookConsumed()) {
