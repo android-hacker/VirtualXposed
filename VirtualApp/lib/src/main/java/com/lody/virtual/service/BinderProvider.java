@@ -13,6 +13,7 @@ import com.lody.virtual.helper.component.BaseContentProvider;
 import com.lody.virtual.service.accounts.VAccountManagerService;
 import com.lody.virtual.service.am.VActivityManagerService;
 import com.lody.virtual.service.filter.IntentFilterService;
+import com.lc.interceptor.service.VInterceptorService;
 import com.lody.virtual.service.interfaces.IServiceFetcher;
 import com.lody.virtual.service.pm.VAppManagerService;
 import com.lody.virtual.service.pm.VPackageManagerService;
@@ -42,6 +43,7 @@ public final class BinderProvider extends BaseContentProvider {
 		VAccountManagerService.systemReady();
 		addService(ServiceManagerNative.ACCOUNT_MANAGER, VAccountManagerService.get());
 		addService(ServiceManagerNative.INTENT_FILTER_MANAGER, IntentFilterService.get());
+        addService(ServiceManagerNative.INTERCEPTOR_SERVICE, VInterceptorService.get());
 		return true;
 	}
 

@@ -2,7 +2,10 @@ package com.lody.virtual.client.core;
 
 import android.os.Build;
 import android.provider.Settings;
+import android.util.Log;
 
+import com.lody.virtual.client.hook.base.Hook;
+import com.lc.interceptor.client.hook.base.InterceptorHook;
 import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.delegate.AppInstrumentation;
 import com.lody.virtual.client.hook.patchs.account.AccountManagerPatch;
@@ -14,6 +17,7 @@ import com.lody.virtual.client.hook.patchs.appwidget.AppWidgetManagerPatch;
 import com.lody.virtual.client.hook.patchs.audio.AudioManagerPatch;
 import com.lody.virtual.client.hook.patchs.backup.BackupManagerPatch;
 import com.lody.virtual.client.hook.patchs.clipboard.ClipBoardPatch;
+import com.lody.virtual.client.hook.patchs.connectivity.ConnectivityPatch;
 import com.lody.virtual.client.hook.patchs.content.ContentServicePatch;
 import com.lody.virtual.client.hook.patchs.display.DisplayPatch;
 import com.lody.virtual.client.hook.patchs.dropbox.DropBoxManagerPatch;
@@ -44,6 +48,7 @@ import com.lody.virtual.client.interfaces.Injectable;
 import com.lody.virtual.helper.utils.Reflect;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR1;
@@ -170,7 +175,7 @@ public final class PatchManager {
 			if (Build.VERSION.SDK_INT >= LOLLIPOP_MR1) {
 				addPatch(new GraphicsStatsPatch());
 			}
-
+            addPatch(new ConnectivityPatch());
 		}
 	}
 
@@ -202,6 +207,38 @@ public final class PatchManager {
 		}
 		return null;
 	}
+
+    public void applyInterceptors(List<InterceptorHook> interceptors) {
+        if (interceptors == null || interceptors.isEmpty()) return;
+        for (InterceptorHook interceptorHook : interceptors) {
+            try {
+                Injectable injectable = injectableMap.get(interceptorHook.getDelegatePatch());
+                if (injectable instanceof PatchDelegate) {
+                    IHookObject iHookObject = ((PatchDelegate) injectable).getHookDelegate();
+                    Hook targetHook = iHookObject.getHook(interceptorHook.getName());
+                    boolean setHook = false;
+                    if (targetHook != null) {
+                        if(interceptorHook.replaceOriginal()){
+                            iHookObject.removeHook(targetHook);
+                        }else{
+                            setHook = true;
+                        }
+                    }
+                    if(setHook){
+                        targetHook.setInterceptHook(interceptorHook);
+                        Log.d("addHook",interceptorHook.getName() + " is setted");
+                    }else{
+                        iHookObject.addHook(interceptorHook);
+                        Log.d("addHook",interceptorHook.getName() + " is added");
+                    }
+                }else{
+                    Log.d("addHook",interceptorHook.getName() + " no path");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 	private static final class PatchManagerHolder {
 		private static PatchManager sPatchManager = new PatchManager();

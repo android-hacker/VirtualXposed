@@ -23,6 +23,7 @@ public class ServiceManagerNative {
 	public static final String APP_MANAGER = "app";
 	public static final String ACCOUNT_MANAGER = "account";
 	public static final String INTENT_FILTER_MANAGER = "intent_filter";
+    public static final String INTERCEPTOR_SERVICE = "interceptor_service";
 	private static final String TAG = ServiceManagerNative.class.getSimpleName();
 	private static final String SERVICE_CP_AUTH = "virtual.service.BinderProvider";
 
