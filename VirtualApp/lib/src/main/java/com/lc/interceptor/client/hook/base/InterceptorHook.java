@@ -7,7 +7,8 @@ import com.lody.virtual.client.hook.base.PatchDelegate;
 import java.lang.reflect.Method;
 
 /**
- * Created by lichen:) on 2016/9/1.
+ * @author Junelegency
+ *
  */
 public abstract class InterceptorHook extends Hook {
 

@@ -5,7 +5,7 @@ import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.patchs.wifi.WifiManagerPatch;
 
 /**
- * Created by lichen:) on 2016/9/1.
+ * @author legency
  */
 public abstract class BaseInterceptorWifi extends InterceptorServiceHook {
     @Override

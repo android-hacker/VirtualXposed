@@ -5,7 +5,7 @@ import android.net.wifi.WifiManager;
 import java.lang.reflect.Method;
 
 /**
- * Created by legency on 2016/8/21.
+ * @author legency
  */
 public class Interceptor_GetWifiEnabledState extends BaseInterceptorWifi {
 

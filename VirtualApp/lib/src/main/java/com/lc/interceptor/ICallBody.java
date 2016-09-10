@@ -5,8 +5,10 @@ import android.os.Parcelable;
 
 import com.lc.interceptor.client.hook.base.InterceptorHook;
 
+import java.util.Arrays;
+
 /**
- * Created by lichen:) on 2016/9/9.
+ * @author legency
  */
 public class ICallBody implements Parcelable {
 
@@ -59,4 +61,13 @@ public class ICallBody implements Parcelable {
             return new ICallBody[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return "ICallBody{" +
+                "module='" + module + '\'' +
+                ", method='" + method + '\'' +
+                ", args=" + Arrays.toString(args) +
+                '}';
+    }
 }

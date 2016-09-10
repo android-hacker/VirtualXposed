@@ -23,7 +23,7 @@ import mirror.android.location.ILocationListener;
 import mirror.android.location.LocationRequestL;
 
 /**
- * Created by legency on 2016/8/21.
+ * @author legency
  */
 public class LocationManagerProvider extends InterceptorDataProvider {
 

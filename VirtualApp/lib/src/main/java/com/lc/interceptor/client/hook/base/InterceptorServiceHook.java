@@ -5,7 +5,8 @@ import com.lc.interceptor.client.local.interceptor.VInterceptorCallManager;
 import java.lang.reflect.Method;
 
 /**
- * Created by lichen:) on 2016/9/9.
+ * @author Junelegency
+ *
  */
 public abstract class InterceptorServiceHook extends InterceptorHook{
     @Override

@@ -11,7 +11,7 @@ import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.service.ServiceManagerNative;
 
 /**
- * Created by lichen:) on 2016/9/9.
+ * @author legency
  */
 public class VInterceptorCallManager {
 
