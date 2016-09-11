@@ -1,7 +1,6 @@
 package com.lody.virtual.service.am;
 
 import android.content.pm.ApplicationInfo;
-import android.content.pm.ProviderInfo;
 import android.os.Binder;
 import android.os.ConditionVariable;
 import android.os.IInterface;
@@ -10,38 +9,30 @@ import com.lody.virtual.client.IVClient;
 import com.lody.virtual.os.VUserHandle;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public final class ProcessRecord extends Binder {
 
 	public final ConditionVariable lock = new ConditionVariable();
-	final public StubInfo stubInfo;
 	public final ApplicationInfo info; // all about the first app in the process
 	final public String processName; // name of the process
 	final Set<String> pkgList = new HashSet<>(); // List of packages
-	final List<ProviderInfo> providers;
-	final List<String> sharedPackages;
-	final List<String> usesLibraries;
 	public IVClient client;
 	public IInterface appThread;
 	public int pid;
-	public int uid;
+	public int vuid;
+	public int vpid;
 	public int userId;
 													// running in the
 													// process
 	boolean doneExecuting;
 
-	public ProcessRecord(StubInfo stubInfo, ApplicationInfo info, String processName, List<ProviderInfo> providers,
-			List<String> sharedPackages, List<String> usesLibraries, int uid) {
-		this.stubInfo = stubInfo;
+	public ProcessRecord(ApplicationInfo info, String processName, int vuid, int vpid) {
 		this.info = info;
-		this.uid = uid;
-		this.userId = VUserHandle.getUserId(uid);
+		this.vuid = vuid;
+		this.vpid = vpid;
+		this.userId = VUserHandle.getUserId(vuid);
 		this.processName = processName;
-		this.providers = providers;
-		this.sharedPackages = sharedPackages;
-		this.usesLibraries = usesLibraries;
 	}
 
 	@Override

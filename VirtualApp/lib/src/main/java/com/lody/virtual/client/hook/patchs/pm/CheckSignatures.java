@@ -58,7 +58,7 @@ import java.util.Arrays;
 					}
 				}
 			} catch (Throwable e) {
-				e.printStackTrace();
+				// Ignore
 			}
 		}
 

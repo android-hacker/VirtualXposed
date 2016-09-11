@@ -14,6 +14,8 @@ import com.lody.virtual.service.interfaces.IProcessObserver;
 
 interface IActivityManager {
 
+    int initProcess(in String packageName, in String processName, int userId);
+
     int getFreeStubCount();
 
     int getSystemPid();
@@ -32,7 +34,7 @@ interface IActivityManager {
 
     void killAppByPkg(String pkg, int userId);
 
-    void killApplicationProcess(String procName, int uid);
+    void killApplicationProcess(String procName, int vuid);
 
     void dump();
 

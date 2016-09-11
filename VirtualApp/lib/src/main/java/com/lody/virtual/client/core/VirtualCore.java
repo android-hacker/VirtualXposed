@@ -14,6 +14,7 @@ import android.content.pm.ServiceInfo;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.ConditionVariable;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Process;
@@ -77,7 +78,11 @@ public final class VirtualCore {
 	private final int myUid = Process.myUid();
 	private int systemPid;
     private boolean isInterceptorEnabled = false;
+	private ConditionVariable initLock = new ConditionVariable();
 
+	public ConditionVariable getInitLock() {
+		return initLock;
+	}
 
 	private VirtualCore() {}
 
@@ -159,6 +164,10 @@ public final class VirtualCore {
             }
             ContextFixer.fixContext(context);
 			isStartUp = true;
+			if (initLock != null) {
+				initLock.open();
+				initLock = null;
+			}
 		}
 	}
 

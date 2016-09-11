@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
  * @author Lody
  *
  *
- *         原型: public StorageVolume[] getVolumeList(int uid, String packageName,
+ *         原型: public StorageVolume[] getVolumeList(int vuid, String packageName,
  *         int flags)
  */
 /* package */ class GetVolumeList extends Hook {

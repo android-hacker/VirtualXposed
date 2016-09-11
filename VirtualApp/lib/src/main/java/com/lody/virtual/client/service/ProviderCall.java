@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.os.Parcelable;
 
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.service.am.StubInfo;
 
 import java.io.Serializable;
 
@@ -17,8 +16,8 @@ import java.io.Serializable;
  */
 public class ProviderCall {
 
-	public static Bundle call(StubInfo stubInfo, String methodName, String arg, Bundle bundle) {
-		return call(stubInfo.providerInfo.authority, VirtualCore.get().getContext(), methodName, arg, bundle);
+	public static Bundle call(String authority, String methodName, String arg, Bundle bundle) {
+		return call(authority, VirtualCore.get().getContext(), methodName, arg, bundle);
 	}
 
 	public static Bundle call(String authority, Context context, String methodName, String arg, Bundle bundle) {

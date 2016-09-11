@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.ComponentInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
@@ -26,13 +25,12 @@ import android.os.Parcel;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
-import android.text.TextUtils;
 
 import com.lody.virtual.client.IVClient;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.client.service.ProviderCall;
+import com.lody.virtual.client.stub.StubManifest;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.compat.IApplicationThreadCompat;
@@ -54,14 +52,8 @@ import com.lody.virtual.service.pm.VPackageManagerService;
 import com.lody.virtual.service.secondary.BinderDelegateService;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import mirror.android.app.ApplicationThreadNative;
@@ -84,14 +76,11 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	private static final AtomicReference<VActivityManagerService> sService = new AtomicReference<>();
 	private static final String TAG = VActivityManagerService.class.getSimpleName();
 	private final SparseArray<ProcessRecord> mPidsSelfLocked = new SparseArray<ProcessRecord>();
-	private final Map<String, StubInfo> stubInfoMap = new HashMap<>();
-	private final Set<String> stubProcessList = new HashSet<String>();
 	private final ActivityStack mMainStack = new ActivityStack(this);
 	private final List<ServiceRecord> mHistory = new ArrayList<ServiceRecord>();
 	private final ProcessMap<ProcessRecord> mProcessNames = new ProcessMap<ProcessRecord>();
 	private ActivityManager am = (ActivityManager) VirtualCore.get().getContext()
 			.getSystemService(Context.ACTIVITY_SERVICE);
-	private ProcessMap<ProcessRecord> mPendingProcesses = new ProcessMap<>();
 	private final VPendingIntents mPendingIntents = new VPendingIntents();
 
 	public static VActivityManagerService get() {
@@ -126,62 +115,10 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		if (packageInfo == null) {
 			throw new RuntimeException("Unable to found PackageInfo : " + context.getPackageName());
 		}
-
-		ActivityInfo[] activityInfos = packageInfo.activities;
-		for (ActivityInfo activityInfo : activityInfos) {
-			if (isStubComponent(activityInfo)) {
-				String processName = activityInfo.processName;
-				stubProcessList.add(processName);
-				StubInfo stubInfo = stubInfoMap.get(processName);
-				if (stubInfo == null) {
-					stubInfo = new StubInfo();
-					stubInfo.processName = processName;
-					stubInfoMap.put(processName, stubInfo);
-				}
-				String name = activityInfo.name;
-				if (name.endsWith("_")) {
-					stubInfo.dialogActivityInfos.add(activityInfo);
-				} else {
-					stubInfo.standardActivityInfos.add(activityInfo);
-				}
-			}
-		}
-		ProviderInfo[] providerInfos = packageInfo.providers;
-		for (ProviderInfo providerInfo : providerInfos) {
-			if (providerInfo.authority == null) {
-				continue;
-			}
-			if (isStubComponent(providerInfo)) {
-				String processName = providerInfo.processName;
-				stubProcessList.add(processName);
-				StubInfo stubInfo = stubInfoMap.get(processName);
-				if (stubInfo == null) {
-					stubInfo = new StubInfo();
-					stubInfo.processName = processName;
-					stubInfoMap.put(processName, stubInfo);
-				}
-				if (stubInfo.providerInfo == null) {
-					stubInfo.providerInfo = providerInfo;
-				}
-			}
-		}
 		sService.set(this);
 
 	}
 
-	private boolean isStubComponent(ComponentInfo componentInfo) {
-		Bundle metaData = componentInfo.metaData;
-		return metaData != null
-				&& TextUtils.equals(metaData.getString(Constants.META_KEY_IDENTITY), Constants.META_VALUE_STUB);
-	}
-
-	private Collection<StubInfo> getStubs() {
-		return stubInfoMap.values();
-	}
-
-	private Set<String> getStubProcessList() {
-		return Collections.unmodifiableSet(stubProcessList);
-	}
 
 	@Override
 	public int startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, String resultWho, int requestCode, int userId) {
@@ -256,12 +193,19 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
 	@Override
 	public IBinder acquireProviderClient(int userId, ProviderInfo info) {
+		ProcessRecord callerApp;
+		synchronized (mPidsSelfLocked) {
+			callerApp  = findProcessLocked(VBinder.getCallingPid());
+		}
+		if (callerApp == null) {
+			throw new SecurityException("Who are you?");
+		}
 		String processName = info.processName;
 		ProcessRecord r;
 		synchronized (this) {
 			r = startProcessIfNeedLocked(processName, userId, info.packageName);
 		}
-		if (r != null && r.client != null) {
+		if (r != null) {
 			try {
 				return r.client.acquireProviderClient(info);
 			} catch (RemoteException e) {
@@ -569,7 +513,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 					continue;
 				}
 				ActivityManager.RunningServiceInfo info = new ActivityManager.RunningServiceInfo();
-				info.uid = r.process.uid;
+				info.uid = r.process.vuid;
 				info.pid = r.process.pid;
 				ProcessRecord processRecord = findProcessLocked(r.process.pid);
 				if (processRecord != null) {
@@ -594,24 +538,27 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		synchronized (this) {
 			ProcessRecord app = findProcessLocked(callingPid);
 			if (app == null) {
-				app = mPendingProcesses.get(processName, appId);
-			}
-			if (app == null) {
 				ApplicationInfo appInfo = VPackageManagerService.get().getApplicationInfo(packageName, 0, userId);
 				appInfo.flags |= ApplicationInfo.FLAG_HAS_CODE;
 				String stubProcessName = getProcessName(callingPid);
-				StubInfo stubInfo = null;
-				for (StubInfo info : getStubs()) {
-					if (info.processName.equals(stubProcessName)) {
-						stubInfo = info;
-						break;
-					}
-				}
-				if (stubInfo != null) {
-					performStartProcessLocked(uid, stubInfo, appInfo, processName);
+				int vpid = parseVPid(stubProcessName);
+				if (vpid != -1) {
+					performStartProcessLocked(uid, vpid, appInfo, processName);
 				}
 			}
 		}
+	}
+
+	private int parseVPid(String stubProcessName) {
+		String prefix = VirtualCore.get().getHostPkg() + ":p";
+		if (stubProcessName != null && stubProcessName.startsWith(prefix)) {
+			try {
+				return Integer.parseInt(stubProcessName.substring(prefix.length()));
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+			}
+		}
+		return -1;
 	}
 
 
@@ -669,16 +616,15 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		app.client = client;
 		app.appThread = thread;
 		app.pid = pid;
-		mPendingProcesses.remove(app.processName, app.userId);
 		synchronized (mProcessNames) {
-            mProcessNames.put(app.processName, app.uid, app);
+            mProcessNames.put(app.processName, app.vuid, app);
             mPidsSelfLocked.put(app.pid, app);
         }
 	}
 
 	private void onProcessDead(ProcessRecord record) {
 		VLog.d(TAG, "Process %s died.", record.processName);
-		mProcessNames.remove(record.processName, record.uid);
+		mProcessNames.remove(record.processName, record.vuid);
 		mPidsSelfLocked.remove(record.pid);
 		processDead(record);
 		record.lock.open();
@@ -686,7 +632,15 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
 	@Override
 	public int getFreeStubCount() {
-		return stubInfoMap.size() - mPidsSelfLocked.size();
+		return StubManifest.STUB_COUNT - mPidsSelfLocked.size();
+	}
+
+	@Override
+	public int initProcess(String packageName, String processName, int userId) {
+		synchronized (this) {
+			ProcessRecord r = startProcessIfNeedLocked(processName, userId, packageName);
+			return  r != null ? r.vpid : -1;
+		}
 	}
 
 	public ProcessRecord startProcessIfNeedLocked(String processName, int userId, String packageName) {
@@ -698,19 +652,17 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		AppSetting setting = VAppManagerService.get().findAppInfo(info.packageName);
 		int uid = VUserHandle.getUid(userId, setting.appId);
 		ProcessRecord app = mProcessNames.get(processName, uid);
-		if (app != null) {
-			app.pkgList.add(info.packageName);
+		if (app != null && app.client.asBinder().isBinderAlive()) {
 			return app;
-        }
-		app = mPendingProcesses.get(processName, userId);
-		if (app != null) {
-            return app;
-        }
-		StubInfo stubInfo = queryFreeStubForProcess(processName, userId);
-		if (stubInfo == null) {
+		}
+		int vpid = queryFreeVPidForProcess();
+		if (vpid == -1) {
             return null;
         }
-		app = performStartProcessLocked(uid, stubInfo, info, processName);
+		app = performStartProcessLocked(uid, vpid, info, processName);
+		if (app != null) {
+			app.pkgList.add(info.packageName);
+		}
 		return app;
 	}
 
@@ -720,25 +672,21 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		synchronized (mPidsSelfLocked) {
 			ProcessRecord r = findProcessLocked(pid);
 			if (r != null) {
-				return r.uid;
+				return r.vuid;
 			}
 		}
 		return Process.myUid();
 	}
 
-	private ProcessRecord performStartProcessLocked(int vuid, StubInfo stubInfo, ApplicationInfo info, String processName) {
-		VPackageManagerService pm = VPackageManagerService.get();
-		List<String> sharedPackages = pm.querySharedPackages(info.packageName);
-		List<ProviderInfo> providers = pm.queryContentProviders(processName, getUserId(vuid), 0).getList();
-		List<String> usesLibraries = pm.getSharedLibraries(info.packageName);
-		ProcessRecord app = new ProcessRecord(stubInfo, info, processName, providers, sharedPackages, usesLibraries, vuid);
-		mPendingProcesses.put(processName, app.userId, app);
+	private ProcessRecord performStartProcessLocked(int vuid, int vpid, ApplicationInfo info, String processName) {
+		ProcessRecord app = new ProcessRecord(info, processName, vuid, vpid);
 		Bundle extras = new Bundle();
 		BundleCompat.putBinder(extras, "_VA_|_binder_", app);
 		extras.putInt( "_VA_|_vuid_", vuid);
-		Bundle res = ProviderCall.call(stubInfo, "_VA_|_init_process_", null, extras);
+		extras.putString("_VA_|_process_", processName);
+		extras.putString("_VA_|_pkg_", info.packageName);
+		Bundle res = ProviderCall.call(StubManifest.getStubAuthority(vpid), "_VA_|_init_process_", null, extras);
 		if (res == null) {
-			mPendingProcesses.remove(processName, vuid);
 			return null;
 		}
 		int pid = res.getInt("_VA_|_pid_");
@@ -747,32 +695,28 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		return app;
 	}
 
-	private StubInfo queryFreeStubForProcess(String processName, int userId) {
-		for (StubInfo stubInfo : getStubs()) {
+	private int queryFreeVPidForProcess() {
+		for (int vpid = 0; vpid < StubManifest.STUB_COUNT; vpid++) {
 			int N = mPidsSelfLocked.size();
 			boolean using = false;
 			while (N-- > 0) {
 				ProcessRecord r = mPidsSelfLocked.valueAt(N);
-				if (r.stubInfo == stubInfo) {
+				if (r.vpid == vpid) {
 					using = true;
 					break;
 				}
 			}
-			if (using || mPendingProcesses.get(processName, userId) != null) {
+			if (using) {
 				continue;
 			}
-			return stubInfo;
+			return vpid;
 		}
-		return null;
+		return -1;
 	}
 
 	@Override
 	public boolean isAppProcess(String processName) {
-		if (!TextUtils.isEmpty(processName)) {
-			Set<String> processList = getStubProcessList();
-			return processList.contains(processName);
-		}
-		return false;
+		return parseVPid(processName) != -1;
 	}
 
 	@Override
@@ -911,7 +855,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			int N = mPidsSelfLocked.size();
 			while (N-- > 0) {
 				ProcessRecord r = mPidsSelfLocked.valueAt(N);
-				if (r.uid == userHandle) {
+				if (r.vuid == userHandle) {
 					killProcess(r.pid);
 				}
 			}

@@ -52,15 +52,15 @@ public class TelephonyManagerProvider extends InterceptorDataProvider {
     List<CellInfo> getAllCellInfo(String pkg) {
         List<CellInfo> list = new ArrayList<>();
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
-//            int uid =2147483647;
+//            int vuid =2147483647;
             int uid = 123;
             //主要关心tac ci 值
             CellIdentityLte[] cellIdentityLtes = {Reflect.on(CellIdentityLte.class).create(460, 1, 111210241, 21, 9673).get(),
-//                    new CellIdentityLte(uid, uid, uid, 77, uid),
-//                    new CellIdentityLte(uid, uid, uid, 43, uid),
-//                    new CellIdentityLte(uid, uid, uid, 303, uid),
-//                    new CellIdentityLte(uid, uid, uid, 395, uid),
-//                    new CellIdentityLte(uid, uid, uid, 187, uid)
+//                    new CellIdentityLte(vuid, vuid, vuid, 77, vuid),
+//                    new CellIdentityLte(vuid, vuid, vuid, 43, vuid),
+//                    new CellIdentityLte(vuid, vuid, vuid, 303, vuid),
+//                    new CellIdentityLte(vuid, vuid, vuid, 395, vuid),
+//                    new CellIdentityLte(vuid, vuid, vuid, 187, vuid)
             };
             for (CellIdentityLte c : cellIdentityLtes) {
                 CellInfoLte cellInfoLte = CellInfoMirror.CellInfoLteMirror.ctor.newInstance();

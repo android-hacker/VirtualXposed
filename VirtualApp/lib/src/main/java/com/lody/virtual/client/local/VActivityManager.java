@@ -412,6 +412,14 @@ public class VActivityManager {
 		}
 	}
 
+	public int initProcess(String packageName, String processName, int userId) {
+		try {
+			return getService().initProcess(packageName, processName, userId);
+		} catch (RemoteException e) {
+			return VirtualRuntime.crash(e);
+		}
+	}
+
 	public void sendBroadcast(Intent intent, int userId) {
 		Intent newIntent = ComponentUtils.redirectBroadcastIntent(intent, userId);
 		if (newIntent != null) {

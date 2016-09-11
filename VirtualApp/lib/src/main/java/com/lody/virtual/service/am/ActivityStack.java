@@ -11,9 +11,9 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.SparseArray;
 
-import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
+import com.lody.virtual.client.stub.StubManifest;
 import com.lody.virtual.helper.proto.AppTaskInfo;
 import com.lody.virtual.helper.proto.StubActivityRecord;
 import com.lody.virtual.helper.utils.ArrayUtils;
@@ -25,7 +25,9 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 import mirror.android.app.ActivityManagerNative;
+import mirror.android.app.ActivityThread;
 import mirror.android.app.IApplicationThread;
+import mirror.com.android.internal.R_styleable;
 
 import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_INSTANCE;
 import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TASK;
@@ -369,7 +371,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		Class<?>[] types = mirror.android.app.IActivityManager.startActivity.paramList();
 		Object[] args = new Object[types.length];
 		if (types[0] == IApplicationThread.TYPE) {
-			args[0] = VClientImpl.getClient().getAppThread();
+			args[0] = ActivityThread.getApplicationThread.call(VirtualCore.mainThread());
 		}
 		int intentIndex = ArrayUtils.protoIndexOf(types, Intent.class);
 		int resultToIndex = ArrayUtils.protoIndexOf(types, IBinder.class, 2);
@@ -395,15 +397,44 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		);
 	}
 
+	private String fetchStubActivity(int vpid, ActivityInfo targetInfo) {
+
+		boolean isFloating = false;
+		boolean isTranslucent = false;
+		boolean showWallpaper = false;
+		try {
+			int[] R_Styleable_Window = R_styleable.Window.get();
+			int R_Styleable_Window_windowIsTranslucent = R_styleable.Window_windowIsTranslucent.get();
+			int R_Styleable_Window_windowIsFloating = R_styleable.Window_windowIsFloating.get();
+			int R_Styleable_Window_windowShowWallpaper = R_styleable.Window_windowShowWallpaper.get();
+
+			AttributeCache.Entry ent = AttributeCache.instance().get(targetInfo.packageName, targetInfo.theme,
+					R_Styleable_Window);
+			if (ent != null && ent.array != null) {
+				showWallpaper = ent.array.getBoolean(R_Styleable_Window_windowShowWallpaper, false);
+				isTranslucent = ent.array.getBoolean(R_Styleable_Window_windowIsTranslucent, false);
+				isFloating = ent.array.getBoolean(R_Styleable_Window_windowIsFloating, false);
+			}
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+
+		boolean isDialogStyle = isFloating || isTranslucent || showWallpaper;
+		if (isDialogStyle) {
+			return StubManifest.getStubDialogName(vpid);
+		} else {
+			return StubManifest.getStubActivityName(vpid);
+		}
+	}
+
 	private Intent startActivityProcess(int userId, ActivityRecord sourceRecord, Intent intent, ActivityInfo info) {
 		intent = new Intent(intent);
 		ProcessRecord targetApp = mService.startProcessIfNeedLocked(info.processName, userId, info.packageName);
 		if (targetApp == null) {
 			return null;
 		}
-		ActivityInfo stubActivityInfo = targetApp.stubInfo.fetchStubActivityInfo(info);
 		Intent targetIntent = new Intent();
-		targetIntent.setClassName(stubActivityInfo.packageName, stubActivityInfo.name);
+		targetIntent.setClassName(VirtualCore.get().getHostPkg(), fetchStubActivity(targetApp.vpid, info));
 		ComponentName component = intent.getComponent();
 		if (component == null) {
 			component = ComponentUtils.toComponentName(info);

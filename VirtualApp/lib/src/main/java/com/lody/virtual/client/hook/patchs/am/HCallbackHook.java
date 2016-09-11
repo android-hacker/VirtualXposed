@@ -67,7 +67,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		} else if (CREATE_SERVICE == msg.what) {
 			if (!VClientImpl.getClient().isBound()) {
 				ServiceInfo info = Reflect.on(msg.obj).get("info");
-				VClientImpl.getClient().bindApplicationCheckThread(info);
+				VClientImpl.getClient().bindApplication(info.packageName, info.processName);
 			}
 		}
 		return otherCallback != null && otherCallback.handleMessage(msg);
@@ -86,9 +86,12 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		ActivityInfo info = saveInstance.info;
 		if (VClientImpl.getClient().getToken() == null) {
 			VActivityManager.get().processRestarted(info.packageName, info.processName, saveInstance.userId);
+			getH().sendMessageAtFrontOfQueue(Message.obtain(msg));
+			return false;
 		}
 		if (!VClientImpl.getClient().isBound()) {
-			VClientImpl.getClient().bindApplicationCheckThread(info);
+			VClientImpl.getClient().bindApplication(info.packageName, info.processName);
+			getH().sendMessageAtFrontOfQueue(Message.obtain(msg));
 		}
 		int taskId = IActivityManager.getTaskForActivity.call(
 				ActivityManagerNative.getDefault.call(),

@@ -32,9 +32,9 @@ public class AccountManagerCompat {
     /**
      * The Android package of the caller will be set in the options bundle by the
      * {@link AccountManager} and will be passed to the AccountManagerService and
-     * to the AccountAuthenticators. The uid of the caller will be known by the
+     * to the AccountAuthenticators. The vuid of the caller will be known by the
      * AccountManagerService as well as the AccountAuthenticators so they will be able to
-     * verify that the package is consistent with the uid (a uid might be shared by many
+     * verify that the package is consistent with the vuid (a vuid might be shared by many
      * packages).
      */
     public static final String KEY_ANDROID_PACKAGE_NAME = "androidPackageName";

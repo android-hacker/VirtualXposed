@@ -111,12 +111,14 @@ public class IOHook {
 	}
 
 	public static int onGetCallingUid(int originUid) {
-		int callingPid = Binder.getCallingPid();
-		int vuid = VActivityManager.get().getUidByPid(callingPid);
-		if (vuid != -1) {
-			return VUserHandle.getAppId(vuid);
+		if (false) {
+			int callingPid = Binder.getCallingPid();
+			int vuid = VActivityManager.get().getUidByPid(callingPid);
+			if (vuid != -1) {
+				return VUserHandle.getAppId(vuid);
+			}
 		}
-		return onGetUid(originUid);
+		return VClientImpl.getClient().getBaseVUid();
 	}
 
 	public static void onOpenDexFileNative(String[] params) {

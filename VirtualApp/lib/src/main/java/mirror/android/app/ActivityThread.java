@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ProviderInfo;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -45,7 +46,7 @@ public class ActivityThread {
     public static RefStaticObject<IInterface> sPackageManager;
     @MethodParams({IBinder.class, String.class, int.class, int.class, Intent.class})
     public static RefMethod<Void> sendActivityResult;
-    public static RefMethod<IBinder> getApplicationThread;
+    public static RefMethod<Binder> getApplicationThread;
 
     public static class ActivityClientRecord {
         public static Class<?> TYPE = RefClass.load(ActivityClientRecord.class, "android.app.ActivityThread$ActivityClientRecord");
@@ -79,10 +80,10 @@ public class ActivityThread {
     }
 
 
-    public static Object installProvider(Object mainThread, Context context, ProviderInfo providerInfo) {
+    public static Object installProvider(Object mainThread, Context context, ProviderInfo providerInfo, Object holder) {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-            return installProvider.call(mainThread, context, null, providerInfo, false, true);
+            return installProvider.call(mainThread, context, holder, providerInfo, false, true);
         }
-        return installProvider.call(mainThread, context, null, providerInfo, false, true, true);
+        return installProvider.call(mainThread, context, holder, providerInfo, false, true, true);
     }
 }

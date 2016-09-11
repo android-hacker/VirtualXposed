@@ -15,6 +15,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import mirror.android.content.IContentProvider;
+
 /**
  * @author Lody
  *
@@ -55,7 +57,7 @@ public class ProviderHook implements InvocationHandler {
 					if (external) {
 						return new ExternalProviderHook(provider);
 					}
-					return null;
+					return new InternalProviderHook(provider);
 				}
 			};
 		}
@@ -104,7 +106,9 @@ public class ProviderHook implements InvocationHandler {
 		if (provider == null || hook == null) {
 			return null;
 		}
-		return (IInterface) Proxy.newProxyInstance(provider.getClass().getClassLoader(), provider.getClass().getInterfaces(), hook);
+		return (IInterface) Proxy.newProxyInstance(provider.getClass().getClassLoader(), new Class[] {
+				IContentProvider.TYPE,
+		}, hook);
 	}
 
 	public interface HookFetcher {

@@ -39,9 +39,10 @@ public class VirtualRuntime {
 	}
 
 	public static void setupRuntime(String processName, ApplicationInfo appInfo) {
-		if (sInitialPackageName == null) {
-			sInitialPackageName = appInfo.packageName;
+		if (sProcessName != null) {
+			return;
 		}
+		sInitialPackageName = appInfo.packageName;
 		sProcessName = processName;
 		mirror.android.os.Process.setArgV0.call(processName);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {

@@ -20,7 +20,7 @@ interface IPackageManager {
 
         int getPackageUid(String packageName, int userId);
 
-        String[] getPackagesForUid(int uid);
+        String[] getPackagesForUid(int vuid);
 
         List<String> getSharedLibraries(String pkgName);
 
@@ -66,9 +66,9 @@ interface IPackageManager {
 
          ApplicationInfo getApplicationInfo(in String packageName, int flags, int userId);
 
-         VParceledListSlice queryContentProviders(in String processName, int uid, int flags);
+         VParceledListSlice queryContentProviders(in String processName, int vuid, int flags);
 
-         List<ReceiverInfo> queryReceivers(in String processName, int uid, int flags);
+         List<ReceiverInfo> queryReceivers(in String processName, int vuid, int flags);
 
          List<String> querySharedPackages(in String packageName);
 }
