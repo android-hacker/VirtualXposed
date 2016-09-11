@@ -24,6 +24,9 @@ public class CheckPermission extends Hook {
 		if (SpecialComponentList.isWhitePermission(permission)) {
 			return PackageManager.PERMISSION_GRANTED;
 		}
+		if (permission.startsWith("com.google")) {
+			return PackageManager.PERMISSION_GRANTED;
+		}
 		args[args.length - 1] = getRealUid();
 		return method.invoke(who, args);
 	}
