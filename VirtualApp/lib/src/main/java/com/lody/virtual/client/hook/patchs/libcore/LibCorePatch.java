@@ -18,23 +18,15 @@ import mirror.libcore.io.Libcore;
         Getpwnam.class,
         GetsockoptUcred.class,
 })
-public class LibCorePatch extends PatchDelegate<HookDelegate<Object>> {
+public class    LibCorePatch extends PatchDelegate<HookDelegate<Object>> {
     @Override
     protected HookDelegate<Object> createHookDelegate() {
         return new HookDelegate<Object>() {
             @Override
             protected Object createInterface() {
-                return getOs();
+                return Libcore.os.get();
             }
         };
-    }
-
-    private static Object getOs() {
-        Object os = Libcore.os.get();
-        if (ForwardingOs.os != null && os.getClass() == ForwardingOs.TYPE) {
-            os = ForwardingOs.os.get(os);
-        }
-        return os;
     }
 
     @Override
@@ -55,6 +47,6 @@ public class LibCorePatch extends PatchDelegate<HookDelegate<Object>> {
 
     @Override
     public boolean isEnvBad() {
-        return getOs() != getHookDelegate().getProxyInterface();
+        return Libcore.os.get() != getHookDelegate().getProxyInterface();
     }
 }
