@@ -92,6 +92,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		if (!VClientImpl.getClient().isBound()) {
 			VClientImpl.getClient().bindApplication(info.packageName, info.processName);
 			getH().sendMessageAtFrontOfQueue(Message.obtain(msg));
+			return false;
 		}
 		int taskId = IActivityManager.getTaskForActivity.call(
 				ActivityManagerNative.getDefault.call(),

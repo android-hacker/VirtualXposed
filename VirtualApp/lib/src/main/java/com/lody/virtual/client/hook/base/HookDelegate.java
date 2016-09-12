@@ -2,7 +2,7 @@ package com.lody.virtual.client.hook.base;
 
 import android.text.TextUtils;
 
-import com.lody.virtual.client.hook.utils.ProxyUtil;
+import com.lody.virtual.client.hook.utils.HookUtils;
 import com.lody.virtual.client.interfaces.IHookObject;
 import com.lody.virtual.helper.utils.VLog;
 
@@ -38,7 +38,7 @@ public abstract class HookDelegate<T> implements IHookObject {
 		mBaseInterface = createInterface();
 		if (mBaseInterface != null) {
 			if (proxyInterfaces == null) {
-				proxyInterfaces = ProxyUtil.getAllInterface(mBaseInterface.getClass());
+				proxyInterfaces = HookUtils.getAllInterface(mBaseInterface.getClass());
 			}
 			mProxyInterface = (T) Proxy.newProxyInstance(mBaseInterface.getClass().getClassLoader(), proxyInterfaces, new HookHandler());
 		} else {

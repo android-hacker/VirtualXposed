@@ -3,6 +3,9 @@ package com.lody.virtual.client.hook.utils;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.ArrayUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
  * @author Lody
  *
@@ -41,5 +44,25 @@ public class HookUtils {
 		}
 		return null;
 	}
+
+	public static Class<?>[] getAllInterface(Class clazz){
+		ArrayList<Class<?>> classes = new ArrayList<>();
+		getAllInterfaces(clazz,classes);
+		Class<?>[] result=new Class[classes.size()];
+		classes.toArray(result);
+		return result;
+	}
+
+
+	public static void getAllInterfaces(Class clazz, ArrayList<Class<?>> interfaceCollection) {
+		Class<?>[] classes = clazz.getInterfaces();
+		if (classes.length != 0) {
+			interfaceCollection.addAll(Arrays.asList(classes));
+		}
+		if (clazz.getSuperclass() != Object.class) {
+			getAllInterfaces(clazz.getSuperclass(), interfaceCollection);
+		}
+	}
+
 
 }
