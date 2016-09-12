@@ -1,6 +1,5 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import android.content.pm.ApplicationInfo;
 import android.content.pm.ProviderInfo;
 import android.os.IInterface;
 
@@ -40,16 +39,15 @@ import mirror.android.app.IActivityManager;
 			if (holder == null) {
 				return null;
 			}
-			IInterface provider = VActivityManager.get().acquireProviderClient(userId, info);
-			if (provider == null) {
-				return null;
+			IInterface provider = IActivityManager.ContentProviderHolder.provider.get(holder);
+			if (provider != null) {
+				provider = VActivityManager.get().acquireProviderClient(userId, info);
+				ProviderHook.HookFetcher fetcher = ProviderHook.fetchHook(info.authority);
+				if (fetcher != null) {
+					ProviderHook hook = fetcher.fetch(false, info, provider);
+					provider = ProviderHook.createProxy(provider, hook);
+				}
 			}
-			ProviderHook.HookFetcher fetcher = ProviderHook.fetchHook(info.authority);
-			if (fetcher != null) {
-				ProviderHook hook = fetcher.fetch(false, info, provider);
-				provider = ProviderHook.createProxy(provider, hook);
-			}
-			IActivityManager.ContentProviderHolder.noReleaseNeeded.set(holder, true);
 			IActivityManager.ContentProviderHolder.provider.set(holder, provider);
 			IActivityManager.ContentProviderHolder.info.set(holder, info);
 			return holder;
@@ -71,10 +69,6 @@ import mirror.android.app.IActivityManager;
 		return null;
 	}
 
-	private boolean shouldVisible(ProviderInfo info) {
-		return info.packageName.equals(getHostPkg())
-				|| (info.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
-	}
 
 	public int getProviderNameIndex() {
 		return 1;

@@ -322,10 +322,6 @@ public final class VClientImpl extends IVClient.Stub {
 	public IBinder acquireProviderClient(ProviderInfo info) {
 		if (!VClientImpl.getClient().isBound()) {
 			VClientImpl.getClient().bindApplication(info.packageName, info.processName);
-		} else {
-			if (info.processName.equals(mBoundApplication.processName)) {
-				installContentProviders(mInitialApplication, Collections.singletonList(info));
-			}
 		}
 		IInterface provider = null;
 		String[] authorities = info.authority.split(";");
