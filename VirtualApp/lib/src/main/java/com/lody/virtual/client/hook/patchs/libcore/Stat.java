@@ -1,13 +1,12 @@
 package com.lody.virtual.client.hook.patchs.libcore;
 
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import mirror.libcore.io.Os;
-
-import static android.os.Process.myUid;
 
 /**
  * @author Lody
@@ -30,7 +29,7 @@ public class Stat extends Hook {
     @Override
     public Object afterCall(Object who, Method method, Object[] args, Object result) throws Throwable {
         int uid = (int) st_uid.get(result);
-        if (uid == myUid()) {
+        if (uid == VirtualCore.get().myUid()) {
             st_uid.set(result, getBaseVUid());
         }
         return result;

@@ -31,8 +31,6 @@ import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.proto.ReceiverInfo;
 import com.lody.virtual.helper.proto.VParceledListSlice;
 import com.lody.virtual.helper.utils.ComponentUtils;
-import com.lody.virtual.helper.utils.VLog;
-import com.lody.virtual.os.VBinder;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.service.IPackageManager;
 
@@ -588,7 +586,6 @@ public class VPackageManagerService extends IPackageManager.Stub {
 
 	@Override
 	public VParceledListSlice<ProviderInfo> queryContentProviders(String processName, int vuid, int flags) {
-		VLog.d("TTTTTT", "queryContentProviders, PROC: %s, VUID: %s, CALLER_VUID: %s.", processName, vuid, VBinder.getCallingUid());
 		int userId = VUserHandle.getUserId(vuid);
 		checkUserId(userId);
 		ArrayList<ProviderInfo> finalList = new ArrayList<>(3);
@@ -596,7 +593,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 		synchronized (mPackages) {
 			for (PackageParser.Provider p : mProvidersByComponent.values()) {
 				AppSetting setting = (AppSetting) p.owner.mExtras;
-				if (setting.appId == VUserHandle.getAppId(vuid) && p.info.processName.equals(processName)) {
+				if (processName == null || setting.appId == VUserHandle.getAppId(vuid) && p.info.processName.equals(processName)) {
 					ProviderInfo providerInfo = PackageParserCompat.generateProviderInfo(p, flags);
 					ComponentFixer.fixApplicationInfo(setting, providerInfo.applicationInfo, userId);
 					finalList.add(providerInfo);
