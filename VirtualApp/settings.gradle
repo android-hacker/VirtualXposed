@@ -1,1 +1,1 @@
-include ':lib', ':app', ':greplaysdk', ':greplaysdkdemo'
+include ':lib', ':app'
