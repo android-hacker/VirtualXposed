@@ -207,14 +207,14 @@ public final class VirtualCore {
 	}
 
 	/**
-	 * @return 当前进程名
+	 * @return current real process name
 	 */
 	public String getProcessName() {
 		return processName;
 	}
 
 	/**
-	 * @return 主进程名
+	 * @return Main process name
 	 */
 	public String getMainProcessName() {
 		return mainProcessName;
@@ -225,6 +225,10 @@ public final class VirtualCore {
 		if (info != null && !info.dependSystem) {
 			DexFile.loadDex(info.apkPath, info.getOdexFile().getPath(), 0).close();
 		}
+	}
+
+	public boolean isAppRunning(String packageName, int userId) {
+		return VActivityManager.get().isAppRunning(packageName, userId);
 	}
 
 	public InstallResult installApp(String apkPath, int flags) {
@@ -395,6 +399,8 @@ public final class VirtualCore {
 			// Ignore
 		}
 	}
+
+
 
 	public boolean isOutsideInstalled(String packageName) {
 		try {

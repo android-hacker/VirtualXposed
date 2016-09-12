@@ -24,6 +24,8 @@ interface IActivityManager {
 
     boolean isAppProcess(String processName);
 
+    boolean isAppRunning(String packageName, int userId);
+
     boolean isAppPid(int pid);
 
     String getAppProcessName(int pid);

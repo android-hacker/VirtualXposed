@@ -412,6 +412,14 @@ public class VActivityManager {
 		}
 	}
 
+	public boolean isAppRunning(String packageName, int userId) {
+		try {
+			return getService().isAppRunning(packageName, userId);
+		} catch (RemoteException e) {
+			return VirtualRuntime.crash(e);
+		}
+	}
+
 	public int initProcess(String packageName, String processName, int userId) {
 		try {
 			return getService().initProcess(packageName, processName, userId);

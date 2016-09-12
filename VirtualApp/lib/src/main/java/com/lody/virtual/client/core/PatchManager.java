@@ -43,7 +43,6 @@ import com.lody.virtual.client.hook.patchs.window.WindowManagerPatch;
 import com.lody.virtual.client.interfaces.IHookObject;
 import com.lody.virtual.client.interfaces.Injectable;
 import com.lody.virtual.helper.utils.Reflect;
-import com.lody.virtual.helper.utils.VLog;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -91,7 +90,6 @@ public final class PatchManager {
 		for (Injectable injectable : injectableMap.values()) {
 			injectable.inject();
 		}
-		VLog.d("TTTTTTTT", ">>>>>> Inject Finish.");
 	}
 
 	/**
@@ -106,7 +104,6 @@ public final class PatchManager {
 		if (PatchManagerHolder.sInit) {
 			throw new IllegalStateException("PatchManager Has been initialized.");
 		}
-		VLog.d("TTTTTTTT", ">>>>>> start Inject.");
 		injectInternal();
 		fixAllSettings();
 		PatchManagerHolder.sInit = true;

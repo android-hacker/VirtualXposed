@@ -781,6 +781,22 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	@Override
+	public boolean isAppRunning(String packageName, int userId) {
+		boolean running = false;
+		synchronized (mPidsSelfLocked) {
+			int N = mPidsSelfLocked.size();
+			while (N-- > 0) {
+				ProcessRecord r = mPidsSelfLocked.valueAt(N);
+				if (r.userId == userId && r.info.packageName.equals(packageName)) {
+					running = true;
+					break;
+				}
+			}
+			return running;
+		}
+	}
+
+	@Override
 	public void killApplicationProcess(final String processName, int uid) {
 		synchronized (mProcessNames) {
 			ProcessRecord r = mProcessNames.get(processName, uid);
