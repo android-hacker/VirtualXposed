@@ -6,6 +6,8 @@ import android.content.Intent;
 import com.lody.virtual.helper.proto.AppTaskInfo;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Lody
@@ -16,7 +18,7 @@ class TaskRecord {
     public int userId;
     public String affinity;
     public Intent taskRoot;
-    public final ArrayList<ActivityRecord> activities = new ArrayList<>();
+    public final List<ActivityRecord> activities = Collections.synchronizedList(new ArrayList<ActivityRecord>());
 
     TaskRecord(int taskId, int userId, String affinity, Intent intent) {
         this.taskId = taskId;
