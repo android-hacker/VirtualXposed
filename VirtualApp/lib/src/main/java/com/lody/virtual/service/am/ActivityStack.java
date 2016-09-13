@@ -237,11 +237,6 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		}
 	}
 
-	private boolean isLaunchIntent(Intent intent) {
-		return TextUtils.equals(Intent.ACTION_MAIN, intent.getAction())
-		         && intent.hasCategory(Intent.CATEGORY_LAUNCHER);
-	}
-
 	int startActivityLocked(int userId, Intent intent, ActivityInfo info, IBinder resultTo, Bundle options,
 			String resultWho, int requestCode) {
 
@@ -360,7 +355,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 				}
 
 			}
-		} else if (isLaunchIntent(intent) ||
+		} else if (ComponentUtils.isLaunchIntent(intent) ||
 				(!clearTarget.deliverIntent && ComponentUtils.isSameIntent(intent, reuseTask.taskRoot))) {
 			// In this case, we only need to move the task to front.
 			mAM.moveTaskToFront(reuseTask.taskId, 0);
