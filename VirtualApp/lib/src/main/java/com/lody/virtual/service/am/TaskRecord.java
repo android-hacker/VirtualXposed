@@ -30,6 +30,6 @@ class TaskRecord {
     AppTaskInfo getAppTaskInfo() {
         int len = activities.size();
         ComponentName top = len > 0 ? activities.get(len - 1).component : null;
-        return new AppTaskInfo(taskId, taskRoot.getComponent(), top);
+        return new AppTaskInfo(taskId, taskRoot, taskRoot.getComponent(), top);
     }
 }

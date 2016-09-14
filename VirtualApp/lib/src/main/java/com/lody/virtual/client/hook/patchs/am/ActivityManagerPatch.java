@@ -1,7 +1,9 @@
 package com.lody.virtual.client.hook.patchs.am;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.IInterface;
 
 import com.lody.virtual.client.core.VirtualCore;
@@ -13,8 +15,11 @@ import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
 import com.lody.virtual.client.hook.base.ReplaceLastUidHook;
 import com.lody.virtual.client.hook.base.StaticHook;
+import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.helper.proto.AppTaskInfo;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import mirror.android.app.ActivityManagerNative;
 import mirror.android.app.IActivityManager;
@@ -99,6 +104,25 @@ public class ActivityManagerPatch extends PatchDelegate<HookDelegate<IInterface>
 				@Override
 				public Object afterCall(Object who, Method method, Object[] args, Object result) throws Throwable {
 					return PackageManager.PERMISSION_GRANTED;
+				}
+			});
+			addHook(new StaticHook("getRecentTasks") {
+				@Override
+				public Object call(Object who, Method method, Object... args) throws Throwable {
+					//noinspection unchecked
+					List<ActivityManager.RecentTaskInfo> infos = (List<ActivityManager.RecentTaskInfo>) method.invoke(who, args);
+					for (ActivityManager.RecentTaskInfo info : infos) {
+						AppTaskInfo taskInfo = VActivityManager.get().getTaskInfo(info.id);
+						if (taskInfo != null) {
+							if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+								info.baseActivity = taskInfo.baseActivity;
+								info.topActivity = taskInfo.topActivity;
+							}
+							info.origActivity = taskInfo.baseActivity;
+							info.baseIntent = taskInfo.baseIntent;
+						}
+					}
+					return super.call(who, method, args);
 				}
 			});
 		}

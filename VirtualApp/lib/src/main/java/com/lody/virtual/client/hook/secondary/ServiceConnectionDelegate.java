@@ -43,10 +43,12 @@ public class ServiceConnectionDelegate extends IServiceConnection.Stub {
         if (delegateService != null) {
             name = delegateService.getComponent();
             service = delegateService.getService();
-        }
-        IBinder proxy = ProxyServiceFactory.getProxyService(VClientImpl.getClient().getCurrentApplication(), name, service);
-        if (proxy != null) {
-            service = proxy;
+            IBinder proxy = ProxyServiceFactory.getProxyService(VClientImpl.getClient().getCurrentApplication(), name, service);
+            if (proxy != null) {
+                service = proxy;
+            }
+        } else {
+            throw new RuntimeException("Boom");
         }
         mConn.connected(name, service);
     }

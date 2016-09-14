@@ -396,7 +396,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 					}
 				}
 				ComponentName componentName = new ComponentName(r.serviceInfo.packageName, r.serviceInfo.name);
-				connectService(connection, componentName, r.binder);
+				connectService(connection, componentName, r);
 			} else {
 				try {
 					IApplicationThreadCompat.scheduleBindService(r.process.appThread, r.token, service, r.doRebind, 0);
@@ -486,7 +486,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 				for (IServiceConnection conn : allConnections) {
 					if (conn.asBinder().isBinderAlive()) {
 						ComponentName component = ComponentUtils.toComponentName(r.serviceInfo);
-						connectService(conn, component, service);
+						connectService(conn, component, r);
 					} else {
 						r.removedConnection(conn);
 					}
@@ -495,9 +495,9 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		}
 	}
 
-	private void connectService(IServiceConnection conn, ComponentName component, IBinder service) {
+	private void connectService(IServiceConnection conn, ComponentName component, ServiceRecord r) {
 		try {
-			BinderDelegateService delegateService = new BinderDelegateService(component, service);
+			BinderDelegateService delegateService = new BinderDelegateService(component, r);
 			conn.connected(component, delegateService);
 		} catch (RemoteException e) {
 			e.printStackTrace();
