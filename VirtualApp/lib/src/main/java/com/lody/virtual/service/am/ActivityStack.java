@@ -21,9 +21,7 @@ import com.lody.virtual.helper.utils.ClassUtils;
 import com.lody.virtual.helper.utils.ComponentUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.ListIterator;
 
 import mirror.android.app.ActivityManagerNative;
@@ -56,8 +54,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 				int N = mHistory.size();
 				while (N-- > 0) {
 					final TaskRecord task = mHistory.valueAt(N);
-					List<ActivityRecord> activities = Collections.unmodifiableList(task.activities);
-					for (ActivityRecord r : activities) {
+					for (ActivityRecord r : task.activities) {
 						if (!r.marked) {
 							continue;
 						}

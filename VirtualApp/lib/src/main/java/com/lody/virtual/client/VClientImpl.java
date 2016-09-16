@@ -38,7 +38,6 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
-import dalvik.system.PathClassLoader;
 import mirror.android.app.ActivityThread;
 import mirror.android.app.ContextImpl;
 import mirror.android.app.ContextImplICS;
@@ -211,7 +210,7 @@ public final class VClientImpl extends IVClient.Stub {
 		ThreadGroup systemGroup = new ThreadGroup("va-system") {
 			@Override
 			public void uncaughtException(Thread t, Throwable e) {
-				VLog.e(TAG, e);
+				VLog.e(TAG + " : " + VirtualRuntime.getProcessName(), e);
 				Process.killProcess(Process.myPid());
 			}
 		};
@@ -254,16 +253,6 @@ public final class VClientImpl extends IVClient.Stub {
 		Object boundApp = fixBoundApp(mBoundApplication);
 		mBoundApplication.info = ContextImpl.mPackageInfo.get(context);
 		mirror.android.app.ActivityThread.AppBindData.info.set(boundApp, data.info);
-		// T_T   T_T   T_T   T_T   T_T   T_T   T_T   T_T
-		// Gms use the {com.android.location.provider.jar}
-		// T_T   T_T   T_T   T_T   T_T   T_T   T_T   T_T
-		if (data.processName.equals("com.google.android.gms.persistent")) {
-			File file = new File("/system/framework/com.android.location.provider.jar");
-			if (file.exists()) {
-				PathClassLoader parent = new PathClassLoader(file.getPath(), ClassLoader.getSystemClassLoader().getParent());
-				Reflect.on(mBoundApplication.info).set("mBaseClassLoader", parent);
-			}
-		}
 		VMRuntime.setTargetSdkVersion.call(VMRuntime.getRuntime.call(), data.appInfo.targetSdkVersion);
 
 		Application app = LoadedApk.makeApplication.call(data.info, false, null);

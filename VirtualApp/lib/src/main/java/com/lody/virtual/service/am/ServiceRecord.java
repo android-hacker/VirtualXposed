@@ -8,6 +8,8 @@ import android.os.IBinder;
 import android.os.RemoteException;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 public class ServiceRecord extends Binder {
@@ -67,7 +69,7 @@ public class ServiceRecord extends Binder {
 	}
 
 	public static class IntentBindRecord {
-		public  final List<IServiceConnection> connections = new ArrayList<>();
+		public  final List<IServiceConnection> connections = Collections.synchronizedList(new ArrayList<IServiceConnection>());
 		public IBinder binder;
 		Intent intent;
 		public boolean doRebind = false;
@@ -94,9 +96,11 @@ public class ServiceRecord extends Binder {
 
 		public void removeConnection(IServiceConnection connection) {
 			synchronized (connections) {
-				for (IServiceConnection con : connections) {
-					if (con.asBinder() == connection.asBinder()) {
-						connections.remove(con);
+				Iterator<IServiceConnection> iterator = connections.iterator();
+				while (iterator.hasNext()) {
+					IServiceConnection conn = iterator.next();
+					if (conn.asBinder() == connection.asBinder()) {
+						iterator.remove();
 					}
 				}
 			}
