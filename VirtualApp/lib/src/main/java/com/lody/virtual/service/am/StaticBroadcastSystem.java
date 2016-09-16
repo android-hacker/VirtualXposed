@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
+import static android.content.Intent.FLAG_RECEIVER_REGISTERED_ONLY;
+
 /**
  * @author Lody
  */
@@ -103,6 +105,10 @@ public class StaticBroadcastSystem {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (!mApp.isBooting()) {
+				if (!isInitialStickyBroadcast()
+						&& (intent.getFlags() & FLAG_RECEIVER_REGISTERED_ONLY) == 0) {
+					return;
+				}
 				PendingResult result = goAsync();
 				synchronized (mAMS) {
 					if (!mAMS.handleStaticBroadcast(appId, info, intent, this, result)) {
