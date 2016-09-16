@@ -9,7 +9,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.text.TextUtils;
 import android.util.SparseArray;
 
 import com.lody.virtual.client.core.VirtualCore;
@@ -352,8 +351,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 				}
 
 			}
-		} else if (ComponentUtils.isLaunchIntent(intent) ||
-				(!clearTarget.deliverIntent && ComponentUtils.isSameIntent(intent, reuseTask.taskRoot))) {
+		} else if (!clearTarget.deliverIntent && ComponentUtils.isSameIntent(intent, reuseTask.taskRoot)) {
 			// In this case, we only need to move the task to front.
 			mAM.moveTaskToFront(reuseTask.taskId, 0);
 		} else {
