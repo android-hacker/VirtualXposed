@@ -7,6 +7,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.ComponentInfo;
 import android.content.pm.PackageInfo;
 import android.os.Build;
+import android.text.TextUtils;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.compat.ObjectsCompat;
@@ -28,6 +29,11 @@ public class ComponentUtils {
 			return info.taskAffinity;
 		}
 		return info.applicationInfo.taskAffinity;
+	}
+
+	public boolean isLaunchIntent(Intent intent) {
+		return TextUtils.equals(Intent.ACTION_MAIN, intent.getAction())
+				&& intent.hasCategory(Intent.CATEGORY_LAUNCHER);
 	}
 
 	public static boolean isSameIntent(Intent a, Intent b) {
