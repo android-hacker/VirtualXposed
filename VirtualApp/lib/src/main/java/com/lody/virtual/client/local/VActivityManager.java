@@ -435,4 +435,11 @@ public class VActivityManager {
 		}
 	}
 
+	public boolean isVAServiceToken(IBinder token) {
+		try {
+			return getService().isVAServiceToken(token);
+		} catch (RemoteException e) {
+			return VirtualRuntime.crash(e);
+		}
+	}
 }

@@ -64,7 +64,7 @@ interface IActivityManager {
 
     String getPackageForToken(int userId, in IBinder token);
 
-
+    boolean isVAServiceToken(in IBinder token);
     ComponentName startService(in IBinder caller,in Intent service, String resolvedType, int userId);
 
     int stopService(in IBinder caller, in Intent service, String resolvedType, int userId);

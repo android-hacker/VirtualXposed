@@ -24,8 +24,8 @@ import java.lang.reflect.Method;
 	public Object call(Object who, Method method, Object... args) throws Throwable {
 		IServiceConnection conn = (IServiceConnection) args[0];
 		ServiceConnectionDelegate delegate = ServiceConnectionDelegate.removeDelegate(conn);
-		if (delegate != null) {
-			conn = delegate;
+		if (delegate == null) {
+			return method.invoke(who, args);
 		}
 		return VActivityManager.get().unbindService(conn);
 	}

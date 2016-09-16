@@ -6,7 +6,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 
 import com.lody.virtual.service.IBinderDelegateService;
-import com.lody.virtual.service.am.ServiceRecord;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +17,7 @@ import java.util.Map;
 public class BinderDelegateService extends IBinderDelegateService.Stub {
 
     private ComponentName name;
-    private ServiceRecord record;
+    private IBinder service;
 
     private interface ProxyBinderFactory {
         IBinder create(Binder binder);
@@ -33,9 +32,16 @@ public class BinderDelegateService extends IBinderDelegateService.Stub {
         });
     }
 
-    public BinderDelegateService(ComponentName name, ServiceRecord record) {
+    public BinderDelegateService(ComponentName name, IBinder service) {
         this.name = name;
-        this.record = record;
+        if (service instanceof Binder) {
+            Binder localService = (Binder) service;
+            ProxyBinderFactory factory = mFactories.get(localService.getInterfaceDescriptor());
+            if (factory != null) {
+                service = factory.create(localService);
+            }
+        }
+        this.service = service;
     }
 
     @Override
@@ -45,14 +51,6 @@ public class BinderDelegateService extends IBinderDelegateService.Stub {
 
     @Override
     public IBinder getService() throws RemoteException {
-        IBinder service = record.binder;
-        if (service instanceof Binder) {
-            Binder localService = (Binder) service;
-            ProxyBinderFactory factory = mFactories.get(localService.getInterfaceDescriptor());
-            if (factory != null) {
-                service = factory.create(localService);
-            }
-        }
         return service;
     }
 }

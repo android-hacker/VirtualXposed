@@ -1,17 +1,16 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
+import android.content.Intent;
+import android.os.IBinder;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VActivityManager;
 
-import android.content.Intent;
-import android.os.IBinder;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
  *
- * @see android.app.IActivityManager#publishService(IBinder, Intent, IBinder)
  */
 
 /* package */ class PublishService extends Hook {
@@ -24,6 +23,9 @@ import android.os.IBinder;
 	@Override
 	public Object call(Object who, Method method, Object... args) throws Throwable {
 		IBinder token = (IBinder) args[0];
+		if (!VActivityManager.get().isVAServiceToken(token)) {
+			return method.invoke(who, args);
+		}
 		Intent intent = (Intent) args[1];
 		IBinder service = (IBinder) args[2];
 		VActivityManager.get().publishService(token, intent, service);
