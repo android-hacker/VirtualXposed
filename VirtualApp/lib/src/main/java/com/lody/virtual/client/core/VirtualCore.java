@@ -171,7 +171,7 @@ public final class VirtualCore {
 			synchronized (this) {
 				if (mService == null) {
 					mService = IAppManager.Stub
-							.asInterface(ServiceManagerNative.getService(ServiceManagerNative.APP_MANAGER));
+							.asInterface(ServiceManagerNative.getService(ServiceManagerNative.APP));
 				}
 			}
 		}

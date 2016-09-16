@@ -28,7 +28,7 @@ public class VAccountManager {
 	public IAccountManager getRemote() {
 		if (mRemote == null) {
 			mRemote = IAccountManager.Stub
-					.asInterface(ServiceManagerNative.getService(ServiceManagerNative.ACCOUNT_MANAGER));
+					.asInterface(ServiceManagerNative.getService(ServiceManagerNative.ACCOUNT));
 		}
 		return mRemote;
 	}

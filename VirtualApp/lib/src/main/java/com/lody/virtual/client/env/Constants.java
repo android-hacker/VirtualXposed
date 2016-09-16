@@ -10,6 +10,7 @@ import com.lody.virtual.client.stub.ShortcutHandleActivity;
  */
 public class Constants {
 
+	public static final String EXTRA_USER_HANDLE = "android.intent.extra.user_handle";
 	public static String META_KEY_IDENTITY = "X-Identity";
 
 	public static String META_VALUE_STUB = "Stub-User";

@@ -16,7 +16,7 @@ public class VIntentFilterManager {
 		if (mRemote == null) {
 			synchronized (VIntentFilterManager.class) {
 				if (mRemote == null) {
-					IBinder remote = ServiceManagerNative.getService(ServiceManagerNative.INTENT_FILTER_MANAGER);
+					IBinder remote = ServiceManagerNative.getService(ServiceManagerNative.INTENT_FILTER);
 					mRemote = IIntentFilterObserver.Stub.asInterface(remote);
 				}
 			}

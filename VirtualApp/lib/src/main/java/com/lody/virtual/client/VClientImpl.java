@@ -32,7 +32,7 @@ import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
-import com.lody.virtual.service.secondary.FakeIdentityBinder;
+import com.lody.virtual.server.secondary.FakeIdentityBinder;
 
 import java.io.File;
 import java.util.Collections;

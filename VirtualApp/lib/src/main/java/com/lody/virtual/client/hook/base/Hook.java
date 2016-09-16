@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
  *
  */
 public abstract class Hook {
-
+	
 	private boolean enable = true;
 
 	public abstract String getName();

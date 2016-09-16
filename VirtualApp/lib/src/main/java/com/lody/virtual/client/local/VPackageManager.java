@@ -37,7 +37,7 @@ public class VPackageManager {
 		if (mRemote == null) {
 			synchronized (VPackageManager.class) {
 				if (mRemote == null) {
-					final IBinder pmBinder = ServiceManagerNative.getService(ServiceManagerNative.PACKAGE_MANAGER);
+					final IBinder pmBinder = ServiceManagerNative.getService(ServiceManagerNative.PACKAGE);
 					mRemote = IPackageManager.Stub.asInterface(pmBinder);
 				}
 			}

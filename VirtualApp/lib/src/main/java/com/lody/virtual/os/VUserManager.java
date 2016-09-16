@@ -10,7 +10,7 @@ import com.lody.virtual.service.IUserManager;
 
 import java.util.List;
 
-import static com.lody.virtual.client.service.ServiceManagerNative.USER_MANAGER;
+import static com.lody.virtual.client.service.ServiceManagerNative.USER;
 
 /**
  * Manages users and user details on a multi-user system.
@@ -109,7 +109,7 @@ public class VUserManager {
     /** @hide */
     public synchronized static VUserManager get() {
         if (sInstance == null) {
-            IUserManager remote = IUserManager.Stub.asInterface(ServiceManagerNative.getService(USER_MANAGER));
+            IUserManager remote = IUserManager.Stub.asInterface(ServiceManagerNative.getService(USER));
             sInstance = new VUserManager(remote);
         }
         return sInstance;
