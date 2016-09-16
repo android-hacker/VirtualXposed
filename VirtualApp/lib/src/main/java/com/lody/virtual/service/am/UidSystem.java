@@ -1,5 +1,7 @@
 package com.lody.virtual.service.am;
 
+import android.content.pm.PackageParser;
+
 import com.lody.virtual.os.VEnvironment;
 
 import java.io.File;
@@ -50,9 +52,10 @@ public class UidSystem {
 		}
 	}
 
-	public int getOrCreateUid(String sharedUserId) {
+	public int getOrCreateUid(PackageParser.Package pkg) {
+		String sharedUserId = pkg.mSharedUserId;
 		if (sharedUserId == null) {
-			return ++mFreeUid;
+			sharedUserId = pkg.packageName;
 		}
 		Integer uid = mSharedUserIdMap.get(sharedUserId);
 		if (uid != null) {

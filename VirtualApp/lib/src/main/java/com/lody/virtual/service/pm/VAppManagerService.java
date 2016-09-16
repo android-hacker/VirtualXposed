@@ -184,7 +184,7 @@ public class VAppManagerService extends IAppManager.Stub {
 		}
 		appSetting.odexDir = odexFolder.getPath();
 		appSetting.packageName = pkg.packageName;
-		appSetting.appId = VUserHandle.getAppId(mUidSystem.getOrCreateUid(pkg.mSharedUserId));
+		appSetting.appId = VUserHandle.getAppId(mUidSystem.getOrCreateUid(pkg));
 
 		PackageCache.put(pkg, appSetting);
 		mBroadcastSystem.startApp(pkg);
