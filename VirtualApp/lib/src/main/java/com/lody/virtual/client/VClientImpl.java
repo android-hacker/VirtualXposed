@@ -191,6 +191,10 @@ public final class VClientImpl extends IVClient.Stub {
 	}
 
 	private void bindApplicationNoCheck(String packageName, String processName, ConditionVariable lock) {
+		ActivityThread.mInitialApplication.set(
+				VirtualCore.mainThread(),
+				null
+		);
 		AppBindData data = new AppBindData();
 		data.appInfo = VPackageManager.get().getApplicationInfo(packageName, 0, getUserId(vuid));
 		data.processName = processName;
@@ -247,8 +251,19 @@ public final class VClientImpl extends IVClient.Stub {
 			}
 
 		}
+		Object boundApp = fixBoundApp(mBoundApplication);
 		mBoundApplication.info = ContextImpl.mPackageInfo.get(context);
-		fixBoundApp(mBoundApplication);
+		mirror.android.app.ActivityThread.AppBindData.info.set(boundApp, data.info);
+		// T_T   T_T   T_T   T_T   T_T   T_T   T_T   T_T
+		// Gms use the {com.android.location.provider.jar}
+		// T_T   T_T   T_T   T_T   T_T   T_T   T_T   T_T
+		if (data.processName.equals("com.google.android.gms.persistent")) {
+			File file = new File("/system/framework/com.android.location.provider.jar");
+			if (file.exists()) {
+				PathClassLoader parent = new PathClassLoader(file.getPath(), ClassLoader.getSystemClassLoader().getParent());
+				Reflect.on(mBoundApplication.info).set("mBaseClassLoader", parent);
+			}
+		}
 		VMRuntime.setTargetSdkVersion.call(VMRuntime.getRuntime.call(), data.appInfo.targetSdkVersion);
 
 		Application app = LoadedApk.makeApplication.call(data.info, false, null);
@@ -284,23 +299,13 @@ public final class VClientImpl extends IVClient.Stub {
 		}
 	}
 
-	private void fixBoundApp(AppBindData data) {
+	private Object fixBoundApp(AppBindData data) {
 		Object thread = VirtualCore.mainThread();
 		Object boundApp = mirror.android.app.ActivityThread.mBoundApplication.get(thread);
 		mirror.android.app.ActivityThread.AppBindData.appInfo.set(boundApp, data.appInfo);
 		mirror.android.app.ActivityThread.AppBindData.processName.set(boundApp, data.processName);
-		mirror.android.app.ActivityThread.AppBindData.info.set(boundApp, data.info);
 		mirror.android.app.ActivityThread.AppBindData.instrumentationName.set(boundApp, new ComponentName(data.appInfo.packageName, Instrumentation.class.getName()));
-		// T_T   T_T   T_T   T_T   T_T   T_T   T_T   T_T
-		// Gms use the {com.android.location.provider.jar}
-		// T_T   T_T   T_T   T_T   T_T   T_T   T_T   T_T
-		if (data.processName.equals("com.google.android.gms.persistent")) {
-			File file = new File("/system/framework/com.android.location.provider.jar");
-			if (file.exists()) {
-				PathClassLoader parent = new PathClassLoader(file.getPath(), ClassLoader.getSystemClassLoader().getParent());
-				Reflect.on(mBoundApplication.info).set("mBaseClassLoader", parent);
-			}
-		}
+		return boundApp;
 	}
 
 	private void installContentProviders(Context app, List<ProviderInfo> providers) {
