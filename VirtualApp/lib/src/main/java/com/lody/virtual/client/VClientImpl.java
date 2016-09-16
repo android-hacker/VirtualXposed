@@ -58,6 +58,8 @@ public final class VClientImpl extends IVClient.Stub {
 
 	private static final String TAG = VClientImpl.class.getSimpleName();
 
+	private ConditionVariable mTempLock;
+
 	@SuppressLint("StaticFieldLeak")
 	private static final VClientImpl gClient = new VClientImpl();
 	private Instrumentation mInstrumentation = AppInstrumentation.getDefault();
@@ -175,7 +177,7 @@ public final class VClientImpl extends IVClient.Stub {
 
 	public void bindApplication(final String packageName, final String processName) {
 		if (Looper.getMainLooper() == Looper.myLooper()) {
-			bindApplicationNoCheck(packageName, processName, null);
+			bindApplicationNoCheck(packageName, processName, new ConditionVariable());
 		} else {
 			final ConditionVariable lock = new ConditionVariable();
 			VirtualRuntime.getUIHandler().post(new Runnable() {
@@ -190,6 +192,7 @@ public final class VClientImpl extends IVClient.Stub {
 	}
 
 	private void bindApplicationNoCheck(String packageName, String processName, ConditionVariable lock) {
+		mTempLock = lock;
 		ActivityThread.mInitialApplication.set(
 				VirtualCore.mainThread(),
 				null
@@ -265,6 +268,7 @@ public final class VClientImpl extends IVClient.Stub {
 		}
 		if (lock != null) {
 			lock.open();
+			mTempLock = null;
 		}
 		try {
 			mInstrumentation.callApplicationOnCreate(app);
@@ -314,6 +318,9 @@ public final class VClientImpl extends IVClient.Stub {
 
 	@Override
 	public IBinder acquireProviderClient(ProviderInfo info) {
+		if (mTempLock != null) {
+			mTempLock.block();
+		}
 		if (!VClientImpl.getClient().isBound()) {
 			VClientImpl.getClient().bindApplication(info.packageName, info.processName);
 		}

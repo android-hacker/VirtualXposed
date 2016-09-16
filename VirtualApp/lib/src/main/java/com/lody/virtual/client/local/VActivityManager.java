@@ -52,8 +52,12 @@ public class VActivityManager {
 
 	public IActivityManager getService() {
 		if (mRemote == null) {
-			mRemote = IActivityManager.Stub
-					.asInterface(ServiceManagerNative.getService(ServiceManagerNative.ACTIVITY_MANAGER));
+			synchronized (VActivityManager.class) {
+				if (mRemote == null) {
+					mRemote = IActivityManager.Stub
+							.asInterface(ServiceManagerNative.getService(ServiceManagerNative.ACTIVITY_MANAGER));
+				}
+			}
 		}
 		return mRemote;
 	}
