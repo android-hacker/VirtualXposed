@@ -66,6 +66,7 @@ public class VAppManagerService extends IAppManager.Stub {
 
 	public static void systemReady() {
 		VAppManagerService instance = new VAppManagerService();
+		instance.mUidSystem.initUidList();
 		instance.preloadAllApps();
 		gService.set(instance);
 	}
@@ -213,10 +214,13 @@ public class VAppManagerService extends IAppManager.Stub {
 		synchronized (PackageCache.sPackageCaches) {
 			if (isAppInstalled(pkg)) {
 				try {
+					mBroadcastSystem.stopApp(pkg);
 					VActivityManagerService.get().killAppByPkg(pkg, VUserHandle.USER_ALL);
 					FileUtils.deleteDir(VEnvironment.getDataAppPackageDirectory(pkg));
+					for (int userId : VUserManagerService.get().getUserIds()) {
+						FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(userId, pkg));
+					}
 					PackageCache.remove(pkg);
-					mBroadcastSystem.stopApp(pkg);
 				} catch (Exception e) {
 					e.printStackTrace();
 				} finally {

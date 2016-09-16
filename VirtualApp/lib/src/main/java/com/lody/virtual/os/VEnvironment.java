@@ -18,6 +18,7 @@ public class VEnvironment {
     private static final File ROOT;
     private static final File DATA_DIRECTORY;
     private static final File USER_DIRECTORY;
+
     static {
         File host = new File(getContext().getApplicationInfo().dataDir);
         // Point to: /
@@ -48,6 +49,15 @@ public class VEnvironment {
     public static File getDataAppDirectory() {
         return ensureCreated(new File(getDataDirectory(), "app"));
     }
+
+    public static File getUidListFile() {
+        return new File(getSystemSecureDirectory(), "uid-list.ini");
+    }
+
+    public static File getAccountFile() {
+        return new File(getSystemSecureDirectory(), "account-list.ini");
+    }
+
 
     public static File getDataAppPackageDirectory(String packageName) {
         return ensureCreated(new File(getDataAppDirectory(), packageName));

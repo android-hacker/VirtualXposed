@@ -894,7 +894,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 	 * Serializing all accounts
 	 */
 	private void serializeAllAccounts() {
-		File accountFile = new File(VEnvironment.getSystemSecureDirectory(), "accounts.ini");
+		File accountFile = VEnvironment.getAccountFile();
 		Parcel dest = Parcel.obtain();
 		try {
 			dest.writeInt(1);
@@ -923,7 +923,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 	 * Read all accounts from file.
 	 */
 	private void deserializeAllAccounts() {
-		File accountFile = new File(VEnvironment.getSystemSecureDirectory(), "accounts.ini");
+		File accountFile = VEnvironment.getAccountFile();
 		refreshAuthenticatorCache(null);
 		if (accountFile.exists()) {
 			accountsByUserId.clear();
