@@ -966,6 +966,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
 	private void handleBroadcastIntent(IInterface thread, int sendingUser, ActivityInfo info, Intent intent,
 									   boolean sync, BroadcastReceiver.PendingResult result) {
+
 		ComponentName componentName = ComponentUtils.toComponentName(info);
 		if (intent.getComponent() != null && !componentName.equals(intent.getComponent())) {
 			return;
@@ -973,18 +974,24 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		if (intent.getComponent() == null) {
 			intent.setComponent(componentName);
 		}
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-			IApplicationThreadKitkat.scheduleReceiver.call(thread, intent, info,
-					CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO.get(), result.getResultCode(), result.getResultData(),
-					result.getResultExtras(false), sync, sendingUser, 0);
-		} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-			IApplicationThreadJBMR1.scheduleReceiver.call(thread, intent, info,
-					CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO.get(), result.getResultCode(), result.getResultData(),
-					result.getResultExtras(false), sync, sendingUser);
-		} else {
-			IApplicationThreadICSMR1.scheduleReceiver.call(thread, intent, info,
-					CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO.get(), result.getResultCode(), result.getResultData(),
-					result.getResultExtras(false), sync);
+		try {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+				IApplicationThreadKitkat.scheduleReceiver.call(thread, intent, info,
+						CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO.get(), result.getResultCode(), result.getResultData(),
+						result.getResultExtras(false), sync, sendingUser, 0);
+			} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+				IApplicationThreadJBMR1.scheduleReceiver.call(thread, intent, info,
+						CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO.get(), result.getResultCode(), result.getResultData(),
+						result.getResultExtras(false), sync, sendingUser);
+			} else {
+				IApplicationThreadICSMR1.scheduleReceiver.call(thread, intent, info,
+						CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO.get(), result.getResultCode(), result.getResultData(),
+						result.getResultExtras(false), sync);
+			}
+		} catch (Throwable e) {
+			if (result != null) {
+				result.finish();
+			}
 		}
 	}
 }
