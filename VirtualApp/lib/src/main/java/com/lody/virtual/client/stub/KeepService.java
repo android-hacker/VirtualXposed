@@ -9,9 +9,6 @@ import com.lody.virtual.helper.component.BaseService;
 /**
  * @author Lody
  *
- *
- *         与ServiceContentProvider同进程，用于维持进程不死。
- *
  */
 public class KeepService extends BaseService {
 

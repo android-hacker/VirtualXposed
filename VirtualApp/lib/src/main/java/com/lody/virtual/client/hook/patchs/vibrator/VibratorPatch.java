@@ -6,6 +6,8 @@ import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
 import com.lody.virtual.client.hook.binders.VibratorBinderDelegate;
 
+import java.lang.reflect.Method;
+
 import mirror.android.os.ServiceManager;
 
 /**
@@ -28,9 +30,14 @@ public class VibratorPatch extends PatchDelegate<VibratorBinderDelegate> {
 
 	@Override
 	protected void onBindHooks() {
-		super.onBindHooks();
 		addHook(new ReplaceCallingPkgHook("vibrate"));
-		addHook(new ReplaceCallingPkgHook("vibratePattern"));
+		addHook(new ReplaceCallingPkgHook("vibratePattern") {
+			@Override
+			public boolean beforeCall(Object who, Method method, Object... args) {
+				args[0] = getRealUid();
+				return super.beforeCall(who, method, args);
+			}
+		});
 	}
 
 	@Override

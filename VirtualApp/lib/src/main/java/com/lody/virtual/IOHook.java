@@ -111,13 +111,11 @@ public class IOHook {
 	}
 
 	public static int onGetCallingUid(int originUid) {
-		if (false) {
-			int callingPid = Binder.getCallingPid();
-			int vuid = VActivityManager.get().getUidByPid(callingPid);
-			if (vuid != -1) {
-				return VUserHandle.getAppId(vuid);
-			}
-		}
+		int callingPid = Binder.getCallingPid();
+		int vuid = VActivityManager.get().getUidByPid(callingPid);
+		if (vuid != -1) {
+            return VUserHandle.getAppId(vuid);
+        }
 		return VClientImpl.getClient().getBaseVUid();
 	}
 

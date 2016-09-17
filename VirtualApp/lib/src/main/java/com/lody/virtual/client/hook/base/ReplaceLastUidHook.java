@@ -8,9 +8,9 @@ import java.lang.reflect.Method;
 
 public class ReplaceLastUidHook extends StaticHook {
 
-        public ReplaceLastUidHook(String name) {
-            super(name);
-        }
+    public ReplaceLastUidHook(String name) {
+        super(name);
+    }
 
     @Override
     public boolean beforeCall(Object who, Method method, Object... args) {

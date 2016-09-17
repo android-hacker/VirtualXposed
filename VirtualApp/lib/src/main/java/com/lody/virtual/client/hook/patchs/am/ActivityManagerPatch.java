@@ -96,8 +96,6 @@ public class ActivityManagerPatch extends PatchDelegate<HookDelegate<IInterface>
 		super.onBindHooks();
 		if (VirtualCore.get().isVAppProcess()) {
 			addHook(new ReplaceLastUidHook("checkPermissionWithToken"));
-
-
 			addHook(new isUserRunning());
 			addHook(new ReplaceCallingPkgHook("setAppLockedVerifying"));
 			addHook(new StaticHook("checkUriPermission") {
