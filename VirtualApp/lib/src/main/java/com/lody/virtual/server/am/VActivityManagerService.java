@@ -177,6 +177,11 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		return mMainStack.getPackageForToken(userId, token);
 	}
 
+	@Override
+	public ComponentName getActivityClassForToken(int userId, IBinder token) {
+		return mMainStack.getActivityClassForToken(userId, token);
+	}
+
 
 	public void processDead(ProcessRecord record) {
 		synchronized (mHistory) {

@@ -588,6 +588,16 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		}
 	}
 
+	public ComponentName getActivityClassForToken(int userId, IBinder token) {
+		synchronized (mHistory) {
+			ActivityRecord r = findActivityByToken(userId, token);
+			if (r != null) {
+				return r.component;
+			}
+			return null;
+		}
+	}
+
 	private enum ClearTarget {
 		NOTHING,
 		SPEC_ACTIVITY,

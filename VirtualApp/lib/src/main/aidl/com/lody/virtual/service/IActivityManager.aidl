@@ -58,6 +58,8 @@ interface IActivityManager {
 
     boolean onActivityDestroyed(int userId, in IBinder token);
 
+    ComponentName getActivityClassForToken(int userId, in IBinder token);
+
     ComponentName getCallingActivity(int userId, in IBinder token);
 
     AppTaskInfo getTaskInfo(int taskId);

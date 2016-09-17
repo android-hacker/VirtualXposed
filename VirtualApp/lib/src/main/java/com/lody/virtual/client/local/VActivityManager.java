@@ -142,6 +142,14 @@ public class VActivityManager {
 		}
 	}
 
+	public ComponentName getActivityForToken(IBinder token) {
+		try {
+			return getService().getActivityClassForToken(VUserHandle.myUserId(), token);
+		} catch (RemoteException e) {
+			return VirtualRuntime.crash(e);
+		}
+	}
+
 
 	public ComponentName startService(IInterface caller, Intent service, String resolvedType, int userId) {
 		try {
