@@ -59,7 +59,7 @@ public abstract class Hook {
 		return VirtualCore.get().isVAppProcess();
 	}
 
-	protected final boolean isServiceProcess() {
+	protected final boolean isServerProcess() {
 		return VirtualCore.get().isServiceProcess();
 	}
 

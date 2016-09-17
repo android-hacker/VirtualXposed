@@ -14,6 +14,7 @@ import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
 import com.lody.virtual.client.hook.base.ReplaceLastUidHook;
+import com.lody.virtual.client.hook.base.ResultStaticHook;
 import com.lody.virtual.client.hook.base.StaticHook;
 import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.proto.AppTaskInfo;
@@ -97,6 +98,7 @@ public class ActivityManagerPatch extends PatchDelegate<HookDelegate<IInterface>
 		if (VirtualCore.get().isVAppProcess()) {
 			addHook(new ReplaceLastUidHook("checkPermissionWithToken"));
 			addHook(new isUserRunning());
+			addHook(new ResultStaticHook("updateConfiguration", 0));
 			addHook(new ReplaceCallingPkgHook("setAppLockedVerifying"));
 			addHook(new StaticHook("checkUriPermission") {
 				@Override

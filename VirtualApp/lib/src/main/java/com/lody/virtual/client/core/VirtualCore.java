@@ -376,8 +376,8 @@ public final class VirtualCore {
 		return serviceInfo;
 	}
 
-	public void killApp(String pkg) {
-		VActivityManager.get().killAppByPkg(pkg);
+	public void killApp(String pkg, int userId) {
+		VActivityManager.get().killAppByPkg(pkg, userId);
 	}
 
 	public void killAllApps() {

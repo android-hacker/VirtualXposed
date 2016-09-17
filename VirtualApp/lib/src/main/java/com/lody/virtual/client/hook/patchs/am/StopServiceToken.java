@@ -37,6 +37,6 @@ import java.lang.reflect.Method;
 
 	@Override
 	public boolean isEnable() {
-		return isAppProcess() || isServiceProcess();
+		return isAppProcess() || isServerProcess();
 	}
 }

@@ -105,13 +105,6 @@ public class VUserManagerService extends IUserManager.Stub {
     }
 
     /**
-     * Available for testing purposes.
-     */
-    VUserManagerService(File dataDir, File baseUserPath) {
-        this(null, null, new Object(), new Object(), dataDir, baseUserPath);
-    }
-
-    /**
      * Called by package manager to create the service.  This is closely
      * associated with the package manager, and the given lock is the
      * package manager's own lock.
@@ -249,7 +242,7 @@ public class VUserManagerService extends IUserManager.Stub {
 
     private void sendUserInfoChangedBroadcast(int userId) {
         Intent changedIntent = new Intent(Constants.ACTION_USER_INFO_CHANGED);
-        changedIntent.putExtra("_VA_|_uid_", userId);
+        changedIntent.putExtra(Intent.EXTRA_UID, userId);
         changedIntent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
         VActivityManagerService.get().sendBroadcastAsUser(changedIntent, new VUserHandle(userId));
     }
@@ -710,7 +703,7 @@ public class VUserManagerService extends IUserManager.Stub {
                 }
             }
             Intent addedIntent = new Intent(Constants.ACTION_USER_ADDED);
-            addedIntent.putExtra("_VA_|_uid_", userInfo.id);
+            addedIntent.putExtra(Intent.EXTRA_UID, userInfo.id);
             VActivityManagerService.get().sendBroadcastAsUser(addedIntent, VUserHandle.ALL,
                         null);
         } finally {
@@ -760,7 +753,7 @@ public class VUserManagerService extends IUserManager.Stub {
         long identity = Binder.clearCallingIdentity();
         try {
             Intent addedIntent = new Intent(Constants.ACTION_USER_REMOVED);
-            addedIntent.putExtra("_VA_|_uid_", userHandle);
+            addedIntent.putExtra(Intent.EXTRA_UID, userHandle);
             VActivityManagerService.get().sendOrderedBroadcastAsUser(addedIntent, VUserHandle.ALL,
                    null,
                     new BroadcastReceiver() {

@@ -189,7 +189,7 @@ public class VAppManagerService extends IAppManager.Stub {
 		PackageCache.put(pkg, appSetting);
 		mBroadcastSystem.startApp(pkg);
 		if (!onlyScan) {
-			notifyAppInstalled(pkg.packageName);
+			notifyAppInstalled(appSetting);
 		}
 		res.isSuccess = true;
 		return res;
@@ -212,7 +212,8 @@ public class VAppManagerService extends IAppManager.Stub {
 
 	public boolean uninstallApp(String pkg) {
 		synchronized (PackageCache.sPackageCaches) {
-			if (isAppInstalled(pkg)) {
+			AppSetting setting = findAppInfo(pkg);
+			if (setting != null) {
 				try {
 					mBroadcastSystem.stopApp(pkg);
 					VActivityManagerService.get().killAppByPkg(pkg, VUserHandle.USER_ALL);
@@ -224,7 +225,7 @@ public class VAppManagerService extends IAppManager.Stub {
 				} catch (Exception e) {
 					e.printStackTrace();
 				} finally {
-					notifyAppUninstalled(pkg);
+					notifyAppUninstalled(setting);
 				}
 				return true;
 			}
@@ -248,37 +249,45 @@ public class VAppManagerService extends IAppManager.Stub {
 		return pkg != null && PackageCache.sPackageCaches.get(pkg) != null;
 	}
 
-	private void notifyAppInstalled(String pkgName) {
+	private void notifyAppInstalled(AppSetting setting) {
 		int N = mRemoteCallbackList.beginBroadcast();
 		while (N-- > 0) {
 			try {
-				mRemoteCallbackList.getBroadcastItem(N).onNewApp(pkgName);
+				mRemoteCallbackList.getBroadcastItem(N).onNewApp(setting.packageName);
 			} catch (RemoteException e) {
 				// Ignore
 			}
 		}
 		mRemoteCallbackList.finishBroadcast();
 		Intent virtualIntent = new Intent(Constants.ACTION_PACKAGE_ADDED);
-		Uri uri = Uri.fromParts("package", pkgName, null);
+		Uri uri = Uri.fromParts("package", setting.packageName, null);
 		virtualIntent.setData(uri);
-		VirtualCore.get().getContext().sendBroadcast(virtualIntent);
+		for (int userId : VUserManagerService.get().getUserIds()) {
+			Intent intent = new Intent(virtualIntent);
+			intent.putExtra(Intent.EXTRA_UID, VUserHandle.getUid(userId, setting.appId));
+			VirtualCore.get().getContext().sendBroadcast(virtualIntent);
+		}
 		VAccountManagerService.get().refreshAuthenticatorCache(null);
 	}
 
-	private void notifyAppUninstalled(String pkgName) {
+	private void notifyAppUninstalled(AppSetting setting) {
 		int N = mRemoteCallbackList.beginBroadcast();
 		while (N-- > 0) {
 			try {
-				mRemoteCallbackList.getBroadcastItem(N).onRemoveApp(pkgName);
+				mRemoteCallbackList.getBroadcastItem(N).onRemoveApp(setting.packageName);
 			} catch (RemoteException e) {
 				// Ignore
 			}
 		}
 		mRemoteCallbackList.finishBroadcast();
 		Intent virtualIntent = new Intent(Constants.ACTION_PACKAGE_REMOVED);
-		Uri uri = Uri.fromParts("package", pkgName, null);
+		Uri uri = Uri.fromParts("package", setting.packageName, null);
 		virtualIntent.setData(uri);
-		VirtualCore.get().getContext().sendBroadcast(virtualIntent);
+		for (int userId : VUserManagerService.get().getUserIds()) {
+			Intent intent = new Intent(virtualIntent);
+			intent.putExtra(Intent.EXTRA_UID, VUserHandle.getUid(userId, setting.appId));
+			VirtualCore.get().getContext().sendBroadcast(virtualIntent);
+		}
 		VAccountManagerService.get().refreshAuthenticatorCache(null);
 	}
 
