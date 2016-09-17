@@ -47,27 +47,6 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 	 */
 	private final SparseArray<TaskRecord> mHistory = new SparseArray<>();
 
-	private final Runnable mCleanTaskScheduler = new Runnable() {
-		@Override
-		public void run() {
-			synchronized (mHistory) {
-				int N = mHistory.size();
-				while (N-- > 0) {
-					final TaskRecord task = mHistory.valueAt(N);
-					for (ActivityRecord r : task.activities) {
-						if (!r.marked) {
-							continue;
-						}
-						try {
-							r.process.client.finishActivity(r.token);
-						} catch (RemoteException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-		}
-	};
 
 	ActivityStack(VActivityManagerService mService) {
 		this.mService = mService;
@@ -200,6 +179,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 				}
 			} break;
 		}
+
 		return marked;
 	}
 
@@ -331,26 +311,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 
 		boolean taskMarked = false;
 		if (reuseTask == null) {
-			destIntent = startActivityProcess(userId, null, intent, info);
-			if (destIntent != null) {
-				destIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				destIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-				destIntent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-
-				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-					// noinspection deprecation
-					destIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-				} else {
-					destIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-				}
-
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-					VirtualCore.get().getContext().startActivity(destIntent, options);
-				} else {
-					VirtualCore.get().getContext().startActivity(destIntent);
-				}
-
-			}
+			startActivityInNewTaskLocked(userId, intent, info, options);
 		} else if (!clearTarget.deliverIntent && ComponentUtils.isSameIntent(intent, reuseTask.taskRoot)) {
 			// In this case, we only need to move the task to front.
 			mAM.moveTaskToFront(reuseTask.taskId, 0);
@@ -361,13 +322,19 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 				taskMarked = markTaskByClearTarget(reuseTask, clearTarget, intent.getComponent());
 				ActivityRecord topRecord = topActivityInTask(reuseTask);
 				// Target activity is on top
-				if (topRecord != null && topRecord.component.equals(intent.getComponent())) {
+				if (topRecord != null && !topRecord.marked && topRecord.component.equals(intent.getComponent())) {
 					deliverNewIntentLocked(sourceRecord, topRecord, intent);
 					delivered = true;
 				}
 			}
 			if (taskMarked) {
-				scheduleFinishMarkedActivity();
+				synchronized (mHistory) {
+					scheduleFinishMarkedActivity();
+				}
+				if (reuseTask.isFinishing()) {
+					startActivityInNewTaskLocked(userId, intent, info, options);
+					delivered = true;
+				}
 			}
 			if (!delivered) {
 				destIntent = startActivityProcess(userId, sourceRecord, intent, info);
@@ -380,9 +347,49 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		return 0;
 	}
 
+	private Intent startActivityInNewTaskLocked(int userId, Intent intent, ActivityInfo info, Bundle options) {
+		Intent destIntent = startActivityProcess(userId, null, intent, info);
+		if (destIntent != null) {
+			destIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			destIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+			destIntent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+				// noinspection deprecation
+				destIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+			} else {
+				destIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+			}
+
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+				VirtualCore.get().getContext().startActivity(destIntent, options);
+			} else {
+				VirtualCore.get().getContext().startActivity(destIntent);
+			}
+		}
+		return destIntent;
+	}
+
 	private void scheduleFinishMarkedActivity() {
-		VirtualRuntime.getUIHandler().removeCallbacks(mCleanTaskScheduler);
-		VirtualRuntime.getUIHandler().post(mCleanTaskScheduler);
+		int N = mHistory.size();
+		while (N-- > 0) {
+			final TaskRecord task = mHistory.valueAt(N);
+			for (final ActivityRecord r : task.activities) {
+				if (!r.marked) {
+					continue;
+				}
+				VirtualRuntime.getUIHandler().post(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							r.process.client.finishActivity(r.token);
+						} catch (RemoteException e) {
+							e.printStackTrace();
+						}
+					}
+				});
+			}
+		}
 	}
 
 	private boolean startActivityFromSourceTask(TaskRecord task, Intent intent, ActivityInfo info, String resultWho,

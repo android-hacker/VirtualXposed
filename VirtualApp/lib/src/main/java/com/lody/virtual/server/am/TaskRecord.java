@@ -32,4 +32,12 @@ class TaskRecord {
         ComponentName top = len > 0 ? activities.get(len - 1).component : null;
         return new AppTaskInfo(taskId, taskRoot, taskRoot.getComponent(), top);
     }
+
+    public boolean isFinishing() {
+        boolean allFinish = true;
+        for (ActivityRecord r : activities) {
+            if (!r.marked) allFinish = false;
+        }
+        return allFinish;
+    }
 }
