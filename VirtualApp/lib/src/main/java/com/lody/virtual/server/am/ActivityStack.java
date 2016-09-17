@@ -312,9 +312,16 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		boolean taskMarked = false;
 		if (reuseTask == null) {
 			startActivityInNewTaskLocked(userId, intent, info, options);
-		} else if (!clearTarget.deliverIntent && ComponentUtils.isSameIntent(intent, reuseTask.taskRoot)) {
+		} else if (ComponentUtils.isSameIntent(intent, reuseTask.taskRoot)) {
 			// In this case, we only need to move the task to front.
 			mAM.moveTaskToFront(reuseTask.taskId, 0);
+			if (clearTarget.deliverIntent) {
+				ActivityRecord topRecord = topActivityInTask(reuseTask);
+				// Target activity is on top
+				if (topRecord != null && !topRecord.marked && topRecord.component.equals(intent.getComponent())) {
+					deliverNewIntentLocked(sourceRecord, topRecord, intent);
+				}
+			}
 		} else {
 			boolean delivered = false;
 			mAM.moveTaskToFront(reuseTask.taskId, 0);
