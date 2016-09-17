@@ -27,7 +27,7 @@ import java.util.ListIterator;
 import mirror.android.app.ActivityManagerNative;
 import mirror.android.app.ActivityThread;
 import mirror.android.app.IApplicationThread;
-import mirror.com.android.internal.R_styleable;
+import mirror.com.android.internal.R_Hide;
 
 import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_INSTANCE;
 import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TASK;
@@ -445,10 +445,10 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		boolean isTranslucent = false;
 		boolean showWallpaper = false;
 		try {
-			int[] R_Styleable_Window = R_styleable.Window.get();
-			int R_Styleable_Window_windowIsTranslucent = R_styleable.Window_windowIsTranslucent.get();
-			int R_Styleable_Window_windowIsFloating = R_styleable.Window_windowIsFloating.get();
-			int R_Styleable_Window_windowShowWallpaper = R_styleable.Window_windowShowWallpaper.get();
+			int[] R_Styleable_Window = R_Hide.styleable.Window.get();
+			int R_Styleable_Window_windowIsTranslucent = R_Hide.styleable.Window_windowIsTranslucent.get();
+			int R_Styleable_Window_windowIsFloating = R_Hide.styleable.Window_windowIsFloating.get();
+			int R_Styleable_Window_windowShowWallpaper = R_Hide.styleable.Window_windowShowWallpaper.get();
 
 			AttributeCache.Entry ent = AttributeCache.instance().get(targetInfo.packageName, targetInfo.theme,
 					R_Styleable_Window);

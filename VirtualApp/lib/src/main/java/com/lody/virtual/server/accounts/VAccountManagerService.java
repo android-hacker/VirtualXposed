@@ -51,7 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-import mirror.com.android.internal.R_styleable;
+import mirror.com.android.internal.R_Hide;
 
 import static android.accounts.AccountManager.ERROR_CODE_BAD_ARGUMENTS;
 
@@ -91,14 +91,14 @@ public class VAccountManagerService extends IAccountManager.Stub {
 
 	private static AuthenticatorDescription parseAuthenticatorDescription(Resources resources, String packageName,
 			AttributeSet attributeSet) {
-		TypedArray array = resources.obtainAttributes(attributeSet, R_styleable.AccountAuthenticator.get());
+		TypedArray array = resources.obtainAttributes(attributeSet, R_Hide.styleable.AccountAuthenticator.get());
 		try {
-			String accountType = array.getString(R_styleable.AccountAuthenticator_accountType.get());
-			int label = array.getResourceId(R_styleable.AccountAuthenticator_label.get(), 0);
-			int icon = array.getResourceId(R_styleable.AccountAuthenticator_icon.get(), 0);
-			int smallIcon = array.getResourceId(R_styleable.AccountAuthenticator_smallIcon.get(), 0);
-			int accountPreferences = array.getResourceId(R_styleable.AccountAuthenticator_accountPreferences.get(), 0);
-			boolean customTokens = array.getBoolean(R_styleable.AccountAuthenticator_customTokens.get(), false);
+			String accountType = array.getString(R_Hide.styleable.AccountAuthenticator_accountType.get());
+			int label = array.getResourceId(R_Hide.styleable.AccountAuthenticator_label.get(), 0);
+			int icon = array.getResourceId(R_Hide.styleable.AccountAuthenticator_icon.get(), 0);
+			int smallIcon = array.getResourceId(R_Hide.styleable.AccountAuthenticator_smallIcon.get(), 0);
+			int accountPreferences = array.getResourceId(R_Hide.styleable.AccountAuthenticator_accountPreferences.get(), 0);
+			boolean customTokens = array.getBoolean(R_Hide.styleable.AccountAuthenticator_customTokens.get(), false);
 			if (TextUtils.isEmpty(accountType)) {
 				return null;
 			}
