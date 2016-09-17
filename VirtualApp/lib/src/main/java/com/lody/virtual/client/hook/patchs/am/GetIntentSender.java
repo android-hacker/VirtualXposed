@@ -95,7 +95,7 @@ import java.lang.reflect.Method;
 		newIntent.putExtra("_VA_|_user_id_", VUserHandle.myUserId());
 		newIntent.putExtra("_VA_|_intent_", intent);
 		newIntent.putExtra("_VA_|_creator_", creator);
-
+		newIntent.putExtra("_VA_|_from_inner_", true);
 
 		return newIntent;
 	}

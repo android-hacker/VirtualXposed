@@ -17,10 +17,7 @@ public class StubPendingService extends BaseService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Intent realIntent = intent.getParcelableExtra("_VA_|_intent_");
-        if (realIntent != null) {
-            startService(realIntent);
-        }
+        startService(intent);
         stopSelf();
         return START_NOT_STICKY;
     }

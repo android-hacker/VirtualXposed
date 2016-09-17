@@ -32,13 +32,18 @@ import java.lang.reflect.Method;
 			// for server process
 			return method.invoke(who, args);
 		}
-		service.setDataAndType(service.getData(), resolvedType);
-		ServiceInfo serviceInfo = VirtualCore.get().resolveServiceInfo(service, VUserHandle.myUserId());
-		if (serviceInfo != null) {
-			int userId = VUserHandle.myUserId();
+		int userId = VUserHandle.myUserId();
+		if (service.getBooleanExtra("_VA_|_from_inner_", false)) {
+			service = service.getParcelableExtra("_VA_|_intent_");
+			userId = service.getIntExtra("_VA_|_user_id_", userId);
+		} else {
 			if (isServerProcess()) {
 				userId = service.getIntExtra("_VA_|_user_id_", VUserHandle.USER_NULL);
 			}
+		}
+		service.setDataAndType(service.getData(), resolvedType);
+		ServiceInfo serviceInfo = VirtualCore.get().resolveServiceInfo(service, VUserHandle.myUserId());
+		if (serviceInfo != null) {
 			return VActivityManager.get().startService(appThread, service, resolvedType, userId);
 		}
 		return method.invoke(who, args);
