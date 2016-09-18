@@ -138,7 +138,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 		super.onResume();
 
 		MobclickAgent.onPageStart(TAG);
-		MobclickAgent.onResume(this);;
+		MobclickAgent.onResume(this);
 	}
 
 	@Override
