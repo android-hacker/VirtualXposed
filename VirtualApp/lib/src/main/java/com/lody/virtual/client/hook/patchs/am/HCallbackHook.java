@@ -63,7 +63,7 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 	@Override
 	public boolean handleMessage(Message msg) {
 		if (!mCalling) {
-			mCalling = false;
+			mCalling = true;
 			try {
 				if (LAUNCH_ACTIVITY == msg.what) {
 					if (!handleLaunchActivity(msg)) {

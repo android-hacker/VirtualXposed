@@ -3,7 +3,6 @@ package com.lody.virtual.client.core;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -19,8 +18,6 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Process;
 import android.os.RemoteException;
-import android.text.TextUtils;
-import android.util.LruCache;
 
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.env.VirtualRuntime;
@@ -41,7 +38,7 @@ import mirror.android.app.ActivityThread;
 
 /**
  * @author Lody
- * @version 2.2
+ * @version 3.1
  */
 public final class VirtualCore {
 
@@ -73,7 +70,6 @@ public final class VirtualCore {
 	private IAppManager mService;
 	private boolean isStartUp;
 	private PackageInfo hostPkgInfo;
-	private final LruCache<ComponentName, ActivityInfo> activityInfoCache = new LruCache<>(6);
 	private final int myUid = Process.myUid();
 	private int systemPid;
 	private ConditionVariable initLock = new ConditionVariable();
@@ -136,11 +132,11 @@ public final class VirtualCore {
 			mainThread = ActivityThread.currentActivityThread.call();
 			unHookPackageManager = context.getPackageManager();
 			hostPkgInfo = unHookPackageManager.getPackageInfo(context.getPackageName(), PackageManager.GET_PROVIDERS);
-			// Host包名
+			// Host package name
 			hostPkgName = context.getApplicationInfo().packageName;
-			// 主进程名
+			// Main process name
 			mainProcessName = context.getApplicationInfo().processName;
-			// 当前进程名
+			// Current process name
 			processName = ActivityThread.getProcessName.call(mainThread);
 			if (processName.equals(mainProcessName)) {
 				processType = ProcessType.Main;
@@ -166,7 +162,7 @@ public final class VirtualCore {
 		}
 	}
 
-	public IAppManager getService() {
+	private IAppManager getService() {
 		if (mService == null) {
 			synchronized (this) {
 				if (mService == null) {
@@ -327,10 +323,6 @@ public final class VirtualCore {
 		return null;
 	}
 
-	public boolean isHostPackageName(String pkgName) {
-		return TextUtils.equals(pkgName, context.getPackageName());
-	}
-
 
 	public synchronized ActivityInfo resolveActivityInfo(Intent intent, int userId) {
 		ActivityInfo activityInfo = null;
@@ -348,23 +340,15 @@ public final class VirtualCore {
 				if (intent.getComponent() == null) {
 					intent.setClassName(activityInfo.packageName, activityInfo.name);
 				}
-				activityInfoCache.put(intent.getComponent(), activityInfo);
 			}
 		} else {
 			activityInfo = resolveActivityInfo(intent.getComponent(), userId);
 		}
-		return activityInfo;
+		return new ActivityInfo(activityInfo);
 	}
 
-	public synchronized ActivityInfo resolveActivityInfo(ComponentName componentName, int userId) {
-		ActivityInfo activityInfo = activityInfoCache.get(componentName);
-		if (activityInfo == null) {
-			activityInfo = VPackageManager.get().getActivityInfo(componentName, 0, userId);
-			if (activityInfo != null) {
-				activityInfoCache.put(componentName, activityInfo);
-			}
-		}
-		return activityInfo;
+	public ActivityInfo resolveActivityInfo(ComponentName componentName, int userId) {
+		return VPackageManager.get().getActivityInfo(componentName, 0, userId);
 	}
 
 	public ServiceInfo resolveServiceInfo(Intent intent, int userId) {
@@ -415,14 +399,10 @@ public final class VirtualCore {
 		return systemPid;
 	}
 
-	public ContentResolver getContentResolver() {
-		return context.getContentResolver();
-	}
-
 	/**
-	 * 进程类型
+	 * Process type
 	 */
-	enum ProcessType {
+	private enum ProcessType {
 		/**
 		 * Server process
 		 */

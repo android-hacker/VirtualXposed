@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#03a9f4</color>
-    <color name="colorPrimaryDark">#0091ea</color>
-    <color name="colorPrimaryDeep">#01579b</color>
-    <color name="colorAccent">#03a9f4</color>
+    <color name="colorPrimary">#607d8f</color>
+    <color name="colorPrimaryDark">#455a64</color>
+    <color name="colorAccent">#607d8f</color>
 
     <color name="holo_blue_dark">#0099cc</color>
     <color name="holo_yellow_dark">#ff8800</color>

@@ -22,10 +22,12 @@ import android.os.Message;
 import android.os.Process;
 
 import com.lody.virtual.IOHook;
+import com.lody.virtual.client.core.PatchManager;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.fixer.ContextFixer;
 import com.lody.virtual.client.hook.delegate.AppInstrumentation;
+import com.lody.virtual.client.hook.patchs.am.HCallbackHook;
 import com.lody.virtual.client.hook.secondary.ProxyServiceFactory;
 import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.client.local.VPackageManager;
@@ -272,6 +274,7 @@ public final class VClientImpl extends IVClient.Stub {
 		}
 		try {
 			mInstrumentation.callApplicationOnCreate(app);
+			PatchManager.getInstance().checkEnv(HCallbackHook.class);
 			mInitialApplication = ActivityThread.mInitialApplication.get(mainThread);
 		} catch (Exception e) {
 			if (!mInstrumentation.onException(app, e)) {

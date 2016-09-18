@@ -20,25 +20,21 @@ public abstract class StubActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		Intent stubIntent = getIntent();
-		try {
-			PatchManager.getInstance().checkEnv(HCallbackHook.class);
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
 		// Note:
 		// ClassLoader of savedInstanceState is not exist now.
 		super.onCreate(null);
+		finish();
+		Intent stubIntent = getIntent();
 		StubActivityRecord r = new StubActivityRecord(stubIntent);
 		if (r.intent == null) {
 			if (DEBUG) {
 				Toast.makeText(this, "Ops...", Toast.LENGTH_SHORT).show();
 			}
 		} else {
+			PatchManager.getInstance().checkEnv(HCallbackHook.class);
 			Intent intent = r.intent;
 			startActivity(intent);
 		}
-		finish();
 	}
 
 
