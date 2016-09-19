@@ -42,11 +42,6 @@ import mirror.android.app.IActivityManager;
 			IInterface provider = IActivityManager.ContentProviderHolder.provider.get(holder);
 			if (provider != null) {
 				provider = VActivityManager.get().acquireProviderClient(userId, info);
-				ProviderHook.HookFetcher fetcher = ProviderHook.fetchHook(info.authority);
-				if (fetcher != null) {
-					ProviderHook hook = fetcher.fetch(false, info, provider);
-					provider = ProviderHook.createProxy(provider, hook);
-				}
 			}
 			IActivityManager.ContentProviderHolder.provider.set(holder, provider);
 			IActivityManager.ContentProviderHolder.info.set(holder, info);
@@ -57,11 +52,7 @@ import mirror.android.app.IActivityManager;
 			IInterface provider = IActivityManager.ContentProviderHolder.provider.get(holder);
 			info = IActivityManager.ContentProviderHolder.info.get(holder);
 			if (provider != null) {
-				ProviderHook.HookFetcher fetcher = ProviderHook.fetchHook(info.authority);
-				if (fetcher != null) {
-					ProviderHook hook = fetcher.fetch(true, info, provider);
-					provider = ProviderHook.createProxy(provider, hook);
-				}
+				provider = ProviderHook.createProxy(true, info.authority, provider);
 			}
 			IActivityManager.ContentProviderHolder.provider.set(holder, provider);
 			return holder;

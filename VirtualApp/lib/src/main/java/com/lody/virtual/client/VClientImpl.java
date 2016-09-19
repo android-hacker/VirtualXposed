@@ -28,9 +28,11 @@ import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.fixer.ContextFixer;
 import com.lody.virtual.client.hook.delegate.AppInstrumentation;
 import com.lody.virtual.client.hook.patchs.am.HCallbackHook;
+import com.lody.virtual.client.hook.providers.ProviderHook;
 import com.lody.virtual.client.hook.secondary.ProxyServiceFactory;
 import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.client.local.VPackageManager;
+import com.lody.virtual.client.stub.StubManifest;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
@@ -39,11 +41,13 @@ import com.lody.virtual.server.secondary.FakeIdentityBinder;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import mirror.android.app.ActivityThread;
 import mirror.android.app.ContextImpl;
 import mirror.android.app.ContextImplICS;
 import mirror.android.app.ContextImplKitkat;
+import mirror.android.app.IActivityManager;
 import mirror.android.app.LoadedApk;
 import mirror.com.android.internal.content.ReferrerIntent;
 import mirror.dalvik.system.VMRuntime;
@@ -195,6 +199,11 @@ public final class VClientImpl extends IVClient.Stub {
 
 	private void bindApplicationNoCheck(String packageName, String processName, ConditionVariable lock) {
 		mTempLock = lock;
+		try {
+			fixInstalledProviders();
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
 		ActivityThread.mInitialApplication.set(
 				VirtualCore.mainThread(),
 				null
@@ -346,6 +355,30 @@ public final class VClientImpl extends IVClient.Stub {
 			client.release();
 		}
 		return provider != null ? provider.asBinder() : null;
+	}
+
+	private void fixInstalledProviders() {
+		Map clientMap = ActivityThread.mProviderMap.get(VirtualCore.mainThread());
+		for (Object clientRecord : clientMap.values()) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+				IInterface provider = ActivityThread.ProviderClientRecordJB.mProvider.get(clientRecord);
+				Object holder = ActivityThread.ProviderClientRecordJB.mHolder.get(clientRecord);
+				ProviderInfo info = IActivityManager.ContentProviderHolder.info.get(holder);
+				if (holder != null && !info.authority.startsWith(StubManifest.STUB_CP_AUTHORITY)) {
+					provider = ProviderHook.createProxy(true, info.authority, provider);
+					ActivityThread.ProviderClientRecordJB.mProvider.set(clientRecord, provider);
+					IActivityManager.ContentProviderHolder.provider.set(holder, provider);
+				}
+			} else {
+				String authority = ActivityThread.ProviderClientRecord.mName.get(clientRecord);
+				IInterface provider = ActivityThread.ProviderClientRecord.mProvider.get(clientRecord);
+				if (provider != null && !authority.startsWith(StubManifest.STUB_CP_AUTHORITY)) {
+					provider = ProviderHook.createProxy(true, authority, provider);
+					ActivityThread.ProviderClientRecord.mProvider.set(clientRecord, provider);
+				}
+			}
+		}
+
 	}
 
 

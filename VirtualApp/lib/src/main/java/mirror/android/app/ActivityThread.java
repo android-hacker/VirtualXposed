@@ -64,6 +64,19 @@ public class ActivityThread {
         public static RefObject<IInterface> mProvider;
     }
 
+    public static class ProviderClientRecordJB {
+        public static Class<?> TYPE = RefClass.load(ProviderClientRecordJB.class, "android.app.ActivityThread$ProviderClientRecord");
+        @MethodReflectParams({"android.app.ActivityThread", "[Ljava.lang.String;", "android.content.IContentProvider", "android.content.ContentProvider", "android.app.IActivityManager$ContentProviderHolder"})
+        public static RefConstructor<?> ctor;
+        public static RefObject<Object> mHolder;
+        public static RefObject<IInterface> mProvider;
+    }
+
+    public static class ProviderKeyJBMR1 {
+        public static Class<?> TYPE = RefClass.load(ProviderKeyJBMR1.class, "android.app.ActivityThread$ProviderKey");
+        @MethodParams({String.class, int.class})
+        public static RefConstructor<?> ctor;
+    }
 
     public static class AppBindData {
         public static Class<?> TYPE = RefClass.load(AppBindData.class, "android.app.ActivityThread$AppBindData");
