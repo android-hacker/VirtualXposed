@@ -329,22 +329,20 @@ public final class VirtualCore {
 		if (intent.getComponent() == null) {
 			ResolveInfo resolveInfo = VPackageManager.get().resolveIntent(intent, intent.getType(), 0, 0);
 			if (resolveInfo != null && resolveInfo.activityInfo != null) {
-				if (resolveInfo.activityInfo.targetActivity != null) {
-					ComponentName componentName = new ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.targetActivity);
-					resolveInfo.activityInfo = VPackageManager.get().getActivityInfo(componentName, 0, userId);
-					if (intent.getComponent() != null) {
-						intent.setComponent(componentName);
-					}
-				}
 				activityInfo = resolveInfo.activityInfo;
-				if (intent.getComponent() == null) {
-					intent.setClassName(activityInfo.packageName, activityInfo.name);
-				}
+				intent.setClassName(activityInfo.packageName, activityInfo.name);
 			}
 		} else {
 			activityInfo = resolveActivityInfo(intent.getComponent(), userId);
 		}
-		return new ActivityInfo(activityInfo);
+		if (activityInfo != null) {
+			if (activityInfo.targetActivity != null) {
+				ComponentName componentName = new ComponentName(activityInfo.packageName, activityInfo.targetActivity);
+				activityInfo = VPackageManager.get().getActivityInfo(componentName, 0, userId);
+				intent.setComponent(componentName);
+			}
+		}
+		return activityInfo;
 	}
 
 	public ActivityInfo resolveActivityInfo(ComponentName componentName, int userId) {
