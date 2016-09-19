@@ -344,7 +344,7 @@ public final class VirtualCore {
 		} else {
 			activityInfo = resolveActivityInfo(intent.getComponent(), userId);
 		}
-		return new ActivityInfo(activityInfo);
+		return activityInfo != null ? new ActivityInfo(activityInfo) : null;
 	}
 
 	public ActivityInfo resolveActivityInfo(ComponentName componentName, int userId) {
