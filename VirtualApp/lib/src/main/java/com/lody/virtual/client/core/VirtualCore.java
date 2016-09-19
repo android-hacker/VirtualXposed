@@ -28,6 +28,7 @@ import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.proto.InstallResult;
+import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.service.IAppManager;
 
@@ -153,7 +154,7 @@ public final class VirtualCore {
 			PatchManager patchManager = PatchManager.getInstance();
 			patchManager.init();
 			patchManager.injectAll();
-            ContextFixer.fixContext(context);
+			ContextFixer.fixContext(context);
 			isStartUp = true;
 			if (initLock != null) {
 				initLock.open();
@@ -329,27 +330,22 @@ public final class VirtualCore {
 		if (intent.getComponent() == null) {
 			ResolveInfo resolveInfo = VPackageManager.get().resolveIntent(intent, intent.getType(), 0, 0);
 			if (resolveInfo != null && resolveInfo.activityInfo != null) {
-				if (resolveInfo.activityInfo.targetActivity != null) {
-					ComponentName componentName = new ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.targetActivity);
-					resolveInfo.activityInfo = VPackageManager.get().getActivityInfo(componentName, 0, userId);
+				activityInfo = resolveInfo.activityInfo;
+				if (activityInfo.targetActivity != null) {
+					ComponentName componentName = new ComponentName(activityInfo.packageName, activityInfo.targetActivity);
+					activityInfo = VPackageManager.get().getActivityInfo(componentName, 0, userId);
 					if (intent.getComponent() != null) {
 						intent.setComponent(componentName);
 					}
 				}
-				activityInfo = resolveInfo.activityInfo;
-				if (intent.getComponent() == null) {
-					intent.setClassName(activityInfo.packageName, activityInfo.name);
-				}
+				intent.setComponent(ComponentUtils.toComponentName(activityInfo));
 			}
 		} else {
-			activityInfo = resolveActivityInfo(intent.getComponent(), userId);
+			activityInfo = VPackageManager.get().getActivityInfo(intent.getComponent(), 0, userId);
 		}
-		return new ActivityInfo(activityInfo);
+		return activityInfo;
 	}
 
-	public ActivityInfo resolveActivityInfo(ComponentName componentName, int userId) {
-		return VPackageManager.get().getActivityInfo(componentName, 0, userId);
-	}
 
 	public ServiceInfo resolveServiceInfo(Intent intent, int userId) {
 		ServiceInfo serviceInfo = null;
