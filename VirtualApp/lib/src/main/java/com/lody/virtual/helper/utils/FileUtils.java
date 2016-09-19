@@ -1,16 +1,24 @@
 package com.lody.virtual.helper.utils;
 
+import android.annotation.TargetApi;
+import android.os.Build;
+import android.system.ErrnoException;
+import android.system.Os;
+import android.system.OsConstants;
+
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
@@ -113,6 +121,81 @@ public class FileUtils {
 			} catch (Exception ignored) {
 			}
 		}
+	}
+
+	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
+	public static void closeQuietly(FileDescriptor fd) {
+
+		if (fd != null && fd.valid()) {
+			try {
+				Os.close(fd);
+			} catch (ErrnoException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	/**
+	 * java.io thinks that a read at EOF is an error and should return -1, contrary to traditional
+	 * Unix practice where you'd read until you got 0 bytes (and any future read would return -1).
+	 */
+	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
+	public static int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws IOException {
+		ArrayUtils.checkOffsetAndCount(bytes.length, byteOffset, byteCount);
+		if (byteCount == 0) {
+			return 0;
+		}
+		try {
+			int readCount = Os.read(fd, bytes, byteOffset, byteCount);
+			if (readCount == 0) {
+				return -1;
+			}
+			return readCount;
+		} catch (ErrnoException errnoException) {
+			if (errnoException.errno == OsConstants.EAGAIN) {
+				// We return 0 rather than throw if we try to read from an empty non-blocking pipe.
+				return 0;
+			}
+			throw new IOException(errnoException);
+		}
+	}
+
+	/**
+	 * java.io always writes every byte it's asked to, or fails with an error. (That is, unlike
+	 * Unix it never just writes as many bytes as happens to be convenient.)
+	 */
+	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
+	public static void write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws IOException {
+		ArrayUtils.checkOffsetAndCount(bytes.length, byteOffset, byteCount);
+		if (byteCount == 0) {
+			return;
+		}
+		try {
+			while (byteCount > 0) {
+				int bytesWritten = Os.write(fd, bytes, byteOffset, byteCount);
+				byteCount -= bytesWritten;
+				byteOffset += bytesWritten;
+			}
+		} catch (ErrnoException errnoException) {
+			throw new IOException(errnoException);
+		}
+	}
+
+	public static int peekInt(byte[] bytes, int value, ByteOrder endian) {
+		int v2;
+		int v0;
+		if(endian == ByteOrder.BIG_ENDIAN) {
+			v0 = value + 1;
+			v2 = v0 + 1;
+			v0 = (bytes[v0] & 255) << 16 | (bytes[value] & 255) << 24 | (bytes[v2] & 255) << 8 | bytes[v2 + 1] & 255;
+		}
+		else {
+			v0 = value + 1;
+			v2 = v0 + 1;
+			v0 = (bytes[v0] & 255) << 8 | bytes[value] & 255 | (bytes[v2] & 255) << 16 | (bytes[v2 + 1] & 255) << 24;
+		}
+
+		return v0;
 	}
 
 	/**

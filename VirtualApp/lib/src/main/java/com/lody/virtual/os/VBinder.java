@@ -14,6 +14,10 @@ public class VBinder {
         return VActivityManager.get().getUidByPid(Binder.getCallingPid());
     }
 
+    public static int getBaseCallingUid() {
+        return VUserHandle.getAppId(getCallingUid());
+    }
+
     public static int getCallingPid() {
         return Binder.getCallingPid();
     }

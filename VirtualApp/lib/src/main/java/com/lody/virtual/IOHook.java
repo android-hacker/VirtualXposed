@@ -2,6 +2,7 @@ package com.lody.virtual;
 
 import android.os.Binder;
 import android.os.Build;
+import android.os.Process;
 
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
@@ -112,10 +113,17 @@ public class IOHook {
 
 	public static int onGetCallingUid(int originUid) {
 		int callingPid = Binder.getCallingPid();
+		if (callingPid == Process.myPid()) {
+			return VClientImpl.getClient().getBaseVUid();
+		}
+		if (callingPid == VirtualCore.get().getSystemPid()) {
+			return Process.SYSTEM_UID;
+		}
 		int vuid = VActivityManager.get().getUidByPid(callingPid);
 		if (vuid != -1) {
             return VUserHandle.getAppId(vuid);
         }
+		VLog.d(TAG, "Ops, who are you ? " + callingPid);
 		return VClientImpl.getClient().getBaseVUid();
 	}
 
