@@ -10,10 +10,10 @@ import com.lody.virtual.helper.component.BaseService;
  * @author Lody
  *
  */
-public class KeepService extends BaseService {
+public class DaemonService extends BaseService {
 
 	public static void startup(Context context) {
-		context.startService(new Intent(context, KeepService.class));
+		context.startService(new Intent(context, DaemonService.class));
 	}
 
 	@Override

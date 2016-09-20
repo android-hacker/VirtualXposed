@@ -27,8 +27,9 @@ public class VAccountManager {
 
 	public IAccountManager getRemote() {
 		if (mRemote == null) {
-			mRemote = IAccountManager.Stub
+			IAccountManager remote = IAccountManager.Stub
 					.asInterface(ServiceManagerNative.getService(ServiceManagerNative.ACCOUNT));
+			mRemote = LocalProxyUtils.genProxy(IAccountManager.class, remote);
 		}
 		return mRemote;
 	}

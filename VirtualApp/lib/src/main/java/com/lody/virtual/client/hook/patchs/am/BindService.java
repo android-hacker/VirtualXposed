@@ -38,6 +38,9 @@ import java.lang.reflect.Method;
 		if (isServerProcess()) {
 			userId = service.getIntExtra("_VA_|_user_id_", VUserHandle.USER_NULL);
 		}
+		if (userId == VUserHandle.USER_NULL) {
+			return method.invoke(who, args);
+		}
 		ServiceInfo serviceInfo = VirtualCore.get().resolveServiceInfo(service, userId);
 		if (serviceInfo != null) {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

@@ -54,8 +54,9 @@ public class VActivityManager {
 		if (mRemote == null) {
 			synchronized (VActivityManager.class) {
 				if (mRemote == null) {
-					mRemote = IActivityManager.Stub
+					final IActivityManager remote = IActivityManager.Stub
 							.asInterface(ServiceManagerNative.getService(ServiceManagerNative.ACTIVITY));
+					mRemote = LocalProxyUtils.genProxy(IActivityManager.class, remote);
 				}
 			}
 		}

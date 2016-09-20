@@ -23,7 +23,8 @@ public class VJobScheduler {
         if (mRemote == null) {
             synchronized (this) {
                 if (mRemote == null) {
-                    mRemote = IJobScheduler.Stub.asInterface(ServiceManagerNative.getService(ServiceManagerNative.JOB));
+                    Object remote = IJobScheduler.Stub.asInterface(ServiceManagerNative.getService(ServiceManagerNative.JOB));
+                    mRemote = LocalProxyUtils.genProxy(IJobScheduler.class, remote);
                 }
             }
         }

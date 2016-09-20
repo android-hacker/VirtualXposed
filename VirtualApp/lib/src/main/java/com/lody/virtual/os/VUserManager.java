@@ -321,7 +321,6 @@ public class VUserManager {
     /**
      * Enable or disable the use of a guest account. If disabled, the existing guest account
      * will be wiped.
-     * Requires {@link android.Manifest.permission#MANAGE_USERS} permission.
      * @param enable whether to enable a guest account.
      * @hide
      */
@@ -335,7 +334,6 @@ public class VUserManager {
 
     /**
      * Checks if a guest user is enabled for this device.
-     * Requires {@link android.Manifest.permission#MANAGE_USERS} permission.
      * @return whether a guest user is enabled
      * @hide
      */
@@ -350,7 +348,6 @@ public class VUserManager {
 
     /**
      * Wipes all the data for a user, but doesn't remove the user.
-     * Requires {@link android.Manifest.permission#MANAGE_USERS} permission.
      * @param handle
      * @hide
      */

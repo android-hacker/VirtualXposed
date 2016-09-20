@@ -160,24 +160,6 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 					}
 				}
 			} break;
-			case AFTER_TOP_WITH_TOP: {
-				synchronized (task.activities) {
-					int N = task.activities.size();
-					while (N-- > 0) {
-						ActivityRecord r = task.activities.get(N);
-						if (r.component.equals(component)) {
-							marked = true;
-							break;
-						}
-					}
-					N--;
-					if (marked) {
-						while (N++ < task.activities.size() - 1) {
-							task.activities.get(N).marked = true;
-						}
-					}
-				}
-			} break;
 		}
 
 		return marked;
@@ -234,7 +216,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		}
 		if (clearTop) {
 			removeFlags(intent, Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-			clearTarget = ClearTarget.AFTER_TOP_WITH_TOP;
+			clearTarget = ClearTarget.AFTER_TOP;
 		}
 		if (containFlags(intent, Intent.FLAG_ACTIVITY_CLEAR_TASK)) {
 			if (containFlags(intent, Intent.FLAG_ACTIVITY_NEW_TASK)) {
@@ -312,22 +294,17 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		boolean taskMarked = false;
 		if (reuseTask == null) {
 			startActivityInNewTaskLocked(userId, intent, info, options);
-		} else if (ComponentUtils.isSameIntent(intent, reuseTask.taskRoot)) {
-			// In this case, we only need to move the task to front.
-			mAM.moveTaskToFront(reuseTask.taskId, 0);
-			if (clearTarget.deliverIntent) {
-				ActivityRecord topRecord = topActivityInTask(reuseTask);
-				// Target activity is on top
-				if (topRecord != null && !topRecord.marked && topRecord.component.equals(intent.getComponent())) {
-					deliverNewIntentLocked(sourceRecord, topRecord, intent);
-				}
-			}
 		} else {
 			boolean delivered = false;
 			mAM.moveTaskToFront(reuseTask.taskId, 0);
+			boolean startTaskToFront = ComponentUtils.isSameIntent(intent, reuseTask.taskRoot);
+
 			if (clearTarget.deliverIntent) {
 				taskMarked = markTaskByClearTarget(reuseTask, clearTarget, intent.getComponent());
 				ActivityRecord topRecord = topActivityInTask(reuseTask);
+				if (clearTop && topRecord != null && taskMarked && info.launchMode != ActivityInfo.LAUNCH_SINGLE_TOP) {
+					topRecord.marked = true;
+				}
 				// Target activity is on top
 				if (topRecord != null && !topRecord.marked && topRecord.component.equals(intent.getComponent())) {
 					deliverNewIntentLocked(sourceRecord, topRecord, intent);
@@ -338,19 +315,18 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 				synchronized (mHistory) {
 					scheduleFinishMarkedActivity();
 				}
+			}
+			if (!startTaskToFront) {
 				if (reuseTask.isFinishing()) {
 					startActivityInNewTaskLocked(userId, intent, info, options);
-					delivered = true;
-				}
-			}
-			if (!delivered) {
-				destIntent = startActivityProcess(userId, sourceRecord, intent, info);
-				if (destIntent != null) {
-					startActivityFromSourceTask(reuseTask, destIntent, info, resultWho, requestCode, options);
+				} else if (!delivered) {
+					destIntent = startActivityProcess(userId, sourceRecord, intent, info);
+					if (destIntent != null) {
+						startActivityFromSourceTask(reuseTask, destIntent, info, resultWho, requestCode, options);
+					}
 				}
 			}
 		}
-
 		return 0;
 	}
 
@@ -602,9 +578,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		NOTHING,
 		SPEC_ACTIVITY,
 		FULL_TASK(true),
-		AFTER_TOP(true),
-		AFTER_TOP_WITH_TOP(true);
-
+		AFTER_TOP(true);
 		boolean deliverIntent;
 
 		ClearTarget() {

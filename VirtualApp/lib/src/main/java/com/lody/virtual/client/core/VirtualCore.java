@@ -22,6 +22,7 @@ import android.os.RemoteException;
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.fixer.ContextFixer;
+import com.lody.virtual.client.local.LocalProxyUtils;
 import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.client.service.ServiceManagerNative;
@@ -166,8 +167,9 @@ public final class VirtualCore {
 		if (mService == null) {
 			synchronized (this) {
 				if (mService == null) {
-					mService = IAppManager.Stub
+					IAppManager remote = IAppManager.Stub
 							.asInterface(ServiceManagerNative.getService(ServiceManagerNative.APP));
+					mService = LocalProxyUtils.genProxy(IAppManager.class, remote);
 				}
 			}
 		}
@@ -327,7 +329,7 @@ public final class VirtualCore {
 	public synchronized ActivityInfo resolveActivityInfo(Intent intent, int userId) {
 		ActivityInfo activityInfo = null;
 		if (intent.getComponent() == null) {
-			ResolveInfo resolveInfo = VPackageManager.get().resolveIntent(intent, intent.getType(), 0, 0);
+			ResolveInfo resolveInfo = VPackageManager.get().resolveIntent(intent, intent.getType(), 0, userId);
 			if (resolveInfo != null && resolveInfo.activityInfo != null) {
 				activityInfo = resolveInfo.activityInfo;
 				intent.setClassName(activityInfo.packageName, activityInfo.name);

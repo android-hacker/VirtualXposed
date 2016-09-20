@@ -38,7 +38,8 @@ public class VPackageManager {
 			synchronized (VPackageManager.class) {
 				if (mRemote == null) {
 					final IBinder pmBinder = ServiceManagerNative.getService(ServiceManagerNative.PACKAGE);
-					mRemote = IPackageManager.Stub.asInterface(pmBinder);
+					Object remote = IPackageManager.Stub.asInterface(pmBinder);
+					mRemote = LocalProxyUtils.genProxy(IPackageManager.class, remote);
 				}
 			}
 		}
@@ -255,4 +256,5 @@ public class VPackageManager {
 			return VirtualRuntime.crash(e);
 		}
 	}
+
 }

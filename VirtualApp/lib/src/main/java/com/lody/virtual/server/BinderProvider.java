@@ -8,7 +8,7 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.service.ServiceManagerNative;
-import com.lody.virtual.client.stub.KeepService;
+import com.lody.virtual.client.stub.DaemonService;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.component.BaseContentProvider;
 import com.lody.virtual.server.accounts.VAccountManagerService;
@@ -30,7 +30,7 @@ public final class BinderProvider extends BaseContentProvider {
 	@Override
 	public boolean onCreate() {
 		Context context = getContext();
-		KeepService.startup(context);
+		DaemonService.startup(context);
 		if (!VirtualCore.get().isStartup()) {
 			return true;
 		}

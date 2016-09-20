@@ -1,9 +1,9 @@
 package com.lody.virtual.client.local;
 
+import android.os.IBinder;
+
 import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.service.interfaces.IIntentFilterObserver;
-
-import android.os.IBinder;
 
 /**
  * @author Lody
@@ -16,8 +16,9 @@ public class VIntentFilterManager {
 		if (mRemote == null) {
 			synchronized (VIntentFilterManager.class) {
 				if (mRemote == null) {
-					IBinder remote = ServiceManagerNative.getService(ServiceManagerNative.INTENT_FILTER);
-					mRemote = IIntentFilterObserver.Stub.asInterface(remote);
+					IBinder binder = ServiceManagerNative.getService(ServiceManagerNative.INTENT_FILTER);
+					IIntentFilterObserver remote = IIntentFilterObserver.Stub.asInterface(binder);
+					mRemote = LocalProxyUtils.genProxy(IIntentFilterObserver.class, remote);
 				}
 			}
 		}
