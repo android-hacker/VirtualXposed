@@ -90,6 +90,9 @@ public final class PatchManager {
 		for (Injectable injectable : injectableMap.values()) {
 			injectable.inject();
 		}
+		// XXX: Lazy inject the Instrumentation,
+		// this will be important in many cases.
+		addPatch(AppInstrumentation.getDefault());
 	}
 
 	/**
@@ -125,7 +128,6 @@ public final class PatchManager {
 			addPatch(new PackageManagerPatch());
 			// ## End
 			addPatch(HCallbackHook.getDefault());
-			addPatch(AppInstrumentation.getDefault());
 
 			addPatch(new ISubPatch());
 			addPatch(new DropBoxManagerPatch());

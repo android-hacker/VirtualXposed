@@ -304,6 +304,7 @@ public final class VClientImpl extends IVClient.Stub {
 		try {
 			mInstrumentation.callApplicationOnCreate(app);
 			PatchManager.getInstance().checkEnv(HCallbackHook.class);
+			PatchManager.getInstance().checkEnv(AppInstrumentation.class);
 			mInitialApplication = ActivityThread.mInitialApplication.get(mainThread);
 		} catch (Exception e) {
 			if (!mInstrumentation.onException(app, e)) {
