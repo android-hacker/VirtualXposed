@@ -53,7 +53,8 @@ public class AppOpsManagerPatch extends PatchDelegate<AppOpsBinderDelegate> {
 	private class BaseHook extends StaticHook {
 		final int pkgIndex;
 		final int uidIndex;
-		public BaseHook(String name, int uidIndex, int pkgIndex) {
+
+		BaseHook(String name, int uidIndex, int pkgIndex) {
 			super(name);
 			this.pkgIndex = pkgIndex;
 			this.uidIndex = uidIndex;

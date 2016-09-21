@@ -298,6 +298,13 @@ public final class VClientImpl extends IVClient.Stub {
 			}
 		}
 		VActivityManager.get().appDoneExecuting();
+		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+			@Override
+			public void uncaughtException(Thread thread, Throwable ex) {
+				ex.printStackTrace();
+				Process.killProcess(Process.myPid());
+			}
+		});
 	}
 
 	private Context createPackageContext(String packageName) {

@@ -29,7 +29,7 @@ import mirror.android.app.IActivityManager;
 		String name = (String) args[nameIdx];
 		int userId = VUserHandle.myUserId();
 		ProviderInfo info = VPackageManager.get().resolveContentProvider(name, 0, userId);
-		if (info != null && info.enabled) {
+		if (info != null && info.enabled && isAppPkg(info.packageName)) {
 			int targetVPid = VActivityManager.get().initProcess(info.packageName, info.processName, userId);
 			if (targetVPid == -1) {
 				return null;

@@ -1,7 +1,6 @@
 package com.lody.virtual.client.core;
 
 import android.os.Build;
-import android.provider.Settings;
 
 import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.delegate.AppInstrumentation;
@@ -77,16 +76,6 @@ public final class PatchManager {
 		Reflect.on(settingClass).field("sNameValueCache").set("mContentProvider", null);
 	}
 
-	public static void fixAllSettings() {
-		try {
-			fixSetting(Settings.System.class);
-			fixSetting(Settings.Secure.class);
-			fixSetting(Settings.Global.class);
-		} catch (Throwable e) {
-			// No class def
-		}
-	}
-
 	void injectAll() throws Throwable {
 		for (Injectable injectable : injectableMap.values()) {
 			injectable.inject();
@@ -94,6 +83,18 @@ public final class PatchManager {
 		// XXX: Lazy inject the Instrumentation,
 		// this is important in many cases.
 		addPatch(AppInstrumentation.getDefault());
+	}
+
+	public void checkAll() {
+		for (Injectable injectable : injectableMap.values()) {
+			if (injectable.isEnvBad()) {
+				try {
+					injectable.inject();
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	/**
@@ -109,7 +110,6 @@ public final class PatchManager {
 			throw new IllegalStateException("PatchManager Has been initialized.");
 		}
 		injectInternal();
-		fixAllSettings();
 		PatchManagerHolder.sInit = true;
 
 	}
