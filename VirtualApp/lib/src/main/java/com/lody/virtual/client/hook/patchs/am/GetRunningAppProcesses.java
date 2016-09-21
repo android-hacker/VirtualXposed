@@ -7,7 +7,6 @@ import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -27,20 +26,16 @@ import java.util.List;
 		List<ActivityManager.RunningAppProcessInfo> infoList = (List<ActivityManager.RunningAppProcessInfo>) method
 				.invoke(who, args);
 		if (infoList != null) {
-			Iterator<ActivityManager.RunningAppProcessInfo> iterator = infoList.iterator();
-			while (iterator.hasNext()) {
-				ActivityManager.RunningAppProcessInfo info = iterator.next();
-				if (!VActivityManager.get().isAppPid(info.pid)) {
-					iterator.remove();
-					continue;
+			for (ActivityManager.RunningAppProcessInfo info : infoList) {
+				if (VActivityManager.get().isAppPid(info.pid)) {
+					List<String> pkgList = VActivityManager.get().getProcessPkgList(info.pid);
+					String processName = VActivityManager.get().getAppProcessName(info.pid);
+					if (processName != null) {
+						info.processName = processName;
+					}
+					info.pkgList = pkgList.toArray(new String[pkgList.size()]);
+					info.uid = VUserHandle.getAppId(VActivityManager.get().getUidByPid(info.pid));
 				}
-				List<String> pkgList = VActivityManager.get().getProcessPkgList(info.pid);
-				String processName = VActivityManager.get().getAppProcessName(info.pid);
-				if (processName != null) {
-					info.processName = processName;
-				}
-				info.pkgList = pkgList.toArray(new String[pkgList.size()]);
-				info.uid = VUserHandle.getAppId(VActivityManager.get().getUidByPid(info.pid));
 			}
 		}
 		return infoList;
