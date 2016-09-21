@@ -14,9 +14,9 @@ import mirror.RefStaticMethod;
  * @author legency
  */
 public class ILocationListener {
-    public static Class<?> Class = RefClass.load(ILocationListener.class, "android.location.ILocationListener");
+    public static Class<?> TYPE = RefClass.load(ILocationListener.class, "android.location.ILocationListener");
     public static class Stub {
-        public static Class<?> Class = RefClass.load(Stub.class, "android.location.ILocationListener$Stub");
+        public static Class<?> TYPE = RefClass.load(Stub.class, "android.location.ILocationListener$Stub");
         @MethodParams({IBinder.class})
         public static RefStaticMethod<IInterface> asInterface;
     }

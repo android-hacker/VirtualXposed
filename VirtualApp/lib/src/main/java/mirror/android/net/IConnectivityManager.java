@@ -16,7 +16,7 @@ public class IConnectivityManager {
     public static Class<?> TYPE = RefClass.load(IConnectivityManager.class, "android.net.IConnectivityManager");
 
     public static class Stub {
-        public static Class<?> Class = RefClass.load(Stub.class, "android.net.IConnectivityManager$Stub");
+        public static Class<?> TYPE = RefClass.load(Stub.class, "android.net.IConnectivityManager$Stub");
         @MethodParams({IBinder.class})
         public static RefStaticMethod<IInterface> asInterface;
     }

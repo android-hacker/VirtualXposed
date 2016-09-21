@@ -50,6 +50,9 @@ import mirror.android.app.ContextImplICS;
 import mirror.android.app.ContextImplKitkat;
 import mirror.android.app.IActivityManager;
 import mirror.android.app.LoadedApk;
+import mirror.android.renderscript.RenderScriptCacheDir;
+import mirror.android.view.HardwareRenderer;
+import mirror.android.view.RenderScript;
 import mirror.com.android.internal.content.ReferrerIntent;
 import mirror.dalvik.system.VMRuntime;
 
@@ -251,6 +254,18 @@ public final class VClientImpl extends IVClient.Stub {
 		IOHook.startDexOverride();
 		Context context = createPackageContext(data.appInfo.packageName);
 		System.setProperty("java.io.tmpdir", context.getCacheDir().getAbsolutePath());
+		File codeCacheDir;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			codeCacheDir = context.getCodeCacheDir();
+		} else {
+			codeCacheDir = context.getCacheDir();
+		}
+		HardwareRenderer.setupDiskCache.call(codeCacheDir);
+		if (Build.VERSION.SDK_INT >= 23) {
+			RenderScriptCacheDir.setupDiskCache.call(codeCacheDir);
+		} else if (Build.VERSION.SDK_INT >= 16) {
+			RenderScript.setupDiskCache.call(codeCacheDir);
+		}
 		File filesDir = new File(data.appInfo.dataDir, "files");
 		File cacheDir = new File(data.appInfo.dataDir, "cache");
 		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
