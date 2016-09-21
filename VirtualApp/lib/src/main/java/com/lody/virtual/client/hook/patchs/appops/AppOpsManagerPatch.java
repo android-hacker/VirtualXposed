@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.Build;
 
 import com.lody.virtual.client.hook.base.PatchDelegate;
-import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
 import com.lody.virtual.client.hook.base.StaticHook;
 import com.lody.virtual.client.hook.binders.AppOpsBinderDelegate;

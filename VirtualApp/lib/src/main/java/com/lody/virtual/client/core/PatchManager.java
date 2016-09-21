@@ -21,6 +21,7 @@ import com.lody.virtual.client.hook.patchs.dropbox.DropBoxManagerPatch;
 import com.lody.virtual.client.hook.patchs.graphics.GraphicsStatsPatch;
 import com.lody.virtual.client.hook.patchs.imms.MmsPatch;
 import com.lody.virtual.client.hook.patchs.input.InputMethodManagerPatch;
+import com.lody.virtual.client.hook.patchs.isms.ISmsPatch;
 import com.lody.virtual.client.hook.patchs.isub.ISubPatch;
 import com.lody.virtual.client.hook.patchs.job.JobPatch;
 import com.lody.virtual.client.hook.patchs.libcore.LibCorePatch;
@@ -128,7 +129,7 @@ public final class PatchManager {
 			addPatch(new PackageManagerPatch());
 			// ## End
 			addPatch(HCallbackHook.getDefault());
-
+			addPatch(new ISmsPatch());
 			addPatch(new ISubPatch());
 			addPatch(new DropBoxManagerPatch());
 			addPatch(new NotificationManagerPatch());
