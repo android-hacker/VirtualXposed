@@ -47,7 +47,7 @@ public class AppOpsManagerPatch extends PatchDelegate<AppOpsBinderDelegate> {
 		addHook(new BaseHook("setMode", 1, 2));
 		addHook(new BaseHook("checkAudioOperation", 2, 3));
 		addHook(new BaseHook("setAudioRestriction", 2, -1));
-		addHook(new ReplaceCallingPkgHook("noteProxyOperation"));
+		addHook(new BaseHook("noteProxyOperation", 2, 3));
 		addHook(new ReplaceLastPkgHook("resetAllModes"));
 	}
 
