@@ -9,12 +9,12 @@ jclass g_jclass;
 
 
 
-void hook_native(JNIEnv *env, jclass jclazz, jobject javaMethod, jboolean isArt) {
+void hook_native(JNIEnv *env, jclass jclazz, jobject javaMethod, jboolean isArt, jint apiLevel) {
     static bool hasHooked = false;
     if (hasHooked) {
         return;
     }
-    hookNative(javaMethod, isArt);
+    hookNative(javaMethod, isArt, apiLevel);
     hasHooked = true;
 }
 
@@ -54,7 +54,7 @@ static JNINativeMethod gMethods[] = {
         NATIVE_METHOD((void *) query,    "nativeGetRedirectedPath",     "(Ljava/lang/String;)Ljava/lang/String;"),
         NATIVE_METHOD((void *) restore,  "nativeRestoreRedirectedPath", "(Ljava/lang/String;)Ljava/lang/String;"),
 
-        NATIVE_METHOD((void *) hook_native, "nativeHookNative", "(Ljava/lang/Object;Z)V"),
+        NATIVE_METHOD((void *) hook_native, "nativeHookNative", "(Ljava/lang/Object;ZI)V"),
 };
 
 

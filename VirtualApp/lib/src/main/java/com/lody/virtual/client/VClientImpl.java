@@ -34,8 +34,6 @@ import com.lody.virtual.client.hook.secondary.ProxyServiceFactory;
 import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.client.stub.StubManifest;
-import com.lody.virtual.helper.utils.Reflect;
-import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.server.secondary.FakeIdentityBinder;
 
@@ -225,26 +223,6 @@ public final class VClientImpl extends IVClient.Stub {
 				super.start();
 			}
 		});
-		ThreadGroup systemGroup = new ThreadGroup("va-system") {
-			@Override
-			public void uncaughtException(Thread t, Throwable e) {
-				VLog.e(TAG + " : " + VirtualRuntime.getProcessName(), e);
-				Process.killProcess(Process.myPid());
-			}
-		};
-		ThreadGroup root = Thread.currentThread().getThreadGroup();
-		while (true) {
-			ThreadGroup parent = root.getParent();
-			if (parent == null) {
-				break;
-			}
-			root = parent;
-		}
-		try {
-			Reflect.on(root).set("parent", systemGroup);
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
 		if (data.appInfo.targetSdkVersion < 9) {
 			StrictMode.ThreadPolicy newPolicy = new StrictMode.ThreadPolicy.Builder(StrictMode.getThreadPolicy()).permitNetwork().build();
 			StrictMode.setThreadPolicy(newPolicy);
@@ -260,11 +238,17 @@ public final class VClientImpl extends IVClient.Stub {
 		} else {
 			codeCacheDir = context.getCacheDir();
 		}
-		HardwareRenderer.setupDiskCache.call(codeCacheDir);
-		if (Build.VERSION.SDK_INT >= 23) {
-			RenderScriptCacheDir.setupDiskCache.call(codeCacheDir);
-		} else if (Build.VERSION.SDK_INT >= 16) {
-			RenderScript.setupDiskCache.call(codeCacheDir);
+		if (HardwareRenderer.setupDiskCache != null) {
+			HardwareRenderer.setupDiskCache.call(codeCacheDir);
+		}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			if (RenderScriptCacheDir.setupDiskCache != null) {
+				RenderScriptCacheDir.setupDiskCache.call(codeCacheDir);
+			}
+		} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+			if (RenderScript.setupDiskCache != null) {
+				RenderScript.setupDiskCache.call(codeCacheDir);
+			}
 		}
 		File filesDir = new File(data.appInfo.dataDir, "files");
 		File cacheDir = new File(data.appInfo.dataDir, "cache");

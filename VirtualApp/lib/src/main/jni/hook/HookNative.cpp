@@ -5,6 +5,8 @@
 
 typedef void (*Bridge_DalvikBridgeFunc)(const void **, void *, const void *, void *);
 typedef jobject (*Native_openDexNativeFunc)(JNIEnv *, jclass, jstring, jstring, jint);
+typedef jobject (*Native_openDexNativeFunc_N)(JNIEnv *, jclass, jstring, jstring, jint, jobject, jobject);
+typedef jint (*Native_getCallingUid)(JNIEnv *, jclass);
 
 
 
@@ -12,17 +14,25 @@ static struct {
 
     bool isArt;
     int nativeOffset;
+    jclass g_binder_classs;
     jmethodID g_methodid_onGetCallingUid;
     jmethodID g_methodid_onOpenDexFileNative;
 
-    void* g_sym_IPCThreadState_self;
-    void* g_sym_IPCThreadState_getCallingUid;
     void* art_work_around_app_jni_bugs;
     char* (*GetCstrFromString)(void *);
     void* (*GetStringFromCstr)(const char*);
 
-    Bridge_DalvikBridgeFunc orig_DalvikBridgeFunc;
-    Native_openDexNativeFunc orig_native_openDexNativeFunc;
+
+    void* g_sym_IPCThreadState_self;
+    void* g_sym_IPCThreadState_getCallingUid;
+
+    Native_getCallingUid orig_getCallingUid;
+
+    Bridge_DalvikBridgeFunc orig_openDexFile_dvm;
+    union {
+        Native_openDexNativeFunc beforeN;
+        Native_openDexNativeFunc_N afterN;
+    } orig_native_openDexNativeFunc;
 
 
 } gOffset;
@@ -36,14 +46,16 @@ void mark() {
     // Do nothing
 };
 
-int getCallingUid(JNIEnv *env, jclass jclazz) {
-    int (*org_getCallingUid)(int) = (int (*)(int)) gOffset.g_sym_IPCThreadState_getCallingUid;
-    int (*func_self)(void) = (int (*)(void)) gOffset.g_sym_IPCThreadState_self;
-    int uid = org_getCallingUid(func_self());
-    if (uid == getuid()) {
-        uid = env->CallStaticIntMethod(g_jclass, gOffset.g_methodid_onGetCallingUid, uid);
-        return uid;
+jint getCallingUid(JNIEnv *env, jclass jclazz) {
+    jint uid;
+    if (gOffset.isArt) {
+        uid = gOffset.orig_getCallingUid(env, jclazz);
+    } else {
+        int (*org_getCallingUid)(int) = (int (*)(int)) gOffset.g_sym_IPCThreadState_getCallingUid;
+        int (*func_self)(void) = (int (*)(void)) gOffset.g_sym_IPCThreadState_self;
+        uid = org_getCallingUid(func_self());
     }
+    uid = env->CallStaticIntMethod(g_jclass, gOffset.g_methodid_onGetCallingUid, uid);
     return uid;
 }
 
@@ -74,8 +86,28 @@ static jobject new_native_openDexNativeFunc(JNIEnv* env, jclass jclazz, jstring 
     jstring newSource = (jstring) env->GetObjectArrayElement(array, 0);
     jstring newOutput = (jstring) env->GetObjectArrayElement(array, 1);
 
-    return gOffset.orig_native_openDexNativeFunc(env, jclazz, newSource, newOutput, options);
+    return gOffset.orig_native_openDexNativeFunc.beforeN(env, jclazz, newSource, newOutput, options);
 }
+
+static jobject new_native_openDexNativeFunc_N(JNIEnv* env, jclass jclazz, jstring javaSourceName, jstring javaOutputName, jint options, jobject loader, jobject elements) {
+    jclass stringClass = env->FindClass("java/lang/String");
+    jobjectArray array = env->NewObjectArray(2, stringClass, NULL);
+
+    if (javaSourceName) {
+        env->SetObjectArrayElement(array, 0, javaSourceName);
+    }
+    if (javaOutputName) {
+        env->SetObjectArrayElement(array, 1, javaOutputName);
+    }
+    env->CallStaticVoidMethod(g_jclass, gOffset.g_methodid_onOpenDexFileNative, array);
+
+    jstring newSource = (jstring) env->GetObjectArrayElement(array, 0);
+    jstring newOutput = (jstring) env->GetObjectArrayElement(array, 1);
+
+    return gOffset.orig_native_openDexNativeFunc.afterN(env, jclazz, newSource, newOutput, options, loader, elements);
+}
+
+
 
 static void new_bridge_openDexNativeFunc(const void **args, void *pResult, const void *method, void *self) {
     JNIEnv *env = NULL;
@@ -118,7 +150,7 @@ static void new_bridge_openDexNativeFunc(const void **args, void *pResult, const
         env->ReleaseStringUTFChars(orgOutput, output);
     }
 
-    gOffset.orig_DalvikBridgeFunc(args, pResult, method, self);
+    gOffset.orig_openDexFile_dvm(args, pResult, method, self);
 }
 
 
@@ -155,30 +187,45 @@ void searchJniOffset(JNIEnv *env, bool isArt) {
     }
 }
 
-inline void hookBinder(JNIEnv *env) {
-    if (env->RegisterNatives(env->FindClass("android/os/Binder"), gUidMethods, NELEM(gUidMethods)) < 0) {
-        return;
+
+inline void replaceGetCallingUid(JNIEnv *env, jboolean isArt) {
+
+
+    if (isArt) {
+        size_t mtd_getCallingUid = (size_t) env->GetStaticMethodID(gOffset.g_binder_classs, "getCallingUid", "()I");
+        int nativeFuncOffset = gOffset.nativeOffset;
+        void** jniFuncPtr = (void**)(mtd_getCallingUid + nativeFuncOffset);
+        gOffset.orig_getCallingUid = (Native_getCallingUid)(*jniFuncPtr);
+        *jniFuncPtr = (void*) getCallingUid;
+    } else {
+        env->RegisterNatives(gOffset.g_binder_classs, gUidMethods, NELEM(gUidMethods));
     }
+
 }
 
-inline void replaceImplementation(JNIEnv *env, jobject javaMethod, jboolean isArt) {
+inline void replaceOpenDexFileMethod(JNIEnv *env, jobject javaMethod, jboolean isArt, int apiLevel) {
 
     size_t mtd_openDexNative = (size_t) env->FromReflectedMethod(javaMethod);
     int nativeFuncOffset = gOffset.nativeOffset;
     void** jniFuncPtr = (void**)(mtd_openDexNative + nativeFuncOffset);
 
     if (!isArt) {
-        gOffset.orig_DalvikBridgeFunc = (Bridge_DalvikBridgeFunc)(*jniFuncPtr);
+        gOffset.orig_openDexFile_dvm = (Bridge_DalvikBridgeFunc)(*jniFuncPtr);
         *jniFuncPtr = (void*) new_bridge_openDexNativeFunc;
     } else {
-        gOffset.orig_native_openDexNativeFunc = (Native_openDexNativeFunc)(*jniFuncPtr);
-        *jniFuncPtr = (void*) new_native_openDexNativeFunc;
+        if (apiLevel < 24) {
+            gOffset.orig_native_openDexNativeFunc.beforeN = (Native_openDexNativeFunc)(*jniFuncPtr);
+            *jniFuncPtr = (void*) new_native_openDexNativeFunc;
+        } else {
+            gOffset.orig_native_openDexNativeFunc.afterN = (Native_openDexNativeFunc_N)(*jniFuncPtr);
+            *jniFuncPtr = (void*) new_native_openDexNativeFunc_N;
+        }
     }
 
 }
 
 
-void hookNative(jobject javaMethod, jboolean isArt) {
+void hookNative(jobject javaMethod, jboolean isArt, jint apiLevel) {
 
     JNIEnv *env = NULL;
     g_vm->GetEnv((void **) &env, JNI_VERSION_1_6);
@@ -197,18 +244,19 @@ void hookNative(jobject javaMethod, jboolean isArt) {
     if (!vmHandle) {
         vmHandle = RTLD_DEFAULT;
     }
-    gOffset.g_sym_IPCThreadState_self = dlsym(RTLD_DEFAULT, "_ZN7android14IPCThreadState4selfEv");
-    gOffset.g_sym_IPCThreadState_getCallingUid = dlsym(RTLD_DEFAULT, "_ZNK7android14IPCThreadState13getCallingUidEv");
-    if (gOffset.g_sym_IPCThreadState_getCallingUid == NULL) {
-        gOffset.g_sym_IPCThreadState_getCallingUid = dlsym(RTLD_DEFAULT, "_ZN7android14IPCThreadState13getCallingUidEv");
-    }
+    gOffset.g_binder_classs = env->FindClass("android/os/Binder");
     gOffset.g_methodid_onGetCallingUid = env->GetStaticMethodID(g_jclass, "onGetCallingUid", "(I)I");
     gOffset.g_methodid_onOpenDexFileNative = env->GetStaticMethodID(g_jclass, "onOpenDexFileNative", "([Ljava/lang/String;)V");
-
 
     if (isArt) {
         gOffset.art_work_around_app_jni_bugs = dlsym(vmHandle, "art_work_around_app_jni_bugs");
     } else {
+        gOffset.g_sym_IPCThreadState_self = dlsym(RTLD_DEFAULT, "_ZN7android14IPCThreadState4selfEv");
+        gOffset.g_sym_IPCThreadState_getCallingUid = dlsym(RTLD_DEFAULT, "_ZNK7android14IPCThreadState13getCallingUidEv");
+        if (gOffset.g_sym_IPCThreadState_getCallingUid == NULL) {
+            gOffset.g_sym_IPCThreadState_getCallingUid = dlsym(RTLD_DEFAULT, "_ZN7android14IPCThreadState13getCallingUidEv");
+        }
+
         gOffset.GetCstrFromString = (char *(*)(void *)) dlsym(vmHandle, "_Z23dvmCreateCstrFromStringPK12StringObject");
         if (!gOffset.GetCstrFromString) {
             gOffset.GetCstrFromString = (char *(*)(void *)) dlsym(vmHandle, "dvmCreateCstrFromString");
@@ -219,8 +267,8 @@ void hookNative(jobject javaMethod, jboolean isArt) {
         }
     }
     searchJniOffset(env, isArt);
-    hookBinder(env);
-    replaceImplementation(env, javaMethod, isArt);
+    replaceGetCallingUid(env, isArt);
+    replaceOpenDexFileMethod(env, javaMethod, isArt, apiLevel);
 }
 
 

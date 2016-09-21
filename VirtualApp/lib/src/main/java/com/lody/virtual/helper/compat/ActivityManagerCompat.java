@@ -7,6 +7,7 @@ import android.os.IBinder;
 import mirror.android.app.ActivityManagerNative;
 import mirror.android.app.IActivityManagerICS;
 import mirror.android.app.IActivityManagerL;
+import mirror.android.app.IActivityManagerN;
 
 /**
  * @author Lody
@@ -66,7 +67,11 @@ public class ActivityManagerCompat {
 	public static final int USER_OP_SUCCESS = 0;
 
 	public static boolean finishActivity(IBinder token, int code, Intent data) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+		if (Build.VERSION.SDK_INT >= 24/*N*/) {
+			return IActivityManagerN.finishActivity.call(
+					ActivityManagerNative.getDefault.call(),
+					token, code, data, 0);
+		} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			return IActivityManagerL.finishActivity.call(
 						ActivityManagerNative.getDefault.call(),
 						token, code, data, false);

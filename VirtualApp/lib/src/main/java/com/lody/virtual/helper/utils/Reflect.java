@@ -1,7 +1,5 @@
 package com.lody.virtual.helper.utils;
 
-import android.util.Log;
-
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -13,7 +11,6 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 /**
  * 一个拥有流畅特性(Fluent-API)的反射工具类, 使用起来就像直接调用一样流畅易懂.
@@ -565,6 +562,7 @@ public class Reflect {
             return object.getClass();
         }
     }
+
 
     /**
      * 用来表示null的类.

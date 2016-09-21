@@ -1,4 +1,4 @@
-package com.lody.virtual.client.hook.patchs.alerm;
+package com.lody.virtual.client.hook.patchs.alarm;
 
 import android.content.Context;
 import android.os.Build;
@@ -78,6 +78,9 @@ public class AlarmManagerPatch extends PatchDelegate<AlarmBinderDelegate> {
 
         @Override
         public boolean beforeCall(Object who, Method method, Object... args) {
+			if (Build.VERSION.SDK_INT >= 24 && args[0] instanceof String) {
+				args[0] = getHostPkg();
+			}
             int index = ArrayUtils.indexOfFirst(args, WorkSource.class);
             if (index >= 0) {
                 args[index] = null;
