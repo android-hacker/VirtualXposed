@@ -316,10 +316,12 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 					scheduleFinishMarkedActivity();
 				}
 			}
+			if (reuseTask.isFinishing()) {
+				startActivityInNewTaskLocked(userId, intent, info, options);
+				delivered = true;
+			}
 			if (!startTaskToFront) {
-				if (reuseTask.isFinishing()) {
-					startActivityInNewTaskLocked(userId, intent, info, options);
-				} else if (!delivered) {
+				 if (!delivered) {
 					destIntent = startActivityProcess(userId, sourceRecord, intent, info);
 					if (destIntent != null) {
 						startActivityFromSourceTask(reuseTask, destIntent, info, resultWho, requestCode, options);
