@@ -5,7 +5,6 @@ import android.app.IStopUserCallback;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Binder;
@@ -23,6 +22,7 @@ import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VBinder;
 import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.os.VUserHandle;
+import com.lody.virtual.os.VUserInfo;
 import com.lody.virtual.os.VUserManager;
 import com.lody.virtual.server.am.VActivityManagerService;
 import com.lody.virtual.service.IUserManager;
@@ -85,7 +85,7 @@ public class VUserManagerService extends IUserManager.Stub {
     private final File mUserListFile;
     private final File mBaseUserPath;
 
-    private SparseArray<UserInfo> mUsers = new SparseArray<UserInfo>();
+    private SparseArray<VUserInfo> mUsers = new SparseArray<VUserInfo>();
     private HashSet<Integer> mRemovingUserIds = new HashSet<Integer>();
 
     private int[] mUserIds;
@@ -141,15 +141,15 @@ public class VUserManagerService extends IUserManager.Stub {
                 mUserListFile = new File(mUsersDir, USER_LIST_FILENAME);
                 readUserListLocked();
                 // Prune out any partially created/partially removed users.
-                ArrayList<UserInfo> partials = new ArrayList<UserInfo>();
+                ArrayList<VUserInfo> partials = new ArrayList<VUserInfo>();
                 for (int i = 0; i < mUsers.size(); i++) {
-                    UserInfo ui = mUsers.valueAt(i);
+                    VUserInfo ui = mUsers.valueAt(i);
                     if (ui.partial && i != 0) {
                         partials.add(ui);
                     }
                 }
                 for (int i = 0; i < partials.size(); i++) {
-                    UserInfo ui = partials.get(i);
+                    VUserInfo ui = partials.get(i);
                     VLog.w(LOG_TAG, "Removing partially created user #" + i
                             + " (name=" + ui.name + ")");
                     removeUserStateLocked(ui.id);
@@ -160,12 +160,12 @@ public class VUserManagerService extends IUserManager.Stub {
     }
 
     @Override
-    public List<UserInfo> getUsers(boolean excludeDying) {
+    public List<VUserInfo> getUsers(boolean excludeDying) {
         //checkManageUsersPermission("query users");
         synchronized (mPackagesLock) {
-            ArrayList<UserInfo> users = new ArrayList<UserInfo>(mUsers.size());
+            ArrayList<VUserInfo> users = new ArrayList<VUserInfo>(mUsers.size());
             for (int i = 0; i < mUsers.size(); i++) {
-                UserInfo ui = mUsers.valueAt(i);
+                VUserInfo ui = mUsers.valueAt(i);
                 if (ui.partial) {
                     continue;
                 }
@@ -178,7 +178,7 @@ public class VUserManagerService extends IUserManager.Stub {
     }
 
     @Override
-    public UserInfo getUserInfo(int userId) {
+    public VUserInfo getUserInfo(int userId) {
         //checkManageUsersPermission("query user");
         synchronized (mPackagesLock) {
             return getUserInfoLocked(userId);
@@ -188,8 +188,8 @@ public class VUserManagerService extends IUserManager.Stub {
     /*
      * Should be locked on mUsers before calling this.
      */
-    private UserInfo getUserInfoLocked(int userId) {
-        UserInfo ui = mUsers.get(userId);
+    private VUserInfo getUserInfoLocked(int userId) {
+        VUserInfo ui = mUsers.get(userId);
         // If it is partial and not in the process of being removed, return as unknown user.
         if (ui != null && ui.partial && !mRemovingUserIds.contains(userId)) {
             VLog.w(LOG_TAG, "getUserInfo: unknown user #" + userId);
@@ -209,7 +209,7 @@ public class VUserManagerService extends IUserManager.Stub {
         checkManageUsersPermission("rename users");
         boolean changed = false;
         synchronized (mPackagesLock) {
-            UserInfo info = mUsers.get(userId);
+            VUserInfo info = mUsers.get(userId);
             if (info == null || info.partial) {
                 VLog.w(LOG_TAG, "setUserName: unknown user #" + userId);
                 return;
@@ -229,7 +229,7 @@ public class VUserManagerService extends IUserManager.Stub {
     public void setUserIcon(int userId, Bitmap bitmap) {
         checkManageUsersPermission("update users");
         synchronized (mPackagesLock) {
-            UserInfo info = mUsers.get(userId);
+            VUserInfo info = mUsers.get(userId);
             if (info == null || info.partial) {
                 VLog.w(LOG_TAG, "setUserIcon: unknown user #" + userId);
                 return;
@@ -251,7 +251,7 @@ public class VUserManagerService extends IUserManager.Stub {
     public Bitmap getUserIcon(int userId) {
         //checkManageUsersPermission("read users");
         synchronized (mPackagesLock) {
-            UserInfo info = mUsers.get(userId);
+            VUserInfo info = mUsers.get(userId);
             if (info == null || info.partial) {
                 VLog.w(LOG_TAG, "getUserIcon: unknown user #" + userId);
                 return null;
@@ -271,7 +271,7 @@ public class VUserManagerService extends IUserManager.Stub {
                 mGuestEnabled = enable;
                 // Erase any guest user that currently exists
                 for (int i = 0; i < mUsers.size(); i++) {
-                    UserInfo user = mUsers.valueAt(i);
+                    VUserInfo user = mUsers.valueAt(i);
                     if (!user.partial && user.isGuest()) {
                         if (!enable) {
                             removeUser(user.id);
@@ -281,7 +281,7 @@ public class VUserManagerService extends IUserManager.Stub {
                 }
                 // No guest was found
                 if (enable) {
-                    createUser("Guest", UserInfo.FLAG_GUEST);
+                    createUser("Guest", VUserInfo.FLAG_GUEST);
                 }
             }
         }
@@ -304,12 +304,12 @@ public class VUserManagerService extends IUserManager.Stub {
     public void makeInitialized(int userId) {
         checkManageUsersPermission("makeInitialized");
         synchronized (mPackagesLock) {
-            UserInfo info = mUsers.get(userId);
+            VUserInfo info = mUsers.get(userId);
             if (info == null || info.partial) {
                 VLog.w(LOG_TAG, "makeInitialized: unknown user #" + userId);
             }
-            if ((info.flags&UserInfo.FLAG_INITIALIZED) == 0) {
-                info.flags |= UserInfo.FLAG_INITIALIZED;
+            if ((info.flags& VUserInfo.FLAG_INITIALIZED) == 0) {
+                info.flags |= VUserInfo.FLAG_INITIALIZED;
                 writeUserLocked(info);
             }
         }
@@ -338,7 +338,7 @@ public class VUserManagerService extends IUserManager.Stub {
         }
     }
 
-    private void writeBitmapLocked(UserInfo info, Bitmap bitmap) {
+    private void writeBitmapLocked(VUserInfo info, Bitmap bitmap) {
         try {
             File dir = new File(mUsersDir, Integer.toString(info.id));
             File file = new File(dir, USER_PHOTO_FILENAME);
@@ -423,7 +423,7 @@ public class VUserManagerService extends IUserManager.Stub {
             while ((type = parser.next()) != XmlPullParser.END_DOCUMENT) {
                 if (type == XmlPullParser.START_TAG && parser.getName().equals(TAG_USER)) {
                     String id = parser.getAttributeValue(null, ATTR_ID);
-                    UserInfo user = readUser(Integer.parseInt(id));
+                    VUserInfo user = readUser(Integer.parseInt(id));
 
                     if (user != null) {
                         mUsers.put(user.id, user);
@@ -461,7 +461,7 @@ public class VUserManagerService extends IUserManager.Stub {
         int userVersion = mUserVersion;
         if (userVersion < 1) {
             // Assign a proper name for the owner, if not initialized correctly before
-            UserInfo user = mUsers.get(VUserHandle.USER_OWNER);
+            VUserInfo user = mUsers.get(VUserHandle.USER_OWNER);
             if ("Primary".equals(user.name)) {
                 user.name = "Admin";
                 writeUserLocked(user);
@@ -480,9 +480,9 @@ public class VUserManagerService extends IUserManager.Stub {
 
     private void fallbackToSingleUserLocked() {
         // Create the primary user
-        UserInfo primary = new UserInfo(0, 
+        VUserInfo primary = new VUserInfo(0,
                 mContext.getResources().getString(R.string.owner_name), null,
-                UserInfo.FLAG_ADMIN | UserInfo.FLAG_PRIMARY | UserInfo.FLAG_INITIALIZED);
+                VUserInfo.FLAG_ADMIN | VUserInfo.FLAG_PRIMARY | VUserInfo.FLAG_INITIALIZED);
         mUsers.put(0, primary);
         mNextSerialNumber = MIN_USER_ID;
         updateUserIdsLocked();
@@ -498,7 +498,7 @@ public class VUserManagerService extends IUserManager.Stub {
      *   <name>Primary</name>
      * </user>
      */
-    private void writeUserLocked(UserInfo userInfo) {
+    private void writeUserLocked(VUserInfo userInfo) {
         FileOutputStream fos = null;
         AtomicFile userFile = new AtomicFile(new File(mUsersDir, userInfo.id + ".xml"));
         try {
@@ -565,7 +565,7 @@ public class VUserManagerService extends IUserManager.Stub {
             serializer.attribute(null, ATTR_USER_VERSION, Integer.toString(mUserVersion));
 
             for (int i = 0; i < mUsers.size(); i++) {
-                UserInfo user = mUsers.valueAt(i);
+                VUserInfo user = mUsers.valueAt(i);
                 serializer.startTag(null, TAG_USER);
                 serializer.attribute(null, ATTR_ID, Integer.toString(user.id));
                 serializer.endTag(null, TAG_USER);
@@ -581,7 +581,7 @@ public class VUserManagerService extends IUserManager.Stub {
         }
     }
 
-    private UserInfo readUser(int id) {
+    private VUserInfo readUser(int id) {
         int flags = 0;
         int serialNumber = id;
         String name = null;
@@ -635,7 +635,7 @@ public class VUserManagerService extends IUserManager.Stub {
                 }
             }
 
-            UserInfo userInfo = new UserInfo(id, name, iconPath, flags);
+            VUserInfo userInfo = new VUserInfo(id, name, iconPath, flags);
             userInfo.serialNumber = serialNumber;
             userInfo.creationTime = creationTime;
             userInfo.lastLoggedInTime = lastLoggedInTime;
@@ -676,17 +676,17 @@ public class VUserManagerService extends IUserManager.Stub {
     }
 
     @Override
-    public UserInfo createUser(String name, int flags) {
+    public VUserInfo createUser(String name, int flags) {
         checkManageUsersPermission("Only the system can create users");
 
         final long ident = Binder.clearCallingIdentity();
-        final UserInfo userInfo;
+        final VUserInfo userInfo;
         try {
             synchronized (mInstallLock) {
                 synchronized (mPackagesLock) {
                     if (isUserLimitReachedLocked()) return null;
                     int userId = getNextAvailableIdLocked();
-                    userInfo = new UserInfo(userId, name, null, flags);
+                    userInfo = new VUserInfo(userId, name, null, flags);
                     File userPath = new File(mBaseUserPath, Integer.toString(userId));
                     userInfo.serialNumber = mNextSerialNumber++;
                     long now = System.currentTimeMillis();
@@ -719,7 +719,7 @@ public class VUserManagerService extends IUserManager.Stub {
      */
     public boolean removeUser(int userHandle) {
         checkManageUsersPermission("Only the system can remove users");
-        final UserInfo user;
+        final VUserInfo user;
         synchronized (mPackagesLock) {
             user = mUsers.get(userHandle);
             if (userHandle == 0 || user == null) {
@@ -853,7 +853,7 @@ public class VUserManagerService extends IUserManager.Stub {
      */
     public void userForeground(int userId) {
         synchronized (mPackagesLock) {
-            UserInfo user = mUsers.get(userId);
+            VUserInfo user = mUsers.get(userId);
             long now = System.currentTimeMillis();
             if (user == null || user.partial) {
                 VLog.w(LOG_TAG, "userForeground: unknown user #" + userId);

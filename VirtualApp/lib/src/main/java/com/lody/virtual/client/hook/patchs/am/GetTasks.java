@@ -1,6 +1,7 @@
 package com.lody.virtual.client.hook.patchs.am;
 
 import java.lang.reflect.Method;
+import java.util.Iterator;
 import java.util.List;
 
 import com.lody.virtual.client.hook.base.Hook;
@@ -27,12 +28,15 @@ import android.app.ActivityManager;
 	public Object call(Object who, Method method, Object... args) throws Throwable {
 		List<ActivityManager.RunningTaskInfo> runningTaskInfos = (List<ActivityManager.RunningTaskInfo>) method
 				.invoke(who, args);
-		for (int i = 0; i < runningTaskInfos.size(); i++) {
-			ActivityManager.RunningTaskInfo info = runningTaskInfos.get(i);
+		Iterator<ActivityManager.RunningTaskInfo> iterator = runningTaskInfos.iterator();
+		while (iterator.hasNext()) {
+			ActivityManager.RunningTaskInfo info = iterator.next();
 			AppTaskInfo taskInfo = VActivityManager.get().getTaskInfo(info.id);
 			if (taskInfo != null) {
 				info.topActivity = taskInfo.topActivity;
 				info.baseActivity = taskInfo.baseActivity;
+			} else {
+				iterator.remove();
 			}
 		}
 		return runningTaskInfos;

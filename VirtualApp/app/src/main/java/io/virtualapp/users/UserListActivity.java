@@ -1,6 +1,6 @@
 package io.virtualapp.users;
 
-import android.content.pm.UserInfo;
+import com.lody.virtual.os.VUserInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -62,7 +62,7 @@ public class UserListActivity extends AppCompatActivity {
             Toast.makeText(this, "Invalid user name!", Toast.LENGTH_SHORT).show();
             return;
         }
-        VUserManager.get().createUser(userName, UserInfo.FLAG_ADMIN);
+        VUserManager.get().createUser(userName, VUserInfo.FLAG_ADMIN);
         Toast.makeText(this, "Create user success!", Toast.LENGTH_SHORT).show();
         refresh();
     }

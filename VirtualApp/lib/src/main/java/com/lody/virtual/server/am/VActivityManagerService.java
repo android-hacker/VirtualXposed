@@ -15,7 +15,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ServiceInfo;
-import android.content.pm.UserInfo;
+import com.lody.virtual.os.VUserInfo;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
@@ -949,8 +949,8 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			int uid = VUserHandle.getUid(userId, appId);
 			handleStaticBroadcastAsUser(uid, info, realIntent, receiver, result);
 		} else if (userId == VUserHandle.USER_ALL) {
-			List<UserInfo> userList = VUserManager.get().getUsers(false);
-			for (UserInfo userInfo : userList) {
+			List<VUserInfo> userList = VUserManager.get().getUsers(false);
+			for (VUserInfo userInfo : userList) {
 				int uid = VUserHandle.getUid(userInfo.id, appId);
 				handleStaticBroadcastAsUser(uid, info, realIntent, receiver, result);
 			}

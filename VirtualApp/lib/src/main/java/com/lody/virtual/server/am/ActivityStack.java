@@ -396,6 +396,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		int intentIndex = ArrayUtils.protoIndexOf(types, Intent.class);
 		int resultToIndex = ArrayUtils.protoIndexOf(types, IBinder.class, 2);
 		int optionsIndex = ArrayUtils.protoIndexOf(types, Bundle.class);
+		int resolvedTypeIndex = intentIndex + 1;
 		int resultWhoIndex = resultToIndex + 1;
 		int requestCodeIndex = resultToIndex + 2;
 
@@ -406,6 +407,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		if (optionsIndex != -1) {
 			args[optionsIndex] = options;
 		}
+		args[resolvedTypeIndex] = intent.getType();
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
 			args[intentIndex - 1] = VirtualCore.get().getHostPkg();
 		}

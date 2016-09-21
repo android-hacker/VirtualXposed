@@ -1,13 +1,12 @@
-package android.content.pm;
+package com.lody.virtual.os;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
  * Per-user information.
- * @hide
  */
-public class UserInfo implements Parcelable {
+public class VUserInfo implements Parcelable {
 
     /** 8 bits for user type */
     public static final int FLAG_MASK_USER_TYPE = 0x000000FF;
@@ -73,11 +72,11 @@ public class UserInfo implements Parcelable {
     public boolean partial;
     public boolean guestToRemove;
 
-    public UserInfo(int id, String name, int flags) {
+    public VUserInfo(int id, String name, int flags) {
         this(id, name, null, flags);
     }
 
-    public UserInfo(int id, String name, String iconPath, int flags) {
+    public VUserInfo(int id, String name, String iconPath, int flags) {
         this.id = id;
         this.name = name;
         this.flags = flags;
@@ -109,10 +108,10 @@ public class UserInfo implements Parcelable {
         return (flags & FLAG_DISABLED) != FLAG_DISABLED;
     }
 
-    public UserInfo() {
+    public VUserInfo() {
     }
 
-    public UserInfo(UserInfo orig) {
+    public VUserInfo(VUserInfo orig) {
         name = orig.name;
         iconPath = orig.iconPath;
         id = orig.id;
@@ -147,17 +146,17 @@ public class UserInfo implements Parcelable {
         dest.writeInt(guestToRemove ? 1 : 0);
     }
 
-    public static final Parcelable.Creator<UserInfo> CREATOR
-            = new Parcelable.Creator<UserInfo>() {
-        public UserInfo createFromParcel(Parcel source) {
-            return new UserInfo(source);
+    public static final Parcelable.Creator<VUserInfo> CREATOR
+            = new Parcelable.Creator<VUserInfo>() {
+        public VUserInfo createFromParcel(Parcel source) {
+            return new VUserInfo(source);
         }
-        public UserInfo[] newArray(int size) {
-            return new UserInfo[size];
+        public VUserInfo[] newArray(int size) {
+            return new VUserInfo[size];
         }
     };
 
-    private UserInfo(Parcel source) {
+    private VUserInfo(Parcel source) {
         id = source.readInt();
         name = source.readString();
         iconPath = source.readString();

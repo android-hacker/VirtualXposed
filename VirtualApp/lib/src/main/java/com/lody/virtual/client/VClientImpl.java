@@ -20,6 +20,7 @@ import android.os.IInterface;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
+import android.os.StrictMode;
 
 import com.lody.virtual.IOHook;
 import com.lody.virtual.client.core.PatchManager;
@@ -240,6 +241,10 @@ public final class VClientImpl extends IVClient.Stub {
 			Reflect.on(root).set("parent", systemGroup);
 		} catch (Throwable e) {
 			e.printStackTrace();
+		}
+		if (data.appInfo.targetSdkVersion < 9) {
+			StrictMode.ThreadPolicy newPolicy = new StrictMode.ThreadPolicy.Builder(StrictMode.getThreadPolicy()).permitNetwork().build();
+			StrictMode.setThreadPolicy(newPolicy);
 		}
 		IOHook.hookNative();
 		Object mainThread = VirtualCore.mainThread();

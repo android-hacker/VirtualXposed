@@ -1,6 +1,6 @@
 package io.virtualapp.users.adapters;
 
-import android.content.pm.UserInfo;
+import com.lody.virtual.os.VUserInfo;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,9 +19,9 @@ import io.virtualapp.R;
 
 public class UserAdapter extends SwipeMenuAdapter<UserAdapter.ViewHolder> {
 
-    private final List<UserInfo> userList;
+    private final List<VUserInfo> userList;
 
-    public UserAdapter(List<UserInfo> userList) {
+    public UserAdapter(List<VUserInfo> userList) {
         this.userList = userList;
     }
 
@@ -37,7 +37,7 @@ public class UserAdapter extends SwipeMenuAdapter<UserAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        UserInfo userInfo = userList.get(position);
+        VUserInfo userInfo = userList.get(position);
         holder.tvName.setText(userInfo.name);
     }
 

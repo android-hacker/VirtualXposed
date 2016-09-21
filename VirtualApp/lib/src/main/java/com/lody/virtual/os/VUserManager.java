@@ -1,6 +1,5 @@
 package com.lody.virtual.os;
 
-import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
 import android.os.RemoteException;
 import android.util.Log;
@@ -168,7 +167,7 @@ public class VUserManager {
      * @return the UserInfo object for a specific user.
      * @hide
      */
-    public UserInfo getUserInfo(int handle) {
+    public VUserInfo getUserInfo(int handle) {
         try {
             return mService.getUserInfo(handle);
         } catch (RemoteException re) {
@@ -209,12 +208,12 @@ public class VUserManager {
      *
      * @param name the user's name
      * @param flags flags that identify the type of user and other properties.
-     * @see UserInfo
+     * @see VUserInfo
      *
      * @return the UserInfo object for the created user, or null if the user could not be created.
      * @hide
      */
-    public UserInfo createUser(String name, int flags) {
+    public VUserInfo createUser(String name, int flags) {
         try {
             return mService.createUser(name, flags);
         } catch (RemoteException re) {
@@ -227,7 +226,7 @@ public class VUserManager {
      * Return the number of users currently created on the device.
      */
     public int getUserCount() {
-        List<UserInfo> users = getUsers();
+        List<VUserInfo> users = getUsers();
         return users != null ? users.size() : 1;
     }
 
@@ -236,7 +235,7 @@ public class VUserManager {
      * @return the list of users that were created.
      * @hide
      */
-    public List<UserInfo> getUsers() {
+    public List<VUserInfo> getUsers() {
         try {
             return mService.getUsers(false);
         } catch (RemoteException re) {
@@ -251,7 +250,7 @@ public class VUserManager {
      * @return the list of users that were created.
      * @hide
      */
-    public List<UserInfo> getUsers(boolean excludeDying) {
+    public List<VUserInfo> getUsers(boolean excludeDying) {
         try {
             return mService.getUsers(excludeDying);
         } catch (RemoteException re) {

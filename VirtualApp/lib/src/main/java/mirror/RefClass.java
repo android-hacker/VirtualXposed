@@ -14,6 +14,7 @@ public final class RefClass {
             REF_TYPES.put(RefMethod.class, RefMethod.class.getConstructor(Class.class, Field.class));
             REF_TYPES.put(RefInt.class, RefInt.class.getConstructor(Class.class, Field.class));
             REF_TYPES.put(RefLong.class, RefLong.class.getConstructor(Class.class, Field.class));
+            REF_TYPES.put(RefFloat.class, RefFloat.class.getConstructor(Class.class, Field.class));
             REF_TYPES.put(RefDouble.class, RefDouble.class.getConstructor(Class.class, Field.class));
             REF_TYPES.put(RefBoolean.class, RefBoolean.class.getConstructor(Class.class, Field.class));
             REF_TYPES.put(RefStaticObject.class, RefStaticObject.class.getConstructor(Class.class, Field.class));

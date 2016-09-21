@@ -75,7 +75,13 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 						VClientImpl.getClient().bindApplication(info.packageName, info.processName);
 					}
 				}
-				return otherCallback != null && otherCallback.handleMessage(msg);
+				if (otherCallback != null) {
+					boolean desired = otherCallback.handleMessage(msg);
+					mCalling = false;
+					return desired;
+				} else {
+					mCalling = false;
+				}
 			} finally {
 				mCalling = false;
 			}
