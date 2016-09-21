@@ -20,6 +20,7 @@ import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.proto.AppTaskInfo;
 
 import java.lang.reflect.Method;
+import java.util.Iterator;
 import java.util.List;
 
 import mirror.android.app.ActivityManagerNative;
@@ -111,16 +112,20 @@ public class ActivityManagerPatch extends PatchDelegate<HookDelegate<IInterface>
 				public Object call(Object who, Method method, Object... args) throws Throwable {
 					//noinspection unchecked
 					List<ActivityManager.RecentTaskInfo> infos = (List<ActivityManager.RecentTaskInfo>) method.invoke(who, args);
-					for (ActivityManager.RecentTaskInfo info : infos) {
+					Iterator<ActivityManager.RecentTaskInfo> iterator = infos.iterator();
+					while (iterator.hasNext()) {
+						ActivityManager.RecentTaskInfo info = iterator.next();
 						AppTaskInfo taskInfo = VActivityManager.get().getTaskInfo(info.id);
-						if (taskInfo != null) {
-							if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-								info.baseActivity = taskInfo.baseActivity;
-								info.topActivity = taskInfo.topActivity;
-							}
-							info.origActivity = taskInfo.baseActivity;
-							info.baseIntent = taskInfo.baseIntent;
+						if (taskInfo == null) {
+							iterator.remove();
+							continue;
 						}
+						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            info.baseActivity = taskInfo.baseActivity;
+                            info.topActivity = taskInfo.topActivity;
+                        }
+						info.origActivity = taskInfo.baseActivity;
+						info.baseIntent = taskInfo.baseIntent;
 					}
 					return super.call(who, method, args);
 				}

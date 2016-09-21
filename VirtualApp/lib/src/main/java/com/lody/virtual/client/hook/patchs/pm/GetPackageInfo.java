@@ -1,7 +1,6 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
 import android.content.pm.PackageInfo;
-import android.os.Process;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VPackageManager;
@@ -37,7 +36,6 @@ public final class GetPackageInfo extends Hook {
 		int userId = VUserHandle.myUserId();
 		PackageInfo packageInfo = VPackageManager.get().getPackageInfo(pkg, flags, userId);
 		if (packageInfo != null) {
-			packageInfo.applicationInfo.uid = Process.myUid();
 			return packageInfo;
 		}
 		packageInfo = (PackageInfo) method.invoke(who, args);
