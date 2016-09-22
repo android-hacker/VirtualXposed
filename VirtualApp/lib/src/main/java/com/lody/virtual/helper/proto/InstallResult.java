@@ -19,7 +19,9 @@ public class InstallResult implements Parcelable {
 
 	protected InstallResult(Parcel in) {
 		this.isSuccess = in.readByte() != 0;
+		this.isUpdate = in.readByte() != 0;
 		this.packageName = in.readString();
+		this.error = in.readString();
 	}
 
 	@Override
