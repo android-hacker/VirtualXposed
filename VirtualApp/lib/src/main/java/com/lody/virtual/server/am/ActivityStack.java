@@ -239,6 +239,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 
 		switch (info.launchMode) {
 			case LAUNCH_SINGLE_TOP : {
+				clearTop = false;
 				clearTarget = ClearTarget.AFTER_TOP;
 				if (containFlags(intent, Intent.FLAG_ACTIVITY_NEW_TASK)) {
 					reuseTarget = containFlags(intent, Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
@@ -248,6 +249,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 			}
 				break;
 			case LAUNCH_SINGLE_TASK : {
+				clearTop = false;
 				clearTarget = ClearTarget.AFTER_TOP;
 				reuseTarget = containFlags(intent, Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
 						? ReuseTarget.MULTIPLE
@@ -255,6 +257,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 			}
 				break;
 			case LAUNCH_SINGLE_INSTANCE : {
+				clearTop = false;
 				clearTarget = ClearTarget.AFTER_TOP;
 				reuseTarget = ReuseTarget.AFFINITY;
 			}
@@ -302,7 +305,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 			if (clearTarget.deliverIntent) {
 				taskMarked = markTaskByClearTarget(reuseTask, clearTarget, intent.getComponent());
 				ActivityRecord topRecord = topActivityInTask(reuseTask);
-				if (clearTop && topRecord != null && taskMarked && info.launchMode != ActivityInfo.LAUNCH_SINGLE_TOP) {
+				if (clearTop && topRecord != null && taskMarked) {
 					topRecord.marked = true;
 				}
 				// Target activity is on top
@@ -505,10 +508,8 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 			if (r != null) {
 				synchronized (r.task.activities) {
 					r.task.activities.remove(r);
-					if (r.task.activities.isEmpty()) {
-						mHistory.remove(r.task.taskId);
-						return true;
-					}
+					// We shouldn't remove task at this point,
+					// it will removed by optimizeTasksLocked().
 				}
 			}
 			return false;
