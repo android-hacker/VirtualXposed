@@ -125,7 +125,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 	private boolean markTaskByClearTarget(TaskRecord task, ClearTarget clearTarget, ComponentName component) {
 		boolean marked = false;
 		switch (clearTarget) {
-			case FULL_TASK : {
+			case TASK: {
 				synchronized (task.activities) {
 					for (ActivityRecord r : task.activities) {
 						r.marked = true;
@@ -143,7 +143,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 					}
 				}
 			} break;
-			case AFTER_TOP : {
+			case TOP: {
 				synchronized (task.activities) {
 					int N = task.activities.size();
 					while (N-- > 0) {
@@ -159,9 +159,6 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 						}
 					}
 				}
-			} break;
-			case ONLY_TOP : {
-				marked = false;
 			} break;
 		}
 
@@ -219,11 +216,11 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		}
 		if (clearTop) {
 			removeFlags(intent, Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-			clearTarget = ClearTarget.AFTER_TOP;
+			clearTarget = ClearTarget.TOP;
 		}
 		if (containFlags(intent, Intent.FLAG_ACTIVITY_CLEAR_TASK)) {
 			if (containFlags(intent, Intent.FLAG_ACTIVITY_NEW_TASK)) {
-				clearTarget = ClearTarget.FULL_TASK;
+				clearTarget = ClearTarget.TASK;
 			} else {
 				removeFlags(intent, Intent.FLAG_ACTIVITY_CLEAR_TASK);
 			}
@@ -231,7 +228,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			switch (info.documentLaunchMode) {
 				case ActivityInfo.DOCUMENT_LAUNCH_INTO_EXISTING :
-					clearTarget = ClearTarget.FULL_TASK;
+					clearTarget = ClearTarget.TASK;
 					reuseTarget = ReuseTarget.DOCUMENT;
 					break;
 				case ActivityInfo.DOCUMENT_LAUNCH_ALWAYS :
@@ -239,11 +236,12 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 					break;
 			}
 		}
+		boolean singleTop = false;
 
 		switch (info.launchMode) {
 			case LAUNCH_SINGLE_TOP : {
 				if (!clearTop) {
-					clearTarget = ClearTarget.ONLY_TOP;
+					singleTop = true;
 				}
 				if (containFlags(intent, Intent.FLAG_ACTIVITY_NEW_TASK)) {
 					reuseTarget = containFlags(intent, Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
@@ -254,7 +252,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 				break;
 			case LAUNCH_SINGLE_TASK : {
 				clearTop = false;
-				clearTarget = ClearTarget.AFTER_TOP;
+				clearTarget = ClearTarget.TOP;
 				reuseTarget = containFlags(intent, Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
 						? ReuseTarget.MULTIPLE
 						: ReuseTarget.AFFINITY;
@@ -262,13 +260,13 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 				break;
 			case LAUNCH_SINGLE_INSTANCE : {
 				clearTop = false;
-				clearTarget = ClearTarget.AFTER_TOP;
+				clearTarget = ClearTarget.TOP;
 				reuseTarget = ReuseTarget.AFFINITY;
 			}
 				break;
 			default : {
 				if (containFlags(intent, Intent.FLAG_ACTIVITY_SINGLE_TOP)) {
-					clearTarget = ClearTarget.AFTER_TOP;
+					singleTop = true;
 				}
 			}
 				break;
@@ -306,7 +304,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 			mAM.moveTaskToFront(reuseTask.taskId, 0);
 			boolean startTaskToFront = ComponentUtils.isSameIntent(intent, reuseTask.taskRoot);
 
-			if (clearTarget.deliverIntent) {
+			if (clearTarget.deliverIntent || singleTop) {
 				taskMarked = markTaskByClearTarget(reuseTask, clearTarget, intent.getComponent());
 				ActivityRecord topRecord = topActivityInTask(reuseTask);
 				if (clearTop && topRecord != null && taskMarked) {
@@ -583,7 +581,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		}
 	}
 
-	public ComponentName getActivityClassForToken(int userId, IBinder token) {
+	ComponentName getActivityClassForToken(int userId, IBinder token) {
 		synchronized (mHistory) {
 			ActivityRecord r = findActivityByToken(userId, token);
 			if (r != null) {
@@ -597,9 +595,8 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 	private enum ClearTarget {
 		NOTHING,
 		SPEC_ACTIVITY,
-		FULL_TASK(true),
-		AFTER_TOP(true),
-		ONLY_TOP(true);
+		TASK(true),
+		TOP(true);
 
 		boolean deliverIntent;
 
