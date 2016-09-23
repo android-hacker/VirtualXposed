@@ -226,6 +226,11 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		return mMainStack.getCallingActivity(userId, token);
 	}
 
+	@Override
+	public String getCallingPackage(int userId, IBinder token) {
+		return mMainStack.getCallingPackage(userId, token);
+	}
+
 
 	@Override
 	public boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {

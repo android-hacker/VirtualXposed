@@ -135,6 +135,14 @@ public class VActivityManager {
 		}
 	}
 
+	public String getCallingPackage(IBinder token) {
+		try {
+			return getService().getCallingPackage(VUserHandle.myUserId(), token);
+		} catch (RemoteException e) {
+			return VirtualRuntime.crash(e);
+		}
+	}
+
 	public String getPackageForToken(IBinder token) {
 		try {
 			return getService().getPackageForToken(VUserHandle.myUserId(), token);

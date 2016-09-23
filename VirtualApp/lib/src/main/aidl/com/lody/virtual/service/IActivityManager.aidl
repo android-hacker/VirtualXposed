@@ -60,6 +60,8 @@ interface IActivityManager {
 
     ComponentName getActivityClassForToken(int userId, in IBinder token);
 
+    String getCallingPackage(int userId, in IBinder token);
+
     ComponentName getCallingActivity(int userId, in IBinder token);
 
     AppTaskInfo getTaskInfo(int taskId);

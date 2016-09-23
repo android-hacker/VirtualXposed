@@ -558,6 +558,16 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		}
 	}
 
+	public String getCallingPackage(int userId, IBinder token) {
+		synchronized (mHistory) {
+			ActivityRecord r = findActivityByToken(userId, token);
+			if (r != null) {
+				return r.caller != null ? r.caller.getPackageName() : null;
+			}
+			return null;
+		}
+	}
+
 	AppTaskInfo getTaskInfo(int taskId) {
 		synchronized (mHistory) {
 			TaskRecord task = mHistory.get(taskId);
@@ -577,6 +587,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 			return null;
 		}
 	}
+
 
 	private enum ClearTarget {
 		NOTHING,
