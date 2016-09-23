@@ -160,6 +160,9 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 					}
 				}
 			} break;
+			case ONLY_TOP : {
+				marked = false;
+			} break;
 		}
 
 		return marked;
@@ -239,7 +242,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 
 		switch (info.launchMode) {
 			case LAUNCH_SINGLE_TOP : {
-				clearTarget = ClearTarget.AFTER_TOP;
+				clearTarget = ClearTarget.ONLY_TOP;
 				if (containFlags(intent, Intent.FLAG_ACTIVITY_NEW_TASK)) {
 					reuseTarget = containFlags(intent, Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
 							? ReuseTarget.MULTIPLE
@@ -593,7 +596,9 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		NOTHING,
 		SPEC_ACTIVITY,
 		FULL_TASK(true),
-		AFTER_TOP(true);
+		AFTER_TOP(true),
+		ONLY_TOP(true);
+
 		boolean deliverIntent;
 
 		ClearTarget() {
