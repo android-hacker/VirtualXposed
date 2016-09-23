@@ -552,7 +552,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 		synchronized (mHistory) {
 			ActivityRecord r = findActivityByToken(userId, token);
 			if (r != null) {
-				return r.component;
+				return r.caller;
 			}
 			return null;
 		}
