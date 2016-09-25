@@ -28,15 +28,11 @@ import android.app.ActivityManager;
 	public Object call(Object who, Method method, Object... args) throws Throwable {
 		List<ActivityManager.RunningTaskInfo> runningTaskInfos = (List<ActivityManager.RunningTaskInfo>) method
 				.invoke(who, args);
-		Iterator<ActivityManager.RunningTaskInfo> iterator = runningTaskInfos.iterator();
-		while (iterator.hasNext()) {
-			ActivityManager.RunningTaskInfo info = iterator.next();
+		for (ActivityManager.RunningTaskInfo info : runningTaskInfos) {
 			AppTaskInfo taskInfo = VActivityManager.get().getTaskInfo(info.id);
 			if (taskInfo != null) {
 				info.topActivity = taskInfo.topActivity;
 				info.baseActivity = taskInfo.baseActivity;
-			} else {
-				iterator.remove();
 			}
 		}
 		return runningTaskInfos;

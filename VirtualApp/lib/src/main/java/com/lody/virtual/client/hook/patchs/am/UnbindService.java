@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
 		if (delegate == null) {
 			return method.invoke(who, args);
 		}
-		return VActivityManager.get().unbindService(conn);
+		return VActivityManager.get().unbindService(delegate);
 	}
 
 	@Override
