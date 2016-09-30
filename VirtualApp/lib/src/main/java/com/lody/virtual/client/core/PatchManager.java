@@ -28,6 +28,7 @@ import com.lody.virtual.client.hook.patchs.location.LocationManagerPatch;
 import com.lody.virtual.client.hook.patchs.media.router.MediaRouterServicePatch;
 import com.lody.virtual.client.hook.patchs.media.session.SessionManagerPatch;
 import com.lody.virtual.client.hook.patchs.mount.MountServicePatch;
+import com.lody.virtual.client.hook.patchs.net_management.NetworkManagementPatch;
 import com.lody.virtual.client.hook.patchs.notification.NotificationManagerPatch;
 import com.lody.virtual.client.hook.patchs.persistent_data_block.PersistentDataBlockServicePatch;
 import com.lody.virtual.client.hook.patchs.phonesubinfo.PhoneSubInfoPatch;
@@ -52,6 +53,7 @@ import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR2;
 import static android.os.Build.VERSION_CODES.KITKAT;
 import static android.os.Build.VERSION_CODES.LOLLIPOP;
 import static android.os.Build.VERSION_CODES.LOLLIPOP_MR1;
+import static android.os.Build.VERSION_CODES.M;
 
 /**
  * @author Lody
@@ -173,6 +175,9 @@ public final class PatchManager {
 			}
 			if (Build.VERSION.SDK_INT >= LOLLIPOP_MR1) {
 				addPatch(new GraphicsStatsPatch());
+			}
+			if (Build.VERSION.SDK_INT >= M) {
+				addPatch(new NetworkManagementPatch());
 			}
             addPatch(new ConnectivityPatch());
 		}
