@@ -35,8 +35,11 @@ import java.lang.reflect.Method;
 		IServiceConnection conn = (IServiceConnection) args[4];
 		int flags = (int) args[5];
 		int userId = VUserHandle.myUserId();
-		if (isServiceProcess()) {
+		if (isServerProcess()) {
 			userId = service.getIntExtra("_VA_|_user_id_", VUserHandle.USER_NULL);
+		}
+		if (userId == VUserHandle.USER_NULL) {
+			return method.invoke(who, args);
 		}
 		ServiceInfo serviceInfo = VirtualCore.get().resolveServiceInfo(service, userId);
 		if (serviceInfo != null) {
@@ -52,6 +55,6 @@ import java.lang.reflect.Method;
 
 	@Override
 	public boolean isEnable() {
-		return isAppProcess() || isServiceProcess();
+		return isAppProcess() || isServerProcess();
 	}
 }

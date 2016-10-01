@@ -33,6 +33,7 @@ public class VApp extends Application {
 			"com.google.android.partnersetup",
 			"com.google.android.setupwizard",
 			"com.google.android.syncadapters.calendar",};
+
 	private static VApp gDefault;
 
 	public static VApp getApp() {
@@ -62,15 +63,19 @@ public class VApp extends Application {
 	}
 
 	private void installGms() {
-		PackageManager pm = VirtualCore.get().getUnHookPackageManager();
+		VirtualCore virtualCore = VirtualCore.get();
+		PackageManager pm = virtualCore.getUnHookPackageManager();
 		for (String pkg : GMS_PKG) {
+			if (virtualCore.isAppInstalled(pkg)) {
+				continue;
+			}
 			try {
 				ApplicationInfo appInfo = pm.getApplicationInfo(pkg, 0);
 				String apkPath = appInfo.sourceDir;
 				InstallResult res = VirtualCore.get().installApp(apkPath,
 						InstallStrategy.DEPEND_SYSTEM_IF_EXIST | InstallStrategy.TERMINATE_IF_EXIST);
 				if (!res.isSuccess) {
-					VLog.e("#####", "Unable to install app %s: %s.", appInfo.packageName, res.error);
+					VLog.e(getClass().getSimpleName(), "Warning: Unable to install app %s: %s.", appInfo.packageName, res.error);
 				}
 			} catch (Throwable e) {
 				// Ignore

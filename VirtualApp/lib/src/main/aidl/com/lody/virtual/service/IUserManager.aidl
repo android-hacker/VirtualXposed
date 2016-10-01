@@ -1,20 +1,20 @@
 package com.lody.virtual.service;
 
 import android.os.ParcelFileDescriptor;
-import android.content.pm.UserInfo;
+import com.lody.virtual.os.VUserInfo;
 import android.graphics.Bitmap;
 
 /**
 *
  */
 interface IUserManager {
-    UserInfo createUser(in String name, int flags);
+    VUserInfo createUser(in String name, int flags);
     boolean removeUser(int userHandle);
     void setUserName(int userHandle, String name);
     void setUserIcon(int userHandle, in Bitmap icon);
     Bitmap getUserIcon(int userHandle);
-    List<UserInfo> getUsers(boolean excludeDying);
-    UserInfo getUserInfo(int userHandle);
+    List<VUserInfo> getUsers(boolean excludeDying);
+    VUserInfo getUserInfo(int userHandle);
     void setGuestEnabled(boolean enable);
     boolean isGuestEnabled();
     void wipeUser(int userHandle);

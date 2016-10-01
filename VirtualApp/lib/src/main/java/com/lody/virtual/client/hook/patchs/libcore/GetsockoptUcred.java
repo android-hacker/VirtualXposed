@@ -16,9 +16,9 @@ class GetsockoptUcred extends Hook {
         public Object afterCall(Object who, Method method, Object[] args, Object result) throws Throwable {
             if (result != null) {
                 Reflect ucred = Reflect.on(result);
-                int uid = ucred.get("uid");
+                int uid = ucred.get("vuid");
                 if (uid == VirtualCore.get().myUid()) {
-                    ucred.set("uid", getBaseVUid());
+                    ucred.set("vuid", getBaseVUid());
                 }
             }
             return result;

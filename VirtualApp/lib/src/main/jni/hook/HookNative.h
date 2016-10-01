@@ -15,7 +15,7 @@
 #include "../helper/helper.h"
 
 
-void hookNative(jobject javaMethod, jboolean isArt);
+void hookNative(jobject javaMethod, jboolean isArt, jint apiLevel);
 
 
 #endif //NDK_HOOK_NATIVE_H

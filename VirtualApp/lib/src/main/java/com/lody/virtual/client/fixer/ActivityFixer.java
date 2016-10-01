@@ -13,7 +13,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 
-import mirror.com.android.internal.R_styleable;
+import mirror.com.android.internal.R_Hide;
 
 /**
  * @author Lody
@@ -27,9 +27,9 @@ public final class ActivityFixer {
 	public static void fixActivity(Activity activity) {
 		Context baseContext = activity.getBaseContext();
 		try {
-			TypedArray typedArray = activity.obtainStyledAttributes((R_styleable.Window.get()));
+			TypedArray typedArray = activity.obtainStyledAttributes((R_Hide.styleable.Window.get()));
 			if (typedArray != null) {
-				boolean showWallpaper = typedArray.getBoolean(R_styleable.Window_windowShowWallpaper.get(),
+				boolean showWallpaper = typedArray.getBoolean(R_Hide.styleable.Window_windowShowWallpaper.get(),
 						false);
 				if (showWallpaper) {
 					activity.getWindow().setBackgroundDrawable(WallpaperManager.getInstance(activity).getDrawable());

@@ -94,8 +94,8 @@ public final class VUserHandle implements Parcelable {
     /**
      * Checks to see if both uids are referring to the same app id, ignoring the user id part of the
      * uids.
-     * @param uid1 uid to compare
-     * @param uid2 other uid to compare
+     * @param uid1 vuid to compare
+     * @param uid2 other vuid to compare
      * @return whether the appId is the same for both uids
      * @hide
      */
@@ -124,7 +124,7 @@ public final class VUserHandle implements Parcelable {
     }
 
     /**
-     * Returns the user id for a given uid.
+     * Returns the user id for a given vuid.
      * @hide
      */
     public static int getUserId(int uid) {
@@ -154,7 +154,7 @@ public final class VUserHandle implements Parcelable {
     }
 
     /**
-     * Returns the uid that is composed from the userId and the appId.
+     * Returns the vuid that is composed from the userId and the appId.
      * @hide
      */
     public static int getUid(int userId, int appId) {
@@ -166,7 +166,7 @@ public final class VUserHandle implements Parcelable {
     }
 
     /**
-     * Returns the app id (or base uid) for a given uid, stripping out the user id from it.
+     * Returns the app id (or base vuid) for a given vuid, stripping out the user id from it.
      * @hide
      */
     public static int getAppId(int uid) {
@@ -202,19 +202,19 @@ public final class VUserHandle implements Parcelable {
     public static final int LAST_SHARED_APPLICATION_GID = 59999;
 
     /**
-     * Generate a text representation of the uid, breaking out its individual
+     * Generate a text representation of the vuid, breaking out its individual
      * components -- user, app, isolated, etc.
      * @hide
      */
 
     /**
-     * First uid used for fully isolated sandboxed processes (with no permissions of their own)
+     * First vuid used for fully isolated sandboxed processes (with no permissions of their own)
      * @hide
      */
     public static final int FIRST_ISOLATED_UID = 99000;
 
     /**
-     * Last uid used for fully isolated sandboxed processes (with no permissions of their own)
+     * Last vuid used for fully isolated sandboxed processes (with no permissions of their own)
      * @hide
      */
     public static final int LAST_ISOLATED_UID = 99999;
@@ -241,7 +241,7 @@ public final class VUserHandle implements Parcelable {
     }
 
     /**
-     * Generate a text representation of the uid, breaking out its individual
+     * Generate a text representation of the vuid, breaking out its individual
      * components -- user, app, isolated, etc.
      * @hide
      */
@@ -252,7 +252,7 @@ public final class VUserHandle implements Parcelable {
     }
 
     /**
-     * Generate a text representation of the uid, breaking out its individual
+     * Generate a text representation of the vuid, breaking out its individual
      * components -- user, app, isolated, etc.
      * @hide
      */

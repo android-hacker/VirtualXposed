@@ -6,7 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.UserInfo;
+import com.lody.virtual.os.VUserInfo;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -138,7 +138,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 		super.onResume();
 
 		MobclickAgent.onPageStart(TAG);
-		MobclickAgent.onResume(this);;
+		MobclickAgent.onResume(this);
 	}
 
 	@Override
@@ -257,9 +257,9 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 	}
 
 	public String[] getUsers() {
-		List<UserInfo> userList = VUserManager.get().getUsers(false);
+		List<VUserInfo> userList = VUserManager.get().getUsers(false);
 		List<String> users = new ArrayList<>(userList.size());
-		for (UserInfo info : userList) {
+		for (VUserInfo info : userList) {
 			users.add(info.name);
 		}
 		return users.toArray(new String[users.size()]);

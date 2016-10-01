@@ -7,9 +7,9 @@ import android.os.IBinder;
 import android.os.IInterface;
 
 import com.lody.virtual.client.hook.base.HookBinderDelegate;
-import com.lody.virtual.client.service.ServiceManagerNative;
 
 import mirror.android.content.IRestrictionsManager;
+import mirror.android.os.ServiceManager;
 
 /**
  * @author Lody
@@ -19,7 +19,7 @@ public class RestrictionBinderDelegate extends HookBinderDelegate {
 
 	@Override
 	protected IInterface createInterface() {
-		IBinder binder = ServiceManagerNative.getService(Context.RESTRICTIONS_SERVICE);
+		IBinder binder = ServiceManager.getService.call(Context.RESTRICTIONS_SERVICE);
 		return IRestrictionsManager.Stub.asInterface.call(binder);
 	}
 }

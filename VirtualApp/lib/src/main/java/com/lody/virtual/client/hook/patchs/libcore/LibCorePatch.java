@@ -31,8 +31,11 @@ public class LibCorePatch extends PatchDelegate<HookDelegate<Object>> {
 
     private static Object getOs() {
         Object os = Libcore.os.get();
-        if (ForwardingOs.os != null && os.getClass() == ForwardingOs.TYPE) {
-            os = ForwardingOs.os.get(os);
+        if (ForwardingOs.os != null) {
+            Object posix = ForwardingOs.os.get(os);
+            if (posix != null) {
+                os = posix;
+            }
         }
         return os;
     }
@@ -45,7 +48,6 @@ public class LibCorePatch extends PatchDelegate<HookDelegate<Object>> {
         addHook(new ReplaceUidHook("getpwuid", 0));
         addHook(new ReplaceUidHook("lchown", 1));
         addHook(new ReplaceUidHook("setuid", 0));
-
     }
 
     @Override

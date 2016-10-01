@@ -23,7 +23,7 @@ int elfHook(const char *soname, const char *symbol, void *replace_func,
 
 int elfHookDirect(unsigned int addr, void *replace_func, void **old_func) {
     if (addr == 0) {
-        MS_LOGW("replaceImplementation direct addr:%p  error!", (void *) addr);
+        MS_LOGW("replaceOpenDexFileMethod direct addr:%p  error!", (void *) addr);
         return -1;
     }
     Cydia::MSHookFunction((void *) addr, replace_func, old_func);

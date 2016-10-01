@@ -14,6 +14,8 @@ import com.lody.virtual.service.interfaces.IProcessObserver;
 
 interface IActivityManager {
 
+    int initProcess(in String packageName, in String processName, int userId);
+
     int getFreeStubCount();
 
     int getSystemPid();
@@ -21,6 +23,8 @@ interface IActivityManager {
     int getUidByPid(int pid);
 
     boolean isAppProcess(String processName);
+
+    boolean isAppRunning(String packageName, int userId);
 
     boolean isAppPid(int pid);
 
@@ -32,7 +36,7 @@ interface IActivityManager {
 
     void killAppByPkg(String pkg, int userId);
 
-    void killApplicationProcess(String procName, int uid);
+    void killApplicationProcess(String procName, int vuid);
 
     void dump();
 
@@ -54,13 +58,17 @@ interface IActivityManager {
 
     boolean onActivityDestroyed(int userId, in IBinder token);
 
+    ComponentName getActivityClassForToken(int userId, in IBinder token);
+
+    String getCallingPackage(int userId, in IBinder token);
+
     ComponentName getCallingActivity(int userId, in IBinder token);
 
     AppTaskInfo getTaskInfo(int taskId);
 
     String getPackageForToken(int userId, in IBinder token);
 
-
+    boolean isVAServiceToken(in IBinder token);
     ComponentName startService(in IBinder caller,in Intent service, String resolvedType, int userId);
 
     int stopService(in IBinder caller, in Intent service, String resolvedType, int userId);

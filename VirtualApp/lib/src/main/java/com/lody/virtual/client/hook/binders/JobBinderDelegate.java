@@ -8,7 +8,7 @@ import android.os.IInterface;
 
 import com.lody.virtual.client.hook.base.HookBinderDelegate;
 
-import mirror.android.app.IJobScheduler;
+import mirror.android.app.job.IJobScheduler;
 import mirror.android.os.ServiceManager;
 
 /**

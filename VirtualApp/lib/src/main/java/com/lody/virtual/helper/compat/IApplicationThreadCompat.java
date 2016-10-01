@@ -37,7 +37,7 @@ public class IApplicationThreadCompat {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 			IApplicationThreadKitkat.scheduleBindService.call(appThread, token, intent, rebind, processState);
 		} else {
-			IApplicationThread.scheduleCreateService.call(appThread, token, intent, rebind);
+			IApplicationThread.scheduleBindService.call(appThread, token, intent, rebind);
 		}
 	}
 

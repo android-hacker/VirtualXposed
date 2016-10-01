@@ -61,6 +61,9 @@ public final class SpecialComponentList {
 	}
 
 	public static String restoreAction(String action) {
+		if (action == null) {
+			return null;
+		}
 		for (Map.Entry<String, String> next : MODIFY_ACTION_MAP.entrySet()) {
 			String modifiedAction = next.getValue();
 			if (modifiedAction.equals(action)) {

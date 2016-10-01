@@ -3,7 +3,6 @@ package com.lody.virtual.client.core;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -14,16 +13,16 @@ import android.content.pm.ServiceInfo;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.ConditionVariable;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Process;
 import android.os.RemoteException;
-import android.text.TextUtils;
-import android.util.LruCache;
 
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.fixer.ContextFixer;
+import com.lody.virtual.client.local.LocalProxyUtils;
 import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.client.local.VPackageManager;
 import com.lody.virtual.client.service.ServiceManagerNative;
@@ -40,7 +39,7 @@ import mirror.android.app.ActivityThread;
 
 /**
  * @author Lody
- * @version 2.2
+ * @version 3.1
  */
 public final class VirtualCore {
 
@@ -72,10 +71,13 @@ public final class VirtualCore {
 	private IAppManager mService;
 	private boolean isStartUp;
 	private PackageInfo hostPkgInfo;
-	private final LruCache<ComponentName, ActivityInfo> activityInfoCache = new LruCache<>(6);
 	private final int myUid = Process.myUid();
 	private int systemPid;
+	private ConditionVariable initLock = new ConditionVariable();
 
+	public ConditionVariable getInitLock() {
+		return initLock;
+	}
 
 	private VirtualCore() {}
 
@@ -131,11 +133,11 @@ public final class VirtualCore {
 			mainThread = ActivityThread.currentActivityThread.call();
 			unHookPackageManager = context.getPackageManager();
 			hostPkgInfo = unHookPackageManager.getPackageInfo(context.getPackageName(), PackageManager.GET_PROVIDERS);
-			// Host包名
+			// Host package name
 			hostPkgName = context.getApplicationInfo().packageName;
-			// 主进程名
+			// Main process name
 			mainProcessName = context.getApplicationInfo().processName;
-			// 当前进程名
+			// Current process name
 			processName = ActivityThread.getProcessName.call(mainThread);
 			if (processName.equals(mainProcessName)) {
 				processType = ProcessType.Main;
@@ -152,17 +154,22 @@ public final class VirtualCore {
 			PatchManager patchManager = PatchManager.getInstance();
 			patchManager.init();
 			patchManager.injectAll();
-			ContextFixer.fixContext(context);
+            ContextFixer.fixContext(context);
 			isStartUp = true;
+			if (initLock != null) {
+				initLock.open();
+				initLock = null;
+			}
 		}
 	}
 
-	public IAppManager getService() {
+	private IAppManager getService() {
 		if (mService == null) {
 			synchronized (this) {
 				if (mService == null) {
-					mService = IAppManager.Stub
-							.asInterface(ServiceManagerNative.getService(ServiceManagerNative.APP_MANAGER));
+					IAppManager remote = IAppManager.Stub
+							.asInterface(ServiceManagerNative.getService(ServiceManagerNative.APP));
+					mService = LocalProxyUtils.genProxy(IAppManager.class, remote);
 				}
 			}
 		}
@@ -198,14 +205,14 @@ public final class VirtualCore {
 	}
 
 	/**
-	 * @return 当前进程名
+	 * @return current real process name
 	 */
 	public String getProcessName() {
 		return processName;
 	}
 
 	/**
-	 * @return 主进程名
+	 * @return Main process name
 	 */
 	public String getMainProcessName() {
 		return mainProcessName;
@@ -216,6 +223,10 @@ public final class VirtualCore {
 		if (info != null && !info.dependSystem) {
 			DexFile.loadDex(info.apkPath, info.getOdexFile().getPath(), 0).close();
 		}
+	}
+
+	public boolean isAppRunning(String packageName, int userId) {
+		return VActivityManager.get().isAppRunning(packageName, userId);
 	}
 
 	public InstallResult installApp(String apkPath, int flags) {
@@ -314,44 +325,30 @@ public final class VirtualCore {
 		return null;
 	}
 
-	public boolean isHostPackageName(String pkgName) {
-		return TextUtils.equals(pkgName, context.getPackageName());
-	}
-
 
 	public synchronized ActivityInfo resolveActivityInfo(Intent intent, int userId) {
 		ActivityInfo activityInfo = null;
 		if (intent.getComponent() == null) {
-			ResolveInfo resolveInfo = VPackageManager.get().resolveIntent(intent, intent.getType(), 0, 0);
+			ResolveInfo resolveInfo = VPackageManager.get().resolveIntent(intent, intent.getType(), 0, userId);
 			if (resolveInfo != null && resolveInfo.activityInfo != null) {
-				if (resolveInfo.activityInfo.targetActivity != null) {
-					ComponentName componentName = new ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.targetActivity);
-					resolveInfo.activityInfo = VPackageManager.get().getActivityInfo(componentName, 0, userId);
-					if (intent.getComponent() != null) {
-						intent.setComponent(componentName);
-					}
-				}
 				activityInfo = resolveInfo.activityInfo;
-				if (intent.getComponent() == null) {
-					intent.setClassName(activityInfo.packageName, activityInfo.name);
-				}
-				activityInfoCache.put(intent.getComponent(), activityInfo);
+				intent.setClassName(activityInfo.packageName, activityInfo.name);
 			}
 		} else {
 			activityInfo = resolveActivityInfo(intent.getComponent(), userId);
 		}
-		return activityInfo;
-	}
-
-	public synchronized ActivityInfo resolveActivityInfo(ComponentName componentName, int userId) {
-		ActivityInfo activityInfo = activityInfoCache.get(componentName);
-		if (activityInfo == null) {
-			activityInfo = VPackageManager.get().getActivityInfo(componentName, 0, userId);
-			if (activityInfo != null) {
-				activityInfoCache.put(componentName, activityInfo);
+		if (activityInfo != null) {
+			if (activityInfo.targetActivity != null) {
+				ComponentName componentName = new ComponentName(activityInfo.packageName, activityInfo.targetActivity);
+				activityInfo = VPackageManager.get().getActivityInfo(componentName, 0, userId);
+				intent.setComponent(componentName);
 			}
 		}
 		return activityInfo;
+	}
+
+	public ActivityInfo resolveActivityInfo(ComponentName componentName, int userId) {
+		return VPackageManager.get().getActivityInfo(componentName, 0, userId);
 	}
 
 	public ServiceInfo resolveServiceInfo(Intent intent, int userId) {
@@ -363,8 +360,8 @@ public final class VirtualCore {
 		return serviceInfo;
 	}
 
-	public void killApp(String pkg) {
-		VActivityManager.get().killAppByPkg(pkg);
+	public void killApp(String pkg, int userId) {
+		VActivityManager.get().killAppByPkg(pkg, userId);
 	}
 
 	public void killAllApps() {
@@ -387,6 +384,8 @@ public final class VirtualCore {
 		}
 	}
 
+
+
 	public boolean isOutsideInstalled(String packageName) {
 		try {
 			return unHookPackageManager.getApplicationInfo(packageName, 0) != null;
@@ -400,14 +399,10 @@ public final class VirtualCore {
 		return systemPid;
 	}
 
-	public ContentResolver getContentResolver() {
-		return context.getContentResolver();
-	}
-
 	/**
-	 * 进程类型
+	 * Process type
 	 */
-	enum ProcessType {
+	private enum ProcessType {
 		/**
 		 * Server process
 		 */

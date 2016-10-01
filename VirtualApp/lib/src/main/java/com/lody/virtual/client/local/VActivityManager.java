@@ -52,8 +52,13 @@ public class VActivityManager {
 
 	public IActivityManager getService() {
 		if (mRemote == null) {
-			mRemote = IActivityManager.Stub
-					.asInterface(ServiceManagerNative.getService(ServiceManagerNative.ACTIVITY_MANAGER));
+			synchronized (VActivityManager.class) {
+				if (mRemote == null) {
+					final IActivityManager remote = IActivityManager.Stub
+							.asInterface(ServiceManagerNative.getService(ServiceManagerNative.ACTIVITY));
+					mRemote = LocalProxyUtils.genProxy(IActivityManager.class, remote);
+				}
+			}
 		}
 		return mRemote;
 	}
@@ -130,6 +135,14 @@ public class VActivityManager {
 		}
 	}
 
+	public String getCallingPackage(IBinder token) {
+		try {
+			return getService().getCallingPackage(VUserHandle.myUserId(), token);
+		} catch (RemoteException e) {
+			return VirtualRuntime.crash(e);
+		}
+	}
+
 	public String getPackageForToken(IBinder token) {
 		try {
 			return getService().getPackageForToken(VUserHandle.myUserId(), token);
@@ -138,10 +151,18 @@ public class VActivityManager {
 		}
 	}
 
-
-	public ComponentName startService(IInterface caller, Intent service, String resolvedType) {
+	public ComponentName getActivityForToken(IBinder token) {
 		try {
-			return getService().startService(caller != null ? caller.asBinder() : null, service, resolvedType, VUserHandle.myUserId());
+			return getService().getActivityClassForToken(VUserHandle.myUserId(), token);
+		} catch (RemoteException e) {
+			return VirtualRuntime.crash(e);
+		}
+	}
+
+
+	public ComponentName startService(IInterface caller, Intent service, String resolvedType, int userId) {
+		try {
+			return getService().startService(caller != null ? caller.asBinder() : null, service, resolvedType, userId);
 		} catch (RemoteException e) {
 			return VirtualRuntime.crash(e);
 		}
@@ -292,9 +313,9 @@ public class VActivityManager {
 		}
 	}
 
-	public void killAppByPkg(String pkg) {
+	public void killAppByPkg(String pkg, int userId) {
 		try {
-			getService().killAppByPkg(pkg, VUserHandle.myUserId());
+			getService().killAppByPkg(pkg, userId);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -412,6 +433,22 @@ public class VActivityManager {
 		}
 	}
 
+	public boolean isAppRunning(String packageName, int userId) {
+		try {
+			return getService().isAppRunning(packageName, userId);
+		} catch (RemoteException e) {
+			return VirtualRuntime.crash(e);
+		}
+	}
+
+	public int initProcess(String packageName, String processName, int userId) {
+		try {
+			return getService().initProcess(packageName, processName, userId);
+		} catch (RemoteException e) {
+			return VirtualRuntime.crash(e);
+		}
+	}
+
 	public void sendBroadcast(Intent intent, int userId) {
 		Intent newIntent = ComponentUtils.redirectBroadcastIntent(intent, userId);
 		if (newIntent != null) {
@@ -419,4 +456,11 @@ public class VActivityManager {
 		}
 	}
 
+	public boolean isVAServiceToken(IBinder token) {
+		try {
+			return getService().isVAServiceToken(token);
+		} catch (RemoteException e) {
+			return VirtualRuntime.crash(e);
+		}
+	}
 }

@@ -3,7 +3,7 @@ package com.lody.virtual.client.hook.patchs.libcore;
 /**
  * @author Lody
  */
-public class Lstat extends GetUid {
+public class Lstat extends Stat {
 
     @Override
     public String getName() {

@@ -69,8 +69,10 @@ import mirror.android.content.IIntentReceiverJB;
 						mProxyIIntentReceiver.put(token, proxyIIntentReceiver);
 					}
 					WeakReference mDispatcher = LoadedApk.ReceiverDispatcher.InnerReceiver.mDispatcher.get(old);
-					LoadedApk.ReceiverDispatcher.mIIntentReceiver.set(mDispatcher.get(), proxyIIntentReceiver);
-					args[IDX_IIntentReceiver] = proxyIIntentReceiver;
+					if (mDispatcher != null) {
+						LoadedApk.ReceiverDispatcher.mIIntentReceiver.set(mDispatcher.get(), proxyIIntentReceiver);
+						args[IDX_IIntentReceiver] = proxyIIntentReceiver;
+					}
 				}
 			}
 		}

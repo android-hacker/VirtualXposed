@@ -12,7 +12,6 @@ import java.lang.reflect.Method;
 /**
  * @author Lody
  *
- * @see android.content.pm.IPackageManager#getApplicationInfo(String, int, int)
  */
 /* package */ class GetApplicationInfo extends Hook {
 

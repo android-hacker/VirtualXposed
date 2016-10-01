@@ -39,9 +39,10 @@ public class VirtualRuntime {
 	}
 
 	public static void setupRuntime(String processName, ApplicationInfo appInfo) {
-		if (sInitialPackageName == null) {
-			sInitialPackageName = appInfo.packageName;
+		if (sProcessName != null) {
+			return;
 		}
+		sInitialPackageName = appInfo.packageName;
 		sProcessName = processName;
 		mirror.android.os.Process.setArgV0.call(processName);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
@@ -54,7 +55,9 @@ public class VirtualRuntime {
 	public static <T> T crash(RemoteException e) throws RuntimeException {
 		e.printStackTrace();
 		CrashReporter.report(getProcessName(), e);
-		exit();
+		if (VirtualCore.get().isVAppProcess()) {
+			exit();
+		}
 		throw new RuntimeException(e);
 	}
 

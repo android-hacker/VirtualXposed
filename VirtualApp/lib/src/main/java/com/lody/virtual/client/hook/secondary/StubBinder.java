@@ -4,7 +4,6 @@ import android.os.IBinder;
 import android.os.IInterface;
 import android.os.Parcel;
 import android.os.RemoteException;
-import android.util.Pair;
 
 import java.io.FileDescriptor;
 import java.lang.reflect.InvocationHandler;
@@ -16,12 +15,12 @@ import java.lang.reflect.Proxy;
  * @author Lody
  */
 
-abstract class StubBinder implements IBinder {
+public abstract class StubBinder implements IBinder {
 	private ClassLoader mClassLoader;
 	private IBinder mBase;
 	private IInterface mInterface;
 
-	StubBinder(ClassLoader classLoader, IBinder base) {
+	public StubBinder(ClassLoader classLoader, IBinder base) {
 		this.mClassLoader = classLoader;
 		this.mBase = base;
 	}
@@ -41,6 +40,13 @@ abstract class StubBinder implements IBinder {
 		return mBase.isBinderAlive();
 	}
 
+
+	/**
+	 * Anti Proguard
+	 *
+	 * Search the AidlClass.Stub.asInterface(IBinder) method.
+	 *
+	 */
 	@Override
 	public IInterface queryLocalInterface(String descriptor) {
 		if (mInterface == null) {
@@ -82,16 +88,6 @@ abstract class StubBinder implements IBinder {
 
 	public abstract InvocationHandler createHandler(Class<?> interfaceClass, IInterface iInterface);
 
-	/**
-	 * Anti Proguard
-	 *
-	 * Search the AidlClass.Stub.asInterface(IBinder) method.
-	 *
-	 */
-	private Pair<Class<?>, IInterface> getStubInterface(IBinder binder, StackTraceElement[] stackTraceElements) {
-
-		return null;
-	}
 
 	@Override
 	public void dump(FileDescriptor fd, String[] args) throws RemoteException {

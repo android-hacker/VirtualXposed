@@ -1,11 +1,5 @@
 package com.lody.virtual.client.hook.patchs.notification.compat;
 
-import com.lody.virtual.R;
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.env.Constants;
-import com.lody.virtual.helper.utils.Reflect;
-import com.lody.virtual.helper.utils.VLog;
-
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -18,6 +12,12 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.FrameLayout;
 import android.widget.RemoteViews;
 import android.widget.TextView;
+
+import com.lody.virtual.R;
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.Constants;
+import com.lody.virtual.helper.utils.Reflect;
+import com.lody.virtual.helper.utils.VLog;
 
 class RemoteViewsUtils {
 	private static final String TAG = RemoteViewsUtils.class.getSimpleName();
@@ -160,8 +160,7 @@ class RemoteViewsUtils {
 		if (contentView == null) {
 			return null;
 		}
-		// 系统布局？
-		final boolean systemId = !NotificaitionUtils.isCustomNotification(contentView);
+		final boolean systemId = !NotificationUtils.isSystemLayout(contentView);
 		final PendIntentCompat pendIntentCompat = new PendIntentCompat(contentView);
 		// 根据点击时间选择布局(优化)
 		final int layoutId;

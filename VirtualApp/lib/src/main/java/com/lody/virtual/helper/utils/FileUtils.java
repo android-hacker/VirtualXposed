@@ -1,16 +1,24 @@
 package com.lody.virtual.helper.utils;
 
+import android.annotation.TargetApi;
+import android.os.Build;
+import android.system.ErrnoException;
+import android.system.Os;
+import android.system.OsConstants;
+
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
@@ -113,6 +121,24 @@ public class FileUtils {
 			} catch (Exception ignored) {
 			}
 		}
+	}
+
+
+	public static int peekInt(byte[] bytes, int value, ByteOrder endian) {
+		int v2;
+		int v0;
+		if(endian == ByteOrder.BIG_ENDIAN) {
+			v0 = value + 1;
+			v2 = v0 + 1;
+			v0 = (bytes[v0] & 255) << 16 | (bytes[value] & 255) << 24 | (bytes[v2] & 255) << 8 | bytes[v2 + 1] & 255;
+		}
+		else {
+			v0 = value + 1;
+			v2 = v0 + 1;
+			v0 = (bytes[v0] & 255) << 8 | bytes[value] & 255 | (bytes[v2] & 255) << 16 | (bytes[v2 + 1] & 255) << 24;
+		}
+
+		return v0;
 	}
 
 	/**

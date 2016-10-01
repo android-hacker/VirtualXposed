@@ -1,17 +1,15 @@
 package com.lody.virtual.client.hook.patchs.am;
 
-import java.lang.reflect.Method;
+import android.os.IBinder;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VActivityManager;
 
-import android.os.IBinder;
+import java.lang.reflect.Method;
 
 /**
  * @author Lody
  *
- * @see android.app.IActivityManager#serviceDoneExecuting(IBinder, int, int,
- *      int)
  *
  */
 /* package */ class ServiceDoneExecuting extends Hook {
@@ -24,6 +22,9 @@ import android.os.IBinder;
 	@Override
 	public Object call(Object who, Method method, Object... args) throws Throwable {
 		IBinder token = (IBinder) args[0];
+		if (!VActivityManager.get().isVAServiceToken(token)) {
+			return method.invoke(who, args);
+		}
 		int type = (int) args[1];
 		int startId = (int) args[2];
 		int res = (int) args[3];

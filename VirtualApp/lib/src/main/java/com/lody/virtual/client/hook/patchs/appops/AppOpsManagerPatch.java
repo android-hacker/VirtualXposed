@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.Build;
 
 import com.lody.virtual.client.hook.base.PatchDelegate;
-import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
 import com.lody.virtual.client.hook.base.StaticHook;
 import com.lody.virtual.client.hook.binders.AppOpsBinderDelegate;
@@ -47,14 +46,15 @@ public class AppOpsManagerPatch extends PatchDelegate<AppOpsBinderDelegate> {
 		addHook(new BaseHook("setMode", 1, 2));
 		addHook(new BaseHook("checkAudioOperation", 2, 3));
 		addHook(new BaseHook("setAudioRestriction", 2, -1));
-		addHook(new ReplaceCallingPkgHook("noteProxyOperation"));
+		addHook(new BaseHook("noteProxyOperation", 2, 3));
 		addHook(new ReplaceLastPkgHook("resetAllModes"));
 	}
 
 	private class BaseHook extends StaticHook {
 		final int pkgIndex;
 		final int uidIndex;
-		public BaseHook(String name, int uidIndex, int pkgIndex) {
+
+		BaseHook(String name, int uidIndex, int pkgIndex) {
 			super(name);
 			this.pkgIndex = pkgIndex;
 			this.uidIndex = uidIndex;

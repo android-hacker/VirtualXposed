@@ -2,17 +2,12 @@ package com.lody.virtual.client.hook.secondary;
 
 import android.content.ComponentName;
 import android.content.Context;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.os.IInterface;
 
-import com.lody.virtual.client.core.VirtualCore;
-
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,19 +31,6 @@ public class ProxyServiceFactory {
 						return new InvocationHandler() {
 							@Override
 							public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-								if (args != null && args.length > 0) {
-									for (Object arg : args) {
-										if (arg instanceof Bundle) {
-											Bundle bundle = (Bundle) arg;
-											if (bundle.containsKey("androidPackageName")) {
-												bundle.putString("androidPackageName", context.getPackageName());
-											}
-											if (bundle.containsKey("clientPackageName")) {
-												bundle.putString("clientPackageName", context.getPackageName());
-											}
-										}
-									}
-								}
 								try {
 									return method.invoke(base, args);
 								} catch (InvocationTargetException e) {
@@ -98,23 +80,6 @@ public class ProxyServiceFactory {
 						return new InvocationHandler() {
 							@Override
 							public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-								if (args != null && args.length > 0) {
-									String name = args[args.length - 1].getClass().getName();
-									if ("com.google.android.gms.common.internal.GetServiceRequest".equals(name)
-											|| "com.google.android.gms.common.internal.ValidateAccountRequest"
-													.equals(name)) {
-										args[args.length - 1] = replaceObjectPkgFields(args[args.length - 1]);
-									}
-									String hostPkg = VirtualCore.get().getHostPkg();
-									String pkg = context.getPackageName();
-									int i = 0;
-									while (i < args.length) {
-										if ((args[i] instanceof String) && hostPkg.equals(args[i])) {
-											args[i] = pkg;
-										}
-										i++;
-									}
-								}
 								try {
 									return method.invoke(base, args);
 								} catch (InvocationTargetException e) {
@@ -127,22 +92,6 @@ public class ProxyServiceFactory {
 						};
 					}
 
-					private Object replaceObjectPkgFields(Object object) {
-						for (Field field : object.getClass().getDeclaredFields()) {
-							field.setAccessible(true);
-							if ((field.getModifiers() & Modifier.STATIC) == 0) {
-								try {
-									if (field.get(object) instanceof String) {
-										field.set(object, context.getPackageName());
-										break;
-									}
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-						}
-						return object;
-					}
 				};
 			}
 		});
@@ -150,7 +99,7 @@ public class ProxyServiceFactory {
 
 
 	public static IBinder getProxyService(Context context, ComponentName component, IBinder binder) {
-		if (context == null) {
+		if (context == null || binder == null) {
 			return null;
 		}
 		try {

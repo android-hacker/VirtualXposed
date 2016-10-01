@@ -1,6 +1,7 @@
 package com.lody.virtual.helper.proto;
 
 import android.content.ComponentName;
+import android.content.Intent;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -21,17 +22,21 @@ public class AppTaskInfo implements Parcelable {
 		}
 	};
 	public int taskId;
+	public Intent baseIntent;
 	public ComponentName baseActivity;
 	public ComponentName topActivity;
 
-	public AppTaskInfo(int taskId, ComponentName baseActivity, ComponentName topActivity) {
+
+	public AppTaskInfo(int taskId, Intent baseIntent, ComponentName baseActivity, ComponentName topActivity) {
 		this.taskId = taskId;
+		this.baseIntent = baseIntent;
 		this.baseActivity = baseActivity;
 		this.topActivity = topActivity;
 	}
 
 	protected AppTaskInfo(Parcel in) {
 		taskId = in.readInt();
+		baseIntent = in.readParcelable(Intent.class.getClassLoader());
 		baseActivity = in.readParcelable(ComponentName.class.getClassLoader());
 		topActivity = in.readParcelable(ComponentName.class.getClassLoader());
 	}
@@ -44,6 +49,7 @@ public class AppTaskInfo implements Parcelable {
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeInt(taskId);
+		dest.writeParcelable(baseIntent, flags);
 		dest.writeParcelable(baseActivity, flags);
 		dest.writeParcelable(topActivity, flags);
 	}

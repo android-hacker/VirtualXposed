@@ -61,7 +61,13 @@ public class RefMethod<T> {
     public T call(Object receiver, Object... args) {
         try {
             return (T) this.method.invoke(receiver, args);
-        } catch (Exception e) {
+        } catch (InvocationTargetException e) {
+            if (e.getCause() != null) {
+                e.getCause().printStackTrace();
+            } else {
+                e.printStackTrace();
+            }
+        } catch (Throwable e) {
             e.printStackTrace();
         }
         return null;

@@ -9,8 +9,6 @@ import java.lang.reflect.Method;
 /**
  * @author Lody
  *
- *
- * @see android.app.IActivityManager#forceStopPackage(String, int)
  */
 /* package */ class ForceStopPackage extends Hook {
 
@@ -23,7 +21,7 @@ import java.lang.reflect.Method;
 	public Object call(Object who, Method method, Object... args) throws Throwable {
 		String pkg = (String) args[0];
 		int userId = VUserHandle.myUserId();
-		VActivityManager.get().killAppByPkg(pkg);
+		VActivityManager.get().killAppByPkg(pkg, userId);
 		return 0;
 	}
 

@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -33,7 +34,7 @@ import java.util.List;
 						info.processName = processName;
 					}
 					info.pkgList = pkgList.toArray(new String[pkgList.size()]);
-//					info.uid = VActivityManager.get().getUidByPid(info.pid);
+					info.uid = VUserHandle.getAppId(VActivityManager.get().getUidByPid(info.pid));
 				}
 			}
 		}

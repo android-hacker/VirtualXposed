@@ -25,6 +25,9 @@ import java.lang.reflect.Method;
 	public Object call(Object who, Method method, Object... args) throws Throwable {
 		ComponentName componentName = (ComponentName) args[0];
 		IBinder token = (IBinder) args[1];
+		if (!VActivityManager.get().isVAServiceToken(token)) {
+			return method.invoke(who, args);
+		}
 		int startId = (int) args[2];
 		if (componentName != null) {
 			return VActivityManager.get().stopServiceToken(componentName, token, startId);
@@ -34,6 +37,6 @@ import java.lang.reflect.Method;
 
 	@Override
 	public boolean isEnable() {
-		return isAppProcess() || isServiceProcess();
+		return isAppProcess() || isServerProcess();
 	}
 }

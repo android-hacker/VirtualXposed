@@ -13,16 +13,14 @@ import java.lang.reflect.Method;
  *
  */
 public abstract class Hook {
-
+	
 	private boolean enable = true;
-
 
 	public abstract String getName();
 
 	public boolean beforeCall(Object who, Method method, Object... args) {
 		return true;
 	}
-
 
 	public Object call(Object who, Method method, Object... args) throws Throwable {
 		return method.invoke(who, args);
@@ -61,7 +59,7 @@ public abstract class Hook {
 		return VirtualCore.get().isVAppProcess();
 	}
 
-	protected final boolean isServiceProcess() {
+	protected final boolean isServerProcess() {
 		return VirtualCore.get().isServiceProcess();
 	}
 

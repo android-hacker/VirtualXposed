@@ -34,6 +34,8 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 	private static final String TAG = HCallbackHook.class.getSimpleName();
 	private static final HCallbackHook sCallback = new HCallbackHook();
 
+	private boolean mCalling = false;
+
 
 	private Handler.Callback otherCallback;
 
@@ -60,17 +62,31 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 
 	@Override
 	public boolean handleMessage(Message msg) {
-		if (LAUNCH_ACTIVITY == msg.what) {
-			if (!handleLaunchActivity(msg)) {
-				return true;
-			}
-		} else if (CREATE_SERVICE == msg.what) {
-			if (!VClientImpl.getClient().isBound()) {
-				ServiceInfo info = Reflect.on(msg.obj).get("info");
-				VClientImpl.getClient().bindApplicationCheckThread(info);
+		if (!mCalling) {
+			mCalling = true;
+			try {
+				if (LAUNCH_ACTIVITY == msg.what) {
+					if (!handleLaunchActivity(msg)) {
+						return true;
+					}
+				} else if (CREATE_SERVICE == msg.what) {
+					if (!VClientImpl.getClient().isBound()) {
+						ServiceInfo info = Reflect.on(msg.obj).get("info");
+						VClientImpl.getClient().bindApplication(info.packageName, info.processName);
+					}
+				}
+				if (otherCallback != null) {
+					boolean desired = otherCallback.handleMessage(msg);
+					mCalling = false;
+					return desired;
+				} else {
+					mCalling = false;
+				}
+			} finally {
+				mCalling = false;
 			}
 		}
-		return otherCallback != null && otherCallback.handleMessage(msg);
+		return false;
 	}
 
 	private boolean handleLaunchActivity(Message msg) {
@@ -86,9 +102,13 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 		ActivityInfo info = saveInstance.info;
 		if (VClientImpl.getClient().getToken() == null) {
 			VActivityManager.get().processRestarted(info.packageName, info.processName, saveInstance.userId);
+			getH().sendMessageAtFrontOfQueue(Message.obtain(msg));
+			return false;
 		}
 		if (!VClientImpl.getClient().isBound()) {
-			VClientImpl.getClient().bindApplicationCheckThread(info);
+			VClientImpl.getClient().bindApplication(info.packageName, info.processName);
+			getH().sendMessageAtFrontOfQueue(Message.obtain(msg));
+			return false;
 		}
 		int taskId = IActivityManager.getTaskForActivity.call(
 				ActivityManagerNative.getDefault.call(),
@@ -96,7 +116,6 @@ public class HCallbackHook implements Handler.Callback, Injectable {
 				false
 		);
 		VActivityManager.get().onActivityCreate(ComponentUtils.toComponentName(info), caller, token, info, intent, ComponentUtils.getTaskAffinity(info), taskId, info.launchMode, info.flags);
-
 		ClassLoader appClassLoader = VClientImpl.getClient().getClassLoader(info.applicationInfo);
 		intent.setExtrasClassLoader(appClassLoader);
 		ActivityThread.ActivityClientRecord.intent.set(r, intent);

@@ -1,10 +1,16 @@
 package com.lody.virtual.client.hook.patchs.pm;
 
+import android.os.Binder;
+import android.os.Process;
+
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VPackageManager;
+import com.lody.virtual.helper.utils.collection.ArraySet;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Set;
 
 /**
  * @author Lody
@@ -21,14 +27,25 @@ import java.lang.reflect.Method;
 	@Override
 	public Object call(Object who, Method method, Object... args) throws Throwable {
 		int uid = (int) args[0];
+		int callingUid = Binder.getCallingUid();
 		if (uid == VirtualCore.get().myUid()) {
 			uid = getBaseVUid();
 		}
-		String[] pkgList = VPackageManager.get().getPackagesForUid(uid);
-		if (pkgList == null) {
-			pkgList = new String[0];
+		String[] callingPkgs = VPackageManager.get().getPackagesForUid(callingUid);
+		String[] targetPkgs = VPackageManager.get().getPackagesForUid(uid);
+		String[] selfPkgs = VPackageManager.get().getPackagesForUid(Process.myUid());
+
+		Set<String> pkgList = new ArraySet<>(2);
+		if (callingPkgs != null && callingPkgs.length > 0) {
+			pkgList.addAll(Arrays.asList(callingPkgs));
 		}
-		return pkgList;
+		if (targetPkgs != null && targetPkgs.length > 0) {
+			pkgList.addAll(Arrays.asList(targetPkgs));
+		}
+		if (selfPkgs != null && selfPkgs.length > 0) {
+			pkgList.addAll(Arrays.asList(selfPkgs));
+		}
+		return pkgList.toArray(new String[pkgList.size()]);
 	}
 
 	@Override

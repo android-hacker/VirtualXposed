@@ -2,6 +2,7 @@ package com.lody.virtual.client.hook.patchs.pm;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.local.VPackageManager;
+import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
 
@@ -22,7 +23,8 @@ import java.lang.reflect.Method;
 		if (pkgName.equals(getHostPkg())) {
 			return method.invoke(who, args);
 		}
-		return VPackageManager.get().getPackageUid(pkgName, 0);
+		int uid = VPackageManager.get().getPackageUid(pkgName, 0);
+		return VUserHandle.getAppId(uid);
 	}
 
 	@Override

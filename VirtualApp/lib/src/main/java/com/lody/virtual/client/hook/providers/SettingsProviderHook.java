@@ -63,7 +63,14 @@ public class SettingsProviderHook extends ExternalProviderHook {
 				return null;
 			}
 		}
-		return super.call(method, args);
+		try {
+			return super.call(method, args);
+		} catch (InvocationTargetException e) {
+			if (e.getCause() instanceof SecurityException) {
+				return null;
+			}
+			throw e;
+		}
 	}
 
 	@Override

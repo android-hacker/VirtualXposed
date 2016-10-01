@@ -1,6 +1,5 @@
 package com.lody.virtual.client.hook.providers;
 
-import android.content.pm.ProviderInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IInterface;
@@ -15,6 +14,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import mirror.android.content.IContentProvider;
+
 /**
  * @author Lody
  *
@@ -28,13 +29,13 @@ public class ProviderHook implements InvocationHandler {
 	static {
 		PROVIDER_MAP.put("settings", new HookFetcher() {
 			@Override
-			public ProviderHook fetch(boolean external, ProviderInfo info, IInterface provider) {
+			public ProviderHook fetch(boolean external, IInterface provider) {
 				return new SettingsProviderHook(provider);
 			}
 		});
 		PROVIDER_MAP.put("downloads", new HookFetcher() {
 			@Override
-			public ProviderHook fetch(boolean external, ProviderInfo info, IInterface provider) {
+			public ProviderHook fetch(boolean external, IInterface provider) {
 				return new DownloadProviderHook(provider);
 			}
 		});
@@ -46,16 +47,16 @@ public class ProviderHook implements InvocationHandler {
 		this.mBase = base;
 	}
 
-	public static HookFetcher fetchHook(String authority) {
+	private static HookFetcher fetchHook(String authority) {
 		HookFetcher fetcher = PROVIDER_MAP.get(authority);
 		if (fetcher == null) {
 			fetcher = new HookFetcher() {
 				@Override
-				public ProviderHook fetch(boolean external, ProviderInfo info, IInterface provider) {
+				public ProviderHook fetch(boolean external, IInterface provider) {
 					if (external) {
 						return new ExternalProviderHook(provider);
 					}
-					return null;
+					return new InternalProviderHook(provider);
 				}
 			};
 		}
@@ -100,14 +101,31 @@ public class ProviderHook implements InvocationHandler {
 
 	}
 
-	public static IInterface createProxy(IInterface provider, ProviderHook hook) {
+	private static IInterface createProxy(IInterface provider, ProviderHook hook) {
 		if (provider == null || hook == null) {
 			return null;
 		}
-		return (IInterface) Proxy.newProxyInstance(provider.getClass().getClassLoader(), provider.getClass().getInterfaces(), hook);
+		return (IInterface) Proxy.newProxyInstance(provider.getClass().getClassLoader(), new Class[] {
+				IContentProvider.TYPE,
+		}, hook);
+	}
+
+	public static IInterface createProxy(boolean external, String authority, IInterface provider) {
+		if (provider instanceof Proxy && Proxy.getInvocationHandler(provider) instanceof ProviderHook) {
+			return provider;
+		}
+		ProviderHook.HookFetcher fetcher = ProviderHook.fetchHook(authority);
+		if (fetcher != null) {
+			ProviderHook hook = fetcher.fetch(external, provider);
+			IInterface proxyProvider = ProviderHook.createProxy(provider, hook);
+			if (proxyProvider != null) {
+				provider = proxyProvider;
+			}
+		}
+		return provider;
 	}
 
 	public interface HookFetcher {
-		ProviderHook fetch(boolean external, ProviderInfo info, IInterface provider);
+		ProviderHook fetch(boolean external, IInterface provider);
 	}
 }
