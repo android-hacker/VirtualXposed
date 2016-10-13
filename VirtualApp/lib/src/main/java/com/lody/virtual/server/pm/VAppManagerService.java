@@ -246,7 +246,7 @@ public class VAppManagerService extends IAppManager.Stub {
 	}
 
 	public boolean isAppInstalled(String pkg) {
-		return pkg != null && PackageCache.sPackageCaches.get(pkg) != null;
+		return pkg != null && !"android".equals(pkg) && PackageCache.sPackageCaches.get(pkg) != null;
 	}
 
 	private void notifyAppInstalled(AppSetting setting) {
