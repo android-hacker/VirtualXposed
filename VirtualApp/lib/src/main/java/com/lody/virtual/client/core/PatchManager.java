@@ -12,6 +12,7 @@ import com.lody.virtual.client.hook.patchs.appops.AppOpsManagerPatch;
 import com.lody.virtual.client.hook.patchs.appwidget.AppWidgetManagerPatch;
 import com.lody.virtual.client.hook.patchs.audio.AudioManagerPatch;
 import com.lody.virtual.client.hook.patchs.backup.BackupManagerPatch;
+import com.lody.virtual.client.hook.patchs.bluetooth.BluetoothPatch;
 import com.lody.virtual.client.hook.patchs.clipboard.ClipBoardPatch;
 import com.lody.virtual.client.hook.patchs.connectivity.ConnectivityPatch;
 import com.lody.virtual.client.hook.patchs.content.ContentServicePatch;
@@ -152,6 +153,7 @@ public final class PatchManager {
 			if (Build.VERSION.SDK_INT >= JELLY_BEAN_MR2) {
 				addPatch(new VibratorPatch());
 				addPatch(new WifiManagerPatch());
+				addPatch(new BluetoothPatch());
 			}
 			if (Build.VERSION.SDK_INT >= JELLY_BEAN_MR1) {
 				addPatch(new UserManagerPatch());

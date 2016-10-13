@@ -29,8 +29,21 @@ public class AudioManagerPatch extends PatchDelegate<AudioBinderDelegate> {
 		addHook(new ReplaceLastPkgHook("adjustMasterVolume"));
 		addHook(new ReplaceLastPkgHook("setStreamVolume"));
 		addHook(new ReplaceLastPkgHook("setMasterVolume"));
+		addHook(new ReplaceLastPkgHook("setMicrophoneMute"));
+		addHook(new ReplaceLastPkgHook("setRingerModeExternal"));
+		addHook(new ReplaceLastPkgHook("setRingerModeInternal"));
+		addHook(new ReplaceLastPkgHook("setMode"));
+		addHook(new ReplaceLastPkgHook("avrcpSupportsAbsoluteVolume"));
+		addHook(new ReplaceLastPkgHook("abandonAudioFocus"));
 		addHook(new ReplaceLastPkgHook("requestAudioFocus"));
+		addHook(new ReplaceLastPkgHook("setWiredDeviceConnectionState"));
+		addHook(new ReplaceLastPkgHook("setSpeakerphoneOn"));
+		addHook(new ReplaceLastPkgHook("setBluetoothScoOn"));
+		addHook(new ReplaceLastPkgHook("stopBluetoothSco"));
+		addHook(new ReplaceLastPkgHook("startBluetoothSco"));
+		addHook(new ReplaceLastPkgHook("disableSafeMediaVolume"));
 		addHook(new ReplaceLastPkgHook("registerRemoteControlClient"));
+		addHook(new ReplaceLastPkgHook("unregisterAudioFocusClient"));
 	}
 
 	@Override

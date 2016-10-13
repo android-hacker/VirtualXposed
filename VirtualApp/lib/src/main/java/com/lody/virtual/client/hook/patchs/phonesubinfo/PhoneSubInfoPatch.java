@@ -1,5 +1,6 @@
 package com.lody.virtual.client.hook.patchs.phonesubinfo;
 
+import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
@@ -11,6 +12,7 @@ import mirror.android.os.ServiceManager;
  * @author Lody
  *
  */
+@Patch({Hook_GetDeviceId.class})
 public class PhoneSubInfoPatch extends PatchDelegate<PhoneSubInfoBinderDelegate> {
 	@Override
 	protected PhoneSubInfoBinderDelegate createHookDelegate() {
@@ -44,7 +46,7 @@ public class PhoneSubInfoPatch extends PatchDelegate<PhoneSubInfoBinderDelegate>
 		addHook(new ReplaceCallingPkgHook("getVoiceMailAlphaTag"));
 		addHook(new ReplaceLastPkgHook("getVoiceMailAlphaTagForSubscriber"));
 		// The following method maybe need to fake
-		addHook(new ReplaceCallingPkgHook("getDeviceId"));
+		//addHook(new ReplaceCallingPkgHook("getDeviceId"));
 		addHook(new ReplaceCallingPkgHook("getIccSerialNumber"));
 		addHook(new ReplaceLastPkgHook("getIccSerialNumberForSubscriber"));
 

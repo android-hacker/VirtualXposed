@@ -4,11 +4,15 @@ import android.app.Application;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.text.TextUtils;
 
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.hook.base.DelegateResult;
+import com.lody.virtual.client.hook.delegate.PhoneInfoDelegate;
 import com.lody.virtual.helper.proto.InstallResult;
 import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.os.VUserHandle;
 
 import jonathanfinerty.once.Once;
 
@@ -59,6 +63,25 @@ public class VApp extends Application {
 			Once.initialise(this);
 			// Install the Google mobile service
 			installGms();
+		}else if(VirtualCore.get().isVAppProcess()){
+			VirtualCore.get().setPhoneInfoDelegate(new PhoneInfoDelegate() {
+				@Override
+				public DelegateResult<String> getDeviceId(Object old) {
+					if (old instanceof String) {
+						String str = (String) old;
+						String n = str.replace("0", "1");
+						int userId = VUserHandle.myUserId();
+						if (TextUtils.isDigitsOnly(str)) {
+							int len = str.length();
+							long l = Long.parseLong(str);
+							l += (userId + 1);
+							n = String.format("%0" + len + "d", l);
+						}
+						return new DelegateResult<String>(n);
+					}
+					return null;
+				}
+			});
 		}
 	}
 
