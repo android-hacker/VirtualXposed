@@ -22,6 +22,7 @@ import android.os.RemoteException;
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.fixer.ContextFixer;
+import com.lody.virtual.client.hook.delegate.ActivityDelegate;
 import com.lody.virtual.client.hook.delegate.PhoneInfoDelegate;
 import com.lody.virtual.client.local.LocalProxyUtils;
 import com.lody.virtual.client.local.VActivityManager;
@@ -76,6 +77,7 @@ public final class VirtualCore {
 	private int systemPid;
 	private ConditionVariable initLock = new ConditionVariable();
 	private PhoneInfoDelegate phoneInfoDelegate;
+	private ActivityDelegate activityDelegate;
 
 	public ConditionVariable getInitLock() {
 		return initLock;
@@ -89,6 +91,14 @@ public final class VirtualCore {
 
 	public int myUserId() {
 		return VUserHandle.getUserId(myUid);
+	}
+
+	public void setActivityDelegate(ActivityDelegate activityDelegate) {
+		this.activityDelegate = activityDelegate;
+	}
+
+	public ActivityDelegate getActivityDelegate() {
+		return activityDelegate;
 	}
 
 	public void setPhoneInfoDelegate(PhoneInfoDelegate phoneInfoDelegate) {

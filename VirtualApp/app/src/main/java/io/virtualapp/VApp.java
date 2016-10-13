@@ -47,6 +47,7 @@ public class VApp extends Application {
 
 	@Override
 	protected void attachBaseContext(Context base) {
+		VirtualCore.get().setActivityDelegate(new MyActivityDelegate());
 		super.attachBaseContext(base);
 		try {
 			VirtualCore.get().startup(base);
@@ -64,24 +65,7 @@ public class VApp extends Application {
 			// Install the Google mobile service
 			installGms();
 		}else if(VirtualCore.get().isVAppProcess()){
-			VirtualCore.get().setPhoneInfoDelegate(new PhoneInfoDelegate() {
-				@Override
-				public DelegateResult<String> getDeviceId(Object old) {
-					if (old instanceof String) {
-						String str = (String) old;
-						String n = str.replace("0", "1");
-						int userId = VUserHandle.myUserId();
-						if (TextUtils.isDigitsOnly(str)) {
-							int len = str.length();
-							long l = Long.parseLong(str);
-							l += (userId + 1);
-							n = String.format("%0" + len + "d", l);
-						}
-						return new DelegateResult<String>(n);
-					}
-					return null;
-				}
-			});
+			VirtualCore.get().setPhoneInfoDelegate(new MyPhoneInfoDelegate());
 		}
 	}
 
