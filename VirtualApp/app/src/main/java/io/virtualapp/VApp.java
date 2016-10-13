@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.text.TextUtils;
 
+import com.lody.virtual.IOHook;
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.DelegateResult;
@@ -47,6 +48,7 @@ public class VApp extends Application {
 
 	@Override
 	protected void attachBaseContext(Context base) {
+		IOHook.ENABLE_IO_HOOK = true;
 		VirtualCore.get().setActivityDelegate(new MyActivityDelegate());
 		super.attachBaseContext(base);
 		try {

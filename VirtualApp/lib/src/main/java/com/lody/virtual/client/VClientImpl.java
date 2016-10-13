@@ -227,6 +227,8 @@ public final class VClientImpl extends IVClient.Stub {
 			StrictMode.ThreadPolicy newPolicy = new StrictMode.ThreadPolicy.Builder(StrictMode.getThreadPolicy()).permitNetwork().build();
 			StrictMode.setThreadPolicy(newPolicy);
 		}
+		IOHook.hook();
+		IOHook.redirect("/data/data/" + data.appInfo.packageName + "/", data.appInfo.dataDir+"/");
 		IOHook.hookNative();
 		Object mainThread = VirtualCore.mainThread();
 		IOHook.startDexOverride();
