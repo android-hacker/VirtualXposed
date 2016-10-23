@@ -11,6 +11,8 @@ import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.DelegateResult;
 import com.lody.virtual.client.hook.delegate.PhoneInfoDelegate;
+import com.lody.virtual.client.service.ServiceManagerNative;
+import com.lody.virtual.client.stub.StubManifest;
 import com.lody.virtual.helper.proto.InstallResult;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
@@ -49,6 +51,9 @@ public class VApp extends Application {
 	@Override
 	protected void attachBaseContext(Context base) {
 		IOHook.ENABLE_IO_HOOK = true;
+		StubManifest.STUB_CP_AUTHORITY = BuildConfig.APPLICATION_ID+"."+StubManifest.STUB_DEF_AUTHORITY;
+		ServiceManagerNative.SERVICE_CP_AUTH = BuildConfig.APPLICATION_ID+"."+ServiceManagerNative.SERVICE_DEF_AUTH;
+		//
 		VirtualCore.get().setActivityDelegate(new MyActivityDelegate());
 		super.attachBaseContext(base);
 		try {

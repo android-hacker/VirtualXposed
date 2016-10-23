@@ -198,7 +198,9 @@
         tools:ignore="ProtectedPermissions"/>
 
     <uses-feature android:name="android.hardware.camera"/>
-
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false"/>
     <application>
         <activity
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
