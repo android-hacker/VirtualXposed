@@ -34,6 +34,9 @@ import java.lang.reflect.Method;
 		Intent intent = (Intent) args[1];
 		String type = (String) args[2];
 		intent.setDataAndType(intent.getData(), type);
+		if(VirtualCore.get().getActivityDelegate()!=null){
+			VirtualCore.get().getActivityDelegate().onSendBroadcast(intent);
+		}
 		Intent newIntent = handleIntent(intent);
 		if (newIntent != null) {
 			args[1] = newIntent;

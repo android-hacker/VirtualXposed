@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
-    package="com.lody.virtual"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.lody.virtual">
 
     <uses-permission
         android:name="android.permission.ACCOUNT_MANAGER"
@@ -198,17 +198,27 @@
         tools:ignore="ProtectedPermissions"/>
 
     <uses-feature android:name="android.hardware.camera"/>
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false"/>
 
     <application>
         <activity
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:name="com.lody.virtual.client.stub.ShortcutHandleActivity"
             android:exported="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
             />
 
-        <activity android:name=".client.stub.StubPendingActivity" android:process=":x"/>
-        <service android:name=".client.stub.StubPendingService" android:process=":x"/>
-        <receiver android:name=".client.stub.StubPendingReceiver" android:process=":x"/>
+        <activity
+            android:name=".client.stub.StubPendingActivity"
+            android:process=":x"/>
+
+        <service
+            android:name=".client.stub.StubPendingService"
+            android:process=":x"/>
+        <receiver
+            android:name=".client.stub.StubPendingReceiver"
+            android:process=":x"/>
 
         <service
             android:name="com.lody.virtual.client.stub.DaemonService"
@@ -240,6 +250,13 @@
                 <data android:scheme="package"/>
             </intent-filter>
         </activity>
+        <activity android:name=".client.choose.ChooserActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:finishOnCloseSystemDialogs="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/VAAlertTheme"/>
 
         <provider
             android:name="com.lody.virtual.server.BinderProvider"

@@ -2,6 +2,7 @@ package com.lody.virtual.client.hook.patchs.telephony;
 
 import android.content.Context;
 
+import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
@@ -14,6 +15,7 @@ import mirror.android.os.ServiceManager;
  *
  *
  */
+@Patch({Hook_GetDeviceId.class})
 public class TelephonyPatch extends PatchDelegate<TelephonyBinderDelegate> {
 
 	@Override
@@ -29,7 +31,7 @@ public class TelephonyPatch extends PatchDelegate<TelephonyBinderDelegate> {
 	@Override
 	protected void onBindHooks() {
 		super.onBindHooks();
-		addHook(new ReplaceCallingPkgHook("getDeviceId"));
+		//addHook(new ReplaceCallingPkgHook("getDeviceId"));
 		addHook(new ReplaceCallingPkgHook("getNeighboringCellInfo"));
 		addHook(new ReplaceCallingPkgHook("getAllCellInfo"));
 		addHook(new ReplaceCallingPkgHook("getCellLocation"));

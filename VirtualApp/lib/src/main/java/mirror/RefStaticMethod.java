@@ -26,8 +26,10 @@ public class RefStaticMethod<T> {
             this.method = cls.getDeclaredMethod(field.getName(), types);
             this.method.setAccessible(true);
         } else if (field.isAnnotationPresent(MethodReflectParams.class)) {
+            boolean arrayset=false;
             String[] typeNames = field.getAnnotation(MethodReflectParams.class).value();
             Class<?>[] types = new Class<?>[typeNames.length];
+            Class<?>[] types2 = new Class<?>[typeNames.length];
             for (int i = 0; i < typeNames.length; i++) {
                 Class<?> type = getProtoType(typeNames[i]);
                 if (type == null) {
@@ -38,8 +40,31 @@ public class RefStaticMethod<T> {
                     }
                 }
                 types[i] = type;
+                if("java.util.HashSet".equals(typeNames[i])){
+                    arrayset=true;
+                    Class<?> type2 =type;
+                    try {
+                        type2 = Class.forName("android.util.ArraySet");
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    if(type2 != null) {
+                        types2[i] = type2;
+                    }else{
+                        types2[i] = type;
+                    }
+                }else{
+                    types2[i] = type;
+                }
             }
-            this.method = cls.getDeclaredMethod(field.getName(), types);
+            try {
+                this.method = cls.getDeclaredMethod(field.getName(), types);
+            }catch (Exception e){
+                e.printStackTrace();
+                if(arrayset){
+                    this.method = cls.getDeclaredMethod(field.getName(), types2);
+                }
+            }
             this.method.setAccessible(true);
         } else {
             for (Method method : cls.getDeclaredMethods()) {

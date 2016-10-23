@@ -18,6 +18,9 @@ public class ServiceConnectionDelegate extends IServiceConnection.Stub {
     private final static ArrayMap<IBinder, ServiceConnectionDelegate> DELEGATE_MAP = new ArrayMap<>();
 
     public static ServiceConnectionDelegate getDelegate(IServiceConnection conn) {
+        if(conn instanceof ServiceConnectionDelegate){
+            return (ServiceConnectionDelegate)conn;
+        }
         IBinder binder = conn.asBinder();
         ServiceConnectionDelegate delegate = DELEGATE_MAP.get(binder);
         if (delegate == null) {

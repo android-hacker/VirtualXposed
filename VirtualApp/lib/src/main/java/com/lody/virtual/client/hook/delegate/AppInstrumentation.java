@@ -26,9 +26,11 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 
 	private static final String TAG = AppInstrumentation.class.getSimpleName();
 	private static AppInstrumentation gDefault;
+	private ActivityDelegate activityDelegate;
 
 	private AppInstrumentation(Instrumentation base) {
 		super(base);
+		activityDelegate = VirtualCore.get().getActivityDelegate();
 	}
 
 	public static AppInstrumentation getDefault() {
@@ -84,6 +86,9 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
             }
         }
 		super.callActivityOnCreate(activity, icicle);
+		if(activityDelegate!=null){
+			activityDelegate.onActivityCreate(activity);
+		}
 	}
 
 	@Override
@@ -96,8 +101,26 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 			IBinder loadingPageToken = BundleCompat.getBinder(bundle, "_VA_|_loading_token_");
 			ActivityManagerCompat.finishActivity(loadingPageToken, -1, null);
 		}
+		if(activityDelegate!=null){
+			activityDelegate.onActivityResumed(activity);
+		}
 	}
 
+	@Override
+	public void callActivityOnDestroy(Activity activity) {
+		super.callActivityOnDestroy(activity);
+		if(activityDelegate!=null){
+			activityDelegate.onActivityDestroy(activity);
+		}
+	}
+
+	@Override
+	public void callActivityOnPause(Activity activity) {
+		super.callActivityOnPause(activity);
+		if(activityDelegate!=null){
+			activityDelegate.onActivityPaused(activity);
+		}
+	}
 
 	@Override
 	public void callApplicationOnCreate(Application app) {

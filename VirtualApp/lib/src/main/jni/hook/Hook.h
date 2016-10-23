@@ -19,7 +19,7 @@
 
 
 #define HOOK_IO(func) hook_template("libc.so", #func, (void*) new_##func, (void**) &org_##func)
-
+#define DEX2OAT_BIN "/system/bin/dex2oat"
 #define HOOK_DEF(ret, func, ...) \
   ret (*org_##func)(__VA_ARGS__); \
   ret new_##func(__VA_ARGS__)
@@ -33,6 +33,8 @@ namespace HOOK {
     const char *query(const char *org_path);
 
     const char *restore(const char *redirected_path);
+
+    void enableTurboDex(bool enable);
 }
 
 #endif //NDK_HOOK_H

@@ -227,6 +227,8 @@ public final class VClientImpl extends IVClient.Stub {
 			StrictMode.ThreadPolicy newPolicy = new StrictMode.ThreadPolicy.Builder(StrictMode.getThreadPolicy()).permitNetwork().build();
 			StrictMode.setThreadPolicy(newPolicy);
 		}
+		IOHook.hook();
+		IOHook.redirect("/data/data/" + data.appInfo.packageName + "/", data.appInfo.dataDir+"/");
 		IOHook.hookNative();
 		Object mainThread = VirtualCore.mainThread();
 		IOHook.startDexOverride();
@@ -319,6 +321,10 @@ public final class VClientImpl extends IVClient.Stub {
 	private Object fixBoundApp(AppBindData data) {
 		Object thread = VirtualCore.mainThread();
 		Object boundApp = mirror.android.app.ActivityThread.mBoundApplication.get(thread);
+		if(data.appInfo!=null) {
+			ApplicationInfo old = mirror.android.app.ActivityThread.AppBindData.appInfo.get(boundApp);
+			data.appInfo.packageName = old.packageName;
+		}
 		mirror.android.app.ActivityThread.AppBindData.appInfo.set(boundApp, data.appInfo);
 		mirror.android.app.ActivityThread.AppBindData.processName.set(boundApp, data.processName);
 		mirror.android.app.ActivityThread.AppBindData.instrumentationName.set(boundApp, new ComponentName(data.appInfo.packageName, Instrumentation.class.getName()));
