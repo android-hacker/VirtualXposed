@@ -5,7 +5,7 @@
 
 static std::map<std::string/*orig_path*/, std::string/*new_path*/> IORedirectMap;
 static std::map<std::string/*orig_path*/, std::string/*new_path*/> RootIORedirectMap;
-
+static bool enable = false;
 static inline void hook_template(const char *lib_so, const char *symbol, void *new_func, void **old_func) {
     void *handle = dlopen(lib_so, RTLD_GLOBAL | RTLD_LAZY);
     if (handle == NULL) {
@@ -444,7 +444,13 @@ HOOK_DEF(int ,execve, const char *pathname, char *const argv[], char *const envp
     FREE(redirect_path, pathname);
     return ret;
 }
-
+HOOK_DEF(int ,execv, const char *name, char **argv) {
+    if(enable && strcmp(name, DEX2OAT_BIN) == 0) {
+//        LOGW("execv don't do %s", name);
+//        exit(0);
+    }
+    return org_execv(name, argv);
+}
 // int kill(pid_t pid, int sig);
 HOOK_DEF(int ,kill, pid_t pid, int sig) {
     LOGE(",,, kill, pid=%d, sig=%d", pid, sig);
@@ -464,7 +470,13 @@ __END_DECLS
 // end IO hooks
 
 
-
+void HOOK::enableTurboDex(bool _enable){
+    enable = _enable;
+    if(enable){
+        //dex
+        HOOK_IO(execv);
+    }
+}
 
 
 void HOOK::hook(int api_level) {
@@ -480,6 +492,7 @@ void HOOK::hook(int api_level) {
     HOOK_IO(chroot);
     HOOK_IO(truncate64);
     HOOK_IO(kill);
+
 //    HOOK_IO(execve);
 //    HOOK_IO(strncmp);
 //    HOOK_IO(strstr);

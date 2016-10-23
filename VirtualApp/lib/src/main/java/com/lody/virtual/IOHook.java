@@ -87,7 +87,19 @@ public class IOHook {
 		}
 	}
 
-	private static boolean isSupportCpu() {
+	public static  void setTurboDex(boolean enable){
+		if(isSupportCpu() && VirtualRuntime.isArt()){
+			try {
+				enableTurboDex(enable?1:0);
+			}catch (Throwable e){
+				VLog.e(TAG, "enableTurboDex",e);
+			}
+		}
+	}
+
+	private static native  void enableTurboDex(int enable);
+
+	public static boolean isSupportCpu() {
 		String ARCH = System.getProperty("os.arch");
 		if (ARCH != null && ((ARCH.contains("arm") && ARCH.contains("v8"))
 				|| (ARCH.contains("86") && ARCH.contains("64")) || ARCH.contains("686"))) {
