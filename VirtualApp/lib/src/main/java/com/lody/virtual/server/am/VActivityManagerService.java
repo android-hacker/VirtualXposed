@@ -15,7 +15,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ServiceInfo;
-import android.os.AsyncTask;
+import com.lody.virtual.os.VUserInfo;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
@@ -45,7 +45,6 @@ import com.lody.virtual.helper.utils.collection.ArrayMap;
 import com.lody.virtual.helper.utils.collection.SparseArray;
 import com.lody.virtual.os.VBinder;
 import com.lody.virtual.os.VUserHandle;
-import com.lody.virtual.os.VUserInfo;
 import com.lody.virtual.os.VUserManager;
 import com.lody.virtual.server.pm.VAppManagerService;
 import com.lody.virtual.server.pm.VPackageManagerService;
@@ -271,62 +270,17 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
 	@Override
 	public ComponentName startService(IBinder caller, Intent service, String resolvedType, int userId) {
-		ServiceInfo info = resolveServiceInfo(service, userId);
-		if (info != null) {
-			synchronized (this) {
-				StartServiceArgs args = new StartServiceArgs(service, info, true, userId);
-				startServiceAsync(args, null);
-				return ComponentUtils.toComponentName(info);
-			}
-		}
-		return null;
-	}
-
-
-	private static final class StartServiceArgs {
-		Intent service;
-		ServiceInfo serviceInfo;
-		boolean scheduleServiceArgs;
-		int userId;
-
-		StartServiceArgs(Intent service, ServiceInfo serviceInfo, boolean scheduleServiceArgs, int userId) {
-			this.service = service;
-			this.serviceInfo = serviceInfo;
-			this.scheduleServiceArgs = scheduleServiceArgs;
-			this.userId = userId;
+		synchronized (this) {
+			return startServiceCommon(service, true, userId);
 		}
 	}
 
-	private interface OnServiceStartedListener {
-		void OnServiceStarted(StartServiceArgs args, ServiceRecord record);
-	}
-
-
-
-	private void startServiceAsync(final StartServiceArgs args, final OnServiceStartedListener listener) {
-
-		new AsyncTask<Void, Void, ServiceRecord>() {
-
-			@Override
-			protected ServiceRecord doInBackground(Void... params) {
-				return performStartServiceLocked(args.service, args.serviceInfo, args.scheduleServiceArgs, args.userId);
-			}
-
-			@Override
-			protected void onPostExecute(ServiceRecord record) {
-				if (listener != null) {
-					listener.OnServiceStarted(args, record);
-				}
-			}
-
-		}.execute();
-
-	}
-
-
-	private ServiceRecord performStartServiceLocked(Intent service, ServiceInfo serviceInfo,
-													boolean scheduleServiceArgs, int userId) {
-
+	private ComponentName startServiceCommon(Intent service,
+											 boolean scheduleServiceArgs, int userId) {
+		ServiceInfo serviceInfo = resolveServiceInfo(service, userId);
+		if (serviceInfo == null) {
+			return null;
+		}
 		ProcessRecord targetApp = startProcessIfNeedLocked(ComponentUtils.getProcessName(serviceInfo),
 				userId,
 				serviceInfo.packageName);
@@ -361,7 +315,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 				e.printStackTrace();
 			}
 		}
-		return r;
+		return ComponentUtils.toComponentName(serviceInfo);
 	}
 
 	@Override
@@ -410,60 +364,52 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
 	@Override
 	public void setServiceForeground(ComponentName className, IBinder token, int id, Notification notification,
-			boolean keepNotification, int userId) {
+									 boolean keepNotification, int userId) {
 
 	}
 
 	@Override
-	public int bindService(IBinder caller, IBinder token, final Intent service, String resolvedType,
-						   final IServiceConnection connection, int flags, int userId) {
-		ServiceInfo serviceInfo = resolveServiceInfo(service, userId);
-		if (serviceInfo == null) {
-			return 0;
-		}
+	public int bindService(IBinder caller, IBinder token, Intent service, String resolvedType,
+						   IServiceConnection connection, int flags, int userId) {
 		synchronized (this) {
-			final ServiceRecord r = findRecordLocked(userId, serviceInfo);
-			if (r == null) {
-				if ((flags & Context.BIND_AUTO_CREATE) != 0) {
-					StartServiceArgs args = new StartServiceArgs(service, serviceInfo, false, userId);
-					startServiceAsync(args, new OnServiceStartedListener() {
-						@Override
-						public void OnServiceStarted(StartServiceArgs args, ServiceRecord record) {
-							performBindService(service, record, connection);
-						}
-					});
-				}
-			} else {
-				performBindService(service, r, connection);
+			ServiceInfo serviceInfo = resolveServiceInfo(service, userId);
+			if (serviceInfo == null) {
+				return 0;
 			}
+			ServiceRecord r = findRecordLocked(userId, serviceInfo);
+			boolean firstLaunch = r == null;
+			if (firstLaunch) {
+				if ((flags & Context.BIND_AUTO_CREATE) != 0) {
+					startServiceCommon(service, false, userId);
+					r = findRecordLocked(userId, serviceInfo);
+				}
+			}
+			if (r == null) {
+				return 0;
+			}
+			ServiceRecord.IntentBindRecord boundRecord = r.peekBinding(service);
 
-			return 1;
-		}
-	}
-
-	private void performBindService(Intent service, ServiceRecord r, IServiceConnection connection) {
-
-		ServiceRecord.IntentBindRecord boundRecord = r.peekBinding(service);
-
-		if (boundRecord != null && boundRecord.binder != null && boundRecord.binder.isBinderAlive()) {
-			if (boundRecord.doRebind) {
+			if (boundRecord != null && boundRecord.binder != null && boundRecord.binder.isBinderAlive()) {
+				if (boundRecord.doRebind) {
+					try {
+						IApplicationThreadCompat.scheduleBindService(r.process.appThread, r, service, true, 0);
+					} catch (RemoteException e) {
+						e.printStackTrace();
+					}
+				}
+				ComponentName componentName = new ComponentName(r.serviceInfo.packageName, r.serviceInfo.name);
+				connectService(connection, componentName, boundRecord);
+			} else {
 				try {
-					IApplicationThreadCompat.scheduleBindService(r.process.appThread, r, service, true, 0);
+					IApplicationThreadCompat.scheduleBindService(r.process.appThread, r, service, false, 0);
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}
 			}
-			ComponentName componentName = new ComponentName(r.serviceInfo.packageName, r.serviceInfo.name);
-			connectService(connection, componentName, boundRecord);
-		} else {
-			try {
-				IApplicationThreadCompat.scheduleBindService(r.process.appThread, r, service, false, 0);
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			}
+			r.lastActivityTime = SystemClock.uptimeMillis();
+			r.addToBoundIntent(service, connection);
+			return 1;
 		}
-		r.lastActivityTime = SystemClock.uptimeMillis();
-		r.addToBoundIntent(service, connection);
 	}
 
 
@@ -649,51 +595,51 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	private void attachClient(int pid, final IBinder clientBinder) {
 		final IVClient client = IVClient.Stub.asInterface(clientBinder);
 		if (client == null) {
-            killProcess(pid);
-            return;
-        }
+			killProcess(pid);
+			return;
+		}
 		IInterface thread = null;
 		try {
-            thread = ApplicationThreadNative.asInterface.call(client.getAppThread());
-        } catch (RemoteException e) {
-            // process has dead
-        }
+			thread = ApplicationThreadNative.asInterface.call(client.getAppThread());
+		} catch (RemoteException e) {
+			// process has dead
+		}
 		if (thread == null) {
-            killProcess(pid);
-            return;
-        }
+			killProcess(pid);
+			return;
+		}
 		ProcessRecord app = null;
 		try {
-            IBinder token = client.getToken();
-            if (token instanceof ProcessRecord) {
-                app = (ProcessRecord) token;
-            }
-        } catch (RemoteException e) {
-            // process has dead
-        }
+			IBinder token = client.getToken();
+			if (token instanceof ProcessRecord) {
+				app = (ProcessRecord) token;
+			}
+		} catch (RemoteException e) {
+			// process has dead
+		}
 		if (app == null) {
-            killProcess(pid);
-            return;
-        }
+			killProcess(pid);
+			return;
+		}
 		try {
-            final ProcessRecord record = app;
-            clientBinder.linkToDeath(new DeathRecipient() {
-                @Override
-                public void binderDied() {
-                    clientBinder.unlinkToDeath(this, 0);
-                    onProcessDead(record);
-                }
-            }, 0);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
+			final ProcessRecord record = app;
+			clientBinder.linkToDeath(new DeathRecipient() {
+				@Override
+				public void binderDied() {
+					clientBinder.unlinkToDeath(this, 0);
+					onProcessDead(record);
+				}
+			}, 0);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
 		app.client = client;
 		app.appThread = thread;
 		app.pid = pid;
 		synchronized (mProcessNames) {
-            mProcessNames.put(app.processName, app.vuid, app);
-            mPidsSelfLocked.put(app.pid, app);
-        }
+			mProcessNames.put(app.processName, app.vuid, app);
+			mPidsSelfLocked.put(app.pid, app);
+		}
 	}
 
 	private void onProcessDead(ProcessRecord record) {
@@ -731,8 +677,8 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		}
 		int vpid = queryFreeVPidForProcess();
 		if (vpid == -1) {
-            return null;
-        }
+			return null;
+		}
 		app = performStartProcessLocked(uid, vpid, info, processName);
 		if (app != null) {
 			app.pkgList.add(info.packageName);
@@ -926,7 +872,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	/**
 	 * Should guard by {@link VActivityManagerService#mPidsSelfLocked}
 	 * @param pid pid
-     */
+	 */
 	public ProcessRecord findProcessLocked(int pid) {
 		return mPidsSelfLocked.get(pid);
 	}
@@ -958,8 +904,8 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	public void sendOrderedBroadcastAsUser(Intent intent, VUserHandle user, String receiverPermission,
-			BroadcastReceiver resultReceiver, Handler scheduler, int initialCode,
-			String initialData, Bundle initialExtras) {
+										   BroadcastReceiver resultReceiver, Handler scheduler, int initialCode,
+										   String initialData, Bundle initialExtras) {
 		Context context = VirtualCore.get().getContext();
 		intent.putExtra("_VA_|_user_id_", user.getIdentifier());
 		// TODO: checkPermission
@@ -987,7 +933,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	public boolean handleStaticBroadcast(int appId, ActivityInfo info, Intent intent, BroadcastReceiver receiver,
-			BroadcastReceiver.PendingResult result) {
+										 BroadcastReceiver.PendingResult result) {
 		// Maybe send from System
 		int userId = intent.getIntExtra("_VA_|_user_id_", VUserHandle.USER_ALL);
 		ComponentName component = intent.getParcelableExtra("_VA_|_component_");
@@ -1022,7 +968,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
 
 	public void handleStaticBroadcastAsUser(int uid, ActivityInfo info, Intent intent, BroadcastReceiver receiver,
-			BroadcastReceiver.PendingResult result) {
+											BroadcastReceiver.PendingResult result) {
 		synchronized (this) {
 			ProcessRecord r = findProcessLocked(info.processName, uid);
 			if (BROADCAST_NOT_STARTED_PKG && r == null) {
