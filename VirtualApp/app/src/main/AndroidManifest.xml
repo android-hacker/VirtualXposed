@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="io.virtualapp"
     >
 
@@ -28,15 +29,269 @@
 
         <activity
             android:name=".home.LoadingActivity"
-            android:theme="@style/TransparentTheme"
             android:excludeFromRecents="true"
             android:noHistory="true"
-            android:taskAffinity="va.task.loading"/>
+            android:taskAffinity="va.task.loading"
+            android:theme="@style/TransparentTheme"/>
 
         <activity
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
-            android:name=".users.UserListActivity"/>
+            android:name=".users.UserListActivity"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"/>
+        <!-- lib start -->
+        <provider
+            android:name="com.lody.virtual.server.BinderProvider"
+            android:authorities="${applicationId}.virtual.service.BinderProvider"
+            tools:replace="android:authorities"/>
 
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C0"
+            android:authorities="${applicationId}.virtual_stub_0"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C1"
+            android:authorities="${applicationId}.virtual_stub_1"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C2"
+            android:authorities="${applicationId}.virtual_stub_2"
+            tools:replace="android:authorities"/>
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C3"
+            android:authorities="${applicationId}.virtual_stub_3"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C4"
+            android:authorities="${applicationId}.virtual_stub_4"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C5"
+            android:authorities="${applicationId}.virtual_stub_5"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C6"
+            android:authorities="${applicationId}.virtual_stub_6"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C7"
+            android:authorities="${applicationId}.virtual_stub_7"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C8"
+            android:authorities="${applicationId}.virtual_stub_8"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C9"
+            android:authorities="${applicationId}.virtual_stub_9"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C10"
+            android:authorities="${applicationId}.virtual_stub_10"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C11"
+            android:authorities="${applicationId}.virtual_stub_11"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C12"
+            android:authorities="${applicationId}.virtual_stub_12"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C13"
+            android:authorities="${applicationId}.virtual_stub_13"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C14"
+            android:authorities="${applicationId}.virtual_stub_14"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C15"
+            android:authorities="${applicationId}.virtual_stub_15"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C16"
+            android:authorities="${applicationId}.virtual_stub_16"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C17"
+            android:authorities="${applicationId}.virtual_stub_17"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C18"
+            android:authorities="${applicationId}.virtual_stub_18"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C19"
+            android:authorities="${applicationId}.virtual_stub_19"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C20"
+            android:authorities="${applicationId}.virtual_stub_20"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C21"
+            android:authorities="${applicationId}.virtual_stub_21"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C22"
+            android:authorities="${applicationId}.virtual_stub_22"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C23"
+            android:authorities="${applicationId}.virtual_stub_23"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C24"
+            android:authorities="${applicationId}.virtual_stub_24"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C25"
+            android:authorities="${applicationId}.virtual_stub_25"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C26"
+            android:authorities="${applicationId}.virtual_stub_26"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C27"
+            android:authorities="${applicationId}.virtual_stub_27"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C28"
+            android:authorities="${applicationId}.virtual_stub_28"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C29"
+            android:authorities="${applicationId}.virtual_stub_29"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C30"
+            android:authorities="${applicationId}.virtual_stub_30"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C31"
+            android:authorities="${applicationId}.virtual_stub_31"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C32"
+            android:authorities="${applicationId}.virtual_stub_32"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C33"
+            android:authorities="${applicationId}.virtual_stub_33"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C34"
+            android:authorities="${applicationId}.virtual_stub_34"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C35"
+            android:authorities="${applicationId}.virtual_stub_35"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C36"
+            android:authorities="${applicationId}.virtual_stub_36"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C37"
+            android:authorities="${applicationId}.virtual_stub_37"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C38"
+            android:authorities="${applicationId}.virtual_stub_38"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C39"
+            android:authorities="${applicationId}.virtual_stub_39"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C40"
+            android:authorities="${applicationId}.virtual_stub_40"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C41"
+            android:authorities="${applicationId}.virtual_stub_41"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C42"
+            android:authorities="${applicationId}.virtual_stub_42"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C43"
+            android:authorities="${applicationId}.virtual_stub_43"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C44"
+            android:authorities="${applicationId}.virtual_stub_44"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C45"
+            android:authorities="${applicationId}.virtual_stub_45"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C46"
+            android:authorities="${applicationId}.virtual_stub_46"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C47"
+            android:authorities="${applicationId}.virtual_stub_47"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C48"
+            android:authorities="${applicationId}.virtual_stub_48"
+            tools:replace="android:authorities"/>
+
+        <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C49"
+            android:authorities="${applicationId}.virtual_stub_49"
+            tools:replace="android:authorities"/>
+        <!-- lib end -->
 
         <meta-data
             android:name="UMENG_APPKEY"

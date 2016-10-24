@@ -317,6 +317,7 @@ public final class VClientImpl extends IVClient.Stub {
 	}
 
 	private Object fixBoundApp(AppBindData data) {
+		// TODO: Using Native VM Hook to fix the `Camera` and `AudioRecord`.
 		Object thread = VirtualCore.mainThread();
 		Object boundApp = mirror.android.app.ActivityThread.mBoundApplication.get(thread);
 		mirror.android.app.ActivityThread.AppBindData.appInfo.set(boundApp, data.appInfo);

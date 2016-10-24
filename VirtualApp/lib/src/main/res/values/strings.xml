@@ -2,4 +2,7 @@
 <resources>
     <string name="virtual_installer">VirtualPackage Installer</string>
     <string name="owner_name">Admin</string>
+    <string name="choose">Choose</string>
+    <string name="choose_empty">Chooser is Empty</string>
+    <string name="noApplications">No find applications</string>
 </resources>

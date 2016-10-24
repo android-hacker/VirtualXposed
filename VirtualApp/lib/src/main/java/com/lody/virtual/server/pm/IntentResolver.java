@@ -18,6 +18,7 @@ package com.lody.virtual.server.pm;
 
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Build;
 
@@ -45,8 +46,19 @@ public abstract class IntentResolver<F extends IntentFilter, R extends Object> {
 	@SuppressWarnings("rawtypes")
 	private static final Comparator mResolvePrioritySorter = new Comparator() {
 		public int compare(Object o1, Object o2) {
-			final int q1 = ((IntentFilter) o1).getPriority();
-			final int q2 = ((IntentFilter) o2).getPriority();
+			int q1 = 0;
+			int q2 = 0;
+			if (o1 instanceof IntentFilter) {
+				q1 = ((IntentFilter) o1).getPriority();
+				q2 = ((IntentFilter) o2).getPriority();
+			} else if (o1 instanceof ResolveInfo) {
+				ResolveInfo r1 = (ResolveInfo) o1;
+				ResolveInfo r2 = (ResolveInfo) o2;
+				q1 = r1.filter == null ? 0 : r1.filter.getPriority();
+				q2 = r2.filter == null ? 0 : r2.filter.getPriority();
+			} else {
+				return 0;
+			}
 			return (q1 > q2) ? -1 : ((q1 < q2) ? 1 : 0);
 		}
 	};

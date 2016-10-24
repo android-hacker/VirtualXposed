@@ -25,4 +25,6 @@
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowAnimationStyle">@null</item>
     </style>
+    <style name="VAAlertTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+    </style>
 </resources>

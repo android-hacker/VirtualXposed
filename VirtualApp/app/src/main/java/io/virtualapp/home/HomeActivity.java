@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import com.lody.virtual.os.VUserInfo;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
@@ -106,6 +107,9 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 		// K在统计Fragment时，需要关闭Activity自带的页面统计，
 		// 然后在每个页面中重新集成页面统计的代码(包括调用了 onResume 和 onPause 的Activity)。
 		MobclickAgent.openActivityDurationTrack(false);
+		if(Build.VERSION.SDK_INT>=23){
+			MobclickAgent.setCheckDevice(false);
+		}
 		// MobclickAgent.setAutoLocation(true);
 		// MobclickAgent.setSessionContinueMillis(1000);
 		// MobclickAgent.startWithConfigure(

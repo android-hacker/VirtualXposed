@@ -10,6 +10,7 @@ public class StubManifest {
     public static String STUB_ACTIVITY = StubActivity.class.getName();
     public static String STUB_DIALOG = StubDialog.class.getName();
     public static String STUB_CP = StubContentProvider.class.getName();
+    public static final String STUB_DEF_AUTHORITY = "virtual_stub_";
     public static String STUB_CP_AUTHORITY = "virtual_stub_";
     public static int STUB_COUNT = 50;
 

@@ -1,5 +1,6 @@
 package com.lody.virtual.client.hook.patchs.am;
 
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.TypedValue;
 
+import com.lody.virtual.client.choose.ChooserActivity;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.local.ActivityClientRecord;
 import com.lody.virtual.client.local.VActivityManager;
@@ -42,6 +44,10 @@ import java.lang.reflect.Method;
 		int userId = VUserHandle.myUserId();
 
 		if (ComponentUtils.isStubComponent(intent)) {
+			return method.invoke(who, args);
+		}
+		if(ChooserActivity.check(intent)){
+			intent.setComponent(new ComponentName(getHostContext(), ChooserActivity.class));
 			return method.invoke(who, args);
 		}
 		ActivityInfo activityInfo = VirtualCore.get().resolveActivityInfo(intent, userId);
