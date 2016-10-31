@@ -7,8 +7,13 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.lody.virtual.R;
+import com.lody.virtual.client.env.Constants;
+import com.lody.virtual.os.VUserHandle;
 
 public class ChooserActivity extends ResolverActivity {
+    public static final String EXTRA_DATA = "android.intent.extra.virtual.data";
+    public static final String EXTRA_WHO = "android.intent.extra.virtual.who";
+    public static final String EXTRA_REQUEST_CODE = "android.intent.extra.virtual.request_code";
 
     public static boolean check(Intent intent) {
         try {
@@ -21,6 +26,10 @@ public class ChooserActivity extends ResolverActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Intent intent = getIntent();
+        int userId = intent.getIntExtra(Constants.EXTRA_USER_HANDLE, VUserHandle.getCallingUserId());
+        mOptions = intent.getParcelableExtra(EXTRA_DATA);
+        mResultWho = intent.getStringExtra(EXTRA_WHO);
+        mRequestCode = intent.getIntExtra(EXTRA_REQUEST_CODE, 0);
         Parcelable targetParcelable = intent.getParcelableExtra(Intent.EXTRA_INTENT);
         if (!(targetParcelable instanceof Intent)) {
             Log.w("ChooseActivity", "Target is not an intent: " + targetParcelable);
@@ -46,6 +55,6 @@ public class ChooserActivity extends ResolverActivity {
                 initialIntents[i] = (Intent) pa[i];
             }
         }
-        super.onCreate(savedInstanceState, target, title, initialIntents, null, false);
+        super.onCreate(savedInstanceState, target, title, initialIntents, null, false, userId);
     }
 }

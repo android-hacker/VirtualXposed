@@ -21,8 +21,6 @@ import android.os.Build;
 import android.os.Bundle;
 
 import android.os.PatternMatcher;
-import android.os.RemoteException;
-import android.os.UserHandle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,6 +33,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.lody.virtual.R;
+import com.lody.virtual.client.VClientImpl;
+import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.os.VUserHandle;
 
 import java.util.ArrayList;
@@ -48,7 +49,9 @@ import java.util.Set;
 public class ResolverActivity extends Activity implements AdapterView.OnItemClickListener {
     private static final String TAG = "ResolverActivity";
     private static final boolean DEBUG = false;
-
+    protected Bundle mOptions;
+    protected String mResultWho;
+    protected int mRequestCode;
     private int mLaunchedFromUid;
     private ResolveListAdapter mAdapter;
     private PackageManager mPm;
@@ -61,7 +64,7 @@ public class ResolverActivity extends Activity implements AdapterView.OnItemClic
     private int mIconSize;
     private int mMaxColumns;
     private int mLastSelected = ListView.INVALID_POSITION;
-
+    private AlertDialog dialog;
     private boolean mRegistered;
 
     private Intent makeMyIntent() {
@@ -86,14 +89,14 @@ public class ResolverActivity extends Activity implements AdapterView.OnItemClic
         }
 
         onCreate(savedInstanceState, intent, getResources().getText(titleResource),
-                null, null, true);
+                null, null, true, VUserHandle.getCallingUserId());
     }
 
     protected void onCreate(Bundle savedInstanceState, Intent intent,
                             CharSequence title, Intent[] initialIntents, List<ResolveInfo> rList,
-                            boolean alwaysUseOption) {
+                            boolean alwaysUseOption,int userid) {
         super.onCreate(savedInstanceState);
-        mLaunchedFromUid = VUserHandle.getCallingUserId();
+        mLaunchedFromUid = userid;
         mPm = getPackageManager();
         mAlwaysUseOption = alwaysUseOption;
         mMaxColumns = getResources().getInteger(R.integer.config_maxResolverActivityColumns);
@@ -116,7 +119,7 @@ public class ResolverActivity extends Activity implements AdapterView.OnItemClic
         }
 
         if (count == 1) {
-            startActivity(mAdapter.intentForPosition(0));
+            startSelected(0, false);
             mRegistered = false;
             finish();
             return;
@@ -141,7 +144,7 @@ public class ResolverActivity extends Activity implements AdapterView.OnItemClic
                 finish();
             }
         });
-        builder.show();
+        dialog = builder.show();
 //
 //        if (alwaysUseOption) {
 //            final ViewGroup buttonLayout = (ViewGroup) findViewById(R.id.button_bar);
@@ -159,6 +162,14 @@ public class ResolverActivity extends Activity implements AdapterView.OnItemClic
 //                onItemClick(null, null, initialHighlight, 0); // Other entries are not used
 //            }
 //        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if(dialog != null && dialog.isShowing()) {
+            dialog.dismiss();
+        }
+        super.onDestroy();
     }
 
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
@@ -358,20 +369,25 @@ public class ResolverActivity extends Activity implements AdapterView.OnItemClic
                     getPackageManager().addPreferredActivity(filter, bestMatch, set,
                             intent.getComponent());
                 } else {
-//                    try {
-//                        AppGlobals.getPackageManager().setLastChosenActivity(intent,
-//                                intent.resolveTypeIfNeeded(getContentResolver()),
-//                                PackageManager.MATCH_DEFAULT_ONLY,
-//                                filter, bestMatch, intent.getComponent());
-//                    } catch (RemoteException re) {
-//                        Log.d(TAG, "Error calling setLastChosenActivity\n" + re);
-//                    }
+                    try {
+                        Reflect.on( VClientImpl.getClient().getCurrentApplication().getPackageManager()).call("setLastChosenActivity",
+                                intent,
+                                intent.resolveTypeIfNeeded(getContentResolver()),
+                                PackageManager.MATCH_DEFAULT_ONLY,
+                                filter, bestMatch, intent.getComponent());
+                    } catch (Exception re) {
+                        Log.d(TAG, "Error calling setLastChosenActivity\n" + re);
+                    }
                 }
             }
         }
 
         if (intent != null) {
-            startActivity(intent);
+            Log.i("kk", "intent="+intent);
+            int res=VActivityManager.get().startActivity(intent, null, mOptions, mResultWho, mRequestCode, mLaunchedFromUid);
+//            if (res != 0 && resultTo != null && mRequestCode > 0) {
+//                VActivityManager.get().sendActivityResult(resultTo, mResultWho, mRequestCode);
+//            }
         }
     }
 
