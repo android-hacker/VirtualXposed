@@ -47,10 +47,7 @@ import java.lang.reflect.Method;
 		if (ComponentUtils.isStubComponent(intent)) {
 			return method.invoke(who, args);
 		}
-		ActivityInfo activityInfo = VirtualCore.get().resolveActivityInfo(intent, userId);
-		if (activityInfo == null) {
-			return method.invoke(who, args);
-		}
+
 		String resultWho = null;
 		int requestCode = 0;
 		Bundle options = ArrayUtils.getFirst(args, Bundle.class);
@@ -70,6 +67,11 @@ import java.lang.reflect.Method;
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
 			args[intentIndex - 1] = getHostPkg();
+		}
+
+		ActivityInfo activityInfo = VirtualCore.get().resolveActivityInfo(intent, userId);
+		if (activityInfo == null) {
+			return method.invoke(who, args);
 		}
 
 		int res = VActivityManager.get().startActivity(intent, activityInfo, resultTo, options, resultWho, requestCode, VUserHandle.myUserId());
