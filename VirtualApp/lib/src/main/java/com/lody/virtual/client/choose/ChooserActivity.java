@@ -14,10 +14,18 @@ public class ChooserActivity extends ResolverActivity {
     public static final String EXTRA_DATA = "android.intent.extra.virtual.data";
     public static final String EXTRA_WHO = "android.intent.extra.virtual.who";
     public static final String EXTRA_REQUEST_CODE = "android.intent.extra.virtual.request_code";
+    public static final String ACTION;
+
+    static {
+        //各个rom的action适配
+        Intent target = new Intent();
+        Intent intent = Intent.createChooser(target, "");
+        ACTION = intent.getAction();
+    }
 
     public static boolean check(Intent intent) {
         try {
-            return TextUtils.equals(Intent.ACTION_CHOOSER, intent.getAction());
+            return TextUtils.equals(Intent.ACTION_CHOOSER, intent.getAction()) || TextUtils.equals(ACTION, intent.getAction());
         } catch (Exception e) {
         }
         return false;
