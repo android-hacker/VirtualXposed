@@ -1,4 +1,4 @@
-package com.lody.virtual.client.stub;
+package com.lody.virtual.client.choose;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
