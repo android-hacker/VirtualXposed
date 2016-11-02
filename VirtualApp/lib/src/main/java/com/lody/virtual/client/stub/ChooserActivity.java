@@ -1,12 +1,12 @@
-package com.lody.virtual.client.choose;
+package com.lody.virtual.client.stub;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.lody.virtual.R;
+import com.lody.virtual.helper.utils.VLog;
 
 public class ChooserActivity extends ResolverActivity {
 
@@ -14,6 +14,7 @@ public class ChooserActivity extends ResolverActivity {
         try {
             return TextUtils.equals(Intent.ACTION_CHOOSER, intent.getAction());
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return false;
     }
@@ -23,7 +24,7 @@ public class ChooserActivity extends ResolverActivity {
         Intent intent = getIntent();
         Parcelable targetParcelable = intent.getParcelableExtra(Intent.EXTRA_INTENT);
         if (!(targetParcelable instanceof Intent)) {
-            Log.w("ChooseActivity", "Target is not an intent: " + targetParcelable);
+            VLog.w("ChooseActivity", "Target is not an intent: " + targetParcelable);
             finish();
             return;
         }
@@ -38,7 +39,7 @@ public class ChooserActivity extends ResolverActivity {
             initialIntents = new Intent[pa.length];
             for (int i = 0; i < pa.length; i++) {
                 if (!(pa[i] instanceof Intent)) {
-                    Log.w("ChooseActivity", "Initial intent #" + i
+                    VLog.w("ChooseActivity", "Initial intent #" + i
                             + " not an Intent: " + pa[i]);
                     finish();
                     return;
