@@ -250,7 +250,7 @@
                 <data android:scheme="package"/>
             </intent-filter>
         </activity>
-        <activity android:name=".client.choose.ChooserActivity"
+        <activity android:name=".client.stub.ChooserActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
             android:excludeFromRecents="true"
             android:exported="true"

@@ -25,12 +25,11 @@ import mirror.android.app.ActivityThread;
 public final class AppInstrumentation extends InstrumentationDelegate implements Injectable {
 
 	private static final String TAG = AppInstrumentation.class.getSimpleName();
+
 	private static AppInstrumentation gDefault;
-	private ActivityDelegate activityDelegate;
 
 	private AppInstrumentation(Instrumentation base) {
 		super(base);
-		activityDelegate = VirtualCore.get().getActivityDelegate();
 	}
 
 	public static AppInstrumentation getDefault() {
@@ -65,6 +64,7 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 
 	@Override
 	public void callActivityOnCreate(Activity activity, Bundle icicle) {
+        VirtualCore.get().getComponentDelegate().beforeActivityCreate(activity);
 		IBinder token = mirror.android.app.Activity.mToken.get(activity);
 		ActivityClientRecord r = VActivityManager.get().getActivityRecord(token);
 		if (r != null) {
@@ -86,13 +86,11 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
             }
         }
 		super.callActivityOnCreate(activity, icicle);
-		if(activityDelegate!=null){
-			activityDelegate.onActivityCreate(activity);
-		}
 	}
 
 	@Override
 	public void callActivityOnResume(Activity activity) {
+        VirtualCore.get().getComponentDelegate().beforeActivityResume(activity);
 		VActivityManager.get().onActivityResumed(activity);
 		super.callActivityOnResume(activity);
 		Intent intent = activity.getIntent();
@@ -101,26 +99,20 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 			IBinder loadingPageToken = BundleCompat.getBinder(bundle, "_VA_|_loading_token_");
 			ActivityManagerCompat.finishActivity(loadingPageToken, -1, null);
 		}
-		if(activityDelegate!=null){
-			activityDelegate.onActivityResumed(activity);
-		}
 	}
 
 	@Override
 	public void callActivityOnDestroy(Activity activity) {
+        VirtualCore.get().getComponentDelegate().beforeActivityDestroy(activity);
 		super.callActivityOnDestroy(activity);
-		if(activityDelegate!=null){
-			activityDelegate.onActivityDestroy(activity);
-		}
 	}
 
 	@Override
 	public void callActivityOnPause(Activity activity) {
+        VirtualCore.get().getComponentDelegate().beforeActivityPause(activity);
 		super.callActivityOnPause(activity);
-		if(activityDelegate!=null){
-			activityDelegate.onActivityPaused(activity);
-		}
 	}
+
 
 	@Override
 	public void callApplicationOnCreate(Application app) {

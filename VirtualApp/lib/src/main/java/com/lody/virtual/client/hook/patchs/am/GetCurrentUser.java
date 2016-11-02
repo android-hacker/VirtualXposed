@@ -11,7 +11,7 @@ import mirror.android.content.pm.UserInfo;
  * @author Lody
  */
 
-public class GetCurrentUser extends Hook {
+/*package*/ class GetCurrentUser extends Hook {
 
 	@Override
 	public String getName() {

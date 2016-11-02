@@ -10,7 +10,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.TypedValue;
 
-import com.lody.virtual.client.choose.ChooserActivity;
+import com.lody.virtual.client.stub.ChooserActivity;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.local.ActivityClientRecord;
 import com.lody.virtual.client.local.VActivityManager;

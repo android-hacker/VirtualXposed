@@ -15,12 +15,12 @@ import java.lang.reflect.Proxy;
  * @author Lody
  */
 
-public abstract class StubBinder implements IBinder {
+abstract class StubBinder implements IBinder {
 	private ClassLoader mClassLoader;
 	private IBinder mBase;
 	private IInterface mInterface;
 
-	public StubBinder(ClassLoader classLoader, IBinder base) {
+	StubBinder(ClassLoader classLoader, IBinder base) {
 		this.mClassLoader = classLoader;
 		this.mBase = base;
 	}
@@ -42,9 +42,9 @@ public abstract class StubBinder implements IBinder {
 
 
 	/**
-	 * Anti Proguard
+	 * Anti the Proguard.
 	 *
-	 * Search the AidlClass.Stub.asInterface(IBinder) method.
+	 * Search the AidlClass.Stub.asInterface(IBinder) method by the StackTrace.
 	 *
 	 */
 	@Override

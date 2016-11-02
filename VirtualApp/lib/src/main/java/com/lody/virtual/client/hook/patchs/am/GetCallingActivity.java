@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
  *
  */
 
-public class GetCallingActivity extends Hook {
+/*package*/ class GetCallingActivity extends Hook {
 
 	@Override
 	public String getName() {
