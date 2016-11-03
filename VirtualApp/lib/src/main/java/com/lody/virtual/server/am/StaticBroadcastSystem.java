@@ -1,5 +1,10 @@
 package com.lody.virtual.server.am;
 
+import com.lody.virtual.client.env.SpecialComponentList;
+import com.lody.virtual.helper.proto.AppSetting;
+import com.lody.virtual.helper.utils.collection.ArrayMap;
+import com.lody.virtual.server.pm.VAppManagerService;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -7,11 +12,6 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageParser;
 import android.os.Handler;
-
-import com.lody.virtual.client.env.SpecialComponentList;
-import com.lody.virtual.helper.proto.AppSetting;
-import com.lody.virtual.helper.utils.collection.ArrayMap;
-import com.lody.virtual.server.pm.VAppManagerService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,6 +85,7 @@ public class StaticBroadcastSystem {
 				mContext.unregisterReceiver(r);
 			}
 		}
+		mReceivers.remove(packageName);
 	}
 
 	private static final class StaticScheduler extends Handler {
