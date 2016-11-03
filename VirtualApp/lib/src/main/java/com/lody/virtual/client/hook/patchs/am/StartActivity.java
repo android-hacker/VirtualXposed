@@ -10,8 +10,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.TypedValue;
 
-import com.lody.virtual.client.choose.ChooserActivity;
+import com.lody.virtual.client.stub.ChooserActivity;
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.local.ActivityClientRecord;
 import com.lody.virtual.client.local.VActivityManager;
 import com.lody.virtual.helper.utils.ArrayUtils;
@@ -46,14 +47,7 @@ import java.lang.reflect.Method;
 		if (ComponentUtils.isStubComponent(intent)) {
 			return method.invoke(who, args);
 		}
-		if(ChooserActivity.check(intent)){
-			intent.setComponent(new ComponentName(getHostContext(), ChooserActivity.class));
-			return method.invoke(who, args);
-		}
-		ActivityInfo activityInfo = VirtualCore.get().resolveActivityInfo(intent, userId);
-		if (activityInfo == null) {
-			return method.invoke(who, args);
-		}
+
 		String resultWho = null;
 		int requestCode = 0;
 		Bundle options = ArrayUtils.getFirst(args, Bundle.class);
@@ -61,9 +55,23 @@ import java.lang.reflect.Method;
 			resultWho = (String) args[resultToIndex + 1];
 			requestCode = (int) args[resultToIndex + 2];
 		}
+		// chooser
+		if(ChooserActivity.check(intent)){
+			intent.setComponent(new ComponentName(getHostContext(), ChooserActivity.class));
+			intent.putExtra(Constants.EXTRA_USER_HANDLE, userId);
+			intent.putExtra(ChooserActivity.EXTRA_DATA, options);
+			intent.putExtra(ChooserActivity.EXTRA_WHO, resultWho);
+			intent.putExtra(ChooserActivity.EXTRA_REQUEST_CODE, requestCode);
+			return  method.invoke(who, args);
+		}
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
 			args[intentIndex - 1] = getHostPkg();
+		}
+
+		ActivityInfo activityInfo = VirtualCore.get().resolveActivityInfo(intent, userId);
+		if (activityInfo == null) {
+			return method.invoke(who, args);
 		}
 
 		int res = VActivityManager.get().startActivity(intent, activityInfo, resultTo, options, resultWho, requestCode, VUserHandle.myUserId());

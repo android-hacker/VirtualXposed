@@ -511,7 +511,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 				synchronized (r.task.activities) {
 					r.task.activities.remove(r);
 					// We shouldn't remove task at this point,
-					// it will removed by optimizeTasksLocked().
+					// it will be removed by optimizeTasksLocked().
 				}
 			}
 			return false;

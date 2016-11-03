@@ -10,13 +10,13 @@ import jonathanfinerty.once.Once;
 /**
  * @author Lody
  */
-public class HomePresenterImpl implements HomeContract.HomePresenter {
+class HomePresenterImpl implements HomeContract.HomePresenter {
 
 	private HomeContract.HomeView mView;
 	private Activity mActivity;
 	private AppRepository mRepo;
 
-	public HomePresenterImpl(HomeContract.HomeView view, Activity activity) {
+	HomePresenterImpl(HomeContract.HomeView view, Activity activity) {
 		mView = view;
 		mActivity = activity;
 		mRepo = new AppRepository(activity);

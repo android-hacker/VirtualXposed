@@ -9,9 +9,6 @@ import com.lody.virtual.client.hook.utils.HookUtils;
 
 /**
  * @author Lody
- *
- * @see android.os.storage.IMountService#mkdirs(String, String)
- *
  */
 /* package */ class Mkdirs extends Hook {
 

@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
  * @author Lody
  *
  */
-public class CheckPermission extends Hook {
+/*package*/ class CheckPermission extends Hook {
 
 	@Override
 	public String getName() {

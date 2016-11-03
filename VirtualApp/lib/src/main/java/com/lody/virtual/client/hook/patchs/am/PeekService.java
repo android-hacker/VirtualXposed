@@ -11,7 +11,6 @@ import android.content.Intent;
 /**
  * @author Lody
  *
- * @see android.app.IActivityManager#peekService(Intent, String, String)
  */
 /* package */ class PeekService extends Hook {
 

@@ -61,7 +61,7 @@ public class ServiceManagerNative {
 	}
 
 	public static IBinder getService(String name) {
-		if (VirtualCore.get().isServiceProcess()) {
+		if (VirtualCore.get().isServerProcess()) {
 			return ServiceCache.getService(name);
 		}
 		IServiceFetcher fetcher = getServiceFetcher();

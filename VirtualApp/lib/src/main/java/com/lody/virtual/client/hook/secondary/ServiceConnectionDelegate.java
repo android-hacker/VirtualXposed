@@ -50,8 +50,6 @@ public class ServiceConnectionDelegate extends IServiceConnection.Stub {
             if (proxy != null) {
                 service = proxy;
             }
-        } else {
-            throw new RuntimeException("Boom");
         }
         mConn.connected(name, service);
     }

@@ -4,18 +4,14 @@ import android.app.Application;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.text.TextUtils;
 
 import com.lody.virtual.IOHook;
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.hook.base.DelegateResult;
-import com.lody.virtual.client.hook.delegate.PhoneInfoDelegate;
 import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.client.stub.StubManifest;
 import com.lody.virtual.helper.proto.InstallResult;
 import com.lody.virtual.helper.utils.VLog;
-import com.lody.virtual.os.VUserHandle;
 
 import jonathanfinerty.once.Once;
 
@@ -54,7 +50,7 @@ public class VApp extends Application {
 		StubManifest.STUB_CP_AUTHORITY = BuildConfig.APPLICATION_ID+"."+StubManifest.STUB_DEF_AUTHORITY;
 		ServiceManagerNative.SERVICE_CP_AUTH = BuildConfig.APPLICATION_ID+"."+ServiceManagerNative.SERVICE_DEF_AUTH;
 		//
-		VirtualCore.get().setActivityDelegate(new MyActivityDelegate());
+		VirtualCore.get().setComponentDelegate(new MyComponentDelegate());
 		super.attachBaseContext(base);
 		try {
 			VirtualCore.get().startup(base);

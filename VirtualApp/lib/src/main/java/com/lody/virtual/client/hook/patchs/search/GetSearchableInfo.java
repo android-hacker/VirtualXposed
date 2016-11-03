@@ -10,9 +10,6 @@ import android.content.pm.ActivityInfo;
 
 /**
  * @author Lody
- *
- *
- * @see android.app.ISearchManager#getSearchableInfo(ComponentName)
  */
 /* package */ class GetSearchableInfo extends Hook {
 

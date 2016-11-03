@@ -292,18 +292,6 @@
             android:authorities="${applicationId}.virtual_stub_49"
             tools:replace="android:authorities"/>
         <!-- lib end -->
-
-        <meta-data
-            android:name="UMENG_APPKEY"
-            android:value="5792f68f67e58e08ee000ee1">
-        </meta-data>
-        <meta-data
-            android:name="UMENG_CHANNEL"
-            android:value="Umeng">
-        </meta-data>
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version"/>
     </application>
 
 

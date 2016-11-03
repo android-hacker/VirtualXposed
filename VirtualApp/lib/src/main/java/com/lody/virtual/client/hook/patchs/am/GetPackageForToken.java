@@ -10,11 +10,11 @@ import android.os.IBinder;
 /**
  * @author Lody
  *
- *         String getPackageForToken(IBinder token);
+ *  String getPackageForToken(IBinder token);
  *
  */
 
-public class GetPackageForToken extends Hook {
+/*package*/ class GetPackageForToken extends Hook {
 
 	@Override
 	public String getName() {

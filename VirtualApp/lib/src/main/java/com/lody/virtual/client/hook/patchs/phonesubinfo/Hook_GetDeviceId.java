@@ -16,9 +16,9 @@ class Hook_GetDeviceId extends ReplaceCallingPkgHook {
     @Override
     public Object afterCall(Object who, Method method, Object[] args, Object result) throws Throwable {
         if (VirtualCore.get().getPhoneInfoDelegate() != null) {
-            DelegateResult<String> o = VirtualCore.get().getPhoneInfoDelegate().getDeviceId(result);
+            DelegateResult<String> o = VirtualCore.get().getPhoneInfoDelegate().getDeviceId((String) result);
             if (o != null) {
-                return super.afterCall(who, method, args, o.getValue());
+                result = o.getValue();
             }
         }
         return super.afterCall(who, method, args, result);

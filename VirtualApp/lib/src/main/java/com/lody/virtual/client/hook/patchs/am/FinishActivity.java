@@ -15,7 +15,7 @@ import java.lang.reflect.Method;
  * @author Lody
  */
 
-public class FinishActivity extends Hook {
+/*package*/ class FinishActivity extends Hook {
 	@Override
 	public String getName() {
 		return "finishActivity";

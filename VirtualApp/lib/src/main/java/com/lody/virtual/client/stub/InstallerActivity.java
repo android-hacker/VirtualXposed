@@ -11,6 +11,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
+/**
+ * @author Lody
+ *
+ * The base class for cover the original APK installation UI.
+ *
+ * TODO: Implemention the UI.
+ *
+ */
 public class InstallerActivity extends Activity {
 	public static String installScheme = "file://";
 	public static String uninstallScheme = "package:";
