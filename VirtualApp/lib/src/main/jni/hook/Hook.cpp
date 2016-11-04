@@ -2,8 +2,6 @@
 // VirtualApp Native Project
 //
 #include "Hook.h"
-#include <asm/unistd.h>
-//#include <asm_unistd.h>
 
 static std::map<std::string/*orig_path*/, std::string/*new_path*/> IORedirectMap;
 static std::map<std::string/*orig_path*/, std::string/*new_path*/> RootIORedirectMap;
