@@ -3,8 +3,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := iohook
 
 LOCAL_CFLAGS := -Wno-error=format-security -fpermissive
-LOCAL_CFLAGS += -fno-rtti -fno-exceptions -Wall  -Wbitwise-op-parentheses
-LOCAL_CFLAGS += -D__ARCH_WANT_SYSCALL_NO_AT
+LOCAL_CFLAGS += -fno-rtti -fno-exceptions
 
 LOCAL_C_INCLUDES += $(LOCAL_PATH)
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/hook
