@@ -2,6 +2,8 @@
 // VirtualApp Native Project
 //
 #include "Hook.h"
+#include <asm/unistd.h>
+//#include <asm_unistd.h>
 
 static std::map<std::string/*orig_path*/, std::string/*new_path*/> IORedirectMap;
 static std::map<std::string/*orig_path*/, std::string/*new_path*/> RootIORedirectMap;
@@ -89,7 +91,7 @@ const char *HOOK::query(const char *org_path) {
 
 
 const char *HOOK::restore(const char *path) {
-
+    return path;
 }
 
 
@@ -149,7 +151,7 @@ HOOK_DEF(int, fstatat, int dirfd, const char *pathname, struct stat *buf, int fl
 // int fstat(const char *pathname, struct stat *buf, int flags);
 HOOK_DEF(int, fstat, const char *pathname, struct stat *buf) {
     const char *redirect_path = match_redirected_path(pathname);
-    int ret = syscall(__NR_fstatat64, redirect_path, buf);
+    int ret = syscall(__NR_fstat64, redirect_path, buf);
     FREE(redirect_path, pathname);
     return ret;
 }

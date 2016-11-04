@@ -1,1 +1,3 @@
 /build
+.externalNativeBuild/
+obj/

@@ -9,11 +9,10 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
-        ndk {
-            moduleName "iohook"
-            stl "stlport_static"
-            ldLibs "log"
-            abiFilters "armeabi", "x86"
+        externalNativeBuild {
+            ndkBuild {
+                abiFilters "armeabi","x86"
+            }
         }
     }
     buildTypes {
@@ -22,7 +21,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
+    externalNativeBuild {
+        ndkBuild {
+            path file("src/main/jni/Android.mk")
+        }
+    }
     lintOptions {
         checkReleaseBuilds false
         // Or, if you prefer, you can continue to check for errors in release builds,
