@@ -33,9 +33,7 @@ void redirect(JNIEnv *env, jclass jclazz, jstring orgPath, jstring newPath) {
     const char *new_path = env->GetStringUTFChars(newPath, NULL);
     HOOK::redirect(org_path, new_path);
 }
-void enableTurboDex(JNIEnv *env, jclass jclazz,jint enable){
-    HOOK::enableTurboDex(enable!=0);
-}
+
 jstring query(JNIEnv *env, jclass jclazz, jstring orgPath) {
     const char *org_path = env->GetStringUTFChars(orgPath, NULL);
     const char *redirected_path = HOOK::query(org_path);
@@ -51,7 +49,6 @@ jstring restore(JNIEnv *env, jclass jclazz, jstring redirectedPath) {
 
 
 static JNINativeMethod gMethods[] = {
-        NATIVE_METHOD((void *) enableTurboDex,  "enableTurboDex",       "(I)V"),
         NATIVE_METHOD((void *) hook_io,  "nativeHook",                  "(I)V"),
         NATIVE_METHOD((void *) redirect, "nativeRedirect",              "(Ljava/lang/String;Ljava/lang/String;)V"),
         NATIVE_METHOD((void *) query,    "nativeGetRedirectedPath",     "(Ljava/lang/String;)Ljava/lang/String;"),

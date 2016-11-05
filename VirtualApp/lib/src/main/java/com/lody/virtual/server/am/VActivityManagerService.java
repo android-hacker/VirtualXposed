@@ -932,8 +932,8 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		context.sendBroadcast(intent);
 	}
 
-	public boolean handleStaticBroadcast(int appId, ActivityInfo info, Intent intent, BroadcastReceiver receiver,
-										 BroadcastReceiver.PendingResult result) {
+	boolean handleStaticBroadcast(int appId, ActivityInfo info, Intent intent, BroadcastReceiver receiver,
+								  BroadcastReceiver.PendingResult result) {
 		// Maybe send from System
 		int userId = intent.getIntExtra("_VA_|_user_id_", VUserHandle.USER_ALL);
 		ComponentName component = intent.getParcelableExtra("_VA_|_component_");
@@ -967,8 +967,8 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 
-	public void handleStaticBroadcastAsUser(int uid, ActivityInfo info, Intent intent, BroadcastReceiver receiver,
-											BroadcastReceiver.PendingResult result) {
+	private void handleStaticBroadcastAsUser(int uid, ActivityInfo info, Intent intent, BroadcastReceiver receiver,
+											 BroadcastReceiver.PendingResult result) {
 		synchronized (this) {
 			ProcessRecord r = findProcessLocked(info.processName, uid);
 			if (BROADCAST_NOT_STARTED_PKG && r == null) {

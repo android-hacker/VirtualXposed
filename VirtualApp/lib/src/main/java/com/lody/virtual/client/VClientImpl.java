@@ -223,7 +223,7 @@ public final class VClientImpl extends IVClient.Stub {
 				super.start();
 			}
 		});
-		if (data.appInfo.targetSdkVersion < 9) {
+		if (data.appInfo.targetSdkVersion < Build.VERSION_CODES.GINGERBREAD) {
 			StrictMode.ThreadPolicy newPolicy = new StrictMode.ThreadPolicy.Builder(StrictMode.getThreadPolicy()).permitNetwork().build();
 			StrictMode.setThreadPolicy(newPolicy);
 		}
