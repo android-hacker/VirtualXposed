@@ -1,4 +1,4 @@
-package com.lody.virtual.client.local;
+package com.lody.virtual.client.ipc;
 
 import android.app.Activity;
 import android.app.IServiceConnection;
@@ -15,7 +15,6 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
-import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.proto.AppTaskInfo;
 import com.lody.virtual.helper.proto.PendingIntentData;

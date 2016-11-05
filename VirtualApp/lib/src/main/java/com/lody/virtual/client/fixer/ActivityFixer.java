@@ -45,13 +45,17 @@ public final class ActivityFixer {
 			ApplicationInfo applicationInfo = baseContext.getApplicationInfo();
 			PackageManager pm = activity.getPackageManager();
 			if (intent != null && activity.isTaskRoot()) {
-				String label = "" + applicationInfo.loadLabel(pm);
-				Bitmap icon = null;
-				Drawable drawable = applicationInfo.loadIcon(pm);
-				if (drawable instanceof BitmapDrawable) {
-					icon = ((BitmapDrawable) drawable).getBitmap();
+				try {
+					String label = applicationInfo.loadLabel(pm) + "";
+					Bitmap icon = null;
+					Drawable drawable = applicationInfo.loadIcon(pm);
+					if (drawable instanceof BitmapDrawable) {
+						icon = ((BitmapDrawable) drawable).getBitmap();
+					}
+					activity.setTaskDescription(new ActivityManager.TaskDescription(label, icon));
+				} catch (Throwable e) {
+					e.printStackTrace();
 				}
-				activity.setTaskDescription(new ActivityManager.TaskDescription(label, icon));
 			}
 
 		}

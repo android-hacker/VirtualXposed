@@ -4,12 +4,12 @@ import android.graphics.Bitmap;
 import android.os.RemoteException;
 import android.util.Log;
 
-import com.lody.virtual.client.service.ServiceManagerNative;
+import com.lody.virtual.client.ipc.ServiceManagerNative;
 import com.lody.virtual.service.IUserManager;
 
 import java.util.List;
 
-import static com.lody.virtual.client.service.ServiceManagerNative.USER;
+import static com.lody.virtual.client.ipc.ServiceManagerNative.USER;
 
 /**
  * Manages users and user details on a multi-user system.

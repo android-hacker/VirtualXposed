@@ -1,8 +1,7 @@
-package com.lody.virtual.client.local;
+package com.lody.virtual.client.ipc;
 
 import android.os.IBinder;
 
-import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.service.interfaces.IIntentFilterObserver;
 
 /**

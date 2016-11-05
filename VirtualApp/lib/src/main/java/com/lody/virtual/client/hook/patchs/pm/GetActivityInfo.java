@@ -3,7 +3,7 @@ package com.lody.virtual.client.hook.patchs.pm;
 import android.content.ComponentName;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.VPackageManager;
+import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;

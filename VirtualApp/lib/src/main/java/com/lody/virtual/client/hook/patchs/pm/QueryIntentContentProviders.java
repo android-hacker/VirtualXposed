@@ -6,7 +6,7 @@ import android.content.pm.ResolveInfo;
 import android.os.Build;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.VPackageManager;
+import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.helper.compat.ParceledListSliceCompat;
 import com.lody.virtual.os.VUserHandle;
 

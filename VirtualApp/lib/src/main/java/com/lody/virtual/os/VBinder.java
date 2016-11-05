@@ -2,7 +2,7 @@ package com.lody.virtual.os;
 
 import android.os.Binder;
 
-import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.client.ipc.VActivityManager;
 
 /**
  * @author Lody

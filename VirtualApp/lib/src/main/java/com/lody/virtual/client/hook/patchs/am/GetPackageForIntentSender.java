@@ -7,7 +7,7 @@ import android.os.IBinder;
 import android.os.IInterface;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.helper.proto.PendingIntentData;
 
 import java.lang.reflect.Method;

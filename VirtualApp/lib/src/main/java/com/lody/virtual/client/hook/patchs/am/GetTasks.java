@@ -1,11 +1,10 @@
 package com.lody.virtual.client.hook.patchs.am;
 
 import java.lang.reflect.Method;
-import java.util.Iterator;
 import java.util.List;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.helper.proto.AppTaskInfo;
 
 import android.app.ActivityManager;

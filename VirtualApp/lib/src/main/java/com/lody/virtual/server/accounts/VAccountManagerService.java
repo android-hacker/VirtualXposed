@@ -29,7 +29,7 @@ import android.util.SparseArray;
 import android.util.Xml;
 
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.helper.compat.AccountManagerCompat;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VBinder;

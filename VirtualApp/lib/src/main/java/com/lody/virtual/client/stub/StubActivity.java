@@ -8,7 +8,7 @@ import android.text.TextUtils;
 import com.lody.virtual.client.core.PatchManager;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.hook.patchs.am.HCallbackHook;
-import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.helper.proto.StubActivityRecord;
 import com.lody.virtual.os.VUserHandle;
 

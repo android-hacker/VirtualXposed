@@ -4,7 +4,7 @@ import android.app.IServiceConnection;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.secondary.ServiceConnectionDelegate;
-import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.client.ipc.VActivityManager;
 
 import java.lang.reflect.Method;
 

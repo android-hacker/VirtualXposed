@@ -12,8 +12,8 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.fixer.ActivityFixer;
 import com.lody.virtual.client.fixer.ContextFixer;
 import com.lody.virtual.client.interfaces.Injectable;
-import com.lody.virtual.client.local.ActivityClientRecord;
-import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.client.ipc.ActivityClientRecord;
+import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.compat.BundleCompat;
 

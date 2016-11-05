@@ -1,4 +1,4 @@
-package com.lody.virtual.client.local;
+package com.lody.virtual.client.ipc;
 
 import android.content.ComponentName;
 import android.content.Intent;
@@ -14,7 +14,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.env.VirtualRuntime;
-import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.helper.proto.ReceiverInfo;
 import com.lody.virtual.service.IPackageManager;
 

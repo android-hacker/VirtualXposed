@@ -1,4 +1,4 @@
-package com.lody.virtual.client.service;
+package com.lody.virtual.client.ipc;
 
 import android.content.ContentResolver;
 import android.content.Context;

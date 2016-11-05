@@ -1,4 +1,4 @@
-package com.lody.virtual.client.local;
+package com.lody.virtual.client.ipc;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;

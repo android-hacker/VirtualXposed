@@ -174,7 +174,7 @@ void searchJniOffset(JNIEnv *env, bool isArt) {
         }
         offset += 4;
         if (offset >= 100) {
-            LOGE("Ops: Unable to find the jni function.");
+            LOGE("Error: Unable to find the jni function.");
             break;
         }
     }
@@ -183,7 +183,6 @@ void searchJniOffset(JNIEnv *env, bool isArt) {
         if (!isArt) {
             gOffset.nativeOffset += (sizeof(int) + sizeof(void*));
         }
-        LOGD("Hoho, Get the offset : %d.", gOffset.nativeOffset);
     }
 }
 

@@ -8,7 +8,7 @@ import android.os.Bundle;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.binders.AccountBinderDelegate;
-import com.lody.virtual.client.local.VAccountManager;
+import com.lody.virtual.client.ipc.VAccountManager;
 
 import java.lang.reflect.Method;
 

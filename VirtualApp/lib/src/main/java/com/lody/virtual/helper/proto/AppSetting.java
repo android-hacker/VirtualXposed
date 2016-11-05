@@ -5,7 +5,7 @@ import android.content.pm.PackageParser;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.lody.virtual.client.local.VPackageManager;
+import com.lody.virtual.client.ipc.VPackageManager;
 
 import java.io.File;
 

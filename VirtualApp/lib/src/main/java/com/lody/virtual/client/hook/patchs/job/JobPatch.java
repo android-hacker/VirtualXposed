@@ -8,7 +8,7 @@ import android.os.Build;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.binders.JobBinderDelegate;
-import com.lody.virtual.client.local.VJobScheduler;
+import com.lody.virtual.client.ipc.VJobScheduler;
 
 import java.lang.reflect.Method;
 

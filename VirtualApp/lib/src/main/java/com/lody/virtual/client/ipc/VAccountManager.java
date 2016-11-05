@@ -1,4 +1,4 @@
-package com.lody.virtual.client.local;
+package com.lody.virtual.client.ipc;
 
 import android.accounts.Account;
 import android.accounts.AuthenticatorDescription;
@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.env.VirtualRuntime;
-import com.lody.virtual.client.service.ServiceManagerNative;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.service.IAccountManager;
 

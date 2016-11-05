@@ -32,7 +32,7 @@ import android.widget.TextView;
 
 import com.lody.virtual.R;
 import com.lody.virtual.client.VClientImpl;
-import com.lody.virtual.client.local.VActivityManager;
+import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
