@@ -70,18 +70,6 @@ public class VActivityManager {
 		}
 	}
 
-	public int startActivity(Intent intent, IBinder resultTo, Bundle options, String resultWho, int requestCode, int userId) {
-		ActivityInfo info = VirtualCore.get().resolveActivityInfo(intent, userId);
-		if (info == null) {
-			return ActivityManagerCompat.START_INTENT_NOT_RESOLVED;
-		}
-		try {
-			return getService().startActivity(intent, info, resultTo, options, resultWho, requestCode, userId);
-		} catch (RemoteException e) {
-			return VirtualRuntime.crash(e);
-		}
-	}
-
 	public int startActivity(Intent intent, int userId) {
 		if (userId < 0) {
 			return ActivityManagerCompat.START_NOT_CURRENT_USER_ACTIVITY;
