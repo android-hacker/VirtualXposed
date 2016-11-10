@@ -30,12 +30,8 @@ public class PackageCache {
 
 	public static PackageParser.Package remove(String packageName) {
 		synchronized (PackageCache.class) {
-			PackageParser.Package p = sPackageCaches.remove(packageName);
-			if (p != null) {
-				VPackageManagerService.get().deletePackageLocked(packageName);
-				return p;
-			}
-			return null;
+			VPackageManagerService.get().deletePackageLocked(packageName);
+			return sPackageCaches.remove(packageName);
 		}
 	}
 }
