@@ -4,6 +4,26 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.lody.virtual">
 
+    <uses-permission android:name="com.huawei.authentication.HW_ACCESS_AUTH_SERVICE"/>
+
+    <uses-permission android:name="com.samsung.svoice.sync.READ_DATABASE"/>
+    <uses-permission android:name="com.samsung.svoice.sync.ACCESS_SERVICE"/>
+    <uses-permission android:name="com.samsung.svoice.sync.WRITE_DATABASE"/>
+    <uses-permission android:name="com.sec.android.app.voicenote.Controller"/>
+    <uses-permission android:name="com.sec.android.permission.VOIP_INTERFACE"/>
+    <uses-permission android:name="com.sec.android.permission.LAUNCH_PERSONAL_PAGE_SERVICE"/>
+    <uses-permission android:name="com.samsung.android.providers.context.permission.WRITE_USE_APP_FEATURE_SURVEY"/>
+    <uses-permission android:name="com.samsung.android.providers.context.permission.READ_RECORD_AUDIO"/>
+    <uses-permission android:name="com.samsung.android.providers.context.permission.WRITE_RECORD_AUDIO"/>
+    <uses-permission android:name="com.sec.android.settings.permission.SOFT_RESET"/>
+    <uses-permission android:name="sec.android.permission.READ_MSG_PREF"/>
+    <uses-permission android:name="com.samsung.android.scloud.backup.lib.read"/>
+    <uses-permission android:name="com.samsung.android.scloud.backup.lib.write"/>
+
+    <uses-permission android:name="android.permission.BIND_DIRECTORY_SEARCH"/>
+    <uses-permission android:name="android.permission.UPDATE_APP_OPS_STATS"/>
+    <uses-permission android:name="com.android.voicemail.permission.READ_WRITE_ALL_VOICEMAIL"/>
+
     <uses-permission
         android:name="android.permission.ACCOUNT_MANAGER"
         tools:ignore="ProtectedPermissions"/>
@@ -44,7 +64,6 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
     <uses-permission android:name="android.permission.GET_PACKAGE_SIZE"/>
     <uses-permission android:name="android.permission.GET_TASKS"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES"/>
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
@@ -79,7 +98,6 @@
     <uses-permission android:name="android.permission.SUBSCRIBED_FEEDS_WRITE"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.TRANSMIT_IR"/>
-    <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
     <uses-permission android:name="android.permission.USE_SIP"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
@@ -175,7 +193,6 @@
     <uses-permission android:name="android.permission.ACCESS_DOWNLOAD_MANAGER"/>
     <uses-permission android:name="com.android.launcher.permission.READ_SETTINGS"/>
     <uses-permission android:name="com.android.launcher.permission.WRITE_SETTINGS"/>
-    <uses-permission android:name="com.android.launcher.permission.READ_SETTINGS"/>
     <uses-permission android:name="com.android.launcher3.permission.READ_SETTINGS"/>
     <uses-permission android:name="com.android.launcher2.permission.READ_SETTINGS"/>
     <uses-permission android:name="com.teslacoilsw.launcher.permission.READ_SETTINGS"/>
@@ -192,7 +209,7 @@
     <uses-permission android:name="cn.nubia.launcher.permission.READ_SETTINGS"/>
     <uses-permission android:name="com.huawei.android.launcher.permission.READ_SETTINGS"/>
     <uses-permission android:name="com.huawei.android.launcher.permission.CHANGE_BADGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
     <uses-permission
         android:name="android.permission.WRITE_APN_SETTINGS"
         tools:ignore="ProtectedPermissions"/>
