@@ -25,7 +25,8 @@ static inline void hook_template(const char *lib_so, const char *symbol, void *n
 
 static inline bool startWith(const std::string &str, const std::string &prefix)
 {
-    return str.find(prefix) == 0;
+    return str.compare(0, prefix.length(), prefix) == 0;
+    //return str.find(prefix) == 0;
 }
 
 
@@ -62,8 +63,8 @@ const char *match_redirected_path(const char *_path) {
     }
 
     for (iterator = IORedirectMap.begin(); iterator != IORedirectMap.end(); iterator++) {
-        std::string prefix = iterator->first;
-        std::string new_prefix = iterator->second;
+        const std::string& prefix = iterator->first;
+        const std::string& new_prefix = iterator->second;
         if (startWith(path, prefix)) {
             std::string new_path = new_prefix + path.substr(prefix.length(), path.length());
             return strdup(new_path.c_str());

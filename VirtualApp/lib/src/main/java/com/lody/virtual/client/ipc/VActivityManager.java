@@ -7,7 +7,6 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ProviderInfo;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.IInterface;
@@ -28,10 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import mirror.android.app.ActivityManagerNative;
 import mirror.android.app.ActivityThread;
-import mirror.android.app.IActivityManagerICS;
-import mirror.android.app.IActivityManagerL;
 import mirror.android.content.ContentProviderNative;
 
 /**
@@ -411,22 +407,7 @@ public class VActivityManager {
 			if (!mirror.android.app.Activity.mFinished.get(activity)) {
 				int resultCode = mirror.android.app.Activity.mResultCode.get(activity);
 				Intent resultData = mirror.android.app.Activity.mResultData.get(activity);
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-					IActivityManagerL.finishActivity.call(
-							ActivityManagerNative.getDefault.call(),
-							token,
-							resultCode,
-							resultData,
-							false
-					);
-				} else {
-					IActivityManagerICS.finishActivity.call(
-							ActivityManagerNative.getDefault.call(),
-							token,
-							resultCode,
-							resultData
-					);
-				}
+				ActivityManagerCompat.finishActivity(token, resultCode, resultData);
 				mirror.android.app.Activity.mFinished.set(activity, true);
 			}
 		}

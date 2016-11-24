@@ -1,7 +1,7 @@
 /*
  * Thumb.h
  *
- *  Created on: 2016Äê2ÔÂ22ÈÕ
+ *  Created on: 2016ï¿½ï¿½2ï¿½ï¿½22ï¿½ï¿½
  *      Author: peng
  */
 
@@ -76,7 +76,7 @@ static inline bool T$pcrel$b(uint16_t ic) {
 }
 
 static inline bool T2$pcrel$b(uint16_t *ic) {
-	return (ic[0] & 0xf800) == 0xf000 && ((ic[1] & 0xd000) == 0x9000 || (ic[1] & 0xd000) == 0x8000 && (ic[0] & 0x0380) != 0x0380);
+	return (ic[0] & 0xf800) == 0xf000 && ((ic[1] & 0xd000) == 0x9000 || ((ic[1] & 0xd000) == 0x8000 && (ic[0] & 0x0380) != 0x0380));
 }
 
 static inline bool T$pcrel$bl(uint16_t *ic) {

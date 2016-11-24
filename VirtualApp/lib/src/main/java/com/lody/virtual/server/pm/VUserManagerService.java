@@ -242,7 +242,7 @@ public class VUserManagerService extends IUserManager.Stub {
 
     private void sendUserInfoChangedBroadcast(int userId) {
         Intent changedIntent = new Intent(Constants.ACTION_USER_INFO_CHANGED);
-        changedIntent.putExtra(Intent.EXTRA_UID, userId);
+        changedIntent.putExtra(Constants.EXTRA_USER_HANDLE, userId);
         changedIntent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
         VActivityManagerService.get().sendBroadcastAsUser(changedIntent, new VUserHandle(userId));
     }
@@ -703,7 +703,7 @@ public class VUserManagerService extends IUserManager.Stub {
                 }
             }
             Intent addedIntent = new Intent(Constants.ACTION_USER_ADDED);
-            addedIntent.putExtra(Intent.EXTRA_UID, userInfo.id);
+            addedIntent.putExtra(Constants.EXTRA_USER_HANDLE, userInfo.id);
             VActivityManagerService.get().sendBroadcastAsUser(addedIntent, VUserHandle.ALL,
                         null);
         } finally {
@@ -753,7 +753,7 @@ public class VUserManagerService extends IUserManager.Stub {
         long identity = Binder.clearCallingIdentity();
         try {
             Intent addedIntent = new Intent(Constants.ACTION_USER_REMOVED);
-            addedIntent.putExtra(Intent.EXTRA_UID, userHandle);
+            addedIntent.putExtra(Constants.EXTRA_USER_HANDLE, userHandle);
             VActivityManagerService.get().sendOrderedBroadcastAsUser(addedIntent, VUserHandle.ALL,
                    null,
                     new BroadcastReceiver() {

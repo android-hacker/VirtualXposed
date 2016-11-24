@@ -87,6 +87,9 @@ public class VAppManagerService extends IAppManager.Stub {
 				}
 				if (appInfo == null || appInfo.publicSourceDir == null) {
 					FileUtils.deleteDir(appDir);
+                    for (int userId : VUserManagerService.get().getUserIds()) {
+                        FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(userId, pkgName));
+                    }
 					continue;
 				}
 				storeFile = new File(appInfo.publicSourceDir);

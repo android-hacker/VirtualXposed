@@ -788,7 +788,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 				for (int i = 0; i < uids.size(); i++) {
 					ProcessRecord r = uids.valueAt(i);
 					if (userId != VUserHandle.USER_ALL) {
-						if (!(getUserId(userId) == userId)) {
+                        if (r.userId != userId) {
 							continue;
 						}
 					}
@@ -890,7 +890,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 			int N = mPidsSelfLocked.size();
 			while (N-- > 0) {
 				ProcessRecord r = mPidsSelfLocked.valueAt(N);
-				if (r.vuid == userHandle) {
+                if (r.userId == userHandle) {
 					killProcess(r.pid);
 				}
 			}
