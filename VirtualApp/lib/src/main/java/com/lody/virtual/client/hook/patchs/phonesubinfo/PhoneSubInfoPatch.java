@@ -12,7 +12,7 @@ import mirror.android.os.ServiceManager;
  * @author Lody
  *
  */
-@Patch({Hook_GetDeviceId.class})
+@Patch({Hook_GetDeviceId.class, Hook_GetDeviceIdForSubscriber.class})
 public class PhoneSubInfoPatch extends PatchDelegate<PhoneSubInfoBinderDelegate> {
 	@Override
 	protected PhoneSubInfoBinderDelegate createHookDelegate() {
