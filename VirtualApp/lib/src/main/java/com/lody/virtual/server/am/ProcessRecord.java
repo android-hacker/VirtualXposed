@@ -11,21 +11,20 @@ import com.lody.virtual.os.VUserHandle;
 import java.util.HashSet;
 import java.util.Set;
 
-public final class ProcessRecord extends Binder {
+final class ProcessRecord extends Binder implements Comparable<ProcessRecord> {
 
-	public final ConditionVariable lock = new ConditionVariable();
+	final ConditionVariable lock = new ConditionVariable();
 	public final ApplicationInfo info; // all about the first app in the process
 	final public String processName; // name of the process
 	final Set<String> pkgList = new HashSet<>(); // List of packages
 	public IVClient client;
-	public IInterface appThread;
+	IInterface appThread;
 	public int pid;
 	public int vuid;
 	public int vpid;
 	public int userId;
-													// running in the
-													// process
 	boolean doneExecuting;
+    int priority;
 
 	public ProcessRecord(ApplicationInfo info, String processName, int vuid, int vpid) {
 		this.info = info;
@@ -45,4 +44,8 @@ public final class ProcessRecord extends Binder {
 		return processName != null ? processName.equals(record.processName) : record.processName == null;
 	}
 
+    @Override
+    public int compareTo(ProcessRecord another) {
+        return this.priority - another.priority;
+    }
 }

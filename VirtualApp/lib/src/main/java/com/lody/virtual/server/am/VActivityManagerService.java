@@ -975,14 +975,14 @@ public class VActivityManagerService extends IActivityManager.Stub {
 				r = startProcessIfNeedLocked(info.processName, getUserId(uid), info.packageName);
 			}
 			if (r != null && r.appThread != null) {
-				handleBroadcastIntent(r.appThread, getUserId(uid), info, intent, receiver.isOrderedBroadcast(),
+				performScheduleReceiver(r.appThread, getUserId(uid), info, intent, receiver.isOrderedBroadcast(),
 						result);
 			}
 		}
 	}
 
-	private void handleBroadcastIntent(IInterface thread, int sendingUser, ActivityInfo info, Intent intent,
-									   boolean sync, BroadcastReceiver.PendingResult result) {
+	private void performScheduleReceiver(IInterface thread, int sendingUser, ActivityInfo info, Intent intent,
+										 boolean sync, BroadcastReceiver.PendingResult result) {
 
 		ComponentName componentName = ComponentUtils.toComponentName(info);
 		if (intent.getComponent() != null && !componentName.equals(intent.getComponent())) {

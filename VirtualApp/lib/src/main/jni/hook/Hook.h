@@ -33,8 +33,6 @@ namespace HOOK {
     const char *query(const char *org_path);
 
     const char *restore(const char *redirected_path);
-
-    void enableTurboDex(bool enable);
 }
 
 #endif //NDK_HOOK_H

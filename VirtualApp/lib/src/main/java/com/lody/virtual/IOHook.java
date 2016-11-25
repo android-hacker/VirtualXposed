@@ -50,27 +50,27 @@ public class IOHook {
 		}
 	}
 
-	public static String getRedirectedPath(String orgPath) {
+	public static String getRedirectedPath(String origPath) {
 		try {
-			return nativeGetRedirectedPath(orgPath);
+			return nativeGetRedirectedPath(origPath);
 		} catch (Throwable e) {
 			VLog.e(TAG, VLog.getStackTraceString(e));
 		}
 		return null;
 	}
 
-	public static String restoreRedirectedPath(String orgPath) {
+	public static String restoreRedirectedPath(String origPath) {
 		try {
-			return nativeRestoreRedirectedPath(orgPath);
+			return nativeRestoreRedirectedPath(origPath);
 		} catch (Throwable e) {
 			VLog.e(TAG, VLog.getStackTraceString(e));
 		}
 		return null;
 	}
 
-	public static void redirect(String orgPath, String newPath) {
+	public static void redirect(String origPath, String newPath) {
 		try {
-			nativeRedirect(orgPath, newPath);
+			nativeRedirect(origPath, newPath);
 		} catch (Throwable e) {
 			VLog.e(TAG, VLog.getStackTraceString(e));
 		}

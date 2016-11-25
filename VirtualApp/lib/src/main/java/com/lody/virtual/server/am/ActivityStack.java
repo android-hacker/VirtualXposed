@@ -45,7 +45,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 	/**
 	 * [Key] = TaskId [Value] = TaskRecord
 	 */
-	private final SparseArray<TaskRecord> mHistory = new SparseArray<>();
+	final SparseArray<TaskRecord> mHistory = new SparseArray<>();
 
 
 	ActivityStack(VActivityManagerService mService) {

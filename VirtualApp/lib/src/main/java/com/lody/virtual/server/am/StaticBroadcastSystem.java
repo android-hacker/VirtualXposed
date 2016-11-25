@@ -95,6 +95,7 @@ public class StaticBroadcastSystem {
 	private final class StaticBroadcastReceiver extends BroadcastReceiver {
 		private int appId;
 		private ActivityInfo info;
+		@SuppressWarnings("unused")
 		private IntentFilter filter;
 
 		private StaticBroadcastReceiver(int appId, ActivityInfo info, IntentFilter filter) {
@@ -105,18 +106,19 @@ public class StaticBroadcastSystem {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if (!mApp.isBooting()) {
-				if (!isInitialStickyBroadcast()
-						&& (intent.getFlags() & FLAG_RECEIVER_REGISTERED_ONLY) == 0) {
-					return;
-				}
-				PendingResult result = goAsync();
-				synchronized (mAMS) {
-					if (!mAMS.handleStaticBroadcast(appId, info, intent, this, result)) {
-						result.finish();
-					}
-				}
+			if (mApp.isBooting()) {
+				return;
 			}
+			if (!isInitialStickyBroadcast()
+                    && (intent.getFlags() & FLAG_RECEIVER_REGISTERED_ONLY) == 0) {
+                return;
+            }
+			PendingResult result = goAsync();
+			synchronized (mAMS) {
+                if (!mAMS.handleStaticBroadcast(appId, info, intent, this, result)) {
+                    result.finish();
+                }
+            }
 		}
 	}
 }

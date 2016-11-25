@@ -13,5 +13,5 @@ public interface JobCompletedListener {
      * Callback for when a job is completed.
      * @param needsReschedule Whether the implementing class should reschedule this job.
      */
-    public void onJobCompleted(JobStatus jobStatus, boolean needsReschedule);
+    void onJobCompleted(JobStatus jobStatus, boolean needsReschedule);
 }

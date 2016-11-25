@@ -112,18 +112,15 @@ public class ActivityManagerPatch extends PatchDelegate<HookDelegate<IInterface>
 				public Object call(Object who, Method method, Object... args) throws Throwable {
 					//noinspection unchecked
 					List<ActivityManager.RecentTaskInfo> infos = (List<ActivityManager.RecentTaskInfo>) method.invoke(who, args);
-					Iterator<ActivityManager.RecentTaskInfo> iterator = infos.iterator();
-					while (iterator.hasNext()) {
-						ActivityManager.RecentTaskInfo info = iterator.next();
+					for (ActivityManager.RecentTaskInfo info : infos) {
 						AppTaskInfo taskInfo = VActivityManager.get().getTaskInfo(info.id);
 						if (taskInfo == null) {
-							iterator.remove();
 							continue;
 						}
 						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            info.baseActivity = taskInfo.baseActivity;
-                            info.topActivity = taskInfo.topActivity;
-                        }
+							info.baseActivity = taskInfo.baseActivity;
+							info.topActivity = taskInfo.topActivity;
+						}
 						info.origActivity = taskInfo.baseActivity;
 						info.baseIntent = taskInfo.baseIntent;
 					}
