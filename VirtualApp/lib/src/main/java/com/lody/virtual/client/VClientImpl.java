@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 
 import mirror.android.app.ActivityThread;
+import mirror.android.app.ActivityThreadNMR1;
 import mirror.android.app.ContextImpl;
 import mirror.android.app.ContextImplICS;
 import mirror.android.app.ContextImplKitkat;
@@ -176,11 +177,20 @@ public final class VClientImpl extends IVClient.Stub {
 		} else {
 			intent = data.intent;
 		}
-		ActivityThread.performNewIntents.call(
-				VirtualCore.mainThread(),
-				data.token,
-				Collections.singletonList(intent)
-		);
+		if (Build.VERSION.SDK_INT <= 24) {
+            ActivityThread.performNewIntents.call(
+                    VirtualCore.mainThread(),
+                    data.token,
+                    Collections.singletonList(intent)
+            );
+		} else {
+            ActivityThreadNMR1.performNewIntents.call(
+                    VirtualCore.mainThread(),
+                    data.token,
+                    Collections.singletonList(intent),
+                    true
+            );
+        }
 	}
 
 	public void bindApplication(final String packageName, final String processName) {
