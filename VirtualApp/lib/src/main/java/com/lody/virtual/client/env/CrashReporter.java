@@ -3,6 +3,7 @@ package com.lody.virtual.client.env;
 import android.os.Environment;
 import android.os.Process;
 
+import com.lody.virtual.helper.compat.SystemPropertiesCompat;
 import com.lody.virtual.helper.utils.VLog;
 
 import java.io.File;

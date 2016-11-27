@@ -52,6 +52,7 @@ import mirror.android.app.LoadedApk;
 import mirror.android.renderscript.RenderScriptCacheDir;
 import mirror.android.view.HardwareRenderer;
 import mirror.android.view.RenderScript;
+import mirror.android.view.ThreadedRenderer;
 import mirror.com.android.internal.content.ReferrerIntent;
 import mirror.dalvik.system.VMRuntime;
 
@@ -248,9 +249,15 @@ public final class VClientImpl extends IVClient.Stub {
 		} else {
 			codeCacheDir = context.getCacheDir();
 		}
-		if (HardwareRenderer.setupDiskCache != null) {
-			HardwareRenderer.setupDiskCache.call(codeCacheDir);
-		}
+		if (Build.VERSION.SDK_INT < 24) {
+            if (HardwareRenderer.setupDiskCache != null) {
+                HardwareRenderer.setupDiskCache.call(codeCacheDir);
+            }
+        } else {
+            if (ThreadedRenderer.setupDiskCache != null) {
+                ThreadedRenderer.setupDiskCache.call(codeCacheDir);
+            }
+        }
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			if (RenderScriptCacheDir.setupDiskCache != null) {
 				RenderScriptCacheDir.setupDiskCache.call(codeCacheDir);
@@ -276,7 +283,6 @@ public final class VClientImpl extends IVClient.Stub {
 			if (ContextImplKitkat.mExternalFilesDirs != null) {
 				ContextImplKitkat.mExternalFilesDirs.set(context, new File[] {filesDir});
 			}
-
 		}
 		Object boundApp = fixBoundApp(mBoundApplication);
 		mBoundApplication.info = ContextImpl.mPackageInfo.get(context);

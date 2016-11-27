@@ -23,7 +23,7 @@ public class BluetoothPatch extends PatchDelegate<BluetoothBinderDelegate> {
     @Override
     protected void onBindHooks() {
         super.onBindHooks();
-
+        addHook(new GetAddress());
     }
 
     @Override

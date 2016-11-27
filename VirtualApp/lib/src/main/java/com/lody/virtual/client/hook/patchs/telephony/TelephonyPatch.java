@@ -15,7 +15,7 @@ import mirror.android.os.ServiceManager;
  *
  *
  */
-@Patch({Hook_GetDeviceId.class})
+@Patch({GetDeviceId.class})
 public class TelephonyPatch extends PatchDelegate<TelephonyBinderDelegate> {
 
 	@Override

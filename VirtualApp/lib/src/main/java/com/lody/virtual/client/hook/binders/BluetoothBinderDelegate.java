@@ -1,7 +1,6 @@
 package com.lody.virtual.client.hook.binders;
 
 
-import android.content.Context;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.IInterface;
@@ -12,8 +11,8 @@ import mirror.android.bluetooth.IBluetooth;
 import mirror.android.os.ServiceManager;
 
 public class BluetoothBinderDelegate extends HookBinderDelegate {
-    public static final String SERVICE_NAME = Build.VERSION.SDK_INT >= 18 ?
-            Context.BLUETOOTH_SERVICE :
+    public static final String SERVICE_NAME = Build.VERSION.SDK_INT >= 17 ?
+            "bluetooth_manager" :
             "bluetooth";
 
     @Override
