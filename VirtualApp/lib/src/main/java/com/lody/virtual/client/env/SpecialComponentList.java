@@ -14,22 +14,25 @@ import java.util.Map;
  */
 public final class SpecialComponentList {
 
+    private static String PROTECT_ACTION_PREFIX = "_VA_protected_";
+
     private static final List<String> ACTION_BLACK_LIST = new ArrayList<String>(1);
 
-    private static final Map<String, String> PROTECTED_ACTION_MAP = new HashMap<>();
-    private static final HashSet<String> WHITE_PERMISSION = new HashSet<>();
+    private static final Map<String, String> PROTECTED_ACTION_MAP = new HashMap<>(5);
+    private static final HashSet<String> WHITE_PERMISSION = new HashSet<>(3);
 
     static {
         ACTION_BLACK_LIST.add("android.appwidget.action.APPWIDGET_UPDATE");
+
+        WHITE_PERMISSION.add("com.google.android.gms.settings.SECURITY_SETTINGS");
+        WHITE_PERMISSION.add("com.google.android.apps.plus.PRIVACY_SETTINGS");
+        WHITE_PERMISSION.add(Manifest.permission.ACCOUNT_MANAGER);
+
         PROTECTED_ACTION_MAP.put(Intent.ACTION_PACKAGE_ADDED, Constants.ACTION_PACKAGE_ADDED);
         PROTECTED_ACTION_MAP.put(Intent.ACTION_PACKAGE_REMOVED, Constants.ACTION_PACKAGE_REMOVED);
         PROTECTED_ACTION_MAP.put(Intent.ACTION_PACKAGE_CHANGED, Constants.ACTION_PACKAGE_CHANGED);
         PROTECTED_ACTION_MAP.put("android.intent.action.USER_ADDED", Constants.ACTION_USER_ADDED);
         PROTECTED_ACTION_MAP.put("android.intent.action.USER_REMOVED", Constants.ACTION_USER_REMOVED);
-
-        WHITE_PERMISSION.add("com.google.android.gms.settings.SECURITY_SETTINGS");
-        WHITE_PERMISSION.add("com.google.android.apps.plus.PRIVACY_SETTINGS");
-        WHITE_PERMISSION.add(Manifest.permission.ACCOUNT_MANAGER);
     }
 
     /**
@@ -53,7 +56,7 @@ public final class SpecialComponentList {
     public static String protectAction(String originAction) {
         String newAction = PROTECTED_ACTION_MAP.get(originAction);
         if (newAction == null) {
-            return String.format("_VA_protected_%s", originAction);
+            newAction = PROTECT_ACTION_PREFIX + originAction;
         }
         return newAction;
     }
@@ -62,13 +65,16 @@ public final class SpecialComponentList {
         if (action == null) {
             return null;
         }
+        if (action.startsWith(PROTECT_ACTION_PREFIX)) {
+            return action.substring(PROTECT_ACTION_PREFIX.length());
+        }
         for (Map.Entry<String, String> next : PROTECTED_ACTION_MAP.entrySet()) {
             String modifiedAction = next.getValue();
             if (modifiedAction.equals(action)) {
                 return next.getKey();
             }
         }
-        return action.startsWith("_VA_protected_") ? action.substring("_VA_protected_".length()) : null;
+        return null;
     }
 
     public static boolean isWhitePermission(String permission) {
