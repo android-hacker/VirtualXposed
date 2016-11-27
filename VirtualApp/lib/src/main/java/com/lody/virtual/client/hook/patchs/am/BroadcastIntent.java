@@ -59,7 +59,7 @@ import java.lang.reflect.Method;
 			handleUninstallShortcutIntent(intent);
 			return intent;
 		} else {
-			String newAction = SpecialComponentList.modifyAction(action);
+			String newAction = SpecialComponentList.protectAction(action);
 			if (newAction != null) {
 				intent.setAction(newAction);
 			}
@@ -82,7 +82,6 @@ import java.lang.reflect.Method;
 				intent.removeExtra(Intent.EXTRA_SHORTCUT_INTENT);
 				intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, newShortcutIntent);
 
-				// 将icon替换为以Bitmap方式绘制的Shortcut Icon
 				Intent.ShortcutIconResource icon = intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE);
 				if (icon != null && !TextUtils.equals(icon.packageName, getHostPkg())) {
                     try {
@@ -91,7 +90,7 @@ import java.lang.reflect.Method;
                             int resId = resources.getIdentifier(icon.resourceName, "drawable", pkg);
                             if (resId > 0) {
                                 Drawable iconDrawable = resources.getDrawable(resId);
-                                Bitmap newIcon = BitmapUtils.drawableToBitMap(iconDrawable);
+                                Bitmap newIcon = BitmapUtils.drawableToBitmap(iconDrawable);
                                 if (newIcon != null) {
                                     intent.removeExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE);
                                     intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, newIcon);
@@ -100,7 +99,6 @@ import java.lang.reflect.Method;
                         }
                     } catch (Throwable e) {
                         e.printStackTrace();
-                        // Ignore
                     }
                 }
 			}

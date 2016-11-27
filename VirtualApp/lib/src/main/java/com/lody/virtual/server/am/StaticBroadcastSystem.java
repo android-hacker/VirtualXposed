@@ -71,7 +71,7 @@ public class StaticBroadcastSystem {
 				iterator.remove();
 				continue;
 			}
-			String newAction = SpecialComponentList.modifyAction(action);
+			String newAction = SpecialComponentList.protectAction(action);
 			if (newAction != null) {
 				iterator.set(newAction);
 			}
