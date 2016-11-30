@@ -9,6 +9,9 @@ you can install and run apk inside. Beyond that, VirtualApp is also a `Plugin Fr
 the plugins running on VirtualApp does not require any constraints.
 VirtualApp does **not** require root, it is running on the `local process`.
 
+NOTICE
+-------
+This project has been authorized by the business
 
 Background
 ----------
