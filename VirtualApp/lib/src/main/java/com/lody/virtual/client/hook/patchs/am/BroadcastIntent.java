@@ -13,6 +13,7 @@ import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.helper.utils.BitmapUtils;
 import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
@@ -58,17 +59,11 @@ import java.lang.reflect.Method;
                 || "com.android.launcher.action.UNINSTALL_SHORTCUT".equals(action)) {
             handleUninstallShortcutIntent(intent);
         } else {
-            Intent redirectedIntent = ComponentUtils.redirectBroadcastIntent(intent, VUserHandle.myUserId());
-            if (redirectedIntent != null) {
-                String newAction = SpecialComponentList.protectAction(action);
-                if (newAction != null) {
-                    redirectedIntent.setAction(newAction);
-                }
-                return redirectedIntent;
-            }
+            return ComponentUtils.redirectBroadcastIntent(intent, VUserHandle.myUserId());
         }
         return intent;
     }
+
     private void handleInstallShortcutIntent(Intent intent) {
         Intent shortcut = intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_INTENT);
         if (shortcut != null) {

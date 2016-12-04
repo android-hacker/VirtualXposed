@@ -54,6 +54,9 @@ public final class SpecialComponentList {
     }
 
     public static String protectAction(String originAction) {
+        if (originAction == null) {
+            return null;
+        }
         if (originAction.startsWith("_VA_")) {
             return originAction;
         }
