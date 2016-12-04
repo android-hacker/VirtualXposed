@@ -19,71 +19,73 @@ import java.lang.reflect.Method;
 
 /**
  * @author Lody
- *
- *
  */
 /* package */ class BroadcastIntent extends Hook {
 
-	@Override
-	public String getName() {
-		return "broadcastIntent";
-	}
+    @Override
+    public String getName() {
+        return "broadcastIntent";
+    }
 
-	@Override
-	public Object call(Object who, Method method, Object... args) throws Throwable {
-		Intent intent = (Intent) args[1];
-		String type = (String) args[2];
-		intent.setDataAndType(intent.getData(), type);
-		if(VirtualCore.get().getComponentDelegate()!=null){
-			VirtualCore.get().getComponentDelegate().onSendBroadcast(intent);
-		}
-		Intent newIntent = handleIntent(intent);
-		if (newIntent != null) {
-			args[1] = newIntent;
-		}
-		if (args[7] instanceof String || args[7] instanceof String[]) {
-			// clear the permission
-			args[7] = null;
-		}
-		return method.invoke(who, args);
-	}
+    @Override
+    public Object call(Object who, Method method, Object... args) throws Throwable {
+        Intent intent = (Intent) args[1];
+        String type = (String) args[2];
+        intent.setDataAndType(intent.getData(), type);
+        if (VirtualCore.get().getComponentDelegate() != null) {
+            VirtualCore.get().getComponentDelegate().onSendBroadcast(intent);
+        }
+        Intent newIntent = handleIntent(intent);
+        if (newIntent != null) {
+            args[1] = newIntent;
+        }
+        if (args[7] instanceof String || args[7] instanceof String[]) {
+            // clear the permission
+            args[7] = null;
+        }
+        return method.invoke(who, args);
+    }
 
 
+    private Intent handleIntent(final Intent intent) {
+        final String action = intent.getAction();
+        if ("android.intent.action.CREATE_SHORTCUT".equals(action)
+                || "com.android.launcher.action.INSTALL_SHORTCUT".equals(action)
+                || "com.android.launcher.action.UNINSTALL_SHORTCUT".equals(action)) {
+            handleInstallShortcutIntent(intent);
+        } else if ("android.intent.action.CREATE_SHORTCUT".equals(action)
+                || "com.android.launcher.action.INSTALL_SHORTCUT".equals(action)
+                || "com.android.launcher.action.UNINSTALL_SHORTCUT".equals(action)) {
+            handleUninstallShortcutIntent(intent);
+        } else {
+            Intent redirectedIntent = ComponentUtils.redirectBroadcastIntent(intent, VUserHandle.myUserId());
+            if (redirectedIntent != null) {
+                String newAction = SpecialComponentList.protectAction(action);
+                if (newAction != null) {
+                    redirectedIntent.setAction(newAction);
+                }
+                return redirectedIntent;
+            }
+        }
+        return intent;
+    }
+    private void handleInstallShortcutIntent(Intent intent) {
+        Intent shortcut = intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_INTENT);
+        if (shortcut != null) {
+            ComponentName component = shortcut.resolveActivity(VirtualCore.getPM());
+            if (component != null) {
+                String pkg = component.getPackageName();
+                Intent newShortcutIntent = new Intent();
+                newShortcutIntent.setClassName(getHostPkg(), Constants.SHORTCUT_PROXY_ACTIVITY_NAME);
+                newShortcutIntent.addCategory(Intent.CATEGORY_DEFAULT);
+                newShortcutIntent.putExtra("_VA_|_intent_", shortcut);
+                newShortcutIntent.putExtra("_VA_|_uri_", shortcut.toUri(0));
+                newShortcutIntent.putExtra("_VA_|_user_id_", VUserHandle.myUserId());
+                intent.removeExtra(Intent.EXTRA_SHORTCUT_INTENT);
+                intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, newShortcutIntent);
 
-	private Intent handleIntent(final Intent intent) {
-		final String action = intent.getAction();
-		if (Constants.ACTION_INSTALL_SHORTCUT.equals(action)) {
-			handleInstallShortcutIntent(intent);
-			return intent;
-		} else if (Constants.ACTION_UNINSTALL_SHORTCUT.equals(action)) {
-			handleUninstallShortcutIntent(intent);
-			return intent;
-		} else {
-			String newAction = SpecialComponentList.protectAction(action);
-			if (newAction != null) {
-				intent.setAction(newAction);
-			}
-			return ComponentUtils.redirectBroadcastIntent(intent, VUserHandle.myUserId());
-		}
-	}
-
-	private void handleInstallShortcutIntent(Intent intent) {
-		Intent shortcut = intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_INTENT);
-		if (shortcut != null) {
-			ComponentName component = shortcut.resolveActivity(VirtualCore.getPM());
-			if (component != null) {
-				String pkg = component.getPackageName();
-				Intent newShortcutIntent = new Intent();
-				newShortcutIntent.setClassName(getHostPkg(), Constants.SHORTCUT_PROXY_ACTIVITY_NAME);
-				newShortcutIntent.addCategory(Intent.CATEGORY_DEFAULT);
-				newShortcutIntent.putExtra("_VA_|_intent_", shortcut);
-				newShortcutIntent.putExtra("_VA_|_uri_", shortcut.toUri(0));
-				newShortcutIntent.putExtra("_VA_|_user_id_", VUserHandle.myUserId());
-				intent.removeExtra(Intent.EXTRA_SHORTCUT_INTENT);
-				intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, newShortcutIntent);
-
-				Intent.ShortcutIconResource icon = intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE);
-				if (icon != null && !TextUtils.equals(icon.packageName, getHostPkg())) {
+                Intent.ShortcutIconResource icon = intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE);
+                if (icon != null && !TextUtils.equals(icon.packageName, getHostPkg())) {
                     try {
                         Resources resources = VirtualCore.get().getResources(pkg);
                         if (resources != null) {
@@ -101,26 +103,26 @@ import java.lang.reflect.Method;
                         e.printStackTrace();
                     }
                 }
-			}
-		}
-	}
+            }
+        }
+    }
 
-	private void handleUninstallShortcutIntent(Intent intent) {
-		Intent shortcut = intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_INTENT);
-		if (shortcut != null) {
-			ComponentName componentName = shortcut.resolveActivity(getPM());
-			if (componentName != null) {
-				Intent newShortcutIntent = new Intent();
-				newShortcutIntent.putExtra("_VA_|_uri_", shortcut);
-				newShortcutIntent.setClassName(getHostPkg(), Constants.SHORTCUT_PROXY_ACTIVITY_NAME);
-				newShortcutIntent.removeExtra(Intent.EXTRA_SHORTCUT_INTENT);
-				intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, newShortcutIntent);
-			}
-		}
-	}
+    private void handleUninstallShortcutIntent(Intent intent) {
+        Intent shortcut = intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_INTENT);
+        if (shortcut != null) {
+            ComponentName componentName = shortcut.resolveActivity(getPM());
+            if (componentName != null) {
+                Intent newShortcutIntent = new Intent();
+                newShortcutIntent.putExtra("_VA_|_uri_", shortcut);
+                newShortcutIntent.setClassName(getHostPkg(), Constants.SHORTCUT_PROXY_ACTIVITY_NAME);
+                newShortcutIntent.removeExtra(Intent.EXTRA_SHORTCUT_INTENT);
+                intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, newShortcutIntent);
+            }
+        }
+    }
 
-	@Override
-	public boolean isEnable() {
-		return isAppProcess();
-	}
+    @Override
+    public boolean isEnable() {
+        return isAppProcess();
+    }
 }

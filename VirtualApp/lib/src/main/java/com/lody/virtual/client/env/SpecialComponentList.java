@@ -36,7 +36,7 @@ public final class SpecialComponentList {
     }
 
     /**
-     * 是否为黑名单Action
+     * Check if the action in the BlackList.
      *
      * @param action Action
      */
@@ -45,7 +45,7 @@ public final class SpecialComponentList {
     }
 
     /**
-     * 添加一个黑名单 Action
+     * Add an action to the BlackList.
      *
      * @param action action
      */
@@ -54,6 +54,9 @@ public final class SpecialComponentList {
     }
 
     public static String protectAction(String originAction) {
+        if (originAction.startsWith("_VA_")) {
+            return originAction;
+        }
         String newAction = PROTECTED_ACTION_MAP.get(originAction);
         if (newAction == null) {
             newAction = PROTECT_ACTION_PREFIX + originAction;
@@ -61,7 +64,7 @@ public final class SpecialComponentList {
         return newAction;
     }
 
-    public static String restoreAction(String action) {
+    public static String unprotectAction(String action) {
         if (action == null) {
             return null;
         }

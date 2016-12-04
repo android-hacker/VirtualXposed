@@ -19,13 +19,13 @@ public class OSUtils {
 	private static final String KEY_MIUI_VERSION_NAME = "ro.miui.ui.version.name";
 	private static final String KEY_MIUI_INTERNAL_STORAGE = "ro.miui.internal.storage";
 
-	private static OSUtils sOSUtils;
+	private static final OSUtils sOSUtils = new OSUtils();
 	private boolean emui;
 	private boolean miui;
 	private boolean flyme;
 	private String miuiVersion;
 	private OSUtils() {
-		Properties properties = null;
+		Properties properties;
 		try {
 			properties = new Properties();
 			properties.load(new FileInputStream(new File(Environment.getRootDirectory(), "build.prop")));
@@ -42,13 +42,6 @@ public class OSUtils {
 	}
 
 	public static OSUtils getInstance() {
-		if (sOSUtils == null) {
-			synchronized (OSUtils.class) {
-				if (sOSUtils == null) {
-					sOSUtils = new OSUtils();
-				}
-			}
-		}
 		return sOSUtils;
 	}
 

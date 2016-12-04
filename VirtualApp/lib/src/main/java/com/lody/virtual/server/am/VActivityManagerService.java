@@ -946,7 +946,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		if (realIntent == null) {
 			realIntent = intent;
 		}
-		String originAction = SpecialComponentList.restoreAction(realIntent.getAction());
+		String originAction = SpecialComponentList.unprotectAction(realIntent.getAction());
 		if (originAction != null) {
 			realIntent.setAction(originAction);
 		}

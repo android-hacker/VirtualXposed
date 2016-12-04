@@ -121,20 +121,17 @@ public class ComponentUtils {
 			newIntent.putExtra("_VA_|_intent_", new Intent(intent));
 			return newIntent;
 		} else if (pkg != null) {
-			if (VirtualCore.get().isAppInstalled(pkg)) {
-				Intent newIntent = intent.cloneFilter();
-				newIntent.setPackage(null);
-				newIntent.putExtra("_VA_|_user_id_", userId);
-				newIntent.putExtra("_VA_|_creator_", pkg);
-				newIntent.putExtra("_VA_|_intent_", new Intent(intent));
-				return newIntent;
-			}
+			Intent newIntent = intent.cloneFilter();
+			newIntent.setPackage(null);
+			newIntent.putExtra("_VA_|_user_id_", userId);
+			newIntent.putExtra("_VA_|_creator_", pkg);
+			newIntent.putExtra("_VA_|_intent_", new Intent(intent));
+			return newIntent;
 		} else {
 			Intent newIntent = intent.cloneFilter();
 			newIntent.putExtra("_VA_|_user_id_", userId);
 			newIntent.putExtra("_VA_|_intent_", new Intent(intent));
 			return newIntent;
 		}
-		return null;
 	}
 }
