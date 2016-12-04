@@ -16,8 +16,8 @@ public class SettingsProviderHook extends ExternalProviderHook {
 
 	private static final String TAG = SettingsProviderHook.class.getSimpleName();
 
-	public static final int METHOD_GET = 0;
-	public static final int METHOD_PUT = 0;
+	private static final int METHOD_GET = 0;
+	private static final int METHOD_PUT = 1;
 
 	private static final Map<String, String> PRE_SET_VALUES = new HashMap<>();
 
@@ -30,7 +30,7 @@ public class SettingsProviderHook extends ExternalProviderHook {
 		super(base);
 	}
 
-	public static int getMethodType(String method) {
+	private static int getMethodType(String method) {
 		if (method.startsWith("GET_")) {
 			return METHOD_GET;
 		}
@@ -40,7 +40,7 @@ public class SettingsProviderHook extends ExternalProviderHook {
 		return -1;
 	}
 
-	public static boolean isSecureMethod(String method) {
+	private static boolean isSecureMethod(String method) {
 		return method.endsWith("secure");
 	}
 

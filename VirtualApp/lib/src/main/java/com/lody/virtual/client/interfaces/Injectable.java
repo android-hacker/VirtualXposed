@@ -3,20 +3,23 @@ package com.lody.virtual.client.interfaces;
 /**
  * @author Lody
  *
+ * The Objects who implemention this interface will be able to inject other object.
  *
- *         实现本接口的类具备注入的能力.
  */
 public interface Injectable {
 
 	/**
-	 * 注入的Impl
+	 *
+     * Do injection.
 	 * 
-	 * @throws Throwable
+	 * @throws Throwable if inject failed
 	 */
 	void inject() throws Throwable;
 
 	/**
-	 * @return 注入环境是否已经失效.
+     * Check if the injection has bad.
+     *
+	 * @return If the injection has bad
 	 */
 	boolean isEnvBad();
 

@@ -17,7 +17,7 @@ import jonathanfinerty.once.Once;
 	private SetupView mView;
 	private Context mContext;
 
-	public SetupPresenterImpl(SetupView view, Context context) {
+	SetupPresenterImpl(SetupView view, Context context) {
 		this.mView = view;
 		this.mContext = context;
 		mView.setPresenter(this);
