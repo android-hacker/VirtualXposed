@@ -54,6 +54,10 @@ public class VEnvironment {
         return new File(getSystemSecureDirectory(), "uid-list.ini");
     }
 
+    public static File getBakUidListFile() {
+        return new File(getSystemSecureDirectory(), "uid-list.ini.bak");
+    }
+
     public static File getAccountFile() {
         return new File(getSystemSecureDirectory(), "account-list.ini");
     }

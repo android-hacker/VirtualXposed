@@ -49,7 +49,7 @@ public class VParceledListSlice<T extends Parcelable> implements Parcelable {
 	private static final int MAX_IPC_SIZE = 256 * 1024;
 	private static final int MAX_FIRST_IPC_SIZE = MAX_IPC_SIZE / 2;
 	private static String TAG = "ParceledListSlice";
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	private final List<T> mList;
 
 	public VParceledListSlice(List<T> list) {
