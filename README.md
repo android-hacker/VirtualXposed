@@ -11,7 +11,7 @@ VirtualApp does **not** require root, it is running on the `local process`.
 
 NOTICE
 -------
-This project has been authorized by the business
+This project has been authorized by the business.
 
 Background
 ----------
