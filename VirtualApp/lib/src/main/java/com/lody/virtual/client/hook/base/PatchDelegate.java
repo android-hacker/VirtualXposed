@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Build;
 
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.interfaces.IHookObject;
 import com.lody.virtual.client.interfaces.Injectable;
 
 import java.lang.reflect.Constructor;
@@ -14,7 +13,7 @@ import java.lang.reflect.Constructor;
  *
  * @see Patch
  */
-public abstract class PatchDelegate<T extends IHookObject> implements Injectable {
+public abstract class PatchDelegate<T extends HookDelegate> implements Injectable {
 
 	protected T hookDelegate;
 
