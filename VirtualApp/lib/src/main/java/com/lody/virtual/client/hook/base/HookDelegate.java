@@ -15,6 +15,12 @@ import java.util.Map;
 /**
  * @author Lody
  *
+ * HookHandler uses Java's {@link Proxy} to create a wrapper for existing services.
+ *
+ * When any method is called on the wrapper, it checks if there is any {@link Hook} registered
+ * and enabled for that method. If so, it calls the hook instead of the wrapped implementation.
+ *
+ * The whole thing is managed by a {@link PatchDelegate} subclass
  */
 @SuppressWarnings("unchecked")
 public class HookDelegate<T> {

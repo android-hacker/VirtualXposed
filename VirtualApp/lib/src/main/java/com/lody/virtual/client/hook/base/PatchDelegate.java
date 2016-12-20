@@ -11,6 +11,15 @@ import java.lang.reflect.Constructor;
 /**
  * @author Lody
  *
+ * This class is responsible with:
+ * - Instantiating a {@link HookDelegate.HookHandler} on {@link #createHookDelegate()}
+ * - Install a bunch of {@link Hook}s, either with a @{@link Patch} annotation or manually
+ *   calling {@link #addHook(Hook)} from {@link #onBindHooks()}
+ * - Install the hooked object on the Runtime via {@link #inject()}
+ *
+ * All {@link PatchDelegate}s (plus a couple of other @{@link Injectable}s are installed by
+ * {@link com.lody.virtual.client.core.PatchManager}
+ *
  * @see Patch
  */
 public abstract class PatchDelegate<T extends HookDelegate> implements Injectable {
