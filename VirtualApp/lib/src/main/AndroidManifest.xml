@@ -277,7 +277,7 @@
 
         <provider
             android:name="com.lody.virtual.server.BinderProvider"
-            android:authorities="virtual.service.BinderProvider"
+            android:authorities="${applicationId}.virtual.service.BinderProvider"
             android:exported="false"
             android:process=":x"/>
 
@@ -1083,350 +1083,350 @@
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C0"
-            android:authorities="virtual_stub_0"
+            android:authorities="${applicationId}.virtual_stub_0"
             android:exported="false"
             android:process=":p0">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C1"
-            android:authorities="virtual_stub_1"
+            android:authorities="${applicationId}.virtual_stub_1"
             android:exported="false"
             android:process=":p1">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C2"
-            android:authorities="virtual_stub_2"
+            android:authorities="${applicationId}.virtual_stub_2"
             android:exported="false"
             android:process=":p2">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C3"
-            android:authorities="virtual_stub_3"
+            android:authorities="${applicationId}.virtual_stub_3"
             android:exported="false"
             android:process=":p3">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C4"
-            android:authorities="virtual_stub_4"
+            android:authorities="${applicationId}.virtual_stub_4"
             android:exported="false"
             android:process=":p4">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C5"
-            android:authorities="virtual_stub_5"
+            android:authorities="${applicationId}.virtual_stub_5"
             android:exported="false"
             android:process=":p5">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C6"
-            android:authorities="virtual_stub_6"
+            android:authorities="${applicationId}.virtual_stub_6"
             android:exported="false"
             android:process=":p6">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C7"
-            android:authorities="virtual_stub_7"
+            android:authorities="${applicationId}.virtual_stub_7"
             android:exported="false"
             android:process=":p7">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C8"
-            android:authorities="virtual_stub_8"
+            android:authorities="${applicationId}.virtual_stub_8"
             android:exported="false"
             android:process=":p8">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C9"
-            android:authorities="virtual_stub_9"
+            android:authorities="${applicationId}.virtual_stub_9"
             android:exported="false"
             android:process=":p9">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C10"
-            android:authorities="virtual_stub_10"
+            android:authorities="${applicationId}.virtual_stub_10"
             android:exported="false"
             android:process=":p10">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C11"
-            android:authorities="virtual_stub_11"
+            android:authorities="${applicationId}.virtual_stub_11"
             android:exported="false"
             android:process=":p11">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C12"
-            android:authorities="virtual_stub_12"
+            android:authorities="${applicationId}.virtual_stub_12"
             android:exported="false"
             android:process=":p12">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C13"
-            android:authorities="virtual_stub_13"
+            android:authorities="${applicationId}.virtual_stub_13"
             android:exported="false"
             android:process=":p13">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C14"
-            android:authorities="virtual_stub_14"
+            android:authorities="${applicationId}.virtual_stub_14"
             android:exported="false"
             android:process=":p14">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C15"
-            android:authorities="virtual_stub_15"
+            android:authorities="${applicationId}.virtual_stub_15"
             android:exported="false"
             android:process=":p15">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C16"
-            android:authorities="virtual_stub_16"
+            android:authorities="${applicationId}.virtual_stub_16"
             android:exported="false"
             android:process=":p16">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C17"
-            android:authorities="virtual_stub_17"
+            android:authorities="${applicationId}.virtual_stub_17"
             android:exported="false"
             android:process=":p17">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C18"
-            android:authorities="virtual_stub_18"
+            android:authorities="${applicationId}.virtual_stub_18"
             android:exported="false"
             android:process=":p18">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C19"
-            android:authorities="virtual_stub_19"
+            android:authorities="${applicationId}.virtual_stub_19"
             android:exported="false"
             android:process=":p19">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C20"
-            android:authorities="virtual_stub_20"
+            android:authorities="${applicationId}.virtual_stub_20"
             android:exported="false"
             android:process=":p20">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C21"
-            android:authorities="virtual_stub_21"
+            android:authorities="${applicationId}.virtual_stub_21"
             android:exported="false"
             android:process=":p21">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C22"
-            android:authorities="virtual_stub_22"
+            android:authorities="${applicationId}.virtual_stub_22"
             android:exported="false"
             android:process=":p22">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C23"
-            android:authorities="virtual_stub_23"
+            android:authorities="${applicationId}.virtual_stub_23"
             android:exported="false"
             android:process=":p23">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C24"
-            android:authorities="virtual_stub_24"
+            android:authorities="${applicationId}.virtual_stub_24"
             android:exported="false"
             android:process=":p24">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C25"
-            android:authorities="virtual_stub_25"
+            android:authorities="${applicationId}.virtual_stub_25"
             android:exported="false"
             android:process=":p25">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C26"
-            android:authorities="virtual_stub_26"
+            android:authorities="${applicationId}.virtual_stub_26"
             android:exported="false"
             android:process=":p26">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C27"
-            android:authorities="virtual_stub_27"
+            android:authorities="${applicationId}.virtual_stub_27"
             android:exported="false"
             android:process=":p27">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C28"
-            android:authorities="virtual_stub_28"
+            android:authorities="${applicationId}.virtual_stub_28"
             android:exported="false"
             android:process=":p28">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C29"
-            android:authorities="virtual_stub_29"
+            android:authorities="${applicationId}.virtual_stub_29"
             android:exported="false"
             android:process=":p29">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C30"
-            android:authorities="virtual_stub_30"
+            android:authorities="${applicationId}.virtual_stub_30"
             android:exported="false"
             android:process=":p30">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C31"
-            android:authorities="virtual_stub_31"
+            android:authorities="${applicationId}.virtual_stub_31"
             android:exported="false"
             android:process=":p31">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C32"
-            android:authorities="virtual_stub_32"
+            android:authorities="${applicationId}.virtual_stub_32"
             android:exported="false"
             android:process=":p32">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C33"
-            android:authorities="virtual_stub_33"
+            android:authorities="${applicationId}.virtual_stub_33"
             android:exported="false"
             android:process=":p33">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C34"
-            android:authorities="virtual_stub_34"
+            android:authorities="${applicationId}.virtual_stub_34"
             android:exported="false"
             android:process=":p34">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C35"
-            android:authorities="virtual_stub_35"
+            android:authorities="${applicationId}.virtual_stub_35"
             android:exported="false"
             android:process=":p35">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C36"
-            android:authorities="virtual_stub_36"
+            android:authorities="${applicationId}.virtual_stub_36"
             android:exported="false"
             android:process=":p36">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C37"
-            android:authorities="virtual_stub_37"
+            android:authorities="${applicationId}.virtual_stub_37"
             android:exported="false"
             android:process=":p37">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C38"
-            android:authorities="virtual_stub_38"
+            android:authorities="${applicationId}.virtual_stub_38"
             android:exported="false"
             android:process=":p38">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C39"
-            android:authorities="virtual_stub_39"
+            android:authorities="${applicationId}.virtual_stub_39"
             android:exported="false"
             android:process=":p39">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C40"
-            android:authorities="virtual_stub_40"
+            android:authorities="${applicationId}.virtual_stub_40"
             android:exported="false"
             android:process=":p40">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C41"
-            android:authorities="virtual_stub_41"
+            android:authorities="${applicationId}.virtual_stub_41"
             android:exported="false"
             android:process=":p41">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C42"
-            android:authorities="virtual_stub_42"
+            android:authorities="${applicationId}.virtual_stub_42"
             android:exported="false"
             android:process=":p42">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C43"
-            android:authorities="virtual_stub_43"
+            android:authorities="${applicationId}.virtual_stub_43"
             android:exported="false"
             android:process=":p43">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C44"
-            android:authorities="virtual_stub_44"
+            android:authorities="${applicationId}.virtual_stub_44"
             android:exported="false"
             android:process=":p44">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C45"
-            android:authorities="virtual_stub_45"
+            android:authorities="${applicationId}.virtual_stub_45"
             android:exported="false"
             android:process=":p45">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C46"
-            android:authorities="virtual_stub_46"
+            android:authorities="${applicationId}.virtual_stub_46"
             android:exported="false"
             android:process=":p46">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C47"
-            android:authorities="virtual_stub_47"
+            android:authorities="${applicationId}.virtual_stub_47"
             android:exported="false"
             android:process=":p47">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C48"
-            android:authorities="virtual_stub_48"
+            android:authorities="${applicationId}.virtual_stub_48"
             android:exported="false"
             android:process=":p48">
         </provider>
 
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C49"
-            android:authorities="virtual_stub_49"
+            android:authorities="${applicationId}.virtual_stub_49"
             android:exported="false"
             android:process=":p49">
         </provider>
