@@ -5,11 +5,10 @@ import android.content.Context;
 import android.os.Build;
 
 import com.lody.virtual.client.hook.base.Patch;
-import com.lody.virtual.client.hook.base.PatchDelegate;
+import com.lody.virtual.client.hook.base.PatchBinderDelegate;
 import com.lody.virtual.client.hook.base.StaticHook;
-import com.lody.virtual.client.hook.binders.SearchBinderDelegate;
 
-import mirror.android.os.ServiceManager;
+import mirror.android.app.ISearchManager;
 
 /**
  * @author Lody
@@ -17,25 +16,15 @@ import mirror.android.os.ServiceManager;
  */
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 @Patch({GetSearchableInfo.class,})
-public class SearchManagerPatch extends PatchDelegate<SearchBinderDelegate> {
-	@Override
-	protected SearchBinderDelegate createHookDelegate() {
-		return new SearchBinderDelegate();
-	}
+public class SearchManagerPatch extends PatchBinderDelegate {
 
-	@Override
-	public void inject() throws Throwable {
-		getHookDelegate().replaceService(Context.SEARCH_SERVICE);
+	public SearchManagerPatch() {
+		super(ISearchManager.Stub.TYPE, Context.SEARCH_SERVICE);
 	}
 
 	@Override
 	protected void onBindHooks() {
 		super.onBindHooks();
 		addHook(new StaticHook("launchLegacyAssist"));
-	}
-
-	@Override
-	public boolean isEnvBad() {
-		return getHookDelegate() != ServiceManager.getService.call(Context.SEARCH_SERVICE);
 	}
 }

@@ -1,33 +1,18 @@
 package com.lody.virtual.client.hook.patchs.content;
 
+import com.lody.virtual.client.hook.base.PatchBinderDelegate;
 
-import com.lody.virtual.client.hook.base.PatchDelegate;
-import com.lody.virtual.client.hook.binders.ContentBinderDelegate;
-
-import mirror.android.os.ServiceManager;
+import mirror.android.content.IContentService;
 
 /**
  * @author Lody
+ *
+ * @see IContentService
  */
 
-public class ContentServicePatch extends PatchDelegate<ContentBinderDelegate> {
-    @Override
-    protected ContentBinderDelegate createHookDelegate() {
-        return new ContentBinderDelegate();
-    }
+public class ContentServicePatch extends PatchBinderDelegate {
 
-    @Override
-    protected void onBindHooks() {
-        super.onBindHooks();
+    public ContentServicePatch() {
+        super(IContentService.Stub.TYPE, "content");
     }
-
-    @Override
-    public void inject() throws Throwable {
-        getHookDelegate().replaceService("content");
-    }
-    @Override
-    public boolean isEnvBad() {
-        return ServiceManager.getService.call("content") != getHookDelegate();
-    }
-
 }

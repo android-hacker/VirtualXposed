@@ -5,28 +5,22 @@ import android.os.Build;
 import android.os.WorkSource;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.hook.base.PatchDelegate;
-import com.lody.virtual.client.hook.binders.AlarmBinderDelegate;
+import com.lody.virtual.client.hook.base.PatchBinderDelegate;
 import com.lody.virtual.helper.utils.ArrayUtils;
 
 import java.lang.reflect.Method;
 
-import mirror.android.os.ServiceManager;
+import mirror.android.app.IAlarmManager;
 
 /**
  * @author Lody
  *
+ * @see android.app.AlarmManager
  */
-public class AlarmManagerPatch extends PatchDelegate<AlarmBinderDelegate> {
+public class AlarmManagerPatch extends PatchBinderDelegate {
 
-	@Override
-	protected AlarmBinderDelegate createHookDelegate() {
-		return new AlarmBinderDelegate();
-	}
-
-	@Override
-	public void inject() throws Throwable {
-		getHookDelegate().replaceService(Context.ALARM_SERVICE);
+	public AlarmManagerPatch() {
+		super(IAlarmManager.Stub.TYPE, Context.ALARM_SERVICE);
 	}
 
 	@Override
@@ -35,11 +29,6 @@ public class AlarmManagerPatch extends PatchDelegate<AlarmBinderDelegate> {
 		addHook(new Set());
 		addHook(new SetTime());
 		addHook(new SetTimeZone());
-	}
-
-	@Override
-	public boolean isEnvBad() {
-		return getHookDelegate() != ServiceManager.getService.call(Context.ALARM_SERVICE);
 	}
 
 	private static class SetTimeZone extends Hook {

@@ -17,7 +17,7 @@ import java.util.Map;
  *
  */
 @SuppressWarnings("unchecked")
-public abstract class HookDelegate<T> {
+public class HookDelegate<T> {
 
 	private static final String TAG = HookDelegate.class.getSimpleName();
 	private T mBaseInterface;
@@ -32,8 +32,8 @@ public abstract class HookDelegate<T> {
 	}
 
 
-	public HookDelegate(Class<?>... proxyInterfaces) {
-		mBaseInterface = createInterface();
+	public HookDelegate(T mBaseInterface, Class<?>... proxyInterfaces) {
+		this.mBaseInterface = mBaseInterface;
 		if (mBaseInterface != null) {
 			if (proxyInterfaces == null) {
 				proxyInterfaces = HookUtils.getAllInterface(mBaseInterface.getClass());
@@ -44,12 +44,9 @@ public abstract class HookDelegate<T> {
 		}
 	}
 
-	public HookDelegate() {
-		this((Class[]) null);
+	public HookDelegate(T mBaseInterface) {
+		this(mBaseInterface, (Class[]) null);
 	}
-
-
-	protected abstract T createInterface();
 
 	public void copyHooks(HookDelegate from) {
 		this.internalHookMapping.putAll(from.getAllHooks());

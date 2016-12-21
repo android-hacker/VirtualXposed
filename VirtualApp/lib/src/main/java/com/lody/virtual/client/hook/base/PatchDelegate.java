@@ -17,26 +17,11 @@ public abstract class PatchDelegate<T extends HookDelegate> implements Injectabl
 
 	protected T hookDelegate;
 
-	protected Object baseObject;
-
-	public PatchDelegate() {
-		this(null);
-	}
-
-	public PatchDelegate(Object baseObject) {
-		attachInterface(baseObject);
-	}
-
-	protected void attachInterface(Object baseObject) {
-		this.baseObject = baseObject;
-		this.hookDelegate = createHookDelegate();
+	public PatchDelegate(T hookDelegate) {
+		this.hookDelegate = hookDelegate;
 		onBindHooks();
 		afterHookApply(hookDelegate);
 	}
-
-
-	protected abstract T createHookDelegate();
-
 
 	protected void onBindHooks() {
 

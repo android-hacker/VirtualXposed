@@ -4,11 +4,10 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 
-import com.lody.virtual.client.hook.base.PatchDelegate;
+import com.lody.virtual.client.hook.base.PatchBinderDelegate;
 import com.lody.virtual.client.hook.base.ResultStaticHook;
-import com.lody.virtual.client.hook.binders.AppWidgetBinderDelegate;
 
-import mirror.android.os.ServiceManager;
+import mirror.com.android.internal.appwidget.IAppWidgetService;
 
 /**
  * @author Lody
@@ -16,16 +15,10 @@ import mirror.android.os.ServiceManager;
  * @see android.appwidget.AppWidgetManager
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class AppWidgetManagerPatch extends PatchDelegate<AppWidgetBinderDelegate> {
+public class AppWidgetManagerPatch extends PatchBinderDelegate {
 
-	@Override
-	protected AppWidgetBinderDelegate createHookDelegate() {
-		return new AppWidgetBinderDelegate();
-	}
-
-	@Override
-	public void inject() throws Throwable {
-		getHookDelegate().replaceService(Context.APPWIDGET_SERVICE);
+	public AppWidgetManagerPatch() {
+		super(IAppWidgetService.Stub.TYPE, Context.APPWIDGET_SERVICE);
 	}
 
 	@Override
@@ -55,10 +48,5 @@ public class AppWidgetManagerPatch extends PatchDelegate<AppWidgetBinderDelegate
 		addHook(new ResultStaticHook("unbindRemoteViewsService", 0));
 		addHook(new ResultStaticHook("getAppWidgetIds", new int[0]));
 		addHook(new ResultStaticHook("isBoundWidgetPackage", false));
-	}
-
-	@Override
-	public boolean isEnvBad() {
-		return ServiceManager.getService.call(Context.APPWIDGET_SERVICE) != getHookDelegate();
 	}
 }

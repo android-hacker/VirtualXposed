@@ -12,8 +12,6 @@ import mirror.android.app.ActivityThread;
 
 /**
  * @author Lody
- *
- *
  */
 @Patch({GetPackageInfo.class, GetApplicationInfo.class, GetActivityInfo.class, GetServiceInfo.class,
 		GetPermissions.class, GetProviderInfo.class, GetReceiverInfo.class,
@@ -49,14 +47,8 @@ import mirror.android.app.ActivityThread;
 })
 public final class PackageManagerPatch extends PatchDelegate<HookDelegate<IInterface>> {
 
-	@Override
-	protected HookDelegate<IInterface> createHookDelegate() {
-		return new HookDelegate<IInterface>() {
-			@Override
-			protected IInterface createInterface() {
-				return ActivityThread.sPackageManager.get();
-			}
-		};
+	public PackageManagerPatch() {
+		super(new HookDelegate<IInterface>(ActivityThread.sPackageManager.get()));
 	}
 
 	@Override
@@ -68,19 +60,12 @@ public final class PackageManagerPatch extends PatchDelegate<HookDelegate<IInter
 
 	@Override
 	public void inject() throws Throwable {
-
 		final IInterface hookedPM = getHookDelegate().getProxyInterface();
 		ActivityThread.sPackageManager.set(hookedPM);
 
-		HookBinderDelegate pmHookBinder = new HookBinderDelegate() {
-			@Override
-			protected IInterface createInterface() {
-				return getHookDelegate().getBaseInterface();
-			}
-		};
+		HookBinderDelegate pmHookBinder = new HookBinderDelegate(getHookDelegate().getBaseInterface());
 		pmHookBinder.copyHooks(getHookDelegate());
 		pmHookBinder.replaceService("package");
-
 	}
 
 	@Override
