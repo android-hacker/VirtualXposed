@@ -25,6 +25,7 @@ import java.util.List;
 
 import mirror.android.app.ActivityManagerNative;
 import mirror.android.app.IActivityManager;
+import mirror.android.content.pm.ParceledListSlice;
 import mirror.android.os.ServiceManager;
 import mirror.android.util.Singleton;
 
@@ -111,7 +112,11 @@ public class ActivityManagerPatch extends PatchDelegate<HookDelegate<IInterface>
 				@Override
 				public Object call(Object who, Method method, Object... args) throws Throwable {
 					//noinspection unchecked
-					List<ActivityManager.RecentTaskInfo> infos = (List<ActivityManager.RecentTaskInfo>) method.invoke(who, args);
+					Object _infos = (List<ActivityManager.RecentTaskInfo>) method.invoke(who, args);
+					List<ActivityManager.RecentTaskInfo> infos =
+							_infos instanceof ParceledListSlice
+									? ParceledListSlice.getList.call(_infos)
+									: (List)_infos;
 					for (ActivityManager.RecentTaskInfo info : infos) {
 						AppTaskInfo taskInfo = VActivityManager.get().getTaskInfo(info.id);
 						if (taskInfo == null) {
@@ -124,7 +129,7 @@ public class ActivityManagerPatch extends PatchDelegate<HookDelegate<IInterface>
 						info.origActivity = taskInfo.baseActivity;
 						info.baseIntent = taskInfo.baseIntent;
 					}
-					return super.call(who, method, args);
+					return _infos;
 				}
 			});
 		}
