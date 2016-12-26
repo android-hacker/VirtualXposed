@@ -2,21 +2,20 @@ package com.lody.virtual.client.hook.patchs.audio;
 
 import android.content.Context;
 
-import com.lody.virtual.client.hook.base.PatchDelegate;
+import com.lody.virtual.client.hook.base.PatchBinderDelegate;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
-import com.lody.virtual.client.hook.binders.AudioBinderDelegate;
 
-import mirror.android.os.ServiceManager;
+import mirror.android.media.IAudioService;
 
 /**
  * @author Lody
+ *
+ * @see android.media.AudioManager
  */
 
-public class AudioManagerPatch extends PatchDelegate<AudioBinderDelegate> {
-
-	@Override
-	protected AudioBinderDelegate createHookDelegate() {
-		return new AudioBinderDelegate();
+public class AudioManagerPatch extends PatchBinderDelegate {
+	public AudioManagerPatch() {
+		super(IAudioService.Stub.TYPE, Context.AUDIO_SERVICE);
 	}
 
 	@Override
@@ -44,15 +43,5 @@ public class AudioManagerPatch extends PatchDelegate<AudioBinderDelegate> {
 		addHook(new ReplaceLastPkgHook("disableSafeMediaVolume"));
 		addHook(new ReplaceLastPkgHook("registerRemoteControlClient"));
 		addHook(new ReplaceLastPkgHook("unregisterAudioFocusClient"));
-	}
-
-	@Override
-	public void inject() throws Throwable {
-		ServiceManager.sCache.get().put(Context.AUDIO_SERVICE, getHookDelegate());
-	}
-
-	@Override
-	public boolean isEnvBad() {
-		return ServiceManager.getService.call(Context.AUDIO_SERVICE) != getHookDelegate();
 	}
 }

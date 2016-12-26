@@ -4,33 +4,27 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 
-import com.lody.virtual.client.hook.base.PatchDelegate;
+import com.lody.virtual.client.hook.base.PatchBinderDelegate;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
 import com.lody.virtual.client.hook.base.StaticHook;
-import com.lody.virtual.client.hook.binders.AppOpsBinderDelegate;
 
 import java.lang.reflect.Method;
 
 import mirror.android.os.ServiceManager;
+import mirror.com.android.internal.app.IAppOpsService;
 
 /**
  * @author Lody
  *
- *  Fuck the AppOpsService.
+ * Fuck the AppOpsService.
  *
  * @see android.app.AppOpsManager
  */
 @TargetApi(Build.VERSION_CODES.KITKAT)
-public class AppOpsManagerPatch extends PatchDelegate<AppOpsBinderDelegate> {
+public class AppOpsManagerPatch extends PatchBinderDelegate {
 
-	@Override
-	protected AppOpsBinderDelegate createHookDelegate() {
-		return new AppOpsBinderDelegate();
-	}
-
-	@Override
-	public void inject() throws Throwable {
-		getHookDelegate().replaceService(Context.APP_OPS_SERVICE);
+	public AppOpsManagerPatch() {
+		super(IAppOpsService.Stub.TYPE, Context.APP_OPS_SERVICE);
 	}
 
 	@Override
@@ -71,10 +65,4 @@ public class AppOpsManagerPatch extends PatchDelegate<AppOpsBinderDelegate> {
 			return true;
 		}
 	}
-
-	@Override
-	public boolean isEnvBad() {
-		return ServiceManager.getService.call(Context.APP_OPS_SERVICE) != getHookDelegate();
-	}
-
 }

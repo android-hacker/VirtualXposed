@@ -1,33 +1,26 @@
 package com.lody.virtual.client.hook.patchs.bluetooth;
 
+import android.os.Build;
 
-import com.lody.virtual.client.hook.base.PatchDelegate;
-import com.lody.virtual.client.hook.base.ResultStaticHook;
-import com.lody.virtual.client.hook.binders.BackupBinderDelegate;
-import com.lody.virtual.client.hook.binders.BluetoothBinderDelegate;
+import com.lody.virtual.client.hook.base.PatchBinderDelegate;
 
-import mirror.android.os.ServiceManager;
+import mirror.android.bluetooth.IBluetooth;
 
-public class BluetoothPatch extends PatchDelegate<BluetoothBinderDelegate> {
+/**
+ * @see android.bluetooth.BluetoothManager
+ */
+public class BluetoothPatch extends PatchBinderDelegate {
+    public static final String SERVICE_NAME = Build.VERSION.SDK_INT >= 17 ?
+            "bluetooth_manager" :
+            "bluetooth";
 
-    @Override
-    protected BluetoothBinderDelegate createHookDelegate() {
-        return new BluetoothBinderDelegate();
-    }
-
-    @Override
-    public void inject() throws Throwable {
-        getHookDelegate().replaceService(BluetoothBinderDelegate.SERVICE_NAME);
+    public BluetoothPatch() {
+        super(IBluetooth.Stub.TYPE, SERVICE_NAME);
     }
 
     @Override
     protected void onBindHooks() {
         super.onBindHooks();
         addHook(new GetAddress());
-    }
-
-    @Override
-    public boolean isEnvBad() {
-        return getHookDelegate() != ServiceManager.getService.call(BluetoothBinderDelegate.SERVICE_NAME);
     }
 }

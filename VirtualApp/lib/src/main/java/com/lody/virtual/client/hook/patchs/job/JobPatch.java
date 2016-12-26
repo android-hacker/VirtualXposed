@@ -6,27 +6,23 @@ import android.content.Context;
 import android.os.Build;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.hook.base.PatchDelegate;
-import com.lody.virtual.client.hook.binders.JobBinderDelegate;
+import com.lody.virtual.client.hook.base.PatchBinderDelegate;
 import com.lody.virtual.client.ipc.VJobScheduler;
 
 import java.lang.reflect.Method;
 
-import mirror.android.os.ServiceManager;
+import mirror.android.app.job.IJobScheduler;
 
 /**
  * @author Lody
+ *
+ * @see android.app.job.JobScheduler
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class JobPatch extends PatchDelegate<JobBinderDelegate> {
-	@Override
-	protected JobBinderDelegate createHookDelegate() {
-		return new JobBinderDelegate();
-	}
+public class JobPatch extends PatchBinderDelegate {
 
-	@Override
-	public void inject() throws Throwable {
-		getHookDelegate().replaceService(Context.JOB_SCHEDULER_SERVICE);
+	public JobPatch() {
+		super(IJobScheduler.Stub.TYPE, Context.JOB_SCHEDULER_SERVICE);
 	}
 
 	@Override
@@ -36,11 +32,6 @@ public class JobPatch extends PatchDelegate<JobBinderDelegate> {
 		addHook(new getAllPendingJobs());
 		addHook(new cancelAll());
 		addHook(new cancel());
-	}
-
-	@Override
-	public boolean isEnvBad() {
-		return getHookDelegate() != ServiceManager.getService.call(Context.JOB_SCHEDULER_SERVICE);
 	}
 
 

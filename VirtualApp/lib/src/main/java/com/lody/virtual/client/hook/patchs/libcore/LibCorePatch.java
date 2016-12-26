@@ -19,14 +19,9 @@ import mirror.libcore.io.Libcore;
         GetsockoptUcred.class,
 })
 public class LibCorePatch extends PatchDelegate<HookDelegate<Object>> {
-    @Override
-    protected HookDelegate<Object> createHookDelegate() {
-        return new HookDelegate<Object>() {
-            @Override
-            protected Object createInterface() {
-                return getOs();
-            }
-        };
+
+    public LibCorePatch() {
+        super(new HookDelegate<Object>(getOs()));
     }
 
     private static Object getOs() {

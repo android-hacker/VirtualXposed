@@ -1,28 +1,17 @@
 package com.lody.virtual.client.hook.patchs.persistent_data_block;
 
-import com.lody.virtual.client.hook.base.PatchDelegate;
+import com.lody.virtual.client.hook.base.PatchBinderDelegate;
 import com.lody.virtual.client.hook.base.ResultStaticHook;
-import com.lody.virtual.client.hook.binders.PersistentDataBlockServiceBinderDelegate;
 
-import mirror.android.os.ServiceManager;
-
+import mirror.android.service.persistentdata.IPersistentDataBlockService;
 
 /**
  * @author Lody
  */
+public class PersistentDataBlockServicePatch extends PatchBinderDelegate {
 
-public class PersistentDataBlockServicePatch
-		extends
-		PatchDelegate<PersistentDataBlockServiceBinderDelegate> {
-
-	@Override
-	protected PersistentDataBlockServiceBinderDelegate createHookDelegate() {
-		return new PersistentDataBlockServiceBinderDelegate();
-	}
-
-	@Override
-	public void inject() throws Throwable {
-		getHookDelegate().replaceService("persistent_data_block");
+	public PersistentDataBlockServicePatch() {
+		super(IPersistentDataBlockService.Stub.TYPE, "persistent_data_block");
 	}
 
 	@Override
@@ -35,10 +24,5 @@ public class PersistentDataBlockServicePatch
 		addHook(new ResultStaticHook("getMaximumDataBlockSize", 0));
 		addHook(new ResultStaticHook("setOemUnlockEnabled", 0));
 		addHook(new ResultStaticHook("getOemUnlockEnabled", false));
-	}
-
-	@Override
-	public boolean isEnvBad() {
-		return getHookDelegate() != ServiceManager.getService.call("persistent_data_block");
 	}
 }

@@ -5,30 +5,18 @@ import android.content.Context;
 import android.os.Build;
 
 import com.lody.virtual.client.hook.base.Patch;
-import com.lody.virtual.client.hook.base.PatchDelegate;
-import com.lody.virtual.client.hook.binders.SessionBinderDelegate;
+import com.lody.virtual.client.hook.base.PatchBinderDelegate;
 
-import mirror.android.os.ServiceManager;
+import mirror.android.media.session.ISessionManager;
 
 /**
  * @author Lody
- *
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 @Patch({CreateSession.class})
-public class SessionManagerPatch extends PatchDelegate<SessionBinderDelegate> {
-	@Override
-	protected SessionBinderDelegate createHookDelegate() {
-		return new SessionBinderDelegate();
-	}
+public class SessionManagerPatch extends PatchBinderDelegate {
 
-	@Override
-	public void inject() throws Throwable {
-		getHookDelegate().replaceService(Context.MEDIA_SESSION_SERVICE);
-	}
-
-	@Override
-	public boolean isEnvBad() {
-		return getHookDelegate() != ServiceManager.getService.call(Context.MEDIA_SESSION_SERVICE);
+	public SessionManagerPatch() {
+		super(ISessionManager.Stub.TYPE, Context.MEDIA_SESSION_SERVICE);
 	}
 }

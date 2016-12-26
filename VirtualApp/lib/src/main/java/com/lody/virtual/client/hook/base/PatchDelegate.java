@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Build;
 
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.interfaces.IHookObject;
 import com.lody.virtual.client.interfaces.Injectable;
 
 import java.lang.reflect.Constructor;
@@ -12,32 +11,26 @@ import java.lang.reflect.Constructor;
 /**
  * @author Lody
  *
+ * This class is responsible with:
+ * - Instantiating a {@link HookDelegate.HookHandler} on {@link #createHookDelegate()}
+ * - Install a bunch of {@link Hook}s, either with a @{@link Patch} annotation or manually
+ *   calling {@link #addHook(Hook)} from {@link #onBindHooks()}
+ * - Install the hooked object on the Runtime via {@link #inject()}
+ *
+ * All {@link PatchDelegate}s (plus a couple of other @{@link Injectable}s are installed by
+ * {@link com.lody.virtual.client.core.PatchManager}
+ *
  * @see Patch
  */
-public abstract class PatchDelegate<T extends IHookObject> implements Injectable {
+public abstract class PatchDelegate<T extends HookDelegate> implements Injectable {
 
 	protected T hookDelegate;
 
-	protected Object baseObject;
-
-	public PatchDelegate() {
-		this(null);
-	}
-
-	public PatchDelegate(Object baseObject) {
-		attachInterface(baseObject);
-	}
-
-	protected void attachInterface(Object baseObject) {
-		this.baseObject = baseObject;
-		this.hookDelegate = createHookDelegate();
+	public PatchDelegate(T hookDelegate) {
+		this.hookDelegate = hookDelegate;
 		onBindHooks();
 		afterHookApply(hookDelegate);
 	}
-
-
-	protected abstract T createHookDelegate();
-
 
 	protected void onBindHooks() {
 

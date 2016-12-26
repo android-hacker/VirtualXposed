@@ -7,6 +7,7 @@ import android.os.IBinder;
 import android.os.IInterface;
 import android.os.Parcel;
 import android.os.RemoteException;
+import android.util.Log;
 
 import com.lody.virtual.client.core.VirtualCore;
 
@@ -19,22 +20,30 @@ import mirror.android.os.ServiceManager;
  * @author Lody
  */
 @SuppressWarnings("unchecked")
-public abstract class HookBinderDelegate extends HookDelegate<IInterface> implements IBinder {
+public class HookBinderDelegate extends HookDelegate<IInterface> implements IBinder {
 
+	private static final String TAG = HookBinderDelegate.class.getSimpleName();
 	private IBinder mBaseBinder;
-	public HookBinderDelegate(Class<?>... proxyInterfaces) {
-		super(proxyInterfaces);
-		init();
+	public HookBinderDelegate(Class<?> stubClass, IBinder binder) {
+		this(createStub(stubClass, binder));
 	}
-
-	public HookBinderDelegate() {
-		super();
-		init();
-	}
-
-	private void init() {
+	public HookBinderDelegate(IInterface mBaseInterface) {
+		super(mBaseInterface);
 		mBaseBinder = getBaseInterface() != null ? getBaseInterface().asBinder() : null;
 		addHook(new AsBinder());
+	}
+
+	private static IInterface createStub(Class<?> stubClass, IBinder binder) {
+		try {
+			if (stubClass == null || binder == null) {
+				return null;
+			}
+			Method asInterface = stubClass.getMethod("asInterface", IBinder.class);
+			return (IInterface)asInterface.invoke(null, binder);
+		} catch (Exception e) {
+			Log.d(TAG, "Could not create stub " + stubClass.getName() + ". Cause: " + e);
+			return null;
+		}
 	}
 
 	public void replaceService(String name) {

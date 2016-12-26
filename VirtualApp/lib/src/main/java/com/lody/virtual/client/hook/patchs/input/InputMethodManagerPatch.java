@@ -1,31 +1,34 @@
 package com.lody.virtual.client.hook.patchs.input;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
 
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Patch;
-import com.lody.virtual.client.hook.base.PatchDelegate;
-import com.lody.virtual.client.hook.binders.IMMBinderDelegate;
+import com.lody.virtual.client.hook.base.PatchBinderDelegate;
 
 import mirror.com.android.internal.view.inputmethod.InputMethodManager;
 
 /**
  * @author Lody
- *
- *
  */
 @Patch({StartInput.class, WindowGainedFocus.class})
-public class InputMethodManagerPatch extends PatchDelegate<IMMBinderDelegate> {
+@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 
-	@Override
-	protected IMMBinderDelegate createHookDelegate() {
-		return new IMMBinderDelegate();
+public class InputMethodManagerPatch extends PatchBinderDelegate {
+
+	public InputMethodManagerPatch() {
+		super(
+				InputMethodManager.mService.get(
+						VirtualCore.get().getContext().getSystemService(Context.INPUT_METHOD_SERVICE)),
+				Context.INPUT_METHOD_SERVICE);
 	}
 
 	@Override
 	public void inject() throws Throwable {
 		Object inputMethodManager = getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-		InputMethodManager
-				.mService.set(inputMethodManager, getHookDelegate().getProxyInterface());
+		InputMethodManager.mService.set(inputMethodManager, getHookDelegate().getProxyInterface());
 		getHookDelegate().replaceService(Context.INPUT_METHOD_SERVICE);
 	}
 
