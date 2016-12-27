@@ -3,26 +3,21 @@ package com.lody.virtual.client.hook.patchs.clipboard;
 import android.content.Context;
 import android.os.Build;
 
-import com.lody.virtual.client.hook.base.PatchDelegate;
+import com.lody.virtual.client.hook.base.PatchBinderDelegate;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
-import com.lody.virtual.client.hook.binders.ClipboardBinderDelegate;
 
-import mirror.android.os.ServiceManager;
+import mirror.android.content.ClipboardManager;
 
 /**
  * @author Lody
  *
- *
+ * @see ClipboardManager
  */
-public class ClipBoardPatch extends PatchDelegate<ClipboardBinderDelegate> {
-	@Override
-	protected ClipboardBinderDelegate createHookDelegate() {
-		return new ClipboardBinderDelegate();
-	}
+public class ClipBoardPatch extends PatchBinderDelegate {
 
-	@Override
-	public void inject() throws Throwable {
-		getHookDelegate().replaceService(Context.CLIPBOARD_SERVICE);
+	public ClipBoardPatch() {
+		//FIXME: Is ClipboardManager.getService() correct?
+		super(ClipboardManager.getService.call(), Context.CLIPBOARD_SERVICE);
 	}
 
 	@Override
@@ -38,10 +33,4 @@ public class ClipBoardPatch extends PatchDelegate<ClipboardBinderDelegate> {
 			addHook(new ReplaceLastPkgHook("hasClipboardText"));
 		}
 	}
-
-	@Override
-	public boolean isEnvBad() {
-		return ServiceManager.getService.call(Context.CLIPBOARD_SERVICE) != getHookDelegate();
-	}
-
 }

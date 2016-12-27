@@ -3,7 +3,6 @@ package com.lody.virtual.client.hook.base;
 import android.text.TextUtils;
 
 import com.lody.virtual.client.hook.utils.HookUtils;
-import com.lody.virtual.client.interfaces.IHookObject;
 import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.InvocationHandler;
@@ -16,9 +15,15 @@ import java.util.Map;
 /**
  * @author Lody
  *
+ * HookHandler uses Java's {@link Proxy} to create a wrapper for existing services.
+ *
+ * When any method is called on the wrapper, it checks if there is any {@link Hook} registered
+ * and enabled for that method. If so, it calls the hook instead of the wrapped implementation.
+ *
+ * The whole thing is managed by a {@link PatchDelegate} subclass
  */
 @SuppressWarnings("unchecked")
-public abstract class HookDelegate<T> implements IHookObject {
+public class HookDelegate<T> {
 
 	private static final String TAG = HookDelegate.class.getSimpleName();
 	private T mBaseInterface;
@@ -28,14 +33,13 @@ public abstract class HookDelegate<T> implements IHookObject {
 	 */
 	private Map<String, Hook> internalHookMapping = new HashMap<String, Hook>();
 
-	@Override
 	public Map<String, Hook> getAllHooks() {
 		return internalHookMapping;
 	}
 
 
-	public HookDelegate(Class<?>... proxyInterfaces) {
-		mBaseInterface = createInterface();
+	public HookDelegate(T mBaseInterface, Class<?>... proxyInterfaces) {
+		this.mBaseInterface = mBaseInterface;
 		if (mBaseInterface != null) {
 			if (proxyInterfaces == null) {
 				proxyInterfaces = HookUtils.getAllInterface(mBaseInterface.getClass());
@@ -46,15 +50,11 @@ public abstract class HookDelegate<T> implements IHookObject {
 		}
 	}
 
-	public HookDelegate() {
-		this((Class[]) null);
+	public HookDelegate(T mBaseInterface) {
+		this(mBaseInterface, (Class[]) null);
 	}
 
-
-	protected abstract T createInterface();
-
-	@Override
-	public void copyHooks(IHookObject from) {
+	public void copyHooks(HookDelegate from) {
 		this.internalHookMapping.putAll(from.getAllHooks());
 	}
 
@@ -64,7 +64,6 @@ public abstract class HookDelegate<T> implements IHookObject {
 	 * @param hook
 	 *            要添加的Hook
 	 */
-	@Override
 	public Hook addHook(Hook hook) {
 		if (hook != null && !TextUtils.isEmpty(hook.getName())) {
 			if (internalHookMapping.containsKey(hook.getName())) {
@@ -84,7 +83,6 @@ public abstract class HookDelegate<T> implements IHookObject {
 	 *            要移除的Hook名
 	 * @return 移除的Hook
 	 */
-	@Override
 	public Hook removeHook(String hookName) {
 		return internalHookMapping.remove(hookName);
 	}
@@ -95,7 +93,6 @@ public abstract class HookDelegate<T> implements IHookObject {
 	 * @param hook
 	 *            要移除的Hook
 	 */
-	@Override
 	public void removeHook(Hook hook) {
 		if (hook != null) {
 			removeHook(hook.getName());
@@ -105,7 +102,6 @@ public abstract class HookDelegate<T> implements IHookObject {
 	/**
 	 * 移除全部Hook
 	 */
-	@Override
 	public void removeAllHook() {
 		internalHookMapping.clear();
 	}
@@ -120,7 +116,6 @@ public abstract class HookDelegate<T> implements IHookObject {
 	 * @return 指定名称的Hook
 	 */
 	@SuppressWarnings("unchecked")
-	@Override
 	public <H extends Hook> H getHook(String name) {
 		return (H) internalHookMapping.get(name);
 	}
@@ -128,7 +123,6 @@ public abstract class HookDelegate<T> implements IHookObject {
 	/**
 	 * @return 包装后的代理对象
 	 */
-	@Override
 	public T getProxyInterface() {
 		return mProxyInterface;
 	}
@@ -136,7 +130,6 @@ public abstract class HookDelegate<T> implements IHookObject {
 	/**
 	 * @return 原对象
 	 */
-	@Override
 	public T getBaseInterface() {
 		return mBaseInterface;
 	}
@@ -144,7 +137,6 @@ public abstract class HookDelegate<T> implements IHookObject {
 	/**
 	 * @return Hook数量
 	 */
-	@Override
 	public int getHookCount() {
 		return internalHookMapping.size();
 	}

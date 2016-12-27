@@ -2,28 +2,20 @@ package com.lody.virtual.client.hook.patchs.isms;
 
 import android.os.Build;
 
-import com.lody.virtual.client.hook.base.PatchDelegate;
+import com.lody.virtual.client.hook.base.PatchBinderDelegate;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
 import com.lody.virtual.client.hook.base.ReplaceSpecPkgHook;
-import com.lody.virtual.client.hook.binders.ISmsBinderDelegate;
 
-import mirror.android.os.ServiceManager;
+import mirror.com.android.internal.telephony.ISms;
 
 /**
  * @author Lody
  */
 
-public class ISmsPatch extends PatchDelegate<ISmsBinderDelegate> {
+public class ISmsPatch extends PatchBinderDelegate {
 
-    @Override
-    protected ISmsBinderDelegate createHookDelegate() {
-        return new ISmsBinderDelegate();
-    }
-
-    @Override
-    public void inject() throws Throwable {
-        getHookDelegate().replaceService("isms");
-
+    public ISmsPatch() {
+        super(ISms.Stub.TYPE, "isms");
     }
 
     @Override
@@ -63,11 +55,5 @@ public class ISmsPatch extends PatchDelegate<ISmsBinderDelegate> {
             addHook(new ReplaceCallingPkgHook("sendText"));
             addHook(new ReplaceCallingPkgHook("sendMultipartText"));
         }
-    }
-
-
-    @Override
-    public boolean isEnvBad() {
-        return getHookDelegate() != ServiceManager.getService.call("isms");
     }
 }

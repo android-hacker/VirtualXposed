@@ -6,29 +6,22 @@ import android.content.Context;
 import android.os.Bundle;
 
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.client.hook.base.PatchDelegate;
-import com.lody.virtual.client.hook.binders.AccountBinderDelegate;
+import com.lody.virtual.client.hook.base.PatchBinderDelegate;
 import com.lody.virtual.client.ipc.VAccountManager;
 
 import java.lang.reflect.Method;
 
-import mirror.android.os.ServiceManager;
+import mirror.android.accounts.IAccountManager;
 
 /**
  * @author Lody
  */
-public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
+public class AccountManagerPatch extends PatchBinderDelegate {
 
 	private static VAccountManager Mgr = VAccountManager.get();
 
-	@Override
-	protected AccountBinderDelegate createHookDelegate() {
-		return new AccountBinderDelegate();
-	}
-
-	@Override
-	public void inject() throws Throwable {
-		getHookDelegate().replaceService(Context.ACCOUNT_SERVICE);
+	public AccountManagerPatch() {
+		super(IAccountManager.Stub.TYPE, Context.ACCOUNT_SERVICE);
 	}
 
 	@Override
@@ -70,12 +63,6 @@ public class AccountManagerPatch extends PatchDelegate<AccountBinderDelegate> {
 		addHook(new getPreviousName());
 		addHook(new renameSharedAccountAsUser());
 	}
-
-	@Override
-	public boolean isEnvBad() {
-		return ServiceManager.getService.call(Context.ACCOUNT_SERVICE) != getHookDelegate();
-	}
-
 
 	private static class getPassword extends Hook {
 		@Override

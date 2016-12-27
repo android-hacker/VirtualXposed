@@ -4,30 +4,23 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 
-import com.lody.virtual.client.hook.base.PatchDelegate;
+import com.lody.virtual.client.hook.base.PatchBinderDelegate;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
 import com.lody.virtual.client.hook.base.ResultStaticHook;
-import com.lody.virtual.client.hook.binders.UserBinderDelegate;
 
 import java.util.Collections;
 
-import mirror.android.os.ServiceManager;
+import mirror.android.os.IUserManager;
 
 /**
  * @author Lody
  *
  */
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-public class UserManagerPatch extends PatchDelegate<UserBinderDelegate> {
+public class UserManagerPatch extends PatchBinderDelegate {
 
-	@Override
-	protected UserBinderDelegate createHookDelegate() {
-		return new UserBinderDelegate();
-	}
-
-	@Override
-	public void inject() throws Throwable {
-		getHookDelegate().replaceService(Context.USER_SERVICE);
+	public UserManagerPatch() {
+		super(IUserManager.Stub.TYPE, Context.USER_SERVICE);
 	}
 
 	@Override
@@ -46,10 +39,5 @@ public class UserManagerPatch extends PatchDelegate<UserBinderDelegate> {
 		addHook(new ResultStaticHook("createUser", null));
 		addHook(new ResultStaticHook("createProfileForUser", null));
 		addHook(new ResultStaticHook("getProfiles", Collections.EMPTY_LIST));
-	}
-
-	@Override
-	public boolean isEnvBad() {
-		return getHookDelegate() != ServiceManager.getService.call(Context.USER_SERVICE);
 	}
 }

@@ -3,29 +3,20 @@ package com.lody.virtual.client.hook.patchs.telephony;
 import android.content.Context;
 
 import com.lody.virtual.client.hook.base.Patch;
-import com.lody.virtual.client.hook.base.PatchDelegate;
+import com.lody.virtual.client.hook.base.PatchBinderDelegate;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
-import com.lody.virtual.client.hook.binders.TelephonyBinderDelegate;
 
-import mirror.android.os.ServiceManager;
+import mirror.com.android.internal.telephony.ITelephony;
 
 /**
  * @author Lody
- *
- *
  */
 @Patch({GetDeviceId.class})
-public class TelephonyPatch extends PatchDelegate<TelephonyBinderDelegate> {
+public class TelephonyPatch extends PatchBinderDelegate {
 
-	@Override
-	protected TelephonyBinderDelegate createHookDelegate() {
-		return new TelephonyBinderDelegate();
-	}
-
-	@Override
-	public void inject() throws Throwable {
-		getHookDelegate().replaceService(Context.TELEPHONY_SERVICE);
+	public TelephonyPatch() {
+		super(ITelephony.Stub.TYPE, Context.TELEPHONY_SERVICE);
 	}
 
 	@Override
@@ -64,10 +55,5 @@ public class TelephonyPatch extends PatchDelegate<TelephonyBinderDelegate> {
 		addHook(new ReplaceCallingPkgHook("getMergedSubscriberIds"));
 		addHook(new ReplaceLastPkgHook("getRadioAccessFamily"));
 		addHook(new ReplaceCallingPkgHook("isVideoCallingEnabled"));
-	}
-
-	@Override
-	public boolean isEnvBad() {
-		return getHookDelegate() != ServiceManager.getService.call(Context.TELEPHONY_SERVICE);
 	}
 }

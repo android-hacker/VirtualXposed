@@ -2,6 +2,7 @@ package com.lody.virtual.client.core;
 
 import android.os.Build;
 
+import com.lody.virtual.client.hook.base.HookDelegate;
 import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.delegate.AppInstrumentation;
 import com.lody.virtual.client.hook.patchs.account.AccountManagerPatch;
@@ -42,7 +43,6 @@ import com.lody.virtual.client.hook.patchs.user.UserManagerPatch;
 import com.lody.virtual.client.hook.patchs.vibrator.VibratorPatch;
 import com.lody.virtual.client.hook.patchs.wifi.WifiManagerPatch;
 import com.lody.virtual.client.hook.patchs.window.WindowManagerPatch;
-import com.lody.virtual.client.interfaces.IHookObject;
 import com.lody.virtual.client.interfaces.Injectable;
 
 import java.util.HashMap;
@@ -186,7 +186,7 @@ public final class PatchManager {
 		}
 	}
 
-	public <T extends Injectable, H extends IHookObject> H getHookObject(Class<T> patchClass) {
+	public <T extends Injectable, H extends HookDelegate> H getHookObject(Class<T> patchClass) {
 		T patch = findPatch(patchClass);
 		if (patch != null && patch instanceof PatchDelegate) {
 			// noinspection unchecked

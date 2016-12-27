@@ -1,27 +1,19 @@
 package com.lody.virtual.client.hook.patchs.phonesubinfo;
 
 import com.lody.virtual.client.hook.base.Patch;
-import com.lody.virtual.client.hook.base.PatchDelegate;
+import com.lody.virtual.client.hook.base.PatchBinderDelegate;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
-import com.lody.virtual.client.hook.binders.PhoneSubInfoBinderDelegate;
 
-import mirror.android.os.ServiceManager;
+import mirror.com.android.internal.telephony.IPhoneSubInfo;
 
 /**
  * @author Lody
- *
  */
 @Patch({GetDeviceId.class, GetDeviceIdForSubscriber.class})
-public class PhoneSubInfoPatch extends PatchDelegate<PhoneSubInfoBinderDelegate> {
-	@Override
-	protected PhoneSubInfoBinderDelegate createHookDelegate() {
-		return new PhoneSubInfoBinderDelegate();
-	}
-
-	@Override
-	public void inject() throws Throwable {
-		getHookDelegate().replaceService("iphonesubinfo");
+public class PhoneSubInfoPatch extends PatchBinderDelegate {
+	public PhoneSubInfoPatch() {
+		super(IPhoneSubInfo.Stub.TYPE, "iphonesubinfo");
 	}
 
 	@Override
@@ -49,11 +41,5 @@ public class PhoneSubInfoPatch extends PatchDelegate<PhoneSubInfoBinderDelegate>
 		//addHook(new ReplaceCallingPkgHook("getDeviceId"));
 		addHook(new ReplaceCallingPkgHook("getIccSerialNumber"));
 		addHook(new ReplaceLastPkgHook("getIccSerialNumberForSubscriber"));
-
-	}
-
-	@Override
-	public boolean isEnvBad() {
-		return getHookDelegate() != ServiceManager.getService.call("iphonesubinfo");
 	}
 }

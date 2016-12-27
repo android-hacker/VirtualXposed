@@ -2,6 +2,8 @@ package mirror.android.content.pm;
 
 import android.os.Parcelable;
 
+import java.util.List;
+
 import mirror.RefClass;
 import mirror.RefConstructor;
 import mirror.RefMethod;
@@ -19,4 +21,5 @@ public class ParceledListSlice {
     public static RefMethod<Boolean> isLastSlice;
     public static RefMethod<Parcelable> populateList;
     public static RefMethod<Void> setLastSlice;
+    public static RefMethod<List<?>> getList;
 }

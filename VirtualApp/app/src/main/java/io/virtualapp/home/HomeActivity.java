@@ -85,14 +85,17 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 			mPresenter.deleteApp(model);
 		});
 		mPagerView.setOnItemClickListener((item, pos) -> {
-
-			new AlertDialog.Builder(this)
-					.setTitle("Choose an User")
-					.setItems(getUsers(), (dialog, userId)
-							-> mPresenter.launchApp((AppModel) item, userId))
-					.setNegativeButton(android.R.string.cancel, null)
-					.show();
-
+			String[] users = getUsers();
+			if (users.length == 1) {
+				mPresenter.launchApp((AppModel) item, 0);
+			} else {
+				new AlertDialog.Builder(this)
+						.setTitle("Choose an User")
+						.setItems(users, (dialog, userId)
+								-> mPresenter.launchApp((AppModel) item, userId))
+						.setNegativeButton(android.R.string.cancel, null)
+						.show();
+			}
 		});
 		findViewById(R.id.user_icon).setOnClickListener(v -> {
 			startActivity(new Intent(this, UserListActivity.class));

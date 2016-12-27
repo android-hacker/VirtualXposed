@@ -16,16 +16,9 @@ import mirror.android.hardware.display.DisplayManagerGlobal;
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 @Patch({CreateVirtualDisplay.class})
 public class DisplayPatch extends PatchDelegate<HookDelegate<IInterface>> {
-	@Override
-	protected HookDelegate<IInterface> createHookDelegate() {
-		return new HookDelegate<IInterface>() {
-			@Override
-			protected IInterface createInterface() {
-				return DisplayManagerGlobal.mDm.get(
-						DisplayManagerGlobal.getInstance.call()
-				);
-			}
-		};
+	public DisplayPatch() {
+		super(new HookDelegate<IInterface>(
+				DisplayManagerGlobal.mDm.get(DisplayManagerGlobal.getInstance.call())));
 	}
 
 	@Override

@@ -4,28 +4,22 @@ import android.content.Context;
 import android.os.Build;
 import android.text.TextUtils;
 
-import com.lody.virtual.client.hook.base.PatchDelegate;
+import com.lody.virtual.client.hook.base.PatchBinderDelegate;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgHook;
-import com.lody.virtual.client.hook.binders.LocationBinderDelegate;
 
 import java.lang.reflect.Method;
 
+import mirror.android.location.ILocationManager;
 import mirror.android.location.LocationRequestL;
-import mirror.android.os.ServiceManager;
 
 /**
  * @author Lody
  *
+ * @see android.location.LocationManager
  */
-public class LocationManagerPatch extends PatchDelegate<LocationBinderDelegate> {
-	@Override
-	protected LocationBinderDelegate createHookDelegate() {
-		return new LocationBinderDelegate();
-	}
-
-	@Override
-	public void inject() throws Throwable {
-		getHookDelegate().replaceService(Context.LOCATION_SERVICE);
+public class LocationManagerPatch extends PatchBinderDelegate {
+	public LocationManagerPatch() {
+		super(ILocationManager.Stub.TYPE, Context.LOCATION_SERVICE);
 	}
 
 	private static class BaseHook extends ReplaceLastPkgHook {
@@ -86,10 +80,5 @@ public class LocationManagerPatch extends PatchDelegate<LocationBinderDelegate> 
 			addHook(new ReplaceLastPkgHook("addProximityAlert"));
 			addHook(new ReplaceLastPkgHook("getLastKnownLocation"));
 		}
-	}
-
-	@Override
-	public boolean isEnvBad() {
-		return ServiceManager.getService.call(Context.LOCATION_SERVICE) != getHookDelegate();
 	}
 }
