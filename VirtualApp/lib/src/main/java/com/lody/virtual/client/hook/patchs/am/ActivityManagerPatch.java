@@ -101,7 +101,7 @@ public class ActivityManagerPatch extends PatchDelegate<HookDelegate<IInterface>
 				@Override
 				public Object call(Object who, Method method, Object... args) throws Throwable {
 					//noinspection unchecked
-					Object _infos = (List<ActivityManager.RecentTaskInfo>) method.invoke(who, args);
+					Object _infos = method.invoke(who, args);
 					List<ActivityManager.RecentTaskInfo> infos =
 							_infos instanceof ParceledListSlice
 									? ParceledListSlice.getList.call(_infos)

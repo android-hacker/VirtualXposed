@@ -51,7 +51,7 @@ public class AlarmManagerPatch extends PatchBinderDelegate {
 
 		@Override
 		public Object call(Object who, Method method, Object... args) throws Throwable {
-			if (Build.VERSION.SDK_INT >= 21) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 				return false;
 			}
 			return null;
@@ -67,7 +67,7 @@ public class AlarmManagerPatch extends PatchBinderDelegate {
 
         @Override
         public boolean beforeCall(Object who, Method method, Object... args) {
-			if (Build.VERSION.SDK_INT >= 24 && args[0] instanceof String) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && args[0] instanceof String) {
 				args[0] = getHostPkg();
 			}
             int index = ArrayUtils.indexOfFirst(args, WorkSource.class);

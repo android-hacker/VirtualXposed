@@ -14,154 +14,153 @@ import java.util.Map;
 
 /**
  * @author Lody
- *
- * HookHandler uses Java's {@link Proxy} to create a wrapper for existing services.
- *
- * When any method is called on the wrapper, it checks if there is any {@link Hook} registered
- * and enabled for that method. If so, it calls the hook instead of the wrapped implementation.
- *
- * The whole thing is managed by a {@link PatchDelegate} subclass
+ *         <p>
+ *         HookHandler uses Java's {@link Proxy} to create a wrapper for existing services.
+ *         <p>
+ *         When any method is called on the wrapper, it checks if there is any {@link Hook} registered
+ *         and enabled for that method. If so, it calls the hook instead of the wrapped implementation.
+ *         <p>
+ *         The whole thing is managed by a {@link PatchDelegate} subclass
  */
 @SuppressWarnings("unchecked")
 public class HookDelegate<T> {
 
-	private static final String TAG = HookDelegate.class.getSimpleName();
-	private T mBaseInterface;
-	private T mProxyInterface;
-	/**
-	 * 内部维护的Hook集合
-	 */
-	private Map<String, Hook> internalHookMapping = new HashMap<String, Hook>();
+    private static final String TAG = HookDelegate.class.getSimpleName();
 
-	public Map<String, Hook> getAllHooks() {
-		return internalHookMapping;
-	}
+    private Map<String, Hook> internalHookTable = new HashMap<String, Hook>();
+    private T mBaseInterface;
+    private T mProxyInterface;
 
 
-	public HookDelegate(T mBaseInterface, Class<?>... proxyInterfaces) {
-		this.mBaseInterface = mBaseInterface;
-		if (mBaseInterface != null) {
-			if (proxyInterfaces == null) {
-				proxyInterfaces = HookUtils.getAllInterface(mBaseInterface.getClass());
-			}
-			mProxyInterface = (T) Proxy.newProxyInstance(mBaseInterface.getClass().getClassLoader(), proxyInterfaces, new HookHandler());
-		} else {
-			VLog.d(TAG, "Unable to build HookDelegate: %s.", getClass().getName());
-		}
-	}
+    public Map<String, Hook> getAllHooks() {
+        return internalHookTable;
+    }
 
-	public HookDelegate(T mBaseInterface) {
-		this(mBaseInterface, (Class[]) null);
-	}
 
-	public void copyHooks(HookDelegate from) {
-		this.internalHookMapping.putAll(from.getAllHooks());
-	}
+    public HookDelegate(T baseInterface, Class<?>... proxyInterfaces) {
+        this.mBaseInterface = baseInterface;
+        if (baseInterface != null) {
+            if (proxyInterfaces == null) {
+                proxyInterfaces = HookUtils.getAllInterface(baseInterface.getClass());
+            }
+            mProxyInterface = (T) Proxy.newProxyInstance(baseInterface.getClass().getClassLoader(), proxyInterfaces, new HookHandler());
+        } else {
+            VLog.d(TAG, "Unable to build HookDelegate: %s.", getClass().getName());
+        }
+    }
 
-	/**
-	 * 添加一个Hook
-	 * 
-	 * @param hook
-	 *            要添加的Hook
-	 */
-	public Hook addHook(Hook hook) {
-		if (hook != null && !TextUtils.isEmpty(hook.getName())) {
-			if (internalHookMapping.containsKey(hook.getName())) {
-				VLog.w(TAG, "Hook(%s) from class(%s) have been added, can't add again.", hook.getName(),
-						hook.getClass().getName());
-				return hook;
-			}
-			internalHookMapping.put(hook.getName(), hook);
-		}
-		return hook;
-	}
+    public HookDelegate(T baseInterface) {
+        this(baseInterface, (Class[]) null);
+    }
 
-	/**
-	 * 移除一个Hook
-	 * 
-	 * @param hookName
-	 *            要移除的Hook名
-	 * @return 移除的Hook
-	 */
-	public Hook removeHook(String hookName) {
-		return internalHookMapping.remove(hookName);
-	}
+    /**
+     * Copy all hooks from the input HookDelegate.
+     *
+     * @param from the HookDelegate we copy from.
+     */
+    public void copyHooks(HookDelegate from) {
+        this.internalHookTable.putAll(from.getAllHooks());
+    }
 
-	/**
-	 * 移除一个Hook
-	 * 
-	 * @param hook
-	 *            要移除的Hook
-	 */
-	public void removeHook(Hook hook) {
-		if (hook != null) {
-			removeHook(hook.getName());
-		}
-	}
+    /**
+     * Add a Hook
+     *
+     * @param hook add a Hook
+     */
+    public Hook addHook(Hook hook) {
+        if (hook != null && !TextUtils.isEmpty(hook.getName())) {
+            if (internalHookTable.containsKey(hook.getName())) {
+                VLog.w(TAG, "The Hook(%s, %s) you added has been in existence.", hook.getName(),
+                        hook.getClass().getName());
+                return hook;
+            }
+            internalHookTable.put(hook.getName(), hook);
+        }
+        return hook;
+    }
 
-	/**
-	 * 移除全部Hook
-	 */
-	public void removeAllHook() {
-		internalHookMapping.clear();
-	}
+    /**
+     * Remove a hook
+     *
+     * @param hookName The name of target Hook
+     * @return The hook you removed
+     */
+    public Hook removeHook(String hookName) {
+        return internalHookTable.remove(hookName);
+    }
 
-	/**
-	 * 取得指定名称的Hook
-	 *
-	 * @param name
-	 *            Hook名
-	 * @param <H>
-	 *            Hook类型
-	 * @return 指定名称的Hook
-	 */
-	@SuppressWarnings("unchecked")
-	public <H extends Hook> H getHook(String name) {
-		return (H) internalHookMapping.get(name);
-	}
+    /**
+     * Remove a hook
+     *
+     * @param hook target Hook
+     */
+    public void removeHook(Hook hook) {
+        if (hook != null) {
+            removeHook(hook.getName());
+        }
+    }
 
-	/**
-	 * @return 包装后的代理对象
-	 */
-	public T getProxyInterface() {
-		return mProxyInterface;
-	}
+    /**
+     * 移除全部Hook
+     */
+    public void removeAllHook() {
+        internalHookTable.clear();
+    }
 
-	/**
-	 * @return 原对象
-	 */
-	public T getBaseInterface() {
-		return mBaseInterface;
-	}
+    /**
+     * Get the hook by its name.
+     *
+     * @param name name of the Hook
+     * @param <H>  Type of the Hook
+     * @return target hook
+     */
+    @SuppressWarnings("unchecked")
+    public <H extends Hook> H getHook(String name) {
+        return (H) internalHookTable.get(name);
+    }
 
-	/**
-	 * @return Hook数量
-	 */
-	public int getHookCount() {
-		return internalHookMapping.size();
-	}
+    /**
+     * @return Proxy interface
+     */
+    public T getProxyInterface() {
+        return mProxyInterface;
+    }
 
-	private class HookHandler implements InvocationHandler {
-		@Override
-		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-			Hook hook = getHook(method.getName());
-			try {
-				if (hook != null && hook.isEnable()) {
-					if (hook.beforeCall(mBaseInterface, method, args)) {
-						Object res = hook.call(mBaseInterface, method, args);
-						res = hook.afterCall(mBaseInterface, method, args, res);
-						return res;
-					}
-				}
-				return method.invoke(mBaseInterface, args);
-			} catch (InvocationTargetException e) {
-				Throwable cause = e.getTargetException();
-				if (cause != null) {
-					throw cause;
-				}
-				throw e;
-			}
-		}
-	}
+    /**
+     * @return Origin Interface
+     */
+    public T getBaseInterface() {
+        return mBaseInterface;
+    }
+
+    /**
+     * @return count of the hooks
+     */
+    public int getHookCount() {
+        return internalHookTable.size();
+    }
+
+    private class HookHandler implements InvocationHandler {
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            Hook hook = getHook(method.getName());
+            try {
+                if (hook != null && hook.isEnable()) {
+                    if (hook.beforeCall(mBaseInterface, method, args)) {
+                        Object res = hook.call(mBaseInterface, method, args);
+                        res = hook.afterCall(mBaseInterface, method, args, res);
+                        return res;
+                    }
+                }
+                return method.invoke(mBaseInterface, args);
+            } catch (InvocationTargetException e) {
+                Throwable cause = e.getTargetException();
+                if (cause != null) {
+                    throw cause;
+                }
+                throw e;
+            }
+        }
+    }
 
 }

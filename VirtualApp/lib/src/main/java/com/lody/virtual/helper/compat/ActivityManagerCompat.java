@@ -67,7 +67,7 @@ public class ActivityManagerCompat {
 	public static final int USER_OP_SUCCESS = 0;
 
 	public static boolean finishActivity(IBinder token, int code, Intent data) {
-		if (Build.VERSION.SDK_INT >= 24/*N*/) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 			return IActivityManagerN.finishActivity.call(
 					ActivityManagerNative.getDefault.call(),
 					token, code, data, 0);

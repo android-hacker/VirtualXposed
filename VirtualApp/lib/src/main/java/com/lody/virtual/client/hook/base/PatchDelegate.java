@@ -12,7 +12,7 @@ import java.lang.reflect.Constructor;
  * @author Lody
  *
  * This class is responsible with:
- * - Instantiating a {@link HookDelegate.HookHandler} on {@link #createHookDelegate()}
+ * - Instantiating a {@link HookDelegate.HookHandler} on {@link #getHookDelegate()} ()}
  * - Install a bunch of {@link Hook}s, either with a @{@link Patch} annotation or manually
  *   calling {@link #addHook(Hook)} from {@link #onBindHooks()}
  * - Install the hooked object on the Runtime via {@link #inject()}
@@ -88,10 +88,6 @@ public abstract class PatchDelegate<T extends HookDelegate> implements Injectabl
 	protected void afterHookApply(T delegate) {
 	}
 
-	/**
-	 *
-	 * @throws Throwable
-	 */
 	@Override
 	public abstract void inject() throws Throwable;
 

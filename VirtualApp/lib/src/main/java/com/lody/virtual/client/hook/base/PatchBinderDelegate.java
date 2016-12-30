@@ -1,14 +1,7 @@
 package com.lody.virtual.client.hook.base;
 
-import android.content.Context;
-import android.os.Build;
+import android.os.IBinder;
 import android.os.IInterface;
-
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.hook.patchs.alarm.AlarmManagerPatch;
-import com.lody.virtual.client.interfaces.Injectable;
-
-import java.lang.reflect.Constructor;
 
 import mirror.android.os.ServiceManager;
 
@@ -41,6 +34,7 @@ public abstract class PatchBinderDelegate extends PatchDelegate<HookBinderDelega
 
 	@Override
 	public boolean isEnvBad() {
-		return getHookDelegate() != ServiceManager.getService.call(serviceName);
+		IBinder binder = ServiceManager.getService.call(serviceName);
+		return binder != null && getHookDelegate() != binder;
 	}
 }

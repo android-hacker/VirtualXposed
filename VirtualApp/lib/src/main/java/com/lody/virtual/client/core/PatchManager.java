@@ -30,7 +30,7 @@ import com.lody.virtual.client.hook.patchs.location.LocationManagerPatch;
 import com.lody.virtual.client.hook.patchs.media.router.MediaRouterServicePatch;
 import com.lody.virtual.client.hook.patchs.media.session.SessionManagerPatch;
 import com.lody.virtual.client.hook.patchs.mount.MountServicePatch;
-import com.lody.virtual.client.hook.patchs.net_management.NetworkManagementPatch;
+import com.lody.virtual.client.hook.patchs.network.NetworkManagementPatch;
 import com.lody.virtual.client.hook.patchs.notification.NotificationManagerPatch;
 import com.lody.virtual.client.hook.patchs.persistent_data_block.PersistentDataBlockServicePatch;
 import com.lody.virtual.client.hook.patchs.phonesubinfo.PhoneSubInfoPatch;
@@ -42,6 +42,7 @@ import com.lody.virtual.client.hook.patchs.telephony.TelephonyPatch;
 import com.lody.virtual.client.hook.patchs.user.UserManagerPatch;
 import com.lody.virtual.client.hook.patchs.vibrator.VibratorPatch;
 import com.lody.virtual.client.hook.patchs.wifi.WifiManagerPatch;
+import com.lody.virtual.client.hook.patchs.wifi_scanner.WifiScannerPatch;
 import com.lody.virtual.client.hook.patchs.window.WindowManagerPatch;
 import com.lody.virtual.client.interfaces.Injectable;
 
@@ -54,6 +55,7 @@ import static android.os.Build.VERSION_CODES.KITKAT;
 import static android.os.Build.VERSION_CODES.LOLLIPOP;
 import static android.os.Build.VERSION_CODES.LOLLIPOP_MR1;
 import static android.os.Build.VERSION_CODES.M;
+import static android.os.Build.VERSION_CODES.N;
 
 /**
  * @author Lody
@@ -61,15 +63,18 @@ import static android.os.Build.VERSION_CODES.M;
  */
 public final class PatchManager {
 
+    private static PatchManager sPatchManager = new PatchManager();
+    private static boolean sInit;
+
 	private static final String TAG = PatchManager.class.getSimpleName();
 
-	private Map<Class<?>, Injectable> injectTable = new HashMap<>(12);
+	private Map<Class<?>, Injectable> injectTable = new HashMap<>(13);
 
 	private PatchManager() {
 	}
 
 	public static PatchManager getInstance() {
-		return PatchManagerHolder.sPatchManager;
+		return sPatchManager;
 	}
 
 	void injectAll() throws Throwable {
@@ -77,24 +82,23 @@ public final class PatchManager {
 			injectable.inject();
 		}
 		// XXX: Lazy inject the Instrumentation,
-		// It is important in many cases.
 		addPatch(AppInstrumentation.getDefault());
 	}
 
     /**
-	 * @return 是否已经初始化
+	 * @return if the PatchManager has been initialized.
 	 */
 	public boolean isInit() {
-		return PatchManagerHolder.sInit;
+		return sInit;
 	}
 
 
 	public void init() throws Throwable {
-		if (PatchManagerHolder.sInit) {
+		if (isInit()) {
 			throw new IllegalStateException("PatchManager Has been initialized.");
 		}
 		injectInternal();
-		PatchManagerHolder.sInit = true;
+		sInit = true;
 
 	}
 
@@ -111,7 +115,6 @@ public final class PatchManager {
 			addPatch(new LibCorePatch());
 			addPatch(new ActivityManagerPatch());
 			addPatch(new PackageManagerPatch());
-			// ## End
 			addPatch(HCallbackHook.getDefault());
 			addPatch(new ISmsPatch());
 			addPatch(new ISubPatch());
@@ -130,6 +133,7 @@ public final class PatchManager {
 			addPatch(new AudioManagerPatch());
 			addPatch(new SearchManagerPatch());
 			addPatch(new ContentServicePatch());
+			addPatch(new ConnectivityPatch());
 
 			if (Build.VERSION.SDK_INT >= JELLY_BEAN_MR2) {
 				addPatch(new VibratorPatch());
@@ -162,7 +166,9 @@ public final class PatchManager {
 			if (Build.VERSION.SDK_INT >= M) {
 				addPatch(new NetworkManagementPatch());
 			}
-            addPatch(new ConnectivityPatch());
+			if (Build.VERSION.SDK_INT >= N) {
+                addPatch(new WifiScannerPatch());
+            }
 		}
 	}
 
@@ -193,11 +199,6 @@ public final class PatchManager {
 			return (H) ((PatchDelegate) patch).getHookDelegate();
 		}
 		return null;
-	}
-
-	private static final class PatchManagerHolder {
-		private static PatchManager sPatchManager = new PatchManager();
-		private static boolean sInit;
 	}
 
 }

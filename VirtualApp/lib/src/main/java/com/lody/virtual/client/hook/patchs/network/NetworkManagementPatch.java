@@ -1,6 +1,7 @@
-package com.lody.virtual.client.hook.patchs.net_management;
+package com.lody.virtual.client.hook.patchs.network;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.os.Build;
 
 import com.lody.virtual.client.hook.base.PatchBinderDelegate;
