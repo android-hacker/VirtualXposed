@@ -81,15 +81,15 @@ public class AppRepository implements AppDataSource {
 		});
 	}
 
-	private List<PackageInfo> findAndParseAPKs(Context context, List<String> pathes) {
+	private List<PackageInfo> findAndParseAPKs(Context context, List<String> paths) {
 		List<PackageInfo> pkgs = new ArrayList<>();
-		if (pathes == null)
+		if (paths == null)
 			return pkgs;
-		for (String path : pathes) {
-			File dir = new File(path);
-			if (!dir.exists() || !dir.isDirectory())
+		for (String path : paths) {
+			File[] dirFiles = new File(path).listFiles();
+			if (dirFiles == null)
 				continue;
-			for (File f : dir.listFiles()) {
+			for (File f : dirFiles) {
 				if (!f.getName().toLowerCase().endsWith(".apk"))
 					continue;
 				PackageInfo pkgInfo = null;
