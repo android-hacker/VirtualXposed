@@ -1,5 +1,6 @@
 package io.virtualapp.home.models;
 
+import java.io.File;
 import java.util.List;
 
 import org.jdeferred.Promise;
@@ -24,7 +25,7 @@ public interface AppDataSource {
 	 */
 	Promise<List<AppModel>, Throwable, Void> getInstalledApps(Context context);
 
-	Promise<List<AppModel>, Throwable, Void> getSdCardApps(Context context);
+	Promise<List<AppModel>, Throwable, Void> getStorageApps(Context context, File rootDir);
 
 	void addVirtualApp(AppModel app) throws Throwable;
 
