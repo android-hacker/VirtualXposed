@@ -3,6 +3,8 @@ package io.virtualapp.home;
 import android.app.Activity;
 import android.content.Intent;
 
+import java.io.File;
+
 import io.virtualapp.VCommends;
 import io.virtualapp.home.models.AppDataSource;
 import io.virtualapp.home.models.AppModel;
@@ -17,9 +19,9 @@ public class ListAppPresenterImpl implements ListAppContract.ListAppPresenter {
 	private ListAppContract.ListAppView mView;
 	private AppDataSource mRepository;
 
-	private int from;
+	private File from;
 
-	public ListAppPresenterImpl(Activity activity, ListAppContract.ListAppView view, int fromWhere) {
+	public ListAppPresenterImpl(Activity activity, ListAppContract.ListAppView view, File fromWhere) {
 		mActivity = activity;
 		mView = view;
 		mRepository = new AppRepository(activity);
@@ -31,10 +33,10 @@ public class ListAppPresenterImpl implements ListAppContract.ListAppPresenter {
 	public void start() {
 		mView.setPresenter(this);
 		mView.startLoading();
-		if (from == ListAppContract.SELECT_APP_FROM_SYSTEM)
+		if (from == null)
 			mRepository.getInstalledApps(mActivity).done(mView::loadFinish);
 		else
-			mRepository.getSdCardApps(mActivity).done(mView::loadFinish);
+			mRepository.getStorageApps(mActivity, from).done(mView::loadFinish);
 	}
 
 	@Override

@@ -11,9 +11,6 @@ import io.virtualapp.home.models.AppModel;
  * @version 1.0
  */
 public class ListAppContract {
-	public static final int SELECT_APP_FROM_SYSTEM = 0;
-	public static final int SELECT_APP_FROM_SD_CARD = 1;
-
 	interface ListAppView extends BaseView<ListAppPresenter> {
 
 		void startLoading();

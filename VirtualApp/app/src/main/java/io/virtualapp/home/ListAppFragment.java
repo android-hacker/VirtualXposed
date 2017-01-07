@@ -1,5 +1,6 @@
 package io.virtualapp.home;
 
+import java.io.File;
 import java.util.List;
 
 import android.os.Bundle;
@@ -27,20 +28,24 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
 	private ProgressBar mProgressBar;
 	private AppListAdapter mAdapter;
 
-	public static ListAppFragment newInstance(int selectFrom) {
+	public static ListAppFragment newInstance(File selectFrom) {
 		Bundle args = new Bundle();
-		args.putInt(KEY_SELECT_FROM, selectFrom);
+		if (selectFrom != null)
+			args.putString(KEY_SELECT_FROM, selectFrom.getPath());
 		ListAppFragment fragment = new ListAppFragment();
 		fragment.setArguments(args);
 		return fragment;
 	}
 
-	private int getSelectFrom() {
-		int selectFrom = ListAppContract.SELECT_APP_FROM_SYSTEM;
+	private File getSelectFrom() {
 		Bundle bundle = getArguments();
-		if (bundle != null)
-			selectFrom = bundle.getInt(KEY_SELECT_FROM, selectFrom);
-		return selectFrom;
+		if (bundle != null) {
+			String selectFrom = bundle.getString(KEY_SELECT_FROM);
+			if (selectFrom != null) {
+				return new File(selectFrom);
+			}
+		}
+		return null;
 	}
 
 	@Nullable
