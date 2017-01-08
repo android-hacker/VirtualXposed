@@ -30,6 +30,26 @@ public interface ComponentDelegate {
         }
 
         @Override
+        public void afterActivityCreate(Activity activity) {
+            // Empty
+        }
+
+        @Override
+        public void afterActivityResume(Activity activity) {
+            // Empty
+        }
+
+        @Override
+        public void afterActivityPause(Activity activity) {
+            // Empty
+        }
+
+        @Override
+        public void afterActivityDestroy(Activity activity) {
+            // Empty
+        }
+
+        @Override
         public void onSendBroadcast(Intent intent) {
             // Empty
         }
@@ -42,6 +62,14 @@ public interface ComponentDelegate {
     void beforeActivityPause(Activity activity);
 
     void beforeActivityDestroy(Activity activity);
+
+    void afterActivityCreate(Activity activity);
+
+    void afterActivityResume(Activity activity);
+
+    void afterActivityPause(Activity activity);
+
+    void afterActivityDestroy(Activity activity);
 
     void onSendBroadcast(Intent intent);
 }

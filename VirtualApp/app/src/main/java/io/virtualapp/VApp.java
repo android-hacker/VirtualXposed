@@ -47,7 +47,6 @@ public class VApp extends Application {
     protected void attachBaseContext(Context base) {
         StubManifest.STUB_CP_AUTHORITY = BuildConfig.APPLICATION_ID + "." + StubManifest.STUB_DEF_AUTHORITY;
         ServiceManagerNative.SERVICE_CP_AUTH = BuildConfig.APPLICATION_ID + "." + ServiceManagerNative.SERVICE_DEF_AUTH;
-        //
         VirtualCore.get().setComponentDelegate(new MyComponentDelegate());
         super.attachBaseContext(base);
         try {

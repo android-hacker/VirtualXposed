@@ -28,6 +28,26 @@ public class MyComponentDelegate implements ComponentDelegate {
     }
 
     @Override
+    public void afterActivityCreate(Activity activity) {
+
+    }
+
+    @Override
+    public void afterActivityResume(Activity activity) {
+
+    }
+
+    @Override
+    public void afterActivityPause(Activity activity) {
+
+    }
+
+    @Override
+    public void afterActivityDestroy(Activity activity) {
+
+    }
+
+    @Override
     public void onSendBroadcast(Intent intent) {
 
     }

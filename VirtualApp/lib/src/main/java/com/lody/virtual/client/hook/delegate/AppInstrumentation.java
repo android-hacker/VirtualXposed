@@ -86,6 +86,7 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
             }
         }
 		super.callActivityOnCreate(activity, icicle);
+		VirtualCore.get().getComponentDelegate().afterActivityCreate(activity);
 	}
 
 	@Override
@@ -93,6 +94,7 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
         VirtualCore.get().getComponentDelegate().beforeActivityResume(activity);
 		VActivityManager.get().onActivityResumed(activity);
 		super.callActivityOnResume(activity);
+		VirtualCore.get().getComponentDelegate().afterActivityResume(activity);
 		Intent intent = activity.getIntent();
 		Bundle bundle = intent.getBundleExtra("_VA_|_sender_");
 		if (bundle != null) {
@@ -105,12 +107,14 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 	public void callActivityOnDestroy(Activity activity) {
         VirtualCore.get().getComponentDelegate().beforeActivityDestroy(activity);
 		super.callActivityOnDestroy(activity);
+		VirtualCore.get().getComponentDelegate().afterActivityDestroy(activity);
 	}
 
 	@Override
 	public void callActivityOnPause(Activity activity) {
         VirtualCore.get().getComponentDelegate().beforeActivityPause(activity);
 		super.callActivityOnPause(activity);
+		VirtualCore.get().getComponentDelegate().afterActivityPause(activity);
 	}
 
 
