@@ -9,16 +9,16 @@ VirtualApp允许你在App内创建一个虚拟空间，你可以在虚拟空间�
 注意
 -----
 VirtualApp已申请国家专利, 并获得软件著作权保护, 当你的行为对项目或是项目作者构成利益冲突时,我们将追究法律责任.
-
-讨论技术话题
+使用说明
 ----------
 
 1. 将你的Host和Plugins需要的**所有权限**加入到你的`AndroidManifest.xml`.
-
 2. 前往你的Application并添加如下代码:
 ```java
     @Override
     protected void attachBaseContext(Context base) {
+        StubManifest.STUB_CP_AUTHORITY = BuildConfig.APPLICATION_ID + "." + StubManifest.STUB_DEF_AUTHORITY;
+        ServiceManagerNative.SERVICE_CP_AUTH = BuildConfig.APPLICATION_ID + "." + ServiceManagerNative.SERVICE_DEF_AUTH;
         super.attachBaseContext(base);
         try {
             VirtualCore.getCore().startup(base);
@@ -27,23 +27,22 @@ VirtualApp已申请国家专利, 并获得软件著作权保护, 当你的行为
         }
     }
 ```
-3. For **Install a virtual App**, use this function:
+3. 将App添加到虚拟引擎:
 ```java
     VirtualCore.getCore().installApp({APK PATH}, flags);
 ```
-4. For **Launch a virtual App**, use this function:
+4. 启动App:
 ```java
     VirtualCore.getCore().launchApp({PackageName});
 ```
-5. For **uninstall a virtual App**, use this function:
+5. 移除App:
 ```java
     VirtualCore.getCore().uninstallApp({PackageName});
 ```
-6. If you need to get the `details of App`, use this function:
+6. 该App有关的信息:
 ```java
     VirtualCore.getCore().findApp({PackageName});
 ```
-
 
 文档
 -------------
