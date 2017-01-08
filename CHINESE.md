@@ -13,7 +13,6 @@ VirtualApp已申请国家专利, 并获得软件著作权保护, 当你的行为
 ----------
 
 1. 将你的Host和Plugins需要的**所有权限**加入到你的`AndroidManifest.xml`.
-
 2. 前往你的Application并添加如下代码:
 ```java
     @Override
@@ -44,7 +43,6 @@ VirtualApp已申请国家专利, 并获得软件著作权保护, 当你的行为
 ```java
     VirtualCore.getCore().findApp({PackageName});
 ```
-
 
 文档
 -------------
