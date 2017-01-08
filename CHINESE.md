@@ -27,18 +27,22 @@ VirtualApp已申请国家专利, 并获得软件著作权保护, 当你的行为
         }
     }
 ```
+
 3. 将App添加到虚拟引擎:
 ```java
     VirtualCore.getCore().installApp({APK PATH}, flags);
 ```
+
 4. 启动App:
 ```java
     VirtualCore.getCore().launchApp({PackageName});
 ```
+
 5. 移除App:
 ```java
     VirtualCore.getCore().uninstallApp({PackageName});
 ```
+
 6. 该App有关的信息:
 ```java
     VirtualCore.getCore().findApp({PackageName});
