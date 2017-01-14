@@ -26,7 +26,9 @@ public class LocalProxyUtils {
                 long identity = Binder.clearCallingIdentity();
                 try {
                     return method.invoke(base, args);
-                } finally {
+                } catch (Throwable e) {
+                    throw e.getCause() != null ? e.getCause() : e;
+                }finally {
                     Binder.restoreCallingIdentity(identity);
                 }
             }

@@ -37,7 +37,7 @@ public class AppPagerAdapter extends FragmentPagerAdapter {
 			for (StorageVolume volume : storage.getStorageVolumes()) {
 				//Why the fuck are getPathFile and getUserLabel hidden?!
 				//StorageVolume is kinda useless without those...
-				File dir = (File) Reflect.on(volume).call("getPathFile").get();
+				File dir = Reflect.on(volume).call("getPathFile").get();
 				String label = Reflect.on(volume).call("getUserLabel").get();
 				if (dir.listFiles() != null) {
 					titles.add(label);
