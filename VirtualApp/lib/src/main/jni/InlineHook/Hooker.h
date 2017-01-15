@@ -13,7 +13,7 @@
 
 namespace Cydia{
 
-	void elfHookFunction(const char *soname, const char *symbol, void *replace_func, void **old_func);
+	void MSHookFunction(const char *soname, const char *symbol, void *replace_func, void **old_func);
 	void MSHookFunction(void *symbol, void *replace, void **result);
 }
 #endif /* HOOKER_H_ */

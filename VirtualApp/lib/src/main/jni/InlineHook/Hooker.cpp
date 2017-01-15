@@ -25,7 +25,8 @@ void Cydia::MSHookFunction(void *symbol, void *replace, void **result) {
 #endif
 }
 
-void Cydia::elfHookFunction(const char *soname, const char *symbol, void *replace_func, void **old_func) {
+void Cydia::MSHookFunction(const char *soname, const char *symbol, void *replace_func,
+                           void **old_func) {
     void *addr = NULL;
     if (find_name(getpid(), symbol, soname, (unsigned long *)&addr) < 0) {
         MSLog(MSLogLevelError, "Not found %s in %s.", symbol, soname);

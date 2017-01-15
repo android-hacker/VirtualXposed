@@ -18,7 +18,7 @@ import java.util.Map;
  *         HookHandler uses Java's {@link Proxy} to create a wrapper for existing services.
  *         <p>
  *         When any method is called on the wrapper, it checks if there is any {@link Hook} registered
- *         and enabled for that method. If so, it calls the hook instead of the wrapped implementation.
+ *         and enabled for that method. If so, it calls the startUniformer instead of the wrapped implementation.
  *         <p>
  *         The whole thing is managed by a {@link PatchDelegate} subclass
  */
@@ -80,17 +80,17 @@ public class HookDelegate<T> {
     }
 
     /**
-     * Remove a hook
+     * Remove a startUniformer
      *
      * @param hookName The name of target Hook
-     * @return The hook you removed
+     * @return The startUniformer you removed
      */
     public Hook removeHook(String hookName) {
         return internalHookTable.remove(hookName);
     }
 
     /**
-     * Remove a hook
+     * Remove a startUniformer
      *
      * @param hook target Hook
      */
@@ -108,11 +108,11 @@ public class HookDelegate<T> {
     }
 
     /**
-     * Get the hook by its name.
+     * Get the startUniformer by its name.
      *
      * @param name name of the Hook
      * @param <H>  Type of the Hook
-     * @return target hook
+     * @return target startUniformer
      */
     @SuppressWarnings("unchecked")
     public <H extends Hook> H getHook(String name) {

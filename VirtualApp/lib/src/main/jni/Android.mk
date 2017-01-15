@@ -6,22 +6,22 @@ LOCAL_CFLAGS := -Wno-error=format-security -fpermissive
 LOCAL_CFLAGS += -fno-rtti -fno-exceptions
 
 LOCAL_C_INCLUDES += $(LOCAL_PATH)
-LOCAL_C_INCLUDES += $(LOCAL_PATH)/hook
-LOCAL_C_INCLUDES += $(LOCAL_PATH)/helper
-LOCAL_C_INCLUDES += $(LOCAL_PATH)/MSHook
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/Foundation
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/InlineHook
 
-LOCAL_SRC_FILES := core.cpp \
-				   hook/Hook.cpp \
-				   hook/HookNative.cpp \
-				   MSHook/hook.cpp \
-				   MSHook/x86_64.cpp \
-				   MSHook/ARM.cpp \
-				   MSHook/Debug.cpp \
-				   MSHook/Hooker.cpp \
-				   MSHook/PosixMemory.cpp \
-				   MSHook/Thumb.cpp \
-				   MSHook/util.cpp \
-				   MSHook/x86.cpp
+LOCAL_SRC_FILES := Core.cpp \
+				   Foundation/IOUniformer.cpp \
+				   Foundation/VMPatch.cpp \
+				   AntiDexProtect/AntiArtDexProtect.cpp \
+				   InlineHook/MSHook.cpp \
+				   InlineHook/x86_64.cpp \
+				   InlineHook/ARM.cpp \
+				   InlineHook/Debug.cpp \
+				   InlineHook/Hooker.cpp \
+				   InlineHook/PosixMemory.cpp \
+				   InlineHook/Thumb.cpp \
+				   InlineHook/util.cpp \
+				   InlineHook/x86.cpp
 
 LOCAL_LDLIBS := -llog
 

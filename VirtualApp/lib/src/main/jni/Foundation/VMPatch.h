@@ -12,10 +12,12 @@
 #include <fcntl.h>
 #include <sys/system_properties.h>
 
-#include "../helper/helper.h"
+#include "Helper.h"
 
 
-void hookNative(jobject javaMethod, jboolean isArt, jint apiLevel);
+void patchAndroidVM(jobject javaMethod, jboolean isArt, jint apiLevel);
+
+void *getVMHandle();
 
 
 #endif //NDK_HOOK_NATIVE_H

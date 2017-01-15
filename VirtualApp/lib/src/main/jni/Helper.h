@@ -7,7 +7,7 @@
 
 #include <android/log.h>
 
-#define TAG "VA-IO"
+#define TAG "VA-Native"
 
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG,  TAG, __VA_ARGS__)
 #define LOGDT(T, ...) __android_log_print(ANDROID_LOG_DEBUG,  T, __VA_ARGS__)
@@ -22,12 +22,6 @@
 #define NATIVE_METHOD(func_ptr, func_name, signature) { func_name, signature, reinterpret_cast<void*>(func_ptr) }
 
 #define JAVA_CLASS "com/lody/virtual/IOHook"
-
-#define JAVA_CALLBACK__ON_KILL_PROCESS "onKillProcess"
-#define JAVA_CALLBACK__ON_KILL_PROCESS_SIGNATURE "(II)V"
-
-#define JAVA_CALLBACK__BINDER__ON_GET_CALLING_UID "onGetCallingUid"
-#define JAVA_CALLBACK__BINDER__ON_GET_CALLING_UID_SIGNATURE "(I)I"
 
 #define ANDROID_L    21
 
