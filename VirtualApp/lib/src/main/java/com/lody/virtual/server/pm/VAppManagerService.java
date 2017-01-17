@@ -150,6 +150,9 @@ public class VAppManagerService extends IAppManager.Stub {
 
 
 		File libDir = new File(appDir, "lib");
+		if (res.isUpdate) {
+			FileUtils.deleteDir(libDir);
+		}
 		if (!libDir.exists() && !libDir.mkdirs()) {
 			return InstallResult.makeFailure("Unable to create lib dir.");
 		}
@@ -157,9 +160,6 @@ public class VAppManagerService extends IAppManager.Stub {
 				&& VirtualCore.get().isOutsideInstalled(pkg.packageName);
 
 		if (!onlyScan) {
-			if (res.isUpdate) {
-				FileUtils.deleteDir(libDir);
-			}
 			NativeLibraryHelperCompat.copyNativeBinaries(new File(apkPath), libDir);
 			if (!dependSystem) {
 				// /data/app/com.xxx.xxx-1/base.apk
