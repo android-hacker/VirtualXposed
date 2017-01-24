@@ -46,6 +46,7 @@ public class VApp extends Application {
         } else if (VirtualCore.get().isVAppProcess()) {
             VirtualCore.get().setComponentDelegate(new MyComponentDelegate());
             VirtualCore.get().setPhoneInfoDelegate(new MyPhoneInfoDelegate());
+            VirtualCore.get().setTaskDescriptionDelegate(new MyTaskDescriptionDelegate());
         }
     }
 
