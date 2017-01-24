@@ -56,3 +56,4 @@ GPL 3.0
 技术支持
 ------------
 Lody (imlody@foxmail.com)
+QQ/WeChat (382816028)
