@@ -1,4 +1,4 @@
-[![VA banner](https://raw.githubusercontent.com/asLody/VirtualApp/master/banner.png)](https://github.com/asLody/VirtualApp)
+[![VA banner](https://raw.githubusercontent.com/asLody/VirtualApp/master/Logo.png)](https://github.com/asLody/VirtualApp)
 关于
 ---
 **VirtualApp**是一个**App虚拟化引擎**（简称`VA`）。
