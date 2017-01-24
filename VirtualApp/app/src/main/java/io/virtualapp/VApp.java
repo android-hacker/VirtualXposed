@@ -30,6 +30,7 @@ public class VApp extends Application {
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         try {
+            StubManifest.ENABLE_IO_REDIRECT = true;
             VirtualCore.get().startup(base);
         } catch (Throwable e) {
             e.printStackTrace();
