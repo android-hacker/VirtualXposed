@@ -43,7 +43,7 @@ VA目前被广泛应用于双开/多开，但它决不仅限于此，Android本�
         }
     }
 ```
-**安装App**
+**安装App:**
 ```java
     VirtualCore.getCore().installApp({APK PATH}, flags);
 ```
