@@ -7,7 +7,8 @@ static std::map<std::string/*orig_path*/, std::string/*new_path*/> IORedirectMap
 static std::map<std::string/*orig_path*/, std::string/*new_path*/> RootIORedirectMap;
 
 
-static inline void hook_template(const char *lib_so, const char *symbol, void *new_func, void **old_func) {
+static inline void
+hook_template(const char *lib_so, const char *symbol, void *new_func, void **old_func) {
     void *handle = dlopen(lib_so, RTLD_GLOBAL | RTLD_LAZY);
     if (handle == NULL) {
         LOGW("Error: unable to find the SO : %s.", lib_so);
@@ -23,10 +24,7 @@ static inline void hook_template(const char *lib_so, const char *symbol, void *n
 }
 
 
-
-
-static inline bool startWith(const std::string &str, const std::string &prefix)
-{
+static inline bool startWith(const std::string &str, const std::string &prefix) {
     return str.compare(0, prefix.length(), prefix) == 0;
     //return str.find(prefix) == 0;
 }
@@ -65,8 +63,8 @@ const char *match_redirected_path(const char *_path) {
     }
 
     for (iterator = IORedirectMap.begin(); iterator != IORedirectMap.end(); iterator++) {
-        const std::string& prefix = iterator->first;
-        const std::string& new_prefix = iterator->second;
+        const std::string &prefix = iterator->first;
+        const std::string &new_prefix = iterator->second;
         if (startWith(path, prefix)) {
             std::string new_path = new_prefix + path.substr(prefix.length(), path.length());
             return strdup(new_path.c_str());
@@ -82,7 +80,8 @@ void IOUniformer::redirect(const char *orig_path, const char *new_path) {
 }
 
 const char *IOUniformer::query(const char *orig_path) {
-    std::map<std::string, std::string>::iterator iterator = IORedirectMap.find(std::string(orig_path));
+    std::map<std::string, std::string>::iterator iterator = IORedirectMap.find(
+            std::string(orig_path));
     if (iterator == IORedirectMap.end()) {
         return orig_path;
     }
@@ -95,7 +94,6 @@ const char *IOUniformer::restore(const char *path) {
 }
 
 
-
 __BEGIN_DECLS
 
 // dlopen //TODO
@@ -104,15 +102,7 @@ __BEGIN_DECLS
 // execve //TODO
 // fork //TODO
 // vfork //TODO
-/**
-// int execve(const char*, char* const*, char* const*);
-HOOK_DEF(int, execve, const char *filename, char *const argv[], char *const envp[]) {
-    const char *redirect_path = match_redirected_path(filename);
-    int ret = syscall(__NR_execve, redirect_path, argv, envp);
-    FREE(redirect_path);
-    return ret;
-}
- */
+
 
 
 
@@ -174,7 +164,8 @@ HOOK_DEF(int, mknod, const char *pathname, mode_t mode, dev_t dev) {
 
 
 // int utimensat(int dirfd, const char *pathname, const struct timespec times[2], int flags);
-HOOK_DEF(int, utimensat, int dirfd, const char *pathname, const struct timespec times[2], int flags) {
+HOOK_DEF(int, utimensat, int dirfd, const char *pathname, const struct timespec times[2],
+         int flags) {
     const char *redirect_path = match_redirected_path(pathname);
     int ret = syscall(__NR_utimensat, dirfd, redirect_path, times, flags);
     FREE(redirect_path, pathname);
@@ -256,7 +247,8 @@ HOOK_DEF(int, symlink, const char *oldpath, const char *newpath) {
 
 
 // int linkat(int olddirfd, const char *oldpath, int newdirfd, const char *newpath, int flags);
-HOOK_DEF(int, linkat, int olddirfd, const char *oldpath, int newdirfd, const char *newpath, int flags) {
+HOOK_DEF(int, linkat, int olddirfd, const char *oldpath, int newdirfd, const char *newpath,
+         int flags) {
     const char *redirect_path_old = match_redirected_path(oldpath);
     const char *redirect_path_new = match_redirected_path(newpath);
     int ret = syscall(__NR_linkat, olddirfd, redirect_path_old, newdirfd, redirect_path_new, flags);
@@ -303,7 +295,7 @@ HOOK_DEF(int, chmod, const char *pathname, mode_t mode) {
 
 
 // int chown(const char *path, uid_t owner, gid_t group);
-HOOK_DEF(int, chown ,const char *pathname, uid_t owner, gid_t group) {
+HOOK_DEF(int, chown, const char *pathname, uid_t owner, gid_t group) {
     const char *redirect_path = match_redirected_path(pathname);
     int ret = syscall(__NR_chown, redirect_path, owner, group);
     FREE(redirect_path, pathname);
@@ -313,7 +305,7 @@ HOOK_DEF(int, chown ,const char *pathname, uid_t owner, gid_t group) {
 
 // int lstat(const char *path, struct stat *buf);
 HOOK_DEF(int, lstat, const char *pathname, struct stat *buf) {
-    char *redirect_path = const_cast<char*>(match_redirected_path(pathname));
+    char *redirect_path = const_cast<char *>(match_redirected_path(pathname));
     int ret = syscall(__NR_lstat64, redirect_path, buf);
     FREE(redirect_path, pathname);
     return ret;
@@ -371,7 +363,7 @@ HOOK_DEF(ssize_t, readlink, const char *pathname, char *buf, size_t bufsiz) {
 
 
 // int __statfs64(const char *path, size_t size, struct statfs *stat);
-HOOK_DEF(int, __statfs64, const char*  pathname, size_t size, struct statfs *stat) {
+HOOK_DEF(int, __statfs64, const char *pathname, size_t size, struct statfs *stat) {
     const char *redirect_path = match_redirected_path(pathname);
     int ret = syscall(__NR_statfs64, redirect_path, size, stat);
     FREE(redirect_path, pathname);
@@ -440,21 +432,35 @@ HOOK_DEF(int, lchown, const char *pathname, uid_t owner, gid_t group) {
 }
 
 // int (*origin_execve)(const char *pathname, char *const argv[], char *const envp[]);
-HOOK_DEF(int ,execve, const char *pathname, char *const argv[], char *const envp[]) {
+HOOK_DEF(int, execve, const char *pathname, char *const argv[], char *const envp[]) {
+    LOGD("execve: %s", pathname);
+    for (int i = 0; argv[i] != NULL; ++i) {
+        LOGD("argv[%i] : %s", i, argv[i]);
+    }
+    for (int i = 0; envp[i] != NULL; ++i) {
+        LOGD("envp[%i] : %s", i, envp[i]);
+    }
     const char *redirect_path = match_redirected_path(pathname);
     int ret = orig_execve(redirect_path, argv, envp);
     FREE(redirect_path, pathname);
     return ret;
 }
 
+HOOK_DEF(void*, dlopen, const char *filename, int flag) {
+    const char *redirect_path = match_redirected_path(filename);
+    void *ret = orig_dlopen(redirect_path, flag);
+    FREE(redirect_path, filename);
+    return ret;
+}
+
 // int kill(pid_t pid, int sig);
-HOOK_DEF(int ,kill, pid_t pid, int sig) {
+HOOK_DEF(int, kill, pid_t pid, int sig) {
     extern JavaVM *g_vm;
     extern jclass g_jclass;
     JNIEnv *env = NULL;
     g_vm->GetEnv((void **) &env, JNI_VERSION_1_4);
     g_vm->AttachCurrentThread(&env, NULL);
-    jmethodID  method = env->GetStaticMethodID(g_jclass, "onKillProcess", "(II)V");
+    jmethodID method = env->GetStaticMethodID(g_jclass, "onKillProcess", "(II)V");
     env->CallStaticVoidMethod(g_jclass, method, pid, sig);
     int ret = syscall(__NR_kill, pid, sig);
     return ret;
@@ -466,8 +472,6 @@ __END_DECLS
 
 
 void IOUniformer::startUniformer(int api_level) {
-
-    //通用型
     HOOK_IO(__getcwd);
     HOOK_IO(chdir);
     HOOK_IO(truncate);
@@ -479,7 +483,8 @@ void IOUniformer::startUniformer(int api_level) {
     HOOK_IO(truncate64);
     HOOK_IO(kill);
 
-//    HOOK_IO(execve);
+    HOOK_IO(execve);
+    inlineHookDirect((unsigned int) dlopen, (void *) new_dlopen, (void **) &orig_dlopen);
 //    HOOK_IO(strncmp);
 //    HOOK_IO(strstr);
 //    HOOK_IO(fork);
@@ -501,9 +506,7 @@ void IOUniformer::startUniformer(int api_level) {
         HOOK_IO(utimes);
         HOOK_IO(__open);
         HOOK_IO(mknod);
-    }
-
-    if (api_level >= ANDROID_L) {
+    } else {
         HOOK_IO(linkat);
         HOOK_IO(symlinkat);
         HOOK_IO(readlinkat);

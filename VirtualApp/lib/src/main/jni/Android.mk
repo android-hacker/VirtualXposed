@@ -12,7 +12,6 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/InlineHook
 LOCAL_SRC_FILES := Core.cpp \
 				   Foundation/IOUniformer.cpp \
 				   Foundation/VMPatch.cpp \
-				   AntiDexProtect/AntiArtDexProtect.cpp \
 				   InlineHook/MSHook.cpp \
 				   InlineHook/x86_64.cpp \
 				   InlineHook/ARM.cpp \

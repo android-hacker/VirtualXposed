@@ -10,6 +10,7 @@ import android.app.Notification;
 import android.app.IServiceConnection;
 import android.app.IActivityManager.ContentProviderHolder;
 import com.lody.virtual.service.interfaces.IProcessObserver;
+import com.lody.virtual.service.interfaces.IUiObserver;
 
 
 interface IActivityManager {
@@ -21,6 +22,10 @@ interface IActivityManager {
     int getSystemPid();
 
     int getUidByPid(int pid);
+
+    void registerUIObserver(in String packageName, IUiObserver observer);
+
+    void unregisterUIObserver(in String packageName, IUiObserver observer);
 
     boolean isAppProcess(String processName);
 
@@ -69,6 +74,7 @@ interface IActivityManager {
     String getPackageForToken(int userId, in IBinder token);
 
     boolean isVAServiceToken(in IBinder token);
+
     ComponentName startService(in IBinder caller,in Intent service, String resolvedType, int userId);
 
     int stopService(in IBinder caller, in Intent service, String resolvedType, int userId);

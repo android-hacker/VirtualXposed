@@ -180,7 +180,7 @@ public final class VClientImpl extends IVClient.Stub {
 		} else {
 			intent = data.intent;
 		}
-		if (Build.VERSION.SDK_INT <= 24) {
+		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {
             ActivityThread.performNewIntents.call(
                     VirtualCore.mainThread(),
                     data.token,
@@ -240,6 +240,9 @@ public final class VClientImpl extends IVClient.Stub {
 			StrictMode.ThreadPolicy newPolicy = new StrictMode.ThreadPolicy.Builder(StrictMode.getThreadPolicy()).permitNetwork().build();
 			StrictMode.setThreadPolicy(newPolicy);
 		}
+		if (StubManifest.ENABLE_IO_REDIRECT) {
+            startIOUniformer();
+        }
 		IOHook.hookNative();
 		Object mainThread = VirtualCore.mainThread();
 		IOHook.startDexOverride();
@@ -318,7 +321,15 @@ public final class VClientImpl extends IVClient.Stub {
 		VActivityManager.get().appDoneExecuting();
 	}
 
-	private Context createPackageContext(String packageName) {
+    @SuppressLint("SdCardPath")
+    private void startIOUniformer() {
+        ApplicationInfo info = mBoundApplication.appInfo;
+        IOHook.redirect("/data/data/" + info.packageName + "/", info.dataDir + "/");
+        IOHook.redirect("/data/user/0/" + info.packageName + "/", info.dataDir + "/");
+        IOHook.hook();
+    }
+
+    private Context createPackageContext(String packageName) {
 		try {
 			Context hostContext = VirtualCore.get().getContext();
 			return hostContext.createPackageContext(packageName, Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
@@ -383,8 +394,9 @@ public final class VClientImpl extends IVClient.Stub {
 
 	private void fixInstalledProviders() {
 		Map clientMap = ActivityThread.mProviderMap.get(VirtualCore.mainThread());
+        boolean highApi = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
 		for (Object clientRecord : clientMap.values()) {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+			if (highApi) {
 				IInterface provider = ActivityThread.ProviderClientRecordJB.mProvider.get(clientRecord);
 				Object holder = ActivityThread.ProviderClientRecordJB.mHolder.get(clientRecord);
 				ProviderInfo info = IActivityManager.ContentProviderHolder.info.get(holder);
