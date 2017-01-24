@@ -46,7 +46,7 @@ Open `Setting | Build,Exception,Deployment`, and disable `Enable Instant Run to 
     
 ```
 
-**Launch a virtual App**
+**Launch a virtual App:**
 ```java
     //VirtualApp support multi-user-mode which can run multiple instances of a same app.
     //if you don't need this feature, just set `{userId}` to 0.
@@ -54,7 +54,7 @@ Open `Setting | Build,Exception,Deployment`, and disable `Enable Instant Run to 
     VActivityManager.get().startActivity(intent, {userId});
 ```
 
-**Uninstall a virtual App**
+**Uninstall a virtual App:**
 ```java
     VirtualCore.get().uninstallApp({PackageName});
 ```
