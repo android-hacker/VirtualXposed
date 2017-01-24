@@ -28,6 +28,7 @@ import com.lody.virtual.client.ipc.LocalProxyUtils;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.client.ipc.ServiceManagerNative;
+import com.lody.virtual.client.stub.StubManifest;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.proto.InstallResult;
@@ -149,6 +150,8 @@ public final class VirtualCore {
 			if (Looper.myLooper() != Looper.getMainLooper()) {
 				throw new IllegalStateException("VirtualCore.startup() must called in main thread.");
 			}
+			StubManifest.STUB_CP_AUTHORITY = context.getPackageName() + "." + StubManifest.STUB_DEF_AUTHORITY;
+			ServiceManagerNative.SERVICE_CP_AUTH = context.getPackageName() + "." + ServiceManagerNative.SERVICE_DEF_AUTH;
 			this.context = context;
 			mainThread = ActivityThread.currentActivityThread.call();
 			unHookPackageManager = context.getPackageManager();
