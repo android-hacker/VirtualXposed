@@ -1,6 +1,6 @@
 [![VA banner](https://raw.githubusercontent.com/asLody/VirtualApp/master/Logo.png)](https://github.com/asLody/VirtualApp)
 
-[中文](CHINESE.md "中文") [中文](CHINESE.md "中文") [中文](CHINESE.md "中文") [中文](CHINESE.md "中文")
+[中国人猛戳这里](CHINESE.md "中文")
 
 About
 -----
