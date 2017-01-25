@@ -365,7 +365,7 @@ public class VUserManager {
      * @return a value greater than or equal to 1
      */
     public static int getMaxSupportedUsers() {
-        return 9;
+        return Integer.MAX_VALUE;
     }
 
     /**
