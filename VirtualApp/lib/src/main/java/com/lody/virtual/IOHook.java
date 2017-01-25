@@ -2,6 +2,7 @@ package com.lody.virtual;
 
 import android.os.Binder;
 import android.os.Build;
+import android.os.Debug;
 import android.os.Process;
 
 import com.lody.virtual.client.VClientImpl;

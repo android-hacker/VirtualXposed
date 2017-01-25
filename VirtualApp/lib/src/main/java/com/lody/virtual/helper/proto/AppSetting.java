@@ -59,7 +59,7 @@ public final class AppSetting implements Parcelable {
     }
 
     public File getOdexFile() {
-        return new File(odexDir, "base.dex");
+        return new File(odexDir, "data@app@" + packageName + "-1@base.apk@classes.dex");
     }
 
     @Override

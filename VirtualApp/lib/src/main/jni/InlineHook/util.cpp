@@ -1,19 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
 #include <fcntl.h>
-#include <sys/ptrace.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/stat.h>
-#include <dlfcn.h>
 #include <elf.h>
-#include <unistd.h>
-#include <errno.h>       
 #include <sys/mman.h>
-#include <termios.h>
-#include <sys/ioctl.h>
+#include <Helper.h>
 #include "Log.h"
 
 /* memory map for libraries */
@@ -108,19 +98,19 @@ static int do_load(int fd, symtab_t symtab) {
 	/* elf header */
 	rv = read(fd, &ehdr, sizeof(ehdr));
 	if (0 > rv) {
-		MS_LOGD("read\n");
+		LOGD("read\n");
 		goto out;
 	}
 	if (rv != sizeof(ehdr)) {
-		MS_LOGD("elf error 1\n");
+		LOGD("elf error 1\n");
 		goto out;
 	}
 	if (strncmp((const char *) ELFMAG, (const char *) ehdr.e_ident, SELFMAG)) { /* sanity */
-		MS_LOGD("not an elf\n");
+		LOGD("not an elf\n");
 		goto out;
 	}
 	if (sizeof(Elf32_Shdr) != ehdr.e_shentsize) { /* sanity */
-		MS_LOGD("elf error 2\n");
+		LOGD("elf error 2\n");
 		goto out;
 	}
 
@@ -129,11 +119,11 @@ static int do_load(int fd, symtab_t symtab) {
 	shdr = (Elf32_Shdr *) xmalloc(size);
 	rv = my_pread(fd, shdr, size, ehdr.e_shoff);
 	if (0 > rv) {
-		MS_LOGD("read\n");
+		LOGD("read\n");
 		goto out;
 	}
 	if (rv != size) {
-		MS_LOGD("elf error 3 %d %d\n", rv, size);
+		LOGD("elf error 3 %d %d\n", rv, size);
 		goto out;
 	}
 
@@ -142,11 +132,11 @@ static int do_load(int fd, symtab_t symtab) {
 	shstrtab = (char *) xmalloc(size);
 	rv = my_pread(fd, shstrtab, size, shdr[ehdr.e_shstrndx].sh_offset);
 	if (0 > rv) {
-		MS_LOGD("read\n");
+		LOGD("read\n");
 		goto out;
 	}
 	if (rv != size) {
-		MS_LOGD("elf error 4 %d %d\n", rv, size);
+		LOGD("elf error 4 %d %d\n", rv, size);
 		goto out;
 	}
 
@@ -156,42 +146,42 @@ static int do_load(int fd, symtab_t symtab) {
 	for (i = 0, p = shdr; i < ehdr.e_shnum; i++, p++)
 		if (SHT_SYMTAB == p->sh_type) {
 			if (symh) {
-				MS_LOGD("too many symbol tables\n");
+				LOGD("too many symbol tables\n");
 				goto out;
 			}
 			symh = p;
 		} else if (SHT_DYNSYM == p->sh_type) {
 			if (dynsymh) {
-				MS_LOGD("too many symbol tables\n");
+				LOGD("too many symbol tables\n");
 				goto out;
 			}
 			dynsymh = p;
 		} else if (SHT_STRTAB == p->sh_type
 				&& !strncmp(shstrtab + p->sh_name, ".strtab", 7)) {
 			if (strh) {
-				MS_LOGD("too many string tables\n");
+				LOGD("too many string tables\n");
 				goto out;
 			}
 			strh = p;
 		} else if (SHT_STRTAB == p->sh_type
 				&& !strncmp(shstrtab + p->sh_name, ".dynstr", 7)) {
 			if (dynstrh) {
-				MS_LOGD("too many string tables\n");
+				LOGD("too many string tables\n");
 				goto out;
 			}
 			dynstrh = p;
 		}
 	/* sanity checks */
 	if ((!dynsymh && dynstrh) || (dynsymh && !dynstrh)) {
-		MS_LOGD("bad dynamic symbol table\n");
+		LOGD("bad dynamic symbol table\n");
 		goto out;
 	}
 	if ((!symh && strh) || (symh && !strh)) {
-		MS_LOGD("bad symbol table\n");
+		LOGD("bad symbol table\n");
 		goto out;
 	}
 	if (!dynsymh && !symh) {
-		MS_LOGD("no symbol table\n");
+		LOGD("no symbol table\n");
 		goto out;
 	}
 
@@ -215,11 +205,11 @@ static symtab_t load_symtab(char *filename) {
 
 	fd = open(filename, O_RDONLY);
 	if (0 > fd) {
-		MS_LOGE("%s open\n", __func__);
+		LOGE("%s open\n", __func__);
 		return NULL;
 	}
 	if (0 > do_load(fd, symtab)) {
-		MS_LOGE("Error ELF parsing %s\n", filename);
+		LOGE("Error ELF parsing %s\n", filename);
 		free(symtab);
 		symtab = NULL;
 	}
@@ -241,7 +231,7 @@ static int load_memmap(pid_t pid, struct mm *mm, int *nmmp) {
 	sprintf(p_buf, "/proc/%d/maps", pid);
 	fd = open(p_buf, O_RDONLY);
 	if (0 > fd) {
-		MS_LOGE("Can't open %s for reading\n", p_buf);
+		LOGE("Can't open %s for reading\n", p_buf);
 		free(p_buf);
 		return -1;
 	}
@@ -253,7 +243,7 @@ static int load_memmap(pid_t pid, struct mm *mm, int *nmmp) {
 	while (1) {
 		rv = read(fd, p, buf_size - (p - p_buf));
 		if (0 > rv) {
-			MS_LOGE("%s read", __FUNCTION__);
+			LOGE("%s read", __FUNCTION__);
 			free(p_buf);
 			return -1;
 		}
@@ -261,7 +251,7 @@ static int load_memmap(pid_t pid, struct mm *mm, int *nmmp) {
 			break;
 		p += rv;
 		if (p - p_buf >= buf_size) {
-			MS_LOGE("Too many memory mapping\n");
+			LOGE("Too many memory mapping\n");
 			free(p_buf);
 			return -1;
 		}
@@ -315,7 +305,7 @@ static int load_memmap(pid_t pid, struct mm *mm, int *nmmp) {
  address.  If libc cannot be found return -1 and
  leave NAME and START untouched.  Otherwise return 0
  and null-terminated NAME. */
-static int find_libname(char *libn, char *name, int len, unsigned long *start,
+static int find_libname(const char *libn, char *name, int len, unsigned long *start,
 		struct mm *mm, int nmm) {
 	int i;
 	struct mm *m;
@@ -392,30 +382,30 @@ int find_name(pid_t pid, const char *name, const char *libn,
 	symtab_t s;
 
 	if (0 > load_memmap(pid, mm, &nmm)) {
-		MS_LOGD("cannot read memory map\n");
+		LOGD("cannot read memory map\n");
 		return -1;
 	}
 	if (0
 			> find_libname((char *) libn, (char *) libc, sizeof(libc),
 					&libcaddr, mm, nmm)) {
-		MS_LOGD("cannot find lib: %s\n", libn);
+		LOGD("cannot find lib: %s\n", libn);
 		return -1;
 	}
 	//LOGD("lib: >%s<\n", libc)
 	s = load_symtab(libc);
 	if (!s) {
-		MS_LOGD("cannot read symbol table\n");
+		LOGD("cannot read symbol table\n");
 		return -1;
 	}
 	if (0 > lookup_func_sym(s, (char *) name, addr)) {
-		MS_LOGD("cannot find function: %s\n", name);
+		LOGD("cannot find function: %s\n", name);
 		return -1;
 	}
 	*addr += libcaddr;
 	return 0;
 }
 
-int find_libbase(pid_t pid, char *libn, unsigned long *addr) {
+int find_libbase(pid_t pid, const char *libn, unsigned long *addr) {
 	struct mm mm[1000] = { 0 };
 	unsigned long libcaddr;
 	int nmm;
@@ -423,11 +413,11 @@ int find_libbase(pid_t pid, char *libn, unsigned long *addr) {
 	symtab_t s;
 
 	if (0 > load_memmap(pid, mm, &nmm)) {
-		MS_LOGD("cannot read memory map\n");
+		LOGD("cannot read memory map\n");
 		return -1;
 	}
 	if (0 > find_libname(libn, libc, sizeof(libc), &libcaddr, mm, nmm)) {
-		MS_LOGD("cannot find lib\n");
+		LOGD("cannot find lib\n");
 		return -1;
 	}
 	*addr = libcaddr;

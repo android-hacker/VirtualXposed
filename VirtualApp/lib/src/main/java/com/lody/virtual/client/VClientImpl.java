@@ -14,7 +14,6 @@ import android.content.pm.ProviderInfo;
 import android.os.Binder;
 import android.os.Build;
 import android.os.ConditionVariable;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.IInterface;
@@ -35,7 +34,6 @@ import com.lody.virtual.client.hook.secondary.ProxyServiceFactory;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.client.stub.StubManifest;
-import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.server.secondary.FakeIdentityBinder;
 
@@ -296,6 +294,7 @@ public final class VClientImpl extends IVClient.Stub {
 
 		Application app = LoadedApk.makeApplication.call(data.info, false, null);
 		mInitialApplication = app;
+
 		mirror.android.app.ActivityThread.mInitialApplication.set(mainThread, app);
 		ContextFixer.fixContext(app);
 		List<ProviderInfo> providers = VPackageManager.get().queryContentProviders(data.processName, vuid, PackageManager.GET_META_DATA);

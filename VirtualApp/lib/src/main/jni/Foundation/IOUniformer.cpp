@@ -1,6 +1,7 @@
 //
 // VirtualApp Native Project
 //
+#include <InlineHook/util.h>
 #include "IOUniformer.h"
 
 static std::map<std::string/*orig_path*/, std::string/*new_path*/> IORedirectMap;
@@ -446,9 +447,10 @@ HOOK_DEF(int, execve, const char *pathname, char *const argv[], char *const envp
     return ret;
 }
 
-HOOK_DEF(void*, dlopen, const char *filename, int flag) {
+HOOK_DEF(void*, do_dlopen, const char *filename, int flag, const void *extinfo) {
     const char *redirect_path = match_redirected_path(filename);
-    void *ret = orig_dlopen(redirect_path, flag);
+    void *ret = orig_do_dlopen(redirect_path, flag, extinfo);
+    LOGD("do_dlopen : %s, return : %p.", redirect_path, ret);
     FREE(redirect_path, filename);
     return ret;
 }
@@ -469,9 +471,31 @@ HOOK_DEF(int, kill, pid_t pid, int sig) {
 __END_DECLS
 // end IO hooks
 
+struct soinfo {
+public:
+    char name[128];
+    const void *phdr;
+    size_t phnum;
+    unsigned int entry;
+    unsigned int base;
+    size_t size;
 
+#ifndef __LP64__
+    uint32_t unused1;  // DO NOT USE, maintained for compatibility.
+#endif
+
+    void *dynamic;
+
+#ifndef __LP64__
+    uint32_t unused2; // DO NOT USE, maintained for compatibility
+    uint32_t unused3; // DO NOT USE, maintained for compatibility
+#endif
+
+    soinfo *next;
+};
 
 void IOUniformer::startUniformer(int api_level) {
+
     HOOK_IO(__getcwd);
     HOOK_IO(chdir);
     HOOK_IO(truncate);
@@ -484,7 +508,6 @@ void IOUniformer::startUniformer(int api_level) {
     HOOK_IO(kill);
 
     HOOK_IO(execve);
-    inlineHookDirect((unsigned int) dlopen, (void *) new_dlopen, (void **) &orig_dlopen);
 //    HOOK_IO(strncmp);
 //    HOOK_IO(strstr);
 //    HOOK_IO(fork);
@@ -521,5 +544,8 @@ void IOUniformer::startUniformer(int api_level) {
         HOOK_IO(fchmodat);
         HOOK_IO(faccessat);
     }
-
+    void *do_dlopen = NULL;
+    findSymbol("__dl__Z9do_dlopenPKciPK17android_dlextinfo", "linker",
+               (unsigned long *) &do_dlopen);
+    inlineHookDirect((unsigned int) do_dlopen, (void *) new_do_dlopen, (void **) &orig_do_dlopen);
 }

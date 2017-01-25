@@ -31,7 +31,7 @@
 #define MS_DEBUG 1
 //#define MS_EXE_PRINTF 0
 #ifndef MS_LOG_TAG
-	#define MS_LOG_TAG "Native_X"
+	#define MS_LOG_TAG "VA-Native"
 #endif
 
 #if MS_DEBUG
