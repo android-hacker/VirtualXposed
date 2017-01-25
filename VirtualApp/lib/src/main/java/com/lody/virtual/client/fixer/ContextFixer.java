@@ -31,6 +31,11 @@ public class ContextFixer {
      * @param context Context
      */
     public static void fixContext(Context context) {
+        try {
+            context.getPackageName();
+        } catch (Throwable e) {
+            return;
+        }
         PatchManager.getInstance().checkEnv(GraphicsStatsPatch.class);
         int deep = 0;
         while (context instanceof ContextWrapper) {
@@ -40,12 +45,11 @@ public class ContextFixer {
                 return;
             }
         }
-        PackageManager pm = context.getPackageManager();
         ContextImpl.mPackageManager.set(context, null);
         try {
             context.getPackageManager();
         } catch (Throwable e) {
-            ContextImpl.mPackageManager.set(context, pm);
+            e.printStackTrace();
         }
         if (!VirtualCore.get().isVAppProcess()) {
             return;

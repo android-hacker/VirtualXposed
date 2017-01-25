@@ -20,7 +20,7 @@ public class StubManifest {
      * when app access '/data/data/{Package Name}' or '/data/user/0/{Package Name}',
      * we redirect it to '/data/data/{Your Host Package Name}/virtual/user/0/{Package Name}'.
      */
-    public static boolean ENABLE_IO_REDIRECT = true;
+    public static boolean ENABLE_IO_REDIRECT = false;
 
     public static String getStubActivityName(int index) {
         return String.format(Locale.ENGLISH, "%s$C%d", STUB_ACTIVITY, index);
