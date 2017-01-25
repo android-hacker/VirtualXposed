@@ -9,7 +9,9 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 
 import com.lody.virtual.client.VClientImpl;
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.hook.delegate.TaskDescriptionDelegate;
 import com.lody.virtual.helper.utils.DrawableUtils;
 import com.lody.virtual.os.VUserManager;
 
@@ -31,13 +33,14 @@ import java.lang.reflect.Method;
 		ActivityManager.TaskDescription td = (ActivityManager.TaskDescription)args[1];
 		String label = td.getLabel();
 		Bitmap icon = td.getIcon();
-		String VACLIENT_SUFFIX = " ["+ VUserManager.get().getUserName()+"]";
-		if ((label == null || !label.startsWith(VACLIENT_SUFFIX) || icon == null)){
+
+		// If the activity label/icon isn't specified, the application's label/icon is shown instead
+		// Android usually does that for us, but in this case we want info about the contained app, not VIrtualApp itself
+		if (label == null || icon == null) {
 			Application app = VClientImpl.getClient().getCurrentApplication();
+
 			if (label == null) {
-				label = VACLIENT_SUFFIX+app.getApplicationInfo().loadLabel(app.getPackageManager());
-			} else {
-				label = VACLIENT_SUFFIX+label;
+				label = app.getApplicationInfo().loadLabel(app.getPackageManager()).toString();
 			}
 
 			if (icon == null) {
@@ -46,8 +49,15 @@ import java.lang.reflect.Method;
 					icon = DrawableUtils.drawableToBitMap(drawable);
 				}
 			}
-			args[1] = new ActivityManager.TaskDescription(label, icon, td.getPrimaryColor());
+			td = new ActivityManager.TaskDescription(label, icon, td.getPrimaryColor());
 		}
+
+		TaskDescriptionDelegate descriptionDelegate = VirtualCore.get().getTaskDescriptionDelegate();
+		if (descriptionDelegate != null) {
+			td = descriptionDelegate.getTaskDescription(td);
+		}
+
+		args[1] = td;
 		return method.invoke(who, args);
 	}
 
