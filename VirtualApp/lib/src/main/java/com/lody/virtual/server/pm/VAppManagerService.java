@@ -182,11 +182,6 @@ public class VAppManagerService extends IAppManager.Stub {
 		appSetting.dependSystem = dependSystem;
 		appSetting.apkPath = apk.getPath();
 		appSetting.libPath = libDir.getPath();
-		File odexFolder = new File(appDir, VirtualRuntime.isArt() ? "oat" : "odex");
-		if (!odexFolder.exists() && !odexFolder.mkdirs()) {
-			VLog.w(TAG, "Warning: unable to create folder : " + odexFolder.getPath());
-		}
-		appSetting.odexDir = odexFolder.getPath();
 		appSetting.packageName = pkg.packageName;
 		appSetting.appId = VUserHandle.getAppId(mUidSystem.getOrCreateUid(pkg));
 

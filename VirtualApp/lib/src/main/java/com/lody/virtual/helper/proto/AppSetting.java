@@ -22,7 +22,6 @@ public final class AppSetting implements Parcelable {
     public String packageName;
     public String apkPath;
     public String libPath;
-    public String odexDir;
     public boolean dependSystem;
     public int appId;
     public transient PackageParser parser;
@@ -54,12 +53,11 @@ public final class AppSetting implements Parcelable {
         packageName = in.readString();
         apkPath = in.readString();
         libPath = in.readString();
-        odexDir = in.readString();
         dependSystem = in.readByte() != 0;
     }
 
     public File getOdexFile() {
-        return new File(odexDir, "data@app@" + packageName + "-1@base.apk@classes.dex");
+        return VEnvironment.getOdexFile(packageName);
     }
 
     @Override
@@ -67,7 +65,6 @@ public final class AppSetting implements Parcelable {
         dest.writeString(packageName);
         dest.writeString(apkPath);
         dest.writeString(libPath);
-        dest.writeString(odexDir);
         dest.writeByte((byte) (dependSystem ? 1 : 0));
     }
 
