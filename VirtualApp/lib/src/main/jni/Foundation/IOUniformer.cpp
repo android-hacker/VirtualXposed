@@ -97,13 +97,6 @@ const char *IOUniformer::restore(const char *path) {
 
 __BEGIN_DECLS
 
-// dlopen //TODO
-// dlsym //TODO
-// dlclose //TODO
-// execve //TODO
-// fork //TODO
-// vfork //TODO
-
 
 
 
@@ -447,11 +440,28 @@ HOOK_DEF(int, execve, const char *pathname, char *const argv[], char *const envp
     return ret;
 }
 
-HOOK_DEF(void*, do_dlopen, const char *filename, int flag, const void *extinfo) {
+HOOK_DEF(void*, dlopen, const char *filename, int flag) {
     const char *redirect_path = match_redirected_path(filename);
-    void *ret = orig_do_dlopen(redirect_path, flag, extinfo);
+    void *ret = orig_dlopen(redirect_path, flag);
+    LOGD("dlopen : %s, return : %p.", redirect_path, ret);
+    FREE(redirect_path, filename);
+    return ret;
+}
+
+HOOK_DEF(void*, do_dlopen_V19, const char *filename, int flag, const void *extinfo) {
+    const char *redirect_path = match_redirected_path(filename);
+    void *ret = orig_do_dlopen_V19(redirect_path, flag, extinfo);
     LOGD("do_dlopen : %s, return : %p.", redirect_path, ret);
     FREE(redirect_path, filename);
+    return ret;
+}
+
+HOOK_DEF(void*, do_dlopen_V24, const char *name, int flags, const void *extinfo,
+         void *caller_addr) {
+    const char *redirect_path = match_redirected_path(name);
+    void *ret = orig_do_dlopen_V24(redirect_path, flags, extinfo, caller_addr);
+    LOGD("do_dlopen : %s, return : %p.", redirect_path, ret);
+    FREE(redirect_path, name);
     return ret;
 }
 
@@ -469,30 +479,42 @@ HOOK_DEF(int, kill, pid_t pid, int sig) {
 }
 
 __END_DECLS
-// end IO hooks
+// end IO DEF
 
-struct soinfo {
-public:
-    char name[128];
-    const void *phdr;
-    size_t phnum;
-    unsigned int entry;
-    unsigned int base;
-    size_t size;
 
-#ifndef __LP64__
-    uint32_t unused1;  // DO NOT USE, maintained for compatibility.
-#endif
+void hook_dlopen(int api_level) {
+    void *symbol = NULL;
+    if (api_level > 23) {
+        if (findSymbol("__dl__Z9do_dlopenPKciPK17android_dlextinfoPv", "linker",
+                       (unsigned long *) &symbol) == 0) {
+            inlineHookDirect((unsigned int) symbol, (void *) new_do_dlopen_V24,
+                             (void **) &orig_do_dlopen_V24);
+        }
+    } else if (api_level >= 19) {
+        if (findSymbol("__dl__Z9do_dlopenPKciPK17android_dlextinfo", "linker",
+                       (unsigned long *) &symbol) == 0) {
+            inlineHookDirect((unsigned int) symbol, (void *) new_do_dlopen_V19,
+                             (void **) &orig_do_dlopen_V19);
+        }
+    } else {
+        if (findSymbol("__dl_dlopen", "linker",
+                       (unsigned long *) &symbol) == 0) {
+            inlineHookDirect((unsigned int) symbol, (void *) new_dlopen, (void **) &orig_dlopen);
+        }
+    }
 
-    void *dynamic;
+}
 
-#ifndef __LP64__
-    uint32_t unused2; // DO NOT USE, maintained for compatibility
-    uint32_t unused3; // DO NOT USE, maintained for compatibility
-#endif
 
-    soinfo *next;
-};
+extern "C" size_t strlen(const char *str) {
+    if (str == NULL) return 0;
+    size_t len = 0;
+    for (; *str++ != '\0';) {
+        len++;
+    }
+    return len;
+}
+
 
 void IOUniformer::startUniformer(int api_level) {
 
@@ -508,10 +530,6 @@ void IOUniformer::startUniformer(int api_level) {
     HOOK_IO(kill);
 
     HOOK_IO(execve);
-//    HOOK_IO(strncmp);
-//    HOOK_IO(strstr);
-//    HOOK_IO(fork);
-//    HOOK_IO(vfork);
 
     if (api_level < ANDROID_L) {
         HOOK_IO(link);
@@ -530,22 +548,19 @@ void IOUniformer::startUniformer(int api_level) {
         HOOK_IO(__open);
         HOOK_IO(mknod);
     } else {
+        HOOK_IO(__openat);
         HOOK_IO(linkat);
+        HOOK_IO(unlinkat);
         HOOK_IO(symlinkat);
         HOOK_IO(readlinkat);
-        HOOK_IO(unlinkat);
         HOOK_IO(renameat);
         HOOK_IO(mkdirat);
-        HOOK_IO(fchownat);
-        HOOK_IO(utimensat);
-        HOOK_IO(__openat);
         HOOK_IO(mknodat);
+        HOOK_IO(utimensat);
+        HOOK_IO(fchownat);
         HOOK_IO(fstatat);
         HOOK_IO(fchmodat);
         HOOK_IO(faccessat);
     }
-    void *do_dlopen = NULL;
-    findSymbol("__dl__Z9do_dlopenPKciPK17android_dlextinfo", "linker",
-               (unsigned long *) &do_dlopen);
-    inlineHookDirect((unsigned int) do_dlopen, (void *) new_do_dlopen, (void **) &orig_do_dlopen);
+    hook_dlopen(api_level);
 }

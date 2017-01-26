@@ -12,6 +12,7 @@
 #include <dlfcn.h>
 #include <stddef.h>
 #include <fcntl.h>
+#include<dirent.h>
 #include <sys/syscall.h>
 
 #include <InlineHook/MSHook.h>

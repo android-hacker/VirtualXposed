@@ -221,7 +221,7 @@ replaceOpenDexFileMethod(JNIEnv *env, jobject javaMethod, jboolean isArt, int ap
         gOffset.orig_openDexFile_dvm = (Bridge_DalvikBridgeFunc) (*jniFuncPtr);
         *jniFuncPtr = (void *) new_bridge_openDexNativeFunc;
     } else {
-        if (apiLevel < 24) {
+        if (apiLevel < ANDROID_N) {
             gOffset.orig_native_openDexNativeFunc.beforeN = (Native_openDexNativeFunc) (*jniFuncPtr);
             *jniFuncPtr = (void *) new_native_openDexNativeFunc;
         } else {
