@@ -21,6 +21,8 @@ public final class SpecialComponentList {
     private static final Map<String, String> PROTECTED_ACTION_MAP = new HashMap<>(5);
     private static final HashSet<String> WHITE_PERMISSION = new HashSet<>(3);
 
+    private static final HashSet<String> INSTRUMENTATION_CONFLICTING = new HashSet<>(2);
+
     static {
         ACTION_BLACK_LIST.add("android.appwidget.action.APPWIDGET_UPDATE");
 
@@ -33,6 +35,13 @@ public final class SpecialComponentList {
         PROTECTED_ACTION_MAP.put(Intent.ACTION_PACKAGE_CHANGED, Constants.ACTION_PACKAGE_CHANGED);
         PROTECTED_ACTION_MAP.put("android.intent.action.USER_ADDED", Constants.ACTION_USER_ADDED);
         PROTECTED_ACTION_MAP.put("android.intent.action.USER_REMOVED", Constants.ACTION_USER_REMOVED);
+
+        INSTRUMENTATION_CONFLICTING.add("com.qihoo.magic");
+        INSTRUMENTATION_CONFLICTING.add("com.qihoo.magic_mutiple");
+    }
+
+    public static boolean isConflictingInstumentation(String packageName) {
+        return INSTRUMENTATION_CONFLICTING.contains(packageName);
     }
 
     /**

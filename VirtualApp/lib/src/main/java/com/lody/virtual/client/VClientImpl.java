@@ -25,6 +25,7 @@ import android.os.StrictMode;
 import com.lody.virtual.IOHook;
 import com.lody.virtual.client.core.PatchManager;
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.fixer.ContextFixer;
 import com.lody.virtual.client.hook.delegate.AppInstrumentation;
@@ -316,9 +317,11 @@ public final class VClientImpl extends IVClient.Stub {
         mBoundApplication.info = ContextImpl.mPackageInfo.get(context);
         mirror.android.app.ActivityThread.AppBindData.info.set(boundApp, data.info);
         VMRuntime.setTargetSdkVersion.call(VMRuntime.getRuntime.call(), data.appInfo.targetSdkVersion);
-        
-        PatchManager.getInstance().checkEnv(AppInstrumentation.class);
 
+        boolean conflict = SpecialComponentList.isConflictingInstumentation(packageName);
+        if (!conflict) {
+            PatchManager.getInstance().checkEnv(AppInstrumentation.class);
+        }
         Application app = LoadedApk.makeApplication.call(data.info, false, null);
         mInitialApplication = app;
 
@@ -335,6 +338,9 @@ public final class VClientImpl extends IVClient.Stub {
         try {
             mInstrumentation.callApplicationOnCreate(app);
             PatchManager.getInstance().checkEnv(HCallbackHook.class);
+            if (conflict) {
+                PatchManager.getInstance().checkEnv(AppInstrumentation.class);
+            }
             mInitialApplication = ActivityThread.mInitialApplication.get(mainThread);
         } catch (Exception e) {
             if (!mInstrumentation.onException(app, e)) {
