@@ -85,8 +85,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	private ActivityManager am = (ActivityManager) VirtualCore.get().getContext()
 			.getSystemService(Context.ACTIVITY_SERVICE);
 	private final VPendingIntents mPendingIntents = new VPendingIntents();
-
-    private Map<String, List<IUiObserver>> uiObservers = new ArrayMap<>();
+    private final UiEngine mUiEngine = new UiEngine();
 
 	public static VActivityManagerService get() {
 		return sService.get();
@@ -157,6 +156,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		int pid = Binder.getCallingPid();
 		ProcessRecord targetApp = findProcessLocked(pid);
 		if (targetApp != null) {
+            mUiEngine.enterActivity(targetApp.userId, targetApp.info.packageName);
 			mMainStack.onActivityCreated(targetApp, component, caller, token, intent, affinity, taskId, launchMode, flags);
 		}
 	}
@@ -168,7 +168,12 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
 	@Override
 	public boolean onActivityDestroyed(int userId, IBinder token) {
-		return mMainStack.onActivityDestroyed(userId, token);
+        ActivityRecord r = mMainStack.onActivityDestroyed(userId, token);
+        if (r != null) {
+            mUiEngine.exitActivity(userId, r.process.info.packageName);
+            return true;
+        }
+		return false;
 	}
 
 	@Override
@@ -196,6 +201,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 					iterator.remove();
 				}
 			}
+			mUiEngine.appDead(record.userId, record.info.packageName);
 			mMainStack.processDied(record);
 		}
 	}
@@ -647,7 +653,6 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	}
 
 	private void onProcessDead(ProcessRecord record) {
-		VLog.d(TAG, "Process %s died.", record.processName);
 		mProcessNames.remove(record.processName, record.vuid);
 		mPidsSelfLocked.remove(record.pid);
 		processDead(record);
@@ -656,13 +661,13 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
 
 	@Override
-    public void registerUIObserver(String packageName, IUiObserver observer) {
-
+    public void registerUIObserver(IUiObserver observer) {
+        mUiEngine.addObserver(observer);
     }
 
     @Override
-    public void unregisterUIObserver(String packageName, IUiObserver observer) {
-
+    public void unregisterUIObserver(IUiObserver observer) {
+        mUiEngine.removeObserver(observer);
     }
 
 	@Override
@@ -678,7 +683,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 		}
 	}
 
-	public ProcessRecord startProcessIfNeedLocked(String processName, int userId, String packageName) {
+	ProcessRecord startProcessIfNeedLocked(String processName, int userId, String packageName) {
 		if (VActivityManagerService.get().getFreeStubCount() < 3) {
 			// run GC
 			killAllApps();

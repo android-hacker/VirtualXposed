@@ -9,11 +9,10 @@ import android.text.TextUtils;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
-import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.client.hook.base.Hook;
+import com.lody.virtual.client.stub.StubManifest;
 import com.lody.virtual.helper.utils.BitmapUtils;
 import com.lody.virtual.helper.utils.ComponentUtils;
-import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
@@ -39,7 +38,10 @@ import java.lang.reflect.Method;
         Intent newIntent = handleIntent(intent);
         if (newIntent != null) {
             args[1] = newIntent;
+        } else {
+            return 0;
         }
+
         if (args[7] instanceof String || args[7] instanceof String[]) {
             // clear the permission
             args[7] = null;
@@ -53,7 +55,7 @@ import java.lang.reflect.Method;
         if ("android.intent.action.CREATE_SHORTCUT".equals(action)
                 || "com.android.launcher.action.INSTALL_SHORTCUT".equals(action)
                 || "com.android.launcher.action.UNINSTALL_SHORTCUT".equals(action)) {
-            handleInstallShortcutIntent(intent);
+            return StubManifest.ENABLE_INNER_SHORTCUT ? handleInstallShortcutIntent(intent) : null;
         } else if ("android.intent.action.CREATE_SHORTCUT".equals(action)
                 || "com.android.launcher.action.INSTALL_SHORTCUT".equals(action)
                 || "com.android.launcher.action.UNINSTALL_SHORTCUT".equals(action)) {
@@ -64,7 +66,7 @@ import java.lang.reflect.Method;
         return intent;
     }
 
-    private void handleInstallShortcutIntent(Intent intent) {
+    private Intent handleInstallShortcutIntent(Intent intent) {
         Intent shortcut = intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_INTENT);
         if (shortcut != null) {
             ComponentName component = shortcut.resolveActivity(VirtualCore.getPM());
@@ -100,6 +102,7 @@ import java.lang.reflect.Method;
                 }
             }
         }
+        return intent;
     }
 
     private void handleUninstallShortcutIntent(Intent intent) {

@@ -16,7 +16,14 @@ public class StubManifest {
 
     /**
      * If enable,
-     * For example,
+     * App run in VA will allowed to create shortcut on your Desktop.
+     *
+     */
+    public static boolean ENABLE_INNER_SHORTCUT = true;
+
+    /**
+     * If enable,
+     * For example:
      * when app access '/data/data/{Package Name}' or '/data/user/0/{Package Name}',
      * we redirect it to '/data/data/{Your Host Package Name}/virtual/user/0/{Package Name}'.
      */

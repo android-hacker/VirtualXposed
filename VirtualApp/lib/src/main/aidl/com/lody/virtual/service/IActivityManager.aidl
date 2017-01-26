@@ -23,9 +23,9 @@ interface IActivityManager {
 
     int getUidByPid(int pid);
 
-    void registerUIObserver(in String packageName, IUiObserver observer);
+    void registerUIObserver(IUiObserver observer);
 
-    void unregisterUIObserver(in String packageName, IUiObserver observer);
+    void unregisterUIObserver(IUiObserver observer);
 
     boolean isAppProcess(String processName);
 

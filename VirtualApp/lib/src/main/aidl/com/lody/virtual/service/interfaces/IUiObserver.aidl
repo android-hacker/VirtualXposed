@@ -2,6 +2,6 @@
 package com.lody.virtual.service.interfaces;
 
 interface IUiObserver {
-    void enterAppUI(in String packageName);
-    void exitAppUI(in String packageName);
+    void enterAppUI(int userId, in String packageName);
+    void exitAppUI(int userId, in String packageName);
 }
