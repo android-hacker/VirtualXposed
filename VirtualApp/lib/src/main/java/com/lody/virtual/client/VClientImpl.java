@@ -34,10 +34,12 @@ import com.lody.virtual.client.hook.secondary.ProxyServiceFactory;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.client.stub.StubManifest;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.server.secondary.FakeIdentityBinder;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +58,7 @@ import mirror.android.view.RenderScript;
 import mirror.android.view.ThreadedRenderer;
 import mirror.com.android.internal.content.ReferrerIntent;
 import mirror.dalvik.system.VMRuntime;
+import mirror.java.lang.ThreadGroupN;
 
 import static com.lody.virtual.os.VUserHandle.getUserId;
 
@@ -213,8 +216,27 @@ public final class VClientImpl extends IVClient.Stub {
         }
     }
 
+    private static class RootThreadGroup extends ThreadGroup {
+
+        public RootThreadGroup(ThreadGroup parent) {
+            super(parent, "VA-Root");
+        }
+
+        @Override
+        public void uncaughtException(Thread t, Throwable e) {
+            VLog.e("uncaught", e);
+            System.exit(0);
+        }
+    }
+
     private void bindApplicationNoCheck(String packageName, String processName, ConditionVariable lock) {
         mTempLock = lock;
+        try {
+            setupUncaughtHandler();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+
         try {
             fixInstalledProviders();
         } catch (Throwable e) {
@@ -294,6 +316,8 @@ public final class VClientImpl extends IVClient.Stub {
         mBoundApplication.info = ContextImpl.mPackageInfo.get(context);
         mirror.android.app.ActivityThread.AppBindData.info.set(boundApp, data.info);
         VMRuntime.setTargetSdkVersion.call(VMRuntime.getRuntime.call(), data.appInfo.targetSdkVersion);
+        
+        PatchManager.getInstance().checkEnv(AppInstrumentation.class);
 
         Application app = LoadedApk.makeApplication.call(data.info, false, null);
         mInitialApplication = app;
@@ -311,7 +335,6 @@ public final class VClientImpl extends IVClient.Stub {
         try {
             mInstrumentation.callApplicationOnCreate(app);
             PatchManager.getInstance().checkEnv(HCallbackHook.class);
-            PatchManager.getInstance().checkEnv(AppInstrumentation.class);
             mInitialApplication = ActivityThread.mInitialApplication.get(mainThread);
         } catch (Exception e) {
             if (!mInstrumentation.onException(app, e)) {
@@ -321,6 +344,38 @@ public final class VClientImpl extends IVClient.Stub {
             }
         }
         VActivityManager.get().appDoneExecuting();
+    }
+
+    private void setupUncaughtHandler() {
+        ThreadGroup root = Thread.currentThread().getThreadGroup();
+        while (root.getParent() != null) {
+            root = root.getParent();
+        }
+        ThreadGroup newRoot = new RootThreadGroup(root);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            List<ThreadGroup> groups = mirror.java.lang.ThreadGroup.groups.get(root);
+            synchronized (groups) {
+                List<ThreadGroup> newGroups = new ArrayList<>(groups);
+                newGroups.remove(newRoot);
+                mirror.java.lang.ThreadGroup.groups.set(newRoot, newGroups);
+                groups.clear();
+                groups.add(newRoot);
+                mirror.java.lang.ThreadGroup.groups.set(root, groups);
+                for (ThreadGroup group : newGroups) {
+                    mirror.java.lang.ThreadGroup.parent.set(group, newRoot);
+                }
+            }
+        } else {
+            ThreadGroup[] groups = ThreadGroupN.groups.get(root);
+            synchronized (groups) {
+                ThreadGroup[] newGroups = groups.clone();
+                ThreadGroupN.groups.set(newRoot, newGroups);
+                ThreadGroupN.groups.set(root, new ThreadGroup[]{newRoot});
+                for (Object group : newGroups) {
+                    ThreadGroupN.parent.set(group, newRoot);
+                }
+            }
+        }
     }
 
     @SuppressLint("SdCardPath")
