@@ -79,16 +79,18 @@ class UiEngine {
 
     void appDead(int userId, String packageName) {
         Map<String, Integer> appCounter = appMarker.get(userId);
-        appCounter.remove(packageName);
-        final int N = observers.beginBroadcast();
-        for (int i = 0; i < N; i++) {
-            try {
-                observers.getBroadcastItem(i).exitAppUI(userId, packageName);
-            } catch (RemoteException e) {
-                e.printStackTrace();
+        if (appCounter != null) {
+            appCounter.remove(packageName);
+            final int N = observers.beginBroadcast();
+            for (int i = 0; i < N; i++) {
+                try {
+                    observers.getBroadcastItem(i).exitAppUI(userId, packageName);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
             }
+            observers.finishBroadcast();
         }
-        observers.finishBroadcast();
     }
 }
 
