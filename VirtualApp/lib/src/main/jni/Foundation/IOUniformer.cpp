@@ -81,12 +81,7 @@ void IOUniformer::redirect(const char *orig_path, const char *new_path) {
 }
 
 const char *IOUniformer::query(const char *orig_path) {
-    std::map<std::string, std::string>::iterator iterator = IORedirectMap.find(
-            std::string(orig_path));
-    if (iterator == IORedirectMap.end()) {
-        return orig_path;
-    }
-    return iterator->second.c_str();
+    return match_redirected_path(orig_path);
 }
 
 
@@ -435,7 +430,7 @@ HOOK_DEF(int, execve, const char *pathname, char *const argv[], char *const envp
         LOGD("envp[%i] : %s", i, envp[i]);
     }
     const char *redirect_path = match_redirected_path(pathname);
-    int ret = orig_execve(redirect_path, argv, envp);
+    int ret = syscall(__NR_execve, redirect_path, argv, envp);
     FREE(redirect_path, pathname);
     return ret;
 }
@@ -522,13 +517,10 @@ void IOUniformer::startUniformer(int api_level) {
     HOOK_IO(chdir);
     HOOK_IO(truncate);
     HOOK_IO(__statfs64);
-
     HOOK_IO(lchown);
-
     HOOK_IO(chroot);
     HOOK_IO(truncate64);
     HOOK_IO(kill);
-
     HOOK_IO(execve);
 
     if (api_level < ANDROID_L) {
@@ -548,6 +540,15 @@ void IOUniformer::startUniformer(int api_level) {
         HOOK_IO(__open);
         HOOK_IO(mknod);
     } else {
+        HOOK_IO(__open);
+        HOOK_IO(stat);
+        HOOK_IO(lstat);
+        HOOK_IO(chown);
+        HOOK_IO(chmod);
+        HOOK_IO(access);
+        HOOK_IO(rmdir);
+        HOOK_IO(rename);
+
         HOOK_IO(__openat);
         HOOK_IO(linkat);
         HOOK_IO(unlinkat);

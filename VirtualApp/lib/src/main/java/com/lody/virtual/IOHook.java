@@ -57,7 +57,7 @@ public class IOHook {
 		} catch (Throwable e) {
 			VLog.e(TAG, VLog.getStackTraceString(e));
 		}
-		return null;
+		return origPath;
 	}
 
 	public static String restoreRedirectedPath(String origPath) {
@@ -66,7 +66,7 @@ public class IOHook {
 		} catch (Throwable e) {
 			VLog.e(TAG, VLog.getStackTraceString(e));
 		}
-		return null;
+		return origPath;
 	}
 
 	public static void redirect(String origPath, String newPath) {
