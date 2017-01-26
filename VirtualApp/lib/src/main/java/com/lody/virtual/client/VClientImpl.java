@@ -318,7 +318,7 @@ public final class VClientImpl extends IVClient.Stub {
         mirror.android.app.ActivityThread.AppBindData.info.set(boundApp, data.info);
         VMRuntime.setTargetSdkVersion.call(VMRuntime.getRuntime.call(), data.appInfo.targetSdkVersion);
 
-        boolean conflict = SpecialComponentList.isConflictingInstumentation(packageName);
+        boolean conflict = SpecialComponentList.isConflictingInstrumentation(packageName);
         if (!conflict) {
             PatchManager.getInstance().checkEnv(AppInstrumentation.class);
         }

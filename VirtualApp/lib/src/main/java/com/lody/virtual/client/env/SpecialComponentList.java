@@ -40,7 +40,7 @@ public final class SpecialComponentList {
         INSTRUMENTATION_CONFLICTING.add("com.qihoo.magic_mutiple");
     }
 
-    public static boolean isConflictingInstumentation(String packageName) {
+    public static boolean isConflictingInstrumentation(String packageName) {
         return INSTRUMENTATION_CONFLICTING.contains(packageName);
     }
 

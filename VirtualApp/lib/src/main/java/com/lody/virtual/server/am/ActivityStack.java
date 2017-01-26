@@ -304,7 +304,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
         } else {
             boolean delivered = false;
             mAM.moveTaskToFront(reuseTask.taskId, 0);
-            boolean startTaskToFront = ComponentUtils.isSameIntent(intent, reuseTask.taskRoot);
+            boolean startTaskToFront = !clearTop && ComponentUtils.isSameIntent(intent, reuseTask.taskRoot);
 
             if (clearTarget.deliverIntent || singleTop) {
                 taskMarked = markTaskByClearTarget(reuseTask, clearTarget, intent.getComponent());
