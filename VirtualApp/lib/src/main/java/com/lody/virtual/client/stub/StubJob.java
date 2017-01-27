@@ -13,7 +13,11 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.lody.virtual.client.core.PatchManager;
+import com.lody.virtual.client.hook.patchs.am.ActivityManagerPatch;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.helper.utils.collection.SparseArray;
+import com.lody.virtual.os.VUserHandle;
 
 import java.util.Map;
 
@@ -28,6 +32,8 @@ import static com.lody.virtual.server.job.VJobSchedulerService.get;
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class StubJob extends Service {
+
+    private static final String TAG = StubJob.class.getSimpleName();
 
     private JobScheduler mScheduler;
     private final SparseArray<JobSession> mJobSessions = new SparseArray<>();
@@ -57,7 +63,14 @@ public class StubJob extends Service {
                         mirror.android.app.job.JobParameters.jobId.set(jobParams, key.clientJobId);
                         Intent service = new Intent();
                         service.setComponent(new ComponentName(key.packageName, config.serviceName));
-                        if (bindService(service, session, 0)) {
+                        service.putExtra("_VA_|_user_id_", VUserHandle.getUserId(key.vuid));
+                        boolean bound = false;
+                        try {
+                            bound = bindService(service, session, 0);
+                        } catch (Throwable e) {
+                            VLog.e(TAG, e);
+                        }
+                        if (bound) {
                             mJobSessions.put(jobId, session);
                         } else {
                             emptyCallback(callback, jobId);
@@ -97,7 +110,7 @@ public class StubJob extends Service {
         private JobParameters jobParams;
         private IJobService clientJobService;
 
-        public JobSession(int jobId, IJobCallback clientCallback, JobParameters jobParams) {
+        JobSession(int jobId, IJobCallback clientCallback, JobParameters jobParams) {
             this.jobId = jobId;
             this.clientCallback = clientCallback;
             this.jobParams = jobParams;
@@ -150,6 +163,7 @@ public class StubJob extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        PatchManager.getInstance().checkEnv(ActivityManagerPatch.class);
         mScheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
     }
 

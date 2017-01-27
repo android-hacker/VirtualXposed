@@ -310,13 +310,13 @@ public class VJobSchedulerService extends IJobScheduler.Stub {
             Iterator<JobInfo> iterator = jobs.listIterator();
             while (iterator.hasNext()) {
                 JobInfo job = iterator.next();
-                if (StubManifest.STUB_JOB.equals(job.getService().getClassName())) {
+                if (!StubManifest.STUB_JOB.equals(job.getService().getClassName())) {
+                    // Schedule by Host, invisible in VA.
                     iterator.remove();
                     continue;
                 }
                 Map.Entry<JobId, JobConfig> jobEntry = findJobByVirtualJobId(job.getId());
                 if (jobEntry == null) {
-                    // Schedule by Host, invisible in VA.
                     iterator.remove();
                     continue;
                 }
