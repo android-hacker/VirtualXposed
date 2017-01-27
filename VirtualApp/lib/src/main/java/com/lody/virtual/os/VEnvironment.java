@@ -61,8 +61,13 @@ public class VEnvironment {
         return new File(getSystemSecureDirectory(), "uid-list.ini.bak");
     }
 
-    public static File getAccountFile() {
+    public static File getAccountConfigFile() {
         return new File(getSystemSecureDirectory(), "account-list.ini");
+    }
+
+
+    public static File getJobConfigFile() {
+        return new File(getSystemSecureDirectory(), "job-list.ini");
     }
 
     public static File getDalvikCacheDirectory() {

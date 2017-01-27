@@ -56,7 +56,6 @@ import com.lody.virtual.service.interfaces.IUiObserver;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import mirror.android.app.ApplicationThreadNative;
@@ -84,7 +83,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 	private final ProcessMap<ProcessRecord> mProcessNames = new ProcessMap<ProcessRecord>();
 	private ActivityManager am = (ActivityManager) VirtualCore.get().getContext()
 			.getSystemService(Context.ACTIVITY_SERVICE);
-	private final VPendingIntents mPendingIntents = new VPendingIntents();
+	private final PendingIntents mPendingIntents = new PendingIntents();
     private final UiEngine mUiEngine = new UiEngine();
 
 	public static VActivityManagerService get() {

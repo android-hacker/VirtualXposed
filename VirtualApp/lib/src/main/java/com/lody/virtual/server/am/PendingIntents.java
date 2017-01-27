@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * @author Lody
  */
-public final class VPendingIntents {
+public final class PendingIntents {
 
     private final Map<IBinder, PendingIntentData> mLruHistory = new HashMap<>();
 

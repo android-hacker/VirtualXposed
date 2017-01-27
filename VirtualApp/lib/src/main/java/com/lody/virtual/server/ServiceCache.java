@@ -1,9 +1,10 @@
 package com.lody.virtual.server;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import android.os.IBinder;
+
+import com.lody.virtual.helper.utils.collection.ArrayMap;
+
+import java.util.Map;
 
 /**
  * @author Lody
@@ -11,7 +12,7 @@ import android.os.IBinder;
 
 public class ServiceCache {
 
-	private static final Map<String, IBinder> sCache = new HashMap<String, IBinder>(5);
+	private static final Map<String, IBinder> sCache = new ArrayMap<>(5);
 
 	public static void addService(String name, IBinder service) {
 		sCache.put(name, service);

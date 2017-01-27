@@ -25,6 +25,9 @@ hook_template(const char *lib_so, const char *symbol, void *new_func, void **old
 }
 
 
+void onSoLoaded(const char *name, void *handle);
+
+
 static inline bool startWith(const std::string &str, const std::string &prefix) {
     return str.compare(0, prefix.length(), prefix) == 0;
     //return str.find(prefix) == 0;
@@ -93,6 +96,11 @@ const char *IOUniformer::restore(const char *path) {
 __BEGIN_DECLS
 
 
+
+//size_t	 fwrite(const void *, size_t, size_t, FILE *);
+HOOK_DEF(size_t, fwrite, const void *data, size_t start, size_t len, FILE *file) {
+    return orig_fwrite(data, start, len, file);
+}
 
 
 // int faccessat(int dirfd, const char *pathname, int mode, int flags);
@@ -438,6 +446,7 @@ HOOK_DEF(int, execve, const char *pathname, char *const argv[], char *const envp
 HOOK_DEF(void*, dlopen, const char *filename, int flag) {
     const char *redirect_path = match_redirected_path(filename);
     void *ret = orig_dlopen(redirect_path, flag);
+    onSoLoaded(filename, ret);
     LOGD("dlopen : %s, return : %p.", redirect_path, ret);
     FREE(redirect_path, filename);
     return ret;
@@ -446,6 +455,7 @@ HOOK_DEF(void*, dlopen, const char *filename, int flag) {
 HOOK_DEF(void*, do_dlopen_V19, const char *filename, int flag, const void *extinfo) {
     const char *redirect_path = match_redirected_path(filename);
     void *ret = orig_do_dlopen_V19(redirect_path, flag, extinfo);
+    onSoLoaded(filename, ret);
     LOGD("do_dlopen : %s, return : %p.", redirect_path, ret);
     FREE(redirect_path, filename);
     return ret;
@@ -455,6 +465,7 @@ HOOK_DEF(void*, do_dlopen_V24, const char *name, int flags, const void *extinfo,
          void *caller_addr) {
     const char *redirect_path = match_redirected_path(name);
     void *ret = orig_do_dlopen_V24(redirect_path, flags, extinfo, caller_addr);
+    onSoLoaded(name, ret);
     LOGD("do_dlopen : %s, return : %p.", redirect_path, ret);
     FREE(redirect_path, name);
     return ret;
@@ -475,6 +486,10 @@ HOOK_DEF(int, kill, pid_t pid, int sig) {
 
 __END_DECLS
 // end IO DEF
+
+
+void onSoLoaded(const char *name, void *handle) {
+}
 
 
 void hook_dlopen(int api_level) {
