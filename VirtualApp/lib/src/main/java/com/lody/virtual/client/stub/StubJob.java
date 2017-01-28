@@ -97,9 +97,13 @@ public class StubJob extends Service {
     /**
      * Make JobScheduler happy.
      */
-    private void emptyCallback(IJobCallback callback, int jobId) throws RemoteException {
-        callback.acknowledgeStartMessage(jobId, false);
-        callback.jobFinished(jobId, false);
+    private void emptyCallback(IJobCallback callback, int jobId) {
+        try {
+            callback.acknowledgeStartMessage(jobId, false);
+            callback.jobFinished(jobId, false);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -134,10 +138,15 @@ public class StubJob extends Service {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             clientJobService = IJobService.Stub.asInterface(service);
+            if (clientJobService == null) {
+                emptyCallback(clientCallback, jobId);
+                stopSession();
+                return;
+            }
             try {
                 clientJobService.startJob(jobParams);
             } catch (RemoteException e) {
-
+                forceFinishJob();
                 e.printStackTrace();
             }
         }
@@ -145,6 +154,16 @@ public class StubJob extends Service {
         @Override
         public void onServiceDisconnected(ComponentName name) {
 
+        }
+
+        void forceFinishJob() {
+            try {
+                clientCallback.jobFinished(jobId, false);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            } finally {
+                stopSession();
+            }
         }
 
         void stopSession() {
