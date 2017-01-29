@@ -16,6 +16,11 @@ import com.lody.virtual.server.IBinderDelegateService;
 public class ServiceConnectionDelegate extends IServiceConnection.Stub {
 
     private final static ArrayMap<IBinder, ServiceConnectionDelegate> DELEGATE_MAP = new ArrayMap<>();
+    private IServiceConnection mConn;
+
+    private ServiceConnectionDelegate(IServiceConnection mConn) {
+        this.mConn = mConn;
+    }
 
     public static ServiceConnectionDelegate getDelegate(IServiceConnection conn) {
         if(conn instanceof ServiceConnectionDelegate){
@@ -34,19 +39,13 @@ public class ServiceConnectionDelegate extends IServiceConnection.Stub {
         return DELEGATE_MAP.remove(conn.asBinder());
     }
 
-    private IServiceConnection mConn;
-
-    private ServiceConnectionDelegate(IServiceConnection mConn) {
-        this.mConn = mConn;
-    }
-
     @Override
     public void connected(ComponentName name, IBinder service) throws RemoteException {
         IBinderDelegateService delegateService = IBinderDelegateService.Stub.asInterface(service);
         if (delegateService != null) {
             name = delegateService.getComponent();
             service = delegateService.getService();
-            IBinder proxy = ProxyServiceFactory.getProxyService(VClientImpl.getClient().getCurrentApplication(), name, service);
+            IBinder proxy = ProxyServiceFactory.getProxyService(VClientImpl.get().getCurrentApplication(), name, service);
             if (proxy != null) {
                 service = proxy;
             }

@@ -69,7 +69,7 @@ public abstract class Hook {
 
 
 	protected final int getBaseVUid() {
-		return VClientImpl.getClient().getBaseVUid();
+		return VClientImpl.get().getBaseVUid();
 	}
 
 	protected final int getRealUid() {

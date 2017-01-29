@@ -75,23 +75,23 @@ public final class VClientImpl extends IVClient.Stub {
     private static final int RECEIVER = 12;
 
     private static final String TAG = VClientImpl.class.getSimpleName();
-
-    private ConditionVariable mTempLock;
-
     @SuppressLint("StaticFieldLeak")
     private static final VClientImpl gClient = new VClientImpl();
+    private final H mH = new H();
+    private ConditionVariable mTempLock;
     private Instrumentation mInstrumentation = AppInstrumentation.getDefault();
-
     private IBinder token;
     private int vuid;
-    private final H mH = new H();
     private AppBindData mBoundApplication;
     private Application mInitialApplication;
+
+    public static VClientImpl get() {
+        return gClient;
+    }
 
     public boolean isBound() {
         return mBoundApplication != null;
     }
-
 
     public Application getCurrentApplication() {
         return mInitialApplication;
@@ -114,36 +114,11 @@ public final class VClientImpl extends IVClient.Stub {
         return context.getClassLoader();
     }
 
-
-    private final class NewIntentData {
-        String creator;
-        IBinder token;
-        Intent intent;
-    }
-
-    private final class AppBindData {
-        String processName;
-        ApplicationInfo appInfo;
-        List<ProviderInfo> providers;
-        Object info;
-    }
-
-    private final class ReceiverData {
-        PendingResultData resultData;
-        Intent intent;
-        ComponentName component;
-    }
-
     private void sendMessage(int what, Object obj) {
         Message msg = Message.obtain();
         msg.what = what;
         msg.obj = obj;
         mH.sendMessage(msg);
-    }
-
-
-    public static VClientImpl getClient() {
-        return gClient;
     }
 
     @Override
@@ -168,26 +143,6 @@ public final class VClientImpl extends IVClient.Stub {
         }
         this.token = token;
         this.vuid = vuid;
-    }
-
-    private class H extends Handler {
-
-        private H() {
-            super(Looper.getMainLooper());
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case NEW_INTENT: {
-                    handleNewIntent((NewIntentData) msg.obj);
-                }
-                break;
-                case RECEIVER: {
-                    handleReceiver((ReceiverData) msg.obj);
-                }
-            }
-        }
     }
 
     private void handleNewIntent(NewIntentData data) {
@@ -226,19 +181,6 @@ public final class VClientImpl extends IVClient.Stub {
                 }
             });
             lock.block();
-        }
-    }
-
-    private static class RootThreadGroup extends ThreadGroup {
-
-        public RootThreadGroup(ThreadGroup parent) {
-            super(parent, "VA-Root");
-        }
-
-        @Override
-        public void uncaughtException(Thread t, Throwable e) {
-            VLog.e("uncaught", e);
-            System.exit(0);
         }
     }
 
@@ -437,14 +379,13 @@ public final class VClientImpl extends IVClient.Stub {
         }
     }
 
-
     @Override
     public IBinder acquireProviderClient(ProviderInfo info) {
         if (mTempLock != null) {
             mTempLock.block();
         }
-        if (!VClientImpl.getClient().isBound()) {
-            VClientImpl.getClient().bindApplication(info.packageName, info.processName);
+        if (!VClientImpl.get().isBound()) {
+            VClientImpl.get().bindApplication(info.packageName, info.processName);
         }
         IInterface provider = null;
         String[] authorities = info.authority.split(";");
@@ -515,7 +456,6 @@ public final class VClientImpl extends IVClient.Stub {
         }
     }
 
-
     @Override
     public void finishActivity(IBinder token) {
         VActivityManager.get().finishActivity(token);
@@ -561,7 +501,6 @@ public final class VClientImpl extends IVClient.Stub {
         VActivityManager.get().broadcastFinish(data.resultData);
     }
 
-
     @Override
     public IBinder createProxyService(ComponentName component, IBinder binder) {
         return ProxyServiceFactory.getProxyService(getCurrentApplication(), component, binder);
@@ -572,5 +511,57 @@ public final class VClientImpl extends IVClient.Stub {
         return "process : " + VirtualRuntime.getProcessName() + "\n" +
                 "initialPkg : " + VirtualRuntime.getInitialPackageName() + "\n" +
                 "vuid : " + vuid;
+    }
+
+    private static class RootThreadGroup extends ThreadGroup {
+
+        public RootThreadGroup(ThreadGroup parent) {
+            super(parent, "VA-Root");
+        }
+
+        @Override
+        public void uncaughtException(Thread t, Throwable e) {
+            VLog.e("uncaught", e);
+            System.exit(0);
+        }
+    }
+
+    private final class NewIntentData {
+        String creator;
+        IBinder token;
+        Intent intent;
+    }
+
+    private final class AppBindData {
+        String processName;
+        ApplicationInfo appInfo;
+        List<ProviderInfo> providers;
+        Object info;
+    }
+
+    private final class ReceiverData {
+        PendingResultData resultData;
+        Intent intent;
+        ComponentName component;
+    }
+
+    private class H extends Handler {
+
+        private H() {
+            super(Looper.getMainLooper());
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case NEW_INTENT: {
+                    handleNewIntent((NewIntentData) msg.obj);
+                }
+                break;
+                case RECEIVER: {
+                    handleReceiver((ReceiverData) msg.obj);
+                }
+            }
+        }
     }
 }

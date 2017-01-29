@@ -21,10 +21,13 @@ import com.lody.virtual.server.pm.VAppManagerService;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 
 import mirror.android.app.ContextImpl;
 import mirror.android.app.LoadedApkHuaWei;
@@ -40,12 +43,30 @@ import static android.content.Intent.FLAG_RECEIVER_REGISTERED_ONLY;
 public class BroadcastSystem {
 
     private static final String TAG = BroadcastSystem.class.getSimpleName();
-
+    private static final Set<String> SYSTEM_BROADCAST_ACTION = new HashSet<>(7);
+    private static final Set<String> SYSTEM_STICKY_BROADCAST_ACTION = new HashSet<>(4);
     /**
      * MUST < 10000.
      */
     private static final int BROADCAST_TIME_OUT = 8500;
+    private static BroadcastSystem gDefault;
 
+    static {
+        SYSTEM_BROADCAST_ACTION.add("android.net.wifi.STATE_CHANGE");
+        SYSTEM_BROADCAST_ACTION.add("android.net.wifi.WIFI_STATE_CHANGED");
+        SYSTEM_BROADCAST_ACTION.add("android.net.conn.CONNECTIVITY_CHANGE");
+        SYSTEM_BROADCAST_ACTION.add("android.intent.action.BATTERY_CHANGED");
+        SYSTEM_BROADCAST_ACTION.add("android.intent.action.BATTERY_LOW");
+        SYSTEM_BROADCAST_ACTION.add("android.intent.action.BATTERY_OKAY");
+        SYSTEM_BROADCAST_ACTION.add("android.intent.action.ANY_DATA_STATE");
+
+        SYSTEM_STICKY_BROADCAST_ACTION.add("android.net.conn.CONNECTIVITY_CHANGE");
+        SYSTEM_STICKY_BROADCAST_ACTION.add("android.net.wifi.WIFI_STATE_CHANGED");
+        SYSTEM_STICKY_BROADCAST_ACTION.add("android.intent.action.BATTERY_CHANGED");
+        SYSTEM_STICKY_BROADCAST_ACTION.add("android.intent.action.ANY_DATA_STATE");
+    }
+
+    private final ArrayMap<String, SystemBroadcastReceiver> mSystemReceivers = new ArrayMap<>();
     private final ArrayMap<String, List<BroadcastReceiver>> mReceivers = new ArrayMap<>();
     private final Map<IBinder, BroadcastRecord> mBroadcastRecords = new HashMap<>();
     private final Context mContext;
@@ -54,18 +75,14 @@ public class BroadcastSystem {
     private final VActivityManagerService mAMS;
     private final VAppManagerService mApp;
 
-    private static BroadcastSystem gDefault;
-
-    private final class TimeoutHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            IBinder token = (IBinder) msg.obj;
-            BroadcastRecord r = mBroadcastRecords.remove(token);
-            if (r != null) {
-                VLog.w(TAG, "Broadcast timeout, cancel to dispatch it.");
-                r.pendingResult.build().finish();
-            }
-        }
+    private BroadcastSystem(Context context, VActivityManagerService ams, VAppManagerService app) {
+        this.mContext = context;
+        this.mApp = app;
+        this.mAMS = ams;
+        mScheduler = new StaticScheduler();
+        mTimeoutHandler = new TimeoutHandler();
+        fuckHuaWeiVerifier();
+        registerSystemReceiver();
     }
 
     public static void attach(VActivityManagerService ams, VAppManagerService app) {
@@ -79,16 +96,32 @@ public class BroadcastSystem {
         return gDefault;
     }
 
-    private BroadcastSystem(Context context, VActivityManagerService ams, VAppManagerService app) {
-        this.mContext = context;
-        this.mApp = app;
-        this.mAMS = ams;
-        mScheduler = new StaticScheduler();
-        mTimeoutHandler = new TimeoutHandler();
-        fuckHuaWeiVerifier();
-        // TODO: register System Broadcast Receiver.
+    void dispatchStickyBroadcast(int vuid, IntentFilter filter) {
+        Iterator<String> iterator = filter.actionsIterator();
+        while (iterator.hasNext()) {
+            String action = iterator.next();
+            SystemBroadcastReceiver receiver = mSystemReceivers.get(action);
+            if (receiver != null && receiver.sticky && receiver.stickyIntent != null) {
+                Intent intent = new Intent(receiver.stickyIntent);
+                intent.putExtra("_VA_|_uid_", vuid);
+                mContext.sendBroadcast(intent);
+            }
+        }
     }
 
+    private void registerSystemReceiver() {
+        for (String action : SYSTEM_BROADCAST_ACTION) {
+            SystemBroadcastReceiver receiver = new SystemBroadcastReceiver(false);
+            mContext.registerReceiver(receiver, new IntentFilter(action));
+            mSystemReceivers.put(action, receiver);
+        }
+        for (String action : SYSTEM_STICKY_BROADCAST_ACTION) {
+            SystemBroadcastReceiver receiver = mSystemReceivers.get(action);
+            if (receiver != null) {
+                receiver.sticky = true;
+            }
+        }
+    }
 
     /**
      * FIX ISSUE #171:
@@ -168,13 +201,26 @@ public class BroadcastSystem {
     }
 
     public void stopApp(String packageName) {
-        List<BroadcastReceiver> receivers = mReceivers.get(packageName);
-        if (receivers != null) {
-            for (BroadcastReceiver r : receivers) {
-                mContext.unregisterReceiver(r);
+        synchronized (mBroadcastRecords) {
+            Iterator<Map.Entry<IBinder, BroadcastRecord>> iterator = mBroadcastRecords.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<IBinder, BroadcastRecord> entry = iterator.next();
+                BroadcastRecord record = entry.getValue();
+                if (record.receiverInfo.packageName.equals(packageName)) {
+                    record.pendingResult.build().finish();
+                    iterator.remove();
+                }
             }
         }
-        mReceivers.remove(packageName);
+        synchronized (mReceivers) {
+            List<BroadcastReceiver> receivers = mReceivers.get(packageName);
+            if (receivers != null) {
+                for (BroadcastReceiver r : receivers) {
+                    mContext.unregisterReceiver(r);
+                }
+            }
+            mReceivers.remove(packageName);
+        }
     }
 
     void broadcastFinish(PendingResultData res) {
@@ -188,8 +234,8 @@ public class BroadcastSystem {
         res.build().finish();
     }
 
-    void broadcastSent(int vuid, Intent intent, PendingResultData res) {
-        BroadcastRecord record = new BroadcastRecord(vuid, intent, res);
+    void broadcastSent(int vuid, ActivityInfo receiverInfo, PendingResultData res) {
+        BroadcastRecord record = new BroadcastRecord(vuid, receiverInfo, res);
         synchronized (mBroadcastRecords) {
             mBroadcastRecords.put(res.mToken, record);
         }
@@ -204,13 +250,44 @@ public class BroadcastSystem {
 
     private static final class BroadcastRecord {
         int vuid;
-        Intent intent;
+        ActivityInfo receiverInfo;
         PendingResultData pendingResult;
 
-        BroadcastRecord(int vuid, Intent intent, PendingResultData pendingResult) {
+        BroadcastRecord(int vuid, ActivityInfo receiverInfo, PendingResultData pendingResult) {
             this.vuid = vuid;
-            this.intent = intent;
+            this.receiverInfo = receiverInfo;
             this.pendingResult = pendingResult;
+        }
+    }
+
+    private final class TimeoutHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            IBinder token = (IBinder) msg.obj;
+            BroadcastRecord r = mBroadcastRecords.remove(token);
+            if (r != null) {
+                VLog.w(TAG, "Broadcast timeout, cancel to dispatch it.");
+                r.pendingResult.build().finish();
+            }
+        }
+    }
+
+    private final class SystemBroadcastReceiver extends BroadcastReceiver {
+
+        boolean sticky;
+        Intent stickyIntent;
+
+        public SystemBroadcastReceiver(boolean sticky) {
+            this.sticky = sticky;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            SpecialComponentList.protectIntent(intent);
+            mContext.sendBroadcast(intent);
+            if (sticky) {
+                stickyIntent = intent;
+            }
         }
     }
 

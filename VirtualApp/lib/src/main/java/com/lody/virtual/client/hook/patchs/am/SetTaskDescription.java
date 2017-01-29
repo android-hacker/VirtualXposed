@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 
@@ -13,7 +12,6 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.delegate.TaskDescriptionDelegate;
 import com.lody.virtual.helper.utils.DrawableUtils;
-import com.lody.virtual.os.VUserManager;
 
 import java.lang.reflect.Method;
 
@@ -37,7 +35,7 @@ import java.lang.reflect.Method;
 		// If the activity label/icon isn't specified, the application's label/icon is shown instead
 		// Android usually does that for us, but in this case we want info about the contained app, not VIrtualApp itself
 		if (label == null || icon == null) {
-			Application app = VClientImpl.getClient().getCurrentApplication();
+			Application app = VClientImpl.get().getCurrentApplication();
 
 			if (label == null) {
 				label = app.getApplicationInfo().loadLabel(app.getPackageManager()).toString();

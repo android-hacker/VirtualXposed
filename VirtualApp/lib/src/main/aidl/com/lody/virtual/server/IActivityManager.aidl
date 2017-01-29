@@ -111,4 +111,6 @@ interface IActivityManager {
     void processRestarted(in String packageName, in String processName, int userId);
 
     void broadcastFinish(in PendingResultData res);
+
+    void dispatchStickyBroadcast(in IntentFilter filter);
 }

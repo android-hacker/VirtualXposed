@@ -2,7 +2,6 @@ package com.lody.virtual;
 
 import android.os.Binder;
 import android.os.Build;
-import android.os.Debug;
 import android.os.Process;
 
 import com.lody.virtual.client.VClientImpl;
@@ -30,6 +29,30 @@ public class IOHook {
 	private static final String TAG = IOHook.class.getSimpleName();
 
 	private static Map<String, AppSetting> sDexOverrideMap;
+	private static Method openDexFileNative;
+
+	static {
+		try {
+			System.loadLibrary("iohook");
+		} catch (Throwable e) {
+			VLog.e(TAG, VLog.getStackTraceString(e));
+		}
+	}
+
+	static {
+		String methodName =
+				Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? "openDexFileNative" : "openDexFile";
+		for (Method method : DexFile.class.getDeclaredMethods()) {
+			if (method.getName().equals(methodName)) {
+				openDexFileNative = method;
+				break;
+			}
+		}
+		if (openDexFileNative == null) {
+			throw new RuntimeException("Unable to find method : " + methodName);
+		}
+		openDexFileNative.setAccessible(true);
+	}
 
 	public static void startDexOverride() {
 		List<AppSetting> appSettings = VirtualCore.get().getAllApps();
@@ -40,14 +63,6 @@ public class IOHook {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		}
-	}
-
-	static {
-		try {
-			System.loadLibrary("iohook");
-		} catch (Throwable e) {
-			VLog.e(TAG, VLog.getStackTraceString(e));
 		}
 	}
 
@@ -85,22 +100,6 @@ public class IOHook {
 		}
 	}
 
-	private static Method openDexFileNative;
-	static {
-		String methodName =
-				Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? "openDexFileNative" : "openDexFile";
-		for (Method method : DexFile.class.getDeclaredMethods()) {
-			if (method.getName().equals(methodName)) {
-				openDexFileNative = method;
-				break;
-			}
-		}
-		if (openDexFileNative == null) {
-			throw new RuntimeException("Unable to find method : " + methodName);
-		}
-		openDexFileNative.setAccessible(true);
-	}
-
 	public static void hookNative() {
 		try {
 			nativeHookNative(openDexFileNative, VirtualRuntime.isArt(), Build.VERSION.SDK_INT);
@@ -119,7 +118,7 @@ public class IOHook {
 	public static int onGetCallingUid(int originUid) {
 		int callingPid = Binder.getCallingPid();
 		if (callingPid == Process.myPid()) {
-			return VClientImpl.getClient().getBaseVUid();
+			return VClientImpl.get().getBaseVUid();
 		}
 		if (callingPid == VirtualCore.get().getSystemPid()) {
 			return Process.SYSTEM_UID;
@@ -129,7 +128,7 @@ public class IOHook {
             return VUserHandle.getAppId(vuid);
         }
 		VLog.d(TAG, "Ops, who are you ? " + callingPid);
-		return VClientImpl.getClient().getBaseVUid();
+		return VClientImpl.get().getBaseVUid();
 	}
 
 	public static void onOpenDexFileNative(String[] params) {
@@ -164,6 +163,6 @@ public class IOHook {
 	private static native void nativeHook(int apiLevel);
 
 	public static int onGetUid(int uid) {
-		return VClientImpl.getClient().getBaseVUid();
+		return VClientImpl.get().getBaseVUid();
 	}
 }

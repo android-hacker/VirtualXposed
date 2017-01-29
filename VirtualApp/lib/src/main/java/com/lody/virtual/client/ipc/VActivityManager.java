@@ -5,6 +5,7 @@ import android.app.IServiceConnection;
 import android.app.Notification;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ProviderInfo;
 import android.os.Bundle;
@@ -38,10 +39,9 @@ import mirror.android.content.ContentProviderNative;
 public class VActivityManager {
 
     private static final VActivityManager sAM = new VActivityManager();
-
-    private IActivityManager mRemote;
-
     private final Map<IBinder, ActivityClientRecord> mActivities = new HashMap<IBinder, ActivityClientRecord>(6);
+    private IActivityManager mRemote;
+    private Map<UiObserver, IUiObserver> observerMap = new HashMap<>(2);
 
     public static VActivityManager get() {
         return sAM;
@@ -78,7 +78,6 @@ public class VActivityManager {
         }
         return startActivity(intent, info, null, null, null, 0, userId);
     }
-
 
     public ActivityClientRecord onActivityCreate(ComponentName component, ComponentName caller, IBinder token, ActivityInfo info, Intent intent, String affinity, int taskId, int launchMode, int flags) {
         ActivityClientRecord r = new ActivityClientRecord();
@@ -155,7 +154,6 @@ public class VActivityManager {
             return VirtualRuntime.crash(e);
         }
     }
-
 
     public ComponentName startService(IInterface caller, Intent service, String resolvedType, int userId) {
         try {
@@ -244,7 +242,6 @@ public class VActivityManager {
             return VirtualRuntime.crash(e);
         }
     }
-
 
     public void processRestarted(String packageName, String processName, int userId) {
         try {
@@ -350,7 +347,6 @@ public class VActivityManager {
         }
     }
 
-
     public int getUidByPid(int pid) {
         try {
             return getService().getUidByPid(pid);
@@ -431,16 +427,6 @@ public class VActivityManager {
         }
     }
 
-    public interface UiObserver {
-
-        void enterAppUI(int userId, String packageName);
-
-        void exitAppUI(int userId, String packageName);
-
-    }
-
-    private Map<UiObserver, IUiObserver> observerMap = new HashMap<>(2);
-
     public void registerUIObserver(final UiObserver observer) {
         IUiObserver innerObserver = new IUiObserver.Stub() {
             @Override
@@ -504,5 +490,21 @@ public class VActivityManager {
         } catch (RemoteException e) {
             VirtualRuntime.crash(e);
         }
+    }
+
+    public void dispatchStickyBroadcast(IntentFilter filter) {
+        try {
+            getService().dispatchStickyBroadcast(filter);
+        } catch (RemoteException e) {
+            VirtualRuntime.crash(e);
+        }
+    }
+
+    public interface UiObserver {
+
+        void enterAppUI(int userId, String packageName);
+
+        void exitAppUI(int userId, String packageName);
+
     }
 }

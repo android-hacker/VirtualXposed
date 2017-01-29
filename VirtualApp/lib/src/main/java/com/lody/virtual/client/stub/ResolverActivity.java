@@ -370,7 +370,7 @@ public class ResolverActivity extends Activity implements AdapterView.OnItemClic
                             intent.getComponent());
                 } else {
                     try {
-                        Reflect.on( VClientImpl.getClient().getCurrentApplication().getPackageManager()).call("setLastChosenActivity",
+                        Reflect.on( VClientImpl.get().getCurrentApplication().getPackageManager()).call("setLastChosenActivity",
                                 intent,
                                 intent.resolveTypeIfNeeded(getContentResolver()),
                                 PackageManager.MATCH_DEFAULT_ONLY,
@@ -410,6 +410,18 @@ public class ResolverActivity extends Activity implements AdapterView.OnItemClic
         startActivity(in);
     }
 
+    static class ViewHolder {
+        public TextView text;
+        public TextView text2;
+        public ImageView icon;
+
+        public ViewHolder(View view) {
+            text = (TextView) view.findViewById(R.id.text1);
+            text2 = (TextView) view.findViewById(R.id.text2);
+            icon = (ImageView) view.findViewById(R.id.icon);
+        }
+    }
+
     private final class DisplayResolveInfo {
         ResolveInfo ri;
         CharSequence displayLabel;
@@ -429,14 +441,12 @@ public class ResolverActivity extends Activity implements AdapterView.OnItemClic
     private final class ResolveListAdapter extends BaseAdapter {
         private final Intent[] mInitialIntents;
         private final List<ResolveInfo> mBaseResolveList;
-        private ResolveInfo mLastChosen;
         private final Intent mIntent;
         private final int mLaunchedFromUid;
         private final LayoutInflater mInflater;
-
         List<DisplayResolveInfo> mList;
         List<ResolveInfo> mOrigResolveList;
-
+        private ResolveInfo mLastChosen;
         private int mInitialHighlight = -1;
 
         public ResolveListAdapter(Context context, Intent intent,
@@ -709,18 +719,6 @@ public class ResolverActivity extends Activity implements AdapterView.OnItemClic
                 new LoadIconTask().execute(info);
             }
             holder.icon.setImageDrawable(info.displayIcon);
-        }
-    }
-
-    static class ViewHolder {
-        public TextView text;
-        public TextView text2;
-        public ImageView icon;
-
-        public ViewHolder(View view) {
-            text = (TextView) view.findViewById(R.id.text1);
-            text2 = (TextView) view.findViewById(R.id.text2);
-            icon = (ImageView) view.findViewById(R.id.icon);
         }
     }
 

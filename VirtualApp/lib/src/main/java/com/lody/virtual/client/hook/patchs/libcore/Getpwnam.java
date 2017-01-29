@@ -19,7 +19,7 @@ class Getpwnam extends Hook {
                 Reflect pwd = Reflect.on(result);
                 int uid = pwd.get("pw_uid");
                 if (uid == VirtualCore.get().myUid()) {
-                    pwd.set("pw_uid", VClientImpl.getClient().getVUid());
+                    pwd.set("pw_uid", VClientImpl.get().getVUid());
                 }
             }
             return result;

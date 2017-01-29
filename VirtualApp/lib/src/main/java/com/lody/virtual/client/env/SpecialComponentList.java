@@ -14,14 +14,11 @@ import java.util.Map;
  */
 public final class SpecialComponentList {
 
-    private static String PROTECT_ACTION_PREFIX = "_VA_protected_";
-
     private static final List<String> ACTION_BLACK_LIST = new ArrayList<String>(1);
-
     private static final Map<String, String> PROTECTED_ACTION_MAP = new HashMap<>(5);
     private static final HashSet<String> WHITE_PERMISSION = new HashSet<>(3);
-
     private static final HashSet<String> INSTRUMENTATION_CONFLICTING = new HashSet<>(2);
+    private static String PROTECT_ACTION_PREFIX = "_VA_protected_";
 
     static {
         ACTION_BLACK_LIST.add("android.appwidget.action.APPWIDGET_UPDATE");
@@ -60,6 +57,20 @@ public final class SpecialComponentList {
      */
     public static void addBlackAction(String action) {
         ACTION_BLACK_LIST.add(action);
+    }
+
+    public static void protectIntent(Intent intent) {
+        String protectAction = protectAction(intent.getAction());
+        if (protectAction != null) {
+            intent.setAction(protectAction);
+        }
+    }
+
+    public static void unprotectIntent(Intent intent) {
+        String unprotectAction = unprotectAction(intent.getAction());
+        if (unprotectAction != null) {
+            intent.setAction(unprotectAction);
+        }
     }
 
     public static String protectAction(String originAction) {

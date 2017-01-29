@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
@@ -75,10 +76,10 @@ public class VActivityManagerService extends IActivityManager.Stub {
     private final ActivityStack mMainStack = new ActivityStack(this);
     private final List<ServiceRecord> mHistory = new ArrayList<ServiceRecord>();
     private final ProcessMap<ProcessRecord> mProcessNames = new ProcessMap<ProcessRecord>();
-    private ActivityManager am = (ActivityManager) VirtualCore.get().getContext()
-            .getSystemService(Context.ACTIVITY_SERVICE);
     private final PendingIntents mPendingIntents = new PendingIntents();
     private final UiEngine mUiEngine = new UiEngine();
+    private ActivityManager am = (ActivityManager) VirtualCore.get().getContext()
+            .getSystemService(Context.ACTIVITY_SERVICE);
 
     public static VActivityManagerService get() {
         return sService.get();
@@ -995,7 +996,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
                                          PendingResultData result) {
 
         ComponentName componentName = ComponentUtils.toComponentName(info);
-        BroadcastSystem.get().broadcastSent(vuid, intent, result);
+        BroadcastSystem.get().broadcastSent(vuid, info, result);
         try {
             client.scheduleReceiver(componentName, intent, result);
         } catch (Throwable e) {
@@ -1008,5 +1009,11 @@ public class VActivityManagerService extends IActivityManager.Stub {
     @Override
     public void broadcastFinish(PendingResultData res) {
         BroadcastSystem.get().broadcastFinish(res);
+    }
+
+    @Override
+    public void dispatchStickyBroadcast(IntentFilter filter) {
+        int vuid = VBinder.getCallingUid();
+        BroadcastSystem.get().dispatchStickyBroadcast(vuid, filter);
     }
 }
