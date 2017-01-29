@@ -7,7 +7,7 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.helper.utils.collection.ArrayMap;
-import com.lody.virtual.service.IBinderDelegateService;
+import com.lody.virtual.server.IBinderDelegateService;
 
 /**
  * @author Lody

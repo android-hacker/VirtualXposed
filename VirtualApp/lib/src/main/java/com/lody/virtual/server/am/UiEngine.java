@@ -4,7 +4,7 @@ import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 
 import com.lody.virtual.helper.utils.collection.SparseArray;
-import com.lody.virtual.service.interfaces.IUiObserver;
+import com.lody.virtual.server.interfaces.IUiObserver;
 
 import java.util.HashMap;
 import java.util.Map;

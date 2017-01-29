@@ -7,17 +7,24 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageParser;
 import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
 
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.helper.proto.AppSetting;
+import com.lody.virtual.helper.proto.PendingResultData;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.helper.utils.collection.ArrayMap;
 import com.lody.virtual.server.pm.VAppManagerService;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import mirror.android.app.ContextImpl;
 import mirror.android.app.LoadedApkHuaWei;
@@ -30,40 +37,74 @@ import static android.content.Intent.FLAG_RECEIVER_REGISTERED_ONLY;
  * @author Lody
  */
 
-public class StaticBroadcastSystem {
+public class BroadcastSystem {
+
+    private static final String TAG = BroadcastSystem.class.getSimpleName();
+
+    /**
+     * MUST < 10000.
+     */
+    private static final int BROADCAST_TIME_OUT = 8500;
 
     private final ArrayMap<String, List<BroadcastReceiver>> mReceivers = new ArrayMap<>();
+    private final Map<IBinder, BroadcastRecord> mBroadcastRecords = new HashMap<>();
     private final Context mContext;
     private final StaticScheduler mScheduler;
+    private final TimeoutHandler mTimeoutHandler;
     private final VActivityManagerService mAMS;
     private final VAppManagerService mApp;
 
-    public StaticBroadcastSystem(Context context, VActivityManagerService ams, VAppManagerService app) {
+    private static BroadcastSystem gDefault;
+
+    private final class TimeoutHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            IBinder token = (IBinder) msg.obj;
+            BroadcastRecord r = mBroadcastRecords.remove(token);
+            if (r != null) {
+                VLog.w(TAG, "Broadcast timeout, cancel to dispatch it.");
+                r.pendingResult.build().finish();
+            }
+        }
+    }
+
+    public static void attach(VActivityManagerService ams, VAppManagerService app) {
+        if (gDefault != null) {
+            throw new IllegalStateException();
+        }
+        gDefault = new BroadcastSystem(VirtualCore.get().getContext(), ams, app);
+    }
+
+    public static BroadcastSystem get() {
+        return gDefault;
+    }
+
+    private BroadcastSystem(Context context, VActivityManagerService ams, VAppManagerService app) {
         this.mContext = context;
         this.mApp = app;
         this.mAMS = ams;
         mScheduler = new StaticScheduler();
-    }
-
-
-    public void initialize() {
+        mTimeoutHandler = new TimeoutHandler();
         fuckHuaWeiVerifier();
+        // TODO: register System Broadcast Receiver.
     }
 
+
+    /**
+     * FIX ISSUE #171:
+     * java.lang.AssertionError: Register too many Broadcast Receivers
+     * at android.app.LoadedApk.checkRecevierRegisteredLeakLocked(LoadedApk.java:772)
+     * at android.app.LoadedApk.getReceiverDispatcher(LoadedApk.java:800)
+     * at android.app.ContextImpl.registerReceiverInternal(ContextImpl.java:1329)
+     * at android.app.ContextImpl.registerReceiver(ContextImpl.java:1309)
+     * at com.lody.virtual.server.am.BroadcastSystem.startApp(BroadcastSystem.java:54)
+     * at com.lody.virtual.server.pm.VAppManagerService.install(VAppManagerService.java:193)
+     * at com.lody.virtual.server.pm.VAppManagerService.preloadAllApps(VAppManagerService.java:98)
+     * at com.lody.virtual.server.pm.VAppManagerService.systemReady(VAppManagerService.java:70)
+     * at com.lody.virtual.server.BinderProvider.onCreate(BinderProvider.java:42)
+     */
     private void fuckHuaWeiVerifier() {
-        /*
-        FIX ISSUE #171:
-        java.lang.AssertionError: Register too many Broadcast Receivers
-        at android.app.LoadedApk.checkRecevierRegisteredLeakLocked(LoadedApk.java:772)
-        at android.app.LoadedApk.getReceiverDispatcher(LoadedApk.java:800)
-        at android.app.ContextImpl.registerReceiverInternal(ContextImpl.java:1329)
-        at android.app.ContextImpl.registerReceiver(ContextImpl.java:1309)
-        at com.lody.virtual.server.am.StaticBroadcastSystem.startApp(StaticBroadcastSystem.java:54)
-        at com.lody.virtual.server.pm.VAppManagerService.install(VAppManagerService.java:193)
-        at com.lody.virtual.server.pm.VAppManagerService.preloadAllApps(VAppManagerService.java:98)
-        at com.lody.virtual.server.pm.VAppManagerService.systemReady(VAppManagerService.java:70)
-        at com.lody.virtual.server.BinderProvider.onCreate(BinderProvider.java:42)
-        */
+
         if (LoadedApkHuaWei.mReceiverResource != null) {
             Object packageInfo = ContextImpl.mPackageInfo.get(mContext);
             if (packageInfo != null) {
@@ -136,8 +177,41 @@ public class StaticBroadcastSystem {
         mReceivers.remove(packageName);
     }
 
+    void broadcastFinish(PendingResultData res) {
+        synchronized (mBroadcastRecords) {
+            BroadcastRecord record = mBroadcastRecords.remove(res.mToken);
+            if (record == null) {
+                VLog.e(TAG, "Unable to find the BroadcastRecord by token: " + res.mToken);
+            }
+        }
+        mTimeoutHandler.removeMessages(0, res.mToken);
+        res.build().finish();
+    }
+
+    void broadcastSent(int vuid, Intent intent, PendingResultData res) {
+        BroadcastRecord record = new BroadcastRecord(vuid, intent, res);
+        synchronized (mBroadcastRecords) {
+            mBroadcastRecords.put(res.mToken, record);
+        }
+        Message msg = new Message();
+        msg.obj = res.mToken;
+        mTimeoutHandler.sendMessageDelayed(msg, BROADCAST_TIME_OUT);
+    }
+
     private static final class StaticScheduler extends Handler {
 
+    }
+
+    private static final class BroadcastRecord {
+        int vuid;
+        Intent intent;
+        PendingResultData pendingResult;
+
+        BroadcastRecord(int vuid, Intent intent, PendingResultData pendingResult) {
+            this.vuid = vuid;
+            this.intent = intent;
+            this.pendingResult = pendingResult;
+        }
     }
 
     private final class StaticBroadcastReceiver extends BroadcastReceiver {
@@ -157,12 +231,12 @@ public class StaticBroadcastSystem {
             if (mApp.isBooting()) {
                 return;
             }
-            if ((intent.getFlags() & FLAG_RECEIVER_REGISTERED_ONLY) != 0) {
+            if ((intent.getFlags() & FLAG_RECEIVER_REGISTERED_ONLY) != 0 || isInitialStickyBroadcast()) {
                 return;
             }
             PendingResult result = goAsync();
             synchronized (mAMS) {
-                if (!mAMS.handleStaticBroadcast(appId, info, intent, this, result)) {
+                if (!mAMS.handleStaticBroadcast(appId, info, intent, new PendingResultData(result))) {
                     result.finish();
                 }
             }

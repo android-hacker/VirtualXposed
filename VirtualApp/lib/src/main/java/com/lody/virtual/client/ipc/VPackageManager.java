@@ -15,7 +15,7 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.helper.proto.ReceiverInfo;
-import com.lody.virtual.service.IPackageManager;
+import com.lody.virtual.server.IPackageManager;
 
 import java.util.List;
 

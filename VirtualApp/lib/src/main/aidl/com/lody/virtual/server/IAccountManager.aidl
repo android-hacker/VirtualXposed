@@ -1,4 +1,4 @@
-package com.lody.virtual.service;
+package com.lody.virtual.server;
 
 import android.accounts.IAccountManagerResponse;
 import android.accounts.Account;

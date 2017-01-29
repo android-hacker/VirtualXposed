@@ -1,5 +1,5 @@
 // IPackageManager.aidl
-package com.lody.virtual.service;
+package com.lody.virtual.server;
 
 import android.content.ComponentName;
 import android.content.Intent;

@@ -1,5 +1,5 @@
 // IAppObserver.aidl
-package com.lody.virtual.service.interfaces;
+package com.lody.virtual.server.interfaces;
 
 interface IAppObserver {
     void onNewApp(String pkg);

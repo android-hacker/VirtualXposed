@@ -10,7 +10,7 @@ import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.server.ServiceCache;
-import com.lody.virtual.service.interfaces.IServiceFetcher;
+import com.lody.virtual.server.interfaces.IServiceFetcher;
 
 /**
  * @author Lody

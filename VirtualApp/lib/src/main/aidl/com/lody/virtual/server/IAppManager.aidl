@@ -1,7 +1,7 @@
 // IAppManager.aidl
-package com.lody.virtual.service;
+package com.lody.virtual.server;
 
-import com.lody.virtual.service.interfaces.IAppObserver;
+import com.lody.virtual.server.interfaces.IAppObserver;
 import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.proto.InstallResult;
 

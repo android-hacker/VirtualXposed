@@ -25,7 +25,7 @@ import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.os.VUserInfo;
 import com.lody.virtual.os.VUserManager;
 import com.lody.virtual.server.am.VActivityManagerService;
-import com.lody.virtual.service.IUserManager;
+import com.lody.virtual.server.IUserManager;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;

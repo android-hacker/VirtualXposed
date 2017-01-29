@@ -7,13 +7,15 @@ import android.content.pm.PackageInstaller;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import mirror.android.content.pm.PackageInstaller.SessionParamsLOLLIPOP;
 import mirror.android.content.pm.PackageInstaller.SessionParamsMarshmallow;
 
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class VSessionParams {
+public class SessionParams implements Parcelable {
 
     public static final int MODE_INVALID = -1;
 
@@ -48,14 +50,9 @@ public class VSessionParams {
     public String volumeUuid;
     public String[] grantedRuntimePermissions;
 
-    public VSessionParams(int i) {
-        mode = i;
+    public SessionParams(int mode) {
+        this.mode = mode;
     }
-
-    public int describeContents() {
-        return 0;
-    }
-
 
 
     public PackageInstaller.SessionParams a() {
@@ -89,9 +86,9 @@ public class VSessionParams {
         return params;
     }
 
-    public static VSessionParams a(PackageInstaller.SessionParams sessionParams) {
+    public static SessionParams a(PackageInstaller.SessionParams sessionParams) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            VSessionParams params = new VSessionParams(SessionParamsMarshmallow.mode.get(sessionParams));
+            SessionParams params = new SessionParams(SessionParamsMarshmallow.mode.get(sessionParams));
             params.installFlags = SessionParamsMarshmallow.installFlags.get(sessionParams);
             params.installLocation = SessionParamsMarshmallow.installLocation.get(sessionParams);
             params.sizeBytes = SessionParamsMarshmallow.sizeBytes.get(sessionParams);
@@ -106,7 +103,7 @@ public class VSessionParams {
             params.grantedRuntimePermissions = SessionParamsMarshmallow.grantedRuntimePermissions.get(sessionParams);
             return params;
         }
-        VSessionParams params = new VSessionParams(SessionParamsLOLLIPOP.mode.get(sessionParams));
+        SessionParams params = new SessionParams(SessionParamsLOLLIPOP.mode.get(sessionParams));
         params.installFlags = SessionParamsLOLLIPOP.installFlags.get(sessionParams);
         params.installLocation = SessionParamsLOLLIPOP.installLocation.get(sessionParams);
         params.sizeBytes = SessionParamsLOLLIPOP.sizeBytes.get(sessionParams);
@@ -120,4 +117,53 @@ public class VSessionParams {
         return params;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.mode);
+        dest.writeInt(this.installFlags);
+        dest.writeInt(this.installLocation);
+        dest.writeLong(this.sizeBytes);
+        dest.writeString(this.appPackageName);
+        dest.writeParcelable(this.appIcon, flags);
+        dest.writeString(this.appLabel);
+        dest.writeLong(this.appIconLastModified);
+        dest.writeParcelable(this.originatingUri, flags);
+        dest.writeParcelable(this.referrerUri, flags);
+        dest.writeString(this.abiOverride);
+        dest.writeString(this.volumeUuid);
+        dest.writeStringArray(this.grantedRuntimePermissions);
+    }
+
+    protected SessionParams(Parcel in) {
+        this.mode = in.readInt();
+        this.installFlags = in.readInt();
+        this.installLocation = in.readInt();
+        this.sizeBytes = in.readLong();
+        this.appPackageName = in.readString();
+        this.appIcon = in.readParcelable(Bitmap.class.getClassLoader());
+        this.appLabel = in.readString();
+        this.appIconLastModified = in.readLong();
+        this.originatingUri = in.readParcelable(Uri.class.getClassLoader());
+        this.referrerUri = in.readParcelable(Uri.class.getClassLoader());
+        this.abiOverride = in.readString();
+        this.volumeUuid = in.readString();
+        this.grantedRuntimePermissions = in.createStringArray();
+    }
+
+    public static final Parcelable.Creator<SessionParams> CREATOR = new Parcelable.Creator<SessionParams>() {
+        @Override
+        public SessionParams createFromParcel(Parcel source) {
+            return new SessionParams(source);
+        }
+
+        @Override
+        public SessionParams[] newArray(int size) {
+            return new SessionParams[size];
+        }
+    };
 }

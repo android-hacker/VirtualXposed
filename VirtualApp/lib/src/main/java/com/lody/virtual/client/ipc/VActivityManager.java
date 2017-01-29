@@ -17,12 +17,13 @@ import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.proto.AppTaskInfo;
 import com.lody.virtual.helper.proto.PendingIntentData;
+import com.lody.virtual.helper.proto.PendingResultData;
 import com.lody.virtual.helper.proto.VParceledListSlice;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.os.VUserHandle;
-import com.lody.virtual.service.IActivityManager;
-import com.lody.virtual.service.interfaces.IProcessObserver;
-import com.lody.virtual.service.interfaces.IUiObserver;
+import com.lody.virtual.server.IActivityManager;
+import com.lody.virtual.server.interfaces.IProcessObserver;
+import com.lody.virtual.server.interfaces.IUiObserver;
 
 import java.util.HashMap;
 import java.util.List;
@@ -494,6 +495,14 @@ public class VActivityManager {
             return getService().isVAServiceToken(token);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
+        }
+    }
+
+    public void broadcastFinish(PendingResultData res) {
+        try {
+            getService().broadcastFinish(res);
+        } catch (RemoteException e) {
+            VirtualRuntime.crash(e);
         }
     }
 }

@@ -5,7 +5,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import com.lody.virtual.service.IBinderDelegateService;
+import com.lody.virtual.server.IBinderDelegateService;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -53,7 +53,7 @@ import mirror.android.content.IIntentReceiverJB;
         redirectIntentFilter(filter);
         if (args.length > IDX_IIntentReceiver && IIntentReceiver.class.isInstance(args[IDX_IIntentReceiver])) {
             final IInterface old = (IInterface) args[IDX_IIntentReceiver];
-            if (!ProxyIIntentReceiver.class.isInstance(old)) {
+            if (!IIntentReceiverProxy.class.isInstance(old)) {
                 final IBinder token = old.asBinder();
                 if (token != null) {
                     token.linkToDeath(new IBinder.DeathRecipient() {
@@ -65,7 +65,7 @@ import mirror.android.content.IIntentReceiverJB;
                     }, 0);
                     IIntentReceiver proxyIIntentReceiver = mProxyIIntentReceiver.get(token);
                     if (proxyIIntentReceiver == null) {
-                        proxyIIntentReceiver = new ProxyIIntentReceiver(old);
+                        proxyIIntentReceiver = new IIntentReceiverProxy(old);
                         mProxyIIntentReceiver.put(token, proxyIIntentReceiver);
                     }
                     WeakReference mDispatcher = LoadedApk.ReceiverDispatcher.InnerReceiver.mDispatcher.get(old);
@@ -102,19 +102,15 @@ import mirror.android.content.IIntentReceiverJB;
         return isAppProcess();
     }
 
-    private static class ProxyIIntentReceiver extends IIntentReceiver.Stub {
+    private static class IIntentReceiverProxy extends IIntentReceiver.Stub {
         IInterface old;
 
-        ProxyIIntentReceiver(IInterface old) {
+        IIntentReceiverProxy(IInterface old) {
             this.old = old;
         }
 
         public void performReceive(Intent intent, int resultCode, String data, Bundle extras, boolean ordered,
                                    boolean sticky, int sendingUser) throws RemoteException {
-            Intent broadcastIntent = intent.getParcelableExtra("_VA_|_intent_");
-            if (broadcastIntent != null) {
-                intent = broadcastIntent;
-            }
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
                 IIntentReceiverJB.performReceive.call(old, intent, resultCode, data, extras, ordered, sticky, sendingUser);
             } else {

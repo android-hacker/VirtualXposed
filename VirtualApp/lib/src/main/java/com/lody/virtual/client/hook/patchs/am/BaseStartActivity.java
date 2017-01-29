@@ -6,7 +6,7 @@ import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.ipc.VIntentFilterManager;
 import com.lody.virtual.helper.utils.ArrayUtils;
-import com.lody.virtual.service.interfaces.IIntentFilterObserver;
+import com.lody.virtual.server.interfaces.IIntentFilterObserver;
 
 import android.content.Intent;
 import android.os.RemoteException;

@@ -94,4 +94,7 @@ public class VEnvironment {
         return ensureCreated(new File(getDataAppDirectory(), "system"));
     }
 
+    public static File getPackageInstallerStageDir() {
+        return ensureCreated(new File(DATA_DIRECTORY, ".session_dir"));
+    }
 }

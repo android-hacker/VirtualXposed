@@ -5,7 +5,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.lody.virtual.client.ipc.ServiceManagerNative;
-import com.lody.virtual.service.IUserManager;
+import com.lody.virtual.server.IUserManager;
 
 import java.util.List;
 

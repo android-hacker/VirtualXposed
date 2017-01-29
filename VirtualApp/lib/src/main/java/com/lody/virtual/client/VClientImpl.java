@@ -3,6 +3,7 @@ package com.lody.virtual.client;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.app.Instrumentation;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
@@ -35,6 +36,7 @@ import com.lody.virtual.client.hook.secondary.ProxyServiceFactory;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.client.stub.StubManifest;
+import com.lody.virtual.helper.proto.PendingResultData;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.server.secondary.FakeIdentityBinder;
@@ -70,6 +72,7 @@ import static com.lody.virtual.os.VUserHandle.getUserId;
 public final class VClientImpl extends IVClient.Stub {
 
     private static final int NEW_INTENT = 11;
+    private static final int RECEIVER = 12;
 
     private static final String TAG = VClientImpl.class.getSimpleName();
 
@@ -125,6 +128,12 @@ public final class VClientImpl extends IVClient.Stub {
         Object info;
     }
 
+    private final class ReceiverData {
+        PendingResultData resultData;
+        Intent intent;
+        ComponentName component;
+    }
+
     private void sendMessage(int what, Object obj) {
         Message msg = Message.obtain();
         msg.what = what;
@@ -174,6 +183,9 @@ public final class VClientImpl extends IVClient.Stub {
                     handleNewIntent((NewIntentData) msg.obj);
                 }
                 break;
+                case RECEIVER: {
+                    handleReceiver((ReceiverData) msg.obj);
+                }
             }
         }
     }
@@ -517,6 +529,38 @@ public final class VClientImpl extends IVClient.Stub {
         data.intent = intent;
         sendMessage(NEW_INTENT, data);
     }
+
+    @Override
+    public void scheduleReceiver(ComponentName component, Intent intent, PendingResultData resultData) {
+        ReceiverData receiverData = new ReceiverData();
+        receiverData.resultData = resultData;
+        receiverData.intent = intent;
+        receiverData.component = component;
+        sendMessage(RECEIVER, receiverData);
+    }
+
+    private void handleReceiver(ReceiverData data) {
+        BroadcastReceiver.PendingResult result = data.resultData.build();
+        try {
+            Context context = createPackageContext(data.component.getPackageName());
+            Context receiverContext = ContextImpl.getReceiverRestrictedContext.call(context);
+            String className = data.component.getClassName();
+            BroadcastReceiver receiver = (BroadcastReceiver) context.getClassLoader().loadClass(className).newInstance();
+            mirror.android.content.BroadcastReceiver.setPendingResult.call(receiver, result);
+            data.intent.setExtrasClassLoader(context.getClassLoader());
+            receiver.onReceive(receiverContext, data.intent);
+            if (mirror.android.content.BroadcastReceiver.getPendingResult.call(receiver) != null) {
+                result.finish();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(
+                    "Unable to start receiver " + data.component
+                            + ": " + e.toString(), e);
+        }
+        VActivityManager.get().broadcastFinish(data.resultData);
+    }
+
 
     @Override
     public IBinder createProxyService(ComponentName component, IBinder binder) {

@@ -18,7 +18,7 @@ import com.lody.virtual.client.stub.StubManifest;
 import com.lody.virtual.helper.utils.Singleton;
 import com.lody.virtual.os.VBinder;
 import com.lody.virtual.os.VEnvironment;
-import com.lody.virtual.service.IJobScheduler;
+import com.lody.virtual.server.IJobScheduler;
 
 import java.io.File;
 import java.io.FileInputStream;

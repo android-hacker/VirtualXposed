@@ -22,7 +22,6 @@ import static android.system.OsConstants.SOCK_STREAM;
  * returning the underlying {@link FileDescriptor}. This is useful when the
  * server side needs to strongly assert that a client side is completely
  * hands-off.
- *
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class FileBridge extends Thread {
@@ -32,11 +31,17 @@ public class FileBridge extends Thread {
 
     private static final int MSG_LENGTH = 8;
 
-    /** CMD_WRITE [len] [data] */
+    /**
+     * CMD_WRITE [len] [data]
+     */
     private static final int CMD_WRITE = 1;
-    /** CMD_FSYNC */
+    /**
+     * CMD_FSYNC
+     */
     private static final int CMD_FSYNC = 2;
-    /** CMD_CLOSE */
+    /**
+     * CMD_CLOSE
+     */
     private static final int CMD_CLOSE = 3;
 
     private FileDescriptor mTarget;
@@ -116,7 +121,6 @@ public class FileBridge extends Thread {
     }
 
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static void closeQuietly(FileDescriptor fd) {
 
         if (fd != null && fd.valid()) {
@@ -132,7 +136,6 @@ public class FileBridge extends Thread {
      * java.io thinks that a read at EOF is an error and should return -1, contrary to traditional
      * Unix practice where you'd read until you got 0 bytes (and any future read would return -1).
      */
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws IOException {
         ArrayUtils.checkOffsetAndCount(bytes.length, byteOffset, byteCount);
         if (byteCount == 0) {
@@ -157,7 +160,6 @@ public class FileBridge extends Thread {
      * java.io always writes every byte it's asked to, or fails with an error. (That is, unlike
      * Unix it never just writes as many bytes as happens to be convenient.)
      */
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static void write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws IOException {
         ArrayUtils.checkOffsetAndCount(bytes.length, byteOffset, byteCount);
         if (byteCount == 0) {

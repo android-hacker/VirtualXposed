@@ -4,7 +4,7 @@ import android.app.job.JobInfo;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.env.VirtualRuntime;
-import com.lody.virtual.service.IJobScheduler;
+import com.lody.virtual.server.IJobScheduler;
 
 import java.util.List;
 

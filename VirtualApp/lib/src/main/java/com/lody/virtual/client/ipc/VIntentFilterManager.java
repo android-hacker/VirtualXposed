@@ -2,7 +2,7 @@ package com.lody.virtual.client.ipc;
 
 import android.os.IBinder;
 
-import com.lody.virtual.service.interfaces.IIntentFilterObserver;
+import com.lody.virtual.server.interfaces.IIntentFilterObserver;
 
 /**
  * @author Lody

@@ -1,5 +1,5 @@
 // IUiObserver.aidl
-package com.lody.virtual.service.interfaces;
+package com.lody.virtual.server.interfaces;
 
 interface IUiObserver {
     void enterAppUI(int userId, in String packageName);

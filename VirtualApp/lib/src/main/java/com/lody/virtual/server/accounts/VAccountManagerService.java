@@ -35,7 +35,7 @@ import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VBinder;
 import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.server.pm.VPackageManagerService;
-import com.lody.virtual.service.IAccountManager;
+import com.lody.virtual.server.IAccountManager;
 
 import org.xmlpull.v1.XmlPullParser;
 

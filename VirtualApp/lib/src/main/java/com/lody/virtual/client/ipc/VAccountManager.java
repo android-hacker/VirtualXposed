@@ -8,7 +8,7 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.os.VUserHandle;
-import com.lody.virtual.service.IAccountManager;
+import com.lody.virtual.server.IAccountManager;
 
 /**
  * @author Lody

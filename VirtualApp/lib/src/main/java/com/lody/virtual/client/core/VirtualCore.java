@@ -34,7 +34,7 @@ import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.proto.InstallResult;
 import com.lody.virtual.os.VUserHandle;
-import com.lody.virtual.service.IAppManager;
+import com.lody.virtual.server.IAppManager;
 
 import java.io.IOException;
 import java.util.List;

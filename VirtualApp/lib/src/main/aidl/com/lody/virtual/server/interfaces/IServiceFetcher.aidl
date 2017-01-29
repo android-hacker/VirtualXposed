@@ -1,5 +1,5 @@
 // IServiceFetcher.aidl
-package com.lody.virtual.service.interfaces;
+package com.lody.virtual.server.interfaces;
 
 interface IServiceFetcher {
     IBinder getService(String name);

@@ -10,7 +10,7 @@ import mirror.android.content.pm.PackageInstaller;
  * @author Lody
  */
 
-public class VSessionInfo implements Parcelable {
+public class SessionInfo implements Parcelable {
     
     public int sessionId;
     public String installerPackageName;
@@ -41,8 +41,8 @@ public class VSessionInfo implements Parcelable {
         return sessionInfo;
     }
 
-    public static VSessionInfo realloc(android.content.pm.PackageInstaller.SessionInfo sessionInfo) {
-        VSessionInfo info = new VSessionInfo();
+    public static SessionInfo realloc(android.content.pm.PackageInstaller.SessionInfo sessionInfo) {
+        SessionInfo info = new SessionInfo();
         info.sessionId = PackageInstaller.SessionInfo.sessionId.get(sessionInfo);
         info.installerPackageName = PackageInstaller.SessionInfo.installerPackageName.get(sessionInfo);
         info.resolvedBaseCodePath = PackageInstaller.SessionInfo.resolvedBaseCodePath.get(sessionInfo);
@@ -79,10 +79,10 @@ public class VSessionInfo implements Parcelable {
         }
     }
 
-    public VSessionInfo() {
+    public SessionInfo() {
     }
 
-    protected VSessionInfo(Parcel in) {
+    protected SessionInfo(Parcel in) {
         this.sessionId = in.readInt();
         this.installerPackageName = in.readString();
         this.resolvedBaseCodePath = in.readString();
@@ -96,15 +96,15 @@ public class VSessionInfo implements Parcelable {
         this.appLabel = in.readString();
     }
 
-    public static final Parcelable.Creator<VSessionInfo> CREATOR = new Parcelable.Creator<VSessionInfo>() {
+    public static final Parcelable.Creator<SessionInfo> CREATOR = new Parcelable.Creator<SessionInfo>() {
         @Override
-        public VSessionInfo createFromParcel(Parcel source) {
-            return new VSessionInfo(source);
+        public SessionInfo createFromParcel(Parcel source) {
+            return new SessionInfo(source);
         }
 
         @Override
-        public VSessionInfo[] newArray(int size) {
-            return new VSessionInfo[size];
+        public SessionInfo[] newArray(int size) {
+            return new SessionInfo[size];
         }
     };
 }
