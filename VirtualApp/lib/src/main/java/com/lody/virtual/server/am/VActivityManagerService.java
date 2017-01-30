@@ -1001,7 +1001,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
             client.scheduleReceiver(componentName, intent, result);
         } catch (Throwable e) {
             if (result != null) {
-                result.build().finish();
+                result.finish();
             }
         }
     }

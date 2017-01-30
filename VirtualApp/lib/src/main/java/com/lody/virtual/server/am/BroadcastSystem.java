@@ -207,7 +207,7 @@ public class BroadcastSystem {
                 Map.Entry<IBinder, BroadcastRecord> entry = iterator.next();
                 BroadcastRecord record = entry.getValue();
                 if (record.receiverInfo.packageName.equals(packageName)) {
-                    record.pendingResult.build().finish();
+                    record.pendingResult.finish();
                     iterator.remove();
                 }
             }
@@ -231,7 +231,7 @@ public class BroadcastSystem {
             }
         }
         mTimeoutHandler.removeMessages(0, res.mToken);
-        res.build().finish();
+        res.finish();
     }
 
     void broadcastSent(int vuid, ActivityInfo receiverInfo, PendingResultData res) {
@@ -267,7 +267,7 @@ public class BroadcastSystem {
             BroadcastRecord r = mBroadcastRecords.remove(token);
             if (r != null) {
                 VLog.w(TAG, "Broadcast timeout, cancel to dispatch it.");
-                r.pendingResult.build().finish();
+                r.pendingResult.finish();
             }
         }
     }

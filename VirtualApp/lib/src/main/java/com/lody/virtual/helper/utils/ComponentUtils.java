@@ -106,22 +106,16 @@ public class ComponentUtils {
 
 	public static Intent redirectBroadcastIntent(Intent intent, int userId) {
         Intent newIntent = intent.cloneFilter();
+		newIntent.setComponent(null);
+		newIntent.setPackage(null);
 		ComponentName component = intent.getComponent();
 		String pkg = intent.getPackage();
 		if (component != null) {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-                if (intent.getSelector() != null) {
-                    intent.setPackage(component.getPackageName());
-                }
-            }
-			newIntent.setComponent(null);
-			newIntent.setPackage(null);
 			newIntent.putExtra("_VA_|_user_id_", userId);
 			newIntent.setAction(String.format("_VA_%s_%s", component.getPackageName(), component.getClassName()));
 			newIntent.putExtra("_VA_|_component_", component);
 			newIntent.putExtra("_VA_|_intent_", new Intent(intent));
 		} else if (pkg != null) {
-			newIntent.setPackage(null);
 			newIntent.putExtra("_VA_|_user_id_", userId);
 			newIntent.putExtra("_VA_|_creator_", pkg);
 			newIntent.putExtra("_VA_|_intent_", new Intent(intent));
