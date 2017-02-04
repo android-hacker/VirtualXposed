@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.lody.virtual.client.ipc.VActivityManager;
 
@@ -30,7 +31,7 @@ public class ShortcutHandleActivity extends Activity {
         Intent targetIntent = null;
         if (splashUri != null) {
             try {
-                splashIntent = Intent.parseUri(targetUri, 0);
+                splashIntent = Intent.parseUri(splashUri, 0);
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }

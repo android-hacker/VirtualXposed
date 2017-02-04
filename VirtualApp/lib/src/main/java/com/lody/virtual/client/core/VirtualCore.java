@@ -331,6 +331,9 @@ public final class VirtualCore {
 
     public boolean createShortcut(int userId, String packageName, Intent splash, OnEmitShortcutListener listener) {
         AppSetting setting = findApp(packageName);
+        if (setting == null) {
+            return false;
+        }
         ApplicationInfo appInfo = setting.getApplicationInfo(userId);
         PackageManager pm = context.getPackageManager();
         String name;
