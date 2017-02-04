@@ -127,7 +127,7 @@ public class IOHook {
 		if (vuid != -1) {
             return VUserHandle.getAppId(vuid);
         }
-		VLog.d(TAG, "Ops, who are you ? " + callingPid);
+		VLog.d(TAG, "Unknown uid: " + callingPid);
 		return VClientImpl.get().getBaseVUid();
 	}
 

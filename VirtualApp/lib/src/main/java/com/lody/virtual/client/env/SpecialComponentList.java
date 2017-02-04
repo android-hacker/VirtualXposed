@@ -35,6 +35,7 @@ public final class SpecialComponentList {
 
         INSTRUMENTATION_CONFLICTING.add("com.qihoo.magic");
         INSTRUMENTATION_CONFLICTING.add("com.qihoo.magic_mutiple");
+        INSTRUMENTATION_CONFLICTING.add("com.facebook.katana");
     }
 
     public static boolean isConflictingInstrumentation(String packageName) {

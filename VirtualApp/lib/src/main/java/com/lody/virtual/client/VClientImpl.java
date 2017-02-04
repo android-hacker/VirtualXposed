@@ -50,8 +50,6 @@ import java.util.Map;
 import mirror.android.app.ActivityThread;
 import mirror.android.app.ActivityThreadNMR1;
 import mirror.android.app.ContextImpl;
-import mirror.android.app.ContextImplICS;
-import mirror.android.app.ContextImplKitkat;
 import mirror.android.app.IActivityManager;
 import mirror.android.app.LoadedApk;
 import mirror.android.providers.Settings;
@@ -232,7 +230,7 @@ public final class VClientImpl extends IVClient.Stub {
         } else {
             codeCacheDir = context.getCacheDir();
         }
-        if (Build.VERSION.SDK_INT < 24) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             if (HardwareRenderer.setupDiskCache != null) {
                 HardwareRenderer.setupDiskCache.call(codeCacheDir);
             }
@@ -250,23 +248,6 @@ public final class VClientImpl extends IVClient.Stub {
                 RenderScript.setupDiskCache.call(codeCacheDir);
             }
         }
-        File filesDir = new File(data.appInfo.dataDir, "files");
-        File cacheDir = new File(data.appInfo.dataDir, "cache");
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-            if (ContextImplICS.mExternalFilesDir != null) {
-                ContextImplICS.mExternalFilesDir.set(context, filesDir);
-            }
-            if (ContextImplICS.mExternalCacheDir != null) {
-                ContextImplICS.mExternalCacheDir.set(context, cacheDir);
-            }
-        } else {
-            if (ContextImplKitkat.mExternalCacheDirs != null) {
-                ContextImplKitkat.mExternalCacheDirs.set(context, new File[]{cacheDir});
-            }
-            if (ContextImplKitkat.mExternalFilesDirs != null) {
-                ContextImplKitkat.mExternalFilesDirs.set(context, new File[]{filesDir});
-            }
-        }
         Object boundApp = fixBoundApp(mBoundApplication);
         mBoundApplication.info = ContextImpl.mPackageInfo.get(context);
         mirror.android.app.ActivityThread.AppBindData.info.set(boundApp, data.info);
@@ -276,30 +257,33 @@ public final class VClientImpl extends IVClient.Stub {
         if (!conflict) {
             PatchManager.getInstance().checkEnv(AppInstrumentation.class);
         }
-        Application app = LoadedApk.makeApplication.call(data.info, false, null);
-        mInitialApplication = app;
-
-        mirror.android.app.ActivityThread.mInitialApplication.set(mainThread, app);
-        ContextFixer.fixContext(app);
+        mInitialApplication = LoadedApk.makeApplication.call(data.info, false, null);
+        Application injectedApp = mirror.android.app.ActivityThread.mInitialApplication.get(mainThread);
+        if (injectedApp != null) {
+            mInitialApplication = injectedApp;
+        } else {
+            mirror.android.app.ActivityThread.mInitialApplication.set(mainThread, mInitialApplication);
+        }
+        ContextFixer.fixContext(mInitialApplication);
         List<ProviderInfo> providers = VPackageManager.get().queryContentProviders(data.processName, vuid, PackageManager.GET_META_DATA);
         if (providers != null) {
-            installContentProviders(app, providers);
+            installContentProviders(mInitialApplication, providers);
         }
         if (lock != null) {
             lock.open();
             mTempLock = null;
         }
         try {
-            mInstrumentation.callApplicationOnCreate(app);
+            mInstrumentation.callApplicationOnCreate(mInitialApplication);
             PatchManager.getInstance().checkEnv(HCallbackHook.class);
             if (conflict) {
                 PatchManager.getInstance().checkEnv(AppInstrumentation.class);
             }
             mInitialApplication = ActivityThread.mInitialApplication.get(mainThread);
         } catch (Exception e) {
-            if (!mInstrumentation.onException(app, e)) {
+            if (!mInstrumentation.onException(mInitialApplication, e)) {
                 throw new RuntimeException(
-                        "Unable to create application " + app.getClass().getName()
+                        "Unable to create application " + mInitialApplication.getClass().getName()
                                 + ": " + e.toString(), e);
             }
         }
