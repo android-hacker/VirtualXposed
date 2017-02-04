@@ -58,6 +58,7 @@ public class ShortcutHandleActivity extends Activity {
             }
         } else {
             splashIntent.putExtra(Intent.EXTRA_INTENT, targetIntent);
+            splashIntent.putExtra(Intent.EXTRA_CC, userId);
             startActivity(splashIntent);
         }
 
