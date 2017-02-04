@@ -14,7 +14,6 @@ import android.content.pm.ServiceInfo;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.ConditionVariable;
 import android.os.IBinder;
@@ -327,6 +326,10 @@ public final class VirtualCore {
     }
 
     public boolean createShortcut(int userId, String packageName, OnEmitShortcutListener listener) {
+        return createShortcut(userId, packageName, null, listener);
+    }
+
+    public boolean createShortcut(int userId, String packageName, Intent splash, OnEmitShortcutListener listener) {
         AppSetting setting = findApp(packageName);
         ApplicationInfo appInfo = setting.getApplicationInfo(userId);
         PackageManager pm = context.getPackageManager();
@@ -356,6 +359,9 @@ public final class VirtualCore {
         Intent shortcutIntent = new Intent();
         shortcutIntent.setClassName(getHostPkg(), Constants.SHORTCUT_PROXY_ACTIVITY_NAME);
         shortcutIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        if (splash != null) {
+            shortcutIntent.putExtra("_VA_|_splash_", splash.toUri(0));
+        }
         shortcutIntent.putExtra("_VA_|_intent_", targetIntent);
         shortcutIntent.putExtra("_VA_|_uri_", targetIntent.toUri(0));
         shortcutIntent.putExtra("_VA_|_user_id_", VUserHandle.myUserId());
