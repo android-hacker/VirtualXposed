@@ -216,6 +216,11 @@ public final class VClientImpl extends IVClient.Stub {
             StrictMode.ThreadPolicy newPolicy = new StrictMode.ThreadPolicy.Builder(StrictMode.getThreadPolicy()).permitNetwork().build();
             StrictMode.setThreadPolicy(newPolicy);
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if (mirror.android.os.StrictMode.sVmPolicyMask != null) {
+                mirror.android.os.StrictMode.sVmPolicyMask.set(0);
+            }
+        }
         if (StubManifest.ENABLE_IO_REDIRECT) {
             startIOUniformer();
         }

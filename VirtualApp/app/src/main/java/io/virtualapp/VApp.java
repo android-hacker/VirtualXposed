@@ -4,8 +4,10 @@ import android.app.Application;
 import android.content.Context;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.stub.StubManifest;
 
+import io.virtualapp.abs.ui.VActivity;
 import jonathanfinerty.once.Once;
 
 /**

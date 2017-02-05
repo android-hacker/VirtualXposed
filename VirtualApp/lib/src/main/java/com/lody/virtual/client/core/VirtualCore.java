@@ -174,7 +174,6 @@ public final class VirtualCore {
             patchManager.init();
             patchManager.injectAll();
             ContextFixer.fixContext(context);
-            StrictModeFixer.fixStrictMode();
             isStartUp = true;
             if (initLock != null) {
                 initLock.open();
