@@ -212,7 +212,8 @@ public final class VClientImpl extends IVClient.Stub {
                 super.start();
             }
         });
-        if (data.appInfo.targetSdkVersion < Build.VERSION_CODES.GINGERBREAD) {
+        int targetSdkVersion = data.appInfo.targetSdkVersion;
+        if (targetSdkVersion < Build.VERSION_CODES.GINGERBREAD) {
             StrictMode.ThreadPolicy newPolicy = new StrictMode.ThreadPolicy.Builder(StrictMode.getThreadPolicy()).permitNetwork().build();
             StrictMode.setThreadPolicy(newPolicy);
         }
@@ -220,6 +221,9 @@ public final class VClientImpl extends IVClient.Stub {
             if (mirror.android.os.StrictMode.sVmPolicyMask != null) {
                 mirror.android.os.StrictMode.sVmPolicyMask.set(0);
             }
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && targetSdkVersion < Build.VERSION_CODES.LOLLIPOP) {
+            mirror.android.os.Message.updateCheckRecycle.call(targetSdkVersion);
         }
         if (StubManifest.ENABLE_IO_REDIRECT) {
             startIOUniformer();

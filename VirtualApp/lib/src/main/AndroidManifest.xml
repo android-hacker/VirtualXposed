@@ -208,6 +208,7 @@
     <uses-permission android:name="cn.nubia.launcher.permission.READ_SETTINGS" />
     <uses-permission android:name="com.huawei.android.launcher.permission.READ_SETTINGS" />
     <uses-permission android:name="com.huawei.android.launcher.permission.CHANGE_BADGE" />
+    <uses-permission android:name="android.permission.GET_INTENT_SENDER_INTENT"/>
 
     <uses-permission
         android:name="android.permission.WRITE_APN_SETTINGS"

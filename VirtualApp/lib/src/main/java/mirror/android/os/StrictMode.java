@@ -5,6 +5,6 @@ import mirror.RefClass;
 import mirror.RefStaticInt;
 
 public class StrictMode {
-    public static Class<?> Class = RefClass.load(StrictMode.class, "android.os.StrictMode");
+    public static Class<?> TYPE = RefClass.load(StrictMode.class, "android.os.StrictMode");
     public static RefStaticInt sVmPolicyMask;
 }
