@@ -30,7 +30,6 @@ void onSoLoaded(const char *name, void *handle);
 
 static inline bool startWith(const std::string &str, const std::string &prefix) {
     return str.compare(0, prefix.length(), prefix) == 0;
-    //return str.find(prefix) == 0;
 }
 
 
@@ -88,8 +87,36 @@ const char *IOUniformer::query(const char *orig_path) {
 }
 
 
-const char *IOUniformer::restore(const char *path) {
-    return path;
+const char *IOUniformer::restore(const char *_path) {
+    if (_path == NULL) {
+        return NULL;
+    }
+    std::string path(_path);
+    if (path.length() <= 1) {
+        return _path;
+    }
+    std::map<std::string, std::string>::iterator iterator;
+    iterator = RootIORedirectMap.find(path);
+    if (iterator != RootIORedirectMap.end()) {
+        return strdup(iterator->second.c_str());
+    }
+    for (iterator = RootIORedirectMap.begin(); iterator != RootIORedirectMap.end(); iterator++) {
+        const std::string &origin = iterator->first;
+        const std::string &redirected = iterator->second;
+        if (path == redirected) {
+            return strdup(origin.c_str());
+        }
+    }
+
+    for (iterator = IORedirectMap.begin(); iterator != IORedirectMap.end(); iterator++) {
+        const std::string &prefix = iterator->first;
+        const std::string &new_prefix = iterator->second;
+        if (startWith(path, new_prefix)) {
+            std::string origin_path = prefix + path.substr(new_prefix.length(), path.length());
+            return strdup(origin_path.c_str());
+        }
+    }
+    return _path;
 }
 
 
