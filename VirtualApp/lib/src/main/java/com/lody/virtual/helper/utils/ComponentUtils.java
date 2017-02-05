@@ -11,6 +11,9 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.helper.compat.ObjectsCompat;
 
+import mirror.webkit.IWebViewUpdateService;
+import mirror.webkit.WebViewFactory;
+
 import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_INSTANCE;
 
 /**
@@ -93,7 +96,7 @@ public class ComponentUtils {
     public static boolean isSystemApp(ApplicationInfo applicationInfo) {
         return applicationInfo != null
                 && ((ApplicationInfo.FLAG_SYSTEM & applicationInfo.flags) != 0
-                || "com.google.android.webview".equals(applicationInfo.packageName));
+                || IWebViewUpdateService.getCurrentWebViewPackageName.call(WebViewFactory.getUpdateService.call()).equals(applicationInfo.packageName));
     }
 
 
