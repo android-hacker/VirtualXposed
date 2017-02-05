@@ -13,7 +13,11 @@ import android.os.IBinder;
  * @author Lody
  *
  *
- * @see android.app.IActivityManager#setServiceForeground(ComponentName,
+ * android.app.IActivityManager.setServiceForeground(ComponentName,
+ *      IBinder, int, Notification, boolean)
+ *
+ *  N:
+ *  android.app.IActivityManager.setServiceForeground(ComponentName,
  *      IBinder, int, Notification, boolean)
  */
 /* package */ class SetServiceForeground extends Hook {
@@ -25,18 +29,7 @@ import android.os.IBinder;
 
 	@Override
 	public Object call(Object who, Method method, Object... args) throws Throwable {
-		try {
-			ComponentName componentName = (ComponentName) args[0];
-			IBinder token = (IBinder) args[1];
-			int id = (int) args[2];
-			Notification notification = (Notification) args[3];
-			boolean keep = (boolean) args[4];
-			VActivityManager.get().setServiceForeground(componentName, token, id, notification, keep);
-			return 0;
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
-		return method.invoke(who, args);
+		return 0;
 	}
 
 	@Override
