@@ -26,6 +26,7 @@ import com.lody.virtual.server.am.BroadcastSystem;
 import com.lody.virtual.server.am.UidSystem;
 import com.lody.virtual.server.am.VActivityManagerService;
 import com.lody.virtual.server.interfaces.IAppObserver;
+import com.lody.virtual.server.interfaces.IAppRequestListener;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,28 +39,25 @@ import java.util.concurrent.atomic.AtomicReference;
 public class VAppManagerService extends IAppManager.Stub {
 
     private static final String TAG = VAppManagerService.class.getSimpleName();
-
-    private boolean isBooting;
-
-    private final UidSystem mUidSystem = new UidSystem();
-
     private static final AtomicReference<VAppManagerService> gService = new AtomicReference<>();
-
+    private final UidSystem mUidSystem = new UidSystem();
+    private boolean isBooting;
     private RemoteCallbackList<IAppObserver> mRemoteCallbackList = new RemoteCallbackList<IAppObserver>();
+
+    private IAppRequestListener listener;
 
     public static VAppManagerService get() {
         return gService.get();
     }
 
-    public boolean isBooting() {
-        return isBooting;
-    }
-
-
     public static void systemReady() {
         VAppManagerService instance = new VAppManagerService();
         instance.mUidSystem.initUidList();
         gService.set(instance);
+    }
+
+    public boolean isBooting() {
+        return isBooting;
     }
 
     public void preloadAllApps() {
@@ -296,6 +294,34 @@ public class VAppManagerService extends IAppManager.Stub {
         } catch (Throwable e) {
             // Ignore
         }
+    }
+
+    @Override
+    public IAppRequestListener getAppRequestListener() {
+        return listener;
+    }
+
+    @Override
+    public void setAppRequestListener(final IAppRequestListener listener) {
+        this.listener = listener;
+        if (listener != null) {
+            try {
+                listener.asBinder().linkToDeath(new DeathRecipient() {
+                    @Override
+                    public void binderDied() {
+                        listener.asBinder().unlinkToDeath(this, 0);
+                        VAppManagerService.this.listener = null;
+                    }
+                }, 0);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void clearAppRequestListener() {
+        this.listener = null;
     }
 
     public AppSetting findAppInfo(String pkg) {

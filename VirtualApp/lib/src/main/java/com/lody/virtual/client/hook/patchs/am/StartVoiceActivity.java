@@ -2,10 +2,8 @@ package com.lody.virtual.client.hook.patchs.am;
 
 import java.lang.reflect.Method;
 
-/**
- * Class: Created by andy on 16-8-3. TODO:
- */
-public class StartVoiceActivity extends BaseStartActivity {
+
+class StartVoiceActivity extends StartActivity {
 	@Override
 	public String getName() {
 		return "startVoiceActivity";

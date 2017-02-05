@@ -67,6 +67,9 @@ public abstract class Hook {
 		return VirtualCore.get().isMainProcess();
 	}
 
+	protected final int getVUid() {
+		return VClientImpl.get().getVUid();
+	}
 
 	protected final int getBaseVUid() {
 		return VClientImpl.get().getBaseVUid();

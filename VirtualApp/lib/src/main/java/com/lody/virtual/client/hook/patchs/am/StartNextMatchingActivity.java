@@ -2,7 +2,7 @@ package com.lody.virtual.client.hook.patchs.am;
 
 import java.lang.reflect.Method;
 
-public class StartNextMatchingActivity extends BaseStartActivity {
+class StartNextMatchingActivity extends StartActivity {
 	@Override
 	public String getName() {
 		return "startNextMatchingActivity";

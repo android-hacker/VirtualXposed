@@ -2,7 +2,7 @@ package com.lody.virtual.client.hook.patchs.am;
 
 import java.lang.reflect.Method;
 
-/*package*/ class StartActivityWithConfig extends BaseStartActivity {
+/*package*/ class StartActivityWithConfig extends StartActivity {
 	@Override
 	public String getName() {
 		return "startActivityWithConfig";

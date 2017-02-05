@@ -2,7 +2,7 @@ package com.lody.virtual.client.hook.patchs.am;
 
 import java.lang.reflect.Method;
 
-/*package*/ class StartActivityAndWait extends BaseStartActivity {
+/*package*/ class StartActivityAndWait extends StartActivity {
 	@Override
 	public String getName() {
 		return "startActivityAndWait";

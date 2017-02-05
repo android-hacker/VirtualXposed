@@ -38,9 +38,12 @@ import com.lody.virtual.helper.proto.InstallResult;
 import com.lody.virtual.helper.utils.BitmapUtils;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.server.IAppManager;
+import com.lody.virtual.server.interfaces.IAppRequestListener;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import dalvik.system.DexFile;
 import mirror.android.app.ActivityThread;
@@ -482,11 +485,63 @@ public final class VirtualCore {
         }
     }
 
+
+
+
+    public IAppRequestListener getAppRequestListener() {
+        try {
+            return getService().getAppRequestListener();
+        } catch (RemoteException e) {
+            return VirtualRuntime.crash(e);
+        }
+    }
+
+    public void setAppRequestListener(final AppRequestListener listener) {
+        IAppRequestListener inner = new IAppRequestListener.Stub() {
+            @Override
+            public void onRequestInstall(final String path) throws RemoteException {
+                VirtualRuntime.getUIHandler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onRequestInstall(path);
+                    }
+                });
+            }
+
+            @Override
+            public void onRequestUninstall(final String pkg) throws RemoteException {
+                VirtualRuntime.getUIHandler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onRequestUninstall(pkg);
+                    }
+                });
+            }
+        };
+        try {
+            getService().setAppRequestListener(inner);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }    public void clearAppRequestListener() {
+        try {
+            getService().clearAppRequestListener();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void preloadAllApps() {
         try {
             getService().preloadAllApps();
         } catch (RemoteException e) {
             // Ignore
+        }
+    }    public IAppRequestListener getAppRequestListener() {
+        try {
+            return getService().getAppRequestListener();
+        } catch (RemoteException e) {
+            return VirtualRuntime.crash(e);
         }
     }
 
@@ -523,6 +578,11 @@ public final class VirtualCore {
          * Child process
          */
         CHILD
+    }
+
+    public interface AppRequestListener {
+        void onRequestInstall(String path);
+        void onRequestUninstall(String pkg);
     }
 
     public interface OnEmitShortcutListener {
