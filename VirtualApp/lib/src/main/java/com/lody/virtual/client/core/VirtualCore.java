@@ -485,8 +485,20 @@ public final class VirtualCore {
         }
     }
 
-
-
+public void clearAppRequestListener() {
+        try {
+            getService().clearAppRequestListener();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+    public void preloadAllApps() {
+        try {
+            getService().preloadAllApps();
+        } catch (RemoteException e) {
+            // Ignore
+        }
+    }
 
     public IAppRequestListener getAppRequestListener() {
         try {
@@ -496,7 +508,7 @@ public final class VirtualCore {
         }
     }
 
-    public void setAppRequestListener(final AppRequestListener listener) {
+public void setAppRequestListener(final AppRequestListener listener) {
         IAppRequestListener inner = new IAppRequestListener.Stub() {
             @Override
             public void onRequestInstall(final String path) throws RemoteException {
@@ -522,26 +534,6 @@ public final class VirtualCore {
             getService().setAppRequestListener(inner);
         } catch (RemoteException e) {
             e.printStackTrace();
-        }
-    }    public void clearAppRequestListener() {
-        try {
-            getService().clearAppRequestListener();
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void preloadAllApps() {
-        try {
-            getService().preloadAllApps();
-        } catch (RemoteException e) {
-            // Ignore
-        }
-    }    public IAppRequestListener getAppRequestListener() {
-        try {
-            return getService().getAppRequestListener();
-        } catch (RemoteException e) {
-            return VirtualRuntime.crash(e);
         }
     }
 
