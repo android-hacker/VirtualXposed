@@ -34,10 +34,10 @@ public class ComponentFixer {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			applicationInfo.splitSourceDirs = new String[]{setting.apkPath};
 			applicationInfo.splitPublicSourceDirs = applicationInfo.splitSourceDirs;
-		}
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			ApplicationInfoL.scanSourceDir.set(applicationInfo, applicationInfo.dataDir);
 			ApplicationInfoL.scanPublicSourceDir.set(applicationInfo, applicationInfo.dataDir);
+            String hostPrimaryCpuAbi = ApplicationInfoL.primaryCpuAbi.get(VirtualCore.get().getContext().getApplicationInfo());
+			ApplicationInfoL.primaryCpuAbi.set(applicationInfo, hostPrimaryCpuAbi);
 		}
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 			ApplicationInfoN.deviceEncryptedDataDir.set(applicationInfo, applicationInfo.dataDir);
