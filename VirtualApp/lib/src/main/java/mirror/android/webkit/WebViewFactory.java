@@ -1,4 +1,4 @@
-package mirror.webkit;
+package mirror.android.webkit;
 
 import mirror.RefClass;
 import mirror.RefStaticMethod;

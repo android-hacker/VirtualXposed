@@ -6,14 +6,10 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ComponentInfo;
 import android.content.pm.PackageInfo;
-import android.os.Build;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.helper.compat.ObjectsCompat;
-
-import mirror.webkit.IWebViewUpdateService;
-import mirror.webkit.WebViewFactory;
 
 import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_INSTANCE;
 
@@ -97,14 +93,7 @@ public class ComponentUtils {
     public static boolean isSystemApp(ApplicationInfo applicationInfo) {
         return applicationInfo != null
                 && ((ApplicationInfo.FLAG_SYSTEM & applicationInfo.flags) != 0
-                || isWebViewApp(applicationInfo));
-    }
-
-    private static boolean isWebViewApp(ApplicationInfo applicationInfo) {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N)
-            return IWebViewUpdateService.getCurrentWebViewPackageName.call(WebViewFactory.getUpdateService.call()).equals(applicationInfo.packageName);
-        else
-            return "com.google.android.webview".equals(applicationInfo.packageName);
+                || SpecialComponentList.isSpecSystemPackage(applicationInfo.packageName));
     }
 
     public static boolean isStubComponent(Intent intent) {

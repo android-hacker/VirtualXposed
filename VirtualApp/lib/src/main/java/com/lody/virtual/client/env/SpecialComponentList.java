@@ -2,12 +2,16 @@ package com.lody.virtual.client.env;
 
 import android.Manifest;
 import android.content.Intent;
+import android.os.Build;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+
+import mirror.android.webkit.IWebViewUpdateService;
+import mirror.android.webkit.WebViewFactory;
 
 /**
  * @author Lody
@@ -18,6 +22,7 @@ public final class SpecialComponentList {
     private static final Map<String, String> PROTECTED_ACTION_MAP = new HashMap<>(5);
     private static final HashSet<String> WHITE_PERMISSION = new HashSet<>(3);
     private static final HashSet<String> INSTRUMENTATION_CONFLICTING = new HashSet<>(2);
+    private static final HashSet<String> SPEC_SYSTEM_APP_LIST = new HashSet<>(3);
     private static String PROTECT_ACTION_PREFIX = "_VA_protected_";
 
     static {
@@ -36,6 +41,23 @@ public final class SpecialComponentList {
         INSTRUMENTATION_CONFLICTING.add("com.qihoo.magic");
         INSTRUMENTATION_CONFLICTING.add("com.qihoo.magic_mutiple");
         INSTRUMENTATION_CONFLICTING.add("com.facebook.katana");
+
+        SPEC_SYSTEM_APP_LIST.add("android");
+        SPEC_SYSTEM_APP_LIST.add("com.google.android.webview");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            try {
+                String webViewPkgN = IWebViewUpdateService.getCurrentWebViewPackageName.call(WebViewFactory.getUpdateService.call());
+                if (webViewPkgN != null) {
+                    SPEC_SYSTEM_APP_LIST.add(webViewPkgN);
+                }
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static boolean isSpecSystemPackage(String pkg) {
+        return SPEC_SYSTEM_APP_LIST.contains(pkg);
     }
 
     public static boolean isConflictingInstrumentation(String packageName) {
