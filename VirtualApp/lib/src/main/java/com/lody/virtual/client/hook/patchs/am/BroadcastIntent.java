@@ -53,13 +53,14 @@ import java.lang.reflect.Method;
     private Intent handleIntent(final Intent intent) {
         final String action = intent.getAction();
         if ("android.intent.action.CREATE_SHORTCUT".equals(action)
-                || "com.android.launcher.action.INSTALL_SHORTCUT".equals(action)
-                || "com.android.launcher.action.UNINSTALL_SHORTCUT".equals(action)) {
+                || "com.android.launcher.action.INSTALL_SHORTCUT".equals(action)) {
+
             return StubManifest.ENABLE_INNER_SHORTCUT ? handleInstallShortcutIntent(intent) : null;
-        } else if ("android.intent.action.CREATE_SHORTCUT".equals(action)
-                || "com.android.launcher.action.INSTALL_SHORTCUT".equals(action)
-                || "com.android.launcher.action.UNINSTALL_SHORTCUT".equals(action)) {
+
+        } else if ("com.android.launcher.action.UNINSTALL_SHORTCUT".equals(action)) {
+
             handleUninstallShortcutIntent(intent);
+
         } else {
             return ComponentUtils.redirectBroadcastIntent(intent, VUserHandle.myUserId());
         }

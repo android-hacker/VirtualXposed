@@ -41,9 +41,7 @@ import com.lody.virtual.server.IAppManager;
 import com.lody.virtual.server.interfaces.IAppRequestListener;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import dalvik.system.DexFile;
 import mirror.android.app.ActivityThread;
@@ -381,6 +379,48 @@ public final class VirtualCore {
         return true;
     }
 
+    public boolean removeShortcut(int userId, String packageName, Intent splash, OnEmitShortcutListener listener) {
+        AppSetting setting = findApp(packageName);
+        if (setting == null) {
+            return false;
+        }
+        ApplicationInfo appInfo = setting.getApplicationInfo(userId);
+        PackageManager pm = context.getPackageManager();
+        String name;
+        try {
+            CharSequence sequence = appInfo.loadLabel(pm);
+            name = sequence.toString();
+        } catch (Throwable e) {
+            return false;
+        }
+        if (listener != null) {
+            String newName = listener.getName(name);
+            if (newName != null) {
+                name = newName;
+            }
+        }
+        Intent targetIntent = getLaunchIntent(packageName, userId);
+        if (targetIntent == null) {
+            return false;
+        }
+        Intent shortcutIntent = new Intent();
+        shortcutIntent.setClassName(getHostPkg(), Constants.SHORTCUT_PROXY_ACTIVITY_NAME);
+        shortcutIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        if (splash != null) {
+            shortcutIntent.putExtra("_VA_|_splash_", splash.toUri(0));
+        }
+        shortcutIntent.putExtra("_VA_|_intent_", targetIntent);
+        shortcutIntent.putExtra("_VA_|_uri_", targetIntent.toUri(0));
+        shortcutIntent.putExtra("_VA_|_user_id_", VUserHandle.myUserId());
+
+        Intent addIntent = new Intent();
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, name);
+        addIntent.setAction("com.android.launcher.action.UNINSTALL_SHORTCUT");
+        context.sendBroadcast(addIntent);
+        return true;
+    }
+
     public void setLoadingPage(Intent intent, Activity activity) {
         if (activity != null) {
             setLoadingPage(intent, mirror.android.app.Activity.mToken.get(activity));
@@ -485,13 +525,14 @@ public final class VirtualCore {
         }
     }
 
-public void clearAppRequestListener() {
+    public void clearAppRequestListener() {
         try {
             getService().clearAppRequestListener();
         } catch (RemoteException e) {
             e.printStackTrace();
         }
     }
+
     public void preloadAllApps() {
         try {
             getService().preloadAllApps();
@@ -508,7 +549,7 @@ public void clearAppRequestListener() {
         }
     }
 
-public void setAppRequestListener(final AppRequestListener listener) {
+    public void setAppRequestListener(final AppRequestListener listener) {
         IAppRequestListener inner = new IAppRequestListener.Stub() {
             @Override
             public void onRequestInstall(final String path) throws RemoteException {
@@ -574,6 +615,7 @@ public void setAppRequestListener(final AppRequestListener listener) {
 
     public interface AppRequestListener {
         void onRequestInstall(String path);
+
         void onRequestUninstall(String pkg);
     }
 
