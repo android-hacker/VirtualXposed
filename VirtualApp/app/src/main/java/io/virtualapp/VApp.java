@@ -61,7 +61,7 @@ public class VApp extends Application {
                             Toast.makeText(VApp.this, "Install: " + res.packageName + " success!", Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        Toast.makeText(VApp.this, "Install failed.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(VApp.this, "Install failed: " + res.error, Toast.LENGTH_SHORT).show();
                     }
                 }
 

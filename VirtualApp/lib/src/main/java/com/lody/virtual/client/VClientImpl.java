@@ -267,12 +267,7 @@ public final class VClientImpl extends IVClient.Stub {
             PatchManager.getInstance().checkEnv(AppInstrumentation.class);
         }
         mInitialApplication = LoadedApk.makeApplication.call(data.info, false, null);
-        Application injectedApp = mirror.android.app.ActivityThread.mInitialApplication.get(mainThread);
-        if (injectedApp != null) {
-            mInitialApplication = injectedApp;
-        } else {
-            mirror.android.app.ActivityThread.mInitialApplication.set(mainThread, mInitialApplication);
-        }
+        mirror.android.app.ActivityThread.mInitialApplication.set(mainThread, mInitialApplication);
         ContextFixer.fixContext(mInitialApplication);
         List<ProviderInfo> providers = VPackageManager.get().queryContentProviders(data.processName, vuid, PackageManager.GET_META_DATA);
         if (providers != null) {
