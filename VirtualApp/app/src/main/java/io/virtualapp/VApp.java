@@ -5,8 +5,12 @@ import android.content.Context;
 import android.widget.Toast;
 
 import com.github.moduth.blockcanary.BlockCanary;
+import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.stub.StubManifest;
+import com.lody.virtual.helper.proto.InstallResult;
+
+import java.io.IOException;
 
 import jonathanfinerty.once.Once;
 
@@ -43,7 +47,22 @@ public class VApp extends Application {
             VirtualCore.get().setAppRequestListener(new VirtualCore.AppRequestListener() {
                 @Override
                 public void onRequestInstall(String path) {
-                    Toast.makeText(VApp.this, "Install: " + path, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(VApp.this, "Installing: " + path, Toast.LENGTH_SHORT).show();
+                    InstallResult res = VirtualCore.get().installApp(path, InstallStrategy.UPDATE_IF_EXIST);
+                    if (res.isSuccess) {
+                        try {
+                            VirtualCore.get().preOpt(res.packageName);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        if (res.isUpdate) {
+                            Toast.makeText(VApp.this, "Update: " + res.packageName + " success!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(VApp.this, "Install: " + res.packageName + " success!", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(VApp.this, "Install failed.", Toast.LENGTH_SHORT).show();
+                    }
                 }
 
                 @Override

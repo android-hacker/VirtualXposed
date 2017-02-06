@@ -64,6 +64,9 @@ public class VAppManagerService extends IAppManager.Stub {
         isBooting = true;
         for (File appDir : VEnvironment.getDataAppDirectory().listFiles()) {
             String pkgName = appDir.getName();
+            if ("android".equals(pkgName)) {
+                continue;
+            }
             File storeFile = new File(appDir, "base.apk");
             int flags = 0;
             if (!storeFile.exists()) {
@@ -100,7 +103,7 @@ public class VAppManagerService extends IAppManager.Stub {
 
     private synchronized InstallResult install(String apkPath, int flags, boolean onlyScan) {
         if (apkPath == null) {
-            return InstallResult.makeFailure("Not given the apk path.");
+            return InstallResult.makeFailure("apk path = NULL");
         }
         File apk = new File(apkPath);
         if (!apk.exists() || !apk.isFile()) {
@@ -122,24 +125,25 @@ public class VAppManagerService extends IAppManager.Stub {
         }
         InstallResult res = new InstallResult();
         res.packageName = pkg.packageName;
-        // PackageCache holds all packages, try to check if need update.
+        // PackageCache holds all packages, try to check if we need to update.
         PackageParser.Package existOne = PackageCache.get(pkg.packageName);
+        AppSetting existSetting = findAppInfo(pkg.packageName);
         if (existOne != null) {
             if ((flags & InstallStrategy.IGNORE_NEW_VERSION) != 0) {
                 res.isUpdate = true;
                 return res;
             }
             if (!canUpdate(existOne, pkg, flags)) {
-                return InstallResult.makeFailure("Unable to update the Apk.");
+                return InstallResult.makeFailure("Not allowed to update the package.");
             }
             res.isUpdate = true;
         }
         File appDir = VEnvironment.getDataAppPackageDirectory(pkg.packageName);
-
-
         File libDir = new File(appDir, "lib");
         if (res.isUpdate) {
             FileUtils.deleteDir(libDir);
+            VEnvironment.getOdexFile(pkg.packageName).delete();
+            VActivityManagerService.get().killAppByPkg(pkg.packageName, VUserHandle.USER_ALL);
         }
         if (!libDir.exists() && !libDir.mkdirs()) {
             return InstallResult.makeFailure("Unable to create lib dir.");
@@ -147,10 +151,13 @@ public class VAppManagerService extends IAppManager.Stub {
         boolean dependSystem = (flags & InstallStrategy.DEPEND_SYSTEM_IF_EXIST) != 0
                 && VirtualCore.get().isOutsideInstalled(pkg.packageName);
 
+        if (existSetting != null && existSetting.dependSystem) {
+            dependSystem = false;
+        }
+
         if (!onlyScan) {
             NativeLibraryHelperCompat.copyNativeBinaries(new File(apkPath), libDir);
             if (!dependSystem) {
-                // /data/app/com.xxx.xxx-1/base.apk
                 File storeFile = new File(appDir, "base.apk");
                 File parentFolder = storeFile.getParentFile();
                 if (!parentFolder.exists() && !parentFolder.mkdirs()) {
@@ -205,6 +212,7 @@ public class VAppManagerService extends IAppManager.Stub {
                     BroadcastSystem.get().stopApp(pkg);
                     VActivityManagerService.get().killAppByPkg(pkg, VUserHandle.USER_ALL);
                     FileUtils.deleteDir(VEnvironment.getDataAppPackageDirectory(pkg));
+                    VEnvironment.getOdexFile(pkg).delete();
                     for (int userId : VUserManagerService.get().getUserIds()) {
                         FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(userId, pkg));
                     }
