@@ -9,12 +9,12 @@ jclass g_jclass;
 
 
 
-void hook_native(JNIEnv *env, jclass jclazz, jobject javaMethod, jboolean isArt, jint apiLevel) {
+void hook_native(JNIEnv *env, jclass jclazz, jobjectArray javaMethods, jstring packageName, jboolean isArt, jint apiLevel) {
     static bool hasHooked = false;
     if (hasHooked) {
         return;
     }
-    patchAndroidVM(javaMethod, isArt, apiLevel);
+    patchAndroidVM(javaMethods, packageName, isArt, apiLevel);
     hasHooked = true;
 }
 
@@ -54,7 +54,7 @@ static JNINativeMethod gMethods[] = {
         NATIVE_METHOD((void *) query,    "nativeGetRedirectedPath",     "(Ljava/lang/String;)Ljava/lang/String;"),
         NATIVE_METHOD((void *) restore,  "nativeRestoreRedirectedPath", "(Ljava/lang/String;)Ljava/lang/String;"),
 
-        NATIVE_METHOD((void *) hook_native, "nativeHookNative", "(Ljava/lang/Object;ZI)V"),
+        NATIVE_METHOD((void *) hook_native, "nativeHookNative", "(Ljava/lang/Object;Ljava/lang/String;ZI)V"),
 };
 
 
