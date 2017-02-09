@@ -41,7 +41,7 @@ public class LocalProxyUtils {
                             throw e.getCause();
                         }
                     }
-                    throw e.getCause();
+                    throw e.getCause() == null ? e : e.getCause();
                 }
             }
         });

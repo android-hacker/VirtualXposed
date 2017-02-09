@@ -32,7 +32,7 @@ public class ServiceManagerNative {
 	private static IServiceFetcher getServiceFetcher() {
 		if (sFetcher == null) {
 			synchronized (ServiceManagerNative.class) {
-				if (sFetcher != null) {
+				if (sFetcher == null) {
 					Context context = VirtualCore.get().getContext();
 					Bundle response = new ProviderCall.Builder(context, SERVICE_CP_AUTH).methodName("@").call();
 					if (response != null) {
