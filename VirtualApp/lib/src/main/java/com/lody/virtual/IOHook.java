@@ -1,5 +1,6 @@
 package com.lody.virtual;
 
+import android.hardware.Camera;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Process;
@@ -30,6 +31,7 @@ public class IOHook {
 
 	private static Map<String, AppSetting> sDexOverrideMap;
 	private static Method openDexFileNative;
+	private static Method cameraNativeSetup;
 
 	static {
 		try {
@@ -52,6 +54,19 @@ public class IOHook {
 			throw new RuntimeException("Unable to find method : " + methodName);
 		}
 		openDexFileNative.setAccessible(true);
+
+
+		String nativeSetup = "native_setup";
+		for (Method method : Camera.class.getDeclaredMethods()) {
+			if (method.getName().equals(nativeSetup)) {
+				cameraNativeSetup = method;
+				break;
+			}
+		}
+		if (cameraNativeSetup== null) {
+			throw new RuntimeException("Unable to find method : " + methodName);
+		}
+		cameraNativeSetup.setAccessible(true);
 	}
 
 	public static void startDexOverride() {
@@ -100,9 +115,10 @@ public class IOHook {
 		}
 	}
 
-	public static void hookNative() {
+	public static void hookNative(String hostPackageName) {
+		Method[] methods = {openDexFileNative, cameraNativeSetup};
 		try {
-			nativeHookNative(openDexFileNative, VirtualRuntime.isArt(), Build.VERSION.SDK_INT);
+			nativeHookNative(methods, hostPackageName, VirtualRuntime.isArt(), Build.VERSION.SDK_INT);
 		} catch (Throwable e) {
 			VLog.e(TAG, VLog.getStackTraceString(e));
 		}
@@ -149,7 +165,7 @@ public class IOHook {
 
 
 
-    private static native void nativeHookNative(Object method, boolean isArt, int apiLevel);
+    private static native void nativeHookNative(Object method, String hostPackageName, boolean isArt, int apiLevel);
 
 	private static native void nativeMark();
 

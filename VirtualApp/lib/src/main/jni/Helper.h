@@ -23,8 +23,11 @@
 
 #define JAVA_CLASS "com/lody/virtual/IOHook"
 
-#define ANDROID_L    21
-#define ANDROID_N    24
+#define ANDROID_JBMR2    18
+#define ANDROID_L        21
+#define ANDROID_N        24
+
+enum METHODS {OPEN_DEX=0, CAMERA_SETUP};
 
 
 #endif //NDK_LOG_H

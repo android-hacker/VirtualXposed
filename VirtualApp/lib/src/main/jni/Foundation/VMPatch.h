@@ -15,7 +15,7 @@
 #include "Helper.h"
 
 
-void patchAndroidVM(jobject javaMethod, jboolean isArt, jint apiLevel);
+void patchAndroidVM(jobjectArray javaMethods, jstring packageName, jboolean isArt, jint apiLevel);
 
 void *getVMHandle();
 
