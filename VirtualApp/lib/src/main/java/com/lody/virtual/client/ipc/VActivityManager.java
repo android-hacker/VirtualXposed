@@ -492,11 +492,11 @@ public class VActivityManager {
         }
     }
 
-    public void dispatchStickyBroadcast(IntentFilter filter) {
+    public Intent dispatchStickyBroadcast(IntentFilter filter) {
         try {
-            getService().dispatchStickyBroadcast(filter);
+            return getService().dispatchStickyBroadcast(filter);
         } catch (RemoteException e) {
-            VirtualRuntime.crash(e);
+            return VirtualRuntime.crash(e);
         }
     }
 

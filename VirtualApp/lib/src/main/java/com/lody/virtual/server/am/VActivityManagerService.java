@@ -1012,8 +1012,8 @@ public class VActivityManagerService extends IActivityManager.Stub {
     }
 
     @Override
-    public void dispatchStickyBroadcast(IntentFilter filter) {
+    public Intent dispatchStickyBroadcast(IntentFilter filter) {
         int vuid = VBinder.getCallingUid();
-        BroadcastSystem.get().dispatchStickyBroadcast(vuid, filter);
+        return BroadcastSystem.get().dispatchStickyBroadcast(vuid, filter);
     }
 }

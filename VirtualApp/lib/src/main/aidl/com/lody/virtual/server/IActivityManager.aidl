@@ -112,5 +112,5 @@ interface IActivityManager {
 
     void broadcastFinish(in PendingResultData res);
 
-    void dispatchStickyBroadcast(in IntentFilter filter);
+    Intent dispatchStickyBroadcast(in IntentFilter filter);
 }

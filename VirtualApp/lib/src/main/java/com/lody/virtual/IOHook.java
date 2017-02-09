@@ -62,7 +62,7 @@ public class IOHook {
             gCameraNativeSetup = Camera.class.getDeclaredMethod("native_setup", Object.class, int.class, String.class);
             gCameraMethodType = 1;
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            // ignore
         }
 
         if (gCameraNativeSetup == null) {

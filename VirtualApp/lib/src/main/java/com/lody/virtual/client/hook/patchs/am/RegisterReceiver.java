@@ -83,7 +83,10 @@ import mirror.android.content.IIntentReceiverJB;
             }
         }
         Object res = method.invoke(who, args);
-        VActivityManager.get().dispatchStickyBroadcast(backupFilter);
+        Intent intent = VActivityManager.get().dispatchStickyBroadcast(backupFilter);
+        if (intent != null) {
+            return intent;
+        }
         return res;
     }
 

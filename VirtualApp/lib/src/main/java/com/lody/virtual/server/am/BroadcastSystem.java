@@ -98,17 +98,22 @@ public class BroadcastSystem {
         return gDefault;
     }
 
-    void dispatchStickyBroadcast(int vuid, IntentFilter filter) {
+    Intent dispatchStickyBroadcast(int vuid, IntentFilter filter) {
         Iterator<String> iterator = filter.actionsIterator();
         while (iterator.hasNext()) {
             String action = iterator.next();
             SystemBroadcastReceiver receiver = mSystemReceivers.get(action);
             if (receiver != null && receiver.sticky && receiver.stickyIntent != null) {
                 Intent intent = new Intent(receiver.stickyIntent);
+                SpecialComponentList.protectIntent(intent);
                 intent.putExtra("_VA_|_uid_", vuid);
                 mContext.sendBroadcast(intent);
+                if (!iterator.hasNext()) {
+                    return receiver.stickyIntent;
+                }
             }
         }
+        return null;
     }
 
     private void registerSystemReceiver() {
@@ -138,7 +143,7 @@ public class BroadcastSystem {
      * at com.lody.virtual.server.pm.VAppManagerService.systemReady(VAppManagerService.java:70)
      * at com.lody.virtual.server.BinderProvider.onCreate(BinderProvider.java:42)
      */
-    private void fuckHuaWeiVerifier()  {
+    private void fuckHuaWeiVerifier() {
 
         if (LoadedApkHuaWei.mReceiverResource != null) {
             Object packageInfo = ContextImpl.mPackageInfo.get(mContext);
@@ -299,8 +304,9 @@ public class BroadcastSystem {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            SpecialComponentList.protectIntent(intent);
-            mContext.sendBroadcast(intent);
+            Intent protectedIntent = new Intent(intent);
+            SpecialComponentList.protectIntent(protectedIntent);
+            mContext.sendBroadcast(protectedIntent);
             if (sticky) {
                 stickyIntent = intent;
             }
