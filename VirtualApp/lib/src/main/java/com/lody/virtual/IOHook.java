@@ -56,7 +56,7 @@ public class IOHook {
         openDexFileNative.setAccessible(true);
 
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+        if (VirtualRuntime.isArt() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             // TODO: Collect the methods of custom ROM.
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
                 try {
