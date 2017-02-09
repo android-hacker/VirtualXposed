@@ -138,7 +138,7 @@ public class BroadcastSystem {
      * at com.lody.virtual.server.pm.VAppManagerService.systemReady(VAppManagerService.java:70)
      * at com.lody.virtual.server.BinderProvider.onCreate(BinderProvider.java:42)
      */
-    private void fuckHuaWeiVerifier()throws Throwable {
+    private void fuckHuaWeiVerifier()  {
 
         if (LoadedApkHuaWei.mReceiverResource != null) {
             Object packageInfo = ContextImpl.mPackageInfo.get(mContext);
