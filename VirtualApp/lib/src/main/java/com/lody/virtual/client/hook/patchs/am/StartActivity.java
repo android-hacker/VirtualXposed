@@ -60,7 +60,8 @@ import java.lang.reflect.Method;
             if (handleInstallRequest(intent)) {
                 return 0;
             }
-        } else if (Intent.ACTION_UNINSTALL_PACKAGE.equals(intent.getAction())
+        } else if ((Intent.ACTION_UNINSTALL_PACKAGE.equals(intent.getAction())
+                || Intent.ACTION_DELETE.equals(intent.getAction()))
                 && "package".equals(intent.getScheme())) {
 
             if (handleUninstallRequest(intent)) {
