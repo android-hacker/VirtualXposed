@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageParser;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -33,6 +34,7 @@ import mirror.android.app.ContextImpl;
 import mirror.android.app.LoadedApkHuaWei;
 import mirror.android.rms.resource.ReceiverResourceLP;
 import mirror.android.rms.resource.ReceiverResourceM;
+import mirror.android.rms.resource.ReceiverResourceN;
 
 import static android.content.Intent.FLAG_RECEIVER_REGISTERED_ONLY;
 
@@ -136,23 +138,37 @@ public class BroadcastSystem {
      * at com.lody.virtual.server.pm.VAppManagerService.systemReady(VAppManagerService.java:70)
      * at com.lody.virtual.server.BinderProvider.onCreate(BinderProvider.java:42)
      */
-    private void fuckHuaWeiVerifier() {
+    private void fuckHuaWeiVerifier()throws Throwable {
 
         if (LoadedApkHuaWei.mReceiverResource != null) {
             Object packageInfo = ContextImpl.mPackageInfo.get(mContext);
             if (packageInfo != null) {
                 Object receiverResource = LoadedApkHuaWei.mReceiverResource.get(packageInfo);
                 if (receiverResource != null) {
-                    if (ReceiverResourceM.mWhiteList != null) {
-                        String[] whiteList = ReceiverResourceM.mWhiteList.get(receiverResource);
-                        List<String> newWhiteList = new LinkedList<>();
-                        Collections.addAll(newWhiteList, whiteList);
-                        // Add our package name to the white list.
-                        newWhiteList.add(mContext.getPackageName());
-                        ReceiverResourceM.mWhiteList.set(receiverResource, newWhiteList.toArray(new String[newWhiteList.size()]));
-                    } else if (ReceiverResourceLP.mResourceConfig != null) {
-                        // Just clear the ResourceConfig.
-                        ReceiverResourceLP.mResourceConfig.set(receiverResource, null);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        if (ReceiverResourceN.mWhiteList != null) {
+                            List<String> whiteList = ReceiverResourceN.mWhiteList.get(receiverResource);
+                            List<String> newWhiteList = new ArrayList<>();
+                            // Add our package name to the white list.
+                            newWhiteList.add(mContext.getPackageName());
+                            if (whiteList != null) {
+                                newWhiteList.addAll(whiteList);
+                            }
+                            ReceiverResourceN.mWhiteList.set(receiverResource, newWhiteList);
+                        }
+
+                    } else {
+                        if (ReceiverResourceM.mWhiteList != null) {
+                            String[] whiteList = ReceiverResourceM.mWhiteList.get(receiverResource);
+                            List<String> newWhiteList = new LinkedList<>();
+                            Collections.addAll(newWhiteList, whiteList);
+                            // Add our package name to the white list.
+                            newWhiteList.add(mContext.getPackageName());
+                            ReceiverResourceM.mWhiteList.set(receiverResource, newWhiteList.toArray(new String[newWhiteList.size()]));
+                        } else if (ReceiverResourceLP.mResourceConfig != null) {
+                            // Just clear the ResourceConfig.
+                            ReceiverResourceLP.mResourceConfig.set(receiverResource, null);
+                        }
                     }
                 }
             }
