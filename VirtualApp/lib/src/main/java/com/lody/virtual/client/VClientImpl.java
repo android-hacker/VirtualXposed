@@ -228,7 +228,7 @@ public final class VClientImpl extends IVClient.Stub {
         if (StubManifest.ENABLE_IO_REDIRECT) {
             startIOUniformer();
         }
-        IOHook.hookNative(VirtualCore.get().getHostPkg());
+        IOHook.hookNative();
         Object mainThread = VirtualCore.mainThread();
         IOHook.startDexOverride();
         Context context = createPackageContext(data.appInfo.packageName);

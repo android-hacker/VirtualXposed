@@ -14,6 +14,9 @@
 
 #include "Helper.h"
 
+enum METHODS {
+    OPEN_DEX = 0, CAMERA_SETUP
+};
 
 void patchAndroidVM(jobjectArray javaMethods, jstring packageName, jboolean isArt, jint apiLevel);
 

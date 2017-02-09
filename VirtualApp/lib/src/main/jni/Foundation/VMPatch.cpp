@@ -282,6 +282,9 @@ replaceOpenDexFileMethod(JNIEnv *env, jobject javaMethod, jboolean isArt, int ap
 inline void
 replaceCameraNativeSetupMethod(JNIEnv *env, jobject javaMethod, jboolean isArt, int apiLevel) {
 
+    if (!javaMethod) {
+        return;
+    }
     size_t mtd_cameraNativeSetup = (size_t) env->FromReflectedMethod(javaMethod);
     int nativeFuncOffset = gOffset.nativeOffset;
     void **jniFuncPtr = (void **) (mtd_cameraNativeSetup + nativeFuncOffset);
