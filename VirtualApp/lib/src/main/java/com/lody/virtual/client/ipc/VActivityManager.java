@@ -51,14 +51,24 @@ public class VActivityManager {
         if (mRemote == null) {
             synchronized (VActivityManager.class) {
                 if (mRemote == null) {
-                    final IActivityManager remote = IActivityManager.Stub
-                            .asInterface(ServiceManagerNative.getService(ServiceManagerNative.ACTIVITY));
-                    mRemote = LocalProxyUtils.genProxy(IActivityManager.class, remote);
+                    final Object remote = getRemoteInterface();
+                    mRemote = LocalProxyUtils.genProxy(IActivityManager.class, remote, new LocalProxyUtils.DeadServerHandler() {
+                        @Override
+                        public Object getNewRemoteInterface() {
+                            return getRemoteInterface();
+                        }
+                    });
                 }
             }
         }
         return mRemote;
     }
+
+    private Object getRemoteInterface() {
+        return IActivityManager.Stub
+                .asInterface(ServiceManagerNative.getService(ServiceManagerNative.ACTIVITY));
+    }
+
 
     public int startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, String resultWho, int requestCode, int userId) {
         try {

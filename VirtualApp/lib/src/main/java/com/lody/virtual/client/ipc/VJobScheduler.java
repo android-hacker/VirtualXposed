@@ -1,10 +1,12 @@
 package com.lody.virtual.client.ipc;
 
 import android.app.job.JobInfo;
+import android.os.IBinder;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.server.IJobScheduler;
+import com.lody.virtual.server.IPackageManager;
 
 import java.util.List;
 
@@ -18,20 +20,30 @@ public class VJobScheduler {
 
     private IJobScheduler mRemote;
 
+    public static VJobScheduler get() {
+        return sInstance;
+    }
+
     public IJobScheduler getRemote() {
         if (mRemote == null) {
             synchronized (this) {
                 if (mRemote == null) {
-                    Object remote = IJobScheduler.Stub.asInterface(ServiceManagerNative.getService(ServiceManagerNative.JOB));
-                    mRemote = LocalProxyUtils.genProxy(IJobScheduler.class, remote);
+                    Object remote = getRemoteInterface();
+                    mRemote = LocalProxyUtils.genProxy(IJobScheduler.class, remote, new LocalProxyUtils.DeadServerHandler() {
+                        @Override
+                        public Object getNewRemoteInterface() {
+                            return getRemoteInterface();
+                        }
+                    });
                 }
             }
         }
         return mRemote;
     }
 
-    public static VJobScheduler get() {
-        return sInstance;
+    private Object getRemoteInterface() {
+        final IBinder binder = ServiceManagerNative.getService(ServiceManagerNative.JOB);
+        return IJobScheduler.Stub.asInterface(binder);
     }
 
     public int schedule(JobInfo job) {

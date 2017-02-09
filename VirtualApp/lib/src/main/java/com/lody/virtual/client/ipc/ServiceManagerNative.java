@@ -29,18 +29,26 @@ public class ServiceManagerNative {
 
 	private static IServiceFetcher sFetcher;
 
-	public synchronized static IServiceFetcher getServiceFetcher() {
+	private static IServiceFetcher getServiceFetcher() {
 		if (sFetcher == null) {
-			Context context = VirtualCore.get().getContext();
-			Bundle response = new ProviderCall.Builder(context, SERVICE_CP_AUTH).methodName("@").call();
-			if (response != null) {
-				IBinder binder = BundleCompat.getBinder(response, "_VA_|_binder_");
-				linkBinderDied(binder);
-				sFetcher = IServiceFetcher.Stub.asInterface(binder);
+			synchronized (ServiceManagerNative.class) {
+				if (sFetcher != null) {
+					Context context = VirtualCore.get().getContext();
+					Bundle response = new ProviderCall.Builder(context, SERVICE_CP_AUTH).methodName("@").call();
+					if (response != null) {
+						IBinder binder = BundleCompat.getBinder(response, "_VA_|_binder_");
+						linkBinderDied(binder);
+						sFetcher = IServiceFetcher.Stub.asInterface(binder);
+					}
+				}
 			}
 		}
 		return sFetcher;
 	}
+
+	public static void clearServerFetcher() {
+        sFetcher = null;
+    }
 
 	private static void linkBinderDied(final IBinder binder) {
 		IBinder.DeathRecipient deathRecipient = new IBinder.DeathRecipient() {

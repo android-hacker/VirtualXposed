@@ -32,18 +32,27 @@ public class VPackageManager {
 		return sMgr;
 	}
 
-	public synchronized IPackageManager getInterface() {
+	public IPackageManager getInterface() {
 		if (mRemote == null) {
 			synchronized (VPackageManager.class) {
 				if (mRemote == null) {
-					final IBinder pmBinder = ServiceManagerNative.getService(ServiceManagerNative.PACKAGE);
-					Object remote = IPackageManager.Stub.asInterface(pmBinder);
-					mRemote = LocalProxyUtils.genProxy(IPackageManager.class, remote);
+					Object remote = getRemoteInterface();
+					mRemote = LocalProxyUtils.genProxy(IPackageManager.class, remote, new LocalProxyUtils.DeadServerHandler() {
+						@Override
+						public Object getNewRemoteInterface() {
+							return getRemoteInterface();
+						}
+					});
 				}
 			}
 		}
 		return mRemote;
 	}
+
+	private Object getRemoteInterface() {
+        final IBinder pmBinder = ServiceManagerNative.getService(ServiceManagerNative.PACKAGE);
+        return IPackageManager.Stub.asInterface(pmBinder);
+    }
 
 	public int checkPermission(String permName, String pkgName, int userId) {
 		try {

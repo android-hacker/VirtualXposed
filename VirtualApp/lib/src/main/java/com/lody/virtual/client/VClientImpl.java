@@ -15,6 +15,7 @@ import android.content.pm.ProviderInfo;
 import android.os.Binder;
 import android.os.Build;
 import android.os.ConditionVariable;
+import android.os.Debug;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.IInterface;

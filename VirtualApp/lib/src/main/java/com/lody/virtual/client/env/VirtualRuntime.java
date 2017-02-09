@@ -54,7 +54,7 @@ public class VirtualRuntime {
 
 	public static <T> T crash(RemoteException e) throws RuntimeException {
 		e.printStackTrace();
-		throw new RuntimeException(e);
+		throw new DeadServerException(e);
 	}
 
 	public static void exit() {
