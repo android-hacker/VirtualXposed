@@ -9,12 +9,12 @@ jclass g_jclass;
 
 
 
-void hook_native(JNIEnv *env, jclass jclazz, jobjectArray javaMethods, jstring packageName, jboolean isArt, jint apiLevel) {
+void hook_native(JNIEnv *env, jclass jclazz, jobjectArray javaMethods, jstring packageName, jboolean isArt, jint apiLevel, jint cameraMethodType) {
     static bool hasHooked = false;
     if (hasHooked) {
         return;
     }
-    patchAndroidVM(javaMethods, packageName, isArt, apiLevel);
+    patchAndroidVM(javaMethods, packageName, isArt, apiLevel, cameraMethodType);
     hasHooked = true;
 }
 
@@ -54,7 +54,7 @@ static JNINativeMethod gMethods[] = {
         NATIVE_METHOD((void *) query,    "nativeGetRedirectedPath",     "(Ljava/lang/String;)Ljava/lang/String;"),
         NATIVE_METHOD((void *) restore,  "nativeRestoreRedirectedPath", "(Ljava/lang/String;)Ljava/lang/String;"),
 
-        NATIVE_METHOD((void *) hook_native, "nativeHookNative", "(Ljava/lang/Object;Ljava/lang/String;ZI)V"),
+        NATIVE_METHOD((void *) hook_native, "nativeHookNative", "(Ljava/lang/Object;Ljava/lang/String;ZII)V"),
 };
 
 

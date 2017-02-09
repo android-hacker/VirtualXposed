@@ -30,8 +30,9 @@ public class IOHook {
     private static final String TAG = IOHook.class.getSimpleName();
 
     private static Map<String, AppSetting> sDexOverrideMap;
-    private static Method openDexFileNative;
-    private static Method cameraNativeSetup;
+    private static Method gOpenDexFileNative;
+    private static Method gCameraNativeSetup;
+    private static int gCameraMethodType;
 
     static {
         try {
@@ -46,35 +47,36 @@ public class IOHook {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? "openDexFileNative" : "openDexFile";
         for (Method method : DexFile.class.getDeclaredMethods()) {
             if (method.getName().equals(methodName)) {
-                openDexFileNative = method;
+                gOpenDexFileNative = method;
                 break;
             }
         }
-        if (openDexFileNative == null) {
+        if (gOpenDexFileNative == null) {
             throw new RuntimeException("Unable to find method : " + methodName);
         }
-        openDexFileNative.setAccessible(true);
+        gOpenDexFileNative.setAccessible(true);
 
 
-        if (VirtualRuntime.isArt() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            // TODO: Collect the methods of custom ROM.
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                try {
-                    cameraNativeSetup = Camera.class.getDeclaredMethod("native_setup", Object.class, int.class, String.class);
-                } catch (NoSuchMethodException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                try {
-                    cameraNativeSetup = Camera.class.getDeclaredMethod("native_setup", Object.class, int.class, int.class, String.class);
-                } catch (NoSuchMethodException e) {
-                    e.printStackTrace();
-                }
+        // TODO: Collect the methods of custom ROM.
+        try {
+            gCameraNativeSetup = Camera.class.getDeclaredMethod("native_setup", Object.class, int.class, String.class);
+            gCameraMethodType = 1;
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+
+        if (gCameraNativeSetup == null) {
+            try {
+                gCameraNativeSetup = Camera.class.getDeclaredMethod("native_setup", Object.class, int.class, int.class, String.class);
+                gCameraMethodType = 2;
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
             }
         }
 
-        if (cameraNativeSetup != null) {
-            cameraNativeSetup.setAccessible(true);
+
+        if (gCameraNativeSetup != null) {
+            gCameraNativeSetup.setAccessible(true);
         }
     }
 
@@ -125,9 +127,9 @@ public class IOHook {
     }
 
     public static void hookNative() {
-        Method[] methods = {openDexFileNative, cameraNativeSetup};
+        Method[] methods = {gOpenDexFileNative, gCameraNativeSetup};
         try {
-            nativeHookNative(methods, VirtualCore.get().getHostPkg(), VirtualRuntime.isArt(), Build.VERSION.SDK_INT);
+            nativeHookNative(methods, VirtualCore.get().getHostPkg(), VirtualRuntime.isArt(), Build.VERSION.SDK_INT, gCameraMethodType);
         } catch (Throwable e) {
             VLog.e(TAG, VLog.getStackTraceString(e));
         }
@@ -173,7 +175,7 @@ public class IOHook {
     }
 
 
-    private static native void nativeHookNative(Object method, String hostPackageName, boolean isArt, int apiLevel);
+    private static native void nativeHookNative(Object method, String hostPackageName, boolean isArt, int apiLevel, int cameraMethodType);
 
     private static native void nativeMark();
 
