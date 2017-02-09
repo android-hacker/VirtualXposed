@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
 
     @Override
     public Object call(Object who, Method method, Object... args) throws Throwable {
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
             return super.call(who, method, args);
         }
         String path;
