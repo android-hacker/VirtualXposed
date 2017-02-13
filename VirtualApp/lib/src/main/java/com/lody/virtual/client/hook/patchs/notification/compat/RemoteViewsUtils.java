@@ -118,11 +118,11 @@ class RemoteViewsUtils {
 		if (systemId) {
 			mode = View.MeasureSpec.EXACTLY;
 		} else {
-			mode = View.MeasureSpec.EXACTLY;
+			mode = View.MeasureSpec.AT_MOST;
 		}
 		mCache.layout(0, 0, width, height);
 		mCache.measure(View.MeasureSpec.makeMeasureSpec(width, mode), View.MeasureSpec.makeMeasureSpec(height, mode));
-		mCache.layout(0, 0, width, height);
+		mCache.layout(0, 0, width, mCache.getMeasuredHeight());
 		VLog.i(TAG, "notification:systemId=" + systemId + ",max=%d/%d, szie=%d/%d", width, height,
 				mCache.getMeasuredWidth(), mCache.getMeasuredHeight());
 		// 打印action

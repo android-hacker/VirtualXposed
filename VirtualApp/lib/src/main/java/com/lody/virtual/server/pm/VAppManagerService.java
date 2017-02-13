@@ -5,6 +5,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageParser;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Pair;
@@ -167,6 +168,12 @@ public class VAppManagerService extends IAppManager.Stub {
                 }
                 FileUtils.copyFile(apk, storeFile);
                 apk = storeFile;
+                try {
+                    Runtime.getRuntime().exec("chmod 644 " + apk.getAbsolutePath());
+                } catch (Exception e) {
+                    VLog.w("VAppManager", "chmod ", e);
+
+                }
             }
         }
         if (existOne != null) {
