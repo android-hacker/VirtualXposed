@@ -195,6 +195,9 @@ import mirror.com.android.internal.R_Hide;
 
     static void fixIconImage(Resources resources, RemoteViews remoteViews, Notification notification) {
         if (remoteViews == null) return;
+        if(!NotificationUtils.isSystemLayout(remoteViews)){
+            return;
+        }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             try {
                 //noinspection deprecation

@@ -9,6 +9,7 @@ import android.os.Looper;
 import android.widget.RemoteViews;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -26,6 +27,7 @@ import java.lang.reflect.InvocationTargetException;
         Result result = new Result(RES_NOT_DEAL, null);
         if (DEPEND_SYSTEM) {
             if (VirtualCore.get().isOutsideInstalled(packageName)) {
+                //外部的app
                 NotificationUtils.fixNotificationIcon(context, notification, packageName);
                 result.code = RES_DEAL_OK;
                 return result;

@@ -35,7 +35,8 @@ public abstract class NotificationHandler {
      */
     public static final int RES_NOT_SHOW = 3;
 
-    public static boolean DEPEND_SYSTEM = false;
+    @Deprecated
+    public static boolean DEPEND_SYSTEM = true;
 
     private static final NotificationHandler sInstance;
 

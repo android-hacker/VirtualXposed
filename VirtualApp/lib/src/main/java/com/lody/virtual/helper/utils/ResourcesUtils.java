@@ -1,5 +1,6 @@
 package com.lody.virtual.helper.utils;
 
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -11,10 +12,12 @@ import java.util.zip.ZipFile;
 public class ResourcesUtils {
 
     public static void makeResources(File apk, File res) {
-        //TODO 把zip的asset，dex，lib，除外
-        if (!TextUtils.equals(apk.getAbsolutePath(), res.getAbsolutePath())) {
-            FileUtils.deleteDir(res);
-            FileUtils.copyFile(apk, res);
+        if (Build.VERSION.SDK_INT >= 21) {
+            //TODO 把zip的asset，dex，lib，除外
+            if (!TextUtils.equals(apk.getAbsolutePath(), res.getAbsolutePath())) {
+                FileUtils.deleteDir(res);
+                FileUtils.copyFile(apk, res);
+            }
         }
 //        try {
 //            Process process =Runtime.getRuntime().exec("chmod 744 " + res.getAbsolutePath());
