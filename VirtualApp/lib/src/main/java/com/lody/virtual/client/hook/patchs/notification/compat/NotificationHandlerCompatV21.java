@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.Notification;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -12,6 +13,7 @@ import android.graphics.drawable.Icon;
 import android.graphics.drawable.ScaleDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -20,7 +22,11 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.os.VEnvironment;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 class NotificationHandlerCompatV21 extends NotificationHandlerCompatV14 {
@@ -49,70 +55,62 @@ class NotificationHandlerCompatV21 extends NotificationHandlerCompatV14 {
         if (notification == null) {
             return false;
         }
-//        Context pluginContext = getAppContext(context, packageName);
-        Resources resources = VirtualCore.get().getResources(packageName);
+        ApplicationInfo old = null;
+        String publicApk = null;
+        try {
+            PackageInfo packageInfo = VirtualCore.get().getUnHookPackageManager().getPackageInfo(packageName, 0);
+            if (packageInfo != null) {
+                old = packageInfo.applicationInfo;
+                publicApk = packageInfo.applicationInfo.publicSourceDir;
+            }
+        } catch (Exception e) {
+//            Log.w(TAG, "get appinfo",e);
+        }
         ApplicationInfo host = VirtualCore.get().getContext().getApplicationInfo();
         if (notification.contentView == null && notification.bigContentView == null) {
             Notification tmp = NotificationUtils.clone(context, notification);
             notification.contentView = tmp.contentView;
         }
-//        notification.color = Color.BLACK;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (resources != null) {
-                Icon smallIcon = notification.getSmallIcon();
-                if (smallIcon != null && 2 == (int) Reflect.on(smallIcon).get("mType")) {
-                    Reflect.on(smallIcon).set("mObj1", resources);
-                    Reflect.on(smallIcon).set("mString1", packageName);
-                }
-                Icon largeIcon = notification.getLargeIcon();
-                if (largeIcon != null && 2 == (int) Reflect.on(largeIcon).get("mType")) {
-                    Reflect.on(largeIcon).set("mObj1", resources);
-                    Reflect.on(largeIcon).set("mString1", packageName);
-                }
-            }
-        }else{
-            //6.0以下的图标修复
-            NotificationUtils.fixIconImage(resources, notification.tickerView, notification);
-            NotificationUtils.fixIconImage(resources, notification.contentView, notification);
-            NotificationUtils.fixIconImage(resources, notification.bigContentView, notification);
-            NotificationUtils.fixIconImage(resources, notification.headsUpContentView, notification);
-            notification.icon = host.icon;
-        }
+        //图标修复
+        NotificationUtils.fixNotificationIcon(context, notification, packageName);
         //检查资源布局资源Id是否属于宿主
         //资源是来自插件
-        AppSetting appSetting = VirtualCore.get().findApp(packageName);
-        if (appSetting != null) {
-            ApplicationInfo old = getApplication(notification);
-            if (old == null) {
-                try {
-                    old = VirtualCore.getPM().getApplicationInfo(packageName, 0);
-                } catch (PackageManager.NameNotFoundException e) {
-                    old = host;
-                }
-            }
-            if (!TextUtils.equals(old.publicSourceDir, appSetting.apkPath)) {
-                ApplicationInfo proxyApplicationInfo = new ApplicationInfo(old);
-                //                proxyApplicationInfo.packageName = VirtualCore.get().getHostPkg();
-//                proxyApplicationInfo.uid = host.uid;
-                //要确保publicSourceDir这个路径可以被SystemUI应用读取
-//            proxyApplicationInfo.sourceDir = appSetting.apkPath;
-//            proxyApplicationInfo.dataDir = appSetting.apkPath;
-                proxyApplicationInfo.publicSourceDir = appSetting.apkPath;
-                Log.w(TAG, "proxyApplicationInfo=" + proxyApplicationInfo + ",apk=" + appSetting.apkPath);
-                fixApplication(notification.tickerView, proxyApplicationInfo);
-                fixApplication(notification.contentView, proxyApplicationInfo);
-                fixApplication(notification.bigContentView, proxyApplicationInfo);
-                fixApplication(notification.headsUpContentView, proxyApplicationInfo);
-                Bundle bundle = Reflect.on(notification).get("extras");
-                if (bundle != null) {
-                    bundle.putParcelable("android.appInfo", proxyApplicationInfo);
-                }
-            } else {
-                Log.w(TAG, "old=" + old);
-            }
-            return true;
+        if (TextUtils.isEmpty(publicApk)) {
+            publicApk = VEnvironment.getPackageResource(packageName).getAbsolutePath();
+//            AppSetting appSetting = VirtualCore.get().findApp(packageName);
+//            if (appSetting != null) {
+//                publicApk = appSetting.apkPath;
+//            }else{
+//                publicApk = VEnvironment.getPackagePath(packageName).getAbsolutePath();
+//            }
         }
-        return false;
+        if (old == null) {
+            old = getApplication(notification);
+        }
+        if (old == null) {
+            try {
+                old = VirtualCore.getPM().getApplicationInfo(packageName, 0);
+            } catch (PackageManager.NameNotFoundException e) {
+                old = host;
+            }
+        }
+        ApplicationInfo proxyApplicationInfo = new ApplicationInfo(host);
+        //要确保publicSourceDir这个路径可以被SystemUI应用读取
+        proxyApplicationInfo.packageName = packageName;
+//        proxyApplicationInfo.dataDir = publicApk;
+//        proxyApplicationInfo.sourceDir = publicApk;
+        proxyApplicationInfo.publicSourceDir = publicApk;
+        Log.w(TAG, "proxyApplicationInfo=" + proxyApplicationInfo + ",apk=" + publicApk);
+
+        fixApplication(notification.tickerView, proxyApplicationInfo);
+        fixApplication(notification.contentView, proxyApplicationInfo);
+        fixApplication(notification.bigContentView, proxyApplicationInfo);
+        fixApplication(notification.headsUpContentView, proxyApplicationInfo);
+//        Bundle bundle = Reflect.on(notification).get("extras");
+//        if (bundle != null) {
+//            bundle.putParcelable("android.appInfo", proxyApplicationInfo);
+//        }
+        return true;
     }
 
     private ApplicationInfo getApplication(Notification notification) {

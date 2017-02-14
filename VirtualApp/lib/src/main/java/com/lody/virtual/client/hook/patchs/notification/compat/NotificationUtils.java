@@ -2,6 +2,7 @@ package com.lody.virtual.client.hook.patchs.notification.compat;
 
 import android.app.Notification;
 import android.content.Context;
+import android.content.pm.PackageInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -16,6 +17,7 @@ import android.widget.RemoteViews;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.Reflect;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.helper.utils.collection.SparseArray;
 
 import java.lang.reflect.Field;
@@ -25,7 +27,7 @@ import mirror.com.android.internal.R_Hide;
 
 /* package */ class NotificationUtils {
 
-    private static final String TAG = NotificationUtils.class.getSimpleName();
+    private static final String TAG = NotificationHandler.class.getSimpleName();
 
     private static SparseArray<String> sSystemLayoutResIds = new SparseArray<>(10);
 
@@ -145,24 +147,48 @@ import mirror.com.android.internal.R_Hide;
         return builder;
     }
 
+    private static void fixIcon(Icon icon, Notification notification, Resources resources, boolean isInstall, String packageName) {
+        if (icon == null) return;
+        int type = Reflect.on(icon).get("mType");
+//        Log.i(TAG, "smallIcon type=" + type);
+        if (type == 2) {
+            if (isInstall) {
+                Reflect.on(icon).set("mObj1", resources);
+                Reflect.on(icon).set("mString1", packageName);
+            } else {
+                Drawable drawable = resources.getDrawable(notification.icon);
+                drawable.setLevel(notification.iconLevel);
+                Bitmap bitmap = drawableToBitMap(drawable);
+                Reflect.on(icon).set("mObj1", bitmap);
+                Reflect.on(icon).set("mString1", null);
+                Reflect.on(icon).set("mType", 1);
+            }
+        }
+    }
+
     static void fixNotificationIcon(Context context, Notification notification, String packageName) {
+        Resources resources = VirtualCore.get().getResources(packageName);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             //noinspection deprecation
+            NotificationUtils.fixIconImage(resources, notification.tickerView, notification);
+            NotificationUtils.fixIconImage(resources, notification.contentView, notification);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                NotificationUtils.fixIconImage(resources, notification.bigContentView, notification);
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                NotificationUtils.fixIconImage(resources, notification.headsUpContentView, notification);
+            }
             notification.icon = context.getApplicationInfo().icon;
-            return;
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Resources resources = VirtualCore.get().getResources(packageName);
-            Icon smallIcon = notification.getSmallIcon();
-            if (smallIcon != null && 2 == (int) Reflect.on(smallIcon).get("mType")) {
-                Reflect.on(smallIcon).set("mObj1", resources);
-                Reflect.on(smallIcon).set("mString1", packageName);
+        } else {
+            boolean isInstall = false;
+            try {
+                PackageInfo packageInfo = VirtualCore.get().getUnHookPackageManager().getPackageInfo(packageName, 0);
+                isInstall = packageInfo != null;
+            } catch (Exception e) {
+//            Log.w(TAG, "get appinfo",e);
             }
-            Icon largeIcon = notification.getLargeIcon();
-            if (largeIcon != null && 2 == (int) Reflect.on(largeIcon).get("mType")) {
-                Reflect.on(largeIcon).set("mObj1", resources);
-                Reflect.on(largeIcon).set("mString1", packageName);
-            }
+            fixIcon(notification.getSmallIcon(), notification, resources, isInstall, packageName);
+            fixIcon(notification.getLargeIcon(), notification, resources, isInstall, packageName);
         }
     }
 
@@ -178,11 +204,11 @@ import mirror.com.android.internal.R_Hide;
                 Bitmap bitmap = drawableToBitMap(drawable);
 //                Log.i(NotificationHandler.TAG, "den" + resources.getConfiguration().densityDpi);
                 remoteViews.setImageViewBitmap(id, bitmap);
-                if(Build.VERSION.SDK_INT >= 21) {
+                if (Build.VERSION.SDK_INT >= 21) {
                     remoteViews.setInt(id, "setBackgroundColor", Color.TRANSPARENT);
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    remoteViews.setViewPadding(id, 0, 0,0,0);
+                    remoteViews.setViewPadding(id, 0, 0, 0, 0);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
