@@ -1,7 +1,9 @@
 package com.lody.virtual.client.hook.patchs.notification.compat;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.pm.PackageInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -147,17 +149,17 @@ import mirror.com.android.internal.R_Hide;
         return builder;
     }
 
-    private static void fixIcon(Icon icon, Notification notification, Resources resources, boolean isInstall, String packageName) {
+    @TargetApi(Build.VERSION_CODES.M)
+    private static void fixIcon(Icon icon, Notification notification, Context pluginContext, boolean isInstall, String packageName) {
         if (icon == null) return;
         int type = Reflect.on(icon).get("mType");
 //        Log.i(TAG, "smallIcon type=" + type);
         if (type == 2) {
             if (isInstall) {
-                Reflect.on(icon).set("mObj1", resources);
+                Reflect.on(icon).set("mObj1", pluginContext.getResources());
                 Reflect.on(icon).set("mString1", packageName);
             } else {
-                Drawable drawable = resources.getDrawable(notification.icon);
-                drawable.setLevel(notification.iconLevel);
+                Drawable drawable = icon.loadDrawable(pluginContext);
                 Bitmap bitmap = drawableToBitMap(drawable);
                 Reflect.on(icon).set("mObj1", bitmap);
                 Reflect.on(icon).set("mString1", null);
@@ -166,36 +168,46 @@ import mirror.com.android.internal.R_Hide;
         }
     }
 
-    static void fixNotificationIcon(Context context, Notification notification, String packageName) {
-        Resources resources = VirtualCore.get().getResources(packageName);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            //noinspection deprecation
-            NotificationUtils.fixIconImage(resources, notification.tickerView, notification);
-            NotificationUtils.fixIconImage(resources, notification.contentView, notification);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                NotificationUtils.fixIconImage(resources, notification.bigContentView, notification);
+    static void fixNotificationIcon(Context context, Notification notification,final String packageName) {
+       final Resources resources = VirtualCore.get().getResources(packageName);
+        Context pluginContext = new ContextWrapper(context){
+            @Override
+            public Resources getResources() {
+                return resources;
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                NotificationUtils.fixIconImage(resources, notification.headsUpContentView, notification);
+
+            @Override
+            public String getPackageName() {
+                return packageName;
             }
-            notification.icon = context.getApplicationInfo().icon;
-        } else {
-            boolean isInstall = false;
-            try {
-                PackageInfo packageInfo = VirtualCore.get().getUnHookPackageManager().getPackageInfo(packageName, 0);
-                isInstall = packageInfo != null;
-            } catch (Exception e) {
+        };
+        boolean isInstall = false;
+        try {
+            PackageInfo packageInfo = VirtualCore.get().getUnHookPackageManager().getPackageInfo(packageName, 0);
+            isInstall = packageInfo != null;
+        } catch (Exception e) {
 //            Log.w(TAG, "get appinfo",e);
-            }
-            fixIcon(notification.getSmallIcon(), notification, resources, isInstall, packageName);
-            fixIcon(notification.getLargeIcon(), notification, resources, isInstall, packageName);
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            fixIcon(notification.getSmallIcon(), notification, pluginContext, isInstall, packageName);
+            fixIcon(notification.getLargeIcon(), notification, pluginContext, isInstall, packageName);
+        }
+        //noinspection deprecation
+        NotificationUtils.fixIconImage(resources, notification.tickerView, notification);
+        NotificationUtils.fixIconImage(resources, notification.contentView, notification);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            NotificationUtils.fixIconImage(resources, notification.bigContentView, notification);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            NotificationUtils.fixIconImage(resources, notification.headsUpContentView, notification);
+        }
+        notification.icon = context.getApplicationInfo().icon;
     }
 
 
     static void fixIconImage(Resources resources, RemoteViews remoteViews, Notification notification) {
         if (remoteViews == null) return;
-        if(!NotificationUtils.isSystemLayout(remoteViews)){
+        if (!NotificationUtils.isSystemLayout(remoteViews)) {
             return;
         }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -224,6 +236,13 @@ import mirror.com.android.internal.R_Hide;
                     icon = notification.getSmallIcon();
                 }
                 remoteViews.setImageViewIcon(id, icon);
+                //TODO 仅适配原生的icon
+                if (Build.VERSION.SDK_INT >= 21) {
+                    remoteViews.setInt(id, "setBackgroundColor", Color.TRANSPARENT);
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    remoteViews.setViewPadding(id, 0, 0, 0, 0);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

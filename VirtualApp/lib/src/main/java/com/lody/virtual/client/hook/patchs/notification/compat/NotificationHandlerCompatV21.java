@@ -55,12 +55,12 @@ class NotificationHandlerCompatV21 extends NotificationHandlerCompatV14 {
         if (notification == null) {
             return false;
         }
-        ApplicationInfo old = null;
+//        ApplicationInfo old = null;
         String publicApk = null;
         try {
             PackageInfo packageInfo = VirtualCore.get().getUnHookPackageManager().getPackageInfo(packageName, 0);
             if (packageInfo != null) {
-                old = packageInfo.applicationInfo;
+//                old = packageInfo.applicationInfo;
                 publicApk = packageInfo.applicationInfo.publicSourceDir;
             }
         } catch (Exception e) {
@@ -76,7 +76,7 @@ class NotificationHandlerCompatV21 extends NotificationHandlerCompatV14 {
         //检查资源布局资源Id是否属于宿主
         //资源是来自插件
         if (TextUtils.isEmpty(publicApk)) {
-            publicApk = VEnvironment.getPackageResource(packageName).getAbsolutePath();
+            publicApk = VEnvironment.getPackagePath(packageName).getAbsolutePath();
 //            AppSetting appSetting = VirtualCore.get().findApp(packageName);
 //            if (appSetting != null) {
 //                publicApk = appSetting.apkPath;
@@ -84,16 +84,16 @@ class NotificationHandlerCompatV21 extends NotificationHandlerCompatV14 {
 //                publicApk = VEnvironment.getPackagePath(packageName).getAbsolutePath();
 //            }
         }
-        if (old == null) {
-            old = getApplication(notification);
-        }
-        if (old == null) {
-            try {
-                old = VirtualCore.getPM().getApplicationInfo(packageName, 0);
-            } catch (PackageManager.NameNotFoundException e) {
-                old = host;
-            }
-        }
+//        if (old == null) {
+//            old = getApplication(notification);
+//        }
+//        if (old == null) {
+//            try {
+//                old = VirtualCore.getPM().getApplicationInfo(packageName, 0);
+//            } catch (PackageManager.NameNotFoundException e) {
+//                old = host;
+//            }
+//        }
         ApplicationInfo proxyApplicationInfo = new ApplicationInfo(host);
         //要确保publicSourceDir这个路径可以被SystemUI应用读取
         proxyApplicationInfo.packageName = packageName;
@@ -106,10 +106,10 @@ class NotificationHandlerCompatV21 extends NotificationHandlerCompatV14 {
         fixApplication(notification.contentView, proxyApplicationInfo);
         fixApplication(notification.bigContentView, proxyApplicationInfo);
         fixApplication(notification.headsUpContentView, proxyApplicationInfo);
-//        Bundle bundle = Reflect.on(notification).get("extras");
-//        if (bundle != null) {
-//            bundle.putParcelable("android.appInfo", proxyApplicationInfo);
-//        }
+        Bundle bundle = Reflect.on(notification).get("extras");
+        if (bundle != null) {
+            bundle.putParcelable("android.appInfo", proxyApplicationInfo);
+        }
         return true;
     }
 
