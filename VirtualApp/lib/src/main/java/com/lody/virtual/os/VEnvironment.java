@@ -107,10 +107,12 @@ public class VEnvironment {
         return ensureCreated(new File(getDataDirectory(), "app"));
 //        return ensureCreated(new File(Environment.getExternalStorageDirectory(), "app"));
     }
+    public static File getPackageResourceDirectory(String packgeName) {
+        return new File(SDCARD_DATA, "files/"+ packgeName);
+    }
 
     public static File getPackageResource(String packgeName) {
-        File dir = ensureCreated(new File(ensureCreated(new File(SDCARD_DATA, "app")), packgeName));
-        return new File(dir, "res.zip");
+        return new File(getPackageResourceDirectory(packgeName), "res.zip");
     }
 
     public static File getPackagePath(String packgeName) {

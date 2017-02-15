@@ -167,6 +167,10 @@ public class VAppManagerService extends IAppManager.Stub {
                     VLog.w(TAG, "Warning: unable to delete file : " + storeFile.getPath());
                 }
                 FileUtils.copyFile(apk, storeFile);
+                File dir = VEnvironment.getPackageResourceDirectory(pkg.packageName);
+                if(!dir.exists()){
+                    dir.mkdirs();
+                }
                 ResourcesUtils.makeResources(storeFile, VEnvironment.getPackageResource(pkg.packageName));
                 apk = storeFile;
             }
@@ -215,7 +219,7 @@ public class VAppManagerService extends IAppManager.Stub {
                     VActivityManagerService.get().killAppByPkg(pkg, VUserHandle.USER_ALL);
                     FileUtils.deleteDir(VEnvironment.getDataAppPackageDirectory(pkg));
                     //res
-                    FileUtils.deleteDir(VEnvironment.getPackageResource(pkg));
+                    FileUtils.deleteDir(VEnvironment.getPackageResourceDirectory(pkg));
                     //apk
                     FileUtils.deleteDir(VEnvironment.getPackagePath(pkg));
                     VEnvironment.getOdexFile(pkg).delete();
