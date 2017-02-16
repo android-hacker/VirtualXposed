@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
 
@@ -69,6 +70,10 @@ public abstract class Hook {
 
 	protected final int getVUid() {
 		return VClientImpl.get().getVUid();
+	}
+
+	protected final int getVUserId() {
+		return VUserHandle.getUserId(getVUid());
 	}
 
 	protected final int getBaseVUid() {

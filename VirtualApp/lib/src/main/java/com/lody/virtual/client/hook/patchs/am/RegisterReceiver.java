@@ -31,7 +31,7 @@ import mirror.android.content.IIntentReceiverJB;
  * @author Lody
  */
 /* package */ class RegisterReceiver extends Hook {
-
+    private static final boolean DEBUG = true;
     private static final int IDX_IIntentReceiver = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
             ? 2
             : 1;
@@ -102,6 +102,9 @@ import mirror.android.content.IIntentReceiverJB;
                 }
                 String newAction = SpecialComponentList.protectAction(action);
                 if (newAction != null) {
+                    if(DEBUG) {
+                        VLog.d("IntentSender", "register=" + newAction);
+                    }
                     iterator.set(newAction);
                 }
             }
@@ -126,7 +129,13 @@ import mirror.android.content.IIntentReceiverJB;
             if (!accept(intent)) {
                 return;
             }
+            if(intent.hasExtra("_VA_|_intent_")){
+                intent = intent.getParcelableExtra("_VA_|_intent_");
+            }
             SpecialComponentList.unprotectIntent(intent);
+            if(DEBUG) {
+                VLog.d("IntentSender", "performReceive=" + intent + ",extra=" + VLog.toString(intent.getExtras()));
+            }
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
                 IIntentReceiverJB.performReceive.call(old, intent, resultCode, data, extras, ordered, sticky, sendingUser);
             } else {
@@ -135,8 +144,14 @@ import mirror.android.content.IIntentReceiverJB;
         }
 
         private boolean accept(Intent intent) {
+            if(DEBUG) {
+                VLog.d("IntentSender", "accept=" + intent + ",extra=" + VLog.toString(intent.getExtras()));
+            }
             int uid = intent.getIntExtra("_VA_|_uid_", -1);
             if (uid != -1) {
+                if(DEBUG) {
+                    VLog.w("IntentSender", "accept by uid " + VClientImpl.get().getVUid() + " != " + uid);
+                }
                 return VClientImpl.get().getVUid() == uid;
             }
             int userId = intent.getIntExtra("_VA_|_user_id_", -1);

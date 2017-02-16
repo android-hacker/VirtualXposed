@@ -12,13 +12,15 @@ public class ResourcesUtils {
     public static void chmod(File dir, File apk) {
         try {
             //files/virtual_app/pkg/base.apk
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                Process process = Runtime.getRuntime().exec("chmod -R 755 " + dir.getAbsolutePath());
-                Log.e("chmod", apk + " " + process.waitFor());
-            } else {
-                Process process = Runtime.getRuntime().exec("chmod 755 " + apk.getAbsolutePath());
-                Log.e("chmod", apk + " " + process.waitFor());
-            }
+            Process process = Runtime.getRuntime().exec("chmod -R 755 " + dir.getAbsolutePath());
+            Log.e("chmod", apk + " " + process.waitFor());
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                Process process = Runtime.getRuntime().exec("chmod -R 755 " + dir.getAbsolutePath());
+//                Log.e("chmod", apk + " " + process.waitFor());
+//            } else {
+//                Process process = Runtime.getRuntime().exec("chmod 755 " + apk.getAbsolutePath());
+//                Log.e("chmod", apk + " " + process.waitFor());
+//            }
         } catch (Exception e) {
         }
     }
