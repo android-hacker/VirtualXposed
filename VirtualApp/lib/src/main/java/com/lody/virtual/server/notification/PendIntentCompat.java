@@ -1,4 +1,4 @@
-package com.lody.virtual.client.ipc.notification;
+package com.lody.virtual.server.notification;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,7 +20,7 @@ import android.widget.ImageView;
 import android.widget.RemoteViews;
 import android.widget.TextView;
 
-import static com.lody.virtual.client.ipc.notification.NotificationCompat.TAG;
+import static com.lody.virtual.server.notification.NotificationCompat.TAG;
 
 /***
  * Remoteviews的点击事件
@@ -54,6 +54,7 @@ class PendIntentCompat {
             List<RectInfo> list = new ArrayList<>();
             // 区域对应点击事件
             int index = 0;
+            VLog.v(TAG, "start find intent");
             while (set.hasNext()) {
                 Map.Entry<Integer, PendingIntent> e = set.next();
                 View view = oldRemoteView.findViewById(e.getKey());
@@ -63,7 +64,7 @@ class PendIntentCompat {
                     index++;
                 }
             }
-            VLog.d(TAG, "setPendIntent:" + list);
+            VLog.v(TAG, "find:" + list);
             // 根据区域查找id，设置点击事件
             if (remoteview instanceof ViewGroup) {
                 setIntentByViewGroup(remoteViews, (ViewGroup) remoteview, list);

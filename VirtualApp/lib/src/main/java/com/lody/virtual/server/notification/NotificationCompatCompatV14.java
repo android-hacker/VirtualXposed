@@ -1,9 +1,8 @@
-package com.lody.virtual.client.ipc.notification;
+package com.lody.virtual.server.notification;
 
 import android.app.Notification;
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Build;
@@ -40,7 +39,7 @@ class NotificationCompatCompatV14 extends NotificationCompat {
                 getNotificationFixer().fixRemoteViewActions(pluginContext, false, notification.tickerView);
             } else {
                 VLog.d(TAG, "deal custom tickerView " + notification.tickerView.getLayoutId());
-                notification.tickerView = getRemoteViewsFixer().createViews(id + ":tickerView", pluginContext,
+                notification.tickerView = getRemoteViewsFixer().makeRemoteViews(id + ":tickerView", pluginContext,
                         notification.tickerView, false, false);
             }
         }
@@ -51,7 +50,7 @@ class NotificationCompatCompatV14 extends NotificationCompat {
                 getNotificationFixer().fixIconImage(pluginContext.getResources(), notification.contentView, hasIconBitmap, notification);
             } else {
                 VLog.d(TAG, "deal custom contentView " + notification.contentView.getLayoutId());
-                notification.contentView = getRemoteViewsFixer().createViews(id + ":contentView", pluginContext,
+                notification.contentView = getRemoteViewsFixer().makeRemoteViews(id + ":contentView", pluginContext,
                         notification.contentView, false, true);
             }
         }
@@ -62,7 +61,7 @@ class NotificationCompatCompatV14 extends NotificationCompat {
                     getNotificationFixer().fixRemoteViewActions(pluginContext, false, notification.bigContentView);
                 } else {
                     VLog.d(TAG, "deal custom bigContentView " + notification.bigContentView.getLayoutId());
-                    notification.bigContentView = getRemoteViewsFixer().createViews(id + ":bigContentView", pluginContext,
+                    notification.bigContentView = getRemoteViewsFixer().makeRemoteViews(id + ":bigContentView", pluginContext,
                             notification.bigContentView, true, true);
                 }
             }
@@ -74,7 +73,7 @@ class NotificationCompatCompatV14 extends NotificationCompat {
                     getNotificationFixer().fixRemoteViewActions(pluginContext, false, notification.headsUpContentView);
                 } else {
                     VLog.d(TAG, "deal custom headsUpContentView " + notification.bigContentView.getLayoutId());
-                    notification.headsUpContentView = getRemoteViewsFixer().createViews(id + ":headsUpContentView", pluginContext,
+                    notification.headsUpContentView = getRemoteViewsFixer().makeRemoteViews(id + ":headsUpContentView", pluginContext,
                             notification.headsUpContentView, false, false);
                 }
             }

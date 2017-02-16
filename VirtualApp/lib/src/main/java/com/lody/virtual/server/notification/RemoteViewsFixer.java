@@ -1,4 +1,4 @@
-package com.lody.virtual.client.ipc.notification;
+package com.lody.virtual.server.notification;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -17,6 +17,7 @@ import com.lody.virtual.R;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 class RemoteViewsFixer {
@@ -46,6 +47,7 @@ class RemoteViewsFixer {
             } catch (Throwable e) {
 
             }
+            VLog.w(TAG, "toView", throwable);
         }
         return mCache;
     }
@@ -59,24 +61,60 @@ class RemoteViewsFixer {
         return mCache.getDrawingCache();
     }
 
+    private View apply(Context context, RemoteViews remoteViews) {
+        View view = null;
+        try {
+            view = LayoutInflater.from(context).inflate(remoteViews.getLayoutId(), null, false);
+//            view = Reflect.on(remoteViews).call("inflateView", context, remoteViews, null).get();
+            try {
+                Reflect.on(view).call("setTagInternal", Reflect.on("com.android.internal.R$id").get("widget_frame"), remoteViews.getLayoutId());
+            } catch (Exception e2) {
+                VLog.w(TAG, "setTagInternal", e2);
+            }
+        } catch (Exception e) {
+            VLog.w(TAG, "inflate", e);
+        }
+        if (view != null) {
+            ArrayList<Object> mActions = Reflect.on(remoteViews).get("mActions");
+            if (mActions != null) {
+                VLog.d(TAG, "apply actions:"+mActions.size());
+                for (Object action : mActions) {
+                    try {
+                        Reflect.on(action).call("apply", view, null, null);
+                    } catch (Exception e) {
+                        VLog.w(TAG, "apply action", e);
+                    }
+                }
+            }
+        } else {
+            VLog.e(TAG, "create views");
+        }
+        return view;
+    }
+
     private View createView(final Context context, RemoteViews remoteViews, boolean isBig, boolean systemId) {
         if (remoteViews == null)
             return null;
         Context base = mNotificationCompat.getHostContext();
         init(base);
+        VLog.v(TAG, "createView:big=" + isBig + ",system=" + systemId);
         // TODO 需要适配
         int height = isBig ? notification_max_height : notification_min_height;
+
         int width = mWidthCompat.getNotificationWidth(base, notification_panel_width, height,
                 notification_side_padding);
+        VLog.v(TAG, "createView:getNotificationWidth=" + width);
         ViewGroup frameLayout = new FrameLayout(context);
-        View view1 = remoteViews.apply(context, frameLayout);
+        VLog.v(TAG, "createView:apply");
 
+        View view1 = apply(context, remoteViews);
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
         params.gravity = Gravity.CENTER_VERTICAL;
         frameLayout.addView(view1, params);
         if (view1 instanceof ViewGroup) {
+            VLog.v(TAG, "createView:fixTextView");
             fixTextView((ViewGroup) view1);
         }
         int mode;
@@ -90,6 +128,7 @@ class RemoteViewsFixer {
                 mode = View.MeasureSpec.EXACTLY;
             }
         }
+        VLog.v(TAG, "createView:layout");
         View mCache = frameLayout;
         mCache.layout(0, 0, width, height);
         mCache.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
@@ -97,7 +136,6 @@ class RemoteViewsFixer {
         mCache.layout(0, 0, width, mCache.getMeasuredHeight());
         VLog.v(TAG, "notification:systemId=" + systemId + ",max=%d/%d, szie=%d/%d", width, height,
                 mCache.getMeasuredWidth(), mCache.getMeasuredHeight());
-        // 打印action
         return mCache;
     }
 
@@ -127,7 +165,7 @@ class RemoteViewsFixer {
         return singleLine;
     }
 
-    public RemoteViews createViews(String key, Context pluginContext, RemoteViews contentView, boolean isBig, boolean click) {
+    public RemoteViews makeRemoteViews(String key, Context pluginContext, RemoteViews contentView, boolean isBig, boolean click) {
         if (contentView == null) {
             return null;
         }
@@ -162,11 +200,11 @@ class RemoteViewsFixer {
             old = mImages.get(key);
         }
         if (old != null && !old.isRecycled()) {
-//            VLog.d(TAG, "recycle " + key);
+            VLog.v(TAG, "recycle " + key);
             old.recycle();
         }
         remoteViews.setImageViewBitmap(R.id.im_main, bmp);
-//        VLog.d(TAG, "createview " + key);
+        VLog.v(TAG, "createview " + key);
         synchronized (mImages) {
             mImages.put(key, bmp);
         }
@@ -174,24 +212,28 @@ class RemoteViewsFixer {
         if (click) {
             if (layoutId == R.layout.custom_notification) {
                 // 根据旧view的点击事件，设置区域点击事件
-                VLog.d(TAG, "setPendIntent");
+                VLog.d(TAG, "start setPendIntent");
                 try {
                     pendIntentCompat.setPendIntent(remoteViews,
                             toView(mNotificationCompat.getHostContext(), remoteViews, isBig, systemId),
                             cache);
                 } catch (Exception e) {
-                    VLog.e(TAG, "setPendIntent", e);
+                    VLog.e(TAG, "setPendIntent error", e);
                 }
             }
         }
         return remoteViews;
     }
 
+    private boolean init = false;
+
     private void init(Context context) {
+        if (init) return;
+        init = true;
         if (notification_panel_width == 0) {
             Context systemUi = null;
             try {
-                systemUi = context.createPackageContext("com.android.systemui", Context.CONTEXT_IGNORE_SECURITY);
+                systemUi = context.createPackageContext(NotificationCompat.SYSTEM_UI_PKG, Context.CONTEXT_IGNORE_SECURITY);
             } catch (PackageManager.NameNotFoundException e) {
             }
             if (Build.VERSION.SDK_INT <= 19) {

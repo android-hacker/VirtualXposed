@@ -1,4 +1,4 @@
-package com.lody.virtual.client.ipc.notification;
+package com.lody.virtual.server.notification;
 
 import android.app.Notification;
 import android.content.Context;
@@ -9,7 +9,6 @@ import android.os.Build;
 import android.widget.RemoteViews;
 
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

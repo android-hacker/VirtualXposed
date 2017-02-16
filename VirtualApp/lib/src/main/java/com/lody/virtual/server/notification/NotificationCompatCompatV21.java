@@ -1,4 +1,4 @@
-package com.lody.virtual.client.ipc.notification;
+package com.lody.virtual.server.notification;
 
 import android.annotation.TargetApi;
 import android.app.Notification;

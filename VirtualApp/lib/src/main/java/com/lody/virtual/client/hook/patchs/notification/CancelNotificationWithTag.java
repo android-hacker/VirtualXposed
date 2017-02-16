@@ -34,6 +34,7 @@ import java.lang.reflect.Method;
         int id = (int) args[2];
         id = VNotificationManager.get().dealNotificationId(id, pkg, tag, getVUserId());
         tag = VNotificationManager.get().dealNotificationTag(id, pkg, tag, getVUserId());
+
         args[1] = tag;
         args[2] = id;
         VLog.d("notification", "need cancel " + tag + " " + id);

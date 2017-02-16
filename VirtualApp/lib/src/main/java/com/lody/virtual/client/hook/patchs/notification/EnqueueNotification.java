@@ -4,6 +4,7 @@ import android.app.Notification;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.ipc.VNotificationManager;
+import com.lody.virtual.server.notification.VNotificationManagerService;
 import com.lody.virtual.helper.utils.ArrayUtils;
 
 import java.lang.reflect.Method;
@@ -31,7 +32,7 @@ import java.lang.reflect.Method;
         if (!VNotificationManager.get().dealNotification(id, notification, pkg)) {
             return 0;
         }
-        VNotificationManager.get().addNotification(id, null, pkg, 0, getVUserId());
+        VNotificationManager.get().addNotification(id, null, pkg, getVUserId());
         args[0] = getHostPkg();
         return method.invoke(who, args);
     }

@@ -38,7 +38,7 @@ import java.lang.reflect.Method;
         int idIndex = ArrayUtils.indexOfFirst(args, Integer.class);
         int tagIndex = (Build.VERSION.SDK_INT >= 18 ? 2 : 1);
         int id = (int) args[idIndex];
-        int user = (Build.VERSION.SDK_INT>=17?((int)args[args.length-1]):0);
+//        int user = (Build.VERSION.SDK_INT>=17?((int)args[args.length-1]):0);
         String tag = (String) args[tagIndex];
         //先处理id，再处理tag
         id = VNotificationManager.get().dealNotificationId(id, pkg, tag, getVUserId());
@@ -50,7 +50,7 @@ import java.lang.reflect.Method;
         if (!VNotificationManager.get().dealNotification(id, notification, pkg)) {
             return 0;
         }
-        VNotificationManager.get().addNotification(id, tag, pkg, user, getVUserId());
+        VNotificationManager.get().addNotification(id, tag, pkg, getVUserId());
         args[0] = getHostPkg();
         if (Build.VERSION.SDK_INT >= 18 && args[1] instanceof String) {
             args[1] = getHostPkg();

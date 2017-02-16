@@ -1,4 +1,4 @@
-package com.lody.virtual.client.ipc.notification;
+package com.lody.virtual.server.notification;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -13,7 +13,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
-import android.view.View;
 import android.widget.RemoteViews;
 
 import com.lody.virtual.helper.utils.Reflect;
