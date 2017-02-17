@@ -283,7 +283,10 @@ public final class VClientImpl extends IVClient.Stub {
             if (conflict) {
                 PatchManager.getInstance().checkEnv(AppInstrumentation.class);
             }
-            mInitialApplication = ActivityThread.mInitialApplication.get(mainThread);
+            Application createdApp = ActivityThread.mInitialApplication.get(mainThread);
+            if (createdApp != null) {
+                mInitialApplication = createdApp;
+            }
         } catch (Exception e) {
             if (!mInstrumentation.onException(mInitialApplication, e)) {
                 throw new RuntimeException(
