@@ -35,8 +35,6 @@ public final class BinderProvider extends BaseContentProvider {
         if (!VirtualCore.get().isStartup()) {
             return true;
         }
-        VNotificationManagerService.systemReady(context);
-        addService(ServiceManagerNative.VIRTUAL_NOTIFICATION, VNotificationManagerService.get());
         VPackageManagerService.systemReady();
         addService(ServiceManagerNative.PACKAGE, VPackageManagerService.get());
         VActivityManagerService.systemReady(context);
@@ -50,6 +48,8 @@ public final class BinderProvider extends BaseContentProvider {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             addService(ServiceManagerNative.JOB, VJobSchedulerService.get());
         }
+        VNotificationManagerService.systemReady(context);
+        addService(ServiceManagerNative.NOTIFICATION, VNotificationManagerService.get());
         VAppManagerService.get().preloadAllApps();
         return true;
     }

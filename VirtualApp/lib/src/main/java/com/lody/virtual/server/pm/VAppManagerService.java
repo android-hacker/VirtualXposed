@@ -102,6 +102,7 @@ public class VAppManagerService extends IAppManager.Stub {
         return install(apkPath, flags, false);
     }
 
+
     private synchronized InstallResult install(String apkPath, int flags, boolean onlyScan) {
         if (apkPath == null) {
             return InstallResult.makeFailure("apk path = NULL");
@@ -207,6 +208,7 @@ public class VAppManagerService extends IAppManager.Stub {
         }
         return false;
     }
+
 
     public boolean uninstallApp(String pkg) {
         synchronized (PackageCache.sPackageCaches) {

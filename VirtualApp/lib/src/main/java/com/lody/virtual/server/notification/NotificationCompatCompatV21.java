@@ -10,9 +10,12 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.RemoteViews;
 
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.ResourcesUtils;
 import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.server.pm.VAppManagerService;
 
 class NotificationCompatCompatV21 extends NotificationCompatCompatV14 {
     static final String TAG = NotificationCompatCompatV21.class.getSimpleName();
@@ -37,7 +40,6 @@ class NotificationCompatCompatV21 extends NotificationCompatCompatV14 {
         if (notification == null) {
             return false;
         }
-//        ApplicationInfo old = null;
         String publicApk = null;
         PackageInfo packageInfo = getPackageInfo(packageName);
         ApplicationInfo host = getHostContext().getApplicationInfo();

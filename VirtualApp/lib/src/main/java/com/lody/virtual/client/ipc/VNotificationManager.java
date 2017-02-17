@@ -5,7 +5,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 
 import com.lody.virtual.server.INotificationManager;
-import com.lody.virtual.server.IPackageManager;
 import com.lody.virtual.server.notification.NotificationCompat;
 
 /**
@@ -28,7 +27,7 @@ public class VNotificationManager {
         if (mRemote == null) {
             synchronized (VNotificationManager.class) {
                 if (mRemote == null) {
-                    final IBinder pmBinder = ServiceManagerNative.getService(ServiceManagerNative.VIRTUAL_NOTIFICATION);
+                    final IBinder pmBinder = ServiceManagerNative.getService(ServiceManagerNative.NOTIFICATION);
                     mRemote = INotificationManager.Stub.asInterface(pmBinder);
                 }
             }

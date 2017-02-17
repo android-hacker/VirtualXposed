@@ -133,9 +133,6 @@ import mirror.android.content.IIntentReceiverJB;
                 intent = intent.getParcelableExtra("_VA_|_intent_");
             }
             SpecialComponentList.unprotectIntent(intent);
-            if(DEBUG) {
-                VLog.d("IntentSender", "performReceive=" + intent + ",extra=" + VLog.toString(intent.getExtras()));
-            }
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
                 IIntentReceiverJB.performReceive.call(old, intent, resultCode, data, extras, ordered, sticky, sendingUser);
             } else {
@@ -144,14 +141,8 @@ import mirror.android.content.IIntentReceiverJB;
         }
 
         private boolean accept(Intent intent) {
-            if(DEBUG) {
-                VLog.d("IntentSender", "accept=" + intent + ",extra=" + VLog.toString(intent.getExtras()));
-            }
             int uid = intent.getIntExtra("_VA_|_uid_", -1);
             if (uid != -1) {
-                if(DEBUG) {
-                    VLog.w("IntentSender", "accept by uid " + VClientImpl.get().getVUid() + " != " + uid);
-                }
                 return VClientImpl.get().getVUid() == uid;
             }
             int userId = intent.getIntExtra("_VA_|_user_id_", -1);

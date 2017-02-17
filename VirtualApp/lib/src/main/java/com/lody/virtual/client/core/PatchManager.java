@@ -39,6 +39,7 @@ import com.lody.virtual.client.hook.patchs.power.PowerManagerPatch;
 import com.lody.virtual.client.hook.patchs.restriction.RestrictionPatch;
 import com.lody.virtual.client.hook.patchs.search.SearchManagerPatch;
 import com.lody.virtual.client.hook.patchs.telephony.TelephonyPatch;
+import com.lody.virtual.client.hook.patchs.telephony.TelephonyRegistryPatch;
 import com.lody.virtual.client.hook.patchs.user.UserManagerPatch;
 import com.lody.virtual.client.hook.patchs.vibrator.VibratorPatch;
 import com.lody.virtual.client.hook.patchs.wifi.WifiManagerPatch;
@@ -126,6 +127,7 @@ public final class PatchManager {
 			addPatch(new MountServicePatch());
 			addPatch(new BackupManagerPatch());
 			addPatch(new TelephonyPatch());
+			addPatch(new TelephonyRegistryPatch());
 			addPatch(new PhoneSubInfoPatch());
 			addPatch(new PowerManagerPatch());
 			addPatch(new AppWidgetManagerPatch());

@@ -42,8 +42,7 @@ public class VApp extends Application {
     public void onCreate() {
         gDefault = this;
         super.onCreate();
-        if (VirtualCore.get().isMainProcess()) {
-            Once.initialise(this);
+        if (VirtualCore.get().isServerProcess()) {
             VirtualCore.get().setAppRequestListener(new VirtualCore.AppRequestListener() {
                 @Override
                 public void onRequestInstall(String path) {
@@ -71,6 +70,8 @@ public class VApp extends Application {
 
                 }
             });
+        }else if (VirtualCore.get().isMainProcess()) {
+            Once.initialise(this);
         } else if (VirtualCore.get().isVAppProcess()) {
             BlockCanary.install(this, new AppBlockCanaryContext());
             VirtualCore.get().setComponentDelegate(new MyComponentDelegate());
