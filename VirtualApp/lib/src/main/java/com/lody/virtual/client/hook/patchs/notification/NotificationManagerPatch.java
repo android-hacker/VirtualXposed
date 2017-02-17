@@ -8,6 +8,7 @@ import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
 import com.lody.virtual.client.hook.base.StaticHook;
+import com.lody.virtual.server.notification.VNotificationManagerService;
 
 import mirror.android.app.NotificationManager;
 import mirror.android.widget.Toast;
@@ -18,7 +19,9 @@ import mirror.android.widget.Toast;
  * @see android.widget.Toast
  */
 @Patch({CancelAllNotifications.class, EnqueueNotificationWithTag.class, CancelNotificationWithTag.class,
-        EnqueueNotificationWithTagPriority.class, EnqueueNotification.class})
+        EnqueueNotificationWithTagPriority.class, EnqueueNotification.class,
+        SetNotificationsEnabledForPackage.class,
+        AreNotificationsEnabledForPackage.class})
 public class NotificationManagerPatch extends PatchDelegate<HookDelegate<IInterface>> {
 
     public NotificationManagerPatch() {

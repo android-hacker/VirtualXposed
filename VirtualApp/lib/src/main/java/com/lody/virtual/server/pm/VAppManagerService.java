@@ -17,6 +17,7 @@ import com.lody.virtual.helper.compat.PackageParserCompat;
 import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.proto.InstallResult;
 import com.lody.virtual.helper.utils.FileUtils;
+import com.lody.virtual.helper.utils.ResourcesUtils;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.os.VUserHandle;
@@ -62,12 +63,12 @@ public class VAppManagerService extends IAppManager.Stub {
 
     public void preloadAllApps() {
         isBooting = true;
-        for (File appDir : VEnvironment.getDataAppDirectory().listFiles()) {
+        for (File appDir : VEnvironment.getPackageSourceDirectory().listFiles()) {
             String pkgName = appDir.getName();
             if ("android".equals(pkgName)) {
                 continue;
             }
-            File storeFile = new File(appDir, "base.apk");
+            File storeFile = VEnvironment.getPackagePath(pkgName);
             int flags = 0;
             if (!storeFile.exists()) {
                 ApplicationInfo appInfo = null;
@@ -158,7 +159,7 @@ public class VAppManagerService extends IAppManager.Stub {
         if (!onlyScan) {
             NativeLibraryHelperCompat.copyNativeBinaries(new File(apkPath), libDir);
             if (!dependSystem) {
-                File storeFile = new File(appDir, "base.apk");
+                File storeFile = VEnvironment.getPackagePath(pkg.packageName);
                 File parentFolder = storeFile.getParentFile();
                 if (!parentFolder.exists() && !parentFolder.mkdirs()) {
                     VLog.w(TAG, "Warning: unable to create folder : " + storeFile.getPath());
@@ -166,6 +167,11 @@ public class VAppManagerService extends IAppManager.Stub {
                     VLog.w(TAG, "Warning: unable to delete file : " + storeFile.getPath());
                 }
                 FileUtils.copyFile(apk, storeFile);
+//                File dir = VEnvironment.getPackageResourceDirectory(pkg.packageName);
+//                if(!dir.exists()){
+//                    dir.mkdirs();
+//                }
+                ResourcesUtils.chmod(VEnvironment.getPackageSourceDirectory(), storeFile);
                 apk = storeFile;
             }
         }
@@ -212,6 +218,10 @@ public class VAppManagerService extends IAppManager.Stub {
                     BroadcastSystem.get().stopApp(pkg);
                     VActivityManagerService.get().killAppByPkg(pkg, VUserHandle.USER_ALL);
                     FileUtils.deleteDir(VEnvironment.getDataAppPackageDirectory(pkg));
+                    //res
+//                    FileUtils.deleteDir(VEnvironment.getPackageResourceDirectory(pkg));
+                    //apk
+                    FileUtils.deleteDir(VEnvironment.getPackagePath(pkg));
                     VEnvironment.getOdexFile(pkg).delete();
                     for (int userId : VUserManagerService.get().getUserIds()) {
                         FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(userId, pkg));

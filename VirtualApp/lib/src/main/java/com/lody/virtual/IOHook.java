@@ -15,7 +15,9 @@ import com.lody.virtual.os.VUserHandle;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,10 +72,27 @@ public class IOHook {
                 gCameraNativeSetup = Camera.class.getDeclaredMethod("native_setup", Object.class, int.class, int.class, String.class);
                 gCameraMethodType = 2;
             } catch (NoSuchMethodException e) {
-                e.printStackTrace();
             }
         }
 
+        if (gCameraNativeSetup == null) {
+            try {
+                gCameraNativeSetup = Camera.class.getDeclaredMethod("native_setup", Object.class, int.class);
+                gCameraMethodType = 3;
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+        }
+        if (gCameraNativeSetup == null) {
+            Method[] methods= Camera.class.getDeclaredMethods();
+            for(Method method:methods){
+                if("native_setup".equals(method.getName())){
+                    gCameraNativeSetup = method;
+                    VLog.w("native_setup","native_setup:"+ Arrays.toString(method.getParameterTypes()));
+                    break;
+                }
+            }
+        }
 
         if (gCameraNativeSetup != null) {
             gCameraNativeSetup.setAccessible(true);

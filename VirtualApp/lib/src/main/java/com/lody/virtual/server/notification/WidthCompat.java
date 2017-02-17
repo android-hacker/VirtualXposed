@@ -1,4 +1,4 @@
-package com.lody.virtual.client.hook.patchs.notification.compat;
+package com.lody.virtual.server.notification;
 
 import android.content.Context;
 import android.os.Build;
@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.helper.utils.OSUtils;
 
 /**
@@ -55,7 +54,7 @@ class WidthCompat {
         // adaptive
         // content
         try {
-            Context systemUi = context.createPackageContext(Constants.SYSTEM_UI_PKG,
+            Context systemUi = context.createPackageContext(NotificationCompat.SYSTEM_UI_PKG,
                     Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
             int layoutId = getSystemId(systemUi, "status_bar_notification_row", "layout");
             // status_bar_notification_row
@@ -100,7 +99,7 @@ class WidthCompat {
      */
     private int getEMUINotificationWidth(Context context, int width, int height) {
         try {
-            Context systemUi = context.createPackageContext(Constants.SYSTEM_UI_PKG,
+            Context systemUi = context.createPackageContext(NotificationCompat.SYSTEM_UI_PKG,
                     Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
             int layoutId = getSystemId(systemUi, "time_axis", "layout");
             if (layoutId != 0) {
@@ -127,7 +126,7 @@ class WidthCompat {
     }
 
     private int getSystemId(Context systemUi, String name, String type) {
-        return systemUi.getResources().getIdentifier(name, type, Constants.SYSTEM_UI_PKG);
+        return systemUi.getResources().getIdentifier(name, type, NotificationCompat.SYSTEM_UI_PKG);
     }
 
     private ViewGroup createViewGroup(Context context, int layoutId) {

@@ -1,6 +1,8 @@
 package com.lody.virtual.os;
 
 import android.content.Context;
+import android.content.res.AssetManager;
+import android.os.Environment;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.VLog;
@@ -19,6 +21,7 @@ public class VEnvironment {
     private static final File DATA_DIRECTORY;
     private static final File USER_DIRECTORY;
     private static final File DALVIK_CACHE_DIRECTORY;
+    private static final File APK_DIRECTORY;
 
     static {
         File host = new File(getContext().getApplicationInfo().dataDir);
@@ -30,6 +33,7 @@ public class VEnvironment {
         USER_DIRECTORY = ensureCreated(new File(DATA_DIRECTORY, "user"));
         // Point to: /opt/
         DALVIK_CACHE_DIRECTORY = ensureCreated(new File(ROOT, "opt"));
+        APK_DIRECTORY = ensureCreated(new File(getContext().getFilesDir(), "virtual_app"));
     }
 
 
@@ -50,7 +54,7 @@ public class VEnvironment {
     }
 
     public static File getDataAppDirectory() {
-        return ensureCreated(new File(getDataDirectory(), "app"));
+        return ensureCreated(new File(getDataDirectory(), "data"));
     }
 
     public static File getUidListFile() {
@@ -96,5 +100,14 @@ public class VEnvironment {
 
     public static File getPackageInstallerStageDir() {
         return ensureCreated(new File(DATA_DIRECTORY, ".session_dir"));
+    }
+
+    public static File getPackageSourceDirectory() {
+        return APK_DIRECTORY;
+    }
+
+    public static File getPackagePath(String packgeName) {
+        File dir = ensureCreated(new File(getPackageSourceDirectory(), packgeName));
+        return new File(dir, "base.apk");
     }
 }

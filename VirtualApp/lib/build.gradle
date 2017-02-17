@@ -36,5 +36,6 @@ android {
 
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+//    compile 'net.lingala.zip4j:zip4j:1.3.2'
 }

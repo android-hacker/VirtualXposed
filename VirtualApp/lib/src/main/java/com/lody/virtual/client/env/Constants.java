@@ -1,5 +1,6 @@
 package com.lody.virtual.client.env;
 
+import android.app.PendingIntent;
 import android.content.Intent;
 
 import com.lody.virtual.client.stub.ShortcutHandleActivity;
@@ -49,4 +50,6 @@ public class Constants {
 	 * The activity who handle the shortcut.
 	 */
 	public static String SHORTCUT_PROXY_ACTIVITY_NAME = ShortcutHandleActivity.class.getName();
+
+	public static final String ACTION_PROXY_BROADCAST = "virtual.android.intent.action.PendingIntent";
 }

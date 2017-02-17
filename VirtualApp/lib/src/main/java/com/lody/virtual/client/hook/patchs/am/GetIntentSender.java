@@ -7,12 +7,14 @@ import android.os.Build;
 import android.os.IInterface;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.stub.StubPendingActivity;
 import com.lody.virtual.client.stub.StubPendingReceiver;
 import com.lody.virtual.client.stub.StubPendingService;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
