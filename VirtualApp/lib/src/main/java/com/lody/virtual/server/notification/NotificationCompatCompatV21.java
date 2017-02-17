@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.RemoteViews;
 
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.proto.AppSetting;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
@@ -46,7 +47,7 @@ class NotificationCompatCompatV21 extends NotificationCompatCompatV14 {
             publicApk = packageInfo.applicationInfo.publicSourceDir;
         }
         if (TextUtils.isEmpty(publicApk)) {
-            AppSetting setting = VAppManagerService.get().findAppInfo(packageName);
+            AppSetting setting = VirtualCore.get().findApp(packageName);
             publicApk = setting.apkPath;
         }
 
