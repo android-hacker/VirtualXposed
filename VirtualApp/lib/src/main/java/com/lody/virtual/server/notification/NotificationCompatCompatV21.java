@@ -11,8 +11,8 @@ import android.text.TextUtils;
 import android.widget.RemoteViews;
 
 import com.lody.virtual.helper.utils.Reflect;
+import com.lody.virtual.helper.utils.ResourcesUtils;
 import com.lody.virtual.helper.utils.VLog;
-import com.lody.virtual.os.VEnvironment;
 
 class NotificationCompatCompatV21 extends NotificationCompatCompatV14 {
     static final String TAG = NotificationCompatCompatV21.class.getSimpleName();
@@ -45,7 +45,7 @@ class NotificationCompatCompatV21 extends NotificationCompatCompatV14 {
             publicApk = packageInfo.applicationInfo.publicSourceDir;
         }
         if (TextUtils.isEmpty(publicApk)) {
-            publicApk = VEnvironment.getPackagePath(packageName).getAbsolutePath();
+            publicApk = ResourcesUtils.getPackageResourcePath(packageName).getAbsolutePath();
         }
 
         //remoteviews
