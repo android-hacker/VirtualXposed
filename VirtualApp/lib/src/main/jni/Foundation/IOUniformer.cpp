@@ -605,5 +605,5 @@ void IOUniformer::startUniformer(int api_level) {
     }
     hook_dlopen(api_level);
 
-    HOOK_IO(dlsym);
+//    HOOK_IO(dlsym);
 }
