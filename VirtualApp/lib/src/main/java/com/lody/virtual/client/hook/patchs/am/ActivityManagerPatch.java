@@ -103,7 +103,7 @@ public class ActivityManagerPatch extends PatchDelegate<HookDelegate<IInterface>
 					//noinspection unchecked
 					Object _infos = method.invoke(who, args);
 					List<ActivityManager.RecentTaskInfo> infos =
-							_infos instanceof ParceledListSlice
+							ParceledListSlice.TYPE.isInstance(_infos)
 									? ParceledListSlice.getList.call(_infos)
 									: (List)_infos;
 					for (ActivityManager.RecentTaskInfo info : infos) {
