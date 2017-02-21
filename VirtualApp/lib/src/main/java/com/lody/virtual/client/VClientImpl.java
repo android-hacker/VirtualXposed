@@ -232,13 +232,6 @@ public final class VClientImpl extends IVClient.Stub {
         data.providers = VPackageManager.get().queryContentProviders(processName, getVUid(), PackageManager.GET_META_DATA);
         mBoundApplication = data;
         VirtualRuntime.setupRuntime(data.processName, data.appInfo);
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public synchronized void start() {
-                new Exception().printStackTrace();
-                super.start();
-            }
-        });
         int targetSdkVersion = data.appInfo.targetSdkVersion;
         if (targetSdkVersion < Build.VERSION_CODES.GINGERBREAD) {
             StrictMode.ThreadPolicy newPolicy = new StrictMode.ThreadPolicy.Builder(StrictMode.getThreadPolicy()).permitNetwork().build();
