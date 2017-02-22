@@ -31,7 +31,7 @@ public class WifiManagerPatch extends PatchBinderDelegate {
 			public Object call(Object who, Method method, Object... args) throws Throwable {
 				WifiInfo info = (WifiInfo) super.call(who, method, args);
 				if (info != null) {
-					if (info.getMacAddress().startsWith("00-00-00-00-00-00")) {
+					if (info.getMacAddress() != null && info.getMacAddress().startsWith("00-00-00-00-00-00")) {
 						Reflect.on(info).set("mMacAddress", "00:00:08:76:54:32");
 					}
 				}
