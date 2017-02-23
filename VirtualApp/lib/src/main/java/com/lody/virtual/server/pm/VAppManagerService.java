@@ -175,7 +175,7 @@ public class VAppManagerService extends IAppManager.Stub {
             PackageCache.remove(pkg.packageName);
         }
         if (!dependSystem) {
-            ResourcesUtils.chmod(appDir);
+            ResourcesUtils.make(pkg.packageName, apk);
         }
         AppSetting appSetting = new AppSetting();
         appSetting.parser = parser;
@@ -218,6 +218,7 @@ public class VAppManagerService extends IAppManager.Stub {
                     BroadcastSystem.get().stopApp(pkg);
                     VActivityManagerService.get().killAppByPkg(pkg, VUserHandle.USER_ALL);
                     FileUtils.deleteDir(VEnvironment.getDataAppPackageDirectory(pkg));
+                    FileUtils.deleteDir(ResourcesUtils.getPackageResourcePath(pkg));
                     VEnvironment.getOdexFile(pkg).delete();
                     for (int userId : VUserManagerService.get().getUserIds()) {
                         FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(userId, pkg));
