@@ -1,6 +1,7 @@
 package com.lody.virtual.client.hook.base;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.lody.virtual.client.hook.utils.MethodParameterUtils;
 import com.lody.virtual.helper.utils.VLog;
@@ -9,6 +10,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +33,7 @@ public class MethodInvocationStub<T> {
     private T mBaseInterface;
     private T mProxyInterface;
     private String mIdentityName;
+    private LogInvocation.Condition mInvocationLoggingCondition = LogInvocation.Condition.NEVER;
 
 
     public Map<String, MethodProxy> getAllHooks() {
@@ -48,6 +51,14 @@ public class MethodInvocationStub<T> {
         } else {
             VLog.d(TAG, "Unable to build HookDelegate: %s.", getIdentityName());
         }
+    }
+
+    public LogInvocation.Condition getInvocationLoggingCondition() {
+        return mInvocationLoggingCondition;
+    }
+
+    public void setInvocationLoggingCondition(LogInvocation.Condition invocationLoggingCondition) {
+        mInvocationLoggingCondition = invocationLoggingCondition;
     }
 
     public void setIdentityName(String identityName) {
@@ -156,21 +167,55 @@ public class MethodInvocationStub<T> {
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             MethodProxy methodProxy = getMethodProxy(method.getName());
+            boolean useProxy = (methodProxy != null && methodProxy.isEnable());
+            boolean mightLog = (mInvocationLoggingCondition != LogInvocation.Condition.NEVER) ||
+                    (methodProxy != null && methodProxy.getInvocationLoggingCondition() != LogInvocation.Condition.NEVER);
+
+            String argStr = null;
+            Object res = null;
+            Throwable exception = null;
+            if (mightLog) {
+                // Arguments to string is done before the method is called because the method might actually change it
+                argStr = Arrays.toString(args);
+                argStr = argStr.substring(1, argStr.length()-1);
+            }
+
+
             try {
-                if (methodProxy != null && methodProxy.isEnable()) {
-                    if (methodProxy.beforeCall(mBaseInterface, method, args)) {
-                        Object res = methodProxy.call(mBaseInterface, method, args);
-                        res = methodProxy.afterCall(mBaseInterface, method, args, res);
-                        return res;
+                if (useProxy && methodProxy.beforeCall(mBaseInterface, method, args)) {
+                    res = methodProxy.call(mBaseInterface, method, args);
+                    res = methodProxy.afterCall(mBaseInterface, method, args, res);
+                } else {
+                    res = method.invoke(mBaseInterface, args);
+                }
+                return res;
+
+            } catch (Throwable t) {
+                exception = t;
+                if (exception instanceof InvocationTargetException && ((InvocationTargetException) exception).getTargetException() != null) {
+                    exception = ((InvocationTargetException) exception).getTargetException();
+                }
+                throw exception;
+
+            } finally {
+                if (mightLog) {
+                    int logPriority = mInvocationLoggingCondition.getLogLevel(useProxy, exception != null);
+                    if (methodProxy != null) {
+                        logPriority = Math.max(logPriority, methodProxy.getInvocationLoggingCondition().getLogLevel(useProxy, exception != null));
+                    }
+                    if (logPriority >= 0) {
+                        String retString;
+                        if (exception != null) {
+                            retString = exception.toString();
+                        } else if (method.getReturnType().equals(void.class)) {
+                            retString = "void";
+                        } else {
+                            retString = String.valueOf(res);
+                        }
+
+                        Log.println(logPriority, TAG, method.getDeclaringClass().getSimpleName() + "." + method.getName() + "(" + argStr + ") => " + retString);
                     }
                 }
-                return method.invoke(mBaseInterface, args);
-            } catch (InvocationTargetException e) {
-                Throwable cause = e.getTargetException();
-                if (cause != null) {
-                    throw cause;
-                }
-                throw e;
             }
         }
     }

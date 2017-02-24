@@ -17,6 +17,14 @@ import java.lang.reflect.Method;
 public abstract class MethodProxy {
 
     private boolean enable = true;
+    private LogInvocation.Condition mInvocationLoggingCondition = LogInvocation.Condition.NEVER; // Inherit
+
+    public MethodProxy() {
+        LogInvocation loggingAnnotation = getClass().getAnnotation(LogInvocation.class);
+        if (loggingAnnotation != null) {
+            this.mInvocationLoggingCondition = loggingAnnotation.value();
+        }
+    }
 
     public static String getHostPkg() {
         return VirtualCore.get().getHostPkg();
@@ -80,6 +88,14 @@ public abstract class MethodProxy {
 
     public void setEnable(boolean enable) {
         this.enable = enable;
+    }
+
+    public LogInvocation.Condition getInvocationLoggingCondition() {
+        return mInvocationLoggingCondition;
+    }
+
+    public void setInvocationloggingCondition(LogInvocation.Condition invocationLoggingCondition) {
+        mInvocationLoggingCondition = invocationLoggingCondition;
     }
 
     public boolean isAppPkg(String pkg) {
