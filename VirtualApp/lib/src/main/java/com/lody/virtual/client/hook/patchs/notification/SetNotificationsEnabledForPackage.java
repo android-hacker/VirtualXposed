@@ -16,7 +16,7 @@ class SetNotificationsEnabledForPackage extends Hook {
         String pkg  = (String) args[0];
         int enableIndex = ArrayUtils.indexOfFirst(args, Boolean.class);
         boolean enable = (boolean) args[enableIndex];
-        VNotificationManager.get().setNotificationsEnabledForPackage(pkg, enable, getVUserId());
+        VNotificationManager.get().setNotificationsEnabledForPackage(pkg, enable, getAppUserId());
         return 0;
     }
 }

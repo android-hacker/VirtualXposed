@@ -8,7 +8,7 @@ import com.lody.virtual.server.INotificationManager;
 import com.lody.virtual.server.notification.NotificationCompat;
 
 /**
- * 通知栏管理，多虚拟用户，多包名，但是总通知栏只能显示255个，系统限制
+ * Fake notification manager
  */
 public class VNotificationManager {
     private static final VNotificationManager sMgr = new VNotificationManager();
@@ -43,7 +43,6 @@ public class VNotificationManager {
     }
 
     public int dealNotificationId(int id, String packageName, String tag, int userId) {
-        //不处理id，通过tag处理
         try {
             return getService().dealNotificationId(id, packageName, tag, userId);
         } catch (RemoteException e) {
@@ -61,32 +60,32 @@ public class VNotificationManager {
         }
     }
 
-    public boolean areNotificationsEnabledForPackage(String packageName, int vuserId) {
+    public boolean areNotificationsEnabledForPackage(String packageName, int userId) {
         try {
-            return getService().areNotificationsEnabledForPackage(packageName, vuserId);
+            return getService().areNotificationsEnabledForPackage(packageName, userId);
         } catch (RemoteException e) {
             e.printStackTrace();
             return true;
         }
     }
 
-    public void setNotificationsEnabledForPackage(String packageName, boolean enable, int vuserId) {
+    public void setNotificationsEnabledForPackage(String packageName, boolean enable, int userId) {
         try {
-            getService().setNotificationsEnabledForPackage(packageName, enable, vuserId);
+            getService().setNotificationsEnabledForPackage(packageName, enable, userId);
         } catch (RemoteException e) {
         }
     }
 
-    public void addNotification(int id, String tag, String packageName, int vuserId) {
+    public void addNotification(int id, String tag, String packageName, int userId) {
         try {
-            getService().addNotification(id, tag, packageName, vuserId);
+            getService().addNotification(id, tag, packageName, userId);
         } catch (RemoteException e) {
         }
     }
 
-    public void cancelAllNotification(String packageName, int vuserId) {
+    public void cancelAllNotification(String packageName, int userId) {
         try {
-            getService().cancelAllNotification(packageName, vuserId);
+            getService().cancelAllNotification(packageName, userId);
         } catch (RemoteException e) {
         }
     }

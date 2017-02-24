@@ -1,10 +1,12 @@
 package com.lody.virtual.helper.utils;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.lody.virtual.client.core.VirtualCore;
 
 import java.io.File;
+import java.io.IOException;
 
 
 public class ResourcesUtils {
@@ -29,7 +31,35 @@ public class ResourcesUtils {
         return new File(dir, packgeName + "-res.apk");
     }
 
+    public static boolean check(String packageName,File apk){
+            File res = getPackageResourcePath(packageName);
+        if(!res.exists()){
+            VLog.d("ResCheck", "no find res");
+            return false;
+        }
+        if(apk.exists()){
+            VLog.d("ResCheck", "apk exists");
+        }
+        String cmd = "ln -s " + res.getAbsolutePath()+" "+apk.getAbsolutePath();
+        try {
+            VLog.d("ResCheck", "link "+cmd);
+            Runtime.getRuntime().exec(cmd);
+        }catch (Exception e){
+            FileUtils.copyFile(res, apk);
+        }
+        return true;
+    }
+
     public static void make(String packgeName,File apk) {
+        //check apk is link?
+        try {
+            if(!TextUtils.equals(apk.getAbsolutePath(), apk.getCanonicalPath())){
+                //apk is link
+                VLog.d("ResCheck","is link "+apk.getAbsolutePath());
+                return;
+            }
+        } catch (IOException e) {
+        }
         File res = getPackageResourcePath(packgeName);
         String apkPath = apk.getAbsolutePath();
         String cmd = "ln -s " + res.getAbsolutePath()+" "+apkPath;
@@ -44,7 +74,7 @@ public class ResourcesUtils {
 
         try {
             Process process = Runtime.getRuntime().exec("chmod -R 755 " + res.getAbsolutePath());
-            Log.e("chmod", apk + " " + process.waitFor());
+            VLog.d("ResCheck", apk + " " + process.waitFor());
         } catch (Exception e) {
         }
     }

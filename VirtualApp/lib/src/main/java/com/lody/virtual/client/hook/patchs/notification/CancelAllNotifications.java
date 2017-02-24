@@ -4,7 +4,6 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.utils.HookUtils;
 import com.lody.virtual.client.ipc.VNotificationManager;
-import com.lody.virtual.server.notification.VNotificationManagerService;
 
 import java.lang.reflect.Method;
 
@@ -26,7 +25,7 @@ import java.lang.reflect.Method;
 //            user = (int) args[1];
 //        }
         if (VirtualCore.get().isAppInstalled(pkg)) {
-            VNotificationManager.get().cancelAllNotification(pkg, getVUserId());
+            VNotificationManager.get().cancelAllNotification(pkg, getAppUserId());
             return 0;
         }
         return method.invoke(who, args);

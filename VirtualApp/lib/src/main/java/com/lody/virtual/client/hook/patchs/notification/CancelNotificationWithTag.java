@@ -32,8 +32,8 @@ import java.lang.reflect.Method;
         String pkg = HookUtils.replaceFirstAppPkg(args);
         String tag = (String) args[1];
         int id = (int) args[2];
-        id = VNotificationManager.get().dealNotificationId(id, pkg, tag, getVUserId());
-        tag = VNotificationManager.get().dealNotificationTag(id, pkg, tag, getVUserId());
+        id = VNotificationManager.get().dealNotificationId(id, pkg, tag, getAppUserId());
+        tag = VNotificationManager.get().dealNotificationTag(id, pkg, tag, getAppUserId());
 
         args[1] = tag;
         args[2] = id;

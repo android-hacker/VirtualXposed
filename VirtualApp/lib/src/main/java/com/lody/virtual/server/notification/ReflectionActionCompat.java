@@ -2,7 +2,8 @@ package com.lody.virtual.server.notification;
 
 import android.widget.RemoteViews;
 
-class ReflectionActionCompat {
+
+/* package */ class ReflectionActionCompat {
     private static Class ReflectionActionClass;
     private static final String ReflectionAction = "ReflectionAction";
 

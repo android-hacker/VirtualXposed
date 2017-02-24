@@ -14,7 +14,7 @@ class AreNotificationsEnabledForPackage extends Hook {
     @Override
     public Object call(Object who, Method method, Object... args) throws Throwable {
         String pkg  = (String) args[0];
-        return VNotificationManager.get().areNotificationsEnabledForPackage(pkg, getVUserId());
+        return VNotificationManager.get().areNotificationsEnabledForPackage(pkg, getAppUserId());
 //        return super.call(who, method, args);
     }
 }

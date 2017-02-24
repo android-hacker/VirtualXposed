@@ -2,7 +2,9 @@ package com.lody.virtual.client.hook.patchs.wifi;
 
 import android.content.Context;
 import android.net.wifi.WifiInfo;
+import android.text.TextUtils;
 
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchBinderDelegate;
 import com.lody.virtual.client.hook.base.StaticHook;
@@ -30,9 +32,11 @@ public class WifiManagerPatch extends PatchBinderDelegate {
 			@Override
 			public Object call(Object who, Method method, Object... args) throws Throwable {
 				WifiInfo info = (WifiInfo) super.call(who, method, args);
-				if (info != null) {
-					if (info.getMacAddress() != null && info.getMacAddress().startsWith("00-00-00-00-00-00")) {
-						Reflect.on(info).set("mMacAddress", "00:00:08:76:54:32");
+				if (info != null && info.getMacAddress()!=null) {
+					String old = info.getMacAddress();
+					String address = VirtualCore.get().getPhoneInfoDelegate().getMacAddress(old, getAppUserId());
+					if(!TextUtils.equals(old, address)) {
+						Reflect.on(info).set("mMacAddress", address);
 					}
 				}
 				return info;

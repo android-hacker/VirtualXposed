@@ -74,8 +74,11 @@ public class VApp extends Application {
             Once.initialise(this);
         } else if (VirtualCore.get().isVAppProcess()) {
             BlockCanary.install(this, new AppBlockCanaryContext());
+            //listener components
             VirtualCore.get().setComponentDelegate(new MyComponentDelegate());
+            //fake phone imei,macAddress,BluetoothAddress
             VirtualCore.get().setPhoneInfoDelegate(new MyPhoneInfoDelegate());
+            //fake task description's icon and title
             VirtualCore.get().setTaskDescriptionDelegate(new MyTaskDescriptionDelegate());
         }
     }

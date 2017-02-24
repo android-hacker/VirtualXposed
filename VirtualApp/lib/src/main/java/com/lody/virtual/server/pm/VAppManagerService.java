@@ -78,15 +78,17 @@ public class VAppManagerService extends IAppManager.Stub {
                 } catch (PackageManager.NameNotFoundException e) {
                     // Ignore
                 }
-                if (appInfo == null || appInfo.publicSourceDir == null) {
+                if ((appInfo == null || appInfo.publicSourceDir == null)
+                        && !ResourcesUtils.check(pkgName, storeFile)) {
                     FileUtils.deleteDir(appDir);
                     for (int userId : VUserManagerService.get().getUserIds()) {
                         FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(userId, pkgName));
                     }
                     continue;
+                }else {
+                    storeFile = new File(appInfo.publicSourceDir);
+                    flags |= InstallStrategy.DEPEND_SYSTEM_IF_EXIST;
                 }
-                storeFile = new File(appInfo.publicSourceDir);
-                flags |= InstallStrategy.DEPEND_SYSTEM_IF_EXIST;
             }
             InstallResult res = install(storeFile.getPath(), flags, true);
             if (!res.isSuccess) {

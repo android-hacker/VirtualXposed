@@ -15,7 +15,7 @@ class GetDeviceId extends ReplaceCallingPkgHook {
     @Override
     public Object afterCall(Object who, Method method, Object[] args, Object result) throws Throwable {
         if (VirtualCore.get().getPhoneInfoDelegate() != null) {
-            String res = VirtualCore.get().getPhoneInfoDelegate().getDeviceId((String) result);
+            String res = VirtualCore.get().getPhoneInfoDelegate().getDeviceId((String) result, getAppUserId());
             if (res != null) {
                 return res;
             }

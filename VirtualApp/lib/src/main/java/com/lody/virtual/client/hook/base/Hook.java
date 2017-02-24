@@ -72,7 +72,7 @@ public abstract class Hook {
 		return VClientImpl.get().getVUid();
 	}
 
-	protected final int getVUserId() {
+	protected final int getAppUserId() {
 		return VUserHandle.getUserId(getVUid());
 	}
 
