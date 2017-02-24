@@ -36,7 +36,6 @@ import mirror.com.android.internal.R_Hide;
     void fixIcon(Icon icon, Context pluginContext, boolean isInstall) {
         if (icon == null) return;
         int type = Reflect.on(icon).get("mType");
-//        Log.i(TAG, "smallIcon type=" + type);
         if (type == 2) {
             if (isInstall) {
                 Reflect.on(icon).set("mObj1", pluginContext.getResources());
@@ -57,7 +56,7 @@ import mirror.com.android.internal.R_Hide;
         try {
             rebuild = Reflect.on(Notification.Builder.class).create(pluginContext, notification).get();
         } catch (Exception e) {
-
+            // ignore
         }
         if (rebuild != null) {
             if (notification.tickerView == null) {
@@ -75,12 +74,6 @@ import mirror.com.android.internal.R_Hide;
         }
     }
 
-    /***
-     * @param pluginContext
-     * @param isinstall
-     * @param remoteViews
-     * @return
-     */
     boolean fixRemoteViewActions(Context pluginContext, boolean isinstall, final RemoteViews remoteViews) {
         boolean hasIcon = false;
         if (remoteViews != null) {
@@ -129,15 +122,14 @@ import mirror.com.android.internal.R_Hide;
                             Reflect.on(action).set("type", ReflectionActionCompat.STRING);
                             Reflect.on(action).set("value", pluginContext.getResources().getString((int) value));
                         } else if (methodName.equals("setLabelFor")) {
-                            //只能移除
+                            //TODO remove
                             mActions.remove(action);
                         } else if (methodName.equals("setBackgroundResource")) {
-                            //只能移除
+                            //TODO remove
                             mActions.remove(action);
                         } else if (methodName.equals("setImageURI")) {
                             Uri uri = (Uri) value;
                             if (!uri.getScheme().startsWith("http")) {
-                                //TODO 通过uri获取bitmap
                                 mActions.remove(action);
                             }
                         } else {
@@ -151,11 +143,9 @@ import mirror.com.android.internal.R_Hide;
                     }
                 }
                 for (BitmapReflectionAction baction : mNew) {
-//                    VLog.d(TAG, "add bitmap " + baction.methodName + " viewId=" + baction.viewId);
                     remoteViews.setBitmap(baction.viewId, baction.methodName, baction.bitmap);
                 }
             }
-//            VLog.d(TAG, "fix remoteviews package");
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                 Reflect.on(remoteViews).set("mPackage", mNotificationCompat.getHostContext().getPackageName());
             }
@@ -202,24 +192,6 @@ import mirror.com.android.internal.R_Hide;
             e.printStackTrace();
             VLog.w(TAG, "fix icon", e);
         }
-//        } else {
-//            try {
-//                int id = R_Hide.id.icon.get();
-//                Icon icon = notification.getLargeIcon();
-//                if (icon == null) {
-//                    icon = notification.getSmallIcon();
-//                }
-//                remoteViews.setImageViewIcon(id, icon);
-//                if (Build.VERSION.SDK_INT >= 21) {
-//                    remoteViews.setInt(id, "setBackgroundColor", Color.TRANSPARENT);
-//                }
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-//                    remoteViews.setViewPadding(id, 0, 0, 0, 0);
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
     }
 
     private static void fixNotificationIcon(Context context, Notification notification, Notification.Builder builder) {

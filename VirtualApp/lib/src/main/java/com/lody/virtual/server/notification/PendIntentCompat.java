@@ -23,7 +23,7 @@ import android.widget.TextView;
 import static com.lody.virtual.server.notification.NotificationCompat.TAG;
 
 /***
- * Remoteviews的点击事件
+ * Remoteviews's PendIntent
  *
  * @author 247321453
  */
@@ -42,17 +42,16 @@ class PendIntentCompat {
         return clickIntents.size();
     }
 
-    /***
-     * @param remoteViews   当前
-     * @param remoteview    当前remoteviews的view
-     * @param oldRemoteView 旧的view
+    /**
+     *
+     * @param remoteViews notification's old remoteViews
+     * @param remoteview notification's old remoteViews view
+     * @param oldRemoteView notification's new remoteViews view
      */
     public void setPendIntent(RemoteViews remoteViews, View remoteview, View oldRemoteView) {
         if (findPendIntents() > 0) {
-            // view2+clickIntents=>区域和事件
             Iterator<Map.Entry<Integer, PendingIntent>> set = clickIntents.entrySet().iterator();
             List<RectInfo> list = new ArrayList<>();
-            // 区域对应点击事件
             int index = 0;
             VLog.v(TAG, "start find intent");
             while (set.hasNext()) {
@@ -65,7 +64,6 @@ class PendIntentCompat {
                 }
             }
             VLog.v(TAG, "find:" + list);
-            // 根据区域查找id，设置点击事件
             if (remoteview instanceof ViewGroup) {
                 setIntentByViewGroup(remoteViews, (ViewGroup) remoteview, list);
             }
@@ -115,7 +113,6 @@ class PendIntentCompat {
     }
 
     private RectInfo findIntent(Rect rect, List<RectInfo> list) {
-        // rect在哪一个占面积最大的点击事件上面,则设置事件
         int maxArea = 0;
         RectInfo next = null;
         for (RectInfo rectInfo : list) {
@@ -132,7 +129,6 @@ class PendIntentCompat {
     }
 
     private int getOverlapArea(Rect rect1, Rect rect2) {
-        // 2个区域重叠的面积
         Rect rect = new Rect();
         rect.left = Math.max(rect1.left, rect2.left);
         rect.top = Math.max(rect1.top, rect2.top);
@@ -144,9 +140,6 @@ class PendIntentCompat {
         return 0;
     }
 
-    /**
-     * id和点击事件intent
-     */
     private Map<Integer, PendingIntent> getClickIntents(RemoteViews remoteViews) {
         Map<Integer, PendingIntent> map = new HashMap<>();
         if (remoteViews == null)
@@ -185,21 +178,10 @@ class PendIntentCompat {
         Rect rect;
         PendingIntent mPendingIntent;
         int index;
-//        Bitmap testBg;
 
         public RectInfo(Rect rect, PendingIntent pendingIntent, int index) {
             this.rect = rect;
             mPendingIntent = pendingIntent;
-//            testBg = Bitmap.createBitmap(rect.width(), rect.height(), Bitmap.Config.RGB_565);
-//            if (index == 0) {
-//                new Canvas(testBg).drawColor(Color.RED);
-//            } else if (index == 1) {
-//                new Canvas(testBg).drawColor(Color.GREEN);
-//            } else if (index == 2) {
-//                new Canvas(testBg).drawColor(Color.BLUE);
-//            } else {
-//                new Canvas(testBg).drawColor(Color.YELLOW);
-//            }
             this.index = index;
         }
 

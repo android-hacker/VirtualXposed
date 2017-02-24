@@ -1,6 +1,5 @@
 package com.lody.virtual.server.notification;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.text.TextUtils;
@@ -18,7 +17,7 @@ public class VNotificationManagerService extends INotificationManager.Stub {
     private NotificationManager mNotificationManager;
     static final String TAG = NotificationCompat.class.getSimpleName();
     private final List<String> mDisables = new ArrayList<>();
-    //需要保存
+    //VApp's Notifications
     private final HashMap<String, List<NotificationInfo>> mNotifications = new HashMap<>();
     private Context mContext;
 
@@ -37,28 +36,29 @@ public class VNotificationManagerService extends INotificationManager.Stub {
     }
 
     /***
-     * 处理通知栏id
+     * fake notification's id
      *
-     * @param id
-     * @param packageName
+     * @param id          notification's id
+     * @param packageName notification's package
+     * @param userId      user
      * @return
      */
     @Override
     public int dealNotificationId(int id, String packageName, String tag, int userId) {
-        //不处理id，通过tag处理
         return id;
     }
 
     /***
-     * 处理通知栏id
+     * fake notification's tag
      *
-     * @param id
-     * @param packageName
+     * @param id          notification's id
+     * @param packageName notification's package
+     * @param tag         notification's tag
+     * @param userId      user
      * @return
      */
     @Override
     public String dealNotificationTag(int id, String packageName, String tag, int userId) {
-        //最好是知道vuserid
         if (TextUtils.equals(mContext.getPackageName(), packageName)) {
             return tag;
         }
@@ -69,15 +69,13 @@ public class VNotificationManagerService extends INotificationManager.Stub {
     }
 
     @Override
-    public boolean areNotificationsEnabledForPackage(String packageName, int vuserId) {
-        //最好是知道vuserid
-        return !mDisables.contains(packageName + ":" + vuserId);
+    public boolean areNotificationsEnabledForPackage(String packageName, int userId) {
+        return !mDisables.contains(packageName + ":" + userId);
     }
 
     @Override
-    public void setNotificationsEnabledForPackage(String packageName, boolean enable, int vuserId) {
-        String key = packageName + ":" + vuserId;
-        //最好是知道vuserid
+    public void setNotificationsEnabledForPackage(String packageName, boolean enable, int userId) {
+        String key = packageName + ":" + userId;
         if (enable) {
             if (mDisables.contains(key)) {
                 mDisables.remove(key);
@@ -87,12 +85,12 @@ public class VNotificationManagerService extends INotificationManager.Stub {
                 mDisables.add(key);
             }
         }
-        //TODO: 保存这个列表
+        //TODO: save mDisables ?
     }
 
     @Override
-    public void addNotification(int id, String tag, String packageName, int vuserId) {
-        NotificationInfo notificationInfo = new NotificationInfo(id, tag, packageName, vuserId);
+    public void addNotification(int id, String tag, String packageName, int userId) {
+        NotificationInfo notificationInfo = new NotificationInfo(id, tag, packageName, userId);
         synchronized (mNotifications) {
             List<NotificationInfo> list = mNotifications.get(packageName);
             if (list == null) {
@@ -107,7 +105,7 @@ public class VNotificationManagerService extends INotificationManager.Stub {
     }
 
     @Override
-    public void cancelAllNotification(String packageName, int vuserId) {
+    public void cancelAllNotification(String packageName, int userId) {
         List<NotificationInfo> infos = new ArrayList<>();
         synchronized (mNotifications) {
             List<NotificationInfo> list = mNotifications.get(packageName);
@@ -115,7 +113,7 @@ public class VNotificationManagerService extends INotificationManager.Stub {
                 int count = list.size();
                 for (int i = count - 1; i >= 0; i--) {
                     NotificationInfo info = list.get(i);
-                    if (info.vuserId == vuserId) {
+                    if (info.userId == userId) {
                         infos.add(info);
                         list.remove(i);
                     }
@@ -132,13 +130,13 @@ public class VNotificationManagerService extends INotificationManager.Stub {
         int id;
         String tag;
         String packageName;
-        int vuserId;
+        int userId;
 
-        NotificationInfo(int id, String tag, String packageName, int vuserId) {
+        NotificationInfo(int id, String tag, String packageName, int userId) {
             this.id = id;
             this.tag = tag;
             this.packageName = packageName;
-            this.vuserId = vuserId;
+            this.userId = userId;
         }
 
         @Override
@@ -147,7 +145,7 @@ public class VNotificationManagerService extends INotificationManager.Stub {
                 NotificationInfo that = (NotificationInfo) obj;
                 return that.id == id && TextUtils.equals(that.tag, tag)
                         && TextUtils.equals(packageName, that.packageName)
-                        && that.vuserId == vuserId;
+                        && that.userId == userId;
             }
             return super.equals(obj);
         }

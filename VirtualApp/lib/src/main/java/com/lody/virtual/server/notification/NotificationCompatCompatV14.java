@@ -10,9 +10,9 @@ import android.os.Build;
 import com.lody.virtual.helper.utils.VLog;
 
 /**
- * Created by 247321453 on 2016/7/12.
+ * @author 247321543
  */
-class NotificationCompatCompatV14 extends NotificationCompat {
+/* package */ class NotificationCompatCompatV14 extends NotificationCompat {
     private RemoteViewsFixer mRemoteViewsFixer;
 
     NotificationCompatCompatV14() {
@@ -28,7 +28,6 @@ class NotificationCompatCompatV14 extends NotificationCompat {
     public boolean dealNotification(int id, Notification notification, final String packageName) {
         Context pluginContext = getAppContext(packageName);
         if (isOutsideInstalled(packageName)) {
-            //外部已经安装的app，直接替换默认的icon就行了
             getNotificationFixer().fixIconImage(pluginContext.getResources(), notification.contentView, false, notification);
             notification.icon = getHostContext().getApplicationInfo().icon;
             return true;
@@ -90,6 +89,7 @@ class NotificationCompatCompatV14 extends NotificationCompat {
                     Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
         } catch (PackageManager.NameNotFoundException e) {
             context = getHostContext();
+            // ignore
         }
         return new ContextWrapper(context) {
             @Override

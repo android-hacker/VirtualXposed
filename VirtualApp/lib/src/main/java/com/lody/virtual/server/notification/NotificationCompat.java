@@ -18,7 +18,7 @@ import java.util.List;
 import mirror.com.android.internal.R_Hide;
 
 /**
- * Created by 247321453 on 2016/7/12.
+ * @author 247321453
  */
 public abstract class NotificationCompat {
 
@@ -52,7 +52,6 @@ public abstract class NotificationCompat {
                 }
             }
         }
-//        VLog.d(TAG, "systemIds="+sSystemLayoutResIds);
     }
 
     NotificationCompat() {
@@ -98,6 +97,7 @@ public abstract class NotificationCompat {
         try {
             return VirtualCore.get().getUnHookPackageManager().getPackageInfo(packageName, 0);
         } catch (PackageManager.NameNotFoundException e) {
+            // ignore
         }
         return null;
     }

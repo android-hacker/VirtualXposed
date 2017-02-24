@@ -3,23 +3,26 @@ package com.lody.virtual.client.hook.delegate;
 public interface PhoneInfoDelegate {
 
     /***
-     * 根据虚拟userId返回不同的DeviceId
-     * @param oldDeviceId 当前的DeviceId
-     * @param vuserId 虚拟用户id
+     * Fake the Device ID.
+     *
+     * @param oldDeviceId old DeviceId
+     * @param userId      user
      */
-    String getDeviceId(String oldDeviceId,int vuserId);
+    String getDeviceId(String oldDeviceId, int userId);
 
     /***
-     * 根据虚拟userId返回不同的BluetoothAddress
-     * @param oldAddress 当前的BluetoothAddress
-     * @param vuserId 虚拟用户id
+     * Fake the BluetoothAddress
+     *
+     * @param oldBluetoothAddress old BluetoothAddress
+     * @param userId              user
      */
-    String getBluetoothAddress(String oldAddress,int vuserId);
+    String getBluetoothAddress(String oldBluetoothAddress, int userId);
 
     /***
-     * 根据虚拟userId返回不同的mac
-     * @param oldAddress 当前的mac
-     * @param vuserId 虚拟用户id
+     * Fake the macAddress
+     *
+     * @param oldMacAddress old MacAddress
+     * @param userId        user
      */
-    String getMacAddress(String oldAddress,int vuserId);
+    String getMacAddress(String oldMacAddress, int userId);
 }

@@ -12,9 +12,11 @@ import android.widget.LinearLayout;
 import com.lody.virtual.helper.utils.OSUtils;
 
 /**
- * Created by 247321453 on 2016/7/17. 通知栏的宽度适配
+ * Created by 247321453 on 2016/7/17.
+ * notification's width
  */
-class WidthCompat {
+
+/* package */ class WidthCompat {
     private final static String TAG = WidthCompat.class.getSimpleName();
     private volatile int mWidth = 0;
 
@@ -22,10 +24,9 @@ class WidthCompat {
         if (mWidth > 0) {
             return mWidth;
         }
-        // 默认
         int w = getDefaultWidth(width, padding);
         if (OSUtils.getInstance().isEmui()) {
-            // 华为emui
+            // huawei's emui
             w = getEMUINotificationWidth(context, width, height);
         } else if (OSUtils.getInstance().isMiui()) {
             if (Build.VERSION.SDK_INT >= 21) {
@@ -89,7 +90,7 @@ class WidthCompat {
                 }
             }
         } catch (Exception e) {
-            // Ops
+            // ignore
         }
         return width;
     }
@@ -121,6 +122,7 @@ class WidthCompat {
                 }
             }
         } catch (Exception e) {
+            // ignore
         }
         return width;
     }
@@ -133,8 +135,7 @@ class WidthCompat {
         try {
             return (ViewGroup) LayoutInflater.from(context).inflate(layoutId, null);
         } catch (Throwable e) {
-//            VLog.w(TAG, "systemui view:" + VLog.getStackTraceString(e));
-//			e.printStackTrace();
+            // ignore
         }
         return new FrameLayout(context);
     }

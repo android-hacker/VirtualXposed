@@ -31,12 +31,6 @@ public class ResourcesUtils {
         return new File(dir, packgeName + "-res.apk");
     }
 
-    /***
-     * 假如资源文件不存在，则false
-     * @param packageName
-     * @param apk
-     * @return
-     */
     public static boolean check(String packageName,File apk){
             File res = getPackageResourcePath(packageName);
         if(!res.exists()){
@@ -57,10 +51,10 @@ public class ResourcesUtils {
     }
 
     public static void make(String packgeName,File apk) {
-        //需要检查apk
+        //check apk is link?
         try {
             if(!TextUtils.equals(apk.getAbsolutePath(), apk.getCanonicalPath())){
-                //是link文件
+                //apk is link
                 VLog.d("ResCheck","is link "+apk.getAbsolutePath());
                 return;
             }

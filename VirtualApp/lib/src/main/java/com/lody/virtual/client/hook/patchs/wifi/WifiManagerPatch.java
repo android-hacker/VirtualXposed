@@ -34,7 +34,7 @@ public class WifiManagerPatch extends PatchBinderDelegate {
 				WifiInfo info = (WifiInfo) super.call(who, method, args);
 				if (info != null && info.getMacAddress()!=null) {
 					String old = info.getMacAddress();
-					String address = VirtualCore.get().getPhoneInfoDelegate().getMacAddress(old, getVUserId());
+					String address = VirtualCore.get().getPhoneInfoDelegate().getMacAddress(old, getAppUserId());
 					if(!TextUtils.equals(old, address)) {
 						Reflect.on(info).set("mMacAddress", address);
 					}

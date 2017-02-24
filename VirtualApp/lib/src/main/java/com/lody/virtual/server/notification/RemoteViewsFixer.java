@@ -20,7 +20,8 @@ import com.lody.virtual.helper.utils.VLog;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-class RemoteViewsFixer {
+
+/* package */ class RemoteViewsFixer {
     private static final String TAG = NotificationCompat.TAG;
     private final WidthCompat mWidthCompat;
     private int notification_min_height, notification_max_height, notification_mid_height;
@@ -41,13 +42,12 @@ class RemoteViewsFixer {
         try {
             mCache = createView(context, remoteViews, isBig, systemId);
         } catch (Throwable throwable) {
+            VLog.w(TAG, "toView 1", throwable);
             try {
-                // apply失败后,根据布局id创建view
                 mCache = LayoutInflater.from(context).inflate(remoteViews.getLayoutId(), null);
             } catch (Throwable e) {
-
+                VLog.w(TAG, "toView 2", e);
             }
-            VLog.w(TAG, "toView", throwable);
         }
         return mCache;
     }
@@ -65,7 +65,6 @@ class RemoteViewsFixer {
         View view = null;
         try {
             view = LayoutInflater.from(context).inflate(remoteViews.getLayoutId(), null, false);
-//            view = Reflect.on(remoteViews).call("inflateView", context, remoteViews, null).get();
             try {
                 Reflect.on(view).call("setTagInternal", Reflect.on("com.android.internal.R$id").get("widget_frame"), remoteViews.getLayoutId());
             } catch (Exception e2) {
@@ -98,9 +97,8 @@ class RemoteViewsFixer {
         Context base = mNotificationCompat.getHostContext();
         init(base);
         VLog.v(TAG, "createView:big=" + isBig + ",system=" + systemId);
-        // TODO 需要适配
-        int height = isBig ? notification_max_height : notification_min_height;
 
+        int height = isBig ? notification_max_height : notification_min_height;
         int width = mWidthCompat.getNotificationWidth(base, notification_panel_width, height,
                 notification_side_padding);
         VLog.v(TAG, "createView:getNotificationWidth=" + width);
@@ -118,7 +116,7 @@ class RemoteViewsFixer {
             fixTextView((ViewGroup) view1);
         }
         int mode;
-        // TODO 各种适配
+        //TODO need adaptation
         if (systemId) {
             mode = View.MeasureSpec.EXACTLY;
         } else {
@@ -171,27 +169,23 @@ class RemoteViewsFixer {
         }
         final boolean systemId = false;
         final PendIntentCompat pendIntentCompat = new PendIntentCompat(contentView);
-        // 根据点击时间选择布局(优化)
         final int layoutId;
-
         if (!click || pendIntentCompat.findPendIntents() <= 0) {
-            // 如果就一个点击事件，没必要用复杂view
             layoutId = R.layout.custom_notification_lite;
         } else {
             layoutId = R.layout.custom_notification;
         }
         VLog.v(TAG, "createviews id = " + layoutId);
-        // 代理view创建
+        //make a remoteViews
         RemoteViews remoteViews = new RemoteViews(mNotificationCompat.getHostContext().getPackageName(), layoutId);
         VLog.v(TAG, "remoteViews to view");
         View cache = toView(pluginContext, contentView, isBig, systemId);
-        // 目标显示的内容绘制成bitmap
+        // remoteViews to bitmap
         VLog.v(TAG, "start createBitmap");
         final Bitmap bmp = createBitmap(cache);
         if (bmp == null) {
             VLog.e(TAG, "bmp is null,contentView=" + contentView);
-            // 出错也显示空白的，要不改为系统布局？
-            // return null;
+            // return null; //ignore notification
         } else {
             VLog.v(TAG, "bmp w=" + bmp.getWidth() + ",h=" + bmp.getHeight());
         }
@@ -208,11 +202,10 @@ class RemoteViewsFixer {
         synchronized (mImages) {
             mImages.put(key, bmp);
         }
-        // 点击事件
+        //notification's click
         if (click) {
             if (layoutId == R.layout.custom_notification) {
-                // 根据旧view的点击事件，设置区域点击事件
-                VLog.d(TAG, "start setPendIntent");
+                VLog.v(TAG, "start setPendIntent");
                 try {
                     pendIntentCompat.setPendIntent(remoteViews,
                             toView(mNotificationCompat.getHostContext(), remoteViews, isBig, systemId),

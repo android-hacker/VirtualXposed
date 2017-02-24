@@ -17,7 +17,10 @@ import com.lody.virtual.helper.utils.ResourcesUtils;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.server.pm.VAppManagerService;
 
-class NotificationCompatCompatV21 extends NotificationCompatCompatV14 {
+/**
+ * @author 247321543
+ */
+/* package */ class NotificationCompatCompatV21 extends NotificationCompatCompatV14 {
     static final String TAG = NotificationCompatCompatV21.class.getSimpleName();
 
     NotificationCompatCompatV21() {
@@ -62,7 +65,7 @@ class NotificationCompatCompatV21 extends NotificationCompatCompatV14 {
         notification.icon = host.icon;
 
         ApplicationInfo proxyApplicationInfo = new ApplicationInfo(host);
-        //要确保publicSourceDir这个路径可以被SystemUI应用读取
+
         proxyApplicationInfo.packageName = packageName;
         proxyApplicationInfo.publicSourceDir = publicApk;
         VLog.d(TAG, "proxyApplicationInfo=" + proxyApplicationInfo + ",apk=" + publicApk);
