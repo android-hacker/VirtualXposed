@@ -15,7 +15,7 @@ class GetAddress extends StaticHook {
     @Override
     public Object afterCall(Object who, Method method, Object[] args, Object result) throws Throwable {
         if (VirtualCore.get().getPhoneInfoDelegate() != null) {
-            String res = VirtualCore.get().getPhoneInfoDelegate().getBluetoothAddress((String) result);
+            String res = VirtualCore.get().getPhoneInfoDelegate().getBluetoothAddress((String) result, getVUserId());
             if (res != null) {
                 return res;
             }

@@ -74,8 +74,11 @@ public class VApp extends Application {
             Once.initialise(this);
         } else if (VirtualCore.get().isVAppProcess()) {
             BlockCanary.install(this, new AppBlockCanaryContext());
+            //组件监听
             VirtualCore.get().setComponentDelegate(new MyComponentDelegate());
+            //虚拟手机信息，imei，蓝牙地址，mac
             VirtualCore.get().setPhoneInfoDelegate(new MyPhoneInfoDelegate());
+            //最近任务的图标和标题
             VirtualCore.get().setTaskDescriptionDelegate(new MyTaskDescriptionDelegate());
         }
     }
