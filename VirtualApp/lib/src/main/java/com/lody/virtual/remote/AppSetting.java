@@ -1,4 +1,4 @@
-package com.lody.virtual.helper.proto;
+package com.lody.virtual.remote;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageParser;
@@ -19,12 +19,33 @@ import java.util.List;
  */
 public final class AppSetting implements Parcelable {
 
+    public static final Creator<AppSetting> CREATOR = new Creator<AppSetting>() {
+        @Override
+        public AppSetting createFromParcel(Parcel in) {
+            return new AppSetting(in);
+        }
+
+        @Override
+        public AppSetting[] newArray(int size) {
+            return new AppSetting[size];
+        }
+    };
     public String packageName;
     public String apkPath;
     public String libPath;
     public boolean dependSystem;
     public int appId;
     public transient PackageParser parser;
+
+    public AppSetting() {
+    }
+
+    protected AppSetting(Parcel in) {
+        packageName = in.readString();
+        apkPath = in.readString();
+        libPath = in.readString();
+        dependSystem = in.readByte() != 0;
+    }
 
     public List<Integer> getInstalledUsers() {
         List<Integer> installedUsers = new LinkedList<>();
@@ -45,17 +66,6 @@ public final class AppSetting implements Parcelable {
         VEnvironment.getDataUserPackageDirectory(userId, packageName).mkdirs();
     }
 
-    public AppSetting() {
-    }
-
-
-    protected AppSetting(Parcel in) {
-        packageName = in.readString();
-        apkPath = in.readString();
-        libPath = in.readString();
-        dependSystem = in.readByte() != 0;
-    }
-
     public File getOdexFile() {
         return VEnvironment.getOdexFile(packageName);
     }
@@ -72,18 +82,6 @@ public final class AppSetting implements Parcelable {
     public int describeContents() {
         return 0;
     }
-
-    public static final Creator<AppSetting> CREATOR = new Creator<AppSetting>() {
-        @Override
-        public AppSetting createFromParcel(Parcel in) {
-            return new AppSetting(in);
-        }
-
-        @Override
-        public AppSetting[] newArray(int size) {
-            return new AppSetting[size];
-        }
-    };
 
     public ApplicationInfo getApplicationInfo(int userId) {
         return VPackageManager.get().getApplicationInfo(packageName, 0, userId);

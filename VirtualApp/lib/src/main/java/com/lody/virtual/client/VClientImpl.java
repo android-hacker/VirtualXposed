@@ -23,7 +23,6 @@ import android.os.Message;
 import android.os.Process;
 import android.os.StrictMode;
 
-import com.lody.virtual.IOHook;
 import com.lody.virtual.client.core.PatchManager;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.SpecialComponentList;
@@ -36,7 +35,7 @@ import com.lody.virtual.client.hook.secondary.ProxyServiceFactory;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.client.stub.StubManifest;
-import com.lody.virtual.helper.proto.PendingResultData;
+import com.lody.virtual.remote.PendingResultData;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.os.VUserHandle;
@@ -229,9 +228,9 @@ public final class VClientImpl extends IVClient.Stub {
         if (StubManifest.ENABLE_IO_REDIRECT) {
             startIOUniformer();
         }
-        IOHook.hookNative();
+        NativeEngine.hookNative();
         Object mainThread = VirtualCore.mainThread();
-        IOHook.startDexOverride();
+        NativeEngine.startDexOverride();
         Context context = createPackageContext(data.appInfo.packageName);
         System.setProperty("java.io.tmpdir", context.getCacheDir().getAbsolutePath());
         File codeCacheDir;
@@ -333,15 +332,15 @@ public final class VClientImpl extends IVClient.Stub {
     @SuppressLint("SdCardPath")
     private void startIOUniformer() {
         ApplicationInfo info = mBoundApplication.appInfo;
-        IOHook.redirect("/data/data/" + info.packageName + "/", info.dataDir + "/");
-        IOHook.redirect("/data/user/0/" + info.packageName + "/", info.dataDir + "/");
+        NativeEngine.redirect("/data/data/" + info.packageName + "/", info.dataDir + "/");
+        NativeEngine.redirect("/data/user/0/" + info.packageName + "/", info.dataDir + "/");
         /*
          *  /data/user/0/{Host-Pkg}/virtual/data/user/{user-id}/lib -> /data/user/0/{Host-Pkg}/virtual/data/app/{App-Pkg}/lib/
          */
-        IOHook.redirect(
+        NativeEngine.redirect(
                 new File(VEnvironment.getUserSystemDirectory(VUserHandle.myUserId()).getAbsolutePath(), "lib").getAbsolutePath() + "/",
                 info.nativeLibraryDir + "/");
-        IOHook.hook();
+        NativeEngine.hook();
     }
 
     private Context createPackageContext(String packageName) {

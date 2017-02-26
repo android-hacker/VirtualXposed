@@ -8,7 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.lody.virtual.helper.proto.AppSetting;
+import com.lody.virtual.remote.AppSetting;
 import com.lody.virtual.os.VUserHandle;
 
 /**

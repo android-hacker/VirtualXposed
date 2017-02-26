@@ -3,7 +3,7 @@ package com.lody.virtual.server.am;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import com.lody.virtual.helper.proto.PendingIntentData;
+import com.lody.virtual.remote.PendingIntentData;
 
 import java.util.HashMap;
 import java.util.Map;

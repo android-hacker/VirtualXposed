@@ -17,10 +17,9 @@ import com.lody.virtual.client.hook.base.ReplaceLastUidHook;
 import com.lody.virtual.client.hook.base.ResultStaticHook;
 import com.lody.virtual.client.hook.base.StaticHook;
 import com.lody.virtual.client.ipc.VActivityManager;
-import com.lody.virtual.helper.proto.AppTaskInfo;
+import com.lody.virtual.remote.AppTaskInfo;
 
 import java.lang.reflect.Method;
-import java.util.Iterator;
 import java.util.List;
 
 import mirror.android.app.ActivityManagerNative;
@@ -124,6 +123,11 @@ public class ActivityManagerPatch extends PatchDelegate<HookDelegate<IInterface>
 		}
 	}
 
+	@Override
+	public boolean isEnvBad() {
+		return ActivityManagerNative.getDefault.call() != getHookDelegate().getProxyInterface();
+	}
+
 	private class isUserRunning extends Hook {
 		@Override
 		public String getName() {
@@ -135,10 +139,5 @@ public class ActivityManagerPatch extends PatchDelegate<HookDelegate<IInterface>
 			int userId = (int) args[0];
 			return userId == 0;
 		}
-	}
-
-	@Override
-	public boolean isEnvBad() {
-		return ActivityManagerNative.getDefault.call() != getHookDelegate().getProxyInterface();
 	}
 }

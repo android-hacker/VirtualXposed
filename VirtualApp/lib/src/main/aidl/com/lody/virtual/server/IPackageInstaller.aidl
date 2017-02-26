@@ -6,7 +6,7 @@ import android.content.pm.IPackageInstallerSession;
 import android.content.IntentSender;
 import android.graphics.Bitmap;
 
-import com.lody.virtual.helper.proto.VParceledListSlice;
+import com.lody.virtual.remote.VParceledListSlice;
 import com.lody.virtual.server.pm.installer.SessionParams;
 import com.lody.virtual.server.pm.installer.SessionInfo;
 

@@ -3,8 +3,8 @@ package com.lody.virtual.server;
 
 import com.lody.virtual.server.interfaces.IAppObserver;
 import com.lody.virtual.server.interfaces.IAppRequestListener;
-import com.lody.virtual.helper.proto.AppSetting;
-import com.lody.virtual.helper.proto.InstallResult;
+import com.lody.virtual.remote.AppSetting;
+import com.lody.virtual.remote.InstallResult;
 
 interface IAppManager {
 

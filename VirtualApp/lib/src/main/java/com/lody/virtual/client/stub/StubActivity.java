@@ -9,7 +9,7 @@ import com.lody.virtual.client.core.PatchManager;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.hook.patchs.am.HCallbackHook;
 import com.lody.virtual.client.ipc.VActivityManager;
-import com.lody.virtual.helper.proto.StubActivityRecord;
+import com.lody.virtual.remote.StubActivityRecord;
 import com.lody.virtual.os.VUserHandle;
 
 /**

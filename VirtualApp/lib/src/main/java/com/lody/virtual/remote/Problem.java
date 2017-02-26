@@ -1,4 +1,4 @@
-package com.lody.virtual.helper.proto;
+package com.lody.virtual.remote;
 
 import android.os.Parcel;
 import android.os.Parcelable;

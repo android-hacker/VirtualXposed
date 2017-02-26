@@ -13,8 +13,8 @@ import android.content.IntentFilter;
 import android.content.pm.PermissionInfo;
 import android.content.pm.PermissionGroupInfo;
 
-import com.lody.virtual.helper.proto.ReceiverInfo;
-import com.lody.virtual.helper.proto.VParceledListSlice;
+import com.lody.virtual.remote.ReceiverInfo;
+import com.lody.virtual.remote.VParceledListSlice;
 
 interface IPackageManager {
 

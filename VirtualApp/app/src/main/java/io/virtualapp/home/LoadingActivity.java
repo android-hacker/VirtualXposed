@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.ipc.VActivityManager;
-import com.lody.virtual.helper.proto.AppSetting;
+import com.lody.virtual.remote.AppSetting;
 
 import io.virtualapp.R;
 import io.virtualapp.abs.ui.VUiKit;

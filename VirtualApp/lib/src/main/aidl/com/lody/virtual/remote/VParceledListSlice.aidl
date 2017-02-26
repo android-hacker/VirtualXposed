@@ -1,4 +1,4 @@
 // VParceledListSlice.aidl
-package com.lody.virtual.helper.proto;
+package com.lody.virtual.remote;
 
 parcelable VParceledListSlice;

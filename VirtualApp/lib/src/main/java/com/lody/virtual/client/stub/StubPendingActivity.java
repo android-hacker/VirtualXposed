@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.lody.virtual.client.ipc.VActivityManager;
-import com.lody.virtual.helper.proto.StubActivityRecord;
+import com.lody.virtual.remote.StubActivityRecord;
 
 /**
  * @author Lody

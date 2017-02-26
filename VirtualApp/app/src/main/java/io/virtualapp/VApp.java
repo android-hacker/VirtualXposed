@@ -8,7 +8,7 @@ import com.github.moduth.blockcanary.BlockCanary;
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.stub.StubManifest;
-import com.lody.virtual.helper.proto.InstallResult;
+import com.lody.virtual.remote.InstallResult;
 
 import java.io.IOException;
 

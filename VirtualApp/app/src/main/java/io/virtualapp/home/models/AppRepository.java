@@ -3,11 +3,10 @@ package io.virtualapp.home.models;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
-import android.os.Environment;
 
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.proto.AppSetting;
+import com.lody.virtual.remote.AppSetting;
 import com.lody.virtual.os.VUserHandle;
 
 import org.jdeferred.Promise;

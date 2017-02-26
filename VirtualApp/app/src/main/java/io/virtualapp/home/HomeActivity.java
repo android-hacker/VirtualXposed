@@ -14,7 +14,7 @@ import android.widget.ProgressBar;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
-import com.lody.virtual.helper.proto.AppSetting;
+import com.lody.virtual.remote.AppSetting;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.os.VUserInfo;
 import com.lody.virtual.os.VUserManager;

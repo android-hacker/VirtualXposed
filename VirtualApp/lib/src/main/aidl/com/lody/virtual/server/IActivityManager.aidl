@@ -1,10 +1,10 @@
 // IActivityManager.aidl
 package com.lody.virtual.server;
 
-import com.lody.virtual.helper.proto.VParceledListSlice;
-import com.lody.virtual.helper.proto.AppTaskInfo;
-import com.lody.virtual.helper.proto.PendingIntentData;
-import com.lody.virtual.helper.proto.PendingResultData;
+import com.lody.virtual.remote.VParceledListSlice;
+import com.lody.virtual.remote.AppTaskInfo;
+import com.lody.virtual.remote.PendingIntentData;
+import com.lody.virtual.remote.PendingResultData;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.app.Notification;

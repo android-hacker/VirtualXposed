@@ -13,8 +13,8 @@ import android.os.Message;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.SpecialComponentList;
-import com.lody.virtual.helper.proto.AppSetting;
-import com.lody.virtual.helper.proto.PendingResultData;
+import com.lody.virtual.remote.AppSetting;
+import com.lody.virtual.remote.PendingResultData;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.helper.utils.collection.ArrayMap;
 import com.lody.virtual.server.pm.VAppManagerService;

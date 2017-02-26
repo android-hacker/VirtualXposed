@@ -27,9 +27,9 @@ import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.fixer.ComponentFixer;
 import com.lody.virtual.helper.compat.ObjectsCompat;
 import com.lody.virtual.helper.compat.PackageParserCompat;
-import com.lody.virtual.helper.proto.AppSetting;
-import com.lody.virtual.helper.proto.ReceiverInfo;
-import com.lody.virtual.helper.proto.VParceledListSlice;
+import com.lody.virtual.remote.AppSetting;
+import com.lody.virtual.remote.ReceiverInfo;
+import com.lody.virtual.remote.VParceledListSlice;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.server.IPackageManager;
@@ -51,9 +51,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class VPackageManagerService extends IPackageManager.Stub {
 
 	static final String TAG = "PackageManager";
-
-	private static final boolean DEBUG_SHOW_INFO = false;
-	private static final AtomicReference<VPackageManagerService> gService = new AtomicReference<>();
 	static final Comparator<ResolveInfo> mResolvePrioritySorter = new Comparator<ResolveInfo>() {
 		public int compare(ResolveInfo r1, ResolveInfo r2) {
 			int v1 = r1.priority;
@@ -77,6 +74,8 @@ public class VPackageManagerService extends IPackageManager.Stub {
 			return 0;
 		}
 	};
+	private static final boolean DEBUG_SHOW_INFO = false;
+	private static final AtomicReference<VPackageManagerService> gService = new AtomicReference<>();
 	private static final Comparator<ProviderInfo> mProviderInitOrderSorter = new Comparator<ProviderInfo>() {
 		public int compare(ProviderInfo p1, ProviderInfo p2) {
 			final int v1 = p1.initOrder;

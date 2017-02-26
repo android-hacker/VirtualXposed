@@ -1,4 +1,4 @@
-package com.lody.virtual.helper.proto;
+package com.lody.virtual.remote;
 
 import android.app.PendingIntent;
 import android.os.IBinder;
@@ -7,6 +7,15 @@ import android.os.Parcelable;
 
 public class PendingIntentData implements Parcelable {
 
+    public static final Creator<PendingIntentData> CREATOR = new Creator<PendingIntentData>() {
+        public final PendingIntentData createFromParcel(Parcel source) {
+            return new PendingIntentData(source);
+        }
+
+        public final PendingIntentData[] newArray(int size) {
+            return new PendingIntentData[size];
+        }
+    };
     public String creator;
     public PendingIntent pendingIntent;
 
@@ -39,14 +48,4 @@ public class PendingIntentData implements Parcelable {
         dest.writeString(this.creator);
         this.pendingIntent.writeToParcel(dest, flags);
     }
-
-    public static final Creator<PendingIntentData> CREATOR = new Creator<PendingIntentData>() {
-        public final PendingIntentData createFromParcel(Parcel source) {
-            return new PendingIntentData(source);
-        }
-
-        public final PendingIntentData[] newArray(int size) {
-            return new PendingIntentData[size];
-        }
-    };
 }

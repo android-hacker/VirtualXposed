@@ -2,7 +2,7 @@ package com.lody.virtual.server.pm;
 
 import android.content.pm.PackageParser;
 
-import com.lody.virtual.helper.proto.AppSetting;
+import com.lody.virtual.remote.AppSetting;
 import com.lody.virtual.helper.utils.collection.ArrayMap;
 
 /**

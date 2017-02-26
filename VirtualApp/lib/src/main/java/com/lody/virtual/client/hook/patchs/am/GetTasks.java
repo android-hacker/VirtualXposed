@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.ipc.VActivityManager;
-import com.lody.virtual.helper.proto.AppTaskInfo;
+import com.lody.virtual.remote.AppTaskInfo;
 
 import android.app.ActivityManager;
 

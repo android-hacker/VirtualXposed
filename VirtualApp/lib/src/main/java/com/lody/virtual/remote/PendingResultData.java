@@ -1,4 +1,4 @@
-package com.lody.virtual.helper.proto;
+package com.lody.virtual.remote;
 
 import android.content.BroadcastReceiver;
 import android.os.Bundle;

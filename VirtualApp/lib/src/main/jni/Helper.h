@@ -21,7 +21,7 @@
 
 #define NATIVE_METHOD(func_ptr, func_name, signature) { func_name, signature, reinterpret_cast<void*>(func_ptr) }
 
-#define JAVA_CLASS "com/lody/virtual/IOHook"
+#define JAVA_CLASS "com/lody/virtual/client/NativeEngine"
 
 #define ANDROID_JBMR2    18
 #define ANDROID_L        21

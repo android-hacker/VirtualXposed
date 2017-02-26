@@ -3,7 +3,7 @@ package com.lody.virtual.server.am;
 import android.content.ComponentName;
 import android.content.Intent;
 
-import com.lody.virtual.helper.proto.AppTaskInfo;
+import com.lody.virtual.remote.AppTaskInfo;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,11 +14,11 @@ import java.util.List;
  */
 
 class TaskRecord {
+    public final List<ActivityRecord> activities = Collections.synchronizedList(new ArrayList<ActivityRecord>());
     public int taskId;
     public int userId;
     public String affinity;
     public Intent taskRoot;
-    public final List<ActivityRecord> activities = Collections.synchronizedList(new ArrayList<ActivityRecord>());
 
     TaskRecord(int taskId, int userId, String affinity, Intent intent) {
         this.taskId = taskId;
