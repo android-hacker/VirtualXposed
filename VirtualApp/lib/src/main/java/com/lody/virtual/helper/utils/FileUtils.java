@@ -1,5 +1,7 @@
 package com.lody.virtual.helper.utils;
 
+import android.os.Build;
+import android.system.Os;
 import android.text.TextUtils;
 
 import java.io.BufferedOutputStream;
@@ -24,6 +26,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Lody
  */
 public class FileUtils {
+
+    public static void createSymlink(String oldPath, String newPath) throws Exception {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Os.symlink(oldPath, newPath);
+        } else {
+            Runtime.getRuntime().exec("ln -s " + oldPath + " " + newPath).waitFor();
+        }
+    }
 
     public static boolean isSymlink(File file) throws IOException {
         if (file == null)

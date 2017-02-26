@@ -7,7 +7,6 @@ import android.content.pm.PackageParser;
 import android.net.Uri;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
-import android.system.Os;
 import android.util.Pair;
 
 import com.lody.virtual.client.core.InstallStrategy;
@@ -205,7 +204,7 @@ public class VAppManagerService extends IAppManager.Stub {
         File res = VEnvironment.getPackageResourcePath(packageName);
         String apkPath = apkFile.getAbsolutePath();
         try {
-            Os.symlink(res.getAbsolutePath(), apkPath);
+            FileUtils.createSymlink(res.getAbsolutePath(), apkPath);
         } catch (Exception e) {
             e.printStackTrace();
         }

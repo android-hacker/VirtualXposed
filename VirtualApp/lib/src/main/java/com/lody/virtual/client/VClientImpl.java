@@ -38,6 +38,7 @@ import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.client.stub.StubManifest;
 import com.lody.virtual.helper.proto.PendingResultData;
 import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.server.secondary.FakeIdentityBinder;
 
@@ -334,6 +335,12 @@ public final class VClientImpl extends IVClient.Stub {
         ApplicationInfo info = mBoundApplication.appInfo;
         IOHook.redirect("/data/data/" + info.packageName + "/", info.dataDir + "/");
         IOHook.redirect("/data/user/0/" + info.packageName + "/", info.dataDir + "/");
+        /*
+         *  /data/user/0/{Host-Pkg}/virtual/data/user/{user-id}/lib -> /data/user/0/{Host-Pkg}/virtual/data/app/{App-Pkg}/lib/
+         */
+        IOHook.redirect(
+                new File(VEnvironment.getUserSystemDirectory(VUserHandle.myUserId()).getAbsolutePath(), "lib").getAbsolutePath() + "/",
+                info.nativeLibraryDir + "/");
         IOHook.hook();
     }
 
