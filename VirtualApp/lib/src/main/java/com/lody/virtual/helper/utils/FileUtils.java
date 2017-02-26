@@ -1,7 +1,5 @@
 package com.lody.virtual.helper.utils;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.text.TextUtils;
 
 import java.io.BufferedOutputStream;
@@ -19,7 +17,6 @@ import java.nio.ByteOrder;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,6 +24,20 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Lody
  */
 public class FileUtils {
+
+    public static boolean isSymlink(File file) throws IOException {
+        if (file == null)
+            throw new NullPointerException("File must not be null");
+        File canon;
+        if (file.getParent() == null) {
+            canon = file;
+        } else {
+            File canonDir = file.getParentFile().getCanonicalFile();
+            canon = new File(canonDir, file.getName());
+        }
+        return !canon.getCanonicalFile().equals(canon.getAbsoluteFile());
+    }
+
     public static byte[] toByteArray(InputStream inStream) throws IOException {
         ByteArrayOutputStream swapStream = new ByteArrayOutputStream();
         byte[] buff = new byte[100];
@@ -177,6 +188,7 @@ public class FileUtils {
         }
         return res.toString();
     }
+
     /**
      * Lock the specified fle
      */
