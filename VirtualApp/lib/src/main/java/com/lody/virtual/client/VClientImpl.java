@@ -136,9 +136,6 @@ public final class VClientImpl extends IVClient.Stub {
     }
 
     public void initProcess(IBinder token, int vuid) {
-        if (this.token != null) {
-            throw new IllegalStateException("Token is exist!");
-        }
         this.token = token;
         this.vuid = vuid;
     }
@@ -512,7 +509,7 @@ public final class VClientImpl extends IVClient.Stub {
 
     private static class RootThreadGroup extends ThreadGroup {
 
-        public RootThreadGroup(ThreadGroup parent) {
+        RootThreadGroup(ThreadGroup parent) {
             super(parent, "VA-Root");
         }
 

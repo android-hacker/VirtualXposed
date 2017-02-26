@@ -26,7 +26,6 @@ hook_template(void *handle, const char *symbol, void *new_func, void **old_func)
     inlineHookDirect((unsigned int) (addr), new_func, old_func);
 #else
     GodinHook::NativeHook::registeredHook((size_t) addr, (size_t) new_func, (size_t **) old_func);
-//    GodinHook::NativeHook::hook((size_t) addr);
 #endif
 }
 
@@ -462,11 +461,12 @@ HOOK_DEF(int, execve, const char *pathname, char *const argv[], char *const envp
     if (!strcmp(pathname, "dex2oat")) {
         for (int i = 0; envp[i] != NULL; ++i) {
             if (!strncmp(envp[i], "LD_PRELOAD=", 11)) {
-                const_cast<char **>(envp)[i] = (char *) "LD_PRELOAD=libsigchain.so:libudf.so";
+                const_cast<char **>(envp)[i] = getenv("LD_PRELOAD");
             }
         }
     }
-    LOGD("execve: %s", pathname);
+
+    LOGD("execve: %s, LD_PRELOAD: %s.", pathname, getenv("LD_PRELOAD"));
     for (int i = 0; argv[i] != NULL; ++i) {
         LOGD("argv[%i] : %s", i, argv[i]);
     }
@@ -557,6 +557,9 @@ void hook_dlopen(int api_level) {
             inlineHookDirect((unsigned int) symbol, (void *) new_dlopen, (void **) &orig_dlopen);
         }
     }
+    if (!symbol) {
+        HOOK_SYMBOL(RTLD_DEFAULT, dlopen);
+    }
 }
 
 
@@ -600,8 +603,9 @@ void IOUniformer::startUniformer(int api_level) {
     HOOK_SYMBOL(RTLD_DEFAULT, renameat);
     HOOK_SYMBOL(RTLD_DEFAULT, fchownat);
     HOOK_SYMBOL(RTLD_DEFAULT, mknodat);
-
     hook_dlopen(api_level);
+    HOOK_SYMBOL(RTLD_DEFAULT, dlsym);
+
 #if defined(__i386__) || defined(__x86_64__)
     // Do nothing
 #else
