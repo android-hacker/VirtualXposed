@@ -15,11 +15,11 @@
 #include<dirent.h>
 #include <sys/syscall.h>
 
-#include <InlineHook/MSHook.h>
+#include <MSHook.h>
 #include "Helper.h"
 
 
-#define HOOK_IO(func) hook_template("libc.so", #func, (void*) new_##func, (void**) &orig_##func)
+#define HOOK_SYMBOL(handle, func) hook_template(handle, #func, (void*) new_##func, (void**) &orig_##func)
 #define HOOK_DEF(ret, func, ...) \
   ret (*orig_##func)(__VA_ARGS__); \
   ret new_##func(__VA_ARGS__)
