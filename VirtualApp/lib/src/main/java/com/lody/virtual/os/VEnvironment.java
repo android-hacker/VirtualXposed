@@ -53,8 +53,7 @@ public class VEnvironment {
     }
 
     public static File getPackageResourcePath(String packgeName) {
-        File dir = ensureCreated(RES_APK_DIRECTORY);
-        return new File(dir, packgeName + "-res.apk");
+        return new File(getDataAppPackageDirectory(packgeName), "base.apk");
     }
 
     public static File getDataAppDirectory() {

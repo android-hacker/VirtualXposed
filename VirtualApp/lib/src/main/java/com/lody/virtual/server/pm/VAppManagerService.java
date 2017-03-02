@@ -201,14 +201,20 @@ public class VAppManagerService extends IAppManager.Stub {
         if (FileUtils.isSymlink(apkFile)) {
             return;
         }
-        File res = VEnvironment.getPackageResourcePath(packageName);
-        String apkPath = apkFile.getAbsolutePath();
-        try {
-            FileUtils.createSymlink(res.getAbsolutePath(), apkPath);
-        } catch (Exception e) {
-            e.printStackTrace();
+        // chmod
+        // /data/data/io.virtualapp/virtual
+        // /data/data/io.virtualapp/virtual/data
+        // /data/data/io.virtualapp/virtual/data/app
+        // /data/data/io.virtualapp/virtual/data/app/com.example.notifications/base.apk
+        File dir = apkFile.getParentFile();
+        String prefix = "/" + VirtualCore.get().getHostPkg();
+        String prefix2 = "/" + VirtualCore.get().getHostPkg() + "/";
+        while (!(dir.getAbsolutePath().endsWith(prefix)
+                || dir.getAbsolutePath().endsWith(prefix2))) {
+            FileUtils.chmod(dir.getAbsolutePath(), FileUtils.FileMode.MODE_755);
+            dir = dir.getParentFile();
         }
-        Runtime.getRuntime().exec("chmod -R 755 " + res.getAbsolutePath()).waitFor();
+        FileUtils.chmod(apkFile.getAbsolutePath(), FileUtils.FileMode.MODE_755);
     }
 
     private boolean canUpdate(PackageParser.Package existOne, PackageParser.Package newOne, int flags) {
