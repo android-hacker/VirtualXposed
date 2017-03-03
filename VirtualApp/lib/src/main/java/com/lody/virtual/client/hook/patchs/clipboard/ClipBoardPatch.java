@@ -16,7 +16,6 @@ import mirror.android.content.ClipboardManager;
 public class ClipBoardPatch extends PatchBinderDelegate {
 
 	public ClipBoardPatch() {
-		//FIXME: Is ClipboardManager.getService() correct?
 		super(ClipboardManager.getService.call(), Context.CLIPBOARD_SERVICE);
 	}
 
@@ -32,5 +31,11 @@ public class ClipBoardPatch extends PatchBinderDelegate {
 			addHook(new ReplaceLastPkgHook("removePrimaryClipChangedListener"));
 			addHook(new ReplaceLastPkgHook("hasClipboardText"));
 		}
+	}
+
+	@Override
+	public void inject() throws Throwable {
+		super.inject();
+		ClipboardManager.sService.set(getHookDelegate().getProxyInterface());
 	}
 }
