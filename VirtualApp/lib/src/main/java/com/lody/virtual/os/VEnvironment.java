@@ -1,8 +1,10 @@
 package com.lody.virtual.os;
 
 import android.content.Context;
+import android.os.Build;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.utils.FileUtils;
 import com.lody.virtual.helper.utils.VLog;
 
 import java.io.File;
@@ -32,7 +34,20 @@ public class VEnvironment {
         // Point to: /opt/
         DALVIK_CACHE_DIRECTORY = ensureCreated(new File(ROOT, "opt"));
 
-        RES_APK_DIRECTORY = ensureCreated(new File(getContext().getFilesDir(),"virtual-apk-res"));
+        RES_APK_DIRECTORY = ensureCreated(new File(getContext().getFilesDir(), "virtual-apk-res"));
+    }
+
+    public static void systemReady(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            try {
+                FileUtils.chmod(ROOT.getAbsolutePath(), FileUtils.FileMode.MODE_755);
+                FileUtils.chmod(DATA_DIRECTORY.getAbsolutePath(), FileUtils.FileMode.MODE_755);
+                FileUtils.chmod(getDataAppDirectory().getAbsolutePath(), FileUtils.FileMode.MODE_755);
+            } catch (Exception e) {
+                // ignore
+                VLog.e(TAG, "chmod dir", e);
+            }
+        }
     }
 
 

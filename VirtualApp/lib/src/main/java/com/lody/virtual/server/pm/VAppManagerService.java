@@ -5,6 +5,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageParser;
 import android.net.Uri;
+import android.os.Build;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Pair;
@@ -51,6 +52,7 @@ public class VAppManagerService extends IAppManager.Stub {
     }
 
     public static void systemReady() {
+        VEnvironment.systemReady();
         VAppManagerService instance = new VAppManagerService();
         instance.mUidSystem.initUidList();
         gService.set(instance);
@@ -198,23 +200,18 @@ public class VAppManagerService extends IAppManager.Stub {
     }
 
     private void linkApkResForNotification(String packageName, File apkFile) throws Exception {
-        if (FileUtils.isSymlink(apkFile)) {
-            return;
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (FileUtils.isSymlink(apkFile)) {
+                return;
+            }
+            // chmod
+            // /data/data/io.virtualapp/virtual
+            // /data/data/io.virtualapp/virtual/data
+            // /data/data/io.virtualapp/virtual/data/app
+            // /data/data/io.virtualapp/virtual/data/app/com.example.notifications/base.apk
+            FileUtils.chmod(apkFile.getParentFile().getAbsolutePath(), FileUtils.FileMode.MODE_755);
+            FileUtils.chmod(apkFile.getAbsolutePath(), FileUtils.FileMode.MODE_755);
         }
-        // chmod
-        // /data/data/io.virtualapp/virtual
-        // /data/data/io.virtualapp/virtual/data
-        // /data/data/io.virtualapp/virtual/data/app
-        // /data/data/io.virtualapp/virtual/data/app/com.example.notifications/base.apk
-        File dir = apkFile.getParentFile();
-        String prefix = "/" + VirtualCore.get().getHostPkg();
-        String prefix2 = "/" + VirtualCore.get().getHostPkg() + "/";
-        while (!(dir.getAbsolutePath().endsWith(prefix)
-                || dir.getAbsolutePath().endsWith(prefix2))) {
-            FileUtils.chmod(dir.getAbsolutePath(), FileUtils.FileMode.MODE_755);
-            dir = dir.getParentFile();
-        }
-        FileUtils.chmod(apkFile.getAbsolutePath(), FileUtils.FileMode.MODE_755);
     }
 
     private boolean canUpdate(PackageParser.Package existOne, PackageParser.Package newOne, int flags) {
