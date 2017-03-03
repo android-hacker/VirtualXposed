@@ -68,7 +68,7 @@ import static com.lody.virtual.os.VUserHandle.getUserId;
  */
 public class VActivityManagerService extends IActivityManager.Stub {
 
-    private static final boolean BROADCAST_NOT_STARTED_PKG = false;
+    private static final boolean BROADCAST_NOT_STARTED_PKG = true;
 
     private static final AtomicReference<VActivityManagerService> sService = new AtomicReference<>();
     private static final String TAG = VActivityManagerService.class.getSimpleName();
@@ -998,7 +998,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
         ComponentName componentName = ComponentUtils.toComponentName(info);
         BroadcastSystem.get().broadcastSent(vuid, info, result);
         try {
-            client.scheduleReceiver(componentName, intent, result);
+            client.scheduleReceiver(info.processName, componentName, intent, result);
         } catch (Throwable e) {
             if (result != null) {
                 result.finish();

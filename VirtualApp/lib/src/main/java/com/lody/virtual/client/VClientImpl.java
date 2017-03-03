@@ -82,6 +82,7 @@ public final class VClientImpl extends IVClient.Stub {
     private int vuid;
     private AppBindData mBoundApplication;
     private Application mInitialApplication;
+    private final byte[] mLock = new byte[0];
 
     public static VClientImpl get() {
         return gClient;
@@ -465,18 +466,24 @@ public final class VClientImpl extends IVClient.Stub {
     }
 
     @Override
-    public void scheduleReceiver(ComponentName component, Intent intent, PendingResultData resultData) {
+    public void scheduleReceiver(String processName, ComponentName component, Intent intent, PendingResultData resultData) {
         ReceiverData receiverData = new ReceiverData();
         receiverData.resultData = resultData;
         receiverData.intent = intent;
         receiverData.component = component;
+        receiverData.processName = processName;
         sendMessage(RECEIVER, receiverData);
     }
 
     private void handleReceiver(ReceiverData data) {
         BroadcastReceiver.PendingResult result = data.resultData.build();
         try {
-            Context context = createPackageContext(data.component.getPackageName());
+            synchronized (mLock) {
+                if (!isBound()) {
+                    bindApplication(data.component.getPackageName(), data.processName);
+                }
+            }
+            Context context = mInitialApplication.getBaseContext();
             Context receiverContext = ContextImpl.getReceiverRestrictedContext.call(context);
             String className = data.component.getClassName();
             BroadcastReceiver receiver = (BroadcastReceiver) context.getClassLoader().loadClass(className).newInstance();
@@ -537,6 +544,7 @@ public final class VClientImpl extends IVClient.Stub {
         PendingResultData resultData;
         Intent intent;
         ComponentName component;
+        String processName;
     }
 
     private class H extends Handler {
