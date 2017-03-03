@@ -82,7 +82,6 @@ public final class VClientImpl extends IVClient.Stub {
     private int vuid;
     private AppBindData mBoundApplication;
     private Application mInitialApplication;
-    private final byte[] mLock = new byte[0];
 
     public static VClientImpl get() {
         return gClient;
@@ -478,10 +477,8 @@ public final class VClientImpl extends IVClient.Stub {
     private void handleReceiver(ReceiverData data) {
         BroadcastReceiver.PendingResult result = data.resultData.build();
         try {
-            synchronized (mLock) {
-                if (!isBound()) {
-                    bindApplication(data.component.getPackageName(), data.processName);
-                }
+            if (!isBound()) {
+                bindApplication(data.component.getPackageName(), data.processName);
             }
             Context context = mInitialApplication.getBaseContext();
             Context receiverContext = ContextImpl.getReceiverRestrictedContext.call(context);
