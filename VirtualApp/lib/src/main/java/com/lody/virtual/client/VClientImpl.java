@@ -23,6 +23,7 @@ import android.os.Message;
 import android.os.Process;
 import android.os.StrictMode;
 
+import com.lody.virtual.client.core.CrashHandler;
 import com.lody.virtual.client.core.PatchManager;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.SpecialComponentList;
@@ -35,10 +36,10 @@ import com.lody.virtual.client.hook.secondary.ProxyServiceFactory;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.client.stub.StubManifest;
-import com.lody.virtual.remote.PendingResultData;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.os.VUserHandle;
+import com.lody.virtual.remote.PendingResultData;
 import com.lody.virtual.server.secondary.FakeIdentityBinder;
 
 import java.io.File;
@@ -82,6 +83,7 @@ public final class VClientImpl extends IVClient.Stub {
     private int vuid;
     private AppBindData mBoundApplication;
     private Application mInitialApplication;
+    private CrashHandler crashHandler;
 
     public static VClientImpl get() {
         return gClient;
@@ -97,6 +99,14 @@ public final class VClientImpl extends IVClient.Stub {
 
     public String getCurrentPackage() {
         return mBoundApplication != null ? mBoundApplication.appInfo.packageName : null;
+    }
+
+    public CrashHandler getCrashHandler() {
+        return crashHandler;
+    }
+
+    public void setCrashHandler(CrashHandler crashHandler) {
+        this.crashHandler = crashHandler;
     }
 
     public int getVUid() {
@@ -519,8 +529,13 @@ public final class VClientImpl extends IVClient.Stub {
 
         @Override
         public void uncaughtException(Thread t, Throwable e) {
-            VLog.e("uncaught", e);
-            System.exit(0);
+            CrashHandler handler = VClientImpl.gClient.crashHandler;
+            if (handler != null) {
+                handler.handleUncaughtException(t, e);
+            } else {
+                VLog.e("uncaught", e);
+                System.exit(0);
+            }
         }
     }
 

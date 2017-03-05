@@ -21,6 +21,7 @@ import android.os.Looper;
 import android.os.Process;
 import android.os.RemoteException;
 
+import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.fixer.ContextFixer;
@@ -129,6 +130,10 @@ public final class VirtualCore {
         this.phoneInfoDelegate = phoneInfoDelegate;
     }
 
+    public void setCrashHandler(CrashHandler handler) {
+        VClientImpl.get().setCrashHandler(handler);
+    }
+
     public TaskDescriptionDelegate getTaskDescriptionDelegate() {
         return taskDescriptionDelegate;
     }
@@ -179,6 +184,26 @@ public final class VirtualCore {
                 initLock.open();
                 initLock = null;
             }
+        }
+    }
+
+    public void initialize(VirtualInitializer initializer) {
+        if (initializer == null) {
+            throw new IllegalStateException("Initializer = NULL");
+        }
+        switch (processType) {
+            case Main:
+                initializer.onMainProcess();
+                break;
+            case VAppClient:
+                initializer.onVirtualProcess();
+                break;
+            case Server:
+                initializer.onServerProcess();
+                break;
+            case CHILD:
+                initializer.onChildProcess();
+                break;
         }
     }
 
@@ -267,7 +292,6 @@ public final class VirtualCore {
         return mainProcessName;
     }
 
-
     /**
      * Optimize the Dalvik-Cache for the specified package.
      *
@@ -280,7 +304,6 @@ public final class VirtualCore {
             DexFile.loadDex(info.apkPath, info.getOdexFile().getPath(), 0).close();
         }
     }
-
 
     /**
      * Is the specified app running in foreground / background?
@@ -308,7 +331,6 @@ public final class VirtualCore {
             return VirtualRuntime.crash(e);
         }
     }
-
 
     public Intent getLaunchIntent(String packageName, int userId) {
         VPackageManager pm = VPackageManager.get();
@@ -632,5 +654,12 @@ public final class VirtualCore {
         Bitmap getIcon(Bitmap originIcon);
 
         String getName(String originName);
+    }
+
+    public static abstract class VirtualInitializer {
+        public void onMainProcess() {}
+        public void onVirtualProcess() {}
+        public void onServerProcess() {}
+        public void onChildProcess() {}
     }
 }
