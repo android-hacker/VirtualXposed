@@ -1,5 +1,6 @@
 package io.virtualapp.home;
 
+
 import java.util.List;
 
 import io.virtualapp.abs.BasePresenter;
@@ -13,7 +14,13 @@ import io.virtualapp.home.models.AppModel;
 
 	/* package */ interface HomeView extends BaseView<HomePresenter> {
 
+        void showBottomAction();
+
+        void hideBottomAction();
+
 		void showLoading();
+
+		void hideLoading();
 
 		void loadFinish(List<AppModel> appModels);
 
@@ -21,33 +28,22 @@ import io.virtualapp.home.models.AppModel;
 
 		void showGuide();
 
-		void showFab();
-
-		void hideFab();
-
-		void setCrashShadow(boolean show);
-
-		void waitingAppOpen();
-
-		void refreshPagerView();
-
 		void addAppToLauncher(AppModel model);
-	}
+
+        void showFab();
+
+        void hideFab();
+    }
 
 	/* package */ interface HomePresenter extends BasePresenter {
+
 		void launchApp(AppModel model, int userId);
 
 		void dataChanged();
 
-		void dragChange(boolean isStart);
-
-		void dragNearCrash(boolean canDel);
-
 		void addApp(AppModel model);
 
 		void deleteApp(AppModel model);
-
-		void wantAddApp();
 	}
 
 }

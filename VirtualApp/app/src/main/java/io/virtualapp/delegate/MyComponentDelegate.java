@@ -1,4 +1,4 @@
-package io.virtualapp;
+package io.virtualapp.delegate;
 
 import android.app.Activity;
 import android.content.Intent;

@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#607d8f</color>
-    <color name="colorPrimaryDark">#455a64</color>
-    <color name="colorAccent">#607d8f</color>
+    <color name="colorPrimary">#607191</color>
+    <color name="colorPrimaryDark">#2A364C</color>
+    <color name="colorAccent">#607191</color>
+    <color name="mainTextColor">#F0DEB7</color>
+
+    <color name="desktopColorA">#2C3B4E</color>
+    <color name="desktopColorB">#314155</color>
+    <color name="desktopColorC">#324257</color>
 
     <color name="holo_blue_dark">#0099cc</color>
     <color name="holo_yellow_dark">#ff8800</color>
@@ -20,5 +25,4 @@
 
     <color name="transparent">#00000000</color>
     <color name="black_20_transparent">#55000000</color>
-
 </resources>

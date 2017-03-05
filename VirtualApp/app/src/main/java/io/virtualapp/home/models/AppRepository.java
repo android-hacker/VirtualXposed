@@ -64,16 +64,12 @@ public class AppRepository implements AppDataSource {
 
 	@Override
 	public Promise<List<AppModel>, Throwable, Void> getInstalledApps(Context context) {
-		return VUiKit.defer().when(() -> {
-			return pkgInfosToAppModels(context, context.getPackageManager().getInstalledPackages(0), true);
-		});
+		return VUiKit.defer().when(() -> pkgInfosToAppModels(context, context.getPackageManager().getInstalledPackages(0), true));
 	}
 
 	@Override
 	public Promise<List<AppModel>, Throwable, Void> getStorageApps(Context context, File rootDir) {
-		return VUiKit.defer().when(() -> {
-			return pkgInfosToAppModels(context, findAndParseAPKs(context, rootDir, sdCardScanPaths), false);
-		});
+		return VUiKit.defer().when(() -> pkgInfosToAppModels(context, findAndParseAPKs(context, rootDir, sdCardScanPaths), false));
 	}
 
 	private List<PackageInfo> findAndParseAPKs(Context context, File rootDir, List<String> paths) {

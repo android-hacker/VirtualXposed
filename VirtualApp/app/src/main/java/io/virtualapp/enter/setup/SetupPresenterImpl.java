@@ -34,7 +34,7 @@ import jonathanfinerty.once.Once;
 	@Override
 	public void setupComplete() {
 		HomeActivity.goHome(mContext);
-		mView.destroy();
+		mView.getActivity().finish();
 		Once.markDone(VCommends.TAG_NEW_VERSION);
 	}
 }
