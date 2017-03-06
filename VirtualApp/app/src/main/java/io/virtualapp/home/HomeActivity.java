@@ -161,12 +161,14 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 
     @Override
     public void showLoading() {
+        mFloatingButton.hide(false);
         mLoadingView.setVisibility(View.VISIBLE);
         mLoadingView.startAnim();
     }
 
     @Override
     public void hideLoading() {
+        mFloatingButton.show();
         mLoadingView.setVisibility(View.GONE);
         mLoadingView.stopAnim();
     }
@@ -331,7 +333,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
                     createShortcutArea.setAlpha(1f);
                 }
             } else {
-                upAtDeleteAppArea = false;
+                upAtCreateShortcutArea = false;
                 upAtDeleteAppArea = false;
                 createShortcutArea.setBackgroundColor(Color.TRANSPARENT);
                 deleteAppArea.setBackgroundColor(Color.TRANSPARENT);
