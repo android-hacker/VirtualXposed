@@ -9,11 +9,11 @@
     <color name="desktopColorB">#314155</color>
     <color name="desktopColorC">#324257</color>
 
-    <color name="holo_blue_dark">#0099cc</color>
-    <color name="holo_yellow_dark">#ff8800</color>
-    <color name="holo_green_dark">#669900</color>
-    <color name="holo_purple_dark">#9933cc</color>
-    <color name="holo_red_dark">#cc0000</color>
+    <color name="holo_blue_dark">#33cccc</color>
+    <color name="holo_yellow_dark">#ff9640</color>
+    <color name="holo_green_dark">#67e667</color>
+    <color name="holo_purple_dark">#df38b1</color>
+    <color name="holo_red_dark">#ff4040</color>
 
     <integer-array name="progress_colors">
         <item>@color/holo_blue_dark</item>

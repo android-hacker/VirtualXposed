@@ -2,6 +2,7 @@ package io.virtualapp.home;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -56,6 +57,7 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
         mRecyclerView = (RecyclerView) view.findViewById(R.id.app_list);
         mProgressBar = (ProgressBar) view.findViewById(R.id.app_progress_bar);
         mAdapter = new AppListAdapter(getActivity());
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView.setAdapter(mAdapter);
 
         new ListAppPresenterImpl(getActivity(), this, getSelectFrom());

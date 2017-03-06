@@ -1,5 +1,7 @@
 package io.virtualapp.home;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
@@ -26,7 +28,7 @@ import io.virtualapp.home.adapters.decorations.ItemOffsetDecoration;
 import io.virtualapp.home.models.AppModel;
 import io.virtualapp.widgets.TwoGearsView;
 
-import static android.support.v7.widget.helper.ItemTouchHelper.ACTION_STATE_IDLE;
+import static android.support.v7.widget.helper.ItemTouchHelper.ACTION_STATE_DRAG;
 import static android.support.v7.widget.helper.ItemTouchHelper.DOWN;
 import static android.support.v7.widget.helper.ItemTouchHelper.END;
 import static android.support.v7.widget.helper.ItemTouchHelper.LEFT;
@@ -66,6 +68,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         mUiHandler = new Handler(Looper.getMainLooper());
         bindViews();
         initLaunchpad();
+        initFab();
         new HomePresenterImpl(this).start();
     }
 
@@ -85,10 +88,14 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         mLaunchpadAdapter = new LaunchpadAdapter(this);
         mLauncherView.setAdapter(mLaunchpadAdapter);
         mLauncherView.addItemDecoration(new ItemOffsetDecoration(this, R.dimen.desktop_divider));
-        ItemTouchHelper touchHelper = new ItemTouchHelper(new LauncherTouchCallback()) {
-
-        };
+        ItemTouchHelper touchHelper = new ItemTouchHelper(new LauncherTouchCallback());
         touchHelper.attachToRecyclerView(mLauncherView);
+        mLaunchpadAdapter.setAppClickListener(model -> mPresenter.launchApp(model, 0)
+        );
+    }
+
+    private void initFab() {
+        mFloatingButton.setOnClickListener(v -> mPresenter.addNewApp());
     }
 
     private void deleteApp(int position) {
@@ -105,6 +112,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 
     private void createShortcut(int position) {
         AppModel model = mLaunchpadAdapter.getList().get(position);
+        mPresenter.createShortcut(model);
     }
 
     @Override
@@ -114,15 +122,41 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 
     @Override
     public void showBottomAction() {
-        bottomArea.setTranslationY(0);
-        bottomArea.setVisibility(View.VISIBLE);
         hideFab();
+        bottomArea.setTranslationY(bottomArea.getHeight());
+        bottomArea.setVisibility(View.VISIBLE);
+        bottomArea.animate().translationY(0).setDuration(500L).start();
     }
 
     @Override
     public void hideBottomAction() {
-        bottomArea.setVisibility(View.GONE);
-        showFab();
+        bottomArea.setTranslationY(0);
+        ObjectAnimator transAnim = ObjectAnimator.ofFloat(bottomArea, "translationY", 0, bottomArea.getHeight());
+        transAnim.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                bottomArea.setVisibility(View.GONE);
+                showFab();
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+                bottomArea.setVisibility(View.GONE);
+                showFab();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
+        transAnim.setDuration(500L);
+        transAnim.start();
     }
 
     @Override
@@ -159,6 +193,11 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
     }
 
     @Override
+    public void removeAppToLauncher(AppModel model) {
+        mLaunchpadAdapter.remove(model);
+    }
+
+    @Override
     public void showFab() {
         mFloatingButton.show();
     }
@@ -168,11 +207,18 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         mFloatingButton.hide();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // TODO
+    }
+
     private class LauncherTouchCallback extends ItemTouchHelper.SimpleCallback {
 
         int[] location = new int[2];
         boolean upAtDeleteAppArea;
         boolean upAtCreateShortcutArea;
+        RecyclerView.ViewHolder dragHolder;
 
         LauncherTouchCallback() {
             super(UP | DOWN | LEFT | RIGHT | START | END, 0);
@@ -204,16 +250,27 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         @Override
         public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
             if (viewHolder instanceof LaunchpadAdapter.ViewHolder) {
-                if (actionState != ACTION_STATE_IDLE) {
-                    viewHolder.itemView.setScaleX(1.2f);
-                    viewHolder.itemView.setScaleY(1.2f);
-                    LaunchpadAdapter.ViewHolder holder = (LaunchpadAdapter.ViewHolder) viewHolder;
-                    View itemView = viewHolder.itemView;
-                    ViewCompat.setBackground(itemView, holder.shadow);
-                    ViewCompat.setLayerType(itemView, ViewCompat.LAYER_TYPE_SOFTWARE, null);
+                if (actionState == ACTION_STATE_DRAG) {
+                    if (dragHolder != viewHolder) {
+                        dragHolder = viewHolder;
+                        viewHolder.itemView.setScaleX(1.2f);
+                        viewHolder.itemView.setScaleY(1.2f);
+                        LaunchpadAdapter.ViewHolder holder = (LaunchpadAdapter.ViewHolder) viewHolder;
+                        View itemView = viewHolder.itemView;
+                        ViewCompat.setBackground(itemView, holder.shadow);
+                        ViewCompat.setLayerType(itemView, ViewCompat.LAYER_TYPE_SOFTWARE, null);
+                        if (bottomArea.getVisibility() == View.GONE) {
+                            showBottomAction();
+                        }
+                    }
                 }
             }
             super.onSelectedChanged(viewHolder, actionState);
+        }
+
+        @Override
+        public boolean canDropOver(RecyclerView recyclerView, RecyclerView.ViewHolder current, RecyclerView.ViewHolder target) {
+            return !upAtCreateShortcutArea && !upAtDeleteAppArea;
         }
 
         @Override
@@ -225,13 +282,16 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
                 viewHolder.itemView.setBackgroundColor(holder.color);
             }
             super.clearView(recyclerView, viewHolder);
-            if (bottomArea.getVisibility() == View.VISIBLE) {
-                mUiHandler.postDelayed(HomeActivity.this::hideBottomAction, 500L);
-                if (upAtCreateShortcutArea) {
-                    createShortcut(viewHolder.getAdapterPosition());
-                } else if (upAtDeleteAppArea) {
-                    deleteApp(viewHolder.getAdapterPosition());
+            if (dragHolder == viewHolder) {
+                if (bottomArea.getVisibility() == View.VISIBLE) {
+                    mUiHandler.postDelayed(HomeActivity.this::hideBottomAction, 500L);
+                    if (upAtCreateShortcutArea) {
+                        createShortcut(viewHolder.getAdapterPosition());
+                    } else if (upAtDeleteAppArea) {
+                        deleteApp(viewHolder.getAdapterPosition());
+                    }
                 }
+                dragHolder = null;
             }
         }
 
@@ -242,8 +302,8 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         @Override
         public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-            if (bottomArea.getVisibility() == View.GONE) {
-                showBottomAction();
+            if (actionState != ACTION_STATE_DRAG || !isCurrentlyActive) {
+                return;
             }
             View itemView = viewHolder.itemView;
             itemView.getLocationInWindow(location);
@@ -264,7 +324,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
                     deleteAppArea.setAlpha(1f);
                 } else {
                     upAtDeleteAppArea = true;
-                    upAtDeleteAppArea = false;
+                    upAtCreateShortcutArea = false;
                     deleteAppArea.setBackgroundColor(Color.RED);
                     createShortcutArea.setBackgroundColor(Color.TRANSPARENT);
                     deleteAppArea.setAlpha(0.7f);

@@ -25,7 +25,9 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
 
     private LayoutInflater mInflater;
     private List<AppModel> mList;
-    private SparseIntArray colorArray = new SparseIntArray();
+    private SparseIntArray mColorArray = new SparseIntArray();
+    private OnAppClickListener mAppClickListener;
+
 
     public LaunchpadAdapter(Context context) {
         this.mInflater = LayoutInflater.from(context);
@@ -34,6 +36,14 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
     public void add(AppModel model) {
         mList.add(model);
         notifyItemInserted(mList.size() - 1);
+    }
+
+    public void remove(AppModel model) {
+        int index = mList.indexOf(model);
+        if (index >= 0) {
+            mList.remove(index);
+            notifyItemRemoved(index);
+        }
     }
 
     @Override
@@ -54,10 +64,15 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
                 .setShadowSide(ShadowProperty.ALL);
         holder.shadow = new ShadowViewDrawable(sp, holder.color, 0, 0);
         holder.itemView.setBackgroundColor(holder.color);
+        holder.itemView.setOnClickListener(v -> {
+            if (mAppClickListener != null) {
+                mAppClickListener.onAppClick(model);
+            }
+        });
     }
 
     private int getColor(int position) {
-        int color = colorArray.get(position);
+        int color = mColorArray.get(position);
         if (color == 0) {
             int type = position % 3;
             int row = position / 3;
@@ -87,7 +102,7 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
                     color = mInflater.getContext().getResources().getColor(R.color.desktopColorB);
                 }
             }
-            colorArray.put(position, color);
+            mColorArray.put(position, color);
         }
         return color;
     }
@@ -106,10 +121,22 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
         notifyDataSetChanged();
     }
 
+    public OnAppClickListener getAppClickListener() {
+        return mAppClickListener;
+    }
+
+    public void setAppClickListener(OnAppClickListener mAppClickListener) {
+        this.mAppClickListener = mAppClickListener;
+    }
+
     public void moveItem(int pos, int targetPos) {
         AppModel model = mList.remove(pos);
         mList.add(targetPos, model);
         notifyItemMoved(pos, targetPos);
+    }
+
+    public interface OnAppClickListener {
+        void onAppClick(AppModel model);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

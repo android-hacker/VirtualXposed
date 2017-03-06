@@ -1,6 +1,10 @@
 package io.virtualapp.home;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.widget.Toast;
+
+import com.lody.virtual.client.core.VirtualCore;
 
 import io.virtualapp.VCommends;
 import io.virtualapp.home.models.AppModel;
@@ -68,7 +72,29 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
             } catch (Throwable e) {
                 e.printStackTrace();
             }
+            mView.removeAppToLauncher(model);
         }
+    }
+
+    @Override
+    public void createShortcut(AppModel model) {
+        boolean res = VirtualCore.get().createShortcut(0, model.packageName, new VirtualCore.OnEmitShortcutListener() {
+            @Override
+            public Bitmap getIcon(Bitmap originIcon) {
+                return originIcon;
+            }
+
+            @Override
+            public String getName(String originName) {
+                return originName + "(VA)";
+            }
+        });
+        Toast.makeText(mActivity, "Create shortcut " + (res ? "success!" : "failed!"), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void addNewApp() {
+        ListAppActivity.gotoListApp(mActivity);
     }
 
 }

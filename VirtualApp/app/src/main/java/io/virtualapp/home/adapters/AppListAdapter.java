@@ -40,6 +40,7 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHold
 
     public void setList(List<AppModel> models) {
         this.mAppList = models;
+        notifyDataSetChanged();
     }
 
     @Override

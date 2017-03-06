@@ -33,6 +33,8 @@ import io.virtualapp.home.models.AppModel;
         void showFab();
 
         void hideFab();
+
+        void removeAppToLauncher(AppModel model);
     }
 
 	/* package */ interface HomePresenter extends BasePresenter {
@@ -44,6 +46,10 @@ import io.virtualapp.home.models.AppModel;
 		void addApp(AppModel model);
 
 		void deleteApp(AppModel model);
-	}
+
+        void createShortcut(AppModel model);
+
+        void addNewApp();
+    }
 
 }
