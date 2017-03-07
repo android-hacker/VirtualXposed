@@ -96,9 +96,11 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         mLaunchpadAdapter.setAppClickListener((pos, model) -> {
             if (model instanceof PackageAppData) {
                 PackageAppData data = (PackageAppData) model;
-                data.firstOpen = false;
-                mLaunchpadAdapter.notifyItemChanged(pos);
-                mPresenter.launchApp(data, 0);
+                if (!data.isLoading()) {
+                    data.firstOpen = false;
+                    mLaunchpadAdapter.notifyItemChanged(pos);
+                    mPresenter.launchApp(data, 0);
+                }
             }
         });
     }
@@ -219,12 +221,18 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         }
         if (!replaced) {
             mLaunchpadAdapter.add(model);
+            mLauncherView.smoothScrollToPosition(mLaunchpadAdapter.getItemCount() - 1);
         }
     }
 
     @Override
     public void removeAppToLauncher(PackageAppData model) {
         mLaunchpadAdapter.remove(model);
+    }
+
+    @Override
+    public void refreshLauncherItem(PackageAppData model) {
+        mLaunchpadAdapter.refresh(model);
     }
 
     @Override

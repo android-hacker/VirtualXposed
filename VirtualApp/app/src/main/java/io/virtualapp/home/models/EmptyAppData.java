@@ -32,6 +32,11 @@ public class EmptyAppData implements AppData {
     }
 
     @Override
+    public boolean isLoading() {
+        return false;
+    }
+
+    @Override
     public boolean isFirstOpen() {
         return false;
     }

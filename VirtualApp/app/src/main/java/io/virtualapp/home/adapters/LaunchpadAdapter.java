@@ -6,14 +6,15 @@ import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
 
 import io.virtualapp.R;
+import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.home.models.AppData;
 import io.virtualapp.home.models.PackageAppData;
+import io.virtualapp.widgets.LauncherIconView;
 import io.virtualapp.widgets.ShadowProperty;
 import io.virtualapp.widgets.ShadowViewDrawable;
 
@@ -29,9 +30,8 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
     private SparseIntArray mColorArray = new SparseIntArray();
     private OnAppClickListener mAppClickListener;
 
-
     public LaunchpadAdapter(Context context) {
-        this.mInflater = LayoutInflater.from(context);
+        mInflater = LayoutInflater.from(context);
     }
 
     public void add(PackageAppData model) {
@@ -76,6 +76,22 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
                 mAppClickListener.onAppClick(position, model);
             }
         });
+        if (model.isLoading()) {
+            startLoadingAnimation(holder.iconView);
+        } else {
+            holder.iconView.setProgress(100, false);
+        }
+    }
+
+    private void startLoadingAnimation(LauncherIconView iconView) {
+        iconView.setProgress(50, true);
+        VUiKit.defer().when(() -> {
+            try {
+                Thread.sleep(900L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).done((res) -> iconView.setProgress(80, true));
     }
 
     private int getColor(int position) {
@@ -138,6 +154,13 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
         notifyItemMoved(pos, targetPos);
     }
 
+    public void refresh(PackageAppData model) {
+        int index = mList.indexOf(model);
+        if (index >= 0) {
+            notifyItemChanged(index);
+        }
+    }
+
     public interface OnAppClickListener {
         void onAppClick(int position, AppData model);
     }
@@ -145,13 +168,13 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
     public class ViewHolder extends RecyclerView.ViewHolder {
         public ShadowViewDrawable shadow;
         public int color;
-        ImageView iconView;
+        LauncherIconView iconView;
         TextView nameView;
         View firstOpenDot;
 
         ViewHolder(View itemView) {
             super(itemView);
-            iconView = (ImageView) itemView.findViewById(R.id.item_app_icon);
+            iconView = (LauncherIconView) itemView.findViewById(R.id.item_app_icon);
             nameView = (TextView) itemView.findViewById(R.id.item_app_name);
             firstOpenDot = itemView.findViewById(R.id.item_first_open_dot);
         }

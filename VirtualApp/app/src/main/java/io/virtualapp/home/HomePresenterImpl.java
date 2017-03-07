@@ -1,7 +1,6 @@
 package io.virtualapp.home;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 
 import com.lody.virtual.client.core.VirtualCore;
@@ -63,22 +62,34 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
         final VirtualCore core = VirtualCore.get();
         InstallResult result = mRepo.addVirtualApp(model);
         if (result.isSuccess) {
-            ProgressDialog dialog = ProgressDialog.show(mActivity, "Please wait", "Loading the app...", true, false);
             VUiKit.defer().when(() -> {
                 AppSetting setting = core.findApp(model.packageName);
                 model.loadData(mActivity, setting.getApplicationInfo(VUserHandle.USER_OWNER));
-                if (!model.fastOpen) {
-                    try {
-                        core.preOpt(model.packageName);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
             }).done(res -> {
-                dialog.dismiss();
+                model.isLoading = true;
                 mView.addAppToLauncher(model);
-            }).fail(err -> dialog.dismiss());
-
+                VUiKit.defer().when(() -> {
+                    long time = System.currentTimeMillis();
+                    if (!model.fastOpen) {
+                        try {
+                            core.preOpt(model.packageName);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    time = System.currentTimeMillis() - time;
+                    if (time < 1500L) {
+                        try {
+                            Thread.sleep(1500L - time);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).done((res_opt) -> {
+                    model.isLoading = false;
+                    mView.refreshLauncherItem(model);
+                });
+            });
         }
     }
 

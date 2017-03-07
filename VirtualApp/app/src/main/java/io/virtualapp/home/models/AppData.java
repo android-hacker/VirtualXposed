@@ -9,6 +9,8 @@ import android.os.Parcelable;
 
 public interface AppData extends Parcelable {
 
+    boolean isLoading();
+
     boolean isFirstOpen();
 
     Drawable getIcon();

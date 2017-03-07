@@ -36,7 +36,9 @@ import io.virtualapp.home.models.PackageAppData;
         void hideFab();
 
         void removeAppToLauncher(PackageAppData model);
-    }
+
+		void refreshLauncherItem(PackageAppData model);
+	}
 
 	/* package */ interface HomePresenter extends BasePresenter {
 

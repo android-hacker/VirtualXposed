@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:gravity="center"
@@ -10,11 +11,15 @@
     android:paddingTop="35dp">
 
 
-    <ImageView
+    <io.virtualapp.widgets.LauncherIconView
         android:id="@+id/item_app_icon"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginBottom="12dp" />
+        android:layout_marginBottom="12dp"
+        app:pi_mask_color="#CC233333"
+        app:pi_progress="0"
+        app:pi_radius="40dp"
+        app:pi_stroke="6dp" />
 
     <io.virtualapp.widgets.MarqueeTextView
         android:id="@+id/item_app_name"
@@ -34,5 +39,5 @@
         android:layout_height="8dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/blue_circle"
-        android:visibility="invisible"/>
+        android:visibility="invisible" />
 </LinearLayout>

@@ -32,6 +32,7 @@ public class PackageAppData implements AppData {
     public Drawable icon;
     public boolean fastOpen;
     public boolean firstOpen;
+    public boolean isLoading;
 
     public PackageAppData() {
         // For Database
@@ -85,6 +86,11 @@ public class PackageAppData implements AppData {
         dest.writeString(this.path);
         dest.writeString(this.name);
         dest.writeByte(this.fastOpen ? (byte) 1 : (byte) 0);
+    }
+
+    @Override
+    public boolean isLoading() {
+        return isLoading;
     }
 
     @Override
