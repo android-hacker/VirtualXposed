@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <stdlib.h>
+#include <asm/unistd.h>
+#include <sys/syscall.h>
 
 
 using namespace std;
@@ -70,7 +72,7 @@ bool GodinHook::MemHelper::protectMemory(size_t addr, int size)
   /// 计算所在内存页的偏移
   int align = addr % pageSize;
 
-  int ret  = mprotect((void*)(addr-align),(size_t)(size+align),PROT_READ|PROT_EXEC);
+  int ret  = syscall(__NR_mprotect,(void*)(addr-align),(size_t)(size+align),PROT_READ|PROT_EXEC);
   if(-1 == ret){
       perror("mprotect");
       return false;
