@@ -13,7 +13,7 @@ import com.lody.virtual.remote.AppSetting;
 
 import io.virtualapp.R;
 import io.virtualapp.abs.ui.VUiKit;
-import io.virtualapp.home.models.AppModel;
+import io.virtualapp.home.models.PackageAppData;
 
 /**
  * @author Lody
@@ -24,9 +24,9 @@ public class LoadingActivity extends AppCompatActivity {
     private static final String MODEL_ARGUMENT = "MODEL_ARGUMENT";
     private static final String KEY_INTENT = "KEY_INTENT";
     private static final String KEY_USER = "KEY_USER";
-    private AppModel appModel;
+    private PackageAppData appModel;
 
-    public static void launch(Context context, AppModel model, int userId) {
+    public static void launch(Context context, PackageAppData model, int userId) {
         Intent intent = VirtualCore.get().getLaunchIntent(model.packageName, userId);
         if (intent != null) {
             Intent loadingPageIntent = new Intent(context, LoadingActivity.class);
@@ -49,7 +49,7 @@ public class LoadingActivity extends AppCompatActivity {
         VUiKit.defer().when(() -> {
             AppSetting appSetting = VirtualCore.get().findApp(appModel.packageName);
             if (appSetting != null) {
-                appModel = new AppModel(this, appSetting);
+                appModel = new PackageAppData(this, appSetting);
             }
         }).done((res) -> {
             ImageView iconView = (ImageView) findViewById(R.id.app_icon);

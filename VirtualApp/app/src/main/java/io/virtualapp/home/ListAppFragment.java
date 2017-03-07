@@ -15,7 +15,8 @@ import java.util.List;
 import io.virtualapp.R;
 import io.virtualapp.abs.ui.VFragment;
 import io.virtualapp.home.adapters.AppListAdapter;
-import io.virtualapp.home.models.AppModel;
+import io.virtualapp.home.models.AppData;
+import io.virtualapp.home.models.PackageAppData;
 
 /**
  * Created by tangzhibin on 16/7/16.
@@ -63,7 +64,7 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
         new ListAppPresenterImpl(getActivity(), this, getSelectFrom());
         mPresenter.start();
         mAdapter.setListener((pos) -> {
-            AppModel model = mAdapter.getList().get(pos);
+            PackageAppData model = (PackageAppData) mAdapter.getList().get(pos);
             mPresenter.selectApp(model);
         });
     }
@@ -75,7 +76,7 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
     }
 
     @Override
-    public void loadFinish(List<AppModel> models) {
+    public void loadFinish(List<AppData> models) {
         mAdapter.setList(models);
         mProgressBar.setVisibility(View.GONE);
         mRecyclerView.setVisibility(View.VISIBLE);

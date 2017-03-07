@@ -13,13 +13,13 @@
     <ImageView
         android:id="@+id/item_app_icon"
         android:layout_width="60dp"
-        android:layout_height="60dp" />
+        android:layout_height="60dp"
+        android:layout_marginBottom="12dp" />
 
     <io.virtualapp.widgets.MarqueeTextView
         android:id="@+id/item_app_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="7dp"
         android:ellipsize="marquee"
         android:focusableInTouchMode="true"
         android:gravity="center"
@@ -27,4 +27,12 @@
         android:maxLines="1"
         android:textColor="#ffffff"
         android:textSize="12sp" />
+
+    <View
+        android:id="@+id/item_first_open_dot"
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/blue_circle"
+        android:visibility="invisible"/>
 </LinearLayout>

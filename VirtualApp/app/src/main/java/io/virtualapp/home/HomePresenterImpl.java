@@ -1,14 +1,20 @@
 package io.virtualapp.home;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.graphics.Bitmap;
-import android.widget.Toast;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.os.VUserHandle;
+import com.lody.virtual.remote.AppSetting;
+import com.lody.virtual.remote.InstallResult;
+
+import java.io.IOException;
 
 import io.virtualapp.VCommends;
-import io.virtualapp.home.models.AppModel;
+import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.home.models.AppRepository;
+import io.virtualapp.home.models.PackageAppData;
 import jonathanfinerty.once.Once;
 
 /**
@@ -37,7 +43,7 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
     }
 
     @Override
-    public void launchApp(AppModel model, int userId) {
+    public void launchApp(PackageAppData model, int userId) {
         try {
             LoadingActivity.launch(mActivity, model, userId);
         } catch (Throwable e) {
@@ -53,32 +59,42 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
 
 
     @Override
-    public void addApp(AppModel model) {
-        if (model != null) {
-            try {
-                mRepo.addVirtualApp(model);
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
-            mView.addAppToLauncher(model);
+    public void addApp(PackageAppData model) {
+        final VirtualCore core = VirtualCore.get();
+        InstallResult result = mRepo.addVirtualApp(model);
+        if (result.isSuccess) {
+            ProgressDialog dialog = ProgressDialog.show(mActivity, "Please wait", "Loading the app...", true, false);
+            VUiKit.defer().when(() -> {
+                AppSetting setting = core.findApp(model.packageName);
+                model.loadData(mActivity, setting.getApplicationInfo(VUserHandle.USER_OWNER));
+                if (!model.fastOpen) {
+                    try {
+                        core.preOpt(model.packageName);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).done(res -> {
+                dialog.dismiss();
+                mView.addAppToLauncher(model);
+            }).fail(err -> dialog.dismiss());
+
         }
     }
 
     @Override
-    public void deleteApp(AppModel model) {
-        if (model != null) {
-            try {
-                mRepo.removeVirtualApp(model);
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
+    public void deleteApp(PackageAppData model) {
+        try {
+            mRepo.removeVirtualApp(model);
             mView.removeAppToLauncher(model);
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
     }
 
     @Override
-    public void createShortcut(AppModel model) {
-        boolean res = VirtualCore.get().createShortcut(0, model.packageName, new VirtualCore.OnEmitShortcutListener() {
+    public void createShortcut(PackageAppData model) {
+        VirtualCore.get().createShortcut(0, model.packageName, new VirtualCore.OnEmitShortcutListener() {
             @Override
             public Bitmap getIcon(Bitmap originIcon) {
                 return originIcon;
@@ -89,12 +105,10 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
                 return originName + "(VA)";
             }
         });
-        Toast.makeText(mActivity, "Create shortcut " + (res ? "success!" : "failed!"), Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void addNewApp() {
         ListAppActivity.gotoListApp(mActivity);
     }
-
 }

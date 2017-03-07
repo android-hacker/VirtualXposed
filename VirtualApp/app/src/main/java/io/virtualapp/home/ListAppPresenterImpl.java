@@ -7,7 +7,7 @@ import java.io.File;
 
 import io.virtualapp.VCommends;
 import io.virtualapp.home.models.AppDataSource;
-import io.virtualapp.home.models.AppModel;
+import io.virtualapp.home.models.PackageAppData;
 import io.virtualapp.home.models.AppRepository;
 
 /**
@@ -40,7 +40,7 @@ class ListAppPresenterImpl implements ListAppContract.ListAppPresenter {
 	}
 
 	@Override
-	public void selectApp(AppModel model) {
+	public void selectApp(PackageAppData model) {
 		Intent data = new Intent();
 		data.putExtra(VCommends.EXTRA_APP_MODEL, model);
 		mActivity.setResult(Activity.RESULT_OK, data);

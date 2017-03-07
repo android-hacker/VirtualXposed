@@ -12,7 +12,8 @@ import android.widget.TextView;
 import java.util.List;
 
 import io.virtualapp.R;
-import io.virtualapp.home.models.AppModel;
+import io.virtualapp.home.models.AppData;
+import io.virtualapp.home.models.PackageAppData;
 import io.virtualapp.widgets.ShadowProperty;
 import io.virtualapp.widgets.ShadowViewDrawable;
 
@@ -24,7 +25,7 @@ import static io.virtualapp.widgets.ViewHelper.dip2px;
 public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.ViewHolder> {
 
     private LayoutInflater mInflater;
-    private List<AppModel> mList;
+    private List<AppData> mList;
     private SparseIntArray mColorArray = new SparseIntArray();
     private OnAppClickListener mAppClickListener;
 
@@ -33,12 +34,17 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
         this.mInflater = LayoutInflater.from(context);
     }
 
-    public void add(AppModel model) {
+    public void add(PackageAppData model) {
         mList.add(model);
         notifyItemInserted(mList.size() - 1);
     }
 
-    public void remove(AppModel model) {
+    public void replace(int index, PackageAppData model) {
+        mList.set(index, model);
+        notifyItemChanged(index);
+    }
+
+    public void remove(PackageAppData model) {
         int index = mList.indexOf(model);
         if (index >= 0) {
             mList.remove(index);
@@ -53,9 +59,10 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        AppModel model = mList.get(position);
-        holder.iconView.setImageDrawable(model.icon);
-        holder.nameView.setText(model.name);
+        AppData model = mList.get(position);
+        holder.iconView.setImageDrawable(model.getIcon());
+        holder.nameView.setText(model.getName());
+        holder.firstOpenDot.setVisibility(model.isFirstOpen() ? View.VISIBLE : View.INVISIBLE);
         holder.color = getColor(position);
         ShadowProperty sp = new ShadowProperty()
                 .setShadowColor(0x77000000)
@@ -66,7 +73,7 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
         holder.itemView.setBackgroundColor(holder.color);
         holder.itemView.setOnClickListener(v -> {
             if (mAppClickListener != null) {
-                mAppClickListener.onAppClick(model);
+                mAppClickListener.onAppClick(position, model);
             }
         });
     }
@@ -112,17 +119,13 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
         return mList == null ? 0 : mList.size();
     }
 
-    public List<AppModel> getList() {
+    public List<AppData> getList() {
         return mList;
     }
 
-    public void setList(List<AppModel> list) {
+    public void setList(List<AppData> list) {
         this.mList = list;
         notifyDataSetChanged();
-    }
-
-    public OnAppClickListener getAppClickListener() {
-        return mAppClickListener;
     }
 
     public void setAppClickListener(OnAppClickListener mAppClickListener) {
@@ -130,13 +133,13 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
     }
 
     public void moveItem(int pos, int targetPos) {
-        AppModel model = mList.remove(pos);
+        AppData model = mList.remove(pos);
         mList.add(targetPos, model);
         notifyItemMoved(pos, targetPos);
     }
 
     public interface OnAppClickListener {
-        void onAppClick(AppModel model);
+        void onAppClick(int position, AppData model);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -144,11 +147,13 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
         public int color;
         ImageView iconView;
         TextView nameView;
+        View firstOpenDot;
 
         ViewHolder(View itemView) {
             super(itemView);
             iconView = (ImageView) itemView.findViewById(R.id.item_app_icon);
             nameView = (TextView) itemView.findViewById(R.id.item_app_name);
+            firstOpenDot = itemView.findViewById(R.id.item_first_open_dot);
         }
     }
 }

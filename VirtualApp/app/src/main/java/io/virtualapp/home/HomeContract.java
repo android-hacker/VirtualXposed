@@ -5,7 +5,8 @@ import java.util.List;
 
 import io.virtualapp.abs.BasePresenter;
 import io.virtualapp.abs.BaseView;
-import io.virtualapp.home.models.AppModel;
+import io.virtualapp.home.models.AppData;
+import io.virtualapp.home.models.PackageAppData;
 
 /**
  * @author Lody
@@ -22,32 +23,32 @@ import io.virtualapp.home.models.AppModel;
 
 		void hideLoading();
 
-		void loadFinish(List<AppModel> appModels);
+		void loadFinish(List<AppData> appModels);
 
 		void loadError(Throwable err);
 
 		void showGuide();
 
-		void addAppToLauncher(AppModel model);
+		void addAppToLauncher(PackageAppData model);
 
         void showFab();
 
         void hideFab();
 
-        void removeAppToLauncher(AppModel model);
+        void removeAppToLauncher(PackageAppData model);
     }
 
 	/* package */ interface HomePresenter extends BasePresenter {
 
-		void launchApp(AppModel model, int userId);
+		void launchApp(PackageAppData model, int userId);
 
 		void dataChanged();
 
-		void addApp(AppModel model);
+		void addApp(PackageAppData model);
 
-		void deleteApp(AppModel model);
+		void deleteApp(PackageAppData model);
 
-        void createShortcut(AppModel model);
+        void createShortcut(PackageAppData model);
 
         void addNewApp();
     }

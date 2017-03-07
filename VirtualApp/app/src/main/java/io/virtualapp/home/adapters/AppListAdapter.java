@@ -11,7 +11,8 @@ import android.widget.TextView;
 import java.util.List;
 
 import io.virtualapp.R;
-import io.virtualapp.home.models.AppModel;
+import io.virtualapp.home.models.AppData;
+import io.virtualapp.home.models.PackageAppData;
 
 /**
  * @author Lody
@@ -19,7 +20,7 @@ import io.virtualapp.home.models.AppModel;
 public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHolder> {
 
     private LayoutInflater mInflater;
-    private List<AppModel> mAppList;
+    private List<AppData> mAppList;
     private OnItemClickListener mListener;
 
     public AppListAdapter(Context context) {
@@ -34,11 +35,11 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHold
         this.mListener = mListener;
     }
 
-    public List<AppModel> getList() {
+    public List<AppData> getList() {
         return mAppList;
     }
 
-    public void setList(List<AppModel> models) {
+    public void setList(List<AppData> models) {
         this.mAppList = models;
         notifyDataSetChanged();
     }
@@ -51,7 +52,7 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHold
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.itemView.setOnClickListener(v -> mListener.onItemClick(position));
-        AppModel model = mAppList.get(position);
+        PackageAppData model = (PackageAppData) mAppList.get(position);
         holder.iconView.setImageDrawable(model.icon);
         holder.nameView.setText(model.name);
     }

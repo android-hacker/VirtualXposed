@@ -1,11 +1,13 @@
 package io.virtualapp.home.models;
 
-import java.io.File;
-import java.util.List;
+import android.content.Context;
+
+import com.lody.virtual.remote.InstallResult;
 
 import org.jdeferred.Promise;
 
-import android.content.Context;
+import java.io.File;
+import java.util.List;
 
 /**
  * @author Lody
@@ -13,21 +15,20 @@ import android.content.Context;
  */
 public interface AppDataSource {
 
-	/**
-	 * @return All the Applications we Virtual.
-	 */
-	Promise<List<AppModel>, Throwable, Void> getVirtualApps();
+    /**
+     * @return All the Applications we Virtual.
+     */
+    Promise<List<AppData>, Throwable, Void> getVirtualApps();
 
-	/**
-	 * @param context
-	 *            Context
-	 * @return All the Applications we Installed.
-	 */
-	Promise<List<AppModel>, Throwable, Void> getInstalledApps(Context context);
+    /**
+     * @param context Context
+     * @return All the Applications we Installed.
+     */
+    Promise<List<AppData>, Throwable, Void> getInstalledApps(Context context);
 
-	Promise<List<AppModel>, Throwable, Void> getStorageApps(Context context, File rootDir);
+    Promise<List<AppData>, Throwable, Void> getStorageApps(Context context, File rootDir);
 
-	void addVirtualApp(AppModel app) throws Throwable;
+    InstallResult addVirtualApp(PackageAppData app);
 
-	void removeVirtualApp(AppModel app) throws Throwable;
+    boolean removeVirtualApp(PackageAppData app);
 }
