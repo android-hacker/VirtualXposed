@@ -7,13 +7,13 @@ import java.io.File;
 
 import io.virtualapp.VCommends;
 import io.virtualapp.home.models.AppDataSource;
-import io.virtualapp.home.models.AppModel;
+import io.virtualapp.home.models.PackageAppData;
 import io.virtualapp.home.models.AppRepository;
 
 /**
  * @author Lody
  */
-public class ListAppPresenterImpl implements ListAppContract.ListAppPresenter {
+class ListAppPresenterImpl implements ListAppContract.ListAppPresenter {
 
 	private Activity mActivity;
 	private ListAppContract.ListAppView mView;
@@ -21,7 +21,7 @@ public class ListAppPresenterImpl implements ListAppContract.ListAppPresenter {
 
 	private File from;
 
-	public ListAppPresenterImpl(Activity activity, ListAppContract.ListAppView view, File fromWhere) {
+	ListAppPresenterImpl(Activity activity, ListAppContract.ListAppView view, File fromWhere) {
 		mActivity = activity;
 		mView = view;
 		mRepository = new AppRepository(activity);
@@ -40,7 +40,7 @@ public class ListAppPresenterImpl implements ListAppContract.ListAppPresenter {
 	}
 
 	@Override
-	public void selectApp(AppModel model) {
+	public void selectApp(PackageAppData model) {
 		Intent data = new Intent();
 		data.putExtra(VCommends.EXTRA_APP_MODEL, model);
 		mActivity.setResult(Activity.RESULT_OK, data);

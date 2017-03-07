@@ -6,4 +6,6 @@
     <string name="desktop">Desktop</string>
     <string name="add_app">Add App</string>
     <string name="preparing">Opening the app…</string>
+    <string name="delete">Delete</string>
+    <string name="create_shortcut">Create shortcut</string>
 </resources>

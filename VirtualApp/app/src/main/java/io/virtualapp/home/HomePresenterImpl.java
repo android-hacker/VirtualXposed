@@ -1,10 +1,20 @@
 package io.virtualapp.home;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.graphics.Bitmap;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.os.VUserHandle;
+import com.lody.virtual.remote.AppSetting;
+import com.lody.virtual.remote.InstallResult;
+
+import java.io.IOException;
 
 import io.virtualapp.VCommends;
-import io.virtualapp.home.models.AppModel;
+import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.home.models.AppRepository;
+import io.virtualapp.home.models.PackageAppData;
 import jonathanfinerty.once.Once;
 
 /**
@@ -12,85 +22,93 @@ import jonathanfinerty.once.Once;
  */
 class HomePresenterImpl implements HomeContract.HomePresenter {
 
-	private HomeContract.HomeView mView;
-	private Activity mActivity;
-	private AppRepository mRepo;
+    private HomeContract.HomeView mView;
+    private Activity mActivity;
+    private AppRepository mRepo;
 
-	HomePresenterImpl(HomeContract.HomeView view, Activity activity) {
-		mView = view;
-		mActivity = activity;
-		mRepo = new AppRepository(activity);
-		mView.setPresenter(this);
-	}
+    HomePresenterImpl(HomeContract.HomeView view) {
+        mView = view;
+        mActivity = view.getActivity();
+        mRepo = new AppRepository(mActivity);
+        mView.setPresenter(this);
+    }
 
-	@Override
-	public void start() {
-		dataChanged();
-		if (!Once.beenDone(VCommends.TAG_SHOW_ADD_APP_GUIDE)) {
-			mView.showGuide();
-			Once.markDone(VCommends.TAG_SHOW_ADD_APP_GUIDE);
-		}
-	}
+    @Override
+    public void start() {
+        dataChanged();
+        if (!Once.beenDone(VCommends.TAG_SHOW_ADD_APP_GUIDE)) {
+            mView.showGuide();
+            Once.markDone(VCommends.TAG_SHOW_ADD_APP_GUIDE);
+        }
+    }
 
-	@Override
-	public void launchApp(AppModel model, int userId) {
-		try {
-			LoadingActivity.launch(mActivity, model, userId);
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
-	}
+    @Override
+    public void launchApp(PackageAppData model, int userId) {
+        try {
+            LoadingActivity.launch(mActivity, model, userId);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
 
-	@Override
-	public void dataChanged() {
-		mView.showLoading();
-		mRepo.getVirtualApps().done(mView::loadFinish).fail(mView::loadError);
-	}
+    @Override
+    public void dataChanged() {
+        mView.showLoading();
+        mRepo.getVirtualApps().done(mView::loadFinish).fail(mView::loadError);
+    }
 
-	@Override
-	public void dragChange(boolean isStart) {
-		if (isStart) {
-			mView.hideFab();
-		} else {
-			mView.showFab();
-		}
-	}
 
-	@Override
-	public void dragNearCrash(boolean intoCrash) {
-		if (intoCrash) {
-			mView.setCrashShadow(true);
-		} else {
-			mView.setCrashShadow(false);
-		}
-	}
+    @Override
+    public void addApp(PackageAppData model) {
+        final VirtualCore core = VirtualCore.get();
+        InstallResult result = mRepo.addVirtualApp(model);
+        if (result.isSuccess) {
+            ProgressDialog dialog = ProgressDialog.show(mActivity, "Please wait", "Loading the app...", true, false);
+            VUiKit.defer().when(() -> {
+                AppSetting setting = core.findApp(model.packageName);
+                model.loadData(mActivity, setting.getApplicationInfo(VUserHandle.USER_OWNER));
+                if (!model.fastOpen) {
+                    try {
+                        core.preOpt(model.packageName);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).done(res -> {
+                dialog.dismiss();
+                mView.addAppToLauncher(model);
+            }).fail(err -> dialog.dismiss());
 
-	@Override
-	public void addApp(AppModel model) {
-		if (model != null) {
-			try {
-				mRepo.addVirtualApp(model);
-			} catch (Throwable e) {
-				e.printStackTrace();
-			}
-			mView.addAppToLauncher(model);
-		}
-	}
+        }
+    }
 
-	@Override
-	public void deleteApp(AppModel model) {
-		if (model != null) {
-			try {
-				mRepo.removeVirtualApp(model);
-			} catch (Throwable e) {
-				e.printStackTrace();
-			}
-		}
-	}
+    @Override
+    public void deleteApp(PackageAppData model) {
+        try {
+            mRepo.removeVirtualApp(model);
+            mView.removeAppToLauncher(model);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
 
-	@Override
-	public void wantAddApp() {
-		ListAppActivity.gotoListApp(mActivity);
-	}
+    @Override
+    public void createShortcut(PackageAppData model) {
+        VirtualCore.get().createShortcut(0, model.packageName, new VirtualCore.OnEmitShortcutListener() {
+            @Override
+            public Bitmap getIcon(Bitmap originIcon) {
+                return originIcon;
+            }
 
+            @Override
+            public String getName(String originName) {
+                return originName + "(VA)";
+            }
+        });
+    }
+
+    @Override
+    public void addNewApp() {
+        ListAppActivity.gotoListApp(mActivity);
+    }
 }

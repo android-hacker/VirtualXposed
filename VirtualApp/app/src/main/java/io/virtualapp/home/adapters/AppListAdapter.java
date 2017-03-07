@@ -1,73 +1,79 @@
 package io.virtualapp.home.adapters;
 
-import java.util.List;
-
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.List;
+
 import io.virtualapp.R;
-import io.virtualapp.home.models.AppModel;
+import io.virtualapp.home.models.AppData;
+import io.virtualapp.home.models.PackageAppData;
 
 /**
  * @author Lody
  */
-public class AppListAdapter extends BaseAdapter {
+public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHolder> {
 
-	private LayoutInflater mInflater;
-	private List<AppModel> models;
+    private LayoutInflater mInflater;
+    private List<AppData> mAppList;
+    private OnItemClickListener mListener;
 
-	public AppListAdapter(Context context) {
-		this.mInflater = LayoutInflater.from(context);
-	}
+    public AppListAdapter(Context context) {
+        this.mInflater = LayoutInflater.from(context);
+    }
 
-	public void setModels(List<AppModel> models) {
-		this.models = models;
-		notifyDataSetChanged();
-	}
+    public OnItemClickListener getListener() {
+        return mListener;
+    }
 
-	@Override
-	public int getCount() {
-		return models == null ? 0 : models.size();
-	}
+    public void setListener(OnItemClickListener mListener) {
+        this.mListener = mListener;
+    }
 
-	@Override
-	public Object getItem(int position) {
-		return models.get(position);
-	}
+    public List<AppData> getList() {
+        return mAppList;
+    }
 
-	@Override
-	public long getItemId(int position) {
-		return position;
-	}
+    public void setList(List<AppData> models) {
+        this.mAppList = models;
+        notifyDataSetChanged();
+    }
 
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		AppModel model = models.get(position);
-		ViewHolder viewHolder;
-		if (convertView == null) {
-			convertView = mInflater.inflate(R.layout.item_app, null);
-			viewHolder = new ViewHolder(convertView);
-			convertView.setTag(viewHolder);
-		} else {
-			viewHolder = (ViewHolder) convertView.getTag();
-		}
-		viewHolder.iconView.setImageDrawable(model.icon);
-		viewHolder.nameView.setText(model.name);
-		return convertView;
-	}
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        return new ViewHolder(mInflater.inflate(R.layout.item_app, null));
+    }
 
-	class ViewHolder {
-		private ImageView iconView;
-		private TextView nameView;
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        holder.itemView.setOnClickListener(v -> mListener.onItemClick(position));
+        PackageAppData model = (PackageAppData) mAppList.get(position);
+        holder.iconView.setImageDrawable(model.icon);
+        holder.nameView.setText(model.name);
+    }
 
-		public ViewHolder(View itemView) {
-			iconView = (ImageView) itemView.findViewById(R.id.item_app_icon);
-			nameView = (TextView) itemView.findViewById(R.id.item_app_name);
-		}
-	}
+    @Override
+    public int getItemCount() {
+        return mAppList == null ? 0 : mAppList.size();
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(int position);
+    }
+
+    class ViewHolder extends RecyclerView.ViewHolder {
+        private ImageView iconView;
+        private TextView nameView;
+
+        ViewHolder(View itemView) {
+            super(itemView);
+            iconView = (ImageView) itemView.findViewById(R.id.item_app_icon);
+            nameView = (TextView) itemView.findViewById(R.id.item_app_name);
+        }
+    }
 }

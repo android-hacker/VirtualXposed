@@ -1,251 +1,382 @@
 package io.virtualapp.home;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
+import android.support.v4.view.ViewCompat;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
-import android.widget.ProgressBar;
 
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.env.Constants;
-import com.lody.virtual.remote.AppSetting;
-import com.lody.virtual.os.VUserHandle;
-import com.lody.virtual.os.VUserInfo;
-import com.lody.virtual.os.VUserManager;
 import com.melnykov.fab.FloatingActionButton;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.virtualapp.R;
 import io.virtualapp.VCommends;
 import io.virtualapp.abs.ui.VActivity;
-import io.virtualapp.abs.ui.VUiKit;
-import io.virtualapp.effects.ExplosionField;
 import io.virtualapp.home.adapters.LaunchpadAdapter;
-import io.virtualapp.home.models.AppModel;
-import io.virtualapp.users.UserListActivity;
-import io.virtualapp.widgets.PagerView;
-import io.virtualapp.widgets.showcase.MaterialShowcaseView;
+import io.virtualapp.home.adapters.decorations.ItemOffsetDecoration;
+import io.virtualapp.home.models.AppData;
+import io.virtualapp.home.models.EmptyAppData;
+import io.virtualapp.home.models.PackageAppData;
+import io.virtualapp.widgets.TwoGearsView;
+
+import static android.support.v7.widget.helper.ItemTouchHelper.ACTION_STATE_DRAG;
+import static android.support.v7.widget.helper.ItemTouchHelper.DOWN;
+import static android.support.v7.widget.helper.ItemTouchHelper.END;
+import static android.support.v7.widget.helper.ItemTouchHelper.LEFT;
+import static android.support.v7.widget.helper.ItemTouchHelper.RIGHT;
+import static android.support.v7.widget.helper.ItemTouchHelper.START;
+import static android.support.v7.widget.helper.ItemTouchHelper.UP;
 
 /**
  * @author Lody
  */
 public class HomeActivity extends VActivity implements HomeContract.HomeView {
 
-	String TAG = "HomeActivity";
-	private HomeContract.HomePresenter mPresenter;
-	private ProgressBar mLoadingBar;
-	private PagerView mPagerView;
-	private FloatingActionButton mAppFab;
-	private FloatingActionButton mCrashFab;
-	private ExplosionField mExplosionField;
-	private LaunchpadAdapter mAdapter;
-  private InstallerReceiver mInstallerReceiver = new InstallerReceiver();
+    private static final String TAG = HomeActivity.class.getSimpleName();
 
-	public static void goHome(Context context) {
-		if (context == null)
-			return;
-		Intent intent = new Intent(context, HomeActivity.class);
-		intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		context.startActivity(intent);
-	}
+    private HomeContract.HomePresenter mPresenter;
+    private TwoGearsView mLoadingView;
+    private RecyclerView mLauncherView;
+    private FloatingActionButton mFloatingButton;
+    private View bottomArea;
+    private View createShortcutArea;
+    private View deleteAppArea;
+    private LaunchpadAdapter mLaunchpadAdapter;
+    private Handler mUiHandler;
 
-    private void bindViews() {
-        mLoadingBar = (ProgressBar) findViewById(R.id.pb_loading_app);
-        mPagerView = (PagerView) findViewById(R.id.home_launcher);
-        mAppFab = (FloatingActionButton) findViewById(R.id.home_fab);
-        mCrashFab = (FloatingActionButton) findViewById(R.id.home_del);
+
+    public static void goHome(Context context) {
+        Intent intent = new Intent(context, HomeActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
 
-	@Override
-	protected void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_home);
-		bindViews();
-		mAdapter = new LaunchpadAdapter(this);
-		mPagerView.setAdapter(mAdapter);
-		new HomePresenterImpl(this, this);
-		mPresenter.start();
-		mAppFab.setOnClickListener(v -> mPresenter.wantAddApp());
-		mExplosionField = ExplosionField.attachToWindow(this);
-		mPagerView.setOnDragChangeListener(mPresenter::dragChange);
-		mPagerView.setOnEnterCrashListener(mPresenter::dragNearCrash);
-		mPagerView.setOnCrashItemListener(position -> {
-			AppModel model = mAdapter.getItem(position);
-			View v = mPagerView.getChildAt(position);
-			mExplosionField.explode(v, null);
-			mPresenter.deleteApp(model);
-		});
-		mPagerView.setOnItemClickListener((item, pos) -> {
-			String[] users = getUsers();
-			if (users.length == 1) {
-				mPresenter.launchApp((AppModel) item, 0);
-			} else {
-				new AlertDialog.Builder(this)
-						.setTitle("Choose an User")
-						.setItems(users, (dialog, userId)
-								-> mPresenter.launchApp((AppModel) item, userId))
-						.setNegativeButton(android.R.string.cancel, null)
-						.show();
-			}
-		});
-		findViewById(R.id.user_icon).setOnClickListener(v -> {
-			startActivity(new Intent(this, UserListActivity.class));
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home);
+        mUiHandler = new Handler(Looper.getMainLooper());
+        bindViews();
+        initLaunchpad();
+        initFab();
+        new HomePresenterImpl(this).start();
+    }
+
+    private void bindViews() {
+        mLoadingView = (TwoGearsView) findViewById(R.id.pb_loading_app);
+        mLauncherView = (RecyclerView) findViewById(R.id.home_launcher);
+        mFloatingButton = (FloatingActionButton) findViewById(R.id.home_fab);
+        bottomArea = findViewById(R.id.bottom_area);
+        createShortcutArea = findViewById(R.id.create_shortcut_area);
+        deleteAppArea = findViewById(R.id.delete_app_area);
+    }
+
+    private void initLaunchpad() {
+        mLauncherView.setHasFixedSize(true);
+        GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
+        mLauncherView.setLayoutManager(layoutManager);
+        mLaunchpadAdapter = new LaunchpadAdapter(this);
+        mLauncherView.setAdapter(mLaunchpadAdapter);
+        mLauncherView.addItemDecoration(new ItemOffsetDecoration(this, R.dimen.desktop_divider));
+        ItemTouchHelper touchHelper = new ItemTouchHelper(new LauncherTouchCallback());
+        touchHelper.attachToRecyclerView(mLauncherView);
+        mLaunchpadAdapter.setAppClickListener((pos, model) -> {
+            if (model instanceof PackageAppData) {
+                PackageAppData data = (PackageAppData) model;
+                data.firstOpen = false;
+                mLaunchpadAdapter.notifyItemChanged(pos);
+                mPresenter.launchApp(data, 0);
+            }
         });
-		mCrashFab.post(() -> {
-			int[] location = new int[2];
-			mAppFab.getLocationInWindow(location);
-			mPagerView.setBottomLine(location[1]);
-		});
-		registerInstallerReceiver();
-	}
+    }
 
-    public void registerInstallerReceiver() {
-		IntentFilter filter = new IntentFilter();
-		filter.addAction(Constants.ACTION_PACKAGE_ADDED);
-		filter.addAction(Constants.ACTION_PACKAGE_REMOVED);
-		filter.addDataScheme("package");
-		registerReceiver(mInstallerReceiver, filter);
-	}
+    private void initFab() {
+        mFloatingButton.setOnClickListener(v -> mPresenter.addNewApp());
+    }
 
-	public void unregisterInstallerReceiver() {
-		unregisterReceiver(mInstallerReceiver);
-	}
+    private void deleteApp(int position) {
+        AppData model = mLaunchpadAdapter.getList().get(position);
+        if (model instanceof PackageAppData) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Delete app")
+                    .setMessage("Do you want to delete " + model.getName() + "?")
+                    .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                        mPresenter.deleteApp((PackageAppData) model);
+                    })
+                    .setNegativeButton(android.R.string.no, null)
+                    .show();
+        }
+    }
 
+    private void createShortcut(int position) {
+        AppData model = mLaunchpadAdapter.getList().get(position);
+        if (model instanceof PackageAppData) {
+            mPresenter.createShortcut((PackageAppData) model);
+        }
+    }
 
-	@Override
-	public void setPresenter(HomeContract.HomePresenter presenter) {
-		mPresenter = presenter;
-	}
+    @Override
+    public void setPresenter(HomeContract.HomePresenter presenter) {
+        mPresenter = presenter;
+    }
 
-	@Override
-	public void showLoading() {
-		mLoadingBar.setVisibility(View.VISIBLE);
-		mPagerView.setVisibility(View.GONE);
-	}
+    @Override
+    public void showBottomAction() {
+        hideFab();
+        bottomArea.setTranslationY(bottomArea.getHeight());
+        bottomArea.setVisibility(View.VISIBLE);
+        bottomArea.animate().translationY(0).setDuration(500L).start();
+    }
 
-	@Override
-	public void loadFinish(List<AppModel> appModels) {
-		mAdapter.setModels(appModels);
-		mPagerView.refreshView();
-		hideLoading();
-	}
+    @Override
+    public void hideBottomAction() {
+        bottomArea.setTranslationY(0);
+        ObjectAnimator transAnim = ObjectAnimator.ofFloat(bottomArea, "translationY", 0, bottomArea.getHeight());
+        transAnim.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
 
-	@Override
-	public void loadError(Throwable err) {
-		hideLoading();
-	}
+            }
 
-	@Override
-	public void showGuide() {
-		new MaterialShowcaseView.Builder(this).setTarget(mAppFab).setDelay(700)
-				.setContentText("Click this button to add an App ~").setDismissText("Got it")
-				.setDismissTextColor(Color.parseColor("#03a9f4")).show();
-	}
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                bottomArea.setVisibility(View.GONE);
+                showFab();
+            }
 
-	@Override
-	public void showFab() {
-		mAppFab.show();
-		mCrashFab.hide();
-	}
+            @Override
+            public void onAnimationCancel(Animator animator) {
+                bottomArea.setVisibility(View.GONE);
+                showFab();
+            }
 
-	@Override
-	public void hideFab() {
-		mAppFab.hide();
-		mCrashFab.setVisibility(View.VISIBLE);
-		mCrashFab.show();
-	}
+            @Override
+            public void onAnimationRepeat(Animator animator) {
 
-	@Override
-	public void setCrashShadow(boolean isShow) {
-		mCrashFab.setShadow(isShow);
-	}
+            }
+        });
+        transAnim.setDuration(500L);
+        transAnim.start();
+    }
 
-	@Override
-	public void waitingAppOpen() {
-		ProgressDialog.show(this, "Please wait", "Opening the app...");
-	}
+    @Override
+    public void showLoading() {
+        mFloatingButton.hide(false);
+        mLoadingView.setVisibility(View.VISIBLE);
+        mLoadingView.startAnim();
+    }
 
+    @Override
+    public void hideLoading() {
+        mFloatingButton.show();
+        mLoadingView.setVisibility(View.GONE);
+        mLoadingView.stopAnim();
+    }
 
-	@Override
-	public void refreshPagerView() {
-		mPagerView.refreshView();
-	}
+    @Override
+    public void loadFinish(List<AppData> list) {
+        while (list.size() < 9) {
+            list.add(new EmptyAppData());
+        }
+        mLaunchpadAdapter.setList(list);
+        hideLoading();
+    }
 
-	@Override
-	public void addAppToLauncher(AppModel model) {
-		mAdapter.add(model);
-		mPagerView.itemAdded();
-	}
+    @Override
+    public void loadError(Throwable err) {
+        hideLoading();
+    }
 
-	private void hideLoading() {
-		mLoadingBar.setVisibility(View.GONE);
-		mPagerView.setVisibility(View.VISIBLE);
-	}
+    @Override
+    public void showGuide() {
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (resultCode == RESULT_OK && requestCode == VCommends.REQUEST_SELECT_APP && data != null) {
-			AppModel model = data.getParcelableExtra(VCommends.EXTRA_APP_MODEL);
-			mPresenter.addApp(model);
-			AppSetting info = VirtualCore.get().findApp(model.packageName);
-			if (info != null) {
-				if (info.dependSystem) {
-					mPresenter.dataChanged();
-					return;
-				}
-				model.context = this;
-				ProgressDialog dialog = ProgressDialog.show(this, "Please wait", "Optimizing new Virtual App...");
-				VUiKit.defer().when(() -> {
-					try {
-						model.loadData(info.getApplicationInfo(VUserHandle.USER_OWNER));
-						VirtualCore.get().preOpt(info.packageName);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}).done((res) -> {
-					dialog.dismiss();
-					mPresenter.dataChanged();
-				});
-			}
-		}
-	}
+    }
 
-	@Override
-	public void onStart() {
-		super.onStart();
-	}
+    @Override
+    public void addAppToLauncher(PackageAppData model) {
+        List<AppData> dataList = mLaunchpadAdapter.getList();
+        boolean replaced = false;
+        for (int i = 0; i < dataList.size(); i++) {
+            AppData data = dataList.get(i);
+            if (data instanceof EmptyAppData) {
+                mLaunchpadAdapter.replace(i, model);
+                replaced = true;
+                break;
+            }
+        }
+        if (!replaced) {
+            mLaunchpadAdapter.add(model);
+        }
+    }
 
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		unregisterInstallerReceiver();
-	}
+    @Override
+    public void removeAppToLauncher(PackageAppData model) {
+        mLaunchpadAdapter.remove(model);
+    }
 
-	public String[] getUsers() {
-		List<VUserInfo> userList = VUserManager.get().getUsers(false);
-		List<String> users = new ArrayList<>(userList.size());
-		for (VUserInfo info : userList) {
-			users.add(info.name);
-		}
-		return users.toArray(new String[users.size()]);
-	}
+    @Override
+    public void showFab() {
+        mFloatingButton.show();
+    }
 
-	public class InstallerReceiver extends BroadcastReceiver {
+    @Override
+    public void hideFab() {
+        mFloatingButton.hide();
+    }
 
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			if (mPresenter != null) {
-				mPresenter.dataChanged();
-			}
-		}
-	}
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && data != null) {
+            PackageAppData model = data.getParcelableExtra(VCommends.EXTRA_APP_MODEL);
+            if (model != null) {
+                mPresenter.addApp(model);
+            }
+        }
+    }
+
+    private class LauncherTouchCallback extends ItemTouchHelper.SimpleCallback {
+
+        int[] location = new int[2];
+        boolean upAtDeleteAppArea;
+        boolean upAtCreateShortcutArea;
+        RecyclerView.ViewHolder dragHolder;
+
+        LauncherTouchCallback() {
+            super(UP | DOWN | LEFT | RIGHT | START | END, 0);
+        }
+
+        @Override
+        public int interpolateOutOfBoundsScroll(RecyclerView recyclerView, int viewSize, int viewSizeOutOfBounds, int totalSize, long msSinceStartScroll) {
+            return 0;
+        }
+
+        @Override
+        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+            int pos = viewHolder.getAdapterPosition();
+            int targetPos = target.getAdapterPosition();
+            mLaunchpadAdapter.moveItem(pos, targetPos);
+            return true;
+        }
+
+        @Override
+        public boolean isLongPressDragEnabled() {
+            return true;
+        }
+
+        @Override
+        public boolean isItemViewSwipeEnabled() {
+            return false;
+        }
+
+        @Override
+        public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
+            if (viewHolder instanceof LaunchpadAdapter.ViewHolder) {
+                if (actionState == ACTION_STATE_DRAG) {
+                    if (dragHolder != viewHolder) {
+                        dragHolder = viewHolder;
+                        viewHolder.itemView.setScaleX(1.2f);
+                        viewHolder.itemView.setScaleY(1.2f);
+                        LaunchpadAdapter.ViewHolder holder = (LaunchpadAdapter.ViewHolder) viewHolder;
+                        View itemView = viewHolder.itemView;
+                        ViewCompat.setBackground(itemView, holder.shadow);
+                        ViewCompat.setLayerType(itemView, ViewCompat.LAYER_TYPE_SOFTWARE, null);
+                        if (bottomArea.getVisibility() == View.GONE) {
+                            showBottomAction();
+                        }
+                    }
+                }
+            }
+            super.onSelectedChanged(viewHolder, actionState);
+        }
+
+        @Override
+        public boolean canDropOver(RecyclerView recyclerView, RecyclerView.ViewHolder current, RecyclerView.ViewHolder target) {
+            if (upAtCreateShortcutArea || upAtDeleteAppArea) {
+                return false;
+            }
+            AppData data = mLaunchpadAdapter.getList().get(target.getAdapterPosition());
+            return data.canReorder();
+        }
+
+        @Override
+        public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+            if (viewHolder instanceof LaunchpadAdapter.ViewHolder) {
+                LaunchpadAdapter.ViewHolder holder = (LaunchpadAdapter.ViewHolder) viewHolder;
+                viewHolder.itemView.setScaleX(1f);
+                viewHolder.itemView.setScaleY(1f);
+                viewHolder.itemView.setBackgroundColor(holder.color);
+            }
+            super.clearView(recyclerView, viewHolder);
+            if (dragHolder == viewHolder) {
+                if (bottomArea.getVisibility() == View.VISIBLE) {
+                    mUiHandler.postDelayed(HomeActivity.this::hideBottomAction, 500L);
+                    if (upAtCreateShortcutArea) {
+                        createShortcut(viewHolder.getAdapterPosition());
+                    } else if (upAtDeleteAppArea) {
+                        deleteApp(viewHolder.getAdapterPosition());
+                    }
+                }
+                dragHolder = null;
+            }
+        }
+
+        @Override
+        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+        }
+
+        @Override
+        public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+            if (actionState != ACTION_STATE_DRAG || !isCurrentlyActive) {
+                return;
+            }
+            View itemView = viewHolder.itemView;
+            itemView.getLocationInWindow(location);
+            int x = (int) (location[0] + dX);
+            int y = (int) (location[1] + dY);
+
+            bottomArea.getLocationInWindow(location);
+            int baseLine = location[1] - bottomArea.getHeight();
+            if (y >= baseLine) {
+                deleteAppArea.getLocationInWindow(location);
+                int deleteAppAreaStartX = location[0];
+                if (x < deleteAppAreaStartX) {
+                    upAtCreateShortcutArea = true;
+                    upAtDeleteAppArea = false;
+                    createShortcutArea.setBackgroundColor(Color.parseColor("#0099cc"));
+                    deleteAppArea.setBackgroundColor(Color.TRANSPARENT);
+                    createShortcutArea.setAlpha(0.7f);
+                    deleteAppArea.setAlpha(1f);
+                } else {
+                    upAtDeleteAppArea = true;
+                    upAtCreateShortcutArea = false;
+                    deleteAppArea.setBackgroundColor(Color.RED);
+                    createShortcutArea.setBackgroundColor(Color.TRANSPARENT);
+                    deleteAppArea.setAlpha(0.7f);
+                    createShortcutArea.setAlpha(1f);
+                }
+            } else {
+                upAtCreateShortcutArea = false;
+                upAtDeleteAppArea = false;
+                createShortcutArea.setBackgroundColor(Color.TRANSPARENT);
+                deleteAppArea.setBackgroundColor(Color.TRANSPARENT);
+                createShortcutArea.setAlpha(1f);
+                deleteAppArea.setAlpha(1f);
+            }
+        }
+    }
 }

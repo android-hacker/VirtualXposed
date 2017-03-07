@@ -4,7 +4,8 @@ import java.util.List;
 
 import io.virtualapp.abs.BasePresenter;
 import io.virtualapp.abs.BaseView;
-import io.virtualapp.home.models.AppModel;
+import io.virtualapp.home.models.AppData;
+import io.virtualapp.home.models.PackageAppData;
 
 /**
  * @author Lody
@@ -15,10 +16,10 @@ public class ListAppContract {
 
 		void startLoading();
 
-		void loadFinish(List<AppModel> models);
+		void loadFinish(List<AppData> models);
 	}
 
 	interface ListAppPresenter extends BasePresenter {
-		void selectApp(AppModel model);
+		void selectApp(PackageAppData model);
 	}
 }

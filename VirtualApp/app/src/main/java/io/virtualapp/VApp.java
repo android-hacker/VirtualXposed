@@ -2,16 +2,14 @@ package io.virtualapp;
 
 import android.app.Application;
 import android.content.Context;
-import android.widget.Toast;
 
-import com.github.moduth.blockcanary.BlockCanary;
-import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.stub.StubManifest;
-import com.lody.virtual.remote.InstallResult;
 
-import java.io.IOException;
-
+import io.virtualapp.delegate.MyAppRequestListener;
+import io.virtualapp.delegate.MyComponentDelegate;
+import io.virtualapp.delegate.MyPhoneInfoDelegate;
+import io.virtualapp.delegate.MyTaskDescriptionDelegate;
 import jonathanfinerty.once.Once;
 
 /**
@@ -20,18 +18,18 @@ import jonathanfinerty.once.Once;
 public class VApp extends Application {
 
 
-    private static VApp gDefault;
+    private static VApp gApp;
 
     public static VApp getApp() {
-        return gDefault;
+        return gApp;
     }
-
 
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
+        StubManifest.ENABLE_IO_REDIRECT = true;
+        StubManifest.ENABLE_INNER_SHORTCUT = false;
         try {
-            StubManifest.ENABLE_IO_REDIRECT = true;
             VirtualCore.get().startup(base);
         } catch (Throwable e) {
             e.printStackTrace();
@@ -40,47 +38,31 @@ public class VApp extends Application {
 
     @Override
     public void onCreate() {
-        gDefault = this;
+        gApp = this;
         super.onCreate();
-        if (VirtualCore.get().isServerProcess()) {
-            VirtualCore.get().setAppRequestListener(new VirtualCore.AppRequestListener() {
-                @Override
-                public void onRequestInstall(String path) {
-                    Toast.makeText(VApp.this, "Installing: " + path, Toast.LENGTH_SHORT).show();
-                    InstallResult res = VirtualCore.get().installApp(path, InstallStrategy.UPDATE_IF_EXIST);
-                    if (res.isSuccess) {
-                        try {
-                            VirtualCore.get().preOpt(res.packageName);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        if (res.isUpdate) {
-                            Toast.makeText(VApp.this, "Update: " + res.packageName + " success!", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(VApp.this, "Install: " + res.packageName + " success!", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Toast.makeText(VApp.this, "Install failed: " + res.error, Toast.LENGTH_SHORT).show();
-                    }
-                }
+        VirtualCore virtualCore = VirtualCore.get();
+        virtualCore.initialize(new VirtualCore.VirtualInitializer() {
 
-                @Override
-                public void onRequestUninstall(String pkg) {
-                    Toast.makeText(VApp.this, "Uninstall: " + pkg, Toast.LENGTH_SHORT).show();
+            @Override
+            public void onMainProcess() {
+                Once.initialise(VApp.this);
+            }
 
-                }
-            });
-        }else if (VirtualCore.get().isMainProcess()) {
-            Once.initialise(this);
-        } else if (VirtualCore.get().isVAppProcess()) {
-            BlockCanary.install(this, new AppBlockCanaryContext());
-            //listener components
-            VirtualCore.get().setComponentDelegate(new MyComponentDelegate());
-            //fake phone imei,macAddress,BluetoothAddress
-            VirtualCore.get().setPhoneInfoDelegate(new MyPhoneInfoDelegate());
-            //fake task description's icon and title
-            VirtualCore.get().setTaskDescriptionDelegate(new MyTaskDescriptionDelegate());
-        }
+            @Override
+            public void onVirtualProcess() {
+                //listener components
+                virtualCore.setComponentDelegate(new MyComponentDelegate());
+                //fake phone imei,macAddress,BluetoothAddress
+                virtualCore.setPhoneInfoDelegate(new MyPhoneInfoDelegate());
+                //fake task description's icon and title
+                virtualCore.setTaskDescriptionDelegate(new MyTaskDescriptionDelegate());
+            }
+
+            @Override
+            public void onServerProcess() {
+                VirtualCore.get().setAppRequestListener(new MyAppRequestListener(VApp.this));
+            }
+        });
     }
 
 }
