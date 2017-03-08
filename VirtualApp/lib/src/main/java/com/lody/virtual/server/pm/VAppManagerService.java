@@ -237,8 +237,8 @@ public class VAppManagerService extends IAppManager.Stub {
                 try {
                     BroadcastSystem.get().stopApp(pkg);
                     VActivityManagerService.get().killAppByPkg(pkg, VUserHandle.USER_ALL);
-                    FileUtils.deleteDir(VEnvironment.getDataAppPackageDirectory(pkg));
                     VEnvironment.getPackageResourcePath(pkg).delete();
+                    FileUtils.deleteDir(VEnvironment.getDataAppPackageDirectory(pkg));
                     VEnvironment.getOdexFile(pkg).delete();
                     for (int userId : VUserManagerService.get().getUserIds()) {
                         FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(userId, pkg));
