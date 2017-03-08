@@ -249,9 +249,11 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && data != null) {
-            PackageAppData model = data.getParcelableExtra(VCommends.EXTRA_APP_MODEL);
-            if (model != null) {
-                mPresenter.addApp(model);
+            List<AppData> appList = data.getParcelableArrayListExtra(VCommends.EXTRA_APP_MODEL);
+            if (appList != null) {
+                for (AppData appData : appList) {
+                    mPresenter.addApp((PackageAppData) appData);
+                }
             }
         }
     }

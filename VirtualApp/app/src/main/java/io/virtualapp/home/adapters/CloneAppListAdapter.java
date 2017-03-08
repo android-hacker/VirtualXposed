@@ -13,26 +13,23 @@ import java.util.List;
 import io.virtualapp.R;
 import io.virtualapp.home.models.AppData;
 import io.virtualapp.home.models.PackageAppData;
+import io.virtualapp.widgets.DragSelectRecyclerViewAdapter;
 
 /**
  * @author Lody
  */
-public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHolder> {
+public class CloneAppListAdapter extends DragSelectRecyclerViewAdapter<CloneAppListAdapter.ViewHolder> {
 
     private LayoutInflater mInflater;
     private List<AppData> mAppList;
-    private OnItemClickListener mListener;
+    private ItemEventListener mItemEventListener;
 
-    public AppListAdapter(Context context) {
+    public CloneAppListAdapter(Context context) {
         this.mInflater = LayoutInflater.from(context);
     }
 
-    public OnItemClickListener getListener() {
-        return mListener;
-    }
-
-    public void setListener(OnItemClickListener mListener) {
-        this.mListener = mListener;
+    public void setOnItemClickListener(ItemEventListener mItemEventListener) {
+        this.mItemEventListener = mItemEventListener;
     }
 
     public List<AppData> getList() {
@@ -46,15 +43,30 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHold
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ViewHolder(mInflater.inflate(R.layout.item_app, null));
+        return new ViewHolder(mInflater.inflate(R.layout.item_clone_app, null));
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.itemView.setOnClickListener(v -> mListener.onItemClick(position));
+        super.onBindViewHolder(holder, position);
         PackageAppData model = (PackageAppData) mAppList.get(position);
         holder.iconView.setImageDrawable(model.icon);
         holder.nameView.setText(model.name);
+        if (isIndexSelected(position)) {
+            holder.itemView.setAlpha(1f);
+            holder.appCheckView.setImageResource(R.drawable.ic_check);
+        } else {
+            holder.itemView.setAlpha(0.65f);
+            holder.appCheckView.setImageResource(R.drawable.ic_no_check);
+        }
+        holder.itemView.setOnClickListener(v -> {
+            mItemEventListener.onItemClick(model, position);
+        });
+    }
+
+    @Override
+    protected boolean isIndexSelectable(int index) {
+        return mItemEventListener.isSelectable(index);
     }
 
     @Override
@@ -62,18 +74,27 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHold
         return mAppList == null ? 0 : mAppList.size();
     }
 
-    public interface OnItemClickListener {
-        void onItemClick(int position);
+    public AppData getItem(int index) {
+        return mAppList.get(index);
+    }
+
+    public interface ItemEventListener {
+
+        void onItemClick(AppData appData, int position);
+
+        boolean isSelectable(int position);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
         private ImageView iconView;
         private TextView nameView;
+        private ImageView appCheckView;
 
         ViewHolder(View itemView) {
             super(itemView);
             iconView = (ImageView) itemView.findViewById(R.id.item_app_icon);
             nameView = (TextView) itemView.findViewById(R.id.item_app_name);
+            appCheckView = (ImageView) itemView.findViewById(R.id.item_app_checked);
         }
     }
 }

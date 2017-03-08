@@ -14,6 +14,7 @@ import com.lody.virtual.remote.AppSetting;
 import io.virtualapp.R;
 import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.home.models.PackageAppData;
+import io.virtualapp.widgets.EatBeansView;
 
 /**
  * @author Lody
@@ -25,6 +26,7 @@ public class LoadingActivity extends AppCompatActivity {
     private static final String KEY_INTENT = "KEY_INTENT";
     private static final String KEY_USER = "KEY_USER";
     private PackageAppData appModel;
+    private EatBeansView loadingView;
 
     public static void launch(Context context, PackageAppData model, int userId) {
         Intent intent = VirtualCore.get().getLaunchIntent(model.packageName, userId);
@@ -42,7 +44,7 @@ public class LoadingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loading);
-
+        loadingView = (EatBeansView) findViewById(R.id.loading_anim);
         appModel = getIntent().getParcelableExtra(MODEL_ARGUMENT);
         int userId = getIntent().getIntExtra(KEY_USER, -1);
 
@@ -88,4 +90,15 @@ public class LoadingActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadingView.startAnim();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        loadingView.stopAnim();
+    }
 }

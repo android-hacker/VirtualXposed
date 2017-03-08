@@ -6,7 +6,8 @@ import android.graphics.Bitmap;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.remote.AppSetting;
-import com.lody.virtual.remote.InstallResult;
+
+import org.jdeferred.DeferredManager;
 
 import java.io.IOException;
 
@@ -58,39 +59,46 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
 
 
     @Override
-    public void addApp(PackageAppData model) {
+    public void addApp(PackageAppData data) {
         final VirtualCore core = VirtualCore.get();
-        InstallResult result = mRepo.addVirtualApp(model);
-        if (result.isSuccess) {
-            VUiKit.defer().when(() -> {
-                AppSetting setting = core.findApp(model.packageName);
-                model.loadData(mActivity, setting.getApplicationInfo(VUserHandle.USER_OWNER));
-            }).done(res -> {
-                model.isLoading = true;
-                mView.addAppToLauncher(model);
-                VUiKit.defer().when(() -> {
-                    long time = System.currentTimeMillis();
-                    if (!model.fastOpen) {
-                        try {
-                            core.preOpt(model.packageName);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+        DeferredManager defer = VUiKit.defer();
+        defer.when(() -> mRepo.addVirtualApp(data))
+                .then((res) -> {
+                    if (!res.isSuccess) {
+                        throw new IllegalStateException();
                     }
-                    time = System.currentTimeMillis() - time;
-                    if (time < 1500L) {
-                        try {
-                            Thread.sleep(1500L - time);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).done((res_opt) -> {
-                    model.isLoading = false;
-                    mView.refreshLauncherItem(model);
+                    AppSetting setting = core.findApp(data.packageName);
+                    data.loadData(mActivity, setting.getApplicationInfo(VUserHandle.USER_OWNER));
+                })
+                .done(res -> {
+                    data.isLoading = true;
+                    mView.addAppToLauncher(data);
+                    handleOptApp(data);
                 });
-            });
-        }
+    }
+
+    private void handleOptApp(PackageAppData data) {
+        VUiKit.defer().when(() -> {
+            long time = System.currentTimeMillis();
+            if (!data.fastOpen) {
+                try {
+                    VirtualCore.get().preOpt(data.packageName);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            time = System.currentTimeMillis() - time;
+            if (time < 1500L) {
+                try {
+                    Thread.sleep(1500L - time);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).done((res) -> {
+            data.isLoading = false;
+            mView.refreshLauncherItem(data);
+        });
     }
 
     @Override

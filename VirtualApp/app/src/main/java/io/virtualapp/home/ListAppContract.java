@@ -11,15 +11,15 @@ import io.virtualapp.home.models.PackageAppData;
  * @author Lody
  * @version 1.0
  */
-public class ListAppContract {
-	interface ListAppView extends BaseView<ListAppPresenter> {
+/*package*/ class ListAppContract {
+    interface ListAppView extends BaseView<ListAppPresenter> {
 
-		void startLoading();
+        void startLoading();
 
-		void loadFinish(List<AppData> models);
-	}
+        void loadFinish(List<AppData> models);
+    }
 
-	interface ListAppPresenter extends BasePresenter {
-		void selectApp(PackageAppData model);
-	}
+    interface ListAppPresenter extends BasePresenter {
+        void selectApp(PackageAppData model);
+    }
 }

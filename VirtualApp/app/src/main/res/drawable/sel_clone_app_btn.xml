@@ -1,0 +1,8 @@
+<selector xmlns:Android="http://schemas.android.com/apk/res/android">
+
+
+    <item Android:drawable="@drawable/shape_clone_app_btn" Android:state_pressed="true"/>
+    <item Android:drawable="@drawable/shape_clone_app_btn_pressed"/>
+
+
+</selector>

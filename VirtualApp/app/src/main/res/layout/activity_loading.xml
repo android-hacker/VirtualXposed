@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:app="http://schemas.android.com/apk/res-auto"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             android:background="#77000000"
-             android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#77000000">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -12,46 +10,42 @@
         android:layout_gravity="bottom"
         android:background="#F8F8F8">
 
-        <fr.castorflex.android.smoothprogressbar.SmoothProgressBar
+        <io.virtualapp.widgets.EatBeansView
+            android:id="@+id/loading_anim"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:indeterminate="true"
-            app:spb_colors="@array/progress_colors"
-            app:spb_mirror_mode="false"
-            app:spb_progressiveStart_activated="true"
-            app:spb_progressiveStart_speed="1.5"
-            app:spb_progressiveStop_speed="3.4"
-            app:spb_reversed="false"
-            app:spb_sections_count="4"
-            app:spb_speed="2.0"
-            app:spb_stroke_separator_length="4dp"
-            app:spb_stroke_width="4dp"/>
+            android:layout_height="30dp" />
 
         <ImageView
             android:id="@+id/app_icon"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
             android:layout_centerVertical="true"
             android:layout_marginLeft="64dp"
-            android:layout_width="64dp"
-            android:layout_height="64dp"/>
+            android:layout_marginStart="64dp" />
 
         <TextView
             android:id="@+id/app_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignTop="@id/app_icon"
-            android:paddingTop="8dp"
-            android:layout_toRightOf="@id/app_icon"
             android:layout_marginLeft="20dp"
-            android:text="@string/preparing"/>
+            android:layout_marginStart="20dp"
+            android:layout_toEndOf="@id/app_icon"
+            android:layout_toRightOf="@id/app_icon"
+            android:text="@string/preparing" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@id/app_icon"
-            android:paddingBottom="8dp"
-            android:layout_toRightOf="@id/app_icon"
             android:layout_marginLeft="20dp"
-            android:text="@string/preparing"/>
+            android:layout_marginStart="20dp"
+            android:layout_toEndOf="@id/app_icon"
+            android:layout_toRightOf="@id/app_icon"
+            android:gravity="center"
+            android:paddingBottom="25dp"
+            android:text="@string/preparing"
+            android:textColor="@android:color/black" />
 
     </RelativeLayout>
 
