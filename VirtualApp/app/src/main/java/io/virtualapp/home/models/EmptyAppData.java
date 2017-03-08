@@ -32,6 +32,21 @@ public class EmptyAppData implements AppData {
     }
 
     @Override
+    public void mark(int tag) {
+
+    }
+
+    @Override
+    public void unMark(int tag) {
+
+    }
+
+    @Override
+    public boolean isMarked(int tag) {
+        return false;
+    }
+
+    @Override
     public boolean isLoading() {
         return false;
     }

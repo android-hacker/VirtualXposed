@@ -30,8 +30,8 @@
             android:layout_marginStart="20dp"
             android:gravity="center|start"
             android:text="@string/app_name"
-            android:textColor="@color/mainTextColor"
-            android:textSize="25sp"
+            android:textColor="@android:color/white"
+            android:textSize="22sp"
             fab:layout_heightPercent="12%" />
 
 

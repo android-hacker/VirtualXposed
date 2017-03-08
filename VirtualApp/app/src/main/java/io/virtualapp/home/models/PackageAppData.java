@@ -6,6 +6,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
+import android.util.SparseBooleanArray;
 
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.remote.AppSetting;
@@ -33,6 +34,7 @@ public class PackageAppData implements AppData {
     public boolean fastOpen;
     public boolean firstOpen;
     public boolean isLoading;
+    private SparseBooleanArray markArray = new SparseBooleanArray();
 
     public PackageAppData() {
         // For Database
@@ -57,6 +59,7 @@ public class PackageAppData implements AppData {
         this.fastOpen = in.readByte() != 0;
         // TODO: remove the temp code.
         firstOpen = true;
+        mark(SHIMMER_NOT_SHOW);
     }
 
     public void loadData(Context context, ApplicationInfo appInfo) {
@@ -86,6 +89,21 @@ public class PackageAppData implements AppData {
         dest.writeString(this.path);
         dest.writeString(this.name);
         dest.writeByte(this.fastOpen ? (byte) 1 : (byte) 0);
+    }
+
+    @Override
+    public void mark(int tag) {
+        markArray.put(tag, true);
+    }
+
+    @Override
+    public void unMark(int tag) {
+        markArray.delete(tag);
+    }
+
+    @Override
+    public boolean isMarked(int tag) {
+        return markArray.get(tag);
     }
 
     @Override

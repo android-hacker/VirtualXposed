@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="CardStackLayout">
-        <attr name="parallax_enabled" format="boolean"/>
-        <attr name="parallax_scale" format="integer"/>
-        <attr name="card_gap" format="dimension"/>
-        <attr name="card_gap_bottom" format="dimension"/>
-        <attr name="showInitAnimation" format="boolean"/>
+        <attr name="parallax_enabled" format="boolean" />
+        <attr name="parallax_scale" format="integer" />
+        <attr name="card_gap" format="dimension" />
+        <attr name="card_gap_bottom" format="dimension" />
+        <attr name="showInitAnimation" format="boolean" />
     </declare-styleable>
 
     <declare-styleable name="ProgressImageView">
-        <attr name="pi_progress" format="integer"/>
-        <attr name="pi_mask_color" format="color"/>
-        <attr name="pi_stroke" format="dimension"/>
-        <attr name="pi_radius" format="dimension"/>
-        <attr name="pi_force_square" format="boolean"/>
+        <attr name="pi_progress" format="integer" />
+        <attr name="pi_mask_color" format="color" />
+        <attr name="pi_stroke" format="dimension" />
+        <attr name="pi_radius" format="dimension" />
+        <attr name="pi_force_square" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="ShimmerView">
+        <attr name="reflectionColor" format="color" />
     </declare-styleable>
 </resources>

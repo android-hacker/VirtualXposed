@@ -9,6 +9,14 @@ import android.os.Parcelable;
 
 public interface AppData extends Parcelable {
 
+    int SHIMMER_NOT_SHOW = 2;
+
+    void mark(int tag);
+
+    void unMark(int tag);
+
+    boolean isMarked(int tag);
+
     boolean isLoading();
 
     boolean isFirstOpen();

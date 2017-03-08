@@ -60,10 +60,14 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         AppData model = mList.get(position);
+        holder.color = getColor(position);
         holder.iconView.setImageDrawable(model.getIcon());
         holder.nameView.setText(model.getName());
-        holder.firstOpenDot.setVisibility(model.isFirstOpen() ? View.VISIBLE : View.INVISIBLE);
-        holder.color = getColor(position);
+        if (model.isFirstOpen() && !model.isLoading()) {
+            holder.firstOpenDot.setVisibility(View.VISIBLE);
+        } else {
+            holder.firstOpenDot.setVisibility(View.INVISIBLE);
+        }
         ShadowProperty sp = new ShadowProperty()
                 .setShadowColor(0x77000000)
                 .setShadowDy(dip2px(0.5f))
@@ -80,6 +84,10 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
             startLoadingAnimation(holder.iconView);
         } else {
             holder.iconView.setProgress(100, false);
+            if (model.isMarked(AppData.SHIMMER_NOT_SHOW)) {
+                model.unMark(AppData.SHIMMER_NOT_SHOW);
+                holder.iconView.startShimmer();
+            }
         }
     }
 

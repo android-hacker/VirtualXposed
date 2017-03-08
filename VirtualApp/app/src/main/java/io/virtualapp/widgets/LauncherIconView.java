@@ -20,10 +20,13 @@ import io.virtualapp.R;
 
 import static android.graphics.Canvas.ALL_SAVE_FLAG;
 
-public class LauncherIconView extends AppCompatImageView {
+public class LauncherIconView extends AppCompatImageView implements ShimmerViewBase {
     private static final int SMOOTH_ANIM_THRESHOLD = 5;
 
-    private static final String TAG = "ProgressImageView";
+    private static final String TAG = "LauncherIconView";
+
+    private ShimmerViewHelper mShimmerViewHelper;
+    private Shimmer mShimmer;
 
     private float mProgress;
     private int mHeight;
@@ -40,6 +43,7 @@ public class LauncherIconView extends AppCompatImageView {
 
     private long mMediumAnimTime;
 
+    private Paint mShimmerPaint;
     private Paint mPaint;
     private RectF mProgressOval;
     private ValueAnimator mInterAnim;
@@ -74,9 +78,13 @@ public class LauncherIconView extends AppCompatImageView {
             this.mPaint = new Paint();
             mPaint.setColor(mMaskColor);
             mPaint.setAntiAlias(true);
+
+            this.mShimmerPaint = new Paint();
+            mShimmerPaint.setColor(Color.WHITE);
         } finally {
             a.recycle();
         }
+        mShimmerViewHelper = new ShimmerViewHelper(this, mShimmerPaint, attrs);
     }
 
     private void initParams() {
@@ -104,6 +112,9 @@ public class LauncherIconView extends AppCompatImageView {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        if (mShimmerViewHelper != null) {
+            mShimmerViewHelper.onDraw();
+        }
         super.onDraw(canvas);
         int sc = canvas.saveLayer(0, 0, getWidth(), getHeight(), null, ALL_SAVE_FLAG);
 
@@ -368,5 +379,80 @@ public class LauncherIconView extends AppCompatImageView {
             int size = measuredWidth == 0 ? MeasureSpec.getSize(heightMeasureSpec) : measuredWidth;
             setMeasuredDimension(size, size);
         }
+    }
+
+
+    @Override
+    public float getGradientX() {
+        return mShimmerViewHelper.getGradientX();
+    }
+
+    @Override
+    public void setGradientX(float gradientX) {
+        mShimmerViewHelper.setGradientX(gradientX);
+    }
+
+    @Override
+    public boolean isShimmering() {
+        return mShimmerViewHelper.isShimmering();
+    }
+
+    @Override
+    public void setShimmering(boolean isShimmering) {
+        mShimmerViewHelper.setShimmering(isShimmering);
+    }
+
+    @Override
+    public boolean isSetUp() {
+        return mShimmerViewHelper.isSetUp();
+    }
+
+    @Override
+    public void setAnimationSetupCallback(ShimmerViewHelper.AnimationSetupCallback callback) {
+        mShimmerViewHelper.setAnimationSetupCallback(callback);
+    }
+
+    @Override
+    public int getPrimaryColor() {
+        return mShimmerViewHelper.getPrimaryColor();
+    }
+
+    @Override
+    public void setPrimaryColor(int primaryColor) {
+        mShimmerViewHelper.setPrimaryColor(primaryColor);
+    }
+
+    @Override
+    public int getReflectionColor() {
+        return mShimmerViewHelper.getReflectionColor();
+    }
+
+    @Override
+    public void setReflectionColor(int reflectionColor) {
+        mShimmerViewHelper.setReflectionColor(reflectionColor);
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        if (mShimmerViewHelper != null) {
+            mShimmerViewHelper.onSizeChanged();
+        }
+    }
+
+    public void stopShimmer() {
+        if (mShimmer != null && mShimmer.isAnimating()) {
+            mShimmer.cancel();
+            mShimmer = null;
+        }
+    }
+
+    public void startShimmer() {
+        stopShimmer();
+        mShimmer = new Shimmer();
+        mShimmer.setRepeatCount(1)
+                .setStartDelay(800L)
+                .setDirection(Shimmer.ANIMATION_DIRECTION_LTR)
+                .start(this);
     }
 }
