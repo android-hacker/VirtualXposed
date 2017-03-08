@@ -19,7 +19,7 @@ public class SplashActivity extends VActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_enter);
+        setContentView(R.layout.activity_splash);
         new Handler().postDelayed(() -> {
             HomeActivity.goHome(this);
             finish();

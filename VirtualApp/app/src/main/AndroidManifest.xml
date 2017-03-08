@@ -20,11 +20,12 @@
         </activity>
 
         <activity
-            android:name=".home.HomeActivity"/>
+            android:name=".home.HomeActivity"
+            android:theme="@style/UITheme"/>
 
         <activity
             android:name=".home.ListAppActivity"
-            android:theme="@style/AppListTheme"/>
+            android:theme="@style/UITheme"/>
 
         <activity
             android:name=".home.LoadingActivity"

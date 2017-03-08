@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/start_splash"
+    android:background="@color/colorPrimaryDark"
     tools:context=".enter.SplashActivity">
 
 
@@ -11,9 +11,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"
-        android:layout_marginBottom="60dp"
+        android:layout_marginBottom="70dp"
         android:text="@string/app_name"
         android:textColor="@android:color/white"
-        android:textSize="27sp" />
+        android:textSize="23sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:layout_marginBottom="35dp"
+        android:text="@string/splash_desc"
+        android:textSize="13sp" />
 
 </FrameLayout>

@@ -8,4 +8,5 @@
     <string name="preparing">Opening the app…</string>
     <string name="delete">Delete</string>
     <string name="create_shortcut">Create shortcut</string>
+    <string name="splash_desc">Install your app to the SandBox</string>
 </resources>
