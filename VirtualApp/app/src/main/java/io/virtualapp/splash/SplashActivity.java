@@ -1,4 +1,4 @@
-package io.virtualapp.enter;
+package io.virtualapp.splash;
 
 import android.os.Bundle;
 import android.os.Handler;

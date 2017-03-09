@@ -9,11 +9,13 @@ import android.widget.TextView;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.ipc.VActivityManager;
-import com.lody.virtual.remote.AppSetting;
+
+import java.util.Locale;
 
 import io.virtualapp.R;
 import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.home.models.PackageAppData;
+import io.virtualapp.home.repo.PackageAppDataStorage;
 import io.virtualapp.widgets.EatBeansView;
 
 /**
@@ -22,17 +24,17 @@ import io.virtualapp.widgets.EatBeansView;
 
 public class LoadingActivity extends AppCompatActivity {
 
-    private static final String MODEL_ARGUMENT = "MODEL_ARGUMENT";
+    private static final String PKG_NAME_ARGUMENT = "MODEL_ARGUMENT";
     private static final String KEY_INTENT = "KEY_INTENT";
     private static final String KEY_USER = "KEY_USER";
     private PackageAppData appModel;
     private EatBeansView loadingView;
 
-    public static void launch(Context context, PackageAppData model, int userId) {
-        Intent intent = VirtualCore.get().getLaunchIntent(model.packageName, userId);
+    public static void launch(Context context, String packageName, int userId) {
+        Intent intent = VirtualCore.get().getLaunchIntent(packageName, userId);
         if (intent != null) {
             Intent loadingPageIntent = new Intent(context, LoadingActivity.class);
-            loadingPageIntent.putExtra(MODEL_ARGUMENT, model);
+            loadingPageIntent.putExtra(PKG_NAME_ARGUMENT, packageName);
             loadingPageIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             loadingPageIntent.putExtra(KEY_INTENT, intent);
             loadingPageIntent.putExtra(KEY_USER, userId);
@@ -45,25 +47,13 @@ public class LoadingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loading);
         loadingView = (EatBeansView) findViewById(R.id.loading_anim);
-        appModel = getIntent().getParcelableExtra(MODEL_ARGUMENT);
         int userId = getIntent().getIntExtra(KEY_USER, -1);
-
-        VUiKit.defer().when(() -> {
-            AppSetting appSetting = VirtualCore.get().findApp(appModel.packageName);
-            if (appSetting != null) {
-                appModel = new PackageAppData(this, appSetting);
-            }
-        }).done((res) -> {
-            ImageView iconView = (ImageView) findViewById(R.id.app_icon);
-            if (iconView != null) {
-                iconView.setImageDrawable(appModel.icon);
-            }
-        });
-
+        String pkg = getIntent().getStringExtra(PKG_NAME_ARGUMENT);
+        appModel = PackageAppDataStorage.get().acquire(pkg);
+        ImageView iconView = (ImageView) findViewById(R.id.app_icon);
+        iconView.setImageDrawable(appModel.icon);
         TextView nameView = (TextView) findViewById(R.id.app_name);
-        if (nameView != null) {
-            nameView.setText(appModel.name);
-        }
+        nameView.setText(String.format(Locale.ENGLISH, "Opening %s...", appModel.name));
 
         Intent intent = getIntent().getParcelableExtra(KEY_INTENT);
         VirtualCore.get().setLoadingPage(intent, this);

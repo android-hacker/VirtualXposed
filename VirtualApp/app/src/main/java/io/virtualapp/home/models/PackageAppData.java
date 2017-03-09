@@ -59,7 +59,6 @@ public class PackageAppData implements AppData {
         this.fastOpen = in.readByte() != 0;
         // TODO: remove the temp code.
         firstOpen = true;
-        mark(SHIMMER_NOT_SHOW);
     }
 
     public void loadData(Context context, ApplicationInfo appInfo) {

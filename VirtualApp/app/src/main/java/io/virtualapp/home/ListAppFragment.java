@@ -24,6 +24,8 @@ import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.home.adapters.CloneAppListAdapter;
 import io.virtualapp.home.adapters.decorations.ItemOffsetDecoration;
 import io.virtualapp.home.models.AppData;
+import io.virtualapp.home.models.AppInfoLite;
+import io.virtualapp.home.models.PackageAppData;
 import io.virtualapp.widgets.DragSelectRecyclerView;
 
 /**
@@ -101,12 +103,13 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
         });
         mInstallButton.setOnClickListener(v -> {
             Integer[] selectedIndices = mAdapter.getSelectedIndices();
-            ArrayList<AppData> dataList = new ArrayList<AppData>(selectedIndices.length);
+            ArrayList<AppInfoLite> dataList = new ArrayList<AppInfoLite>(selectedIndices.length);
             for (int index : selectedIndices) {
-                dataList.add(mAdapter.getItem(index));
+                PackageAppData appData = (PackageAppData) mAdapter.getItem(index);
+                dataList.add(new AppInfoLite(appData.path, appData.fastOpen));
             }
             Intent data = new Intent();
-            data.putParcelableArrayListExtra(VCommends.EXTRA_APP_MODEL, dataList);
+            data.putParcelableArrayListExtra(VCommends.EXTRA_APP_INFO_LIST, dataList);
             getActivity().setResult(Activity.RESULT_OK, data);
             getActivity().finish();
         });

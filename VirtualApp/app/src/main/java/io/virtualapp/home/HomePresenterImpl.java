@@ -4,17 +4,16 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.os.VUserHandle;
-import com.lody.virtual.remote.AppSetting;
-
-import org.jdeferred.DeferredManager;
 
 import java.io.IOException;
 
 import io.virtualapp.VCommends;
+import io.virtualapp.abs.Value;
 import io.virtualapp.abs.ui.VUiKit;
-import io.virtualapp.home.models.AppRepository;
+import io.virtualapp.home.models.AppInfoLite;
 import io.virtualapp.home.models.PackageAppData;
+import io.virtualapp.home.repo.AppRepository;
+import io.virtualapp.home.repo.PackageAppDataStorage;
 import jonathanfinerty.once.Once;
 
 /**
@@ -45,7 +44,7 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
     @Override
     public void launchApp(PackageAppData model, int userId) {
         try {
-            LoadingActivity.launch(mActivity, model, userId);
+            LoadingActivity.launch(mActivity, model.packageName, userId);
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -59,18 +58,17 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
 
 
     @Override
-    public void addApp(PackageAppData data) {
-        final VirtualCore core = VirtualCore.get();
-        DeferredManager defer = VUiKit.defer();
-        defer.when(() -> mRepo.addVirtualApp(data))
+    public void addApp(AppInfoLite info) {
+        Value<PackageAppData> dataValue = new Value<>();
+        VUiKit.defer().when(() -> mRepo.addVirtualApp(info))
                 .then((res) -> {
                     if (!res.isSuccess) {
                         throw new IllegalStateException();
                     }
-                    AppSetting setting = core.findApp(data.packageName);
-                    data.loadData(mActivity, setting.getApplicationInfo(VUserHandle.USER_OWNER));
+                    dataValue.val = PackageAppDataStorage.get().acquire(res.packageName);
                 })
                 .done(res -> {
+                    PackageAppData data = dataValue.val;
                     data.isLoading = true;
                     mView.addAppToLauncher(data);
                     handleOptApp(data);
@@ -97,6 +95,7 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
             }
         }).done((res) -> {
             data.isLoading = false;
+            data.firstOpen = true;
             mView.refreshLauncherItem(data);
         });
     }
@@ -104,7 +103,7 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
     @Override
     public void deleteApp(PackageAppData model) {
         try {
-            mRepo.removeVirtualApp(model);
+            mRepo.removeVirtualApp(model.packageName);
             mView.removeAppToLauncher(model);
         } catch (Throwable e) {
             e.printStackTrace();

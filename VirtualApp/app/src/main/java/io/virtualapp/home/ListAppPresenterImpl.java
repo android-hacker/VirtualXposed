@@ -6,9 +6,9 @@ import android.content.Intent;
 import java.io.File;
 
 import io.virtualapp.VCommends;
-import io.virtualapp.home.models.AppDataSource;
+import io.virtualapp.home.repo.AppDataSource;
 import io.virtualapp.home.models.PackageAppData;
-import io.virtualapp.home.models.AppRepository;
+import io.virtualapp.home.repo.AppRepository;
 
 /**
  * @author Lody
@@ -37,13 +37,5 @@ class ListAppPresenterImpl implements ListAppContract.ListAppPresenter {
 			mRepository.getInstalledApps(mActivity).done(mView::loadFinish);
 		else
 			mRepository.getStorageApps(mActivity, from).done(mView::loadFinish);
-	}
-
-	@Override
-	public void selectApp(PackageAppData model) {
-		Intent data = new Intent();
-		data.putExtra(VCommends.EXTRA_APP_MODEL, model);
-		mActivity.setResult(Activity.RESULT_OK, data);
-		mActivity.finish();
 	}
 }

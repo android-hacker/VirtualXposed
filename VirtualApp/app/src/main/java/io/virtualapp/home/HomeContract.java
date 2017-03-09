@@ -6,6 +6,7 @@ import java.util.List;
 import io.virtualapp.abs.BasePresenter;
 import io.virtualapp.abs.BaseView;
 import io.virtualapp.home.models.AppData;
+import io.virtualapp.home.models.AppInfoLite;
 import io.virtualapp.home.models.PackageAppData;
 
 /**
@@ -46,7 +47,7 @@ import io.virtualapp.home.models.PackageAppData;
 
 		void dataChanged();
 
-		void addApp(PackageAppData model);
+		void addApp(AppInfoLite info);
 
 		void deleteApp(PackageAppData model);
 

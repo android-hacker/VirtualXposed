@@ -47,4 +47,5 @@ dependencies {
     compile 'com.github.castorflex.smoothprogressbar:library:1.1.0'
     compile 'com.yanzhenjie:recyclerview-swipe:1.0.1'
     compile 'com.android.support:design:25.0.1'
+    compile files('src/main/libs/YoumiSdk_v7.0.0_2017-01-06.jar')
 }

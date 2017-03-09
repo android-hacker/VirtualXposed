@@ -84,10 +84,6 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
             startLoadingAnimation(holder.iconView);
         } else {
             holder.iconView.setProgress(100, false);
-            if (model.isMarked(AppData.SHIMMER_NOT_SHOW)) {
-                model.unMark(AppData.SHIMMER_NOT_SHOW);
-                holder.iconView.startShimmer();
-            }
         }
     }
 

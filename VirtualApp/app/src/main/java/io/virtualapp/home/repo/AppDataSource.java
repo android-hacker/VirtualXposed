@@ -1,4 +1,4 @@
-package io.virtualapp.home.models;
+package io.virtualapp.home.repo;
 
 import android.content.Context;
 
@@ -8,6 +8,9 @@ import org.jdeferred.Promise;
 
 import java.io.File;
 import java.util.List;
+
+import io.virtualapp.home.models.AppData;
+import io.virtualapp.home.models.AppInfoLite;
 
 /**
  * @author Lody
@@ -28,7 +31,7 @@ public interface AppDataSource {
 
     Promise<List<AppData>, Throwable, Void> getStorageApps(Context context, File rootDir);
 
-    InstallResult addVirtualApp(PackageAppData app);
+    InstallResult addVirtualApp(AppInfoLite info);
 
-    boolean removeVirtualApp(PackageAppData app);
+    boolean removeVirtualApp(String packageName);
 }

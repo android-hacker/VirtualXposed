@@ -27,6 +27,7 @@ import io.virtualapp.abs.ui.VActivity;
 import io.virtualapp.home.adapters.LaunchpadAdapter;
 import io.virtualapp.home.adapters.decorations.ItemOffsetDecoration;
 import io.virtualapp.home.models.AppData;
+import io.virtualapp.home.models.AppInfoLite;
 import io.virtualapp.home.models.EmptyAppData;
 import io.virtualapp.home.models.PackageAppData;
 import io.virtualapp.widgets.TwoGearsView;
@@ -249,10 +250,10 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && data != null) {
-            List<AppData> appList = data.getParcelableArrayListExtra(VCommends.EXTRA_APP_MODEL);
+            List<AppInfoLite> appList = data.getParcelableArrayListExtra(VCommends.EXTRA_APP_INFO_LIST);
             if (appList != null) {
-                for (AppData appData : appList) {
-                    mPresenter.addApp((PackageAppData) appData);
+                for (AppInfoLite info : appList) {
+                    mPresenter.addApp(info);
                 }
             }
         }

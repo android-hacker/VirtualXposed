@@ -23,18 +23,9 @@
             android:layout_marginLeft="64dp"
             android:layout_marginStart="64dp" />
 
-        <TextView
-            android:id="@+id/app_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@id/app_icon"
-            android:layout_marginLeft="20dp"
-            android:layout_marginStart="20dp"
-            android:layout_toEndOf="@id/app_icon"
-            android:layout_toRightOf="@id/app_icon"
-            android:text="@string/preparing" />
 
         <TextView
+            android:id="@+id/app_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@id/app_icon"
