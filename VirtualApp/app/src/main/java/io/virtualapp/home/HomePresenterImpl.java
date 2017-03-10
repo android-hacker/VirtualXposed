@@ -125,8 +125,4 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
         });
     }
 
-    @Override
-    public void addNewApp() {
-        ListAppActivity.gotoListApp(mActivity);
-    }
 }

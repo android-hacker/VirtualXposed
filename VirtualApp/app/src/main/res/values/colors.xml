@@ -2,6 +2,7 @@
 <resources>
     <color name="colorPrimary">#607191</color>
     <color name="colorPrimaryDark">#2A364C</color>
+    <color name="colorPrimaryRavel">#607191</color>
     <color name="colorAccent">#607191</color>
     <color name="mainTextColor">#F0DEB7</color>
 
@@ -25,4 +26,6 @@
 
     <color name="transparent">#00000000</color>
     <color name="black_20_transparent">#55000000</color>
+
+    <color name="md_transparent">#00FFFFFF</color>
 </resources>

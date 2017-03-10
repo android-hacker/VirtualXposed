@@ -27,6 +27,14 @@
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowAnimationStyle">@null</item>
     </style>
-    <style name="VAAlertTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+
+    <style name="VAAlertTheme" parent="Theme.AppCompat.Light.Dialog.Alert" />
+
+    <style name="AVLoadingIndicatorView">
+        <item name="minWidth">48dip</item>
+        <item name="maxWidth">48dip</item>
+        <item name="minHeight">48dip</item>
+        <item name="maxHeight">48dip</item>
+        <item name="indicatorName">BallPulseIndicator</item>
     </style>
 </resources>

@@ -4,7 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.OrientationHelper;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,9 +76,9 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
         mRecyclerView = (DragSelectRecyclerView) view.findViewById(R.id.select_app_recycler_view);
         mProgressBar = (ProgressBar) view.findViewById(R.id.select_app_progress_bar);
         mInstallButton = (Button) view.findViewById(R.id.select_app_install_btn);
-        mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
-        mAdapter = new CloneAppListAdapter(getActivity());
+        mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, OrientationHelper.VERTICAL));
         mRecyclerView.addItemDecoration(new ItemOffsetDecoration(VUiKit.dpToPx(getContext(), 2)));
+        mAdapter = new CloneAppListAdapter(getActivity());
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.setOnItemClickListener(new CloneAppListAdapter.ItemEventListener() {
             @Override

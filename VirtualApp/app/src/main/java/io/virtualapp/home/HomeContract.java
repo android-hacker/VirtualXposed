@@ -52,8 +52,6 @@ import io.virtualapp.home.models.PackageAppData;
 		void deleteApp(PackageAppData model);
 
         void createShortcut(PackageAppData model);
-
-        void addNewApp();
     }
 
 }

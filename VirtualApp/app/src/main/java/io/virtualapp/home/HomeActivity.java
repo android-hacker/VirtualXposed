@@ -12,10 +12,12 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.melnykov.fab.FloatingActionButton;
 
@@ -23,13 +25,16 @@ import java.util.List;
 
 import io.virtualapp.R;
 import io.virtualapp.VCommends;
+import io.virtualapp.abs.nestedadapter.SmartRecyclerAdapter;
 import io.virtualapp.abs.ui.VActivity;
+import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.home.adapters.LaunchpadAdapter;
 import io.virtualapp.home.adapters.decorations.ItemOffsetDecoration;
 import io.virtualapp.home.models.AppData;
 import io.virtualapp.home.models.AppInfoLite;
 import io.virtualapp.home.models.EmptyAppData;
 import io.virtualapp.home.models.PackageAppData;
+import io.virtualapp.widgets.CircularAnim;
 import io.virtualapp.widgets.TwoGearsView;
 
 import static android.support.v7.widget.helper.ItemTouchHelper.ACTION_STATE_DRAG;
@@ -87,10 +92,14 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 
     private void initLaunchpad() {
         mLauncherView.setHasFixedSize(true);
-        GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
+        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(3, OrientationHelper.VERTICAL);
         mLauncherView.setLayoutManager(layoutManager);
         mLaunchpadAdapter = new LaunchpadAdapter(this);
-        mLauncherView.setAdapter(mLaunchpadAdapter);
+        SmartRecyclerAdapter wrap = new SmartRecyclerAdapter(mLaunchpadAdapter);
+        View footer = new View(this);
+        footer.setLayoutParams(new StaggeredGridLayoutManager.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, VUiKit.dpToPx(this, 60)));
+        wrap.setFooterView(footer);
+        mLauncherView.setAdapter(wrap);
         mLauncherView.addItemDecoration(new ItemOffsetDecoration(this, R.dimen.desktop_divider));
         ItemTouchHelper touchHelper = new ItemTouchHelper(new LauncherTouchCallback());
         touchHelper.attachToRecyclerView(mLauncherView);
@@ -107,7 +116,11 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
     }
 
     private void initFab() {
-        mFloatingButton.setOnClickListener(v -> mPresenter.addNewApp());
+        mFloatingButton.setOnClickListener(v -> {
+            CircularAnim.fullActivity(this, mFloatingButton)
+                    .colorOrImageRes(R.color.colorPrimaryRavel)
+                    .go(() -> ListAppActivity.gotoListApp(this));
+        });
     }
 
     private void deleteApp(int position) {
