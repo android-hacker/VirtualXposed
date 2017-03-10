@@ -6,7 +6,7 @@ import android.content.pm.PackageInfo;
 
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.remote.AppSetting;
+import com.lody.virtual.remote.InstalledAppInfo;
 import com.lody.virtual.remote.InstallResult;
 
 import org.jdeferred.Promise;
@@ -53,9 +53,9 @@ public class AppRepository implements AppDataSource {
     @Override
     public Promise<List<AppData>, Throwable, Void> getVirtualApps() {
         return VUiKit.defer().when(() -> {
-            List<AppSetting> infos = VirtualCore.get().getAllApps();
+            List<InstalledAppInfo> infos = VirtualCore.get().getInstalledApps();
             List<AppData> models = new ArrayList<AppData>();
-            for (AppSetting info : infos) {
+            for (InstalledAppInfo info : infos) {
                 models.add(new PackageAppData(mContext, info));
             }
             Collections.sort(models, (lhs, rhs) -> COLLATOR.compare(lhs.getName(), rhs.getName()));

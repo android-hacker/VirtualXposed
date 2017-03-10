@@ -1,7 +1,6 @@
 package com.lody.virtual.remote;
 
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageParser;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -17,17 +16,17 @@ import java.util.List;
 /**
  * @author Lody
  */
-public final class AppSetting implements Parcelable {
+public final class InstalledAppInfo implements Parcelable {
 
-    public static final Creator<AppSetting> CREATOR = new Creator<AppSetting>() {
+    public static final Creator<InstalledAppInfo> CREATOR = new Creator<InstalledAppInfo>() {
         @Override
-        public AppSetting createFromParcel(Parcel in) {
-            return new AppSetting(in);
+        public InstalledAppInfo createFromParcel(Parcel in) {
+            return new InstalledAppInfo(in);
         }
 
         @Override
-        public AppSetting[] newArray(int size) {
-            return new AppSetting[size];
+        public InstalledAppInfo[] newArray(int size) {
+            return new InstalledAppInfo[size];
         }
     };
     public String packageName;
@@ -35,12 +34,17 @@ public final class AppSetting implements Parcelable {
     public String libPath;
     public boolean dependSystem;
     public int appId;
-    public transient PackageParser parser;
 
-    public AppSetting() {
+
+    public InstalledAppInfo(String packageName, String apkPath, String libPath, boolean dependSystem, int appId) {
+        this.packageName = packageName;
+        this.apkPath = apkPath;
+        this.libPath = libPath;
+        this.dependSystem = dependSystem;
+        this.appId = appId;
     }
 
-    protected AppSetting(Parcel in) {
+    protected InstalledAppInfo(Parcel in) {
         packageName = in.readString();
         apkPath = in.readString();
         libPath = in.readString();

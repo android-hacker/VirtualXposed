@@ -3,18 +3,18 @@ package com.lody.virtual.server;
 
 import com.lody.virtual.server.interfaces.IAppObserver;
 import com.lody.virtual.server.interfaces.IAppRequestListener;
-import com.lody.virtual.remote.AppSetting;
+import com.lody.virtual.remote.InstalledAppInfo;
 import com.lody.virtual.remote.InstallResult;
 
 interface IAppManager {
 
     void preloadAllApps();
-    AppSetting findAppInfo(String pkg);
+    InstalledAppInfo getInstalledAppInfo(String pkg);
 
     InstallResult installApp(String apkPath, int flags);
     boolean uninstallApp(String pkg);
-    List<AppSetting> getAllApps();
-    int getAppCount();
+    List<InstalledAppInfo> getInstalledApps();
+    int getInstalledAppCount();
     boolean isAppInstalled(String pkg);
 
 

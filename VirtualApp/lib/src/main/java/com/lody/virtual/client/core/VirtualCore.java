@@ -34,7 +34,7 @@ import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.client.stub.StubManifest;
 import com.lody.virtual.helper.compat.BundleCompat;
-import com.lody.virtual.remote.AppSetting;
+import com.lody.virtual.remote.InstalledAppInfo;
 import com.lody.virtual.remote.InstallResult;
 import com.lody.virtual.helper.utils.BitmapUtils;
 import com.lody.virtual.os.VUserHandle;
@@ -299,7 +299,7 @@ public final class VirtualCore {
      * @throws IOException
      */
     public void preOpt(String pkg) throws IOException {
-        AppSetting info = findApp(pkg);
+        InstalledAppInfo info = getInstalledAppInfo(pkg);
         if (info != null && !info.dependSystem) {
             DexFile.loadDex(info.apkPath, info.getOdexFile().getPath(), 0).close();
         }
@@ -362,7 +362,7 @@ public final class VirtualCore {
     }
 
     public boolean createShortcut(int userId, String packageName, Intent splash, OnEmitShortcutListener listener) {
-        AppSetting setting = findApp(packageName);
+        InstalledAppInfo setting = getInstalledAppInfo(packageName);
         if (setting == null) {
             return false;
         }
@@ -411,7 +411,7 @@ public final class VirtualCore {
     }
 
     public boolean removeShortcut(int userId, String packageName, Intent splash, OnEmitShortcutListener listener) {
-        AppSetting setting = findApp(packageName);
+        InstalledAppInfo setting = getInstalledAppInfo(packageName);
         if (setting == null) {
             return false;
         }
@@ -466,17 +466,17 @@ public final class VirtualCore {
         }
     }
 
-    public AppSetting findApp(String pkg) {
+    public InstalledAppInfo getInstalledAppInfo(String pkg) {
         try {
-            return getService().findAppInfo(pkg);
+            return getService().getInstalledAppInfo(pkg);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
     }
 
-    public int getAppCount() {
+    public int getInstalledAppCount() {
         try {
-            return getService().getAppCount();
+            return getService().getInstalledAppCount();
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -496,10 +496,10 @@ public final class VirtualCore {
     }
 
     public Resources getResources(String pkg) {
-        AppSetting appSetting = findApp(pkg);
-        if (appSetting != null) {
+        InstalledAppInfo installedAppInfo = getInstalledAppInfo(pkg);
+        if (installedAppInfo != null) {
             AssetManager assets = mirror.android.content.res.AssetManager.ctor.newInstance();
-            mirror.android.content.res.AssetManager.addAssetPath.call(assets, appSetting.apkPath);
+            mirror.android.content.res.AssetManager.addAssetPath.call(assets, installedAppInfo.apkPath);
             Resources hostRes = context.getResources();
             return new Resources(assets, hostRes.getDisplayMetrics(), hostRes.getConfiguration());
         }
@@ -548,9 +548,9 @@ public final class VirtualCore {
         VActivityManager.get().killAllApps();
     }
 
-    public List<AppSetting> getAllApps() {
+    public List<InstalledAppInfo> getInstalledApps() {
         try {
-            return getService().getAllApps();
+            return getService().getInstalledApps();
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }

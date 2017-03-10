@@ -9,7 +9,7 @@ import android.os.Parcel;
 import android.util.SparseBooleanArray;
 
 import com.lody.virtual.os.VUserHandle;
-import com.lody.virtual.remote.AppSetting;
+import com.lody.virtual.remote.InstalledAppInfo;
 
 /**
  * @author Lody
@@ -46,10 +46,10 @@ public class PackageAppData implements AppData {
         loadData(context, packageInfo.applicationInfo);
     }
 
-    public PackageAppData(Context context, AppSetting appSetting) {
-        this.packageName = appSetting.packageName;
-        this.path = appSetting.apkPath;
-        loadData(context, appSetting.getApplicationInfo(VUserHandle.USER_OWNER));
+    public PackageAppData(Context context, InstalledAppInfo installedAppInfo) {
+        this.packageName = installedAppInfo.packageName;
+        this.path = installedAppInfo.apkPath;
+        loadData(context, installedAppInfo.getApplicationInfo(VUserHandle.USER_OWNER));
     }
 
     protected PackageAppData(Parcel in) {

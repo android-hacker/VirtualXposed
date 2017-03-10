@@ -32,7 +32,7 @@ import java.util.List;
 		int userId = VUserHandle.myUserId();
 		List<PackageInfo> packageInfos;
 		if (isAppProcess()) {
-			packageInfos = new ArrayList<PackageInfo>(VirtualCore.get().getAppCount());
+			packageInfos = new ArrayList<PackageInfo>(VirtualCore.get().getInstalledAppCount());
 		} else {
 			packageInfos = VirtualCore.get().getUnHookPackageManager().getInstalledPackages(flags);
 		}

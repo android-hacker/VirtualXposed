@@ -74,7 +74,7 @@
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:scrollbars="vertical"
-                tools:listitem="@layout/item_app" />
+                tools:listitem="@layout/item_launcher_app" />
 
             <io.virtualapp.widgets.TwoGearsView
                 android:id="@+id/pb_loading_app"

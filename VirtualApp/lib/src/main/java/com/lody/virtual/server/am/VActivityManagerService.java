@@ -35,7 +35,7 @@ import com.lody.virtual.client.stub.StubManifest;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.compat.IApplicationThreadCompat;
-import com.lody.virtual.remote.AppSetting;
+import com.lody.virtual.remote.InstalledAppInfo;
 import com.lody.virtual.remote.AppTaskInfo;
 import com.lody.virtual.remote.PendingIntentData;
 import com.lody.virtual.remote.PendingResultData;
@@ -683,7 +683,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
             killAllApps();
         }
         ApplicationInfo info = VPackageManagerService.get().getApplicationInfo(packageName, 0, userId);
-        AppSetting setting = VAppManagerService.get().findAppInfo(info.packageName);
+        InstalledAppInfo setting = VAppManagerService.get().getInstalledAppInfo(info.packageName);
         int uid = VUserHandle.getUid(userId, setting.appId);
         ProcessRecord app = mProcessNames.get(processName, uid);
         if (app != null && app.client.asBinder().isBinderAlive()) {

@@ -13,10 +13,10 @@ import android.os.Message;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.SpecialComponentList;
-import com.lody.virtual.remote.AppSetting;
-import com.lody.virtual.remote.PendingResultData;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.helper.utils.collection.ArrayMap;
+import com.lody.virtual.remote.PendingResultData;
+import com.lody.virtual.server.pm.PackageSetting;
 import com.lody.virtual.server.pm.VAppManagerService;
 
 import java.util.ArrayList;
@@ -181,7 +181,7 @@ public class BroadcastSystem {
     }
 
     public void startApp(PackageParser.Package p) {
-        AppSetting setting = (AppSetting) p.mExtras;
+        PackageSetting setting = (PackageSetting) p.mExtras;
         for (PackageParser.Activity receiver : p.receivers) {
             ActivityInfo info = receiver.info;
             List<? extends IntentFilter> filters = receiver.intents;

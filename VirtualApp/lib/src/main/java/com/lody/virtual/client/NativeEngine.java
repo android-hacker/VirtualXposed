@@ -10,7 +10,7 @@ import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
-import com.lody.virtual.remote.AppSetting;
+import com.lody.virtual.remote.InstalledAppInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +28,7 @@ public class NativeEngine {
 
     private static final String TAG = NativeEngine.class.getSimpleName();
 
-    private static Map<String, AppSetting> sDexOverrideMap;
+    private static Map<String, InstalledAppInfo> sDexOverrideMap;
     private static Method gOpenDexFileNative;
     private static Method gCameraNativeSetup;
     private static int gCameraMethodType;
@@ -97,9 +97,9 @@ public class NativeEngine {
     }
 
     public static void startDexOverride() {
-        List<AppSetting> appSettings = VirtualCore.get().getAllApps();
-        sDexOverrideMap = new HashMap<>(appSettings.size());
-        for (AppSetting info : appSettings) {
+        List<InstalledAppInfo> installedAppInfos = VirtualCore.get().getInstalledApps();
+        sDexOverrideMap = new HashMap<>(installedAppInfos.size());
+        for (InstalledAppInfo info : installedAppInfos) {
             try {
                 sDexOverrideMap.put(new File(info.apkPath).getCanonicalPath(), info);
             } catch (IOException e) {
@@ -180,7 +180,7 @@ public class NativeEngine {
         VLog.d(TAG, "DexOrJarPath = %s, OutputPath = %s.", dexOrJarPath, outputPath);
         try {
             String canonical = new File(dexOrJarPath).getCanonicalPath();
-            AppSetting info = sDexOverrideMap.get(canonical);
+            InstalledAppInfo info = sDexOverrideMap.get(canonical);
             if (info != null && !info.dependSystem) {
                 outputPath = info.getOdexFile().getPath();
                 params[1] = outputPath;

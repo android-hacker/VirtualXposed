@@ -7,10 +7,10 @@ import android.os.Build;
 import android.text.TextUtils;
 
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.os.VUserHandle;
-import com.lody.virtual.remote.AppSetting;
 import com.lody.virtual.helper.utils.collection.ArrayMap;
 import com.lody.virtual.os.VEnvironment;
+import com.lody.virtual.os.VUserHandle;
+import com.lody.virtual.server.pm.PackageSetting;
 
 import mirror.android.content.pm.ApplicationInfoL;
 import mirror.android.content.pm.ApplicationInfoN;
@@ -24,7 +24,7 @@ public class ComponentFixer {
 	private static final ArrayMap<String, String[]> sSharedLibCache = new ArrayMap<>();
 
 
-	public static void fixApplicationInfo(AppSetting setting, ApplicationInfo applicationInfo, int userId) {
+	public static void fixApplicationInfo(PackageSetting setting, ApplicationInfo applicationInfo, int userId) {
 		applicationInfo.flags |= ApplicationInfo.FLAG_HAS_CODE;
 		if (TextUtils.isEmpty(applicationInfo.processName)) {
 			applicationInfo.processName = applicationInfo.packageName;
@@ -77,12 +77,12 @@ public class ComponentFixer {
 		return null;
 	}
 
-	public static void fixComponentInfo(AppSetting appSetting, ComponentInfo info, int userId) {
+	public static void fixComponentInfo(PackageSetting setting, ComponentInfo info, int userId) {
 		if (info != null) {
 			if (TextUtils.isEmpty(info.processName)) {
 				info.processName = info.packageName;
 			}
-			fixApplicationInfo(appSetting, info.applicationInfo, userId);
+			fixApplicationInfo(setting, info.applicationInfo, userId);
 			info.name = fixComponentClassName(info.packageName, info.name);
 			if (info.processName == null) {
 				info.processName = info.applicationInfo.processName;

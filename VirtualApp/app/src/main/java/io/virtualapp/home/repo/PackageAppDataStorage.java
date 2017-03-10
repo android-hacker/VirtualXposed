@@ -1,7 +1,7 @@
 package io.virtualapp.home.repo;
 
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.remote.AppSetting;
+import com.lody.virtual.remote.InstalledAppInfo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +43,7 @@ public class PackageAppDataStorage {
     }
 
     private PackageAppData loadAppData(String packageName) {
-        AppSetting setting = VirtualCore.get().findApp(packageName);
+        InstalledAppInfo setting = VirtualCore.get().getInstalledAppInfo(packageName);
         if (setting != null) {
             PackageAppData data = new PackageAppData(VApp.getApp(), setting);
             synchronized (packageDataMap) {
