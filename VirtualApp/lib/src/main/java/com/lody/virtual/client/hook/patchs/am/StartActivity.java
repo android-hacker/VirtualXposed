@@ -18,6 +18,7 @@ import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.ipc.ActivityClientRecord;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.stub.ChooserActivity;
+import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.utils.ArrayUtils;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.os.VUserHandle;
@@ -41,9 +42,11 @@ import java.lang.reflect.Method;
 
     @Override
     public Object call(Object who, Method method, Object... args) throws Throwable {
-        int intentIndex = ArrayUtils.indexOfFirst(args, Intent.class);
+        int intentIndex = ArrayUtils.indexOfObject(args, Intent.class, 1);
+        if (intentIndex < 0) {
+            return ActivityManagerCompat.START_INTENT_NOT_RESOLVED;
+        }
         int resultToIndex = ArrayUtils.indexOfObject(args, IBinder.class, 2);
-
         String resolvedType = (String) args[intentIndex + 1];
         Intent intent = (Intent) args[intentIndex];
         intent.setDataAndType(intent.getData(), resolvedType);
