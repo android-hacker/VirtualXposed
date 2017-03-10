@@ -73,7 +73,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
         }
     };
     private static final AtomicReference<VPackageManagerService> gService = new AtomicReference<>();
-    private static final Comparator<ProviderInfo> mProviderInitOrderSorter = new Comparator<ProviderInfo>() {
+    private static final Comparator<ProviderInfo> sProviderInitOrderSorter = new Comparator<ProviderInfo>() {
         public int compare(ProviderInfo p1, ProviderInfo p2) {
             final int v1 = p1.initOrder;
             final int v2 = p2.initOrder;
@@ -596,7 +596,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
             }
         }
         if (!finalList.isEmpty()) {
-            Collections.sort(finalList, mProviderInitOrderSorter);
+            Collections.sort(finalList, sProviderInitOrderSorter);
         }
         return new VParceledListSlice<>(finalList);
     }

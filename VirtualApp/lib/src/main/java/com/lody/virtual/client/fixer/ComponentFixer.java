@@ -7,6 +7,7 @@ import android.os.Build;
 import android.text.TextUtils;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.remote.AppSetting;
 import com.lody.virtual.helper.utils.collection.ArrayMap;
 import com.lody.virtual.os.VEnvironment;
@@ -48,7 +49,7 @@ public class ComponentFixer {
 		applicationInfo.enabled = true;
 		applicationInfo.nativeLibraryDir = setting.libPath;
 		applicationInfo.dataDir = VEnvironment.getDataUserPackageDirectory(userId, setting.packageName).getPath();
-		applicationInfo.uid = setting.appId;
+		applicationInfo.uid = VUserHandle.getUid(userId, setting.appId);
 		if (setting.dependSystem) {
 			String[] sharedLibraryFiles = sSharedLibCache.get(setting.packageName);
 			if (sharedLibraryFiles == null) {
