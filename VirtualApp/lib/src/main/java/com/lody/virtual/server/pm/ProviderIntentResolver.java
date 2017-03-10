@@ -137,7 +137,7 @@ final class ProviderIntentResolver extends IntentResolver<PackageParser.Provider
 
 		@Override
 		protected void sortResults(List<ResolveInfo> results) {
-			Collections.sort(results, VPackageManagerService.mResolvePrioritySorter);
+			Collections.sort(results, VPackageManagerService.sResolvePrioritySorter);
 		}
 
 		@Override
