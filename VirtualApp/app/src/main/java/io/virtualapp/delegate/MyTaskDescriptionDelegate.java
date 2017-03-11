@@ -5,7 +5,7 @@ import android.app.ActivityManager;
 import android.os.Build;
 
 import com.lody.virtual.client.hook.delegate.TaskDescriptionDelegate;
-import com.lody.virtual.os.VUserHandle;
+import com.lody.virtual.os.VUserManager;
 
 
 /**
@@ -15,7 +15,7 @@ import com.lody.virtual.os.VUserHandle;
 public class MyTaskDescriptionDelegate implements TaskDescriptionDelegate {
     @Override
     public ActivityManager.TaskDescription getTaskDescription(ActivityManager.TaskDescription oldTaskDescription) {
-        String labelPrefix = "[Space " + VUserHandle.myUserId() + 1 + "] ";
+        String labelPrefix = "[" + VUserManager.get().getUserName() + "] ";
 
         if (!oldTaskDescription.getLabel().startsWith(labelPrefix)) {
             // Is it really necessary?

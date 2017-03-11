@@ -84,7 +84,7 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
                 int nextUserId = userIds.length;
                 addResult.userId = nextUserId;
                 if (VUserManager.get().getUserInfo(nextUserId) == null) {
-                    String nextUserName = "Space " + nextUserId;
+                    String nextUserName = "Space " + nextUserId + 1;
                     VUserInfo newUserInfo = VUserManager.get().createUser(nextUserName, VUserInfo.FLAG_ADMIN);
                     if (newUserInfo == null) {
                         throw new IllegalStateException();
