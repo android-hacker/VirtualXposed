@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.lody.virtual.helper.utils.collection;
+package com.lody.virtual.helper.collection;
 
 import android.util.Log;
 
@@ -57,6 +57,71 @@ public class SimpleArrayMap<K, V> {
     int[] mHashes;
     Object[] mArray;
     int mSize;
+
+    /**
+     * Create a new empty ArrayMap.  The default capacity of an array map is 0, and
+     * will grow once items are added to it.
+     */
+    public SimpleArrayMap() {
+        mHashes = ContainerHelpers.EMPTY_INTS;
+        mArray = ContainerHelpers.EMPTY_OBJECTS;
+        mSize = 0;
+    }
+
+    /**
+     * Create a new ArrayMap with a given initial capacity.
+     */
+    public SimpleArrayMap(int capacity) {
+        if (capacity == 0) {
+            mHashes = ContainerHelpers.EMPTY_INTS;
+            mArray = ContainerHelpers.EMPTY_OBJECTS;
+        } else {
+            allocArrays(capacity);
+        }
+        mSize = 0;
+    }
+
+    /**
+     * Create a new ArrayMap with the mappings from the given ArrayMap.
+     */
+    public SimpleArrayMap(SimpleArrayMap map) {
+        this();
+        if (map != null) {
+            putAll(map);
+        }
+    }
+
+    private static void freeArrays(final int[] hashes, final Object[] array, final int size) {
+        if (hashes.length == (BASE_SIZE*2)) {
+            synchronized (ArrayMap.class) {
+                if (mTwiceBaseCacheSize < CACHE_SIZE) {
+                    array[0] = mTwiceBaseCache;
+                    array[1] = hashes;
+                    for (int i=(size<<1)-1; i>=2; i--) {
+                        array[i] = null;
+                    }
+                    mTwiceBaseCache = array;
+                    mTwiceBaseCacheSize++;
+                    if (DEBUG) Log.d(TAG, "Storing 2x cache " + array
+                            + " now have " + mTwiceBaseCacheSize + " entries");
+                }
+            }
+        } else if (hashes.length == BASE_SIZE) {
+            synchronized (ArrayMap.class) {
+                if (mBaseCacheSize < CACHE_SIZE) {
+                    array[0] = mBaseCache;
+                    array[1] = hashes;
+                    for (int i=(size<<1)-1; i>=2; i--) {
+                        array[i] = null;
+                    }
+                    mBaseCache = array;
+                    mBaseCacheSize++;
+                    if (DEBUG) Log.d(TAG, "Storing 1x cache " + array
+                            + " now have " + mBaseCacheSize + " entries");
+                }
+            }
+        }
+    }
 
     int indexOf(Object key, int hash) {
         final int N = mSize;
@@ -167,71 +232,6 @@ public class SimpleArrayMap<K, V> {
 
         mHashes = new int[size];
         mArray = new Object[size<<1];
-    }
-
-    private static void freeArrays(final int[] hashes, final Object[] array, final int size) {
-        if (hashes.length == (BASE_SIZE*2)) {
-            synchronized (ArrayMap.class) {
-                if (mTwiceBaseCacheSize < CACHE_SIZE) {
-                    array[0] = mTwiceBaseCache;
-                    array[1] = hashes;
-                    for (int i=(size<<1)-1; i>=2; i--) {
-                        array[i] = null;
-                    }
-                    mTwiceBaseCache = array;
-                    mTwiceBaseCacheSize++;
-                    if (DEBUG) Log.d(TAG, "Storing 2x cache " + array
-                            + " now have " + mTwiceBaseCacheSize + " entries");
-                }
-            }
-        } else if (hashes.length == BASE_SIZE) {
-            synchronized (ArrayMap.class) {
-                if (mBaseCacheSize < CACHE_SIZE) {
-                    array[0] = mBaseCache;
-                    array[1] = hashes;
-                    for (int i=(size<<1)-1; i>=2; i--) {
-                        array[i] = null;
-                    }
-                    mBaseCache = array;
-                    mBaseCacheSize++;
-                    if (DEBUG) Log.d(TAG, "Storing 1x cache " + array
-                            + " now have " + mBaseCacheSize + " entries");
-                }
-            }
-        }
-    }
-
-    /**
-     * Create a new empty ArrayMap.  The default capacity of an array map is 0, and
-     * will grow once items are added to it.
-     */
-    public SimpleArrayMap() {
-        mHashes = ContainerHelpers.EMPTY_INTS;
-        mArray = ContainerHelpers.EMPTY_OBJECTS;
-        mSize = 0;
-    }
-
-    /**
-     * Create a new ArrayMap with a given initial capacity.
-     */
-    public SimpleArrayMap(int capacity) {
-        if (capacity == 0) {
-            mHashes = ContainerHelpers.EMPTY_INTS;
-            mArray = ContainerHelpers.EMPTY_OBJECTS;
-        } else {
-            allocArrays(capacity);
-        }
-        mSize = 0;
-    }
-
-    /**
-     * Create a new ArrayMap with the mappings from the given ArrayMap.
-     */
-    public SimpleArrayMap(SimpleArrayMap map) {
-        this();
-        if (map != null) {
-            putAll(map);
-        }
     }
 
     /**

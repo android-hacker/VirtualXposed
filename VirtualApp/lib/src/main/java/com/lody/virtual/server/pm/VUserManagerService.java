@@ -75,19 +75,16 @@ public class VUserManagerService extends IUserManager.Stub {
     private static final int USER_VERSION = 1;
 
     private static final long EPOCH_PLUS_30_YEARS = 30L * 365 * 24 * 60 * 60 * 1000L; // ms
-
+    private static VUserManagerService sInstance;
     private final Context mContext;
     private final VPackageManagerService mPm;
     private final Object mInstallLock;
     private final Object mPackagesLock;
-
     private final File mUsersDir;
     private final File mUserListFile;
     private final File mBaseUserPath;
-
     private SparseArray<VUserInfo> mUsers = new SparseArray<VUserInfo>();
     private HashSet<Integer> mRemovingUserIds = new HashSet<Integer>();
-
     private int[] mUserIds;
     private boolean mGuestEnabled;
     private int mNextSerialNumber;
@@ -95,14 +92,6 @@ public class VUserManagerService extends IUserManager.Stub {
     // not reused in quick succession
     private int mNextUserId = MIN_USER_ID;
     private int mUserVersion = 0;
-
-    private static VUserManagerService sInstance;
-
-    public static VUserManagerService get() {
-        synchronized (VUserManagerService.class) {
-            return sInstance;
-        }
-    }
 
     /**
      * Called by package manager to create the service.  This is closely
@@ -156,6 +145,27 @@ public class VUserManagerService extends IUserManager.Stub {
                 }
                 sInstance = this;
             }
+        }
+    }
+
+    public static VUserManagerService get() {
+        synchronized (VUserManagerService.class) {
+            return sInstance;
+        }
+    }
+
+    /**
+     * Enforces that only the system UID or root's UID or apps that have the
+     * {android.Manifest.permission.MANAGE_USERS MANAGE_USERS}
+     * permission can make certain calls to the VUserManager.
+     *
+     * @param message used as message if SecurityException is thrown
+     * @throws SecurityException if the caller is not system or root
+     */
+    private static void checkManageUsersPermission(String message) {
+        final int uid = VBinder.getCallingUid();
+        if (uid != VirtualCore.get().myUid()) {
+            throw new SecurityException("You need MANAGE_USERS permission to: " + message);
         }
     }
 
@@ -264,6 +274,13 @@ public class VUserManagerService extends IUserManager.Stub {
     }
 
     @Override
+    public boolean isGuestEnabled() {
+        synchronized (mPackagesLock) {
+            return mGuestEnabled;
+        }
+    }
+
+    @Override
     public void setGuestEnabled(boolean enable) {
         checkManageUsersPermission("enable guest users");
         synchronized (mPackagesLock) {
@@ -284,14 +301,6 @@ public class VUserManagerService extends IUserManager.Stub {
                     createUser("Guest", VUserInfo.FLAG_GUEST);
                 }
             }
-        }
-    }
-
-
-    @Override
-    public boolean isGuestEnabled() {
-        synchronized (mPackagesLock) {
-            return mGuestEnabled;
         }
     }
 
@@ -321,21 +330,6 @@ public class VUserManagerService extends IUserManager.Stub {
     private boolean isUserLimitReachedLocked() {
         int nUsers = mUsers.size();
         return nUsers >= VUserManager.getMaxSupportedUsers();
-    }
-
-    /**
-     * Enforces that only the system UID or root's UID or apps that have the
-     * {android.Manifest.permission.MANAGE_USERS MANAGE_USERS}
-     * permission can make certain calls to the VUserManager.
-     *
-     * @param message used as message if SecurityException is thrown
-     * @throws SecurityException if the caller is not system or root
-     */
-    private static void checkManageUsersPermission(String message) {
-        final int uid = VBinder.getCallingUid();
-        if (uid != VirtualCore.get().myUid()) {
-            throw new SecurityException("You need MANAGE_USERS permission to: " + message);
-        }
     }
 
     private void writeBitmapLocked(VUserInfo info, Bitmap bitmap) {
@@ -696,7 +690,7 @@ public class VUserManagerService extends IUserManager.Stub {
                     mUsers.put(userId, userInfo);
                     writeUserListLocked();
                     writeUserLocked(userInfo);
-                    mPm.createNewUserLILPw(userId, userPath);
+                    mPm.createNewUser(userId, userPath);
                     userInfo.partial = false;
                     writeUserLocked(userInfo);
                     updateUserIdsLocked();
@@ -783,7 +777,7 @@ public class VUserManagerService extends IUserManager.Stub {
 
     private void removeUserStateLocked(int userHandle) {
         // Cleanup package manager settings
-        mPm.cleanUpUserLILPw(userHandle);
+        mPm.cleanUpUser(userHandle);
 
         // Remove this user from the list
         mUsers.remove(userHandle);

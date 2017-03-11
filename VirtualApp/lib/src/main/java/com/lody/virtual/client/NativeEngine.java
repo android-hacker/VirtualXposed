@@ -97,7 +97,7 @@ public class NativeEngine {
     }
 
     public static void startDexOverride() {
-        List<InstalledAppInfo> installedAppInfos = VirtualCore.get().getInstalledApps();
+        List<InstalledAppInfo> installedAppInfos = VirtualCore.get().getInstalledApps(0);
         sDexOverrideMap = new HashMap<>(installedAppInfos.size());
         for (InstalledAppInfo info : installedAppInfos) {
             try {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.lody.virtual.helper.utils.collection;
+package com.lody.virtual.helper.collection;
 
 import android.util.Log;
 
@@ -74,6 +74,79 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
     Object[] mArray;
     int mSize;
     MapCollections<E, E> mCollections;
+
+    /**
+     * Create a new empty ArraySet.  The default capacity of an array map is 0, and
+     * will grow once items are added to it.
+     */
+    public ArraySet() {
+        mHashes = ContainerHelpers.EMPTY_INTS;
+        mArray = ContainerHelpers.EMPTY_OBJECTS;
+        mSize = 0;
+    }
+
+    /**
+     * Create a new ArraySet with a given initial capacity.
+     */
+    public ArraySet(int capacity) {
+        if (capacity == 0) {
+            mHashes = ContainerHelpers.EMPTY_INTS;
+            mArray = ContainerHelpers.EMPTY_OBJECTS;
+        } else {
+            allocArrays(capacity);
+        }
+        mSize = 0;
+    }
+
+    /**
+     * Create a new ArraySet with the mappings from the given ArraySet.
+     */
+    public ArraySet(ArraySet<E> set) {
+        this();
+        if (set != null) {
+            addAll(set);
+        }
+    }
+
+    /** {@hide} */
+    public ArraySet(Collection<E> set) {
+        this();
+        if (set != null) {
+            addAll(set);
+        }
+    }
+
+    private static void freeArrays(final int[] hashes, final Object[] array, final int size) {
+        if (hashes.length == (BASE_SIZE*2)) {
+            synchronized (ArraySet.class) {
+                if (mTwiceBaseCacheSize < CACHE_SIZE) {
+                    array[0] = mTwiceBaseCache;
+                    array[1] = hashes;
+                    for (int i=size-1; i>=2; i--) {
+                        array[i] = null;
+                    }
+                    mTwiceBaseCache = array;
+                    mTwiceBaseCacheSize++;
+                    if (DEBUG) Log.d(TAG, "Storing 2x cache " + array
+                            + " now have " + mTwiceBaseCacheSize + " entries");
+                }
+            }
+        } else if (hashes.length == BASE_SIZE) {
+            synchronized (ArraySet.class) {
+                if (mBaseCacheSize < CACHE_SIZE) {
+                    array[0] = mBaseCache;
+                    array[1] = hashes;
+                    for (int i=size-1; i>=2; i--) {
+                        array[i] = null;
+                    }
+                    mBaseCache = array;
+                    mBaseCacheSize++;
+                    if (DEBUG) Log.d(TAG, "Storing 1x cache " + array
+                            + " now have " + mBaseCacheSize + " entries");
+                }
+            }
+        }
+    }
 
     private int indexOf(Object key, int hash) {
         final int N = mSize;
@@ -184,79 +257,6 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
 
         mHashes = new int[size];
         mArray = new Object[size];
-    }
-
-    private static void freeArrays(final int[] hashes, final Object[] array, final int size) {
-        if (hashes.length == (BASE_SIZE*2)) {
-            synchronized (ArraySet.class) {
-                if (mTwiceBaseCacheSize < CACHE_SIZE) {
-                    array[0] = mTwiceBaseCache;
-                    array[1] = hashes;
-                    for (int i=size-1; i>=2; i--) {
-                        array[i] = null;
-                    }
-                    mTwiceBaseCache = array;
-                    mTwiceBaseCacheSize++;
-                    if (DEBUG) Log.d(TAG, "Storing 2x cache " + array
-                            + " now have " + mTwiceBaseCacheSize + " entries");
-                }
-            }
-        } else if (hashes.length == BASE_SIZE) {
-            synchronized (ArraySet.class) {
-                if (mBaseCacheSize < CACHE_SIZE) {
-                    array[0] = mBaseCache;
-                    array[1] = hashes;
-                    for (int i=size-1; i>=2; i--) {
-                        array[i] = null;
-                    }
-                    mBaseCache = array;
-                    mBaseCacheSize++;
-                    if (DEBUG) Log.d(TAG, "Storing 1x cache " + array
-                            + " now have " + mBaseCacheSize + " entries");
-                }
-            }
-        }
-    }
-
-    /**
-     * Create a new empty ArraySet.  The default capacity of an array map is 0, and
-     * will grow once items are added to it.
-     */
-    public ArraySet() {
-        mHashes = ContainerHelpers.EMPTY_INTS;
-        mArray = ContainerHelpers.EMPTY_OBJECTS;
-        mSize = 0;
-    }
-
-    /**
-     * Create a new ArraySet with a given initial capacity.
-     */
-    public ArraySet(int capacity) {
-        if (capacity == 0) {
-            mHashes = ContainerHelpers.EMPTY_INTS;
-            mArray = ContainerHelpers.EMPTY_OBJECTS;
-        } else {
-            allocArrays(capacity);
-        }
-        mSize = 0;
-    }
-
-    /**
-     * Create a new ArraySet with the mappings from the given ArraySet.
-     */
-    public ArraySet(ArraySet<E> set) {
-        this();
-        if (set != null) {
-            addAll(set);
-        }
-    }
-
-    /** {@hide} */
-    public ArraySet(Collection<E> set) {
-        this();
-        if (set != null) {
-            addAll(set);
-        }
     }
 
     /**

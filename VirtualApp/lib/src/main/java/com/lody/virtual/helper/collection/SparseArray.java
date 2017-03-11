@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.lody.virtual.helper.utils.collection;
+package com.lody.virtual.helper.collection;
 
 /**
  * A copy of the current platform (currently {@link android.os.Build.VERSION_CODES#KITKAT}

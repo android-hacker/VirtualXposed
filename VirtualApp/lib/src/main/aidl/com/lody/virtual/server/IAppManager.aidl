@@ -7,16 +7,19 @@ import com.lody.virtual.remote.InstalledAppInfo;
 import com.lody.virtual.remote.InstallResult;
 
 interface IAppManager {
-
-    void preloadAllApps();
-    InstalledAppInfo getInstalledAppInfo(String pkg);
-
-    InstallResult installApp(String apkPath, int flags);
-    boolean uninstallApp(String pkg);
-    List<InstalledAppInfo> getInstalledApps();
+    int[] getPackageInstalledUsers(String packageName);
+    void scanApps();
+    InstalledAppInfo getInstalledAppInfo(String pkg, int flags);
+    InstallResult installPackage(String path, int flags);
+    boolean isPackageLaunched(int userId, String packageName);
+    void setPackageHidden(int userId, String packageName, boolean hidden);
+    boolean installPackageAsUser(int userId, String packageName);
+    boolean uninstallPackage(String packageName, int userId);
+    List<InstalledAppInfo> getInstalledApps(int flags);
+    List<InstalledAppInfo> getInstalledAppsAsUser(int userId, int flags);
     int getInstalledAppCount();
-    boolean isAppInstalled(String pkg);
-
+    boolean isAppInstalled(String packageName);
+    boolean isAppInstalledAsUser(int userId, String packageName);
 
     void registerObserver(IAppObserver observer);
     void unregisterObserver(IAppObserver observer);

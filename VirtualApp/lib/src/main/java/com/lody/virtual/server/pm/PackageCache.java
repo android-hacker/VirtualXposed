@@ -2,7 +2,7 @@ package com.lody.virtual.server.pm;
 
 import android.content.pm.PackageParser;
 
-import com.lody.virtual.helper.utils.collection.ArrayMap;
+import com.lody.virtual.helper.collection.ArrayMap;
 
 /**
  * @author Lody
@@ -10,26 +10,31 @@ import com.lody.virtual.helper.utils.collection.ArrayMap;
 
 public class PackageCache {
 
-    static final ArrayMap<String, PackageParser.Package> sPackageCaches = new ArrayMap<>();
+    static final ArrayMap<String, PackageParser.Package> PACKAGE_CACHE = new ArrayMap<>();
 
+    public static int size() {
+        synchronized (PACKAGE_CACHE) {
+            return PACKAGE_CACHE.size();
+        }
+    }
 
     public static void put(PackageParser.Package pkg, PackageSetting setting) {
         synchronized (PackageCache.class) {
             pkg.mExtras = setting;
-            sPackageCaches.put(pkg.packageName, pkg);
+            PACKAGE_CACHE.put(pkg.packageName, pkg);
             VPackageManagerService.get().analyzePackageLocked(pkg);
         }
     }
 
     public static PackageParser.Package get(String packageName) {
         synchronized (PackageCache.class) {
-            return sPackageCaches.get(packageName);
+            return PACKAGE_CACHE.get(packageName);
         }
     }
 
     public static PackageSetting getSetting(String packageName) {
         synchronized (PackageCache.class) {
-            PackageParser.Package p = sPackageCaches.get(packageName);
+            PackageParser.Package p = PACKAGE_CACHE.get(packageName);
             if (p != null) {
                 return (PackageSetting) p.mExtras;
             }
@@ -40,7 +45,7 @@ public class PackageCache {
     public static PackageParser.Package remove(String packageName) {
         synchronized (PackageCache.class) {
             VPackageManagerService.get().deletePackageLocked(packageName);
-            return sPackageCaches.remove(packageName);
+            return PACKAGE_CACHE.remove(packageName);
         }
     }
 }

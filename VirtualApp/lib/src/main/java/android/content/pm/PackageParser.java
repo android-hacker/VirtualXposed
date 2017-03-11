@@ -18,6 +18,28 @@ public class PackageParser {
         public ActivityInfo info;
     }
 
+    public static class IntentInfo extends IntentFilter {
+        public boolean hasDefault;
+        public int labelRes;
+        public CharSequence nonLocalizedLabel;
+        public int icon;
+        public int logo;
+        public int banner;
+        public int preferred;
+    }
+
+    public static class Component<II extends IntentInfo> {
+        public Package owner;
+        public ArrayList<II> intents;
+        public String className;
+        public Bundle metaData;
+
+        public ComponentName getComponentName() {
+            return null;
+        }
+
+    }
+
     public final class Service extends Component<ServiceIntentInfo> {
         public ServiceInfo info;
     }
@@ -25,11 +47,14 @@ public class PackageParser {
     public final class Provider extends Component<ProviderIntentInfo> {
         public ProviderInfo info;
     }
-    public final class Instrumentation {}
+
+    public final class Instrumentation {
+    }
 
     public final class Permission extends Component<IntentInfo> {
         public PermissionInfo info;
     }
+
     public final class PermissionGroup extends Component<IntentInfo> {
         public PermissionGroupInfo info;
     }
@@ -54,28 +79,6 @@ public class PackageParser {
         public String mSharedUserId;
         public ArrayList<String> usesLibraries;
         public int mVersionCode;
-    }
-
-    public static class IntentInfo extends IntentFilter {
-        public boolean hasDefault;
-        public int labelRes;
-        public CharSequence nonLocalizedLabel;
-        public int icon;
-        public int logo;
-        public int banner;
-        public int preferred;
-    }
-
-    public static class Component<II extends IntentInfo> {
-        public Package owner;
-        public ArrayList<II> intents;
-        public String className;
-        public Bundle metaData;
-
-        public ComponentName getComponentName() {
-            return null;
-        }
-
     }
 
     public class ActivityIntentInfo extends IntentInfo {

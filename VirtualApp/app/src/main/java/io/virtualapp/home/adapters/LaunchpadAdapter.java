@@ -13,12 +13,9 @@ import java.util.List;
 import io.virtualapp.R;
 import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.home.models.AppData;
-import io.virtualapp.home.models.PackageAppData;
+import io.virtualapp.home.models.MultiplePackageAppData;
+import io.virtualapp.widgets.LabelView;
 import io.virtualapp.widgets.LauncherIconView;
-import io.virtualapp.widgets.ShadowProperty;
-import io.virtualapp.widgets.ShadowViewDrawable;
-
-import static io.virtualapp.widgets.ViewHelper.dip2px;
 
 /**
  * @author Lody
@@ -34,18 +31,18 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
         mInflater = LayoutInflater.from(context);
     }
 
-    public void add(PackageAppData model) {
+    public void add(AppData model) {
         mList.add(model);
         notifyItemInserted(mList.size() - 1);
     }
 
-    public void replace(int index, PackageAppData model) {
-        mList.set(index, model);
+    public void replace(int index, AppData data) {
+        mList.set(index, data);
         notifyItemChanged(index);
     }
 
-    public void remove(PackageAppData model) {
-        int index = mList.indexOf(model);
+    public void remove(AppData data) {
+        int index = mList.indexOf(data);
         if (index >= 0) {
             mList.remove(index);
             notifyItemRemoved(index);
@@ -59,28 +56,29 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        AppData model = mList.get(position);
+        AppData data = mList.get(position);
         holder.color = getColor(position);
-        holder.iconView.setImageDrawable(model.getIcon());
-        holder.nameView.setText(model.getName());
-        if (model.isFirstOpen() && !model.isLoading()) {
+        holder.iconView.setImageDrawable(data.getIcon());
+        holder.nameView.setText(data.getName());
+        if (data.isFirstOpen() && !data.isLoading()) {
             holder.firstOpenDot.setVisibility(View.VISIBLE);
         } else {
             holder.firstOpenDot.setVisibility(View.INVISIBLE);
         }
-        ShadowProperty sp = new ShadowProperty()
-                .setShadowColor(0x77000000)
-                .setShadowDy(dip2px(0.5f))
-                .setShadowRadius(dip2px(1))
-                .setShadowSide(ShadowProperty.ALL);
-        holder.shadow = new ShadowViewDrawable(sp, holder.color, 0, 0);
         holder.itemView.setBackgroundColor(holder.color);
         holder.itemView.setOnClickListener(v -> {
             if (mAppClickListener != null) {
-                mAppClickListener.onAppClick(position, model);
+                mAppClickListener.onAppClick(position, data);
             }
         });
-        if (model.isLoading()) {
+        if (data instanceof MultiplePackageAppData) {
+            MultiplePackageAppData multipleData = (MultiplePackageAppData) data;
+            holder.spaceLabelView.setVisibility(View.VISIBLE);
+            holder.spaceLabelView.setText(multipleData.userId + 1 + "");
+        } else {
+            holder.spaceLabelView.setVisibility(View.INVISIBLE);
+        }
+        if (data.isLoading()) {
             startLoadingAnimation(holder.iconView);
         } else {
             holder.iconView.setProgress(100, false);
@@ -88,7 +86,7 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
     }
 
     private void startLoadingAnimation(LauncherIconView iconView) {
-        iconView.setProgress(50, true);
+        iconView.setProgress(40, true);
         VUiKit.defer().when(() -> {
             try {
                 Thread.sleep(900L);
@@ -158,7 +156,7 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
         notifyItemMoved(pos, targetPos);
     }
 
-    public void refresh(PackageAppData model) {
+    public void refresh(AppData model) {
         int index = mList.indexOf(model);
         if (index >= 0) {
             notifyItemChanged(index);
@@ -170,16 +168,17 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public ShadowViewDrawable shadow;
         public int color;
         LauncherIconView iconView;
         TextView nameView;
+        LabelView spaceLabelView;
         View firstOpenDot;
 
         ViewHolder(View itemView) {
             super(itemView);
             iconView = (LauncherIconView) itemView.findViewById(R.id.item_app_icon);
             nameView = (TextView) itemView.findViewById(R.id.item_app_name);
+            spaceLabelView = (LabelView) itemView.findViewById(R.id.item_app_space_idx);
             firstOpenDot = itemView.findViewById(R.id.item_first_open_dot);
         }
     }

@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimaryDark"
     tools:context=".splash.SplashActivity">
 
 
@@ -11,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"
-        android:layout_marginBottom="70dp"
+        android:layout_marginBottom="90dp"
         android:text="@string/app_name"
         android:textColor="@android:color/white"
         android:textSize="23sp" />
@@ -20,7 +19,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"
-        android:layout_marginBottom="35dp"
+        android:layout_marginBottom="60dp"
         android:text="@string/splash_desc"
         android:textSize="13sp" />
 

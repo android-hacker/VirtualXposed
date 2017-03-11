@@ -43,7 +43,7 @@ public class PackageAppDataStorage {
     }
 
     private PackageAppData loadAppData(String packageName) {
-        InstalledAppInfo setting = VirtualCore.get().getInstalledAppInfo(packageName);
+        InstalledAppInfo setting = VirtualCore.get().getInstalledAppInfo(packageName, 0);
         if (setting != null) {
             PackageAppData data = new PackageAppData(VApp.getApp(), setting);
             synchronized (packageDataMap) {

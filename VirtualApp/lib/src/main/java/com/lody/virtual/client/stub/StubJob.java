@@ -16,7 +16,7 @@ import android.os.RemoteException;
 import com.lody.virtual.client.core.PatchManager;
 import com.lody.virtual.client.hook.patchs.am.ActivityManagerPatch;
 import com.lody.virtual.helper.utils.VLog;
-import com.lody.virtual.helper.utils.collection.SparseArray;
+import com.lody.virtual.helper.collection.SparseArray;
 import com.lody.virtual.os.VUserHandle;
 
 import java.util.Map;
@@ -34,10 +34,8 @@ import static com.lody.virtual.server.job.VJobSchedulerService.get;
 public class StubJob extends Service {
 
     private static final String TAG = StubJob.class.getSimpleName();
-
-    private JobScheduler mScheduler;
     private final SparseArray<JobSession> mJobSessions = new SparseArray<>();
-
+    private JobScheduler mScheduler;
     private final IJobService mService = new IJobService.Stub() {
 
         @Override
@@ -106,6 +104,17 @@ public class StubJob extends Service {
         }
     }
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        PatchManager.getInstance().checkEnv(ActivityManagerPatch.class);
+        mScheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mService.asBinder();
+    }
 
     private final class JobSession extends IJobCallback.Stub implements ServiceConnection {
 
@@ -177,18 +186,6 @@ public class StubJob extends Service {
             mJobSessions.remove(jobId);
             unbindService(this);
         }
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        PatchManager.getInstance().checkEnv(ActivityManagerPatch.class);
-        mScheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mService.asBinder();
     }
 
 }

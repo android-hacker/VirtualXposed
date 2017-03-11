@@ -24,9 +24,8 @@ import io.virtualapp.abs.ui.VFragment;
 import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.home.adapters.CloneAppListAdapter;
 import io.virtualapp.home.adapters.decorations.ItemOffsetDecoration;
-import io.virtualapp.home.models.AppData;
+import io.virtualapp.home.models.AppInfo;
 import io.virtualapp.home.models.AppInfoLite;
-import io.virtualapp.home.models.PackageAppData;
 import io.virtualapp.widgets.DragSelectRecyclerView;
 
 /**
@@ -82,7 +81,7 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.setOnItemClickListener(new CloneAppListAdapter.ItemEventListener() {
             @Override
-            public void onItemClick(AppData appData, int position) {
+            public void onItemClick(AppInfo info, int position) {
                 int count = mAdapter.getSelectedCount();
                 if (!mAdapter.isIndexSelected(position)) {
                     if (count >= 9) {
@@ -106,8 +105,8 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
             Integer[] selectedIndices = mAdapter.getSelectedIndices();
             ArrayList<AppInfoLite> dataList = new ArrayList<AppInfoLite>(selectedIndices.length);
             for (int index : selectedIndices) {
-                PackageAppData appData = (PackageAppData) mAdapter.getItem(index);
-                dataList.add(new AppInfoLite(appData.path, appData.fastOpen));
+                AppInfo info = mAdapter.getItem(index);
+                dataList.add(new AppInfoLite(info.packageName, info.path, info.fastOpen));
             }
             Intent data = new Intent();
             data.putParcelableArrayListExtra(VCommends.EXTRA_APP_INFO_LIST, dataList);
@@ -124,8 +123,8 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
     }
 
     @Override
-    public void loadFinish(List<AppData> models) {
-        mAdapter.setList(models);
+    public void loadFinish(List<AppInfo> infoList) {
+        mAdapter.setList(infoList);
         mRecyclerView.setDragSelectActive(true, 0);
         mAdapter.setSelected(0, false);
         mProgressBar.setVisibility(View.GONE);

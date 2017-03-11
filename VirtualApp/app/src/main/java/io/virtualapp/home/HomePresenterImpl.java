@@ -4,13 +4,18 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.os.VUserInfo;
+import com.lody.virtual.os.VUserManager;
+import com.lody.virtual.remote.InstallResult;
+import com.lody.virtual.remote.InstalledAppInfo;
 
 import java.io.IOException;
 
 import io.virtualapp.VCommends;
-import io.virtualapp.abs.Value;
 import io.virtualapp.abs.ui.VUiKit;
+import io.virtualapp.home.models.AppData;
 import io.virtualapp.home.models.AppInfoLite;
+import io.virtualapp.home.models.MultiplePackageAppData;
 import io.virtualapp.home.models.PackageAppData;
 import io.virtualapp.home.repo.AppRepository;
 import io.virtualapp.home.repo.PackageAppDataStorage;
@@ -42,9 +47,17 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
     }
 
     @Override
-    public void launchApp(PackageAppData model, int userId) {
+    public void launchApp(AppData data) {
         try {
-            LoadingActivity.launch(mActivity, model.packageName, userId);
+            if (data instanceof PackageAppData) {
+                PackageAppData appData = (PackageAppData) data;
+                appData.isFirstOpen = false;
+                LoadingActivity.launch(mActivity, appData.packageName, 0);
+            } else {
+                MultiplePackageAppData multipleData = (MultiplePackageAppData) data;
+                multipleData.isFirstOpen = false;
+                LoadingActivity.launch(mActivity, multipleData.appInfo.packageName, ((MultiplePackageAppData) data).userId);
+            }
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -59,20 +72,63 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
 
     @Override
     public void addApp(AppInfoLite info) {
-        Value<PackageAppData> dataValue = new Value<>();
-        VUiKit.defer().when(() -> mRepo.addVirtualApp(info))
-                .then((res) -> {
-                    if (!res.isSuccess) {
+        class AddResult {
+            private PackageAppData appData;
+            private int userId;
+        }
+        AddResult addResult = new AddResult();
+        VUiKit.defer().when(() -> {
+            InstalledAppInfo installedAppInfo = VirtualCore.get().getInstalledAppInfo(info.packageName, 0);
+            if (installedAppInfo != null) {
+                int[] userIds = installedAppInfo.getInstalledUsers();
+                int nextUserId = userIds.length;
+                addResult.userId = nextUserId;
+                if (VUserManager.get().getUserInfo(nextUserId) == null) {
+                    String nextUserName = "Space " + nextUserId;
+                    VUserInfo newUserInfo = VUserManager.get().createUser(nextUserName, VUserInfo.FLAG_ADMIN);
+                    if (newUserInfo == null) {
                         throw new IllegalStateException();
                     }
-                    dataValue.val = PackageAppDataStorage.get().acquire(res.packageName);
-                })
-                .done(res -> {
-                    PackageAppData data = dataValue.val;
-                    data.isLoading = true;
-                    mView.addAppToLauncher(data);
-                    handleOptApp(data);
-                });
+                }
+                boolean success = VirtualCore.get().installPackageAsUser(nextUserId, info.packageName);
+                if (!success) {
+                    throw new IllegalStateException();
+                }
+            } else {
+                InstallResult res = mRepo.addVirtualApp(info);
+                if (!res.isSuccess) {
+                    throw new IllegalStateException();
+                }
+            }
+        }).then((res) -> {
+            addResult.appData = PackageAppDataStorage.get().acquire(info.packageName);
+        }).done(res -> {
+            if (addResult.userId == 0) {
+                PackageAppData data = addResult.appData;
+                data.isLoading = true;
+                mView.addAppToLauncher(data);
+                handleOptApp(data);
+            } else {
+                MultiplePackageAppData data = new MultiplePackageAppData(addResult.appData, addResult.userId);
+                data.isLoading = true;
+                mView.addAppToLauncher(data);
+                handleMultipleApp(data);
+            }
+        });
+    }
+
+    private void handleMultipleApp(MultiplePackageAppData data) {
+        VUiKit.defer().when(() -> {
+            try {
+                Thread.sleep(1500L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).done((res) -> {
+            data.isLoading = false;
+            data.isFirstOpen = true;
+            mView.refreshLauncherItem(data);
+        });
     }
 
     private void handleOptApp(PackageAppData data) {
@@ -95,24 +151,29 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
             }
         }).done((res) -> {
             data.isLoading = false;
-            data.firstOpen = true;
+            data.isFirstOpen = true;
             mView.refreshLauncherItem(data);
         });
     }
 
     @Override
-    public void deleteApp(PackageAppData model) {
+    public void deleteApp(AppData data) {
         try {
-            mRepo.removeVirtualApp(model.packageName);
-            mView.removeAppToLauncher(model);
+            mView.removeAppToLauncher(data);
+            if (data instanceof PackageAppData) {
+                mRepo.removeVirtualApp(((PackageAppData) data).packageName, 0);
+            } else {
+                MultiplePackageAppData appData = (MultiplePackageAppData) data;
+                mRepo.removeVirtualApp(appData.appInfo.packageName, appData.userId);
+            }
         } catch (Throwable e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void createShortcut(PackageAppData model) {
-        VirtualCore.get().createShortcut(0, model.packageName, new VirtualCore.OnEmitShortcutListener() {
+    public void createShortcut(AppData data) {
+        VirtualCore.OnEmitShortcutListener listener = new VirtualCore.OnEmitShortcutListener() {
             @Override
             public Bitmap getIcon(Bitmap originIcon) {
                 return originIcon;
@@ -122,7 +183,13 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
             public String getName(String originName) {
                 return originName + "(VA)";
             }
-        });
+        };
+        if (data instanceof PackageAppData) {
+            VirtualCore.get().createShortcut(0, ((PackageAppData) data).packageName, listener);
+        } else if (data instanceof MultiplePackageAppData) {
+            MultiplePackageAppData appData = (MultiplePackageAppData) data;
+            VirtualCore.get().createShortcut(appData.userId, appData.appInfo.packageName, listener);
+        }
     }
 
 }

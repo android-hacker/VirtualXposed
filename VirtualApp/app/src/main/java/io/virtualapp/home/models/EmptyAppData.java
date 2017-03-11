@@ -1,50 +1,12 @@
 package io.virtualapp.home.models;
 
 import android.graphics.drawable.Drawable;
-import android.os.Parcel;
 
 /**
  * @author Lody
  */
 
 public class EmptyAppData implements AppData {
-
-    public static final Creator<EmptyAppData> CREATOR = new Creator<EmptyAppData>() {
-        @Override
-        public EmptyAppData createFromParcel(Parcel source) {
-            return new EmptyAppData();
-        }
-
-        @Override
-        public EmptyAppData[] newArray(int size) {
-            return new EmptyAppData[size];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-
-    }
-
-    @Override
-    public void mark(int tag) {
-
-    }
-
-    @Override
-    public void unMark(int tag) {
-
-    }
-
-    @Override
-    public boolean isMarked(int tag) {
-        return false;
-    }
 
     @Override
     public boolean isLoading() {

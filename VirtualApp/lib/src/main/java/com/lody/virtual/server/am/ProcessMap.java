@@ -1,7 +1,7 @@
 package com.lody.virtual.server.am;
 
-import com.lody.virtual.helper.utils.collection.ArrayMap;
-import com.lody.virtual.helper.utils.collection.SparseArray;
+import com.lody.virtual.helper.collection.ArrayMap;
+import com.lody.virtual.helper.collection.SparseArray;
 
 class ProcessMap<E> {
 	private final ArrayMap<String, SparseArray<E>> mMap = new ArrayMap<>();

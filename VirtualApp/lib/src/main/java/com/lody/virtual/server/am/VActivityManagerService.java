@@ -35,20 +35,20 @@ import com.lody.virtual.client.stub.StubManifest;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.compat.IApplicationThreadCompat;
-import com.lody.virtual.remote.InstalledAppInfo;
+import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.helper.collection.ArrayMap;
+import com.lody.virtual.helper.collection.SparseArray;
+import com.lody.virtual.os.VBinder;
+import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.remote.AppTaskInfo;
 import com.lody.virtual.remote.PendingIntentData;
 import com.lody.virtual.remote.PendingResultData;
 import com.lody.virtual.remote.VParceledListSlice;
-import com.lody.virtual.helper.utils.ComponentUtils;
-import com.lody.virtual.helper.utils.VLog;
-import com.lody.virtual.helper.utils.collection.ArrayMap;
-import com.lody.virtual.helper.utils.collection.SparseArray;
-import com.lody.virtual.os.VBinder;
-import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.server.IActivityManager;
 import com.lody.virtual.server.interfaces.IProcessObserver;
-import com.lody.virtual.server.interfaces.IUiObserver;
+import com.lody.virtual.server.pm.PackageCache;
+import com.lody.virtual.server.pm.PackageSetting;
 import com.lody.virtual.server.pm.VAppManagerService;
 import com.lody.virtual.server.pm.VPackageManagerService;
 import com.lody.virtual.server.secondary.BinderDelegateService;
@@ -77,7 +77,6 @@ public class VActivityManagerService extends IActivityManager.Stub {
     private final List<ServiceRecord> mHistory = new ArrayList<ServiceRecord>();
     private final ProcessMap<ProcessRecord> mProcessNames = new ProcessMap<ProcessRecord>();
     private final PendingIntents mPendingIntents = new PendingIntents();
-    private final UiEngine mUiEngine = new UiEngine();
     private ActivityManager am = (ActivityManager) VirtualCore.get().getContext()
             .getSystemService(Context.ACTIVITY_SERVICE);
 
@@ -150,7 +149,6 @@ public class VActivityManagerService extends IActivityManager.Stub {
         int pid = Binder.getCallingPid();
         ProcessRecord targetApp = findProcessLocked(pid);
         if (targetApp != null) {
-            mUiEngine.enterActivity(targetApp.userId, targetApp.info.packageName);
             mMainStack.onActivityCreated(targetApp, component, caller, token, intent, affinity, taskId, launchMode, flags);
         }
     }
@@ -163,11 +161,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
     @Override
     public boolean onActivityDestroyed(int userId, IBinder token) {
         ActivityRecord r = mMainStack.onActivityDestroyed(userId, token);
-        if (r != null) {
-            mUiEngine.exitActivity(userId, r.process.info.packageName);
-            return true;
-        }
-        return false;
+        return r != null;
     }
 
     @Override
@@ -195,7 +189,6 @@ public class VActivityManagerService extends IActivityManager.Stub {
                     iterator.remove();
                 }
             }
-            mUiEngine.appDead(record.userId, record.info.packageName);
             mMainStack.processDied(record);
         }
     }
@@ -653,17 +646,6 @@ public class VActivityManagerService extends IActivityManager.Stub {
         record.lock.open();
     }
 
-
-    @Override
-    public void registerUIObserver(IUiObserver observer) {
-        mUiEngine.addObserver(observer);
-    }
-
-    @Override
-    public void unregisterUIObserver(IUiObserver observer) {
-        mUiEngine.removeObserver(observer);
-    }
-
     @Override
     public int getFreeStubCount() {
         return StubManifest.STUB_COUNT - mPidsSelfLocked.size();
@@ -682,14 +664,21 @@ public class VActivityManagerService extends IActivityManager.Stub {
             // run GC
             killAllApps();
         }
+        PackageSetting setting = PackageCache.getSetting(packageName);
         ApplicationInfo info = VPackageManagerService.get().getApplicationInfo(packageName, 0, userId);
-        InstalledAppInfo setting = VAppManagerService.get().getInstalledAppInfo(info.packageName);
+        if (setting == null || info == null) {
+            return null;
+        }
+        if (!setting.isLaunched(userId)) {
+            setting.setLaunched(userId, true);
+            VAppManagerService.get().savePersistenceData();
+        }
         int uid = VUserHandle.getUid(userId, setting.appId);
         ProcessRecord app = mProcessNames.get(processName, uid);
         if (app != null && app.client.asBinder().isBinderAlive()) {
             return app;
         }
-        int vpid = queryFreeVPidForProcess();
+        int vpid = queryFreeStubProcessLocked();
         if (vpid == -1) {
             return null;
         }
@@ -729,7 +718,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
         return app;
     }
 
-    private int queryFreeVPidForProcess() {
+    private int queryFreeStubProcessLocked() {
         for (int vpid = 0; vpid < StubManifest.STUB_COUNT; vpid++) {
             int N = mPidsSelfLocked.size();
             boolean using = false;
@@ -957,7 +946,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
             return false;
         }
         if (userId < 0) {
-            VLog.w(TAG, "Sent a broadcast without userId: " + realIntent);
+            VLog.w(TAG, "Sent a broadcast without userId " + realIntent);
             return false;
         }
         int vuid = VUserHandle.getUid(userId, appId);

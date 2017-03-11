@@ -33,10 +33,6 @@
             android:taskAffinity="va.task.loading"
             android:theme="@style/TransparentTheme" />
 
-        <activity
-            android:name=".users.UserListActivity"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
-
     </application>
 
 

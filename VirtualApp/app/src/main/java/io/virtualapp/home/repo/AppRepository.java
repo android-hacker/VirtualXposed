@@ -3,11 +3,12 @@ package io.virtualapp.home.repo;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.remote.InstalledAppInfo;
 import com.lody.virtual.remote.InstallResult;
+import com.lody.virtual.remote.InstalledAppInfo;
 
 import org.jdeferred.Promise;
 
@@ -15,13 +16,14 @@ import java.io.File;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
 import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.home.models.AppData;
+import io.virtualapp.home.models.AppInfo;
 import io.virtualapp.home.models.AppInfoLite;
+import io.virtualapp.home.models.MultiplePackageAppData;
 import io.virtualapp.home.models.PackageAppData;
 
 /**
@@ -53,23 +55,29 @@ public class AppRepository implements AppDataSource {
     @Override
     public Promise<List<AppData>, Throwable, Void> getVirtualApps() {
         return VUiKit.defer().when(() -> {
-            List<InstalledAppInfo> infos = VirtualCore.get().getInstalledApps();
+            List<InstalledAppInfo> infos = VirtualCore.get().getInstalledApps(0);
             List<AppData> models = new ArrayList<AppData>();
             for (InstalledAppInfo info : infos) {
-                models.add(new PackageAppData(mContext, info));
+                PackageAppData data = new PackageAppData(mContext, info);
+                models.add(data);
+                int[] userIds = info.getInstalledUsers();
+                for (int userId : userIds) {
+                    if (userId != 0) {
+                        models.add(new MultiplePackageAppData(data, userId));
+                    }
+                }
             }
-            Collections.sort(models, (lhs, rhs) -> COLLATOR.compare(lhs.getName(), rhs.getName()));
             return models;
         });
     }
 
     @Override
-    public Promise<List<AppData>, Throwable, Void> getInstalledApps(Context context) {
+    public Promise<List<AppInfo>, Throwable, Void> getInstalledApps(Context context) {
         return VUiKit.defer().when(() -> convertPackageInfoToAppData(context, context.getPackageManager().getInstalledPackages(0), true));
     }
 
     @Override
-    public Promise<List<AppData>, Throwable, Void> getStorageApps(Context context, File rootDir) {
+    public Promise<List<AppInfo>, Throwable, Void> getStorageApps(Context context, File rootDir) {
         return VUiKit.defer().when(() -> convertPackageInfoToAppData(context, findAndParseAPKs(context, rootDir, SCAN_PATH_LIST), false));
     }
 
@@ -99,8 +107,9 @@ public class AppRepository implements AppDataSource {
         return packageList;
     }
 
-    private List<AppData> convertPackageInfoToAppData(Context context, List<PackageInfo> pkgList, boolean fastOpen) {
-        List<AppData> models = new ArrayList<>(pkgList.size());
+    private List<AppInfo> convertPackageInfoToAppData(Context context, List<PackageInfo> pkgList, boolean fastOpen) {
+        PackageManager pm = context.getPackageManager();
+        List<AppInfo> list = new ArrayList<>(pkgList.size());
         String hostPkg = VirtualCore.get().getHostPkg();
         for (PackageInfo pkg : pkgList) {
             // ignore the host package
@@ -111,16 +120,21 @@ public class AppRepository implements AppDataSource {
             if (isSystemApplication(pkg)) {
                 continue;
             }
-            // ignore the installed package
-            if (VirtualCore.get().isAppInstalled(pkg.packageName)) {
-                continue;
+            ApplicationInfo applicationInfo = pkg.applicationInfo;
+            String path = applicationInfo.publicSourceDir;
+            AppInfo info = new AppInfo();
+            info.packageName = pkg.packageName;
+            info.fastOpen = fastOpen;
+            info.path = path;
+            info.icon = applicationInfo.loadIcon(pm);
+            info.name = applicationInfo.loadLabel(pm);
+            InstalledAppInfo installedAppInfo = VirtualCore.get().getInstalledAppInfo(pkg.packageName, 0);
+            if (installedAppInfo != null) {
+                info.cloneCount = installedAppInfo.getInstalledUsers().length;
             }
-            PackageAppData model = new PackageAppData(context, pkg);
-            model.fastOpen = fastOpen;
-            models.add(model);
+            list.add(info);
         }
-        Collections.sort(models, (lhs, rhs) -> COLLATOR.compare(lhs.getName(), rhs.getName()));
-        return models;
+        return list;
     }
 
     @Override
@@ -129,12 +143,12 @@ public class AppRepository implements AppDataSource {
         if (info.fastOpen) {
             flags |= InstallStrategy.DEPEND_SYSTEM_IF_EXIST;
         }
-        return VirtualCore.get().installApp(info.path, flags);
+        return VirtualCore.get().installPackage(info.path, flags);
     }
 
     @Override
-    public boolean removeVirtualApp(String packageName) {
-        return VirtualCore.get().uninstallApp(packageName);
+    public boolean removeVirtualApp(String packageName, int userId) {
+        return VirtualCore.get().uninstallPackage(packageName, userId);
     }
 
 }

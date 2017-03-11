@@ -225,7 +225,7 @@ public class VPackageInstallerService extends IPackageInstaller.Stub {
 
     @Override
     public void uninstall(String packageName, String callerPackageName, int flags, IntentSender statusReceiver, int userId) throws RemoteException {
-        boolean success = VAppManagerService.get().uninstallApp(packageName);
+        boolean success = VAppManagerService.get().uninstallPackage(packageName, userId);
         if (statusReceiver != null) {
             final Intent fillIn = new Intent();
             fillIn.putExtra(PackageInstaller.EXTRA_PACKAGE_NAME, packageName);

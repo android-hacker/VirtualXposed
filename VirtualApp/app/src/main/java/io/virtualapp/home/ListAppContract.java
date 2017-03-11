@@ -4,7 +4,7 @@ import java.util.List;
 
 import io.virtualapp.abs.BasePresenter;
 import io.virtualapp.abs.BaseView;
-import io.virtualapp.home.models.AppData;
+import io.virtualapp.home.models.AppInfo;
 
 /**
  * @author Lody
@@ -15,7 +15,7 @@ import io.virtualapp.home.models.AppData;
 
         void startLoading();
 
-        void loadFinish(List<AppData> models);
+        void loadFinish(List<AppInfo> infoList);
     }
 
     interface ListAppPresenter extends BasePresenter {

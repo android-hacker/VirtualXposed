@@ -4,14 +4,11 @@ import android.content.pm.ApplicationInfo;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.os.VEnvironment;
-import com.lody.virtual.os.VUserInfo;
-import com.lody.virtual.os.VUserManager;
 
 import java.io.File;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * @author Lody
@@ -20,8 +17,8 @@ public final class InstalledAppInfo implements Parcelable {
 
     public static final Creator<InstalledAppInfo> CREATOR = new Creator<InstalledAppInfo>() {
         @Override
-        public InstalledAppInfo createFromParcel(Parcel in) {
-            return new InstalledAppInfo(in);
+        public InstalledAppInfo createFromParcel(Parcel source) {
+            return new InstalledAppInfo(source);
         }
 
         @Override
@@ -35,7 +32,6 @@ public final class InstalledAppInfo implements Parcelable {
     public boolean dependSystem;
     public int appId;
 
-
     public InstalledAppInfo(String packageName, String apkPath, String libPath, boolean dependSystem, int appId) {
         this.packageName = packageName;
         this.apkPath = apkPath;
@@ -45,41 +41,19 @@ public final class InstalledAppInfo implements Parcelable {
     }
 
     protected InstalledAppInfo(Parcel in) {
-        packageName = in.readString();
-        apkPath = in.readString();
-        libPath = in.readString();
-        dependSystem = in.readByte() != 0;
-    }
-
-    public List<Integer> getInstalledUsers() {
-        List<Integer> installedUsers = new LinkedList<>();
-        List<VUserInfo> users = VUserManager.get().getUsers();
-        for (VUserInfo info : users) {
-            if (VEnvironment.getDataUserPackageDirectory(info.id, packageName).exists()) {
-                installedUsers.add(info.id);
-            }
-        }
-        return installedUsers;
-    }
-
-    public boolean isInstalled(int userId) {
-        return VEnvironment.getDataUserPackageDirectory(userId, packageName).exists();
-    }
-
-    public void installAsUser(int userId) {
-        VEnvironment.getDataUserPackageDirectory(userId, packageName).mkdirs();
+        this.packageName = in.readString();
+        this.apkPath = in.readString();
+        this.libPath = in.readString();
+        this.dependSystem = in.readByte() != 0;
+        this.appId = in.readInt();
     }
 
     public File getOdexFile() {
         return VEnvironment.getOdexFile(packageName);
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(packageName);
-        dest.writeString(apkPath);
-        dest.writeString(libPath);
-        dest.writeByte((byte) (dependSystem ? 1 : 0));
+    public ApplicationInfo getApplicationInfo(int userId) {
+        return VPackageManager.get().getApplicationInfo(packageName, 0, userId);
     }
 
     @Override
@@ -87,7 +61,20 @@ public final class InstalledAppInfo implements Parcelable {
         return 0;
     }
 
-    public ApplicationInfo getApplicationInfo(int userId) {
-        return VPackageManager.get().getApplicationInfo(packageName, 0, userId);
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.packageName);
+        dest.writeString(this.apkPath);
+        dest.writeString(this.libPath);
+        dest.writeByte(this.dependSystem ? (byte) 1 : (byte) 0);
+        dest.writeInt(this.appId);
+    }
+
+    public int[] getInstalledUsers() {
+        return VirtualCore.get().getPackageInstalledUsers(packageName);
+    }
+
+    public boolean isLaunched(int userId) {
+        return VirtualCore.get().isPackageLaunched(userId, packageName);
     }
 }

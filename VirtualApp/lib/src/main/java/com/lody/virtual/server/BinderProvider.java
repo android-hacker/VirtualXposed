@@ -1,6 +1,10 @@
 package com.lody.virtual.server;
 
+import android.content.ContentProvider;
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -10,7 +14,6 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.ipc.ServiceManagerNative;
 import com.lody.virtual.client.stub.DaemonService;
 import com.lody.virtual.helper.compat.BundleCompat;
-import com.lody.virtual.helper.component.BaseContentProvider;
 import com.lody.virtual.server.accounts.VAccountManagerService;
 import com.lody.virtual.server.am.BroadcastSystem;
 import com.lody.virtual.server.am.VActivityManagerService;
@@ -24,7 +27,7 @@ import com.lody.virtual.server.pm.VUserManagerService;
 /**
  * @author Lody
  */
-public final class BinderProvider extends BaseContentProvider {
+public final class BinderProvider extends ContentProvider {
 
     private final ServiceFetcher mServiceFetcher = new ServiceFetcher();
 
@@ -50,9 +53,10 @@ public final class BinderProvider extends BaseContentProvider {
         }
         VNotificationManagerService.systemReady(context);
         addService(ServiceManagerNative.NOTIFICATION, VNotificationManagerService.get());
-        VAppManagerService.get().preloadAllApps();
+        VAppManagerService.get().scanApps();
         return true;
     }
+
 
     private void addService(String name, IBinder service) {
         ServiceCache.addService(name, service);
@@ -63,6 +67,31 @@ public final class BinderProvider extends BaseContentProvider {
         Bundle bundle = new Bundle();
         BundleCompat.putBinder(bundle, "_VA_|_binder_", mServiceFetcher);
         return bundle;
+    }
+
+    @Override
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        return null;
+    }
+
+    @Override
+    public String getType(Uri uri) {
+        return null;
+    }
+
+    @Override
+    public Uri insert(Uri uri, ContentValues values) {
+        return null;
+    }
+
+    @Override
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
+        return 0;
+    }
+
+    @Override
+    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+        return 0;
     }
 
     private class ServiceFetcher extends IServiceFetcher.Stub {
@@ -88,5 +117,4 @@ public final class BinderProvider extends BaseContentProvider {
             }
         }
     }
-
 }

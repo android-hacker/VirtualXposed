@@ -62,7 +62,11 @@ public class UidSystem {
             if (bakUidFile.exists() && !bakUidFile.delete()) {
                 VLog.w(TAG, "Warning: Unable to delete the expired file --\n " + bakUidFile.getPath());
             }
-            FileUtils.copyFile(uidFile, bakUidFile);
+            try {
+                FileUtils.copyFile(uidFile, bakUidFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         try {
             ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(uidFile));

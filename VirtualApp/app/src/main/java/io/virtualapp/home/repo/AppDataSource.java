@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.List;
 
 import io.virtualapp.home.models.AppData;
+import io.virtualapp.home.models.AppInfo;
 import io.virtualapp.home.models.AppInfoLite;
 
 /**
@@ -27,11 +28,11 @@ public interface AppDataSource {
      * @param context Context
      * @return All the Applications we Installed.
      */
-    Promise<List<AppData>, Throwable, Void> getInstalledApps(Context context);
+    Promise<List<AppInfo>, Throwable, Void> getInstalledApps(Context context);
 
-    Promise<List<AppData>, Throwable, Void> getStorageApps(Context context, File rootDir);
+    Promise<List<AppInfo>, Throwable, Void> getStorageApps(Context context, File rootDir);
 
     InstallResult addVirtualApp(AppInfoLite info);
 
-    boolean removeVirtualApp(String packageName);
+    boolean removeVirtualApp(String packageName, int userId);
 }

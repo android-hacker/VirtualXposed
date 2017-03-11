@@ -6,13 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 
-import com.lody.virtual.helper.component.BaseService;
 
 /**
  * @author Lody
  *
  */
-public class DaemonService extends BaseService {
+public class DaemonService extends Service {
 
     private static final int NOTIFY_ID = 1001;
 
@@ -24,6 +23,11 @@ public class DaemonService extends BaseService {
 	public void onDestroy() {
 		super.onDestroy();
 		startup(this);
+	}
+
+	@Override
+	public IBinder onBind(Intent intent) {
+		return null;
 	}
 
 	@Override
@@ -39,7 +43,7 @@ public class DaemonService extends BaseService {
 		return START_STICKY;
 	}
 
-	public static final class InnerService extends BaseService {
+	public static final class InnerService extends Service {
 
         @Override
         public int onStartCommand(Intent intent, int flags, int startId) {
@@ -48,7 +52,12 @@ public class DaemonService extends BaseService {
             stopSelf();
             return super.onStartCommand(intent, flags, startId);
         }
-    }
+
+		@Override
+		public IBinder onBind(Intent intent) {
+			return null;
+		}
+	}
 
 
 }

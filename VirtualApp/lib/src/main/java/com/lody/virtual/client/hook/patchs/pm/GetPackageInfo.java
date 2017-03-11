@@ -5,7 +5,6 @@ import android.content.pm.PackageInfo;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.helper.utils.ComponentUtils;
-import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
@@ -33,11 +32,8 @@ public final class GetPackageInfo extends Hook {
 		String pkg = (String) args[0];
 		int flags = (int) args[1];
 		int userId = VUserHandle.myUserId();
-		long before = System.currentTimeMillis();
 		PackageInfo packageInfo = VPackageManager.get().getPackageInfo(pkg, flags, userId);
-		long delta = System.currentTimeMillis() - before;
 		if (packageInfo != null) {
-			VLog.d(getClass().getSimpleName(), "get pkg : " + pkg + " spend " + delta + "ms.");
 			return packageInfo;
 		}
 		packageInfo = (PackageInfo) method.invoke(who, args);

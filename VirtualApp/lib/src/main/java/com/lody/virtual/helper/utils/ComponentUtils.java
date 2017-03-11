@@ -9,6 +9,7 @@ import android.content.pm.PackageInfo;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.SpecialComponentList;
+import com.lody.virtual.client.hook.secondary.GmsSupport;
 import com.lody.virtual.helper.compat.ObjectsCompat;
 
 import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_INSTANCE;
@@ -20,7 +21,7 @@ public class ComponentUtils {
 
     public static String getTaskAffinity(ActivityInfo info) {
         if (info.launchMode == LAUNCH_SINGLE_INSTANCE) {
-            return "_#SI#_" + info.packageName + "/" + info.name;
+            return "-SingleInstance-" + info.packageName + "/" + info.name;
         } else if (info.taskAffinity == null && info.applicationInfo.taskAffinity == null) {
             return info.packageName;
         } else if (info.taskAffinity != null) {
@@ -91,7 +92,7 @@ public class ComponentUtils {
     }
 
     public static boolean isSystemApp(ApplicationInfo applicationInfo) {
-        return applicationInfo != null
+        return !GmsSupport.isGmsFamilyPackage(applicationInfo.packageName)
                 && ((ApplicationInfo.FLAG_SYSTEM & applicationInfo.flags) != 0
                 || SpecialComponentList.isSpecSystemPackage(applicationInfo.packageName));
     }

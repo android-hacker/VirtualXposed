@@ -1,19 +1,12 @@
 package io.virtualapp.home.models;
 
 import android.graphics.drawable.Drawable;
-import android.os.Parcelable;
 
 /**
  * @author Lody
  */
 
-public interface AppData extends Parcelable {
-
-    void mark(int tag);
-
-    void unMark(int tag);
-
-    boolean isMarked(int tag);
+public interface AppData {
 
     boolean isLoading();
 

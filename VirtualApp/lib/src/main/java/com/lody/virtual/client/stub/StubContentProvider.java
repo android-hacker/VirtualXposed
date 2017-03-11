@@ -1,5 +1,9 @@
 package com.lody.virtual.client.stub;
 
+import android.content.ContentProvider;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.ConditionVariable;
 import android.os.IBinder;
@@ -8,13 +12,17 @@ import android.os.Process;
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.compat.BundleCompat;
-import com.lody.virtual.helper.component.BaseContentProvider;
 
 /**
  * @author Lody
  *
  */
-public abstract class StubContentProvider extends BaseContentProvider {
+public class StubContentProvider extends ContentProvider {
+
+	@Override
+	public boolean onCreate() {
+		return true;
+	}
 
 	@Override
 	public Bundle call(String method, String arg, Bundle extras) {
@@ -37,6 +45,31 @@ public abstract class StubContentProvider extends BaseContentProvider {
 		BundleCompat.putBinder(res, "_VA_|_client_", client.asBinder());
 		res.putInt("_VA_|_pid_", Process.myPid());
 		return res;
+	}
+
+	@Override
+	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+		return null;
+	}
+
+	@Override
+	public String getType(Uri uri) {
+		return null;
+	}
+
+	@Override
+	public Uri insert(Uri uri, ContentValues values) {
+		return null;
+	}
+
+	@Override
+	public int delete(Uri uri, String selection, String[] selectionArgs) {
+		return 0;
+	}
+
+	@Override
+	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+		return 0;
 	}
 
 
@@ -339,7 +372,6 @@ public abstract class StubContentProvider extends BaseContentProvider {
 
 	public static class C99 extends StubContentProvider {
 	}
-
 
 
 }

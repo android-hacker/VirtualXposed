@@ -8,7 +8,6 @@ import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
 import com.lody.virtual.client.hook.base.StaticHook;
-import com.lody.virtual.server.notification.VNotificationManagerService;
 
 import mirror.android.app.NotificationManager;
 import mirror.android.widget.Toast;
@@ -33,7 +32,6 @@ public class NotificationManagerPatch extends PatchDelegate<HookDelegate<IInterf
         super.onBindHooks();
         addHook(new ReplaceCallingPkgHook("enqueueToast"));
         addHook(new ReplaceCallingPkgHook("cancelToast"));
-        addHook(new ReplaceCallingPkgHook("areNotificationsEnabledForPackage"));
         addHook(new StaticHook("registerListener"));
         addHook(new StaticHook("unregisterListener"));
         addHook(new StaticHook("getAppActiveNotifications"));

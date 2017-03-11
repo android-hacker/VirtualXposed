@@ -21,7 +21,6 @@ public class VEnvironment {
     private static final File DATA_DIRECTORY;
     private static final File USER_DIRECTORY;
     private static final File DALVIK_CACHE_DIRECTORY;
-    private static final File RES_APK_DIRECTORY;
 
     static {
         File host = new File(getContext().getApplicationInfo().dataDir);
@@ -33,8 +32,6 @@ public class VEnvironment {
         USER_DIRECTORY = ensureCreated(new File(DATA_DIRECTORY, "user"));
         // Point to: /opt/
         DALVIK_CACHE_DIRECTORY = ensureCreated(new File(ROOT, "opt"));
-
-        RES_APK_DIRECTORY = ensureCreated(new File(getContext().getFilesDir(), "virtual-apk-res"));
     }
 
     public static void systemReady(){
@@ -87,6 +84,14 @@ public class VEnvironment {
         return new File(getSystemSecureDirectory(), "account-list.ini");
     }
 
+    public static File getPackageListFile() {
+        return new File(getSystemSecureDirectory(), "packages.ini");
+    }
+
+    public static File getBakPackageListFile() {
+        return new File(getSystemSecureDirectory(), "packages.ini.bak");
+    }
+
 
     public static File getJobConfigFile() {
         return new File(getSystemSecureDirectory(), "job-list.ini");
@@ -102,6 +107,10 @@ public class VEnvironment {
 
     public static File getDataAppPackageDirectory(String packageName) {
         return ensureCreated(new File(getDataAppDirectory(), packageName));
+    }
+
+    public static File getUserSystemDirectory() {
+        return USER_DIRECTORY;
     }
 
     public static File getUserSystemDirectory(int userId) {

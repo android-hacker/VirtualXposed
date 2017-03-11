@@ -1,5 +1,6 @@
 package com.lody.virtual.client.stub;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -17,7 +18,6 @@ public class ChooserActivity extends ResolverActivity {
     public static final String ACTION;
 
     static {
-        //适配rom的action��
         Intent target = new Intent();
         Intent intent = Intent.createChooser(target, "");
         ACTION = intent.getAction();
@@ -32,6 +32,7 @@ public class ChooserActivity extends ResolverActivity {
         return false;
     }
 
+    @SuppressLint("MissingSuperCall")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Intent intent = getIntent();

@@ -2,7 +2,7 @@ package com.lody.virtual.server;
 
 import android.os.IBinder;
 
-import com.lody.virtual.helper.utils.collection.ArrayMap;
+import com.lody.virtual.helper.collection.ArrayMap;
 
 import java.util.Map;
 

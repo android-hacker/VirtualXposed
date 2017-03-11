@@ -13,9 +13,9 @@ import java.util.List;
 
 import io.virtualapp.R;
 import io.virtualapp.abs.ui.VUiKit;
-import io.virtualapp.home.models.AppData;
-import io.virtualapp.home.models.PackageAppData;
+import io.virtualapp.home.models.AppInfo;
 import io.virtualapp.widgets.DragSelectRecyclerViewAdapter;
+import io.virtualapp.widgets.LabelView;
 
 /**
  * @author Lody
@@ -25,7 +25,7 @@ public class CloneAppListAdapter extends DragSelectRecyclerViewAdapter<CloneAppL
     private static final int TYPE_FOOTER = -2;
     private final View mFooterView;
     private LayoutInflater mInflater;
-    private List<AppData> mAppList;
+    private List<AppInfo> mAppList;
     private ItemEventListener mItemEventListener;
 
     public CloneAppListAdapter(Context context) {
@@ -43,11 +43,11 @@ public class CloneAppListAdapter extends DragSelectRecyclerViewAdapter<CloneAppL
         this.mItemEventListener = mItemEventListener;
     }
 
-    public List<AppData> getList() {
+    public List<AppInfo> getList() {
         return mAppList;
     }
 
-    public void setList(List<AppData> models) {
+    public void setList(List<AppInfo> models) {
         this.mAppList = models;
         notifyDataSetChanged();
     }
@@ -66,9 +66,9 @@ public class CloneAppListAdapter extends DragSelectRecyclerViewAdapter<CloneAppL
             return;
         }
         super.onBindViewHolder(holder, position);
-        PackageAppData model = (PackageAppData) mAppList.get(position);
-        holder.iconView.setImageDrawable(model.icon);
-        holder.nameView.setText(model.name);
+        AppInfo info = mAppList.get(position);
+        holder.iconView.setImageDrawable(info.icon);
+        holder.nameView.setText(info.name);
         if (isIndexSelected(position)) {
             holder.itemView.setAlpha(1f);
             holder.appCheckView.setImageResource(R.drawable.ic_check);
@@ -76,8 +76,15 @@ public class CloneAppListAdapter extends DragSelectRecyclerViewAdapter<CloneAppL
             holder.itemView.setAlpha(0.65f);
             holder.appCheckView.setImageResource(R.drawable.ic_no_check);
         }
+        if (info.cloneCount > 0) {
+            holder.labelView.setVisibility(View.VISIBLE);
+            holder.labelView.setText(info.cloneCount + 1 + "");
+        } else {
+            holder.labelView.setVisibility(View.INVISIBLE);
+        }
+
         holder.itemView.setOnClickListener(v -> {
-            mItemEventListener.onItemClick(model, position);
+            mItemEventListener.onItemClick(info, position);
         });
     }
 
@@ -104,13 +111,13 @@ public class CloneAppListAdapter extends DragSelectRecyclerViewAdapter<CloneAppL
         return super.getItemViewType(position);
     }
 
-    public AppData getItem(int index) {
+    public AppInfo getItem(int index) {
         return mAppList.get(index);
     }
 
     public interface ItemEventListener {
 
-        void onItemClick(AppData appData, int position);
+        void onItemClick(AppInfo appData, int position);
 
         boolean isSelectable(int position);
     }
@@ -119,6 +126,7 @@ public class CloneAppListAdapter extends DragSelectRecyclerViewAdapter<CloneAppL
         private ImageView iconView;
         private TextView nameView;
         private ImageView appCheckView;
+        private LabelView labelView;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -126,6 +134,7 @@ public class CloneAppListAdapter extends DragSelectRecyclerViewAdapter<CloneAppL
                 iconView = (ImageView) itemView.findViewById(R.id.item_app_icon);
                 nameView = (TextView) itemView.findViewById(R.id.item_app_name);
                 appCheckView = (ImageView) itemView.findViewById(R.id.item_app_checked);
+                labelView = (LabelView) itemView.findViewById(R.id.item_app_clone_count);
             }
         }
     }

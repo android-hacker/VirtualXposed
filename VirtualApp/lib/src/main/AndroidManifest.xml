@@ -259,6 +259,17 @@
             android:excludeFromRecents="true"
             android:exported="true"
             android:finishOnCloseSystemDialogs="true"
+            android:process=":x"
+            android:screenOrientation="portrait"
+            android:theme="@style/VAAlertTheme" />
+
+        <activity
+            android:name=".client.stub.ResolverActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:finishOnCloseSystemDialogs="true"
+            android:process=":x"
             android:screenOrientation="portrait"
             android:theme="@style/VAAlertTheme" />
 

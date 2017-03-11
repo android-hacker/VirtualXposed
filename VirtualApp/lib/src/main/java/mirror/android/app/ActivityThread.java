@@ -48,6 +48,13 @@ public class ActivityThread {
     public static RefMethod<Void> sendActivityResult;
     public static RefMethod<Binder> getApplicationThread;
 
+    public static Object installProvider(Object mainThread, Context context, ProviderInfo providerInfo, Object holder) {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            return installProvider.call(mainThread, context, holder, providerInfo, false, true);
+        }
+        return installProvider.call(mainThread, context, holder, providerInfo, false, true, true);
+    }
+
     public static class ActivityClientRecord {
         public static Class<?> TYPE = RefClass.load(ActivityClientRecord.class, "android.app.ActivityThread$ActivityClientRecord");
         public static RefObject<Activity> activity;
@@ -90,13 +97,6 @@ public class ActivityThread {
         public static Class<?> TYPE = RefClass.load(H.class, "android.app.ActivityThread$H");
         public static RefStaticInt LAUNCH_ACTIVITY;
         public static RefStaticInt CREATE_SERVICE;
-    }
-
-
-    public static Object installProvider(Object mainThread, Context context, ProviderInfo providerInfo, Object holder) {
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-            return installProvider.call(mainThread, context, holder, providerInfo, false, true);
-        }
-        return installProvider.call(mainThread, context, holder, providerInfo, false, true, true);
+        public static RefStaticInt SCHEDULE_CRASH;
     }
 }

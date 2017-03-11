@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.lody.virtual.helper.utils.collection;
+package com.lody.virtual.helper.collection;
 
 import java.util.Collection;
 import java.util.Map;
