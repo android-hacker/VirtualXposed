@@ -48,9 +48,9 @@ import io.virtualapp.home.models.AppInfoLite;
 
 		void addApp(AppInfoLite info);
 
-		void deleteApp(AppData model);
+		void deleteApp(AppData data);
 
-        void createShortcut(AppData model);
+        void createShortcut(AppData data);
     }
 
 }

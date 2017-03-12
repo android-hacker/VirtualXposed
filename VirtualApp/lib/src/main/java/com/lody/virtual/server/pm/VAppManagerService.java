@@ -17,7 +17,6 @@ import com.lody.virtual.helper.utils.FileUtils;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.os.VUserHandle;
-import com.lody.virtual.os.VUserManager;
 import com.lody.virtual.remote.InstallResult;
 import com.lody.virtual.remote.InstalledAppInfo;
 import com.lody.virtual.server.IAppManager;
@@ -285,6 +284,7 @@ public class VAppManagerService extends IAppManager.Stub {
                     return true;
                 } else {
                     setting.setInstalled(userId, false);
+                    mPersistenceLayer.save();
                     FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(userId, packageName));
                 }
             }
