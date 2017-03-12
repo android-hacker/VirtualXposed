@@ -11,7 +11,11 @@ VirtualApp does **not** require root, it is running on the `local process`.
 
 NOTICE
 -------
-This project has been authorized by the business.
+**This project has been authorized by the business.**
+
+**You are not allowed to modify the app module and put to the software market, if you do that, The consequences you know :)**
+
+**VirtualApp is not free, If you need to use the lib code, please send email to me :)**
 
 Background
 ----------
