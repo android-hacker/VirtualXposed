@@ -9,14 +9,21 @@ import java.lang.reflect.Method;
  * @author Lody
  */
 
-public class DownloadProviderHook extends ExternalProviderHook {
+class DownloadProviderHook extends ExternalProviderHook {
 
-	public DownloadProviderHook(Object base) {
+	DownloadProviderHook(Object base) {
 		super(base);
 	}
 
-	@Override
+    @Override
+    protected void processArgs(Method method, Object... args) {
+        // empty
+    }
+
+    @Override
 	public Uri insert(Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
 		return super.insert(method, args);
 	}
+
+
 }

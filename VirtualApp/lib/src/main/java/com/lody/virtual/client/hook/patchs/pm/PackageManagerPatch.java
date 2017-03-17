@@ -32,7 +32,7 @@ import mirror.android.app.ActivityThread;
 		DeleteApplicationCacheFiles.class, GetInstallerPackageName.class,
 
 		IsPackageAvailable.class, IsPackageForzen.class, GetComponentEnabledSetting.class,
-		SetComponentEnabledSetting.class,
+		SetComponentEnabledSetting.class, FreeStorageAndNotify.class,
 
 		GetPackageUid.class, GetPackageUidEtc.class,
 		GetPackageGids.class,  GetPackageGidsEtc.class,
