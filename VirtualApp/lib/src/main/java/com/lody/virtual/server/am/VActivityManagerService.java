@@ -16,6 +16,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ServiceInfo;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
@@ -674,16 +675,17 @@ public class VActivityManagerService extends IActivityManager.Stub {
             // run GC
             killAllApps();
         }
-        PackageSetting setting = PackageCache.getSetting(packageName);
+        PackageSetting ps = PackageCache.getSetting(packageName);
         ApplicationInfo info = VPackageManagerService.get().getApplicationInfo(packageName, 0, userId);
-        if (setting == null || info == null) {
+        if (ps == null || info == null) {
             return null;
         }
-        if (!setting.isLaunched(userId)) {
-            setting.setLaunched(userId, true);
+        if (!ps.isLaunched(userId)) {
+            sendFirstLaunchBroadcast(ps, userId);
+            ps.setLaunched(userId, true);
             VAppManagerService.get().savePersistenceData();
         }
-        int uid = VUserHandle.getUid(userId, setting.appId);
+        int uid = VUserHandle.getUid(userId, ps.appId);
         ProcessRecord app = mProcessNames.get(processName, uid);
         if (app != null && app.client.asBinder().isBinderAlive()) {
             return app;
@@ -697,6 +699,14 @@ public class VActivityManagerService extends IActivityManager.Stub {
             app.pkgList.add(info.packageName);
         }
         return app;
+    }
+
+    private void sendFirstLaunchBroadcast(PackageSetting ps, int userId) {
+        Intent intent = new Intent(Intent.ACTION_PACKAGE_FIRST_LAUNCH, Uri.fromParts("package", ps.packageName, null));
+        intent.setPackage(ps.packageName);
+        intent.putExtra(Intent.EXTRA_UID, VUserHandle.getUid(ps.appId, userId));
+        intent.putExtra("android.intent.extra.user_handle", userId);
+        sendBroadcastAsUser(intent, null);
     }
 
 
@@ -929,20 +939,28 @@ public class VActivityManagerService extends IActivityManager.Stub {
     }
 
     public void sendBroadcastAsUser(Intent intent, VUserHandle user) {
+        SpecialComponentList.protectIntent(intent);
         Context context = VirtualCore.get().getContext();
-        intent.putExtra("_VA_|_user_id_", user.getIdentifier());
+        if (user != null) {
+            intent.putExtra("_VA_|_user_id_", user.getIdentifier());
+        }
         context.sendBroadcast(intent);
     }
 
     public boolean bindServiceAsUser(Intent service, ServiceConnection connection, int flags, VUserHandle user) {
         service = new Intent(service);
-        service.putExtra("_VA_|_user_id_", user.getIdentifier());
+        if (user != null) {
+            service.putExtra("_VA_|_user_id_", user.getIdentifier());
+        }
         return VirtualCore.get().getContext().bindService(service, connection, flags);
     }
 
     public void sendBroadcastAsUser(Intent intent, VUserHandle user, String permission) {
+        SpecialComponentList.protectIntent(intent);
         Context context = VirtualCore.get().getContext();
-        intent.putExtra("_VA_|_user_id_", user.getIdentifier());
+        if (user != null) {
+            intent.putExtra("_VA_|_user_id_", user.getIdentifier());
+        }
         // TODO: checkPermission
         context.sendBroadcast(intent);
     }

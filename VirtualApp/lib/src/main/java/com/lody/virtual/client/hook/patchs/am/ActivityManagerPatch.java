@@ -53,7 +53,7 @@ import mirror.android.util.Singleton;
         BroadcastIntent.class, GetCallingPackage.class, GrantUriPermissionFromOwner.class,
         CheckGrantUriPermission.class, GetPersistedUriPermissions.class, KillApplicationProcess.class,
         ForceStopPackage.class, AddPackageDependency.class, UpdateDeviceOwner.class,
-        CrashApplication.class, GetPackageForToken.class, GetPackageForIntentSender.class,
+        CrashApplication.class, GetPackageForToken.class,
 
         SetPackageAskScreenCompat.class, GetPackageAskScreenCompat.class,
         CheckPermission.class, PublishContentProviders.class, GetCurrentUser.class,
