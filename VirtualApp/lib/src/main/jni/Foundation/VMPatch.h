@@ -15,7 +15,7 @@
 #include "Helper.h"
 
 enum METHODS {
-    OPEN_DEX = 0, CAMERA_SETUP
+    OPEN_DEX = 0, CAMERA_SETUP, VIVO_AUDIORECORD_NATIVE_CHECK_PERMISSION
 };
 
 void patchAndroidVM(jobjectArray javaMethods, jstring packageName, jboolean isArt, jint apiLevel, jint cameraMethodType);

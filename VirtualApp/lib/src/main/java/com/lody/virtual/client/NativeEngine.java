@@ -1,6 +1,7 @@
 package com.lody.virtual.client;
 
 import android.hardware.Camera;
+import android.media.AudioRecord;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Process;
@@ -32,6 +33,7 @@ public class NativeEngine {
     private static Method gOpenDexFileNative;
     private static Method gCameraNativeSetup;
     private static int gCameraMethodType;
+    private static Method gAudioRecordNativeCheckPermission;
 
     static {
         try {
@@ -94,6 +96,14 @@ public class NativeEngine {
         if (gCameraNativeSetup != null) {
             gCameraNativeSetup.setAccessible(true);
         }
+
+        for (Method mth : AudioRecord.class.getDeclaredMethods()) {
+            if (mth.getName().equals("native_check_permission") && mth.getParameterTypes().length == 1 && mth.getParameterTypes()[0] == String.class) {
+                gAudioRecordNativeCheckPermission = mth;
+                mth.setAccessible(true);
+                break;
+            }
+        }
     }
 
     public static void startDexOverride() {
@@ -143,7 +153,7 @@ public class NativeEngine {
     }
 
     public static void hookNative() {
-        Method[] methods = {gOpenDexFileNative, gCameraNativeSetup};
+        Method[] methods = {gOpenDexFileNative, gCameraNativeSetup, gAudioRecordNativeCheckPermission};
         try {
             nativeHookNative(methods, VirtualCore.get().getHostPkg(), VirtualRuntime.isArt(), Build.VERSION.SDK_INT, gCameraMethodType);
         } catch (Throwable e) {
