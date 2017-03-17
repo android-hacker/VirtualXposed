@@ -29,6 +29,9 @@ import com.lody.virtual.helper.utils.VLog;
         Context pluginContext = getAppContext(packageName);
         if (isOutsideInstalled(packageName)) {
             getNotificationFixer().fixIconImage(pluginContext.getResources(), notification.contentView, false, notification);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                getNotificationFixer().fixIconImage(pluginContext.getResources(), notification.bigContentView, false, notification);
+            }
             notification.icon = getHostContext().getApplicationInfo().icon;
             return true;
         }
@@ -69,7 +72,8 @@ import com.lody.virtual.helper.utils.VLog;
             if (notification.headsUpContentView != null) {
                 if (isSystemLayout(notification.headsUpContentView)) {
                     VLog.d(TAG, "deal system headsUpContentView");
-                    getNotificationFixer().fixRemoteViewActions(pluginContext, false, notification.headsUpContentView);
+                    boolean hasIconBitmap = getNotificationFixer().fixRemoteViewActions(pluginContext, false, notification.headsUpContentView);
+                    getNotificationFixer().fixIconImage(pluginContext.getResources(), notification.contentView, hasIconBitmap, notification);
                 } else {
                     VLog.d(TAG, "deal custom headsUpContentView " + notification.bigContentView.getLayoutId());
                     notification.headsUpContentView = getRemoteViewsFixer().makeRemoteViews(id + ":headsUpContentView", pluginContext,
