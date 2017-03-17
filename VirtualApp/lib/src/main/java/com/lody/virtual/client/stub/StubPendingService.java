@@ -17,6 +17,7 @@ public class StubPendingService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        // _VA_|_from_inner_ marked
         startService(intent);
         stopSelf();
         return START_NOT_STICKY;

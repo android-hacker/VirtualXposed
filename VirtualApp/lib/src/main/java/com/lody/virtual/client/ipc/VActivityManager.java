@@ -466,11 +466,12 @@ public class VActivityManager {
         }
     }
 
-    public interface UiObserver {
-
-        void enterAppUI(int userId, String packageName);
-
-        void exitAppUI(int userId, String packageName);
-
+    public String getPackageForIntentSender(IBinder binder) {
+        try {
+            return getService().getPackageForIntentSender(binder);
+        } catch (RemoteException e) {
+            return VirtualRuntime.crash(e);
+        }
     }
+
 }

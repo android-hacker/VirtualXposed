@@ -32,13 +32,13 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.client.ipc.ProviderCall;
 import com.lody.virtual.client.stub.StubManifest;
+import com.lody.virtual.helper.collection.ArrayMap;
+import com.lody.virtual.helper.collection.SparseArray;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.compat.IApplicationThreadCompat;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.VLog;
-import com.lody.virtual.helper.collection.ArrayMap;
-import com.lody.virtual.helper.collection.SparseArray;
 import com.lody.virtual.os.VBinder;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.remote.AppTaskInfo;
@@ -123,6 +123,16 @@ public class VActivityManagerService extends IActivityManager.Stub {
             return mMainStack.startActivityLocked(userId, intent, info, resultTo, options, resultWho, requestCode);
         }
     }
+
+    @Override
+    public String getPackageForIntentSender(IBinder binder) {
+        PendingIntentData data = mPendingIntents.getPendingIntent(binder);
+        if (data != null) {
+            return data.creator;
+        }
+        return null;
+    }
+
 
     @Override
     public PendingIntentData getPendingIntent(IBinder binder) {
