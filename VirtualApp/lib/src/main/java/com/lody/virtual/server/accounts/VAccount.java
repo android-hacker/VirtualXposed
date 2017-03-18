@@ -12,16 +12,26 @@ import java.util.Map;
  */
 
 public class VAccount implements Parcelable {
+    public static final Parcelable.Creator<VAccount> CREATOR = new Parcelable.Creator<VAccount>() {
+        @Override
+        public VAccount createFromParcel(Parcel source) {
+            return new VAccount(source);
+        }
+
+        @Override
+        public VAccount[] newArray(int size) {
+            return new VAccount[size];
+        }
+    };
     public int userId;
     public String name;
     public String previousName;
     public String type;
     public String password;
-
     public long lastAuthenticatedTime;
-
     public Map<String, String> authTokens;
     public Map<String, String> userDatas;
+
 
     public VAccount(int userId, Account account) {
         this.userId = userId;
@@ -29,32 +39,6 @@ public class VAccount implements Parcelable {
         type = account.type;
         authTokens = new HashMap<>();
         userDatas = new HashMap<>();
-    }
-
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(userId);
-        dest.writeString(name);
-        dest.writeString(previousName);
-        dest.writeString(type);
-        dest.writeString(password);
-        dest.writeLong(lastAuthenticatedTime);
-        dest.writeInt(authTokens.size());
-        for (Map.Entry<String, String> entry : authTokens.entrySet()) {
-            dest.writeString(entry.getKey());
-            dest.writeString(entry.getValue());
-        }
-        dest.writeInt(userDatas.size());
-        for (Map.Entry<String, String> entry : userDatas.entrySet()) {
-            dest.writeString(entry.getKey());
-            dest.writeString(entry.getValue());
-        }
     }
 
     public VAccount(Parcel in) {
@@ -80,16 +64,29 @@ public class VAccount implements Parcelable {
         }
     }
 
-    public static final Parcelable.Creator<VAccount> CREATOR = new Parcelable.Creator<VAccount>() {
-        @Override
-        public VAccount createFromParcel(Parcel source) {
-            return new VAccount(source);
-        }
+    @Override
+    public int describeContents() {
+        return 0;
+    }
 
-        @Override
-        public VAccount[] newArray(int size) {
-            return new VAccount[size];
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(userId);
+        dest.writeString(name);
+        dest.writeString(previousName);
+        dest.writeString(type);
+        dest.writeString(password);
+        dest.writeLong(lastAuthenticatedTime);
+        dest.writeInt(authTokens.size());
+        for (Map.Entry<String, String> entry : authTokens.entrySet()) {
+            dest.writeString(entry.getKey());
+            dest.writeString(entry.getValue());
         }
-    };
+        dest.writeInt(userDatas.size());
+        for (Map.Entry<String, String> entry : userDatas.entrySet()) {
+            dest.writeString(entry.getKey());
+            dest.writeString(entry.getValue());
+        }
+    }
 }
 

@@ -58,6 +58,9 @@ public class AppRepository implements AppDataSource {
             List<InstalledAppInfo> infos = VirtualCore.get().getInstalledApps(0);
             List<AppData> models = new ArrayList<AppData>();
             for (InstalledAppInfo info : infos) {
+                if (VirtualCore.get().getLaunchIntent(info.packageName, 0) == null) {
+                    continue;
+                }
                 PackageAppData data = new PackageAppData(mContext, info);
                 models.add(data);
                 int[] userIds = info.getInstalledUsers();
@@ -121,7 +124,10 @@ public class AppRepository implements AppDataSource {
                 continue;
             }
             ApplicationInfo applicationInfo = pkg.applicationInfo;
-            String path = applicationInfo.publicSourceDir;
+            String path = applicationInfo.sourceDir;
+            if (path == null) {
+                continue;
+            }
             AppInfo info = new AppInfo();
             info.packageName = pkg.packageName;
             info.fastOpen = fastOpen;

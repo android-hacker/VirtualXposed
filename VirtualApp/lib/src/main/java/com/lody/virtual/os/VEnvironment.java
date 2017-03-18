@@ -109,6 +109,10 @@ public class VEnvironment {
         return ensureCreated(new File(getDataAppDirectory(), packageName));
     }
 
+    public static File getPackageCacheFile(String packageName) {
+        return new File(getDataAppPackageDirectory(packageName), "package.ini");
+    }
+
     public static File getUserSystemDirectory() {
         return USER_DIRECTORY;
     }

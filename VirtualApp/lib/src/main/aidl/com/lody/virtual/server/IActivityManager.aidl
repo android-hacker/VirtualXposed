@@ -103,6 +103,8 @@ interface IActivityManager {
 
     void removePendingIntent(IBinder binder);
 
+    String getPackageForIntentSender(IBinder binder);
+
     void processRestarted(in String packageName, in String processName, int userId);
 
     void broadcastFinish(in PendingResultData res);

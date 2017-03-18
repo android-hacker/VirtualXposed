@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageParser;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -13,11 +12,12 @@ import android.os.Message;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.SpecialComponentList;
-import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.helper.collection.ArrayMap;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.remote.PendingResultData;
 import com.lody.virtual.server.pm.PackageSetting;
 import com.lody.virtual.server.pm.VAppManagerService;
+import com.lody.virtual.server.pm.parser.VPackage;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -180,11 +180,10 @@ public class BroadcastSystem {
         }
     }
 
-    public void startApp(PackageParser.Package p) {
+    public void startApp(VPackage p) {
         PackageSetting setting = (PackageSetting) p.mExtras;
-        for (PackageParser.Activity receiver : p.receivers) {
+        for (VPackage.ActivityComponent receiver : p.receivers) {
             ActivityInfo info = receiver.info;
-            List<? extends IntentFilter> filters = receiver.intents;
             List<BroadcastReceiver> receivers = mReceivers.get(p.packageName);
             if (receivers == null) {
                 receivers = new ArrayList<>();
@@ -195,8 +194,8 @@ public class BroadcastSystem {
             BroadcastReceiver r = new StaticBroadcastReceiver(setting.appId, info, componentFilter);
             mContext.registerReceiver(r, componentFilter, null, mScheduler);
             receivers.add(r);
-            for (IntentFilter filter : filters) {
-                IntentFilter cloneFilter = new IntentFilter(filter);
+            for (VPackage.ActivityIntentInfo ci : receiver.intents) {
+                IntentFilter cloneFilter = new IntentFilter(ci.filter);
                 redirectFilterActions(cloneFilter);
                 r = new StaticBroadcastReceiver(setting.appId, info, cloneFilter);
                 mContext.registerReceiver(r, cloneFilter, null, mScheduler);

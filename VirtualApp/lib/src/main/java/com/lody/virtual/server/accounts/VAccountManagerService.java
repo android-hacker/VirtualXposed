@@ -29,13 +29,14 @@ import android.util.SparseArray;
 import android.util.Xml;
 
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.helper.compat.AccountManagerCompat;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VBinder;
 import com.lody.virtual.os.VEnvironment;
-import com.lody.virtual.server.pm.VPackageManagerService;
+import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.server.IAccountManager;
+import com.lody.virtual.server.am.VActivityManagerService;
+import com.lody.virtual.server.pm.VPackageManagerService;
 
 import org.xmlpull.v1.XmlPullParser;
 
@@ -49,6 +50,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -62,36 +64,30 @@ import static android.accounts.AccountManager.ERROR_CODE_BAD_ARGUMENTS;
  */
 public class VAccountManagerService extends IAccountManager.Stub {
 
-	private static final AtomicReference<VAccountManagerService> sThis = new AtomicReference<>();
-
-    private Context mContext = VirtualCore.get().getContext();
-
-    private static final String TAG = VAccountManagerService.class.getSimpleName();
-
+	private static final AtomicReference<VAccountManagerService> sInstance = new AtomicReference<>();
+	private static final long CHECK_IN_TIME = 30 * 24 * 60 * 1000L;
+	private static final String TAG = VAccountManagerService.class.getSimpleName();
 	private final SparseArray<List<VAccount>> accountsByUserId = new SparseArray<>();
-
 	private final LinkedList<AuthTokenRecord> authTokenRecords = new LinkedList<>();
-
 	private final LinkedHashMap<String, Session> mSessions = new LinkedHashMap<>();
-
 	private final AuthenticatorCache cache = new AuthenticatorCache();
-
+	private Context mContext = VirtualCore.get().getContext();
 	private long lastAccountChangeTime = 0;
 
 
 	public static VAccountManagerService get() {
-		return sThis.get();
+		return sInstance.get();
 	}
 
 	public static void systemReady() {
 		VAccountManagerService service = new VAccountManagerService();
-		service.deserializeAllAccounts();
-		sThis.set(service);
+		service.readAllAccounts();
+		sInstance.set(service);
 	}
 
 
 	private static AuthenticatorDescription parseAuthenticatorDescription(Resources resources, String packageName,
-			AttributeSet attributeSet) {
+																		  AttributeSet attributeSet) {
 		TypedArray array = resources.obtainAttributes(attributeSet, R_Hide.styleable.AccountAuthenticator.get());
 		try {
 			String accountType = array.getString(R_Hide.styleable.AccountAuthenticator_accountType.get());
@@ -129,7 +125,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 		if (response == null) throw new IllegalArgumentException("response is null");
 		if (type == null) throw new IllegalArgumentException("accountType is null");
 		AuthenticatorInfo info = getAuthenticatorInfo(type);
-		if(info == null) {
+		if (info == null) {
 			Bundle bundle = new Bundle();
 			bundle.putParcelableArray(AccountManager.KEY_ACCOUNTS, new Account[0]);
 			try {
@@ -200,40 +196,40 @@ public class VAccountManagerService extends IAccountManager.Stub {
 	}
 
 	@Override
-    public final void getAuthToken(final int userId, final IAccountManagerResponse response, final Account account, final String authTokenType, final boolean notifyOnAuthFailure, boolean expectActivityLaunch, final Bundle loginOptions) {
-        if (response == null) {
-            throw new IllegalArgumentException("response is null");
-        }
-        try {
-            if (account == null) {
-                VLog.w(TAG, "getAuthToken called with null account");
-                response.onError(ERROR_CODE_BAD_ARGUMENTS, "account is null");
-                return;
-            }
-            if (authTokenType == null) {
-                VLog.w(TAG, "getAuthToken called with null authTokenType");
-                response.onError(ERROR_CODE_BAD_ARGUMENTS, "authTokenType is null");
-                return;
-            }
-        } catch (RemoteException e) {
-            e.printStackTrace();
-            return;
-        }
-        AuthenticatorInfo info = getAuthenticatorInfo(account.type);
-        if(info == null) {
-            try {
-                response.onError(ERROR_CODE_BAD_ARGUMENTS, "account.type does not exist");
-            } catch(RemoteException e) {
-                e.printStackTrace();
-            }
-            return;
-        }
-        // Get the calling package. We will use it for the purpose of caching.
-        final String callerPkg = loginOptions.getString(AccountManagerCompat.KEY_ANDROID_PACKAGE_NAME);
+	public final void getAuthToken(final int userId, final IAccountManagerResponse response, final Account account, final String authTokenType, final boolean notifyOnAuthFailure, boolean expectActivityLaunch, final Bundle loginOptions) {
+		if (response == null) {
+			throw new IllegalArgumentException("response is null");
+		}
+		try {
+			if (account == null) {
+				VLog.w(TAG, "getAuthToken called with null account");
+				response.onError(ERROR_CODE_BAD_ARGUMENTS, "account is null");
+				return;
+			}
+			if (authTokenType == null) {
+				VLog.w(TAG, "getAuthToken called with null authTokenType");
+				response.onError(ERROR_CODE_BAD_ARGUMENTS, "authTokenType is null");
+				return;
+			}
+		} catch (RemoteException e) {
+			e.printStackTrace();
+			return;
+		}
+		AuthenticatorInfo info = getAuthenticatorInfo(account.type);
+		if (info == null) {
+			try {
+				response.onError(ERROR_CODE_BAD_ARGUMENTS, "account.type does not exist");
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+			return;
+		}
+		// Get the calling package. We will use it for the purpose of caching.
+		final String callerPkg = loginOptions.getString(AccountManagerCompat.KEY_ANDROID_PACKAGE_NAME);
 		final boolean customTokens = info.desc.customTokens;
 
-        loginOptions.putInt(AccountManager.KEY_CALLER_UID, VBinder.getCallingUid());
-        loginOptions.putInt(AccountManager.KEY_CALLER_PID, Binder.getCallingPid());
+		loginOptions.putInt(AccountManager.KEY_CALLER_UID, VBinder.getCallingUid());
+		loginOptions.putInt(AccountManager.KEY_CALLER_PID, Binder.getCallingPid());
 		if (notifyOnAuthFailure) {
 			loginOptions.putBoolean(AccountManagerCompat.KEY_NOTIFY_ON_FAILURE, true);
 		}
@@ -302,7 +298,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 									}
 									account = new VAccount(userId, new Account(name, type));
 									accounts.add(account);
-									serializeAllAccounts();
+									saveAllAccounts();
 								}
 							}
 						}
@@ -325,7 +321,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 				super.onResult(result);
 			}
 		}.bind();
-    }
+	}
 
 
 	@Override
@@ -340,7 +336,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 			if (vAccount != null) {
 				vAccount.password = password;
 				vAccount.authTokens.clear();
-				serializeAllAccounts();
+				saveAllAccounts();
 				synchronized (authTokenRecords) {
 					Iterator<AuthTokenRecord> iterator = authTokenRecords.iterator();
 					while (iterator.hasNext()) {
@@ -364,7 +360,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 			if (vAccount != null) {
 				// FIXME: cancelNotification
 				vAccount.authTokens.put(authTokenType, authToken);
-				this.serializeAllAccounts();
+				this.saveAllAccounts();
 			}
 		}
 	}
@@ -376,8 +372,10 @@ public class VAccountManagerService extends IAccountManager.Stub {
 		if (account == null) throw new IllegalArgumentException("account is null");
 		VAccount vAccount = getAccount(userId, account);
 		if (vAccount != null) {
-			vAccount.userDatas.put(key, value);
-			this.serializeAllAccounts();
+			synchronized (accountsByUserId) {
+				vAccount.userDatas.put(key, value);
+				saveAllAccounts();
+			}
 		}
 	}
 
@@ -389,10 +387,10 @@ public class VAccountManagerService extends IAccountManager.Stub {
 		if (account == null) throw new IllegalArgumentException("account is null");
 		if (features == null) throw new IllegalArgumentException("features is null");
 		AuthenticatorInfo info = this.getAuthenticatorInfo(account.type);
-		if(info == null) {
+		if (info == null) {
 			try {
 				response.onError(ERROR_CODE_BAD_ARGUMENTS, "account.type does not exist");
-			} catch(RemoteException e) {
+			} catch (RemoteException e) {
 				e.printStackTrace();
 			}
 			return;
@@ -418,7 +416,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 							return;
 						}
 						Log.v(TAG, getClass().getSimpleName() + " calling onResult() on response "
-                                + response);
+								+ response);
 						final Bundle newResult = new Bundle();
 						newResult.putBoolean(AccountManager.KEY_BOOLEAN_RESULT,
 								result.getBoolean(AccountManager.KEY_BOOLEAN_RESULT, false));
@@ -441,10 +439,10 @@ public class VAccountManagerService extends IAccountManager.Stub {
 		if (account == null) throw new IllegalArgumentException("account is null");
 		if (authTokenType == null) throw new IllegalArgumentException("authTokenType is null");
 		AuthenticatorInfo info = this.getAuthenticatorInfo(account.type);
-		if(info == null) {
+		if (info == null) {
 			try {
 				response.onError(ERROR_CODE_BAD_ARGUMENTS, "account.type does not exist");
-			} catch(RemoteException e) {
+			} catch (RemoteException e) {
 				e.printStackTrace();
 			}
 			return;
@@ -499,10 +497,10 @@ public class VAccountManagerService extends IAccountManager.Stub {
 		if (response == null) throw new IllegalArgumentException("response is null");
 		if (accountType == null) throw new IllegalArgumentException("accountType is null");
 		AuthenticatorInfo info = this.getAuthenticatorInfo(accountType);
-		if(info == null) {
+		if (info == null) {
 			try {
 				response.onError(ERROR_CODE_BAD_ARGUMENTS, "account.type does not exist");
-			} catch(RemoteException e) {
+			} catch (RemoteException e) {
 				e.printStackTrace();
 			}
 			return;
@@ -531,7 +529,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 		if (accountType == null) throw new IllegalArgumentException("accountType is null");
 		if (authTokenType == null) throw new IllegalArgumentException("authTokenType is null");
 		AuthenticatorInfo info = getAuthenticatorInfo(accountType);
-		if(info == null) {
+		if (info == null) {
 			try {
 				response.onError(ERROR_CODE_BAD_ARGUMENTS, "account.type does not exist");
 			} catch (RemoteException e) {
@@ -564,10 +562,10 @@ public class VAccountManagerService extends IAccountManager.Stub {
 		if (response == null) throw new IllegalArgumentException("response is null");
 		if (account == null) throw new IllegalArgumentException("account is null");
 		AuthenticatorInfo info = getAuthenticatorInfo(account.type);
-		if(info == null) {
+		if (info == null) {
 			try {
 				response.onError(ERROR_CODE_BAD_ARGUMENTS, "account.type does not exist");
-			} catch(RemoteException e) {
+			} catch (RemoteException e) {
 				e.printStackTrace();
 			}
 			return;
@@ -582,6 +580,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 		}.bind();
 
 	}
+
 	@Override
 	public void addAccount(int userId, final IAccountManagerResponse response, final String accountType,
 						   final String authTokenType, final String[] requiredFeatures,
@@ -589,15 +588,15 @@ public class VAccountManagerService extends IAccountManager.Stub {
 		if (response == null) throw new IllegalArgumentException("response is null");
 		if (accountType == null) throw new IllegalArgumentException("accountType is null");
 		AuthenticatorInfo info = getAuthenticatorInfo(accountType);
-		if(info == null) {
+		if (info == null) {
 			try {
 				response.onError(ERROR_CODE_BAD_ARGUMENTS, "account.type does not exist");
-			} catch(RemoteException e) {
+			} catch (RemoteException e) {
 				e.printStackTrace();
 			}
 			return;
 		}
-		new Session(response, userId, info, expectActivityLaunch, true, null, false, true){
+		new Session(response, userId, info, expectActivityLaunch, true, null, false, true) {
 
 			@Override
 			public void run() throws RemoteException {
@@ -643,16 +642,17 @@ public class VAccountManagerService extends IAccountManager.Stub {
 			Log.w(TAG, e.getMessage());
 		}
 	}
+
 	@Override
 	public void removeAccount(final int userId, IAccountManagerResponse response, final Account account,
 							  boolean expectActivityLaunch) {
 		if (response == null) throw new IllegalArgumentException("response is null");
 		if (account == null) throw new IllegalArgumentException("account is null");
 		AuthenticatorInfo info = this.getAuthenticatorInfo(account.type);
-		if(info == null) {
+		if (info == null) {
 			try {
 				response.onError(ERROR_CODE_BAD_ARGUMENTS, "account.type does not exist");
-			} catch(RemoteException e) {
+			} catch (RemoteException e) {
 				e.printStackTrace();
 			}
 			return;
@@ -682,7 +682,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 					IAccountManagerResponse response = getResponseAndClose();
 					if (response != null) {
 						Log.v(TAG, getClass().getSimpleName() + " calling onResult() on response "
-                                + response);
+								+ response);
 						Bundle result2 = new Bundle();
 						result2.putBoolean(AccountManager.KEY_BOOLEAN_RESULT, removalAllowed);
 						try {
@@ -715,7 +715,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 						&& TextUtils.equals(vAccount.name, account.name)
 						&& TextUtils.equals(account.type, vAccount.type)) {
 					iterator.remove();
-					serializeAllAccounts();
+					saveAllAccounts();
 					sendAccountsChangedBroadcast(userId);
 					return true;
 				}
@@ -734,7 +734,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 			VAccount vAccount = getAccount(userId, account);
 			if (vAccount != null) {
 				vAccount.lastAuthenticatedTime = System.currentTimeMillis();
-				serializeAllAccounts();
+				saveAllAccounts();
 				return true;
 			}
 			return false;
@@ -756,14 +756,14 @@ public class VAccountManagerService extends IAccountManager.Stub {
 					}
 				}
 				if (changed) {
-					serializeAllAccounts();
+					saveAllAccounts();
 				}
 			}
 			synchronized (authTokenRecords) {
 				Iterator<AuthTokenRecord> iterator = authTokenRecords.iterator();
 				while (iterator.hasNext()) {
 					AuthTokenRecord record = iterator.next();
-					if (record.authTokenType.equals(accountType)
+					if (record.userId == userId && record.authTokenType.equals(accountType)
 							&& record.authToken.equals(authToken)) {
 						iterator.remove();
 					}
@@ -773,8 +773,6 @@ public class VAccountManagerService extends IAccountManager.Stub {
 	}
 
 
-
-
 	private Account renameAccountInternal(int userId, Account accountToRename, String newName) {
 		// TODO: Cancel Notification
 		synchronized (accountsByUserId) {
@@ -782,7 +780,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 			if (vAccount != null) {
 				vAccount.previousName = vAccount.name;
 				vAccount.name = newName;
-				serializeAllAccounts();
+				saveAllAccounts();
 				Account newAccount = new Account(vAccount.name, vAccount.type);
 				synchronized (authTokenRecords) {
 					for (AuthTokenRecord record : authTokenRecords) {
@@ -840,61 +838,65 @@ public class VAccountManagerService extends IAccountManager.Stub {
 		}
 	}
 
-    private AuthenticatorInfo getAuthenticatorInfo(String type) {
-        synchronized (cache) {
-            return type == null ? null : cache.authenticators.get(type);
-        }
-    }
+	private AuthenticatorInfo getAuthenticatorInfo(String type) {
+		synchronized (cache) {
+			return type == null ? null : cache.authenticators.get(type);
+		}
+	}
 
 
-    private VAccount getAccount(int userId, Account account) {
-        return this.getAccount(userId, account.name, account.type);
-    }
+	private VAccount getAccount(int userId, Account account) {
+		return this.getAccount(userId, account.name, account.type);
+	}
 
 	private boolean insertAccountIntoDatabase(int userId, Account account, String password, Bundle extras) {
 		if (account == null) {
 			return false;
 		}
 		synchronized (accountsByUserId) {
-            VAccount vAccount = new VAccount(userId, account);
-            vAccount.password = password;
-            // convert the [Bundle] to [Map<String, String>]
-            if (extras != null) {
-                for (String key : extras.keySet()) {
-                    Object value = extras.get(key);
-                    if (value instanceof String) {
-                        vAccount.userDatas.put(key, (String) value);
-                    }
-                }
-            }
-            List<VAccount> accounts = accountsByUserId.get(userId);
-            if (accounts == null) {
-                accounts = new ArrayList<>();
-                accountsByUserId.put(userId, accounts);
-            }
-            accounts.add(vAccount);
-            serializeAllAccounts();
-            sendAccountsChangedBroadcast(vAccount.userId);
-            return true;
-        }
+			VAccount vAccount = new VAccount(userId, account);
+			vAccount.password = password;
+			// convert the [Bundle] to [Map<String, String>]
+			if (extras != null) {
+				for (String key : extras.keySet()) {
+					Object value = extras.get(key);
+					if (value instanceof String) {
+						vAccount.userDatas.put(key, (String) value);
+					}
+				}
+			}
+			List<VAccount> accounts = accountsByUserId.get(userId);
+			if (accounts == null) {
+				accounts = new ArrayList<>();
+				accountsByUserId.put(userId, accounts);
+			}
+			accounts.add(vAccount);
+			saveAllAccounts();
+			sendAccountsChangedBroadcast(vAccount.userId);
+			return true;
+		}
 	}
 
-    private void sendAccountsChangedBroadcast(int userId) {
-        Intent intent = new Intent(AccountManager.LOGIN_ACCOUNTS_CHANGED_ACTION);
-		VActivityManager.get().sendBroadcast(intent, userId);
-		broadcastCheckInNow(userId);
-    }
-
-	private void broadcastCheckInNow(int userId) {
-		lastAccountChangeTime = System.currentTimeMillis();
-		serializeAllAccounts();
-		VActivityManager.get().sendBroadcast(new Intent("android.server.checkin.CHECKIN_NOW"), userId);
+	private void sendAccountsChangedBroadcast(int userId) {
+		Intent intent = new Intent(AccountManager.LOGIN_ACCOUNTS_CHANGED_ACTION);
+		VActivityManagerService.get().sendBroadcastAsUser(intent, new VUserHandle(userId));
+		broadcastCheckInNowIfNeed(userId);
 	}
 
-    /**
+	private void broadcastCheckInNowIfNeed(int userId) {
+		long time = System.currentTimeMillis();
+		if (Math.abs(time - lastAccountChangeTime) > CHECK_IN_TIME) {
+			lastAccountChangeTime = time;
+			saveAllAccounts();
+			Intent intent = new Intent("android.server.checkin.CHECKIN_NOW");
+			VActivityManagerService.get().sendBroadcastAsUser(intent, new VUserHandle(userId));
+		}
+	}
+
+	/**
 	 * Serializing all accounts
 	 */
-	private void serializeAllAccounts() {
+	private void saveAllAccounts() {
 		File accountFile = VEnvironment.getAccountConfigFile();
 		Parcel dest = Parcel.obtain();
 		try {
@@ -923,56 +925,54 @@ public class VAccountManagerService extends IAccountManager.Stub {
 	/**
 	 * Read all accounts from file.
 	 */
-	private void deserializeAllAccounts() {
+	private void readAllAccounts() {
 		File accountFile = VEnvironment.getAccountConfigFile();
 		refreshAuthenticatorCache(null);
 		if (accountFile.exists()) {
 			accountsByUserId.clear();
-            Parcel dest = Parcel.obtain();
-            try {
-                FileInputStream is = new FileInputStream(accountFile);
-                byte[] bytes = new byte[(int) accountFile.length()];
-                int readLength = is.read(bytes);
-                is.close();
-                if (readLength != bytes.length) {
-                    throw new IOException(String.format("Expect length %d, but got %d.", bytes.length, readLength));
-                }
-                dest.unmarshall(bytes, 0, bytes.length);
-                dest.setDataPosition(0);
-                dest.readInt(); // skip the magic
-                int size = dest.readInt(); // the VAccount's size we need to read
-                boolean invalid = false;
-                while (size-- > 0) {
-                    VAccount account = new VAccount(dest);
+			Parcel dest = Parcel.obtain();
+			try {
+				FileInputStream is = new FileInputStream(accountFile);
+				byte[] bytes = new byte[(int) accountFile.length()];
+				int readLength = is.read(bytes);
+				is.close();
+				if (readLength != bytes.length) {
+					throw new IOException(String.format(Locale.ENGLISH, "Expect length %d, but got %d.", bytes.length, readLength));
+				}
+				dest.unmarshall(bytes, 0, bytes.length);
+				dest.setDataPosition(0);
+				dest.readInt(); // skip the magic
+				int size = dest.readInt(); // the VAccount's size we need to read
+				boolean invalid = false;
+				while (size-- > 0) {
+					VAccount account = new VAccount(dest);
 					VLog.d(TAG, "Reading account : " + account.type);
-                    AuthenticatorInfo info = cache.authenticators.get(account.type);
-                    if (info != null) {
-                        List<VAccount> accounts = accountsByUserId.get(account.userId);
-                        if (accounts == null) {
-                            accounts = new ArrayList<>();
-                            accountsByUserId.put(account.userId, accounts);
-                        }
-                        accounts.add(account);
-                    } else {
-                        invalid = true;
-                    }
-                }
-                lastAccountChangeTime = dest.readLong();
-                if (invalid) {
-                    serializeAllAccounts();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                dest.recycle();
-            }
+					AuthenticatorInfo info = cache.authenticators.get(account.type);
+					if (info != null) {
+						List<VAccount> accounts = accountsByUserId.get(account.userId);
+						if (accounts == null) {
+							accounts = new ArrayList<>();
+							accountsByUserId.put(account.userId, accounts);
+						}
+						accounts.add(account);
+					} else {
+						invalid = true;
+					}
+				}
+				lastAccountChangeTime = dest.readLong();
+				if (invalid) {
+					saveAllAccounts();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				dest.recycle();
+			}
 		}
 	}
 
 
-
-
-	public VAccount getAccount(int userId, String accountName, String accountType) {
+	private VAccount getAccount(int userId, String accountName, String accountType) {
 		List<VAccount> accounts = accountsByUserId.get(userId);
 		if (accounts != null) {
 			for (VAccount account : accounts) {
@@ -983,7 +983,6 @@ public class VAccountManagerService extends IAccountManager.Stub {
 		}
 		return null;
 	}
-
 
 
 	public void refreshAuthenticatorCache(String packageName) {
@@ -998,7 +997,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 	}
 
 	private void generateServicesMap(List<ResolveInfo> services, Map<String, AuthenticatorInfo> map,
-			IAccountParser accountParser) {
+									 IAccountParser accountParser) {
 		for (ResolveInfo info : services) {
 			XmlResourceParser parser = accountParser.getParser(mContext, info.serviceInfo,
 					AccountManager.AUTHENTICATOR_META_DATA_NAME);
@@ -1024,17 +1023,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 		}
 	}
 
-	private final class AuthenticatorInfo {
-		final AuthenticatorDescription desc;
-		final ServiceInfo serviceInfo;
-
-		AuthenticatorInfo(AuthenticatorDescription desc, ServiceInfo info) {
-			this.desc = desc;
-			this.serviceInfo = info;
-		}
-	}
-
-	final class AuthTokenRecord {
+	final static class AuthTokenRecord {
 		public int userId;
 		public Account account;
 		public long expiryEpochMillis;
@@ -1042,8 +1031,8 @@ public class VAccountManagerService extends IAccountManager.Stub {
 		private String authTokenType;
 		private String packageName;
 
-		public AuthTokenRecord(int userId, Account account, String authTokenType, String packageName, String authToken,
-				long expiryEpochMillis) {
+		AuthTokenRecord(int userId, Account account, String authTokenType, String packageName, String authToken,
+						long expiryEpochMillis) {
 			this.userId = userId;
 			this.account = account;
 			this.authTokenType = authTokenType;
@@ -1052,7 +1041,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 			this.expiryEpochMillis = expiryEpochMillis;
 		}
 
-		public AuthTokenRecord(int userId, Account account, String authTokenType, String packageName) {
+		AuthTokenRecord(int userId, Account account, String authTokenType, String packageName) {
 			this.userId = userId;
 			this.account = account;
 			this.authTokenType = authTokenType;
@@ -1067,20 +1056,30 @@ public class VAccountManagerService extends IAccountManager.Stub {
 				return false;
 			AuthTokenRecord that = (AuthTokenRecord) o;
 			return userId == that.userId
-                    && account.equals(that.account)
-                    && authTokenType.equals(that.authTokenType)
+					&& account.equals(that.account)
+					&& authTokenType.equals(that.authTokenType)
 					&& packageName.equals(that.packageName);
 		}
 
 		@Override
 		public int hashCode() {
 			return ((this.userId * 31 + this.account.hashCode()) * 31
-                    + this.authTokenType.hashCode()) * 31
+					+ this.authTokenType.hashCode()) * 31
 					+ this.packageName.hashCode();
 		}
 	}
 
-	final class AuthenticatorCache {
+	private final class AuthenticatorInfo {
+		final AuthenticatorDescription desc;
+		final ServiceInfo serviceInfo;
+
+		AuthenticatorInfo(AuthenticatorDescription desc, ServiceInfo info) {
+			this.desc = desc;
+			this.serviceInfo = info;
+		}
+	}
+
+	private final class AuthenticatorCache {
 		final Map<String, AuthenticatorInfo> authenticators = new HashMap<>();
 	}
 
@@ -1088,6 +1087,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 			implements IBinder.DeathRecipient, ServiceConnection {
 		final int mUserId;
 		final AuthenticatorInfo mAuthenticatorInfo;
+		private final boolean mStripAuthTokenFromResult;
 		public int mNumResults;
 		IAccountAuthenticator mAuthenticator;
 		private IAccountManagerResponse mResponse;
@@ -1098,7 +1098,6 @@ public class VAccountManagerService extends IAccountManager.Stub {
 		private boolean mUpdateLastAuthenticatedTime;
 		private int mNumRequestContinued;
 		private int mNumErrors;
-		private final boolean mStripAuthTokenFromResult;
 
 
 		Session(IAccountManagerResponse response, int userId, AuthenticatorInfo info, boolean expectActivityLaunch, boolean stripAuthTokenFromResult, String accountName, boolean authDetailsRequired, boolean updateLastAuthenticatedTime) {
@@ -1178,7 +1177,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 			IAccountManagerResponse response = getResponseAndClose();
 			if (response != null) {
 				Log.v(TAG, getClass().getSimpleName()
-                        + " calling onError() on response " + response);
+						+ " calling onError() on response " + response);
 				try {
 					response.onError(errorCode, errorMessage);
 				} catch (RemoteException e) {
@@ -1199,7 +1198,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 							"disconnected");
 				} catch (RemoteException e) {
 					Log.v(TAG, "Session.onServiceDisconnected: "
-                            + "caught RemoteException while responding", e);
+							+ "caught RemoteException while responding", e);
 				}
 			}
 		}
@@ -1223,11 +1222,11 @@ public class VAccountManagerService extends IAccountManager.Stub {
 						VAccount account = getAccount(mUserId, mAccountName, mAuthenticatorInfo.desc.type);
 						if (needUpdate && account != null) {
 							account.lastAuthenticatedTime = System.currentTimeMillis();
-							serializeAllAccounts();
+							saveAllAccounts();
 						}
 						if (mAuthDetailsRequired) {
 							long lastAuthenticatedTime = -1;
-							if(account != null) {
+							if (account != null) {
 								lastAuthenticatedTime = account.lastAuthenticatedTime;
 							}
 							result.putLong(AccountManagerCompat.KEY_LAST_AUTHENTICATED_TIME, lastAuthenticatedTime);
@@ -1259,7 +1258,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 				try {
 					if (result == null) {
 						Log.v(TAG, getClass().getSimpleName()
-                                + " calling onError() on response " + response);
+								+ " calling onError() on response " + response);
 						response.onError(AccountManager.ERROR_CODE_INVALID_RESPONSE,
 								"null bundle returned");
 					} else {
@@ -1267,7 +1266,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 							result.remove(AccountManager.KEY_AUTHTOKEN);
 						}
 						Log.v(TAG, getClass().getSimpleName()
-                                + " calling onResult() on response " + response);
+								+ " calling onResult() on response " + response);
 						if ((result.getInt(AccountManager.KEY_ERROR_CODE, -1) > 0) &&
 								(intent == null)) {
 							// All AccountManager error codes are greater than 0
@@ -1360,7 +1359,7 @@ public class VAccountManagerService extends IAccountManager.Stub {
 				// There is no need to send back a result or error in this case since
 				// that already happened when mAuthenticator was cleared.
 				Log.v(TAG, "checkAccount: aborting session since we are no longer"
-                        + " connected to the authenticator, " + toDebugString());
+						+ " connected to the authenticator, " + toDebugString());
 				return;
 			}
 			try {

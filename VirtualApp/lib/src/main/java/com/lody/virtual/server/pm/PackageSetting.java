@@ -1,6 +1,5 @@
 package com.lody.virtual.server.pm;
 
-import android.content.pm.PackageParser;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.SparseArray;
@@ -32,7 +31,6 @@ public class PackageSetting implements Parcelable {
     public int appId;
     public long firstInstallTime;
     public long lastUpdateTime;
-    public PackageParser parser;
     private SparseArray<PackageUserState> userState = new SparseArray<>();
 
     public PackageSetting() {

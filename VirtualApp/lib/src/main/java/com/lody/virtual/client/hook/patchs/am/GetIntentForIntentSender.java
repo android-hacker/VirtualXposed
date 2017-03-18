@@ -1,5 +1,7 @@
 package com.lody.virtual.client.hook.patchs.am;
 
+import android.content.Intent;
+
 import com.lody.virtual.client.hook.base.Hook;
 
 import java.lang.reflect.Method;
@@ -16,7 +18,11 @@ public class GetIntentForIntentSender extends Hook {
     }
 
     @Override
-    public Object call(Object who, Method method, Object... args) throws Throwable {
-        return super.call(who, method, args);
+    public Object afterCall(Object who, Method method, Object[] args, Object result) throws Throwable {
+        Intent intent = (Intent) super.afterCall(who, method, args, result);
+        if (intent != null && intent.hasExtra("_VA_|_intent_")) {
+            return intent.getParcelableExtra("_VA_|_intent_");
+        }
+        return intent;
     }
 }

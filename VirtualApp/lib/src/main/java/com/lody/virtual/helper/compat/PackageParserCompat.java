@@ -40,8 +40,8 @@ import static android.os.Build.VERSION_CODES.N;
 
 public class PackageParserCompat {
 
+    public static final int[] GIDS = VirtualCore.get().getGids();
     private static final int API_LEVEL = Build.VERSION.SDK_INT;
-    private static final int[] GIDS = VirtualCore.get().getGids();
     private static final int myUserId = VUserHandle.getUserId(Process.myUid());
     private static final Object sUserState = API_LEVEL >= JELLY_BEAN_MR1 ? PackageUserState.ctor.newInstance() : null;
 
