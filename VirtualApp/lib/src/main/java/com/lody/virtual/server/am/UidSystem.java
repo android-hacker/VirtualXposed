@@ -1,10 +1,9 @@
 package com.lody.virtual.server.am;
 
-import android.content.pm.PackageParser;
-
 import com.lody.virtual.helper.utils.FileUtils;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VEnvironment;
+import com.lody.virtual.server.pm.parser.VPackage;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -78,7 +77,7 @@ public class UidSystem {
         }
     }
 
-    public int getOrCreateUid(PackageParser.Package pkg) {
+    public int getOrCreateUid(VPackage pkg) {
         String sharedUserId = pkg.mSharedUserId;
         if (sharedUserId == null) {
             sharedUserId = pkg.packageName;

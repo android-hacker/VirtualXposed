@@ -1,16 +1,16 @@
 package com.lody.virtual.server.pm;
 
-import android.content.pm.PackageParser;
-
 import com.lody.virtual.helper.collection.ArrayMap;
+import com.lody.virtual.server.pm.parser.PackageParserEx;
+import com.lody.virtual.server.pm.parser.VPackage;
 
 /**
  * @author Lody
  */
 
-public class PackageCache {
+public class PackageCacheManager {
 
-    static final ArrayMap<String, PackageParser.Package> PACKAGE_CACHE = new ArrayMap<>();
+    static final ArrayMap<String, VPackage> PACKAGE_CACHE = new ArrayMap<>();
 
     public static int size() {
         synchronized (PACKAGE_CACHE) {
@@ -18,23 +18,24 @@ public class PackageCache {
         }
     }
 
-    public static void put(PackageParser.Package pkg, PackageSetting setting) {
-        synchronized (PackageCache.class) {
-            pkg.mExtras = setting;
+    public static void put(VPackage pkg, PackageSetting ps) {
+        synchronized (PackageCacheManager.class) {
+            PackageParserEx.initApplicationInfoBase(ps, pkg);
             PACKAGE_CACHE.put(pkg.packageName, pkg);
+            pkg.mExtras = ps;
             VPackageManagerService.get().analyzePackageLocked(pkg);
         }
     }
 
-    public static PackageParser.Package get(String packageName) {
-        synchronized (PackageCache.class) {
+    public static VPackage get(String packageName) {
+        synchronized (PackageCacheManager.class) {
             return PACKAGE_CACHE.get(packageName);
         }
     }
 
     public static PackageSetting getSetting(String packageName) {
-        synchronized (PackageCache.class) {
-            PackageParser.Package p = PACKAGE_CACHE.get(packageName);
+        synchronized (PackageCacheManager.class) {
+            VPackage p = PACKAGE_CACHE.get(packageName);
             if (p != null) {
                 return (PackageSetting) p.mExtras;
             }
@@ -42,8 +43,8 @@ public class PackageCache {
         }
     }
 
-    public static PackageParser.Package remove(String packageName) {
-        synchronized (PackageCache.class) {
+    public static VPackage remove(String packageName) {
+        synchronized (PackageCacheManager.class) {
             VPackageManagerService.get().deletePackageLocked(packageName);
             return PACKAGE_CACHE.remove(packageName);
         }

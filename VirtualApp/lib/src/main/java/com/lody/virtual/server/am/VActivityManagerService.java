@@ -48,7 +48,7 @@ import com.lody.virtual.remote.PendingResultData;
 import com.lody.virtual.remote.VParceledListSlice;
 import com.lody.virtual.server.IActivityManager;
 import com.lody.virtual.server.interfaces.IProcessObserver;
-import com.lody.virtual.server.pm.PackageCache;
+import com.lody.virtual.server.pm.PackageCacheManager;
 import com.lody.virtual.server.pm.PackageSetting;
 import com.lody.virtual.server.pm.VAppManagerService;
 import com.lody.virtual.server.pm.VPackageManagerService;
@@ -675,7 +675,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
             // run GC
             killAllApps();
         }
-        PackageSetting ps = PackageCache.getSetting(packageName);
+        PackageSetting ps = PackageCacheManager.getSetting(packageName);
         ApplicationInfo info = VPackageManagerService.get().getApplicationInfo(packageName, 0, userId);
         if (ps == null || info == null) {
             return null;
