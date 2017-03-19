@@ -1,6 +1,7 @@
 package com.lody.virtual.helper.utils;
 
 import android.os.Build;
+import android.os.Parcel;
 import android.system.Os;
 import android.text.TextUtils;
 
@@ -37,7 +38,7 @@ public class FileUtils {
                 Os.chmod(path, mode);
                 return;
             } catch (Exception e) {
-                VLog.w("chmod", path + " " + String.format("%o", mode), e);
+                e.printStackTrace();
             }
         }
 
@@ -69,6 +70,12 @@ public class FileUtils {
             canon = new File(canonDir, file.getName());
         }
         return !canon.getCanonicalFile().equals(canon.getAbsoluteFile());
+    }
+
+    public static void writeParcelToFile(Parcel p, File file) throws IOException {
+        FileOutputStream fos = new FileOutputStream(file);
+        fos.write(p.marshall());
+        fos.close();
     }
 
     public static byte[] toByteArray(InputStream inStream) throws IOException {

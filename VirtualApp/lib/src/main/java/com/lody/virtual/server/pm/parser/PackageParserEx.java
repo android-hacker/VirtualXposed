@@ -22,6 +22,8 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.fixer.ComponentFixer;
 import com.lody.virtual.helper.collection.ArrayMap;
 import com.lody.virtual.helper.compat.PackageParserCompat;
+import com.lody.virtual.helper.utils.FileUtils;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.server.pm.PackageSetting;
 import com.lody.virtual.server.pm.PackageUserState;
@@ -31,7 +33,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Locale;
 
 import mirror.android.content.pm.ApplicationInfoL;
 import mirror.android.content.pm.ApplicationInfoN;
@@ -42,6 +43,8 @@ import mirror.android.content.pm.ApplicationInfoN;
 
 public class PackageParserEx {
 
+    private static final String TAG = PackageParserEx.class.getSimpleName();
+
     private static final ArrayMap<String, String[]> sSharedLibCache = new ArrayMap<>();
 
     public static VPackage parsePackage(File packageFile) throws Throwable {
@@ -51,16 +54,13 @@ public class PackageParserEx {
         return buildPackageCache(p);
     }
 
-    public static VPackage readPackageCache(File cacheFile) {
+    public static VPackage readPackageCache(String packageName) {
         Parcel p = Parcel.obtain();
         try {
+            File cacheFile = VEnvironment.getPackageCacheFile(packageName);
             FileInputStream is = new FileInputStream(cacheFile);
-            byte[] bytes = new byte[(int) cacheFile.length()];
-            int readLength = is.read(bytes);
+            byte[] bytes = FileUtils.toByteArray(is);
             is.close();
-            if (readLength != bytes.length) {
-                throw new IOException(String.format(Locale.ENGLISH, "Expect length %d, but got %d.", bytes.length, readLength));
-            }
             p.unmarshall(bytes, 0, bytes.length);
             p.setDataPosition(0);
             if (p.readInt() != 4) {
@@ -77,18 +77,55 @@ public class PackageParserEx {
         return null;
     }
 
-    public static void savePackageCache(VPackage pkg, File cacheFile) {
+    public static void readSignature(VPackage pkg) {
+        File signatureFile = VEnvironment.getSignatureFile(pkg.packageName);
+        if (!signatureFile.exists()) {
+            return;
+        }
+        Parcel p = Parcel.obtain();
+        try {
+            FileInputStream fis = new FileInputStream(signatureFile);
+            byte[] bytes = FileUtils.toByteArray(fis);
+            fis.close();
+            p.unmarshall(bytes, 0, bytes.length);
+            p.setDataPosition(0);
+            pkg.mSignatures = p.createTypedArray(Signature.CREATOR);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            p.recycle();
+        }
+    }
+
+    public static void savePackageCache(VPackage pkg) {
+        final String packageName = pkg.packageName;
         Parcel p = Parcel.obtain();
         try {
             p.writeInt(4);
             pkg.writeToParcel(p, 0);
-            FileOutputStream fileOutputStream = new FileOutputStream(cacheFile);
-            fileOutputStream.write(p.marshall());
-            fileOutputStream.close();
+            FileOutputStream fos = new FileOutputStream(VEnvironment.getPackageCacheFile(packageName));
+            fos.write(p.marshall());
+            fos.close();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             p.recycle();
+        }
+        Signature[] signatures = pkg.mSignatures;
+        if (signatures != null) {
+            File signatureFile = VEnvironment.getSignatureFile(packageName);
+            if (signatureFile.exists() && !signatureFile.delete()) {
+                VLog.w(TAG, "Unable to delete the signatures of " + packageName);
+            }
+            p = Parcel.obtain();
+            try {
+                p.writeTypedArray(signatures, 0);
+                FileUtils.writeParcelToFile(p, signatureFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                p.recycle();
+            }
         }
     }
 
@@ -227,6 +264,9 @@ public class PackageParserEx {
     public static PackageInfo generatePackageInfo(VPackage p, int flags, long firstInstallTime, long lastUpdateTime, PackageUserState state, int userId) {
         if (!checkUseInstalledOrHidden(state, flags)) {
             return null;
+        }
+        if (p.mSignatures == null) {
+            readSignature(p);
         }
         PackageInfo pi = new PackageInfo();
         pi.packageName = p.packageName;

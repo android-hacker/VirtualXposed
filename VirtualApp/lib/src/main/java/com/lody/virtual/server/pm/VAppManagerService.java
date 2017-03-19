@@ -63,19 +63,24 @@ public class VAppManagerService extends IAppManager.Stub {
 
     @Override
     public void scanApps() {
-        isBooting = true;
-        mPersistenceLayer.read();
-        if (StubManifest.ENABLE_GMS && !GmsSupport.isGoogleFrameworkInstalled()) {
-            GmsSupport.installGms(0);
+        if (isBooting) {
+            return;
         }
-        isBooting = false;
+        synchronized (this) {
+            isBooting = true;
+            mPersistenceLayer.read();
+            if (StubManifest.ENABLE_GMS && !GmsSupport.isGoogleFrameworkInstalled()) {
+                GmsSupport.installGms(0);
+            }
+            isBooting = false;
+        }
     }
 
-    private void cleanUpResidualFiles(PackageSetting setting) {
-        File dataAppDir = VEnvironment.getDataAppPackageDirectory(setting.packageName);
+    private void cleanUpResidualFiles(PackageSetting ps) {
+        File dataAppDir = VEnvironment.getDataAppPackageDirectory(ps.packageName);
         FileUtils.deleteDir(dataAppDir);
         for (int userId : VUserManagerService.get().getUserIds()) {
-            FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(userId, setting.packageName));
+            FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(userId, ps.packageName));
         }
     }
 
@@ -95,7 +100,7 @@ public class VAppManagerService extends IAppManager.Stub {
         File cacheFile = VEnvironment.getPackageCacheFile(ps.packageName);
         VPackage pkg = null;
         try {
-            pkg = PackageParserEx.readPackageCache(cacheFile);
+            pkg = PackageParserEx.readPackageCache(ps.packageName);
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -205,7 +210,7 @@ public class VAppManagerService extends IAppManager.Stub {
                 ps.setUserState(userId, false/*launched*/, false/*hidden*/, installed);
             }
         }
-        PackageParserEx.savePackageCache(pkg, VEnvironment.getPackageCacheFile(pkg.packageName));
+        PackageParserEx.savePackageCache(pkg);
         PackageCacheManager.put(pkg, ps);
         mPersistenceLayer.save();
         BroadcastSystem.get().startApp(pkg);

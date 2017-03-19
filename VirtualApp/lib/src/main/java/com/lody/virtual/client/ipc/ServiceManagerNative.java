@@ -6,7 +6,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.server.ServiceCache;
@@ -45,6 +44,10 @@ public class ServiceManagerNative {
 			}
 		}
 		return sFetcher;
+	}
+
+	public static void ensureServerStarted() {
+        new ProviderCall.Builder(VirtualCore.get().getContext(), SERVICE_CP_AUTH).methodName("ensure_created").call();
 	}
 
 	public static void clearServerFetcher() {

@@ -64,9 +64,12 @@ public final class BinderProvider extends ContentProvider {
 
     @Override
     public Bundle call(String method, String arg, Bundle extras) {
-        Bundle bundle = new Bundle();
-        BundleCompat.putBinder(bundle, "_VA_|_binder_", mServiceFetcher);
-        return bundle;
+        if ("@".equals(method)) {
+            Bundle bundle = new Bundle();
+            BundleCompat.putBinder(bundle, "_VA_|_binder_", mServiceFetcher);
+            return bundle;
+        }
+        return null;
     }
 
     @Override

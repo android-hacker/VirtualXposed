@@ -189,6 +189,10 @@ public final class VirtualCore {
         }
     }
 
+    public void waitForEngine() {
+        ServiceManagerNative.ensureServerStarted();
+    }
+
     public void initialize(VirtualInitializer initializer) {
         if (initializer == null) {
             throw new IllegalStateException("Initializer = NULL");
