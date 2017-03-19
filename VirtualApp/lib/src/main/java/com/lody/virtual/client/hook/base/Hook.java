@@ -1,92 +1,97 @@
 package com.lody.virtual.client.hook.base;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
 
 /**
  * @author Lody
- *
  */
 public abstract class Hook {
-	
-	private boolean enable = true;
 
-	public abstract String getName();
+    private boolean enable = true;
 
-	public boolean beforeCall(Object who, Method method, Object... args) {
-		return true;
-	}
+    public static String getHostPkg() {
+        return VirtualCore.get().getHostPkg();
+    }
 
-	public Object call(Object who, Method method, Object... args) throws Throwable {
-		return method.invoke(who, args);
-	}
+    protected static Context getHostContext() {
+        return VirtualCore.get().getContext();
+    }
 
+    protected static boolean isAppProcess() {
+        return VirtualCore.get().isVAppProcess();
+    }
 
-	public Object afterCall(Object who, Method method, Object[] args, Object result) throws Throwable {
-		return result;
-	}
+    protected static boolean isServerProcess() {
+        return VirtualCore.get().isServerProcess();
+    }
 
-	public boolean isEnable() {
-		return enable;
-	}
+    protected static boolean isMainProcess() {
+        return VirtualCore.get().isMainProcess();
+    }
 
-	public void setEnable(boolean enable) {
-		this.enable = enable;
-	}
+    protected static int getVUid() {
+        return VClientImpl.get().getVUid();
+    }
 
-	public final boolean isAppPkg(String pkg) {
-		return VirtualCore.get().isAppInstalled(pkg);
-	}
+    protected static int getAppUserId() {
+        return VUserHandle.getUserId(getVUid());
+    }
 
-	public final String getHostPkg() {
-		return VirtualCore.get().getHostPkg();
-	}
+    protected static int getBaseVUid() {
+        return VClientImpl.get().getBaseVUid();
+    }
 
-	protected final PackageManager getPM() {
-		return VirtualCore.getPM();
-	}
+    protected static int getRealUid() {
+        return VirtualCore.get().myUid();
+    }
 
-	protected final Context getHostContext() {
-		return VirtualCore.get().getContext();
-	}
+    public static boolean isVisiblePackage(ApplicationInfo info) {
+        return getHostPkg().equals(info.packageName)
+                || ComponentUtils.isSystemApp(info)
+                || VirtualCore.get().isOutsidePackageVisible(info.packageName);
+    }
 
-	protected final boolean isAppProcess() {
-		return VirtualCore.get().isVAppProcess();
-	}
+    public abstract String getName();
 
-	protected final boolean isServerProcess() {
-		return VirtualCore.get().isServerProcess();
-	}
+    public boolean beforeCall(Object who, Method method, Object... args) {
+        return true;
+    }
 
-	protected final boolean isMainProcess() {
-		return VirtualCore.get().isMainProcess();
-	}
+    public Object call(Object who, Method method, Object... args) throws Throwable {
+        return method.invoke(who, args);
+    }
 
-	protected final int getVUid() {
-		return VClientImpl.get().getVUid();
-	}
+    public Object afterCall(Object who, Method method, Object[] args, Object result) throws Throwable {
+        return result;
+    }
 
-	protected final int getAppUserId() {
-		return VUserHandle.getUserId(getVUid());
-	}
+    public boolean isEnable() {
+        return enable;
+    }
 
-	protected final int getBaseVUid() {
-		return VClientImpl.get().getBaseVUid();
-	}
+    public void setEnable(boolean enable) {
+        this.enable = enable;
+    }
 
-	protected final int getRealUid() {
-		return VirtualCore.get().myUid();
-	}
+    public boolean isAppPkg(String pkg) {
+        return VirtualCore.get().isAppInstalled(pkg);
+    }
 
+    protected PackageManager getPM() {
+        return VirtualCore.getPM();
+    }
 
-	@Override
-	public String toString() {
-		return "Hook${ " + getName() + " }";
-	}
+    @Override
+    public String toString() {
+        return "Hook${ " + getName() + " }";
+    }
 }

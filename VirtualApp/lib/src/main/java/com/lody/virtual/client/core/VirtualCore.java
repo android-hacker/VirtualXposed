@@ -330,6 +330,30 @@ public final class VirtualCore {
         }
     }
 
+    public void addVisibleOutsidePackage(String pkg) {
+        try {
+            getService().addVisibleOutsidePackage(pkg);
+        } catch (RemoteException e) {
+            VirtualRuntime.crash(e);
+        }
+    }
+
+    public void removeVisibleOutsidePackage(String pkg) {
+        try {
+            getService().removeVisibleOutsidePackage(pkg);
+        } catch (RemoteException e) {
+            VirtualRuntime.crash(e);
+        }
+    }
+
+    public boolean isOutsidePackageVisible(String pkg) {
+        try {
+            return getService().isOutsidePackageVisible(pkg);
+        } catch (RemoteException e) {
+            return VirtualRuntime.crash(e);
+        }
+    }
+
     public boolean isAppInstalled(String pkg) {
         try {
             return getService().isAppInstalled(pkg);

@@ -15,9 +15,6 @@ import java.util.List;
  *         <p/>
  *         Android 4.4+
  *
- * @see android.content.pm.IPackageManager#queryContentProviders(String, int,
- *      int)
- *
  */
 @SuppressWarnings("unchecked")
 /* package */ class QueryContentProviders extends Hook {

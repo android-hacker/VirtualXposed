@@ -29,7 +29,9 @@ import com.lody.virtual.server.pm.parser.VPackage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -41,9 +43,9 @@ public class VAppManagerService extends IAppManager.Stub {
     private static final AtomicReference<VAppManagerService> sService = new AtomicReference<>();
     private final UidSystem mUidSystem = new UidSystem();
     private final PackagePersistenceLayer mPersistenceLayer = new PackagePersistenceLayer(this);
+    private final Set<String> mVisibleOutsidePackages = new HashSet<>();
     private boolean isBooting;
     private RemoteCallbackList<IAppObserver> mRemoteCallbackList = new RemoteCallbackList<IAppObserver>();
-
     private IAppRequestListener listener;
 
     public static VAppManagerService get() {
@@ -111,6 +113,25 @@ public class VAppManagerService extends IAppManager.Stub {
         PackageCacheManager.put(pkg, ps);
         BroadcastSystem.get().startApp(pkg);
         return true;
+    }
+
+    @Override
+    public boolean isOutsidePackageVisible(String pkg) {
+        return pkg != null && mVisibleOutsidePackages.contains(pkg);
+    }
+
+    @Override
+    public void addVisibleOutsidePackage(String pkg) {
+        if (pkg != null) {
+            mVisibleOutsidePackages.add(pkg);
+        }
+    }
+
+    @Override
+    public void removeVisibleOutsidePackage(String pkg) {
+        if (pkg != null) {
+            mVisibleOutsidePackages.remove(pkg);
+        }
     }
 
     @Override
