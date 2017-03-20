@@ -9,6 +9,9 @@ import com.lody.virtual.remote.InstallResult;
 interface IAppManager {
     int[] getPackageInstalledUsers(String packageName);
     void scanApps();
+    void addVisibleOutsidePackage(String pkg);
+    void removeVisibleOutsidePackage(String pkg);
+    boolean isOutsidePackageVisible(String pkg);
     InstalledAppInfo getInstalledAppInfo(String pkg, int flags);
     InstallResult installPackage(String path, int flags);
     boolean isPackageLaunched(int userId, String packageName);

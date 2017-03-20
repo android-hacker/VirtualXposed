@@ -60,7 +60,15 @@ public class VApp extends Application {
 
             @Override
             public void onServerProcess() {
-                VirtualCore.get().setAppRequestListener(new MyAppRequestListener(VApp.this));
+                virtualCore.setAppRequestListener(new MyAppRequestListener(VApp.this));
+                virtualCore.addVisibleOutsidePackage("com.tencent.mobileqq");
+                virtualCore.addVisibleOutsidePackage("com.tencent.mobileqqi");
+                virtualCore.addVisibleOutsidePackage("com.tencent.minihd.qq");
+                virtualCore.addVisibleOutsidePackage("com.tencent.qqlite");
+                virtualCore.addVisibleOutsidePackage("com.facebook.katana");
+                virtualCore.addVisibleOutsidePackage("com.whatsapp");
+                virtualCore.addVisibleOutsidePackage("com.tencent.mm");
+                virtualCore.addVisibleOutsidePackage("com.immomo.momo");
             }
         });
     }

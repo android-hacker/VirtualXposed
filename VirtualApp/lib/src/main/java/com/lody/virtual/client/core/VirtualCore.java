@@ -189,6 +189,10 @@ public final class VirtualCore {
         }
     }
 
+    public void waitForEngine() {
+        ServiceManagerNative.ensureServerStarted();
+    }
+
     public void initialize(VirtualInitializer initializer) {
         if (initializer == null) {
             throw new IllegalStateException("Initializer = NULL");
@@ -321,6 +325,30 @@ public final class VirtualCore {
     public InstallResult installPackage(String apkPath, int flags) {
         try {
             return getService().installPackage(apkPath, flags);
+        } catch (RemoteException e) {
+            return VirtualRuntime.crash(e);
+        }
+    }
+
+    public void addVisibleOutsidePackage(String pkg) {
+        try {
+            getService().addVisibleOutsidePackage(pkg);
+        } catch (RemoteException e) {
+            VirtualRuntime.crash(e);
+        }
+    }
+
+    public void removeVisibleOutsidePackage(String pkg) {
+        try {
+            getService().removeVisibleOutsidePackage(pkg);
+        } catch (RemoteException e) {
+            VirtualRuntime.crash(e);
+        }
+    }
+
+    public boolean isOutsidePackageVisible(String pkg) {
+        try {
+            return getService().isOutsidePackageVisible(pkg);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }

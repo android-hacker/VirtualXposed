@@ -103,7 +103,6 @@ public class VPackage implements Parcelable {
         this.requestedPermissions = in.createStringArrayList();
         this.protectedBroadcasts = in.createStringArrayList();
         this.applicationInfo = in.readParcelable(ApplicationInfo.class.getClassLoader());
-        this.mSignatures = in.createTypedArray(Signature.CREATOR);
         this.mAppMetaData = in.readBundle(Bundle.class.getClassLoader());
         this.packageName = in.readString();
         this.mPreferredOrder = in.readInt();
@@ -196,7 +195,6 @@ public class VPackage implements Parcelable {
         dest.writeStringList(this.requestedPermissions);
         dest.writeStringList(this.protectedBroadcasts);
         dest.writeParcelable(this.applicationInfo, flags);
-        dest.writeTypedArray(this.mSignatures, flags);
         dest.writeBundle(this.mAppMetaData);
         dest.writeString(this.packageName);
         dest.writeInt(this.mPreferredOrder);

@@ -5,12 +5,9 @@ import android.content.pm.ServiceInfo;
 
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.ipc.VPackageManager;
-import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
-
-import static android.content.pm.PackageManager.GET_DISABLED_COMPONENTS;
 
 /**
  * @author Lody
@@ -29,21 +26,16 @@ import static android.content.pm.PackageManager.GET_DISABLED_COMPONENTS;
     public Object call(Object who, Method method, Object... args) throws Throwable {
         ComponentName componentName = (ComponentName) args[0];
         int flags = (int) args[1];
-        if ((flags & GET_DISABLED_COMPONENTS) == 0) {
-            flags |= GET_DISABLED_COMPONENTS;
-        }
         int userId = VUserHandle.myUserId();
         ServiceInfo info = VPackageManager.get().getServiceInfo(componentName, flags, userId);
         if (info != null) {
             return info;
         }
         info = (ServiceInfo) method.invoke(who, args);
-        if (info != null) {
-            if (getHostPkg().equals(info.packageName) || ComponentUtils.isSystemApp(info.applicationInfo)) {
-                return info;
-            }
+        if (info == null || !isVisiblePackage(info.applicationInfo)) {
+            return null;
         }
-        return null;
+        return info;
     }
 
     @Override

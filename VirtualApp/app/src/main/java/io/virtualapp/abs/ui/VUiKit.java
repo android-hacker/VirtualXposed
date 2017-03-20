@@ -1,11 +1,11 @@
 package io.virtualapp.abs.ui;
 
-import org.jdeferred.android.AndroidDeferredManager;
-
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.TypedValue;
+
+import org.jdeferred.android.AndroidDeferredManager;
 
 /**
  * @author Lody
@@ -33,4 +33,11 @@ public class VUiKit {
 		gUiHandler.postDelayed(r, delay);
 	}
 
+	public static void sleep(long time) {
+		try {
+			Thread.sleep(time);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 }

@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ComponentInfo;
-import android.content.pm.PackageInfo;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.SpecialComponentList;
@@ -85,10 +84,6 @@ public class ComponentUtils {
 
     public static ComponentName toComponentName(ComponentInfo componentInfo) {
         return new ComponentName(componentInfo.packageName, componentInfo.name);
-    }
-
-    public static boolean isSystemApp(PackageInfo packageInfo) {
-        return packageInfo != null && isSystemApp(packageInfo.applicationInfo);
     }
 
     public static boolean isSystemApp(ApplicationInfo applicationInfo) {

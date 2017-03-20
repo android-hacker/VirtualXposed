@@ -1,12 +1,14 @@
 package io.virtualapp.splash;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.WindowManager;
+
+import com.lody.virtual.client.core.VirtualCore;
 
 import io.virtualapp.R;
 import io.virtualapp.VCommends;
 import io.virtualapp.abs.ui.VActivity;
+import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.home.HomeActivity;
 import jonathanfinerty.once.Once;
 
@@ -20,10 +22,18 @@ public class SplashActivity extends VActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-        new Handler().postDelayed(() -> {
+        VUiKit.defer().when(() -> {
+            long time = System.currentTimeMillis();
+            VirtualCore.get().waitForEngine();
+            time = System.currentTimeMillis() - time;
+            long delta = 1000L - time;
+            if (delta > 0) {
+                VUiKit.sleep(delta);
+            }
+        }).done((res) -> {
             HomeActivity.goHome(this);
             finish();
-        }, 1000L);
+        });
     }
 
 }
