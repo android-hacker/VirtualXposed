@@ -13,6 +13,7 @@ import android.content.pm.PermissionInfo;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ServiceInfo;
 import android.content.pm.Signature;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -274,7 +275,9 @@ public class VPackage implements Parcelable {
             }
             this.icon = info.icon;
             this.logo = info.logo;
-            this.banner = info.banner;
+            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+                this.banner = info.banner;
+            }
             this.preferred = info.preferred;
 
         }

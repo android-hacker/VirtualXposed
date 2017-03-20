@@ -52,24 +52,25 @@ import mirror.com.android.internal.R_Hide;
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     void fixNotificationRemoteViews(Context pluginContext, Notification notification) {
-        Notification rebuild = null;
+        Notification.Builder rebuild = null;
         try {
             rebuild = Reflect.on(Notification.Builder.class).create(pluginContext, notification).get();
         } catch (Exception e) {
             // ignore
         }
         if (rebuild != null) {
+            Notification renotification = rebuild.build();
             if (notification.tickerView == null) {
-                notification.tickerView = rebuild.tickerView;
+                notification.tickerView = renotification.tickerView;
             }
             if (notification.contentView == null) {
-                notification.contentView = rebuild.contentView;
+                notification.contentView = renotification.contentView;
             }
             if (notification.bigContentView == null) {
-                notification.bigContentView = rebuild.bigContentView;
+                notification.bigContentView = renotification.bigContentView;
             }
             if (notification.headsUpContentView == null) {
-                notification.headsUpContentView = rebuild.headsUpContentView;
+                notification.headsUpContentView = renotification.headsUpContentView;
             }
         }
     }
@@ -171,15 +172,14 @@ import mirror.com.android.internal.R_Hide;
             VLog.w(TAG, "ignore not system contentView");
             return;
         }
-//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
         try {
             //noinspection deprecation
             int id = R_Hide.id.icon.get();
-            if (!hasIconBitmap) {
-                Drawable drawable = resources.getDrawable(android.R.drawable.sym_def_app_icon);//notification.icon);
+            //only fake small icon
+            if (!hasIconBitmap && notification.largeIcon == null) {
+                Drawable drawable = resources.getDrawable(notification.icon);
                 drawable.setLevel(notification.iconLevel);
                 Bitmap bitmap = drawableToBitMap(drawable);
-//                Log.i(NotificationHandler.TAG, "den" + resources.getConfiguration().densityDpi);
                 remoteViews.setImageViewBitmap(id, bitmap);
             }
             if (Build.VERSION.SDK_INT >= 21) {
