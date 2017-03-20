@@ -6,16 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimaryDark">
 
-    <com.melnykov.fab.FloatingActionButton
-        android:id="@+id/home_fab"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="30dp"
-        android:src="@drawable/ic_add"
-        fab:fab_colorNormal="@color/colorPrimary"
-        fab:fab_colorPressed="@color/colorPrimaryDark" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -81,6 +71,17 @@
                 android:layout_height="100dp"
                 android:layout_gravity="center"
                 android:layout_marginBottom="30dp" />
+
+            <com.melnykov.fab.FloatingActionButton
+                android:id="@+id/home_fab"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="30dp"
+                android:src="@drawable/ic_add"
+                fab:fab_colorNormal="@color/colorPrimary"
+                fab:fab_colorPressed="@color/colorPrimaryDark" />
+
         </FrameLayout>
     </LinearLayout>
 

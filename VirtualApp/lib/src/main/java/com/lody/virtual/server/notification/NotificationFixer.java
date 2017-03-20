@@ -172,15 +172,14 @@ import mirror.com.android.internal.R_Hide;
             VLog.w(TAG, "ignore not system contentView");
             return;
         }
-//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
         try {
             //noinspection deprecation
             int id = R_Hide.id.icon.get();
-            if (!hasIconBitmap) {
+            //only fake small icon
+            if (!hasIconBitmap && notification.largeIcon == null) {
                 Drawable drawable = resources.getDrawable(notification.icon);
                 drawable.setLevel(notification.iconLevel);
                 Bitmap bitmap = drawableToBitMap(drawable);
-//                Log.i(NotificationHandler.TAG, "den" + resources.getConfiguration().densityDpi);
                 remoteViews.setImageViewBitmap(id, bitmap);
             }
             if (Build.VERSION.SDK_INT >= 21) {
