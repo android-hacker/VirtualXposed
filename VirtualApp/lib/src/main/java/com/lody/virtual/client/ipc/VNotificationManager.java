@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.server.INotificationManager;
 import com.lody.virtual.server.notification.NotificationCompat;
 
@@ -11,16 +12,16 @@ import com.lody.virtual.server.notification.NotificationCompat;
  * Fake notification manager
  */
 public class VNotificationManager {
-    private static final VNotificationManager sMgr = new VNotificationManager();
+    private static final VNotificationManager sInstance = new VNotificationManager();
+    private final NotificationCompat mNotificationCompat;
     private INotificationManager mRemote;
-    private NotificationCompat mNotificationCompat;
 
     private VNotificationManager() {
         mNotificationCompat = NotificationCompat.create();
     }
 
     public static VNotificationManager get() {
-        return sMgr;
+        return sInstance;
     }
 
     public INotificationManager getService() {
@@ -36,10 +37,8 @@ public class VNotificationManager {
     }
 
     public boolean dealNotification(int id, Notification notification, String packageName) {
-        if (mNotificationCompat.getHostContext().getPackageName().equals(packageName)) {
-            return true;
-        }
-        return mNotificationCompat.dealNotification(id, notification, packageName);
+        return VirtualCore.get().getHostPkg().equals(packageName)
+                || mNotificationCompat.dealNotification(id, notification, packageName);
     }
 
     public int dealNotificationId(int id, String packageName, String tag, int userId) {
@@ -47,8 +46,8 @@ public class VNotificationManager {
             return getService().dealNotificationId(id, packageName, tag, userId);
         } catch (RemoteException e) {
             e.printStackTrace();
-            return id;
         }
+        return id;
     }
 
     public String dealNotificationTag(int id, String packageName, String tag, int userId) {
@@ -56,8 +55,8 @@ public class VNotificationManager {
             return getService().dealNotificationTag(id, packageName, tag, userId);
         } catch (RemoteException e) {
             e.printStackTrace();
-            return tag;
         }
+        return tag;
     }
 
     public boolean areNotificationsEnabledForPackage(String packageName, int userId) {
@@ -73,6 +72,7 @@ public class VNotificationManager {
         try {
             getService().setNotificationsEnabledForPackage(packageName, enable, userId);
         } catch (RemoteException e) {
+            e.printStackTrace();
         }
     }
 
@@ -80,6 +80,7 @@ public class VNotificationManager {
         try {
             getService().addNotification(id, tag, packageName, userId);
         } catch (RemoteException e) {
+            e.printStackTrace();
         }
     }
 
@@ -87,6 +88,7 @@ public class VNotificationManager {
         try {
             getService().cancelAllNotification(packageName, userId);
         } catch (RemoteException e) {
+            e.printStackTrace();
         }
     }
 }

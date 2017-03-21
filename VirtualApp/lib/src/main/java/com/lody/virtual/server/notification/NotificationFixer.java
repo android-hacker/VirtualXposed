@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.widget.RemoteViews;
 
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
 
@@ -30,168 +31,6 @@ import mirror.com.android.internal.R_Hide;
 
     NotificationFixer(NotificationCompat notificationCompat) {
         this.mNotificationCompat = notificationCompat;
-    }
-
-    @TargetApi(Build.VERSION_CODES.M)
-    void fixIcon(Icon icon, Context pluginContext, boolean isInstall) {
-        if (icon == null) return;
-        int type = Reflect.on(icon).get("mType");
-        if (type == 2) {
-            if (isInstall) {
-                Reflect.on(icon).set("mObj1", pluginContext.getResources());
-                Reflect.on(icon).set("mString1", pluginContext.getPackageName());
-            } else {
-                Drawable drawable = icon.loadDrawable(pluginContext);
-                Bitmap bitmap = drawableToBitMap(drawable);
-                Reflect.on(icon).set("mObj1", bitmap);
-                Reflect.on(icon).set("mString1", null);
-                Reflect.on(icon).set("mType", 1);
-            }
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    void fixNotificationRemoteViews(Context pluginContext, Notification notification) {
-        Notification.Builder rebuild = null;
-        try {
-            rebuild = Reflect.on(Notification.Builder.class).create(pluginContext, notification).get();
-        } catch (Exception e) {
-            // ignore
-        }
-        if (rebuild != null) {
-            Notification renotification = rebuild.build();
-            if (notification.tickerView == null) {
-                notification.tickerView = renotification.tickerView;
-            }
-            if (notification.contentView == null) {
-                notification.contentView = renotification.contentView;
-            }
-            if (notification.bigContentView == null) {
-                notification.bigContentView = renotification.bigContentView;
-            }
-            if (notification.headsUpContentView == null) {
-                notification.headsUpContentView = renotification.headsUpContentView;
-            }
-        }
-    }
-
-    boolean fixRemoteViewActions(Context pluginContext, boolean isinstall, final RemoteViews remoteViews) {
-        boolean hasIcon = false;
-        if (remoteViews != null) {
-            int systemIconViewId = R_Hide.id.icon.get();
-            List<BitmapReflectionAction> mNew = new ArrayList<>();
-            ArrayList<Object> mActions = Reflect.on(remoteViews).get("mActions");
-            if (mActions != null) {
-                int count = mActions.size();
-                for (int i = count - 1; i >= 0; i--) {
-                    Object action = mActions.get(i);
-                    if (action == null) {
-                        continue;
-                    }
-                    //TextViewDrawableAction
-                    //setImageURI
-                    //setLabelFor
-                    if (action.getClass().getSimpleName().endsWith("TextViewDrawableAction")) {
-                        mActions.remove(action);
-                        continue;
-                    }
-                    if (ReflectionActionCompat.isInstance(action)
-                            || (action.getClass().getSimpleName().endsWith("ReflectionAction"))) {
-                        int viewId = Reflect.on(action).get("viewId");
-
-                        String methodName = Reflect.on(action).get("methodName");
-                        int type = Reflect.on(action).get("type");
-                        Object value = Reflect.on(action).get("value");
-                        if (!hasIcon) {
-                            hasIcon = viewId == systemIconViewId;
-                            if (hasIcon) {
-                                if (type == ReflectionActionCompat.INT && (int) value == 0) {
-                                    hasIcon = false;
-                                }
-                                if (hasIcon) {
-                                    VLog.v(TAG, "find icon " + methodName + " type=" + type + ", value=" + value);
-                                }
-                            }
-                        }
-                        if (methodName.equals("setImageResource")) {
-                            //setImageBitmap
-                            mNew.add(new BitmapReflectionAction(viewId, "setImageBitmap",
-                                    drawableToBitMap(pluginContext.getResources().getDrawable((int) value))));
-                            mActions.remove(action);
-                        } else if (methodName.equals("setText") && type == ReflectionActionCompat.INT) {
-                            //setText string
-                            Reflect.on(action).set("type", ReflectionActionCompat.STRING);
-                            Reflect.on(action).set("value", pluginContext.getResources().getString((int) value));
-                        } else if (methodName.equals("setLabelFor")) {
-                            //TODO remove
-                            mActions.remove(action);
-                        } else if (methodName.equals("setBackgroundResource")) {
-                            //TODO remove
-                            mActions.remove(action);
-                        } else if (methodName.equals("setImageURI")) {
-                            Uri uri = (Uri) value;
-                            if (!uri.getScheme().startsWith("http")) {
-                                mActions.remove(action);
-                            }
-                        } else {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                if (value instanceof Icon) {
-                                    Icon icon = (Icon) value;
-                                    fixIcon(icon, pluginContext, isinstall);
-                                }
-                            }
-                        }
-                    }
-                }
-                for (BitmapReflectionAction baction : mNew) {
-                    remoteViews.setBitmap(baction.viewId, baction.methodName, baction.bitmap);
-                }
-            }
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                Reflect.on(remoteViews).set("mPackage", mNotificationCompat.getHostContext().getPackageName());
-            }
-        }
-        return hasIcon;
-    }
-
-    private static class BitmapReflectionAction {
-        int viewId;
-        String methodName;
-        Bitmap bitmap;
-
-        BitmapReflectionAction(int viewId, String methodName, Bitmap bitmap) {
-            this.viewId = viewId;
-            this.methodName = methodName;
-            this.bitmap = bitmap;
-        }
-    }
-
-    void fixIconImage(Resources resources, RemoteViews remoteViews, boolean hasIconBitmap, Notification notification) {
-        if (remoteViews == null) return;
-        if (!mNotificationCompat.isSystemLayout(remoteViews)) {
-            VLog.w(TAG, "ignore not system contentView");
-            return;
-        }
-        try {
-            //noinspection deprecation
-            int id = R_Hide.id.icon.get();
-            //only fake small icon
-            if (!hasIconBitmap && notification.largeIcon == null) {
-                Drawable drawable = resources.getDrawable(notification.icon);
-                drawable.setLevel(notification.iconLevel);
-                Bitmap bitmap = drawableToBitMap(drawable);
-                remoteViews.setImageViewBitmap(id, bitmap);
-            }
-            if (Build.VERSION.SDK_INT >= 21) {
-                remoteViews.setInt(id, "setBackgroundColor", Color.TRANSPARENT);
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                remoteViews.setViewPadding(id, 0, 0, 0, 0);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            VLog.w(TAG, "fix icon", e);
-        }
     }
 
     private static void fixNotificationIcon(Context context, Notification notification, Notification.Builder builder) {
@@ -234,6 +73,167 @@ import mirror.com.android.internal.R_Hide;
             drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
             drawable.draw(canvas);
             return bitmap;
+        }
+    }
+
+    void fixIcon(Icon icon, Context appContext, boolean installed) {
+        if (icon == null) {
+            return;
+        }
+        int type = mirror.android.graphics.drawable.Icon.mType.get(icon);
+        if (type == mirror.android.graphics.drawable.Icon.TYPE_RESOURCE) {
+            if (installed) {
+                mirror.android.graphics.drawable.Icon.mObj1.set(icon, appContext.getResources());
+                mirror.android.graphics.drawable.Icon.mString1.set(icon, appContext.getPackageName());
+            } else {
+                Drawable drawable = icon.loadDrawable(appContext);
+                Bitmap bitmap = drawableToBitMap(drawable);
+                mirror.android.graphics.drawable.Icon.mObj1.set(icon, bitmap);
+                mirror.android.graphics.drawable.Icon.mString1.set(icon, null);
+                mirror.android.graphics.drawable.Icon.mType.set(icon, mirror.android.graphics.drawable.Icon.TYPE_BITMAP);
+            }
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    void fixNotificationRemoteViews(Context pluginContext, Notification notification) {
+        Notification.Builder rebuild = null;
+        try {
+            rebuild = Reflect.on(Notification.Builder.class).create(pluginContext, notification).get();
+        } catch (Exception e) {
+            // ignore
+        }
+        if (rebuild != null) {
+            Notification renotification = rebuild.build();
+            if (notification.tickerView == null) {
+                notification.tickerView = renotification.tickerView;
+            }
+            if (notification.contentView == null) {
+                notification.contentView = renotification.contentView;
+            }
+            if (notification.bigContentView == null) {
+                notification.bigContentView = renotification.bigContentView;
+            }
+            if (notification.headsUpContentView == null) {
+                notification.headsUpContentView = renotification.headsUpContentView;
+            }
+        }
+    }
+
+    boolean fixRemoteViewActions(Context appContext, boolean installed, final RemoteViews remoteViews) {
+        boolean hasIcon = false;
+        if (remoteViews != null) {
+            int systemIconViewId = R_Hide.id.icon.get();
+            List<BitmapReflectionAction> mNew = new ArrayList<>();
+            ArrayList<Object> mActions = Reflect.on(remoteViews).get("mActions");
+            if (mActions != null) {
+                int count = mActions.size();
+                for (int i = count - 1; i >= 0; i--) {
+                    Object action = mActions.get(i);
+                    if (action == null) {
+                        continue;
+                    }
+                    //TextViewDrawableAction
+                    //setImageURI
+                    //setLabelFor
+                    if (action.getClass().getSimpleName().endsWith("TextViewDrawableAction")) {
+                        mActions.remove(action);
+                        continue;
+                    }
+                    if (ReflectionActionCompat.isInstance(action)
+                            || (action.getClass().getSimpleName().endsWith("ReflectionAction"))) {
+                        int viewId = Reflect.on(action).get("viewId");
+
+                        String methodName = Reflect.on(action).get("methodName");
+                        int type = Reflect.on(action).get("type");
+                        Object value = Reflect.on(action).get("value");
+                        if (!hasIcon) {
+                            hasIcon = viewId == systemIconViewId;
+                            if (hasIcon) {
+                                if (type == ReflectionActionCompat.INT && (int) value == 0) {
+                                    hasIcon = false;
+                                }
+                                if (hasIcon) {
+                                    VLog.v(TAG, "find icon " + methodName + " type=" + type + ", value=" + value);
+                                }
+                            }
+                        }
+                        if (methodName.equals("setImageResource")) {
+                            //setImageBitmap
+                            mNew.add(new BitmapReflectionAction(viewId, "setImageBitmap",
+                                    drawableToBitMap(appContext.getResources().getDrawable((int) value))));
+                            mActions.remove(action);
+                        } else if (methodName.equals("setText") && type == ReflectionActionCompat.INT) {
+                            //setText string
+                            Reflect.on(action).set("type", ReflectionActionCompat.STRING);
+                            Reflect.on(action).set("value", appContext.getResources().getString((int) value));
+                        } else if (methodName.equals("setLabelFor")) {
+                            //TODO remove
+                            mActions.remove(action);
+                        } else if (methodName.equals("setBackgroundResource")) {
+                            //TODO remove
+                            mActions.remove(action);
+                        } else if (methodName.equals("setImageURI")) {
+                            Uri uri = (Uri) value;
+                            if (!uri.getScheme().startsWith("http")) {
+                                mActions.remove(action);
+                            }
+                        } else {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                if (value instanceof Icon) {
+                                    Icon icon = (Icon) value;
+                                    fixIcon(icon, appContext, installed);
+                                }
+                            }
+                        }
+                    }
+                }
+                for (BitmapReflectionAction action : mNew) {
+                    remoteViews.setBitmap(action.viewId, action.methodName, action.bitmap);
+                }
+            }
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                mirror.android.widget.RemoteViews.mPackage.set(remoteViews, VirtualCore.get().getHostPkg());
+            }
+        }
+        return hasIcon;
+    }
+
+    void fixIconImage(Resources resources, RemoteViews remoteViews, boolean hasIconBitmap, Notification notification) {
+        if (remoteViews == null) return;
+        if (!mNotificationCompat.isSystemLayout(remoteViews)) {
+            return;
+        }
+        try {
+            //noinspection deprecation
+            int id = R_Hide.id.icon.get();
+            //only fake small icon
+            if (!hasIconBitmap && notification.largeIcon == null) {
+                Drawable drawable = resources.getDrawable(notification.icon);
+                drawable.setLevel(notification.iconLevel);
+                Bitmap bitmap = drawableToBitMap(drawable);
+                remoteViews.setImageViewBitmap(id, bitmap);
+            }
+            if (Build.VERSION.SDK_INT >= 21) {
+                remoteViews.setInt(id, "setBackgroundColor", Color.TRANSPARENT);
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                remoteViews.setViewPadding(id, 0, 0, 0, 0);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static class BitmapReflectionAction {
+        int viewId;
+        String methodName;
+        Bitmap bitmap;
+
+        BitmapReflectionAction(int viewId, String methodName, Bitmap bitmap) {
+            this.viewId = viewId;
+            this.methodName = methodName;
+            this.bitmap = bitmap;
         }
     }
 }

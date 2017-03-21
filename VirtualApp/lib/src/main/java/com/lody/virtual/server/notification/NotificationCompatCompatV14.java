@@ -2,68 +2,64 @@ package com.lody.virtual.server.notification;
 
 import android.app.Notification;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.os.Build;
 
-import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.client.core.VirtualCore;
 
 /**
  * @author 247321543
  */
-/* package */ class NotificationCompatCompatV14 extends NotificationCompat {
-    private RemoteViewsFixer mRemoteViewsFixer;
+@SuppressWarnings("deprecation")
+class NotificationCompatCompatV14 extends NotificationCompat {
+    private final RemoteViewsFixer mRemoteViewsFixer;
 
     NotificationCompatCompatV14() {
         super();
         mRemoteViewsFixer = new RemoteViewsFixer(this);
     }
 
-    RemoteViewsFixer getRemoteViewsFixer() {
+    private RemoteViewsFixer getRemoteViewsFixer() {
         return mRemoteViewsFixer;
     }
 
     @Override
     public boolean dealNotification(int id, Notification notification, final String packageName) {
-        Context pluginContext = getAppContext(packageName);
-        if (isOutsideInstalled(packageName)) {
-            getNotificationFixer().fixIconImage(pluginContext.getResources(), notification.contentView, false, notification);
+        Context appContext = getAppContext(packageName);
+        if (appContext == null) {
+            return false;
+        }
+        if (VirtualCore.get().isOutsideInstalled(packageName)) {
+            getNotificationFixer().fixIconImage(appContext.getResources(), notification.contentView, false, notification);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                getNotificationFixer().fixIconImage(pluginContext.getResources(), notification.bigContentView, false, notification);
+                getNotificationFixer().fixIconImage(appContext.getResources(), notification.bigContentView, false, notification);
             }
             notification.icon = getHostContext().getApplicationInfo().icon;
             return true;
         }
         if (notification.tickerView != null) {
             if (isSystemLayout(notification.tickerView)) {
-                VLog.d(TAG, "deal system tickerView");
-                getNotificationFixer().fixRemoteViewActions(pluginContext, false, notification.tickerView);
+                getNotificationFixer().fixRemoteViewActions(appContext, false, notification.tickerView);
             } else {
-                VLog.d(TAG, "deal custom tickerView " + notification.tickerView.getLayoutId());
-                notification.tickerView = getRemoteViewsFixer().makeRemoteViews(id + ":tickerView", pluginContext,
+                notification.tickerView = getRemoteViewsFixer().makeRemoteViews(id + ":tickerView", appContext,
                         notification.tickerView, false, false);
             }
         }
         if (notification.contentView != null) {
             if (isSystemLayout(notification.contentView)) {
-                VLog.d(TAG, "deal system contentView");
-                boolean hasIconBitmap = getNotificationFixer().fixRemoteViewActions(pluginContext, false, notification.contentView);
-                getNotificationFixer().fixIconImage(pluginContext.getResources(), notification.contentView, hasIconBitmap, notification);
+                boolean hasIconBitmap = getNotificationFixer().fixRemoteViewActions(appContext, false, notification.contentView);
+                getNotificationFixer().fixIconImage(appContext.getResources(), notification.contentView, hasIconBitmap, notification);
             } else {
-                VLog.d(TAG, "deal custom contentView " + notification.contentView.getLayoutId());
-                notification.contentView = getRemoteViewsFixer().makeRemoteViews(id + ":contentView", pluginContext,
+                notification.contentView = getRemoteViewsFixer().makeRemoteViews(id + ":contentView", appContext,
                         notification.contentView, false, true);
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             if (notification.bigContentView != null) {
                 if (isSystemLayout(notification.bigContentView)) {
-                    VLog.d(TAG, "deal system bigContentView");
-                    getNotificationFixer().fixRemoteViewActions(pluginContext, false, notification.bigContentView);
+                    getNotificationFixer().fixRemoteViewActions(appContext, false, notification.bigContentView);
                 } else {
-                    VLog.d(TAG, "deal custom bigContentView " + notification.bigContentView.getLayoutId());
-                    notification.bigContentView = getRemoteViewsFixer().makeRemoteViews(id + ":bigContentView", pluginContext,
+                    notification.bigContentView = getRemoteViewsFixer().makeRemoteViews(id + ":bigContentView", appContext,
                             notification.bigContentView, true, true);
                 }
             }
@@ -71,12 +67,10 @@ import com.lody.virtual.helper.utils.VLog;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (notification.headsUpContentView != null) {
                 if (isSystemLayout(notification.headsUpContentView)) {
-                    VLog.d(TAG, "deal system headsUpContentView");
-                    boolean hasIconBitmap = getNotificationFixer().fixRemoteViewActions(pluginContext, false, notification.headsUpContentView);
-                    getNotificationFixer().fixIconImage(pluginContext.getResources(), notification.contentView, hasIconBitmap, notification);
+                    boolean hasIconBitmap = getNotificationFixer().fixRemoteViewActions(appContext, false, notification.headsUpContentView);
+                    getNotificationFixer().fixIconImage(appContext.getResources(), notification.contentView, hasIconBitmap, notification);
                 } else {
-                    VLog.d(TAG, "deal custom headsUpContentView " + notification.bigContentView.getLayoutId());
-                    notification.headsUpContentView = getRemoteViewsFixer().makeRemoteViews(id + ":headsUpContentView", pluginContext,
+                    notification.headsUpContentView = getRemoteViewsFixer().makeRemoteViews(id + ":headsUpContentView", appContext,
                             notification.headsUpContentView, false, false);
                 }
             }
@@ -86,26 +80,14 @@ import com.lody.virtual.helper.utils.VLog;
     }
 
     Context getAppContext(final String packageName) {
-        final Resources resources = getResources(packageName);
         Context context = null;
         try {
             context = getHostContext().createPackageContext(packageName,
                     Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
         } catch (PackageManager.NameNotFoundException e) {
-            context = getHostContext();
-            // ignore
+           e.printStackTrace();
         }
-        return new ContextWrapper(context) {
-            @Override
-            public Resources getResources() {
-                return resources;
-            }
-
-            @Override
-            public String getPackageName() {
-                return packageName;
-            }
-        };
+        return context;
     }
 
 }
