@@ -47,7 +47,6 @@ public class PackageParser {
         public final ArrayList<Permission> permissions = new ArrayList<Permission>(0);
         public final ArrayList<PermissionGroup> permissionGroups = new ArrayList<PermissionGroup>(0);
         public final ArrayList<String> requestedPermissions = new ArrayList<String>();
-        public ArrayList<String> protectedBroadcasts;
         public Signature[] mSignatures;
         public Bundle mAppMetaData;
         public Object mExtras;

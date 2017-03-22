@@ -33,6 +33,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import mirror.android.content.pm.ApplicationInfoL;
 import mirror.android.content.pm.ApplicationInfoN;
@@ -156,9 +157,10 @@ public class PackageParserEx {
         }
         cache.requestedPermissions = new ArrayList<>(p.requestedPermissions.size());
         cache.requestedPermissions.addAll(p.requestedPermissions);
-        if (p.protectedBroadcasts != null) {
-            cache.protectedBroadcasts = new ArrayList<>(p.protectedBroadcasts.size());
-            cache.protectedBroadcasts.addAll(p.protectedBroadcasts);
+        if (mirror.android.content.pm.PackageParser.Package.protectedBroadcasts != null) {
+            List<String> protectedBroadcasts = mirror.android.content.pm.PackageParser.Package.protectedBroadcasts.get(p);
+            cache.protectedBroadcasts = new ArrayList<>(protectedBroadcasts);
+            cache.protectedBroadcasts.addAll(protectedBroadcasts);
         }
         cache.applicationInfo = p.applicationInfo;
         cache.mSignatures = p.mSignatures;
