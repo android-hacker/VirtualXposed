@@ -159,8 +159,10 @@ public class PackageParserEx {
         cache.requestedPermissions.addAll(p.requestedPermissions);
         if (mirror.android.content.pm.PackageParser.Package.protectedBroadcasts != null) {
             List<String> protectedBroadcasts = mirror.android.content.pm.PackageParser.Package.protectedBroadcasts.get(p);
-            cache.protectedBroadcasts = new ArrayList<>(protectedBroadcasts);
-            cache.protectedBroadcasts.addAll(protectedBroadcasts);
+            if (protectedBroadcasts != null) {
+                cache.protectedBroadcasts = new ArrayList<>(protectedBroadcasts);
+                cache.protectedBroadcasts.addAll(protectedBroadcasts);
+            }
         }
         cache.applicationInfo = p.applicationInfo;
         cache.mSignatures = p.mSignatures;

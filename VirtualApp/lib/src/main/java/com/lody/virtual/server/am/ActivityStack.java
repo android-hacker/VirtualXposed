@@ -321,7 +321,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
             }
             if (taskMarked) {
                 synchronized (mHistory) {
-                    scheduleFinishMarkedActivity();
+                    scheduleFinishMarkedActivityLocked();
                 }
             }
             if (reuseTask.isFinishing()) {
@@ -363,7 +363,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
         return destIntent;
     }
 
-    private void scheduleFinishMarkedActivity() {
+    private void scheduleFinishMarkedActivityLocked() {
         int N = mHistory.size();
         while (N-- > 0) {
             final TaskRecord task = mHistory.valueAt(N);
