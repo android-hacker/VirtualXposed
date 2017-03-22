@@ -14,11 +14,11 @@ import android.util.SparseArray;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.stub.StubManifest;
-import com.lody.virtual.remote.AppTaskInfo;
-import com.lody.virtual.remote.StubActivityRecord;
 import com.lody.virtual.helper.utils.ArrayUtils;
 import com.lody.virtual.helper.utils.ClassUtils;
 import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.remote.AppTaskInfo;
+import com.lody.virtual.remote.StubActivityRecord;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,6 +29,7 @@ import mirror.android.app.ActivityThread;
 import mirror.android.app.IApplicationThread;
 import mirror.com.android.internal.R_Hide;
 
+import static android.content.pm.ActivityInfo.FLAG_NO_HISTORY;
 import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_INSTANCE;
 import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TASK;
 import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
@@ -469,6 +470,9 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
             component = ComponentUtils.toComponentName(info);
         }
         targetIntent.setType(component.flattenToString());
+        if ((info.flags & FLAG_NO_HISTORY) != 0 || containFlags(intent, Intent.FLAG_ACTIVITY_NO_HISTORY)) {
+            targetIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        }
         StubActivityRecord saveInstance = new StubActivityRecord(intent, info,
                 sourceRecord != null ? sourceRecord.component : null, userId);
         saveInstance.saveToIntent(targetIntent);
