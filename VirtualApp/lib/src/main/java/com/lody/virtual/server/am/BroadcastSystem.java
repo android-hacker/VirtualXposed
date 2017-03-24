@@ -189,7 +189,8 @@ public class BroadcastSystem {
                 receivers = new ArrayList<>();
                 mReceivers.put(p.packageName, receivers);
             }
-            String componentAction = String.format("_VA_%s_%s", info.packageName, info.name);
+//            String componentAction = String.format("_VA_%s_%s", info.packageName, info.name);
+            String componentAction = SpecialComponentList.hostAction(info.packageName, info.name);
             IntentFilter componentFilter = new IntentFilter(componentAction);
             BroadcastReceiver r = new StaticBroadcastReceiver(setting.appId, info, componentFilter);
             mContext.registerReceiver(r, componentFilter, null, mScheduler);
