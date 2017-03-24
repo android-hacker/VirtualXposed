@@ -101,6 +101,10 @@ public final class VClientImpl extends IVClient.Stub {
         return mBoundApplication != null ? mBoundApplication.appInfo.packageName : null;
     }
 
+    public ApplicationInfo getCurrentApplicationInfo() {
+        return mInitialApplication != null ? mInitialApplication.getApplicationInfo() : null;
+    }
+
     public CrashHandler getCrashHandler() {
         return crashHandler;
     }

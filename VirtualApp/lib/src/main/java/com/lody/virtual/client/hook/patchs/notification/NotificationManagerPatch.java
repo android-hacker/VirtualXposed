@@ -7,7 +7,6 @@ import com.lody.virtual.client.hook.base.HookDelegate;
 import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgHook;
-import com.lody.virtual.client.hook.base.StaticHook;
 
 import mirror.android.app.NotificationManager;
 import mirror.android.widget.Toast;
@@ -32,11 +31,13 @@ public class NotificationManagerPatch extends PatchDelegate<HookDelegate<IInterf
         super.onBindHooks();
         addHook(new ReplaceCallingPkgHook("enqueueToast"));
         addHook(new ReplaceCallingPkgHook("cancelToast"));
-        addHook(new StaticHook("registerListener"));
-        addHook(new StaticHook("unregisterListener"));
-        addHook(new StaticHook("getAppActiveNotifications"));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            addHook(new ReplaceCallingPkgHook("removeAutomaticZenRules"));
+            addHook(new ReplaceCallingPkgHook("getImportance"));
             addHook(new ReplaceCallingPkgHook("areNotificationsEnabled"));
+            addHook(new ReplaceCallingPkgHook("setNotificationPolicy"));
+            addHook(new ReplaceCallingPkgHook("getNotificationPolicy"));
+            addHook(new ReplaceCallingPkgHook("isNotificationPolicyAccessGrantedForPackage"));
         }
         if ("samsung".equalsIgnoreCase(Build.BRAND) || "samsung".equalsIgnoreCase(Build.MANUFACTURER)) {
             addHook(new ReplaceCallingPkgHook("removeEdgeNotification"));
