@@ -238,23 +238,23 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
         <activity
-            android:name="com.lody.virtual.client.stub.StubPendingActivity"
+            android:name=".client.stub.StubPendingActivity"
             android:process=":x" />
 
         <service
-            android:name="com.lody.virtual.client.stub.StubPendingService"
+            android:name=".client.stub.StubPendingService"
             android:process=":x" />
         <receiver
-            android:name="com.lody.virtual.client.stub.StubPendingReceiver"
+            android:name=".client.stub.StubPendingReceiver"
             android:process=":x" />
 
         <service
-            android:name="com.lody.virtual.client.stub.StubJob"
+            android:name=".client.stub.StubJob"
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:process=":x" />
 
         <activity
-            android:name="com.lody.virtual.client.stub.ChooserActivity"
+            android:name=".client.stub.ChooserActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
             android:excludeFromRecents="true"
             android:exported="true"
@@ -264,7 +264,7 @@
             android:theme="@style/VAAlertTheme" />
 
         <activity
-            android:name="com.lody.virtual.client.stub.ResolverActivity"
+            android:name=".client.stub.ResolverActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
             android:excludeFromRecents="true"
             android:exported="true"

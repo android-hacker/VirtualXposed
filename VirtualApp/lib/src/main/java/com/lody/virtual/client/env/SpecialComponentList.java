@@ -23,8 +23,7 @@ public final class SpecialComponentList {
     private static final HashSet<String> WHITE_PERMISSION = new HashSet<>(3);
     private static final HashSet<String> INSTRUMENTATION_CONFLICTING = new HashSet<>(2);
     private static final HashSet<String> SPEC_SYSTEM_APP_LIST = new HashSet<>(3);
-    public static String PROTECT_ACTION_PREFIX = "_VA_protected_";
-    public static String VA_ACTION_PREFIX = "_VA_HOST_";
+    private static String PROTECT_ACTION_PREFIX = "_VA_protected_";
 
     static {
         ACTION_BLACK_LIST.add("android.appwidget.action.APPWIDGET_UPDATE");
@@ -101,7 +100,7 @@ public final class SpecialComponentList {
         if (originAction == null) {
             return null;
         }
-        if (originAction.startsWith(PROTECT_ACTION_PREFIX) || originAction.startsWith(VA_ACTION_PREFIX)) {
+        if (originAction.startsWith("_VA_")) {
             return originAction;
         }
         String newAction = PROTECTED_ACTION_MAP.get(originAction);
@@ -109,10 +108,6 @@ public final class SpecialComponentList {
             newAction = PROTECT_ACTION_PREFIX + originAction;
         }
         return newAction;
-    }
-
-    public static String hostAction(String pname, String name) {
-        return String.format("%s%s_%s", SpecialComponentList.VA_ACTION_PREFIX, pname, name);
     }
 
     public static String unprotectAction(String action) {

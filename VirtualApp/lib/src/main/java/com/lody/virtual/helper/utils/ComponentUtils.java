@@ -106,8 +106,7 @@ public class ComponentUtils {
         String pkg = intent.getPackage();
         if (component != null) {
             newIntent.putExtra("_VA_|_user_id_", userId);
-//            newIntent.setAction(String.format("_VA_%s_%s", component.getPackageName(), component.getClassName()));
-            newIntent.setAction(SpecialComponentList.hostAction(component.getPackageName(), component.getClassName()));
+            newIntent.setAction(String.format("_VA_%s_%s", component.getPackageName(), component.getClassName()));
             newIntent.putExtra("_VA_|_component_", component);
             newIntent.putExtra("_VA_|_intent_", new Intent(intent));
         } else if (pkg != null) {
