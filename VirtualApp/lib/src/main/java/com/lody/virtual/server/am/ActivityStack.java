@@ -327,7 +327,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
                     deliverNewIntentLocked(sourceRecord, topRecord, intent);
                     delivered = true;
                 }
-                if (isClearTop_SingleTop) {
+                if (isClearTop_SingleTop && hasActivity(topRecord, intent.getComponent())) {
                     topRecord.marked = false;
                     deliverNewIntentLocked(sourceRecord, topRecord, intent);
                     delivered = true;
@@ -612,6 +612,14 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
         }
     }
 
+    private boolean hasActivity(ActivityRecord topRecord, ComponentName component) {
+        for (ActivityRecord ar : topRecord.task.activities) {
+            if (component.equals(ar.component)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private enum ClearTarget {
         NOTHING,
