@@ -42,10 +42,8 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
     }
 
     public void remove(AppData data) {
-        int index = mList.indexOf(data);
-        if (index >= 0) {
-            mList.remove(index);
-            notifyItemRemoved(index);
+        if (mList.remove(data)) {
+            notifyDataSetChanged();
         }
     }
 

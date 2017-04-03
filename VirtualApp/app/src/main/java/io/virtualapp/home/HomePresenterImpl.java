@@ -75,16 +75,30 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
         class AddResult {
             private PackageAppData appData;
             private int userId;
+            private boolean justEnableHidden;
         }
         AddResult addResult = new AddResult();
         VUiKit.defer().when(() -> {
             InstalledAppInfo installedAppInfo = VirtualCore.get().getInstalledAppInfo(info.packageName, 0);
-            if (installedAppInfo != null) {
+            addResult.justEnableHidden = installedAppInfo != null;
+            if (addResult.justEnableHidden) {
                 int[] userIds = installedAppInfo.getInstalledUsers();
                 int nextUserId = userIds.length;
+                /*
+                  Input : userIds = {0, 1, 3}
+                  Output: nextUserId = 2
+                 */
+                for (int i = 0; i < userIds.length; i++) {
+                    if (userIds[i] != i) {
+                        nextUserId = i;
+                        break;
+                    }
+                }
                 addResult.userId = nextUserId;
+
                 if (VUserManager.get().getUserInfo(nextUserId) == null) {
-                    String nextUserName = "Space " + nextUserId + 1;
+                    // user not exist, create it automatically.
+                    String nextUserName = "Space " + (nextUserId + 1);
                     VUserInfo newUserInfo = VUserManager.get().createUser(nextUserName, VUserInfo.FLAG_ADMIN);
                     if (newUserInfo == null) {
                         throw new IllegalStateException();
@@ -103,40 +117,28 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
         }).then((res) -> {
             addResult.appData = PackageAppDataStorage.get().acquire(info.packageName);
         }).done(res -> {
-            if (addResult.userId == 0) {
+            boolean multipleVersion = addResult.justEnableHidden && addResult.userId != 0;
+            if (!multipleVersion) {
                 PackageAppData data = addResult.appData;
                 data.isLoading = true;
                 mView.addAppToLauncher(data);
-                handleOptApp(data);
+                handleOptApp(data, info.packageName, false);
             } else {
                 MultiplePackageAppData data = new MultiplePackageAppData(addResult.appData, addResult.userId);
                 data.isLoading = true;
                 mView.addAppToLauncher(data);
-                handleMultipleApp(data);
+                handleOptApp(data, info.packageName, false);
             }
         });
     }
 
-    private void handleMultipleApp(MultiplePackageAppData data) {
-        VUiKit.defer().when(() -> {
-            try {
-                Thread.sleep(1500L);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }).done((res) -> {
-            data.isLoading = false;
-            data.isFirstOpen = true;
-            mView.refreshLauncherItem(data);
-        });
-    }
 
-    private void handleOptApp(PackageAppData data) {
+    private void handleOptApp(AppData data, String packageName, boolean needOpt) {
         VUiKit.defer().when(() -> {
             long time = System.currentTimeMillis();
-            if (!data.fastOpen) {
+            if (needOpt) {
                 try {
-                    VirtualCore.get().preOpt(data.packageName);
+                    VirtualCore.get().preOpt(packageName);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -150,8 +152,13 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
                 }
             }
         }).done((res) -> {
-            data.isLoading = false;
-            data.isFirstOpen = true;
+            if (data instanceof PackageAppData) {
+                ((PackageAppData) data).isLoading = false;
+                ((PackageAppData) data).isFirstOpen = true;
+            } else if (data instanceof MultiplePackageAppData) {
+                ((MultiplePackageAppData) data).isLoading = false;
+                ((MultiplePackageAppData) data).isFirstOpen = true;
+            }
             mView.refreshLauncherItem(data);
         });
     }

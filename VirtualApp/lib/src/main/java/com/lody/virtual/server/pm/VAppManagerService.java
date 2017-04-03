@@ -10,6 +10,7 @@ import com.lody.virtual.client.hook.secondary.GmsSupport;
 import com.lody.virtual.client.stub.StubManifest;
 import com.lody.virtual.helper.collection.IntArray;
 import com.lody.virtual.helper.compat.NativeLibraryHelperCompat;
+import com.lody.virtual.helper.utils.ArrayUtils;
 import com.lody.virtual.helper.utils.FileUtils;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VEnvironment;
@@ -44,7 +45,7 @@ public class VAppManagerService extends IAppManager.Stub {
     private final UidSystem mUidSystem = new UidSystem();
     private final PackagePersistenceLayer mPersistenceLayer = new PackagePersistenceLayer(this);
     private final Set<String> mVisibleOutsidePackages = new HashSet<>();
-    private boolean isBooting;
+    private boolean mBooting;
     private RemoteCallbackList<IAppObserver> mRemoteCallbackList = new RemoteCallbackList<IAppObserver>();
     private IAppRequestListener listener;
 
@@ -60,21 +61,21 @@ public class VAppManagerService extends IAppManager.Stub {
     }
 
     public boolean isBooting() {
-        return isBooting;
+        return mBooting;
     }
 
     @Override
     public void scanApps() {
-        if (isBooting) {
+        if (mBooting) {
             return;
         }
         synchronized (this) {
-            isBooting = true;
+            mBooting = true;
             mPersistenceLayer.read();
             if (StubManifest.ENABLE_GMS && !GmsSupport.isGoogleFrameworkInstalled()) {
                 GmsSupport.installGms(0);
             }
-            isBooting = false;
+            mBooting = false;
         }
     }
 
@@ -289,38 +290,56 @@ public class VAppManagerService extends IAppManager.Stub {
 
 
     @Override
-    public boolean uninstallPackage(String packageName, int userId) {
+    public synchronized boolean uninstallPackage(String packageName) {
+        PackageSetting ps = PackageCacheManager.getSetting(packageName);
+        if (ps != null) {
+            uninstallPackageFully(ps);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public synchronized boolean uninstallPackageAsUser(String packageName, int userId) {
         if (!VUserManagerService.get().exists(userId)) {
             return false;
         }
-        synchronized (PackageCacheManager.PACKAGE_CACHE) {
-            PackageSetting setting = PackageCacheManager.getSetting(packageName);
-            if (setting != null) {
-                if (userId == 0) {
-                    try {
-                        BroadcastSystem.get().stopApp(packageName);
-                        VActivityManagerService.get().killAppByPkg(packageName, VUserHandle.USER_ALL);
-                        VEnvironment.getPackageResourcePath(packageName).delete();
-                        FileUtils.deleteDir(VEnvironment.getDataAppPackageDirectory(packageName));
-                        VEnvironment.getOdexFile(packageName).delete();
-                        for (int id : VUserManagerService.get().getUserIds()) {
-                            FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(id, packageName));
-                        }
-                        PackageCacheManager.remove(packageName);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    } finally {
-                        notifyAppUninstalled(setting);
-                    }
-                    return true;
-                } else {
-                    setting.setInstalled(userId, false);
-                    mPersistenceLayer.save();
-                    FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(userId, packageName));
-                }
+        PackageSetting ps = PackageCacheManager.getSetting(packageName);
+        if (ps != null) {
+            int[] userIds = getPackageInstalledUsers(packageName);
+            if (!ArrayUtils.contains(userIds, userId)) {
+                return false;
+            }
+            if (userIds.length == 1) {
+                uninstallPackageFully(ps);
+            } else {
+                // Just hidden it
+                VActivityManagerService.get().killAppByPkg(packageName, userId);
+                ps.setInstalled(userId, false);
+                mPersistenceLayer.save();
+                FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(userId, packageName));
             }
         }
         return false;
+    }
+
+    private void uninstallPackageFully(PackageSetting ps) {
+        String packageName = ps.packageName;
+        try {
+            BroadcastSystem.get().stopApp(packageName);
+            VActivityManagerService.get().killAppByPkg(packageName, VUserHandle.USER_ALL);
+            VEnvironment.getPackageResourcePath(packageName).delete();
+            FileUtils.deleteDir(VEnvironment.getDataAppPackageDirectory(packageName));
+            VEnvironment.getOdexFile(packageName).delete();
+            for (int id : VUserManagerService.get().getUserIds()) {
+                FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(id, packageName));
+            }
+            PackageCacheManager.remove(packageName);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            notifyAppUninstalled(ps);
+        }
     }
 
     @Override

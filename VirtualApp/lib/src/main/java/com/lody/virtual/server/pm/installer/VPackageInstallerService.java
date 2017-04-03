@@ -1,5 +1,6 @@
 package com.lody.virtual.server.pm.installer;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -7,6 +8,7 @@ import android.content.pm.IPackageInstallerCallback;
 import android.content.pm.IPackageInstallerSession;
 import android.content.pm.PackageInstaller;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -19,11 +21,11 @@ import android.util.SparseArray;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.compat.ObjectsCompat;
-import com.lody.virtual.remote.VParceledListSlice;
 import com.lody.virtual.helper.utils.Singleton;
 import com.lody.virtual.os.VBinder;
 import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.os.VUserHandle;
+import com.lody.virtual.remote.VParceledListSlice;
 import com.lody.virtual.server.IPackageInstaller;
 import com.lody.virtual.server.pm.VAppManagerService;
 
@@ -39,7 +41,7 @@ import static com.lody.virtual.server.pm.installer.PackageHelper.installStatusTo
 /**
  * @author Lody
  */
-
+@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class VPackageInstallerService extends IPackageInstaller.Stub {
 
     private static final String TAG = "PackageInstaller";
@@ -225,7 +227,7 @@ public class VPackageInstallerService extends IPackageInstaller.Stub {
 
     @Override
     public void uninstall(String packageName, String callerPackageName, int flags, IntentSender statusReceiver, int userId) throws RemoteException {
-        boolean success = VAppManagerService.get().uninstallPackage(packageName, userId);
+        boolean success = VAppManagerService.get().uninstallPackage(packageName);
         if (statusReceiver != null) {
             final Intent fillIn = new Intent();
             fillIn.putExtra(PackageInstaller.EXTRA_PACKAGE_NAME, packageName);

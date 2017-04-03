@@ -56,13 +56,15 @@ public class AppRepository implements AppDataSource {
     public Promise<List<AppData>, Throwable, Void> getVirtualApps() {
         return VUiKit.defer().when(() -> {
             List<InstalledAppInfo> infos = VirtualCore.get().getInstalledApps(0);
-            List<AppData> models = new ArrayList<AppData>();
+            List<AppData> models = new ArrayList<>();
             for (InstalledAppInfo info : infos) {
-                if (VirtualCore.get().getLaunchIntent(info.packageName, 0) == null) {
+                if (!VirtualCore.get().isPackageLaunchable(info.packageName)) {
                     continue;
                 }
                 PackageAppData data = new PackageAppData(mContext, info);
-                models.add(data);
+                if (VirtualCore.get().isAppInstalledAsUser(0, info.packageName)) {
+                    models.add(data);
+                }
                 int[] userIds = info.getInstalledUsers();
                 for (int userId : userIds) {
                     if (userId != 0) {
@@ -154,7 +156,7 @@ public class AppRepository implements AppDataSource {
 
     @Override
     public boolean removeVirtualApp(String packageName, int userId) {
-        return VirtualCore.get().uninstallPackage(packageName, userId);
+        return VirtualCore.get().uninstallPackageAsUser(packageName, userId);
     }
 
 }

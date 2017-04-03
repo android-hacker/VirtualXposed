@@ -4,7 +4,6 @@ import android.content.pm.IPackageDeleteObserver2;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
-import com.lody.virtual.os.VUserHandle;
 
 import java.lang.reflect.Method;
 
@@ -24,7 +23,7 @@ import java.lang.reflect.Method;
 	public Object call(Object who, Method method, Object... args) throws Throwable {
 		String pkgName = (String) args[0];
 		try {
-            VirtualCore.get().uninstallPackage(pkgName, VUserHandle.myUserId());
+            VirtualCore.get().uninstallPackage(pkgName);
             IPackageDeleteObserver2 observer = (IPackageDeleteObserver2) args[1];
             if (observer != null) {
                 observer.onPackageDeleted(pkgName, 0, "done.");

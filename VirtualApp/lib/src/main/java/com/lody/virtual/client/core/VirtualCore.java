@@ -357,6 +357,12 @@ public final class VirtualCore {
         }
     }
 
+    public boolean isPackageLaunchable(String packageName) {
+        InstalledAppInfo info = getInstalledAppInfo(packageName, 0);
+        return info != null
+                && getLaunchIntent(packageName, info.getInstalledUsers()[0]) != null;
+    }
+
     public Intent getLaunchIntent(String packageName, int userId) {
         VPackageManager pm = VPackageManager.get();
         Intent intentToResolve = new Intent(Intent.ACTION_MAIN);
@@ -511,9 +517,18 @@ public final class VirtualCore {
         return isStartUp;
     }
 
-    public boolean uninstallPackage(String pkgName, int userId) {
+    public boolean uninstallPackageAsUser(String pkgName, int userId) {
         try {
-            return getService().uninstallPackage(pkgName, userId);
+            return getService().uninstallPackageAsUser(pkgName, userId);
+        } catch (RemoteException e) {
+            // Ignore
+        }
+        return false;
+    }
+
+    public boolean uninstallPackage(String pkgName) {
+        try {
+            return getService().uninstallPackage(pkgName);
         } catch (RemoteException e) {
             // Ignore
         }
