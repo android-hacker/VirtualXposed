@@ -46,7 +46,7 @@ Open `Setting | Build,Exception,Deployment`, and disable `Enable Instant Run to 
 
 **Install a virtual App:**
 ```java
-    VirtualCore.get().installApp({APK PATH}, flags);
+    VirtualCore.get().installPackage({APK PATH}, flags);
     
 ```
 
@@ -60,7 +60,7 @@ Open `Setting | Build,Exception,Deployment`, and disable `Enable Instant Run to 
 
 **Uninstall a virtual App:**
 ```java
-    VirtualCore.get().uninstallApp({PackageName});
+    VirtualCore.get().uninstallPackage({PackageName});
 ```
 
 More details, please read the source code of demo app, :-)
