@@ -239,12 +239,7 @@ public final class VirtualCore {
             synchronized (this) {
                 if (mService == null) {
                     Object remote = getStubInterface();
-                    mService = LocalProxyUtils.genProxy(IAppManager.class, remote, new LocalProxyUtils.DeadServerHandler() {
-                        @Override
-                        public Object getNewRemoteInterface() {
-                            return getStubInterface();
-                        }
-                    });
+                    mService = LocalProxyUtils.genProxy(IAppManager.class, remote);
                 }
             }
         }

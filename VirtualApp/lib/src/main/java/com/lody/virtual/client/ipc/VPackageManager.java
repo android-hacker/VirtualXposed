@@ -36,12 +36,7 @@ public class VPackageManager {
 			synchronized (VPackageManager.class) {
 				if (mRemote == null) {
 					Object remote = getRemoteInterface();
-					mRemote = LocalProxyUtils.genProxy(IPackageManager.class, remote, new LocalProxyUtils.DeadServerHandler() {
-						@Override
-						public Object getNewRemoteInterface() {
-							return getRemoteInterface();
-						}
-					});
+					mRemote = LocalProxyUtils.genProxy(IPackageManager.class, remote);
 				}
 			}
 		}

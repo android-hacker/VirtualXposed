@@ -49,12 +49,7 @@ public class VActivityManager {
             synchronized (VActivityManager.class) {
                 if (mRemote == null) {
                     final Object remote = getRemoteInterface();
-                    mRemote = LocalProxyUtils.genProxy(IActivityManager.class, remote, new LocalProxyUtils.DeadServerHandler() {
-                        @Override
-                        public Object getNewRemoteInterface() {
-                            return getRemoteInterface();
-                        }
-                    });
+                    mRemote = LocalProxyUtils.genProxy(IActivityManager.class, remote);
                 }
             }
         }

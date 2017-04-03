@@ -6,7 +6,6 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.server.IJobScheduler;
-import com.lody.virtual.server.IPackageManager;
 
 import java.util.List;
 
@@ -29,12 +28,7 @@ public class VJobScheduler {
             synchronized (this) {
                 if (mRemote == null) {
                     Object remote = getRemoteInterface();
-                    mRemote = LocalProxyUtils.genProxy(IJobScheduler.class, remote, new LocalProxyUtils.DeadServerHandler() {
-                        @Override
-                        public Object getNewRemoteInterface() {
-                            return getRemoteInterface();
-                        }
-                    });
+                    mRemote = LocalProxyUtils.genProxy(IJobScheduler.class, remote);
                 }
             }
         }

@@ -27,12 +27,7 @@ public class VAccountManager {
 	public IAccountManager getRemote() {
 		if (mRemote == null) {
 			Object remote = getStubInterface();
-			mRemote = LocalProxyUtils.genProxy(IAccountManager.class, remote, new LocalProxyUtils.DeadServerHandler() {
-				@Override
-				public Object getNewRemoteInterface() {
-					return getStubInterface();
-				}
-			});
+			mRemote = LocalProxyUtils.genProxy(IAccountManager.class, remote);
 		}
 		return mRemote;
 	}
