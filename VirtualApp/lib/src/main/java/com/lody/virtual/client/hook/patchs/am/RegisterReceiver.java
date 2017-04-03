@@ -7,21 +7,16 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.IInterface;
-import android.os.Parcel;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.hook.utils.HookUtils;
-import com.lody.virtual.client.ipc.VActivityManager;
-import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.WeakHashMap;
 
 import mirror.android.app.LoadedApk;
@@ -55,8 +50,7 @@ import mirror.android.content.IIntentReceiverJB;
         HookUtils.replaceFirstAppPkg(args);
         args[IDX_RequiredPermission] = null;
         IntentFilter filter = (IntentFilter) args[IDX_IntentFilter];
-        IntentFilter backupFilter = new IntentFilter(filter);
-        protectIntentFilter(filter);
+        SpecialComponentList.protectIntentFilter(filter);
         if (args.length > IDX_IIntentReceiver && IIntentReceiver.class.isInstance(args[IDX_IIntentReceiver])) {
             final IInterface old = (IInterface) args[IDX_IIntentReceiver];
             if (!IIntentReceiverProxy.class.isInstance(old)) {
@@ -82,34 +76,9 @@ import mirror.android.content.IIntentReceiverJB;
                 }
             }
         }
-        Object res = method.invoke(who, args);
-        Intent intent = VActivityManager.get().dispatchStickyBroadcast(backupFilter);
-        if (intent != null) {
-            return intent;
-        }
-        return res;
+        return method.invoke(who, args);
     }
 
-    private void protectIntentFilter(IntentFilter filter) {
-        if (filter != null) {
-            List<String> actions = mirror.android.content.IntentFilter.mActions.get(filter);
-            ListIterator<String> iterator = actions.listIterator();
-            while (iterator.hasNext()) {
-                String action = iterator.next();
-                if (SpecialComponentList.isActionInBlackList(action)) {
-                    iterator.remove();
-                    continue;
-                }
-                String newAction = SpecialComponentList.protectAction(action);
-                if (newAction != null) {
-                    if(DEBUG) {
-                        VLog.d("IntentSender", "register=" + newAction);
-                    }
-                    iterator.set(newAction);
-                }
-            }
-        }
-    }
 
     @Override
     public boolean isEnable() {

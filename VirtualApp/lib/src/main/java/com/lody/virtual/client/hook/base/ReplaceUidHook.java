@@ -1,7 +1,5 @@
 package com.lody.virtual.client.hook.base;
 
-import android.os.Process;
-
 import java.lang.reflect.Method;
 
 public class ReplaceUidHook extends StaticHook {
@@ -15,7 +13,7 @@ public class ReplaceUidHook extends StaticHook {
     @Override
     public boolean beforeCall(Object who, Method method, Object... args) {
         int uid = (int) args[index];
-        if (uid == Process.myUid()) {
+        if (uid == getVUid() || uid == getBaseVUid()) {
             args[index] = getRealUid();
         }
         return super.beforeCall(who, method, args);

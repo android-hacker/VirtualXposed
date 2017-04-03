@@ -108,6 +108,4 @@ interface IActivityManager {
     void processRestarted(in String packageName, in String processName, int userId);
 
     void broadcastFinish(in PendingResultData res);
-
-    Intent dispatchStickyBroadcast(in IntentFilter filter);
 }

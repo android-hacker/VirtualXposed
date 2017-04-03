@@ -5,7 +5,6 @@ import android.app.IServiceConnection;
 import android.app.Notification;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ProviderInfo;
 import android.os.Bundle;
@@ -455,14 +454,6 @@ public class VActivityManager {
             getService().broadcastFinish(res);
         } catch (RemoteException e) {
             VirtualRuntime.crash(e);
-        }
-    }
-
-    public Intent dispatchStickyBroadcast(IntentFilter filter) {
-        try {
-            return getService().dispatchStickyBroadcast(filter);
-        } catch (RemoteException e) {
-            return VirtualRuntime.crash(e);
         }
     }
 

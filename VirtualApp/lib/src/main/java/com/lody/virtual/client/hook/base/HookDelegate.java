@@ -45,8 +45,12 @@ public class HookDelegate<T> {
             }
             mProxyInterface = (T) Proxy.newProxyInstance(baseInterface.getClass().getClassLoader(), proxyInterfaces, new HookHandler());
         } else {
-            VLog.d(TAG, "Unable to build HookDelegate: %s.", getClass().getName());
+            VLog.d(TAG, "Unable to build HookDelegate: %s.", getIdentityName());
         }
+    }
+
+    public String getIdentityName() {
+        return getClass().getSimpleName();
     }
 
     public HookDelegate(T baseInterface) {

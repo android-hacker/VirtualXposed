@@ -8,7 +8,6 @@ import android.os.IInterface;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.Hook;
 import com.lody.virtual.client.ipc.VActivityManager;
-import com.lody.virtual.client.stub.StubManifest;
 import com.lody.virtual.client.stub.StubPendingActivity;
 import com.lody.virtual.client.stub.StubPendingReceiver;
 import com.lody.virtual.client.stub.StubPendingService;
@@ -51,6 +50,10 @@ import java.lang.reflect.Method;
         }
         args[7] = flags;
         args[1] = getHostPkg();
+        // Force userId to 0
+        if (args[args.length - 1] instanceof Integer) {
+            args[args.length - 1] = 0;
+        }
         IInterface sender = (IInterface) method.invoke(who, args);
         if (sender != null && creator != null) {
             VActivityManager.get().addPendingIntent(sender.asBinder(), creator);
@@ -80,10 +83,10 @@ import java.lang.reflect.Method;
             default:
                 return null;
         }
-        newIntent.putExtra(StubManifest.IDENTITY_PREFIX + "_user_id_", VUserHandle.myUserId());
-        newIntent.putExtra(StubManifest.IDENTITY_PREFIX + "_intent_", intent);
-        newIntent.putExtra(StubManifest.IDENTITY_PREFIX + "_creator_", creator);
-        newIntent.putExtra(StubManifest.IDENTITY_PREFIX + "_from_inner_", true);
+        newIntent.putExtra("_VA_|_user_id_", VUserHandle.myUserId());
+        newIntent.putExtra("_VA_|_intent_", intent);
+        newIntent.putExtra("_VA_|_creator_", creator);
+        newIntent.putExtra("_VA_|_from_inner_", true);
         return newIntent;
     }
 

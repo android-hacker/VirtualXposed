@@ -22,13 +22,10 @@ import com.lody.virtual.server.pm.parser.VPackage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
-import java.util.Set;
 
 import mirror.android.app.ContextImpl;
 import mirror.android.app.LoadedApkHuaWei;
@@ -45,30 +42,12 @@ import static android.content.Intent.FLAG_RECEIVER_REGISTERED_ONLY;
 public class BroadcastSystem {
 
     private static final String TAG = BroadcastSystem.class.getSimpleName();
-    private static final Set<String> SYSTEM_BROADCAST_ACTION = new HashSet<>(7);
-    private static final Set<String> SYSTEM_STICKY_BROADCAST_ACTION = new HashSet<>(4);
     /**
      * MUST < 10000.
      */
     private static final int BROADCAST_TIME_OUT = 8500;
     private static BroadcastSystem gDefault;
 
-    static {
-        SYSTEM_BROADCAST_ACTION.add("android.net.wifi.STATE_CHANGE");
-        SYSTEM_BROADCAST_ACTION.add("android.net.wifi.WIFI_STATE_CHANGED");
-        SYSTEM_BROADCAST_ACTION.add("android.net.conn.CONNECTIVITY_CHANGE");
-        SYSTEM_BROADCAST_ACTION.add("android.intent.action.BATTERY_CHANGED");
-        SYSTEM_BROADCAST_ACTION.add("android.intent.action.BATTERY_LOW");
-        SYSTEM_BROADCAST_ACTION.add("android.intent.action.BATTERY_OKAY");
-        SYSTEM_BROADCAST_ACTION.add("android.intent.action.ANY_DATA_STATE");
-
-        SYSTEM_STICKY_BROADCAST_ACTION.add("android.net.conn.CONNECTIVITY_CHANGE");
-        SYSTEM_STICKY_BROADCAST_ACTION.add("android.net.wifi.WIFI_STATE_CHANGED");
-        SYSTEM_STICKY_BROADCAST_ACTION.add("android.intent.action.BATTERY_CHANGED");
-        SYSTEM_STICKY_BROADCAST_ACTION.add("android.intent.action.ANY_DATA_STATE");
-    }
-
-    private final ArrayMap<String, SystemBroadcastReceiver> mSystemReceivers = new ArrayMap<>();
     private final ArrayMap<String, List<BroadcastReceiver>> mReceivers = new ArrayMap<>();
     private final Map<IBinder, BroadcastRecord> mBroadcastRecords = new HashMap<>();
     private final Context mContext;
@@ -84,7 +63,6 @@ public class BroadcastSystem {
         mScheduler = new StaticScheduler();
         mTimeoutHandler = new TimeoutHandler();
         fuckHuaWeiVerifier();
-        registerSystemReceiver();
     }
 
     public static void attach(VActivityManagerService ams, VAppManagerService app) {
@@ -96,38 +74,6 @@ public class BroadcastSystem {
 
     public static BroadcastSystem get() {
         return gDefault;
-    }
-
-    Intent dispatchStickyBroadcast(int vuid, IntentFilter filter) {
-        Iterator<String> iterator = filter.actionsIterator();
-        while (iterator.hasNext()) {
-            String action = iterator.next();
-            SystemBroadcastReceiver receiver = mSystemReceivers.get(action);
-            if (receiver != null && receiver.sticky && receiver.stickyIntent != null) {
-                Intent intent = new Intent(receiver.stickyIntent);
-                SpecialComponentList.protectIntent(intent);
-                intent.putExtra("_VA_|_uid_", vuid);
-                mContext.sendBroadcast(intent);
-                if (!iterator.hasNext()) {
-                    return receiver.stickyIntent;
-                }
-            }
-        }
-        return null;
-    }
-
-    private void registerSystemReceiver() {
-        for (String action : SYSTEM_BROADCAST_ACTION) {
-            SystemBroadcastReceiver receiver = new SystemBroadcastReceiver(false);
-            mContext.registerReceiver(receiver, new IntentFilter(action));
-            mSystemReceivers.put(action, receiver);
-        }
-        for (String action : SYSTEM_STICKY_BROADCAST_ACTION) {
-            SystemBroadcastReceiver receiver = mSystemReceivers.get(action);
-            if (receiver != null) {
-                receiver.sticky = true;
-            }
-        }
     }
 
     /**
@@ -196,7 +142,7 @@ public class BroadcastSystem {
             receivers.add(r);
             for (VPackage.ActivityIntentInfo ci : receiver.intents) {
                 IntentFilter cloneFilter = new IntentFilter(ci.filter);
-                redirectFilterActions(cloneFilter);
+                SpecialComponentList.protectIntentFilter(cloneFilter);
                 r = new StaticBroadcastReceiver(setting.appId, info, cloneFilter);
                 mContext.registerReceiver(r, cloneFilter, null, mScheduler);
                 receivers.add(r);
@@ -204,21 +150,6 @@ public class BroadcastSystem {
         }
     }
 
-    private void redirectFilterActions(IntentFilter filter) {
-        List<String> actions = mirror.android.content.IntentFilter.mActions.get(filter);
-        ListIterator<String> iterator = actions.listIterator();
-        while (iterator.hasNext()) {
-            String action = iterator.next();
-            if (SpecialComponentList.isActionInBlackList(action)) {
-                iterator.remove();
-                continue;
-            }
-            String protectedAction = SpecialComponentList.protectAction(action);
-            if (protectedAction != null) {
-                iterator.set(protectedAction);
-            }
-        }
-    }
 
     public void stopApp(String packageName) {
         synchronized (mBroadcastRecords) {
@@ -292,25 +223,6 @@ public class BroadcastSystem {
         }
     }
 
-    private final class SystemBroadcastReceiver extends BroadcastReceiver {
-
-        boolean sticky;
-        Intent stickyIntent;
-
-        public SystemBroadcastReceiver(boolean sticky) {
-            this.sticky = sticky;
-        }
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Intent protectedIntent = new Intent(intent);
-            SpecialComponentList.protectIntent(protectedIntent);
-            mContext.sendBroadcast(protectedIntent);
-            if (sticky) {
-                stickyIntent = intent;
-            }
-        }
-    }
 
     private final class StaticBroadcastReceiver extends BroadcastReceiver {
         private int appId;
@@ -333,10 +245,8 @@ public class BroadcastSystem {
                 return;
             }
             PendingResult result = goAsync();
-            synchronized (mAMS) {
-                if (!mAMS.handleStaticBroadcast(appId, info, intent, new PendingResultData(result))) {
-                    result.finish();
-                }
+            if (!mAMS.handleStaticBroadcast(appId, info, intent, new PendingResultData(result))) {
+                result.finish();
             }
         }
     }

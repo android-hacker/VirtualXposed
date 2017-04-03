@@ -24,9 +24,19 @@ public class HookBinderDelegate extends HookDelegate<IInterface> implements IBin
 
     private static final String TAG = HookBinderDelegate.class.getSimpleName();
     private IBinder mBaseBinder;
+    private String mIdentityName;
 
     public HookBinderDelegate(Class<?> stubClass, IBinder binder) {
         this(createStub(stubClass, binder));
+        mIdentityName = stubClass.getName();
+    }
+
+    @Override
+    public String getIdentityName() {
+        if (mIdentityName != null) {
+            return mIdentityName;
+        }
+        return super.getIdentityName();
     }
 
     public HookBinderDelegate(IInterface mBaseInterface) {
