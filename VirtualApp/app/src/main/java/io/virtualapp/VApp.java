@@ -5,6 +5,7 @@ import android.content.Context;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.stub.StubManifest;
+import com.lody.virtual.server.log.LogReportService;
 
 import io.virtualapp.delegate.MyAppRequestListener;
 import io.virtualapp.delegate.MyComponentDelegate;
@@ -69,6 +70,8 @@ public class VApp extends Application {
                 virtualCore.addVisibleOutsidePackage("com.whatsapp");
                 virtualCore.addVisibleOutsidePackage("com.tencent.mm");
                 virtualCore.addVisibleOutsidePackage("com.immomo.momo");
+
+                LogReportService.get().addLogAgent(new RemoteLogAgent());
             }
         });
     }

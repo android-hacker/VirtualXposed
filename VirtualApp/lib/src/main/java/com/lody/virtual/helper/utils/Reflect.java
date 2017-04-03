@@ -563,6 +563,25 @@ public class Reflect {
         }
     }
 
+    public static String getMethodDetails(Method method) {
+        StringBuilder sb = new StringBuilder(40);
+        sb.append(Modifier.toString(method.getModifiers()))
+                .append(" ")
+                .append(method.getReturnType().getName())
+                .append(" ")
+                .append(method.getName())
+                .append("(");
+        Class<?>[] parameters = method.getParameterTypes();
+        for (Class<?> parameter : parameters) {
+            sb.append(parameter.getName()).append(", ");
+        }
+        if (parameters.length > 0) {
+            sb.delete(sb.length() - 2, sb.length());
+        }
+        sb.append(")");
+        return sb.toString();
+    }
+
 
     /**
      * 用来表示null的类.
@@ -574,10 +593,11 @@ public class Reflect {
 
     /**
      * 智能调用 但是只调用类本身声明方法 按照优先级 匹配
-     *
+     * <p>
      * 1.完全匹配
      * 2.形参 Object...
      * 3.名字相同 无参数
+     *
      * @param name
      * @param args
      * @return
@@ -605,7 +625,7 @@ public class Reflect {
             }
         }
         if (bestMethod != null) {
-            if(level == 0){
+            if (level == 0) {
                 args = new Object[0];
             }
             if (level == 1) {
@@ -613,14 +633,14 @@ public class Reflect {
                 args = args2;
             }
             return on(bestMethod, object, args);
-        }else{
+        } else {
             throw new ReflectException("no method found for " + name, new NoSuchMethodException("No best method " + name + " with params " + Arrays.toString(types)
                     + " could be found on type " + type() + "."));
         }
     }
 
     private boolean matchObjectMethod(Method possiblyMatchingMethod, String desiredMethodName,
-                                     Class<?>[] desiredParamTypes) {
+                                      Class<?>[] desiredParamTypes) {
         return possiblyMatchingMethod.getName().equals(desiredMethodName)
                 && matchObject(possiblyMatchingMethod.getParameterTypes());
     }
