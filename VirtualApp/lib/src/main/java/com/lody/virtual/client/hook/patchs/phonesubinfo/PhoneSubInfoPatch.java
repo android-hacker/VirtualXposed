@@ -13,7 +13,7 @@ import mirror.com.android.internal.telephony.IPhoneSubInfo;
 @Patch({GetDeviceId.class, GetDeviceIdForSubscriber.class})
 public class PhoneSubInfoPatch extends PatchBinderDelegate {
 	public PhoneSubInfoPatch() {
-		super(IPhoneSubInfo.Stub.TYPE, "iphonesubinfo");
+		super(IPhoneSubInfo.Stub.asInterface, "iphonesubinfo");
 	}
 
 	@Override

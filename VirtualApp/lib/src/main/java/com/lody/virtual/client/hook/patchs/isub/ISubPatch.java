@@ -12,7 +12,7 @@ import mirror.com.android.internal.telephony.ISub;
 public class ISubPatch extends PatchBinderDelegate {
 
     public ISubPatch() {
-        super(ISub.Stub.TYPE, "isub");
+        super(ISub.Stub.asInterface, "isub");
     }
 
     @Override

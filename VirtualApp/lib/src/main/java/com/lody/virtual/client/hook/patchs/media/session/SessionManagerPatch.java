@@ -17,6 +17,6 @@ import mirror.android.media.session.ISessionManager;
 public class SessionManagerPatch extends PatchBinderDelegate {
 
 	public SessionManagerPatch() {
-		super(ISessionManager.Stub.TYPE, Context.MEDIA_SESSION_SERVICE);
+		super(ISessionManager.Stub.asInterface, Context.MEDIA_SESSION_SERVICE);
 	}
 }

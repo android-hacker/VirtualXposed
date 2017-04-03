@@ -15,7 +15,7 @@ import mirror.com.android.internal.telephony.ISms;
 public class ISmsPatch extends PatchBinderDelegate {
 
     public ISmsPatch() {
-        super(ISms.Stub.TYPE, "isms");
+        super(ISms.Stub.asInterface, "isms");
     }
 
     @Override

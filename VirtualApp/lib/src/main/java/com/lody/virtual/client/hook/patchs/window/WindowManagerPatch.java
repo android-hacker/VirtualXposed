@@ -20,7 +20,7 @@ import mirror.com.android.internal.policy.PhoneWindow;
 public class WindowManagerPatch extends PatchBinderDelegate {
 
 	public WindowManagerPatch() {
-		super(IWindowManager.Stub.TYPE, Context.WINDOW_SERVICE);
+		super(IWindowManager.Stub.asInterface, Context.WINDOW_SERVICE);
 	}
 
 	@Override

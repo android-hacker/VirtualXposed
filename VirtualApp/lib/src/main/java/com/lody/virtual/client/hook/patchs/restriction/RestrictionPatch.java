@@ -16,7 +16,7 @@ import mirror.android.content.IRestrictionsManager;
 
 public class RestrictionPatch extends PatchBinderDelegate {
 	public RestrictionPatch() {
-		super(IRestrictionsManager.Stub.TYPE, Context.RESTRICTIONS_SERVICE);
+		super(IRestrictionsManager.Stub.asInterface, Context.RESTRICTIONS_SERVICE);
 	}
 
 	@Override

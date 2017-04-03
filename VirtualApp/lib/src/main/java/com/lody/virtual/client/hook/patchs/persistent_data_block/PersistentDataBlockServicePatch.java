@@ -11,7 +11,7 @@ import mirror.android.service.persistentdata.IPersistentDataBlockService;
 public class PersistentDataBlockServicePatch extends PatchBinderDelegate {
 
 	public PersistentDataBlockServicePatch() {
-		super(IPersistentDataBlockService.Stub.TYPE, "persistent_data_block");
+		super(IPersistentDataBlockService.Stub.asInterface, "persistent_data_block");
 	}
 
 	@Override

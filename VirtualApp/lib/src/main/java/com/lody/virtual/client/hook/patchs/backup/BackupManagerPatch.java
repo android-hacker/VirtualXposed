@@ -14,7 +14,7 @@ import mirror.android.app.backup.IBackupManager;
  */
 public class BackupManagerPatch extends PatchBinderDelegate {
 	public BackupManagerPatch() {
-		super(IBackupManager.Stub.TYPE, "backup");
+		super(IBackupManager.Stub.asInterface, "backup");
 	}
 
 	@Override

@@ -9,7 +9,7 @@ import mirror.com.android.internal.telephony.ITelephonyRegistry;
 public class TelephonyRegistryPatch extends PatchBinderDelegate {
 
 	public TelephonyRegistryPatch() {
-		super(ITelephonyRegistry.Stub.TYPE, "telephony.registry");
+		super(ITelephonyRegistry.Stub.asInterface, "telephony.registry");
 	}
 
 	@Override

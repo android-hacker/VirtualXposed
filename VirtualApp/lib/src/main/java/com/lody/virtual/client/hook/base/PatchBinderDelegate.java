@@ -3,6 +3,7 @@ package com.lody.virtual.client.hook.base;
 import android.os.IBinder;
 import android.os.IInterface;
 
+import mirror.RefStaticMethod;
 import mirror.android.os.ServiceManager;
 
 /**
@@ -16,6 +17,10 @@ public abstract class PatchBinderDelegate extends PatchDelegate<HookBinderDelega
 
 	public PatchBinderDelegate(IInterface stub, String serviceName) {
 		this(new HookBinderDelegate(stub), serviceName);
+	}
+
+	public PatchBinderDelegate(RefStaticMethod<IInterface> asInterfaceMethod, String serviceName) {
+		this(new HookBinderDelegate(asInterfaceMethod, ServiceManager.getService.call(serviceName)), serviceName);
 	}
 
 	public PatchBinderDelegate(Class<?> stubClass, String serviceName) {

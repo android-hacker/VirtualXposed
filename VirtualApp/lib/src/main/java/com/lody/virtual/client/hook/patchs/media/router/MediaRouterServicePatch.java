@@ -19,6 +19,6 @@ import mirror.android.media.IMediaRouterService;
 public class MediaRouterServicePatch extends PatchBinderDelegate {
 
 	public MediaRouterServicePatch() {
-		super(IMediaRouterService.Stub.TYPE, Context.MEDIA_ROUTER_SERVICE);
+		super(IMediaRouterService.Stub.asInterface, Context.MEDIA_ROUTER_SERVICE);
 	}
 }

@@ -19,7 +19,7 @@ import mirror.android.location.LocationRequestL;
  */
 public class LocationManagerPatch extends PatchBinderDelegate {
 	public LocationManagerPatch() {
-		super(ILocationManager.Stub.TYPE, Context.LOCATION_SERVICE);
+		super(ILocationManager.Stub.asInterface, Context.LOCATION_SERVICE);
 	}
 
 	private static class BaseHook extends ReplaceLastPkgHook {

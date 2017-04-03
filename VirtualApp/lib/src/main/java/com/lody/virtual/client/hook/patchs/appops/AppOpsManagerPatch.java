@@ -24,7 +24,7 @@ import mirror.com.android.internal.app.IAppOpsService;
 public class AppOpsManagerPatch extends PatchBinderDelegate {
 
 	public AppOpsManagerPatch() {
-		super(IAppOpsService.Stub.TYPE, Context.APP_OPS_SERVICE);
+		super(IAppOpsService.Stub.asInterface, Context.APP_OPS_SERVICE);
 	}
 
 	@Override

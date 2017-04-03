@@ -12,6 +12,6 @@ import mirror.android.os.mount.IMountService;
 public class MountServicePatch extends PatchBinderDelegate {
 
 	public MountServicePatch() {
-		super(IMountService.Stub.TYPE, "mount");
+		super(IMountService.Stub.asInterface, "mount");
 	}
 }

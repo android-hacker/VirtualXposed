@@ -22,7 +22,7 @@ import mirror.android.app.job.IJobScheduler;
 public class JobPatch extends PatchBinderDelegate {
 
 	public JobPatch() {
-		super(IJobScheduler.Stub.TYPE, Context.JOB_SCHEDULER_SERVICE);
+		super(IJobScheduler.Stub.asInterface, Context.JOB_SCHEDULER_SERVICE);
 	}
 
 	@Override

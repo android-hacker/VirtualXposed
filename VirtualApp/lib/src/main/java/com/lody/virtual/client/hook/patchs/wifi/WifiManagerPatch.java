@@ -23,7 +23,7 @@ import mirror.android.net.wifi.IWifiManager;
 @Patch({GetBatchedScanResults.class, GetScanResults.class, SetWifiEnabled.class})
 public class WifiManagerPatch extends PatchBinderDelegate {
     public WifiManagerPatch() {
-        super(IWifiManager.Stub.TYPE, Context.WIFI_SERVICE);
+        super(IWifiManager.Stub.asInterface, Context.WIFI_SERVICE);
     }
 
     @Override

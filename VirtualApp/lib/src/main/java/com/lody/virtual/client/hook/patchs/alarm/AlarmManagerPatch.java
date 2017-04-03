@@ -20,7 +20,7 @@ import mirror.android.app.IAlarmManager;
 public class AlarmManagerPatch extends PatchBinderDelegate {
 
 	public AlarmManagerPatch() {
-		super(IAlarmManager.Stub.TYPE, Context.ALARM_SERVICE);
+		super(IAlarmManager.Stub.asInterface, Context.ALARM_SERVICE);
 	}
 
 	@Override

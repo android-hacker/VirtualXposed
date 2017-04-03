@@ -13,6 +13,6 @@ import mirror.android.content.IContentService;
 public class ContentServicePatch extends PatchBinderDelegate {
 
     public ContentServicePatch() {
-        super(IContentService.Stub.TYPE, "content");
+        super(IContentService.Stub.asInterface, "content");
     }
 }

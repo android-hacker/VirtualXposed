@@ -18,7 +18,7 @@ import mirror.android.os.IPowerManager;
 public class PowerManagerPatch extends PatchBinderDelegate {
 
 	public PowerManagerPatch() {
-		super(IPowerManager.Stub.TYPE, Context.POWER_SERVICE);
+		super(IPowerManager.Stub.asInterface, Context.POWER_SERVICE);
 	}
 
 	@Override

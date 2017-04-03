@@ -12,7 +12,7 @@ import mirror.android.view.IGraphicsStats;
 public class GraphicsStatsPatch extends PatchBinderDelegate {
 
 	public GraphicsStatsPatch() {
-		super(IGraphicsStats.Stub.TYPE, "graphicsstats");
+		super(IGraphicsStats.Stub.asInterface, "graphicsstats");
 	}
 
 	@Override

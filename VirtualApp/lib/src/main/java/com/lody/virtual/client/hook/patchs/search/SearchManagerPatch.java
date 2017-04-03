@@ -19,7 +19,7 @@ import mirror.android.app.ISearchManager;
 public class SearchManagerPatch extends PatchBinderDelegate {
 
 	public SearchManagerPatch() {
-		super(ISearchManager.Stub.TYPE, Context.SEARCH_SERVICE);
+		super(ISearchManager.Stub.asInterface, Context.SEARCH_SERVICE);
 	}
 
 	@Override

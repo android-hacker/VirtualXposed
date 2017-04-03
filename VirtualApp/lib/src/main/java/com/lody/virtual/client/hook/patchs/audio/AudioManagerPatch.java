@@ -15,7 +15,7 @@ import mirror.android.media.IAudioService;
 
 public class AudioManagerPatch extends PatchBinderDelegate {
 	public AudioManagerPatch() {
-		super(IAudioService.Stub.TYPE, Context.AUDIO_SERVICE);
+		super(IAudioService.Stub.asInterface, Context.AUDIO_SERVICE);
 	}
 
 	@Override

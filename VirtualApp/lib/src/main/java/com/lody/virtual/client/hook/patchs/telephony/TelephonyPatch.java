@@ -16,7 +16,7 @@ import mirror.com.android.internal.telephony.ITelephony;
 public class TelephonyPatch extends PatchBinderDelegate {
 
 	public TelephonyPatch() {
-		super(ITelephony.Stub.TYPE, Context.TELEPHONY_SERVICE);
+		super(ITelephony.Stub.asInterface, Context.TELEPHONY_SERVICE);
 	}
 
 	@Override

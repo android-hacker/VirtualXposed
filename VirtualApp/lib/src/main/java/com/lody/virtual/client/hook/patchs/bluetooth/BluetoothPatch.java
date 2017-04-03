@@ -15,7 +15,7 @@ public class BluetoothPatch extends PatchBinderDelegate {
             "bluetooth";
 
     public BluetoothPatch() {
-        super(IBluetooth.Stub.TYPE, SERVICE_NAME);
+        super(IBluetooth.Stub.asInterface, SERVICE_NAME);
     }
 
     @Override

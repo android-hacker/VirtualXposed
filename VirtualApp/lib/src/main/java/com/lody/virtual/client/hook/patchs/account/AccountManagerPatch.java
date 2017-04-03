@@ -21,7 +21,7 @@ public class AccountManagerPatch extends PatchBinderDelegate {
 	private static VAccountManager Mgr = VAccountManager.get();
 
 	public AccountManagerPatch() {
-		super(IAccountManager.Stub.TYPE, Context.ACCOUNT_SERVICE);
+		super(IAccountManager.Stub.asInterface, Context.ACCOUNT_SERVICE);
 	}
 
 	@Override

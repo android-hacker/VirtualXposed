@@ -30,6 +30,7 @@ public class HookDelegate<T> {
     private Map<String, Hook> internalHookTable = new HashMap<String, Hook>();
     private T mBaseInterface;
     private T mProxyInterface;
+    private String mIdentityName;
 
 
     public Map<String, Hook> getAllHooks() {
@@ -49,7 +50,14 @@ public class HookDelegate<T> {
         }
     }
 
+    public void setIdentityName(String identityName) {
+        this.mIdentityName = identityName;
+    }
+
     public String getIdentityName() {
+        if (mIdentityName != null) {
+            return mIdentityName;
+        }
         return getClass().getSimpleName();
     }
 

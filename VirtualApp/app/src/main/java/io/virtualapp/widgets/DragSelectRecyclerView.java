@@ -213,7 +213,6 @@ public class DragSelectRecyclerView extends RecyclerView {
             return super.dispatchTouchEvent(e);
 
         if (mDragSelectActive) {
-            final int itemPosition = getItemPosition(e);
             if (e.getAction() == MotionEvent.ACTION_UP) {
                 mDragSelectActive = false;
                 mInTopHotspot = false;

@@ -14,6 +14,7 @@ import com.lody.virtual.client.core.VirtualCore;
 import java.io.FileDescriptor;
 import java.lang.reflect.Method;
 
+import mirror.RefStaticMethod;
 import mirror.android.os.ServiceManager;
 
 /**
@@ -24,25 +25,27 @@ public class HookBinderDelegate extends HookDelegate<IInterface> implements IBin
 
     private static final String TAG = HookBinderDelegate.class.getSimpleName();
     private IBinder mBaseBinder;
-    private String mIdentityName;
+
+    public HookBinderDelegate(RefStaticMethod<IInterface> asInterfaceMethod, IBinder binder) {
+        this(createStub(asInterfaceMethod, binder));
+    }
 
     public HookBinderDelegate(Class<?> stubClass, IBinder binder) {
         this(createStub(stubClass, binder));
-        mIdentityName = stubClass.getName();
     }
 
-    @Override
-    public String getIdentityName() {
-        if (mIdentityName != null) {
-            return mIdentityName;
-        }
-        return super.getIdentityName();
-    }
 
     public HookBinderDelegate(IInterface mBaseInterface) {
         super(mBaseInterface);
         mBaseBinder = getBaseInterface() != null ? getBaseInterface().asBinder() : null;
         addHook(new AsBinder());
+    }
+
+    private static IInterface createStub(RefStaticMethod<IInterface> asInterfaceMethod, IBinder binder) {
+        if (asInterfaceMethod == null || binder == null) {
+            return null;
+        }
+        return asInterfaceMethod.call(binder);
     }
 
     private static IInterface createStub(Class<?> stubClass, IBinder binder) {

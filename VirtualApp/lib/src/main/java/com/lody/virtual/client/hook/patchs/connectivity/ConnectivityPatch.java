@@ -12,6 +12,6 @@ import mirror.android.net.IConnectivityManager;
 public class ConnectivityPatch extends PatchBinderDelegate {
 
     public ConnectivityPatch() {
-        super(IConnectivityManager.Stub.TYPE, Context.CONNECTIVITY_SERVICE);
+        super(IConnectivityManager.Stub.asInterface, Context.CONNECTIVITY_SERVICE);
     }
 }

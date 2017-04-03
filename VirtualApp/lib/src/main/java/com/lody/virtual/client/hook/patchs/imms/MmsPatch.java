@@ -13,7 +13,7 @@ import mirror.com.android.internal.telephony.IMms;
 public class MmsPatch extends PatchBinderDelegate {
 
 	public MmsPatch() {
-		super(IMms.Stub.TYPE, "imms");
+		super(IMms.Stub.asInterface, "imms");
 	}
 
 	@Override

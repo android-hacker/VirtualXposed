@@ -20,7 +20,7 @@ import mirror.android.os.IUserManager;
 public class UserManagerPatch extends PatchBinderDelegate {
 
 	public UserManagerPatch() {
-		super(IUserManager.Stub.TYPE, Context.USER_SERVICE);
+		super(IUserManager.Stub.asInterface, Context.USER_SERVICE);
 	}
 
 	@Override

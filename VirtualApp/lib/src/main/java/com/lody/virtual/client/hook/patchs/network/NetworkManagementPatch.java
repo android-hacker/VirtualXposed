@@ -14,7 +14,7 @@ public class
 NetworkManagementPatch extends PatchBinderDelegate {
 
 	public NetworkManagementPatch() {
-		super(INetworkManagementService.Stub.TYPE, "network_management");
+		super(INetworkManagementService.Stub.asInterface, "network_management");
 	}
 
 	@Override

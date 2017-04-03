@@ -18,7 +18,7 @@ import mirror.com.android.internal.appwidget.IAppWidgetService;
 public class AppWidgetManagerPatch extends PatchBinderDelegate {
 
 	public AppWidgetManagerPatch() {
-		super(IAppWidgetService.Stub.TYPE, Context.APPWIDGET_SERVICE);
+		super(IAppWidgetService.Stub.asInterface, Context.APPWIDGET_SERVICE);
 	}
 
 	@Override

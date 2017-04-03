@@ -12,7 +12,7 @@ import mirror.com.android.internal.os.IDropBoxManagerService;
  */
 public class DropBoxManagerPatch extends PatchBinderDelegate {
 	public DropBoxManagerPatch() {
-		super(IDropBoxManagerService.Stub.TYPE, Context.DROPBOX_SERVICE);
+		super(IDropBoxManagerService.Stub.asInterface, Context.DROPBOX_SERVICE);
 	}
 
 	@Override
