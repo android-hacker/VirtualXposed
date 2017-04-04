@@ -1,7 +1,6 @@
 package com.lody.virtual.client.core;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -16,7 +15,6 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.ConditionVariable;
-import android.os.IBinder;
 import android.os.Looper;
 import android.os.Process;
 import android.os.RemoteException;
@@ -40,6 +38,7 @@ import com.lody.virtual.remote.InstallResult;
 import com.lody.virtual.remote.InstalledAppInfo;
 import com.lody.virtual.server.IAppManager;
 import com.lody.virtual.server.interfaces.IAppRequestListener;
+import com.lody.virtual.server.interfaces.IUiCallback;
 
 import java.io.IOException;
 import java.util.List;
@@ -483,16 +482,13 @@ public final class VirtualCore {
         return true;
     }
 
-    public void setLoadingPage(Intent intent, Activity activity) {
-        if (activity != null) {
-            setLoadingPage(intent, mirror.android.app.Activity.mToken.get(activity));
-        }
+    public abstract static class UiCallback extends IUiCallback.Stub {
     }
 
-    public void setLoadingPage(Intent intent, IBinder token) {
-        if (token != null) {
+    public void setUiCallback(Intent intent, IUiCallback callback) {
+        if (callback != null) {
             Bundle bundle = new Bundle();
-            BundleCompat.putBinder(bundle, "_VA_|_loading_token_", token);
+            BundleCompat.putBinder(bundle, "_VA_|_ui_callback_", callback.asBinder());
             intent.putExtra("_VA_|_sender_", bundle);
         }
     }

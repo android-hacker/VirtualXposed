@@ -7,6 +7,8 @@ import com.lody.virtual.server.log.ILogAgent;
  */
 
 public class RemoteLogAgent implements ILogAgent {
+
+
     @Override
     public void reportLog(int level, String tag, String msg) {
 

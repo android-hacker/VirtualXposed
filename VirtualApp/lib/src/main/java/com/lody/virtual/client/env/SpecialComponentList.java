@@ -37,6 +37,9 @@ public final class SpecialComponentList {
         SYSTEM_BROADCAST_ACTION.add("android.intent.action.BATTERY_LOW");
         SYSTEM_BROADCAST_ACTION.add("android.intent.action.BATTERY_OKAY");
         SYSTEM_BROADCAST_ACTION.add("android.intent.action.ANY_DATA_STATE");
+        SYSTEM_BROADCAST_ACTION.add("android.intent.action.SIM_STATE_CHANGED");
+        SYSTEM_BROADCAST_ACTION.add("android.location.PROVIDERS_CHANGED");
+        SYSTEM_BROADCAST_ACTION.add("android.location.MODE_CHANGED");
 
         ACTION_BLACK_LIST.add("android.appwidget.action.APPWIDGET_UPDATE");
 
