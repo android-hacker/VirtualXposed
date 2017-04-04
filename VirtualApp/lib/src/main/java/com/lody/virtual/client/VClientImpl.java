@@ -345,6 +345,9 @@ public final class VClientImpl extends IVClient.Stub {
         ApplicationInfo info = mBoundApplication.appInfo;
         NativeEngine.redirect("/data/data/" + info.packageName + "/", info.dataDir + "/");
         NativeEngine.redirect("/data/user/0/" + info.packageName + "/", info.dataDir + "/");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            NativeEngine.redirect("/data/user_de/0/" + info.packageName + "/", info.dataDir + "/");
+        }
         /*
          *  /data/user/0/{Host-Pkg}/virtual/data/user/{user-id}/lib -> /data/user/0/{Host-Pkg}/virtual/data/app/{App-Pkg}/lib/
          */
