@@ -29,6 +29,7 @@ import mirror.android.app.ActivityThread;
 import mirror.android.app.IApplicationThread;
 import mirror.com.android.internal.R_Hide;
 
+import static android.content.pm.ActivityInfo.FLAG_NO_HISTORY;
 import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_INSTANCE;
 import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TASK;
 import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
@@ -139,7 +140,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
                 }
             }
             break;
-            case ACTIVITY: {
+            case SPEC_ACTIVITY: {
                 synchronized (task.activities) {
                     for (ActivityRecord r : task.activities) {
                         if (r.component.equals(component)) {
@@ -204,7 +205,6 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 
     int startActivityLocked(int userId, Intent intent, ActivityInfo info, IBinder resultTo, Bundle options,
                             String resultWho, int requestCode) {
-
         optimizeTasksLocked();
 
         Intent destIntent;
@@ -247,7 +247,11 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 
         switch (info.launchMode) {
             case LAUNCH_SINGLE_TOP: {
-                singleTop = true;
+                if (clearTop) {
+                    clearTop = false;
+                } else {
+                    singleTop = true;
+                }
                 if (containFlags(intent, Intent.FLAG_ACTIVITY_NEW_TASK)) {
                     reuseTarget = containFlags(intent, Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
                             ? ReuseTarget.MULTIPLE
@@ -278,7 +282,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
         }
         if (clearTarget == ClearTarget.NOTHING) {
             if (containFlags(intent, Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)) {
-                clearTarget = ClearTarget.ACTIVITY;
+                clearTarget = ClearTarget.SPEC_ACTIVITY;
             }
         }
         if (sourceTask == null && reuseTarget == ReuseTarget.CURRENT) {
@@ -315,17 +319,10 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
                 if (clearTop && topRecord != null && taskMarked) {
                     topRecord.marked = true;
                 }
-                if (topRecord != null) {
-                    // Target activity is on top
-                    if (!topRecord.marked && topRecord.component.equals(intent.getComponent())) {
-                        deliverNewIntentLocked(sourceRecord, topRecord, intent);
-                        delivered = true;
-                    }
-                    if (clearTop && singleTop && hasActivity(topRecord, intent.getComponent())) {
-                        topRecord.marked = false;
-                        deliverNewIntentLocked(sourceRecord, topRecord, intent);
-                        delivered = true;
-                    }
+                // Target activity is on top
+                if (topRecord != null && !topRecord.marked && topRecord.component.equals(intent.getComponent())) {
+                    deliverNewIntentLocked(sourceRecord, topRecord, intent);
+                    delivered = true;
                 }
             }
             if (taskMarked) {
@@ -475,7 +472,9 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
             component = ComponentUtils.toComponentName(info);
         }
         targetIntent.setType(component.flattenToString());
-        targetIntent.addFlags(intent.getFlags());
+        if ((info.flags & FLAG_NO_HISTORY) != 0 || containFlags(intent, Intent.FLAG_ACTIVITY_NO_HISTORY)) {
+            targetIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        }
         StubActivityRecord saveInstance = new StubActivityRecord(intent, info,
                 sourceRecord != null ? sourceRecord.component : null, userId);
         saveInstance.saveToIntent(targetIntent);
@@ -611,7 +610,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 
     private enum ClearTarget {
         NOTHING,
-        ACTIVITY,
+        SPEC_ACTIVITY,
         TASK(true),
         TOP(true);
 
