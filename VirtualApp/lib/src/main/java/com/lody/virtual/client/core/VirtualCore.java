@@ -694,7 +694,7 @@ public final class VirtualCore {
         }
     }
 
-    public abstract class PackageObserver extends IPackageObserver.Stub {}
+    public abstract static class PackageObserver extends IPackageObserver.Stub {}
 
     public void registerObserver(IPackageObserver observer) {
         try {
