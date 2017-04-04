@@ -1,12 +1,12 @@
 package com.lody.virtual.client.ipc;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.compat.ContentProviderCompat;
 
 import java.io.Serializable;
 
@@ -20,10 +20,9 @@ public class ProviderCall {
 		return call(authority, VirtualCore.get().getContext(), methodName, arg, bundle);
 	}
 
-	public static Bundle call(String authority, Context context, String methodName, String arg, Bundle bundle) {
+	public static Bundle call(String authority, Context context, String method, String arg, Bundle bundle) {
 		Uri uri = Uri.parse("content://" + authority);
-		ContentResolver contentResolver = context.getContentResolver();
-		return contentResolver.call(uri, methodName, arg, bundle);
+		return ContentProviderCompat.call(context, uri, method, arg, bundle);
 	}
 
 	public static final class Builder {
@@ -32,7 +31,7 @@ public class ProviderCall {
 
 		private Bundle bundle = new Bundle();
 
-		private String methodName;
+		private String method;
 		private String auth;
 		private String arg;
 
@@ -42,7 +41,7 @@ public class ProviderCall {
 		}
 
 		public Builder methodName(String name) {
-			this.methodName = name;
+			this.method = name;
 			return this;
 		}
 
@@ -73,7 +72,7 @@ public class ProviderCall {
 		}
 
 		public Bundle call() {
-			return ProviderCall.call(auth, context, methodName, arg, bundle);
+			return ProviderCall.call(auth, context, method, arg, bundle);
 		}
 
 	}
