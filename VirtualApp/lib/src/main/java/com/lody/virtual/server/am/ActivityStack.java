@@ -247,11 +247,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 
         switch (info.launchMode) {
             case LAUNCH_SINGLE_TOP: {
-                if (clearTop) {
-                    clearTop = false;
-                } else {
-                    singleTop = true;
-                }
+                singleTop = true;
                 if (containFlags(intent, Intent.FLAG_ACTIVITY_NEW_TASK)) {
                     reuseTarget = containFlags(intent, Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
                             ? ReuseTarget.MULTIPLE
@@ -316,7 +312,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
             if (clearTarget.deliverIntent || singleTop) {
                 taskMarked = markTaskByClearTarget(reuseTask, clearTarget, intent.getComponent());
                 ActivityRecord topRecord = topActivityInTask(reuseTask);
-                if (clearTop && topRecord != null && taskMarked) {
+                if (clearTop && !singleTop && topRecord != null && taskMarked) {
                     topRecord.marked = true;
                 }
                 // Target activity is on top

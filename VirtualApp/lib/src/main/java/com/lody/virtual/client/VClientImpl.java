@@ -21,6 +21,7 @@ import android.os.IInterface;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
+import android.os.RemoteException;
 import android.os.StrictMode;
 
 import com.lody.virtual.client.core.CrashHandler;
@@ -362,8 +363,9 @@ public final class VClientImpl extends IVClient.Stub {
             Context hostContext = VirtualCore.get().getContext();
             return hostContext.createPackageContext(packageName, Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
         } catch (PackageManager.NameNotFoundException e) {
-            throw new RuntimeException(e);
+            VirtualRuntime.crash(new RemoteException());
         }
+        throw new RuntimeException();
     }
 
     private Object fixBoundApp(AppBindData data) {
