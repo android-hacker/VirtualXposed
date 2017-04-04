@@ -6,7 +6,6 @@ import android.content.Context;
 import com.flurry.android.FlurryAgent;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.stub.StubManifest;
-import com.lody.virtual.server.log.LogReportService;
 
 import io.virtualapp.delegate.MyAppRequestListener;
 import io.virtualapp.delegate.MyComponentDelegate;
@@ -48,6 +47,12 @@ public class VApp extends Application {
             @Override
             public void onMainProcess() {
                 Once.initialise(VApp.this);
+                new FlurryAgent.Builder()
+                        .withLogEnabled(true)
+                        .withListener(() -> {
+                            // nothing
+                        })
+                        .build(VApp.this, "48RJJP7ZCZZBB6KMMWW5");
             }
 
             @Override
@@ -71,10 +76,6 @@ public class VApp extends Application {
                 virtualCore.addVisibleOutsidePackage("com.whatsapp");
                 virtualCore.addVisibleOutsidePackage("com.tencent.mm");
                 virtualCore.addVisibleOutsidePackage("com.immomo.momo");
-                new FlurryAgent.Builder()
-                        .withLogEnabled(true)
-                        .build(VApp.this, "48RJJP7ZCZZBB6KMMWW5");
-                LogReportService.get().addLogAgent(new RemoteLogAgent());
             }
         });
     }

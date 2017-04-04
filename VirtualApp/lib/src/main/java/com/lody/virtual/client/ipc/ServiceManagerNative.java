@@ -16,7 +16,6 @@ import com.lody.virtual.server.interfaces.IServiceFetcher;
  */
 public class ServiceManagerNative {
 
-	public static final String LOG_REPORT = "log_report";
 	public static final String PACKAGE = "package";
 	public static final String ACTIVITY = "activity";
 	public static final String USER = "user";

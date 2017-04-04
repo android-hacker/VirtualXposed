@@ -1,7 +1,5 @@
 package com.lody.virtual.client;
 
-import android.hardware.Camera;
-import android.media.AudioRecord;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Process;
@@ -9,8 +7,7 @@ import android.os.Process;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.ipc.VActivityManager;
-import com.lody.virtual.client.ipc.VLogManager;
-import com.lody.virtual.helper.utils.Reflect;
+import com.lody.virtual.client.natives.NativeMethods;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.remote.InstalledAppInfo;
@@ -22,8 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import dalvik.system.DexFile;
-
 /**
  * VirtualApp Native Project
  */
@@ -32,10 +27,6 @@ public class NativeEngine {
     private static final String TAG = NativeEngine.class.getSimpleName();
 
     private static Map<String, InstalledAppInfo> sDexOverrideMap;
-    private static Method gOpenDexFileNative;
-    private static Method gCameraNativeSetup;
-    private static int gCameraMethodType;
-    private static Method gAudioRecordNativeCheckPermission;
 
     static {
         try {
@@ -46,68 +37,9 @@ public class NativeEngine {
     }
 
     static {
-        String methodName =
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? "openDexFileNative" : "openDexFile";
-        for (Method method : DexFile.class.getDeclaredMethods()) {
-            if (method.getName().equals(methodName)) {
-                gOpenDexFileNative = method;
-                break;
-            }
-        }
-        if (gOpenDexFileNative == null) {
-            throw new RuntimeException("Unable to find method : " + methodName);
-        }
-        gOpenDexFileNative.setAccessible(true);
-
-        findCameraMethod();
-
-        for (Method mth : AudioRecord.class.getDeclaredMethods()) {
-            if (mth.getName().equals("native_check_permission") && mth.getParameterTypes().length == 1 && mth.getParameterTypes()[0] == String.class) {
-                gAudioRecordNativeCheckPermission = mth;
-                mth.setAccessible(true);
-                break;
-            }
-        }
+        NativeMethods.init();
     }
 
-    private static void findCameraMethod() {
-        // TODO: Collect the methods of custom ROM.
-        try {
-            gCameraNativeSetup = Camera.class.getDeclaredMethod("native_setup", Object.class, int.class, String.class);
-            gCameraMethodType = 1;
-        } catch (NoSuchMethodException e) {
-            // ignore
-        }
-
-        if (gCameraNativeSetup == null) {
-            try {
-                gCameraNativeSetup = Camera.class.getDeclaredMethod("native_setup", Object.class, int.class, int.class, String.class);
-                gCameraMethodType = 2;
-            } catch (NoSuchMethodException e) {
-                // ignore
-            }
-        }
-
-        if (gCameraNativeSetup == null) {
-            try {
-                gCameraNativeSetup = Camera.class.getDeclaredMethod("native_setup", Object.class, int.class);
-                gCameraMethodType = 3;
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            }
-        }
-
-        if (gCameraNativeSetup != null) {
-            gCameraNativeSetup.setAccessible(true);
-        } else {
-            for (Method method : Camera.class.getDeclaredMethods()) {
-                if ("native_setup".equals(method.getName())) {
-                    VLogManager.get().e("Unknown camera::native_setup", Reflect.getMethodDetails(method));
-                    break;
-                }
-            }
-        }
-    }
 
     public static void startDexOverride() {
         List<InstalledAppInfo> installedAppInfos = VirtualCore.get().getInstalledApps(0);
@@ -156,9 +88,9 @@ public class NativeEngine {
     }
 
     public static void hookNative() {
-        Method[] methods = {gOpenDexFileNative, gCameraNativeSetup, gAudioRecordNativeCheckPermission};
+        Method[] methods = {NativeMethods.gOpenDexFileNative, NativeMethods.gCameraNativeSetup, NativeMethods.gAudioRecordNativeCheckPermission};
         try {
-            nativeHookNative(methods, VirtualCore.get().getHostPkg(), VirtualRuntime.isArt(), Build.VERSION.SDK_INT, gCameraMethodType);
+            nativeHookNative(methods, VirtualCore.get().getHostPkg(), VirtualRuntime.isArt(), Build.VERSION.SDK_INT, NativeMethods.gCameraMethodType);
         } catch (Throwable e) {
             VLog.e(TAG, VLog.getStackTraceString(e));
         }
@@ -207,7 +139,6 @@ public class NativeEngine {
     private static native void nativeHookNative(Object method, String hostPackageName, boolean isArt, int apiLevel, int cameraMethodType);
 
     private static native void nativeMark();
-
 
     private static native String nativeRestoreRedirectedPath(String redirectedPath);
 

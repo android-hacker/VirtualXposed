@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,6 +13,7 @@ import com.lody.virtual.client.ipc.VActivityManager;
 import java.util.Locale;
 
 import io.virtualapp.R;
+import io.virtualapp.abs.ui.VActivity;
 import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.home.models.PackageAppData;
 import io.virtualapp.home.repo.PackageAppDataStorage;
@@ -23,7 +23,7 @@ import io.virtualapp.widgets.EatBeansView;
  * @author Lody
  */
 
-public class LoadingActivity extends AppCompatActivity {
+public class LoadingActivity extends VActivity {
 
     private static final String PKG_NAME_ARGUMENT = "MODEL_ARGUMENT";
     private static final String KEY_INTENT = "KEY_INTENT";

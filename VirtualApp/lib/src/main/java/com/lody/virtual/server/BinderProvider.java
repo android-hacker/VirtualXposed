@@ -19,7 +19,6 @@ import com.lody.virtual.server.am.BroadcastSystem;
 import com.lody.virtual.server.am.VActivityManagerService;
 import com.lody.virtual.server.interfaces.IServiceFetcher;
 import com.lody.virtual.server.job.VJobSchedulerService;
-import com.lody.virtual.server.log.LogReportService;
 import com.lody.virtual.server.notification.VNotificationManagerService;
 import com.lody.virtual.server.pm.VAppManagerService;
 import com.lody.virtual.server.pm.VPackageManagerService;
@@ -39,7 +38,6 @@ public final class BinderProvider extends ContentProvider {
         if (!VirtualCore.get().isStartup()) {
             return true;
         }
-        addService(ServiceManagerNative.LOG_REPORT, LogReportService.get());
         VPackageManagerService.systemReady();
         addService(ServiceManagerNative.PACKAGE, VPackageManagerService.get());
         VActivityManagerService.systemReady(context);
