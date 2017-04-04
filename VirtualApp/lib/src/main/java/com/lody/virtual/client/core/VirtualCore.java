@@ -38,6 +38,7 @@ import com.lody.virtual.remote.InstallResult;
 import com.lody.virtual.remote.InstalledAppInfo;
 import com.lody.virtual.server.IAppManager;
 import com.lody.virtual.server.interfaces.IAppRequestListener;
+import com.lody.virtual.server.interfaces.IPackageObserver;
 import com.lody.virtual.server.interfaces.IUiCallback;
 
 import java.io.IOException;
@@ -693,6 +694,24 @@ public final class VirtualCore {
         }
     }
 
+    public abstract class PackageObserver extends IPackageObserver.Stub {}
+
+    public void registerObserver(IPackageObserver observer) {
+        try {
+            getService().registerObserver(observer);
+        } catch (RemoteException e) {
+            VirtualRuntime.crash(e);
+        }
+    }
+
+    public void unregisterObserver(IPackageObserver observer) {
+        try {
+            getService().unregisterObserver(observer);
+        } catch (RemoteException e) {
+            VirtualRuntime.crash(e);
+        }
+    }
+
     public boolean isOutsideInstalled(String packageName) {
         try {
             return unHookPackageManager.getApplicationInfo(packageName, 0) != null;
@@ -701,6 +720,7 @@ public final class VirtualCore {
         }
         return false;
     }
+
 
     public int getSystemPid() {
         return systemPid;

@@ -1,7 +1,7 @@
 // IAppManager.aidl
 package com.lody.virtual.server;
 
-import com.lody.virtual.server.interfaces.IAppObserver;
+import com.lody.virtual.server.interfaces.IPackageObserver;
 import com.lody.virtual.server.interfaces.IAppRequestListener;
 import com.lody.virtual.remote.InstalledAppInfo;
 import com.lody.virtual.remote.InstallResult;
@@ -25,8 +25,8 @@ interface IAppManager {
     boolean isAppInstalled(String packageName);
     boolean isAppInstalledAsUser(int userId, String packageName);
 
-    void registerObserver(IAppObserver observer);
-    void unregisterObserver(IAppObserver observer);
+    void registerObserver(IPackageObserver observer);
+    void unregisterObserver(IPackageObserver observer);
 
     void setAppRequestListener(IAppRequestListener listener);
     void clearAppRequestListener();
