@@ -21,6 +21,7 @@ import com.lody.virtual.client.stub.ChooserActivity;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.utils.ArrayUtils;
 import com.lody.virtual.helper.utils.ComponentUtils;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.server.interfaces.IAppRequestListener;
 
@@ -95,6 +96,10 @@ import java.lang.reflect.Method;
 
         ActivityInfo activityInfo = VirtualCore.get().resolveActivityInfo(intent, userId);
         if (activityInfo == null) {
+            VLog.e("VActivityManager", "Unable to resolve activityInfo : " + intent);
+            if (intent.getPackage() != null && isAppPkg(intent.getPackage())) {
+                return ActivityManagerCompat.START_INTENT_NOT_RESOLVED;
+            }
             return method.invoke(who, args);
         }
 

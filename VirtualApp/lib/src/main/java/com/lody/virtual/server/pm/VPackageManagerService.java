@@ -404,14 +404,13 @@ public class VPackageManagerService extends IPackageManager.Stub {
                 if (ri != null) {
                     return ri;
                 }
-                return mResolveInfo;
+                return query.get(0);
             }
         }
         return null;
     }
 
     private ResolveInfo findPreferredActivity(Intent intent, String resolvedType, int flags, List<ResolveInfo> query, int priority) {
-        // TODO
         return null;
     }
 
