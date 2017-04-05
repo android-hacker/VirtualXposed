@@ -931,7 +931,9 @@ public class VActivityManagerService extends IActivityManager.Stub {
                                            BroadcastReceiver resultReceiver, Handler scheduler, int initialCode,
                                            String initialData, Bundle initialExtras) {
         Context context = VirtualCore.get().getContext();
-        intent.putExtra("_VA_|_user_id_", user.getIdentifier());
+        if (user != null) {
+            intent.putExtra("_VA_|_user_id_", user.getIdentifier());
+        }
         // TODO: checkPermission
         context.sendOrderedBroadcast(intent, null/* permission */, resultReceiver, scheduler, initialCode, initialData,
                 initialExtras);
