@@ -49,12 +49,13 @@ public class NativeMethods {
                 // ignore
             }
         }
+        // HuaWei
         if (gCameraNativeSetup == null) {
             try {
-                gCameraNativeSetup = Camera.class.getDeclaredMethod("native_setup", Object.class, int.class);
+                gCameraNativeSetup = Camera.class.getDeclaredMethod("native_setup", Object.class, int.class, int.class, String.class, boolean.class);
                 gCameraMethodType = 3;
             } catch (NoSuchMethodException e) {
-                e.printStackTrace();
+                // ignore
             }
         }
         if (gCameraNativeSetup != null) {
