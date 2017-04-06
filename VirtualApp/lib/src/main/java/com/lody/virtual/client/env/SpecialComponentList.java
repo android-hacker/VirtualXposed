@@ -33,9 +33,14 @@ public final class SpecialComponentList {
         SYSTEM_BROADCAST_ACTION.add("android.net.wifi.STATE_CHANGE");
         SYSTEM_BROADCAST_ACTION.add("android.net.wifi.WIFI_STATE_CHANGED");
         SYSTEM_BROADCAST_ACTION.add("android.net.conn.CONNECTIVITY_CHANGE");
-        SYSTEM_BROADCAST_ACTION.add("android.intent.action.BATTERY_CHANGED");
-        SYSTEM_BROADCAST_ACTION.add("android.intent.action.BATTERY_LOW");
-        SYSTEM_BROADCAST_ACTION.add("android.intent.action.BATTERY_OKAY");
+        SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_TIME_TICK);
+        SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_TIME_CHANGED);
+        SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_TIMEZONE_CHANGED);
+        SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_BATTERY_CHANGED);
+        SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_BATTERY_LOW);
+        SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_BATTERY_OKAY);
+        SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_POWER_CONNECTED);
+        SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_POWER_DISCONNECTED);
         SYSTEM_BROADCAST_ACTION.add("android.intent.action.ANY_DATA_STATE");
         SYSTEM_BROADCAST_ACTION.add("android.intent.action.SIM_STATE_CHANGED");
         SYSTEM_BROADCAST_ACTION.add("android.location.PROVIDERS_CHANGED");

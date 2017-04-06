@@ -70,10 +70,10 @@ public class CloneAppListAdapter extends DragSelectRecyclerViewAdapter<CloneAppL
         holder.iconView.setImageDrawable(info.icon);
         holder.nameView.setText(info.name);
         if (isIndexSelected(position)) {
-            holder.itemView.setAlpha(1f);
+            holder.iconView.setAlpha(1f);
             holder.appCheckView.setImageResource(R.drawable.ic_check);
         } else {
-            holder.itemView.setAlpha(0.65f);
+            holder.iconView.setAlpha(0.65f);
             holder.appCheckView.setImageResource(R.drawable.ic_no_check);
         }
         if (info.cloneCount > 0) {

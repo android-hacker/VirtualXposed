@@ -316,7 +316,8 @@ public final class VClientImpl extends IVClient.Stub {
         }
         ThreadGroup newRoot = new RootThreadGroup(root);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            List<ThreadGroup> groups = mirror.java.lang.ThreadGroup.groups.get(root);
+            final List<ThreadGroup> groups = mirror.java.lang.ThreadGroup.groups.get(root);
+            //noinspection SynchronizationOnLocalVariableOrMethodParameter
             synchronized (groups) {
                 List<ThreadGroup> newGroups = new ArrayList<>(groups);
                 newGroups.remove(newRoot);
@@ -329,7 +330,8 @@ public final class VClientImpl extends IVClient.Stub {
                 }
             }
         } else {
-            ThreadGroup[] groups = ThreadGroupN.groups.get(root);
+            final ThreadGroup[] groups = ThreadGroupN.groups.get(root);
+            //noinspection SynchronizationOnLocalVariableOrMethodParameter
             synchronized (groups) {
                 ThreadGroup[] newGroups = groups.clone();
                 ThreadGroupN.groups.set(newRoot, newGroups);
@@ -337,6 +339,7 @@ public final class VClientImpl extends IVClient.Stub {
                 for (Object group : newGroups) {
                     ThreadGroupN.parent.set(group, newRoot);
                 }
+                ThreadGroupN.ngroups.set(root, 1);
             }
         }
     }
