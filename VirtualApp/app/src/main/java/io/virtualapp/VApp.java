@@ -43,12 +43,12 @@ public class VApp extends Application {
     public void onCreate() {
         gApp = this;
         super.onCreate();
+        CrashReport.initCrashReport(getApplicationContext(), "3642321b1a", false);
         VirtualCore virtualCore = VirtualCore.get();
         virtualCore.initialize(new VirtualCore.VirtualInitializer() {
 
             @Override
             public void onMainProcess() {
-                CrashReport.initCrashReport(getApplicationContext(), "3642321b1a", false);
                 Once.initialise(VApp.this);
                 new FlurryAgent.Builder()
                         .withLogEnabled(true)
@@ -73,7 +73,6 @@ public class VApp extends Application {
 
             @Override
             public void onServerProcess() {
-                CrashReport.initCrashReport(getApplicationContext(), "3642321b1a", false);
                 virtualCore.setAppRequestListener(new MyAppRequestListener(VApp.this));
                 virtualCore.addVisibleOutsidePackage("com.tencent.mobileqq");
                 virtualCore.addVisibleOutsidePackage("com.tencent.mobileqqi");
