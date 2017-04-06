@@ -6,7 +6,6 @@ import android.util.Log;
 
 import com.flurry.android.FlurryAgent;
 import com.flurry.android.FlurryEventRecordStatus;
-import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.natives.NativeMethods;
 import com.lody.virtual.helper.utils.Reflect;
 
@@ -27,18 +26,9 @@ public class FlurryROMCollector {
         if (NativeMethods.gCameraNativeSetup == null) {
             reportCameraNativeSetup();
         }
-        reportNeighborApps();
         Log.d(TAG, "end collect...");
     }
 
-    private static void reportNeighborApps() {
-        if (VirtualCore.get().isOutsideInstalled("com.lbe.parallel.intl")) {
-            FlurryAgent.logEvent("parallel(intl) installed.");
-        }
-        if (VirtualCore.get().isOutsideInstalled("com.lbe.parallel")) {
-            FlurryAgent.logEvent("parallel(china) installed.");
-        }
-    }
 
     private static void reportCameraNativeSetup() {
         for (Method method : Camera.class.getDeclaredMethods()) {
