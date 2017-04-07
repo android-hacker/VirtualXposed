@@ -40,8 +40,10 @@ import com.lody.virtual.client.stub.StubManifest;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.os.VUserHandle;
+import com.lody.virtual.remote.InstalledAppInfo;
 import com.lody.virtual.remote.PendingResultData;
 import com.lody.virtual.server.secondary.FakeIdentityBinder;
+import com.taobao.android.dex.interpret.ARTUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -212,6 +214,16 @@ public final class VClientImpl extends IVClient.Stub {
                 null
         );
         AppBindData data = new AppBindData();
+        InstalledAppInfo info = VirtualCore.get().getInstalledAppInfo(packageName, 0);
+        if (info == null) {
+            new Exception("App not exist!").printStackTrace();
+            Process.killProcess(0);
+            System.exit(0);
+        }
+        if (!info.dependSystem && info.artFlyMode) {
+            ARTUtils.init(VirtualCore.get().getContext());
+            ARTUtils.setIsDex2oatEnabled(false);
+        }
         data.appInfo = VPackageManager.get().getApplicationInfo(packageName, 0, getUserId(vuid));
         data.processName = processName;
         data.providers = VPackageManager.get().queryContentProviders(processName, getVUid(), PackageManager.GET_META_DATA);

@@ -10,7 +10,7 @@ package com.lody.virtual;
 
 public class Version {
 
-    public static final String VERSION_NAME = "Build-821-03";
+    public static final String VERSION_NAME = "Build-822-01";
 
-    public static final int VERSION_CODE = 8210003;
+    public static final int VERSION_CODE = 8220001;
 }

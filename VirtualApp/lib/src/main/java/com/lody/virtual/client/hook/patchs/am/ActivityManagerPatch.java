@@ -59,25 +59,22 @@ import mirror.android.util.Singleton;
         CheckPermission.class, PublishContentProviders.class, GetCurrentUser.class,
         UnstableProviderDied.class, GetCallingActivity.class, FinishActivity.class,
         GetServices.class,
-
         SetTaskDescription.class,})
 
 public class ActivityManagerPatch extends PatchDelegate<HookDelegate<IInterface>> {
 
     public ActivityManagerPatch() {
-        super(new HookDelegate<IInterface>(ActivityManagerNative.getDefault.call()));
+        super(new HookDelegate<>(ActivityManagerNative.getDefault.call()));
     }
 
     @Override
     public void inject() throws Throwable {
         if (ActivityManagerNative.gDefault.type() == IActivityManager.TYPE) {
             ActivityManagerNative.gDefault.set(getHookDelegate().getProxyInterface());
-
         } else if (ActivityManagerNative.gDefault.type() == Singleton.TYPE) {
             Object gDefault = ActivityManagerNative.gDefault.get();
             Singleton.mInstance.set(gDefault, getHookDelegate().getProxyInterface());
         }
-
         HookBinderDelegate hookAMBinder = new HookBinderDelegate(getHookDelegate().getBaseInterface());
         hookAMBinder.copyHooks(getHookDelegate());
         ServiceManager.sCache.get().put(Context.ACTIVITY_SERVICE, hookAMBinder);

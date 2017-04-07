@@ -8,6 +8,7 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.hook.secondary.GmsSupport;
 import com.lody.virtual.client.stub.StubManifest;
 import com.lody.virtual.helper.collection.IntArray;
@@ -147,6 +148,7 @@ public class VAppManagerService extends IAppManager.Stub {
         if (path == null) {
             return InstallResult.makeFailure("path = NULL");
         }
+        boolean artFlyMode = VirtualRuntime.isArt() && (flags & InstallStrategy.ART_FLY_MODE) != 0;
         File packageFile = new File(path);
         if (!packageFile.exists() || !packageFile.isFile()) {
             return InstallResult.makeFailure("Package File is not exist.");
@@ -219,6 +221,7 @@ public class VAppManagerService extends IAppManager.Stub {
         } else {
             ps = new PackageSetting();
         }
+        ps.artFlyMode = artFlyMode;
         ps.dependSystem = dependSystem;
         ps.apkPath = packageFile.getPath();
         ps.libPath = libDir.getPath();
@@ -367,7 +370,7 @@ public class VAppManagerService extends IAppManager.Stub {
         List<InstalledAppInfo> infoList = new ArrayList<>(getInstalledAppCount());
         for (VPackage p : PackageCacheManager.PACKAGE_CACHE.values()) {
             PackageSetting setting = (PackageSetting) p.mExtras;
-            infoList.add(setting.getAppInfo(flags));
+            infoList.add(setting.getAppInfo());
         }
         return infoList;
     }
@@ -382,7 +385,7 @@ public class VAppManagerService extends IAppManager.Stub {
                 visible = false;
             }
             if (visible) {
-                infoList.add(setting.getAppInfo(flags));
+                infoList.add(setting.getAppInfo());
             }
         }
         return infoList;
@@ -516,7 +519,7 @@ public class VAppManagerService extends IAppManager.Stub {
             if (packageName != null) {
                 PackageSetting setting = PackageCacheManager.getSetting(packageName);
                 if (setting != null) {
-                    return setting.getAppInfo(flags);
+                    return setting.getAppInfo();
                 }
             }
             return null;
