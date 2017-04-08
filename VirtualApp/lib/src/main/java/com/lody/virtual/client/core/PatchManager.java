@@ -26,6 +26,7 @@ import com.lody.virtual.client.hook.patchs.input.InputMethodManagerPatch;
 import com.lody.virtual.client.hook.patchs.isms.ISmsPatch;
 import com.lody.virtual.client.hook.patchs.isub.ISubPatch;
 import com.lody.virtual.client.hook.patchs.job.JobPatch;
+import com.lody.virtual.client.hook.patchs.launcher_apps.LauncherAppsPatch;
 import com.lody.virtual.client.hook.patchs.libcore.LibCorePatch;
 import com.lody.virtual.client.hook.patchs.location.LocationManagerPatch;
 import com.lody.virtual.client.hook.patchs.media.router.MediaRouterServicePatch;
@@ -47,6 +48,7 @@ import com.lody.virtual.client.hook.patchs.wifi.WifiManagerPatch;
 import com.lody.virtual.client.hook.patchs.wifi_scanner.WifiScannerPatch;
 import com.lody.virtual.client.hook.patchs.window.WindowManagerPatch;
 import com.lody.virtual.client.interfaces.Injectable;
+import com.lody.virtual.helper.compat.BuildCompat;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -173,6 +175,9 @@ public final class PatchManager {
 			if (Build.VERSION.SDK_INT >= N) {
                 addPatch(new WifiScannerPatch());
             }
+            if (BuildCompat.isOreo()) {
+				addPatch(new LauncherAppsPatch());
+			}
 		}
 	}
 

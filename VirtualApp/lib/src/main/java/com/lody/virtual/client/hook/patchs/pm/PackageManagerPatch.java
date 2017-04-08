@@ -7,6 +7,7 @@ import com.lody.virtual.client.hook.base.HookDelegate;
 import com.lody.virtual.client.hook.base.Patch;
 import com.lody.virtual.client.hook.base.PatchDelegate;
 import com.lody.virtual.client.hook.base.ResultStaticHook;
+import com.lody.virtual.helper.compat.BuildCompat;
 
 import mirror.android.app.ActivityThread;
 
@@ -56,6 +57,15 @@ public final class PackageManagerPatch extends PatchDelegate<HookDelegate<IInter
 		super.onBindHooks();
 		addHook(new ResultStaticHook("addPermissionAsync", true));
 		addHook(new ResultStaticHook("addPermission", true));
+		addHook(new ResultStaticHook("performDexOpt", true));
+		addHook(new ResultStaticHook("performDexOptIfNeeded", false));
+		addHook(new ResultStaticHook("performDexOptSecondary", true));
+		if (BuildCompat.isOreo()) {
+			addHook(new ResultStaticHook("notifyDexLoad", 0));
+			addHook(new ResultStaticHook("notifyPackageUse", 0));
+			addHook(new ResultStaticHook("setInstantAppCookie", false));
+			addHook(new ResultStaticHook("isInstantApp", false));
+		}
 	}
 
 	@Override
