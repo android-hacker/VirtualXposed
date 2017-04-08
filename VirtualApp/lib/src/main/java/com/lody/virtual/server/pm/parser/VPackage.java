@@ -128,9 +128,11 @@ public class VPackage implements Parcelable {
             dest.writeParcelable(component.info, 0);
             dest.writeString(component.className);
             dest.writeBundle(component.metaData);
-            dest.writeInt(component.intents.size());
-            for (ActivityIntentInfo info : component.intents) {
-                info.writeToParcel(dest, flags);
+            dest.writeInt(component.intents != null ? component.intents.size() : 0);
+            if (component.intents != null) {
+                for (ActivityIntentInfo info : component.intents) {
+                    info.writeToParcel(dest, flags);
+                }
             }
         }
         dest.writeInt(this.receivers.size());
@@ -138,9 +140,11 @@ public class VPackage implements Parcelable {
             dest.writeParcelable(component.info, 0);
             dest.writeString(component.className);
             dest.writeBundle(component.metaData);
-            dest.writeInt(component.intents.size());
-            for (ActivityIntentInfo info : component.intents) {
-                info.writeToParcel(dest, flags);
+            dest.writeInt(component.intents != null ? component.intents.size() : 0);
+            if (component.intents != null) {
+                for (ActivityIntentInfo info : component.intents) {
+                    info.writeToParcel(dest, flags);
+                }
             }
         }
         dest.writeInt(this.providers.size());
@@ -148,9 +152,11 @@ public class VPackage implements Parcelable {
             dest.writeParcelable(component.info, 0);
             dest.writeString(component.className);
             dest.writeBundle(component.metaData);
-            dest.writeInt(component.intents.size());
-            for (ProviderIntentInfo info : component.intents) {
-                info.writeToParcel(dest, flags);
+            dest.writeInt(component.intents != null ? component.intents.size() : 0);
+            if (component.intents != null) {
+                for (ProviderIntentInfo info : component.intents) {
+                    info.writeToParcel(dest, flags);
+                }
             }
         }
         dest.writeInt(this.services.size());
@@ -158,9 +164,11 @@ public class VPackage implements Parcelable {
             dest.writeParcelable(component.info, 0);
             dest.writeString(component.className);
             dest.writeBundle(component.metaData);
-            dest.writeInt(component.intents.size());
-            for (ServiceIntentInfo info : component.intents) {
-                info.writeToParcel(dest, flags);
+            dest.writeInt(component.intents != null ? component.intents.size() : 0);
+            if (component.intents != null) {
+                for (ServiceIntentInfo info : component.intents) {
+                    info.writeToParcel(dest, flags);
+                }
             }
         }
         dest.writeInt(this.instrumentation.size());
@@ -168,9 +176,11 @@ public class VPackage implements Parcelable {
             dest.writeParcelable(component.info, 0);
             dest.writeString(component.className);
             dest.writeBundle(component.metaData);
-            dest.writeInt(component.intents.size());
-            for (IntentInfo info : component.intents) {
-                info.writeToParcel(dest, flags);
+            dest.writeInt(component.intents != null ? component.intents.size() : 0);
+            if (component.intents != null) {
+                for (IntentInfo info : component.intents) {
+                    info.writeToParcel(dest, flags);
+                }
             }
         }
         dest.writeInt(this.permissions.size());
@@ -178,9 +188,11 @@ public class VPackage implements Parcelable {
             dest.writeParcelable(component.info, 0);
             dest.writeString(component.className);
             dest.writeBundle(component.metaData);
-            dest.writeInt(component.intents.size());
-            for (IntentInfo info : component.intents) {
-                info.writeToParcel(dest, flags);
+            dest.writeInt(component.intents != null ? component.intents.size() : 0);
+            if (component.intents != null) {
+                for (IntentInfo info : component.intents) {
+                    info.writeToParcel(dest, flags);
+                }
             }
         }
         dest.writeInt(this.permissionGroups.size());
@@ -188,9 +200,11 @@ public class VPackage implements Parcelable {
             dest.writeParcelable(component.info, 0);
             dest.writeString(component.className);
             dest.writeBundle(component.metaData);
-            dest.writeInt(component.intents.size());
-            for (IntentInfo info : component.intents) {
-                info.writeToParcel(dest, flags);
+            dest.writeInt(component.intents != null ? component.intents.size() : 0);
+            if (component.intents != null) {
+                for (IntentInfo info : component.intents) {
+                    info.writeToParcel(dest, flags);
+                }
             }
         }
         dest.writeStringList(this.requestedPermissions);
@@ -264,7 +278,6 @@ public class VPackage implements Parcelable {
         public int icon;
         public int logo;
         public int banner;
-        public int preferred;
 
         public IntentInfo(PackageParser.IntentInfo info) {
             this.filter = info;
@@ -275,10 +288,9 @@ public class VPackage implements Parcelable {
             }
             this.icon = info.icon;
             this.logo = info.logo;
-            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
                 this.banner = info.banner;
             }
-            this.preferred = info.preferred;
 
         }
 
@@ -290,7 +302,6 @@ public class VPackage implements Parcelable {
             this.icon = in.readInt();
             this.logo = in.readInt();
             this.banner = in.readInt();
-            this.preferred = in.readInt();
         }
 
         @Override
@@ -307,7 +318,6 @@ public class VPackage implements Parcelable {
             dest.writeInt(this.icon);
             dest.writeInt(this.logo);
             dest.writeInt(this.banner);
-            dest.writeInt(this.preferred);
         }
     }
 

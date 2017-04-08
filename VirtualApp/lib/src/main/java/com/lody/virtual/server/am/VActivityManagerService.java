@@ -35,6 +35,7 @@ import com.lody.virtual.client.stub.StubManifest;
 import com.lody.virtual.helper.collection.ArrayMap;
 import com.lody.virtual.helper.collection.SparseArray;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
+import com.lody.virtual.helper.compat.ApplicationThreadCompat;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.compat.IApplicationThreadCompat;
 import com.lody.virtual.helper.utils.ComponentUtils;
@@ -57,8 +58,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicReference;
-
-import mirror.android.app.ApplicationThreadNative;
 
 import static android.os.Process.killProcess;
 import static com.lody.virtual.os.VUserHandle.getUserId;
@@ -607,7 +606,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
         }
         IInterface thread = null;
         try {
-            thread = ApplicationThreadNative.asInterface.call(client.getAppThread());
+            thread = ApplicationThreadCompat.asInterface(client.getAppThread());
         } catch (RemoteException e) {
             // process has dead
         }

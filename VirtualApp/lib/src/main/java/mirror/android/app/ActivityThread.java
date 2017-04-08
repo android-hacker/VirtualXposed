@@ -71,10 +71,9 @@ public class ActivityThread {
         public static RefObject<IInterface> mProvider;
     }
 
+
     public static class ProviderClientRecordJB {
         public static Class<?> TYPE = RefClass.load(ProviderClientRecordJB.class, "android.app.ActivityThread$ProviderClientRecord");
-        @MethodReflectParams({"android.app.ActivityThread", "[Ljava.lang.String;", "android.content.IContentProvider", "android.content.ContentProvider", "android.app.IActivityManager$ContentProviderHolder"})
-        public static RefConstructor<?> ctor;
         public static RefObject<Object> mHolder;
         public static RefObject<IInterface> mProvider;
     }

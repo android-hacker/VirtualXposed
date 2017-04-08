@@ -125,8 +125,8 @@ public class AppRepository implements AppDataSource {
             if (isSystemApplication(pkg)) {
                 continue;
             }
-            ApplicationInfo applicationInfo = pkg.applicationInfo;
-            String path = applicationInfo.sourceDir;
+            ApplicationInfo ai = pkg.applicationInfo;
+            String path = ai.publicSourceDir != null ? ai.publicSourceDir : ai.sourceDir;
             if (path == null) {
                 continue;
             }
@@ -134,8 +134,8 @@ public class AppRepository implements AppDataSource {
             info.packageName = pkg.packageName;
             info.fastOpen = fastOpen;
             info.path = path;
-            info.icon = applicationInfo.loadIcon(pm);
-            info.name = applicationInfo.loadLabel(pm);
+            info.icon = ai.loadIcon(pm);
+            info.name = ai.loadLabel(pm);
             InstalledAppInfo installedAppInfo = VirtualCore.get().getInstalledAppInfo(pkg.packageName, 0);
             if (installedAppInfo != null) {
                 info.cloneCount = installedAppInfo.getInstalledUsers().length;

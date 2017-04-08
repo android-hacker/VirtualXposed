@@ -17,6 +17,7 @@ import com.lody.virtual.client.hook.base.ReplaceLastUidHook;
 import com.lody.virtual.client.hook.base.ResultStaticHook;
 import com.lody.virtual.client.hook.base.StaticHook;
 import com.lody.virtual.client.ipc.VActivityManager;
+import com.lody.virtual.helper.compat.BuildCompat;
 import com.lody.virtual.helper.compat.ParceledListSliceCompat;
 import com.lody.virtual.remote.AppTaskInfo;
 
@@ -69,11 +70,16 @@ public class ActivityManagerPatch extends PatchDelegate<HookDelegate<IInterface>
 
     @Override
     public void inject() throws Throwable {
-        if (ActivityManagerNative.gDefault.type() == IActivityManager.TYPE) {
-            ActivityManagerNative.gDefault.set(getHookDelegate().getProxyInterface());
-        } else if (ActivityManagerNative.gDefault.type() == Singleton.TYPE) {
-            Object gDefault = ActivityManagerNative.gDefault.get();
-            Singleton.mInstance.set(gDefault, getHookDelegate().getProxyInterface());
+        if (BuildCompat.isOreo()) {
+            //Android Oreo(8.X)
+            // No any field in ActivityManagerNative?
+        } else {
+            if (ActivityManagerNative.gDefault.type() == IActivityManager.TYPE) {
+                ActivityManagerNative.gDefault.set(getHookDelegate().getProxyInterface());
+            } else if (ActivityManagerNative.gDefault.type() == Singleton.TYPE) {
+                Object gDefault = ActivityManagerNative.gDefault.get();
+                Singleton.mInstance.set(gDefault, getHookDelegate().getProxyInterface());
+            }
         }
         HookBinderDelegate hookAMBinder = new HookBinderDelegate(getHookDelegate().getBaseInterface());
         hookAMBinder.copyHooks(getHookDelegate());

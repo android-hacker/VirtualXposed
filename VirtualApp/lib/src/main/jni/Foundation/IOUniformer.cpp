@@ -565,31 +565,28 @@ void hook_dlopen(int api_level) {
 
 void IOUniformer::startUniformer(int api_level) {
     HOOK_SYMBOL(RTLD_DEFAULT, kill);
+    HOOK_SYMBOL(RTLD_DEFAULT, utimes);
     HOOK_SYMBOL(RTLD_DEFAULT, __getcwd);
-    HOOK_SYMBOL(RTLD_DEFAULT, chdir);
     HOOK_SYMBOL(RTLD_DEFAULT, truncate);
     HOOK_SYMBOL(RTLD_DEFAULT, __statfs64);
-    HOOK_SYMBOL(RTLD_DEFAULT, execve); // *
-    HOOK_SYMBOL(RTLD_DEFAULT, stat);   // *
-    HOOK_SYMBOL(RTLD_DEFAULT, access); // *
-    HOOK_SYMBOL(RTLD_DEFAULT, readlink);
-    /**
-     * Using MSHook to Hook `unlink` will produce crash(ARM/THUMB).
-     * MSHook BUG???
-     * So we use the new hook lib.
-     */
-    HOOK_SYMBOL(RTLD_DEFAULT, unlink);
+    HOOK_SYMBOL(RTLD_DEFAULT, execve);
     HOOK_SYMBOL(RTLD_DEFAULT, __open);
-    HOOK_SYMBOL(RTLD_DEFAULT, mkdir);
-    HOOK_SYMBOL(RTLD_DEFAULT, chmod);
-    HOOK_SYMBOL(RTLD_DEFAULT, lstat);
-    HOOK_SYMBOL(RTLD_DEFAULT, link);
-    HOOK_SYMBOL(RTLD_DEFAULT, symlink);
-    HOOK_SYMBOL(RTLD_DEFAULT, mknod);
-    HOOK_SYMBOL(RTLD_DEFAULT, rmdir);
-    HOOK_SYMBOL(RTLD_DEFAULT, chown);
-    HOOK_SYMBOL(RTLD_DEFAULT, rename);
-    HOOK_SYMBOL(RTLD_DEFAULT, utimes);
+    if (api_level <= 24) {
+        HOOK_SYMBOL(RTLD_DEFAULT, mkdir);
+        HOOK_SYMBOL(RTLD_DEFAULT, chmod);
+        HOOK_SYMBOL(RTLD_DEFAULT, lstat);
+        HOOK_SYMBOL(RTLD_DEFAULT, link);
+        HOOK_SYMBOL(RTLD_DEFAULT, symlink);
+        HOOK_SYMBOL(RTLD_DEFAULT, mknod);
+        HOOK_SYMBOL(RTLD_DEFAULT, rmdir);
+        HOOK_SYMBOL(RTLD_DEFAULT, chown);
+        HOOK_SYMBOL(RTLD_DEFAULT, rename);
+        HOOK_SYMBOL(RTLD_DEFAULT, stat);
+        HOOK_SYMBOL(RTLD_DEFAULT, chdir);
+        HOOK_SYMBOL(RTLD_DEFAULT, access);
+        HOOK_SYMBOL(RTLD_DEFAULT, readlink);
+        HOOK_SYMBOL(RTLD_DEFAULT, unlink);
+    }
     HOOK_SYMBOL(RTLD_DEFAULT, fstatat);
     HOOK_SYMBOL(RTLD_DEFAULT, fchmodat);
     HOOK_SYMBOL(RTLD_DEFAULT, symlinkat);
@@ -603,8 +600,8 @@ void IOUniformer::startUniformer(int api_level) {
     HOOK_SYMBOL(RTLD_DEFAULT, renameat);
     HOOK_SYMBOL(RTLD_DEFAULT, fchownat);
     HOOK_SYMBOL(RTLD_DEFAULT, mknodat);
-    hook_dlopen(api_level);
-    HOOK_SYMBOL(RTLD_DEFAULT, dlsym);
+//    hook_dlopen(api_level);
+//    HOOK_SYMBOL(RTLD_DEFAULT, dlsym);
 
 #if defined(__i386__) || defined(__x86_64__)
     // Do nothing

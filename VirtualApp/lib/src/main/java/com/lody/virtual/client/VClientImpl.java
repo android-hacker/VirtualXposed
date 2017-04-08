@@ -37,6 +37,7 @@ import com.lody.virtual.client.hook.secondary.ProxyServiceFactory;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.client.stub.StubManifest;
+import com.lody.virtual.helper.compat.BuildCompat;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.os.VUserHandle;
@@ -56,6 +57,7 @@ import mirror.android.app.ActivityThreadNMR1;
 import mirror.android.app.ContextImpl;
 import mirror.android.app.IActivityManager;
 import mirror.android.app.LoadedApk;
+import mirror.android.content.ContentProviderHolderOreo;
 import mirror.android.providers.Settings;
 import mirror.android.renderscript.RenderScriptCacheDir;
 import mirror.android.view.HardwareRenderer;
@@ -164,7 +166,7 @@ public final class VClientImpl extends IVClient.Stub {
         } else {
             intent = data.intent;
         }
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {
+        if (ActivityThread.performNewIntents != null) {
             ActivityThread.performNewIntents.call(
                     VirtualCore.mainThread(),
                     data.token,
@@ -175,8 +177,7 @@ public final class VClientImpl extends IVClient.Stub {
                     VirtualCore.mainThread(),
                     data.token,
                     Collections.singletonList(intent),
-                    true
-            );
+                    true);
         }
     }
 
@@ -203,7 +204,6 @@ public final class VClientImpl extends IVClient.Stub {
         } catch (Throwable e) {
             e.printStackTrace();
         }
-
         try {
             fixInstalledProviders();
         } catch (Throwable e) {
@@ -439,13 +439,27 @@ public final class VClientImpl extends IVClient.Stub {
     private void fixInstalledProviders() {
         clearSettingProvider();
         Map clientMap = ActivityThread.mProviderMap.get(VirtualCore.mainThread());
-        boolean highApi = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
         for (Object clientRecord : clientMap.values()) {
-            if (highApi) {
+            if (BuildCompat.isOreo()) {
                 IInterface provider = ActivityThread.ProviderClientRecordJB.mProvider.get(clientRecord);
                 Object holder = ActivityThread.ProviderClientRecordJB.mHolder.get(clientRecord);
+                if (holder == null) {
+                    continue;
+                }
+                ProviderInfo info = ContentProviderHolderOreo.info.get(holder);
+                if (!info.authority.startsWith(StubManifest.STUB_CP_AUTHORITY)) {
+                    provider = ProviderHook.createProxy(true, info.authority, provider);
+                    ActivityThread.ProviderClientRecordJB.mProvider.set(clientRecord, provider);
+                    ContentProviderHolderOreo.provider.set(holder, provider);
+                }
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                IInterface provider = ActivityThread.ProviderClientRecordJB.mProvider.get(clientRecord);
+                Object holder = ActivityThread.ProviderClientRecordJB.mHolder.get(clientRecord);
+                if (holder == null) {
+                    continue;
+                }
                 ProviderInfo info = IActivityManager.ContentProviderHolder.info.get(holder);
-                if (holder != null && !info.authority.startsWith(StubManifest.STUB_CP_AUTHORITY)) {
+                if (!info.authority.startsWith(StubManifest.STUB_CP_AUTHORITY)) {
                     provider = ProviderHook.createProxy(true, info.authority, provider);
                     ActivityThread.ProviderClientRecordJB.mProvider.set(clientRecord, provider);
                     IActivityManager.ContentProviderHolder.provider.set(holder, provider);
@@ -464,23 +478,30 @@ public final class VClientImpl extends IVClient.Stub {
 
     private void clearSettingProvider() {
         Object cache;
-        if (Settings.System.TYPE != null) {
-            cache = Settings.System.sNameValueCache.get();
-            if (cache != null) {
-                Settings.NameValueCache.mContentProvider.set(cache, null);
-            }
+        cache = Settings.System.sNameValueCache.get();
+        if (cache != null) {
+            clearContentProvider(cache);
         }
-        if (Settings.Secure.TYPE != null) {
-            cache = Settings.Secure.sNameValueCache.get();
-            if (cache != null) {
-                Settings.NameValueCache.mContentProvider.set(cache, null);
-            }
+        cache = Settings.Secure.sNameValueCache.get();
+        if (cache != null) {
+            clearContentProvider(cache);
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && Settings.Global.TYPE != null) {
             cache = Settings.Global.sNameValueCache.get();
             if (cache != null) {
-                Settings.NameValueCache.mContentProvider.set(cache, null);
+                clearContentProvider(cache);
             }
+        }
+    }
+
+    private static void clearContentProvider(Object cache) {
+        if (BuildCompat.isOreo()) {
+            Object holder = Settings.NameValueCacheOreo.mProviderHolder.get(cache);
+            if (holder != null) {
+                Settings.ContentProviderHolder.mContentProvider.set(holder, null);
+            }
+        } else {
+            Settings.NameValueCache.mContentProvider.set(cache, null);
         }
     }
 
