@@ -15,10 +15,7 @@ public class LauncherAppsPatch extends PatchBinderDelegate {
 
 
     public LauncherAppsPatch() {
-        /*
-          Are you kidding me?
-         */
-        super(ILauncherApps.Stub.asInterface, ">(TTKey;)TT;");
+        super(ILauncherApps.Stub.asInterface, "launcherapps");
     }
 
     @Override
