@@ -8,8 +8,8 @@ android {
         applicationId "io.virtualapp"
         minSdkVersion 15
         targetSdkVersion 21
-        versionCode 22
-        versionName "1.2.3"
+        versionCode 23
+        versionName "1.2.4"
         android {
             defaultConfig {
                 ndk {
