@@ -125,5 +125,6 @@ import mirror.android.content.IIntentReceiverJB;
                                    boolean sticky) throws android.os.RemoteException {
             this.performReceive(intent, resultCode, data, extras, ordered, sticky, 0);
         }
+
     }
 }

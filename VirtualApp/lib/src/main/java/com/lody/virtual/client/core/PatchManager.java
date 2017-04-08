@@ -40,6 +40,7 @@ import com.lody.virtual.client.hook.patchs.pm.PackageManagerPatch;
 import com.lody.virtual.client.hook.patchs.power.PowerManagerPatch;
 import com.lody.virtual.client.hook.patchs.restriction.RestrictionPatch;
 import com.lody.virtual.client.hook.patchs.search.SearchManagerPatch;
+import com.lody.virtual.client.hook.patchs.shortcut.ShortcutServicePatch;
 import com.lody.virtual.client.hook.patchs.telephony.TelephonyPatch;
 import com.lody.virtual.client.hook.patchs.telephony.TelephonyRegistryPatch;
 import com.lody.virtual.client.hook.patchs.user.UserManagerPatch;
@@ -174,6 +175,7 @@ public final class PatchManager {
 			}
 			if (Build.VERSION.SDK_INT >= N) {
                 addPatch(new WifiScannerPatch());
+                addPatch(new ShortcutServicePatch());
             }
             if (BuildCompat.isOreo()) {
 				addPatch(new LauncherAppsPatch());
