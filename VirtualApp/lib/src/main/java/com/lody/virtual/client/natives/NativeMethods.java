@@ -49,11 +49,20 @@ public class NativeMethods {
                 // ignore
             }
         }
-        // HuaWei
+        // HuaWei common
         if (gCameraNativeSetup == null) {
             try {
                 gCameraNativeSetup = Camera.class.getDeclaredMethod("native_setup", Object.class, int.class, int.class, String.class, boolean.class);
                 gCameraMethodType = 3;
+            } catch (NoSuchMethodException e) {
+                // ignore
+            }
+        }
+        // HUAWEI MediaPad X1 7.0
+        if (gCameraNativeSetup == null) {
+            try {
+                gCameraNativeSetup = Camera.class.getDeclaredMethod("native_setup", Object.class, int.class, String.class, boolean.class);
+                gCameraMethodType = 4;
             } catch (NoSuchMethodException e) {
                 // ignore
             }

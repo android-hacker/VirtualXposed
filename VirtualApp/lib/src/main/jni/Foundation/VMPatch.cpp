@@ -18,6 +18,9 @@ typedef jint (*Native_cameraNativeSetupFunc_T2)(JNIEnv *, jobject, jobject, jint
 typedef jint (*Native_cameraNativeSetupFunc_T3)(JNIEnv *, jobject, jobject, jint, jint, jstring,
                                                 jboolean);
 
+typedef jint (*Native_cameraNativeSetupFunc_T4)(JNIEnv *, jobject, jobject, jint, jstring,
+                                                jboolean);
+
 typedef jint (*Native_getCallingUid)(JNIEnv *, jclass);
 
 typedef jint (*Native_audioRecordNativeCheckPermission)(JNIEnv *, jobject, jstring);
@@ -51,6 +54,7 @@ static struct {
         Native_cameraNativeSetupFunc_T1 t1;
         Native_cameraNativeSetupFunc_T2 t2;
         Native_cameraNativeSetupFunc_T3 t3;
+        Native_cameraNativeSetupFunc_T4 t4;
     } orig_native_cameraNativeSetupFunc;
 
     Bridge_DalvikBridgeFunc orig_openDexFile_dvm;
@@ -212,6 +216,16 @@ static jint new_native_cameraNativeSetupFunc_T3(JNIEnv *env, jobject thiz, jobje
                                                         halVersion, host, option);
 }
 
+static jint new_native_cameraNativeSetupFunc_T4(JNIEnv *env, jobject thiz, jobject camera_this,
+                                                jint cameraId,
+                                                jstring packageName, jboolean option) {
+
+    jstring host = env->NewStringUTF(gOffset.hostPackageName);
+
+    return gOffset.orig_native_cameraNativeSetupFunc.t4(env, thiz, camera_this, cameraId, host,
+                                                        option);
+}
+
 
 static jint
 new_native_audioRecordNativeCheckPermission(JNIEnv *env, jobject thiz, jstring _packagename) {
@@ -228,13 +242,16 @@ new_bridge_cameraNativeSetupFunc(const void **args, void *pResult, const void *m
     // args[0] = this
     switch (gOffset.cameraMethodType) {
         case 1:
-            args[3] = gOffset.GetStringFromCstr(gOffset.hostPackageName);
+            args[4] = gOffset.GetStringFromCstr(gOffset.hostPackageName);
             break;
         case 2:
-            args[4] = gOffset.GetStringFromCstr(gOffset.hostPackageName);
+            args[5] = gOffset.GetStringFromCstr(gOffset.hostPackageName);
             break;
         case 3:
             args[5] = gOffset.GetStringFromCstr(gOffset.hostPackageName);
+            break;
+        case 4:
+            args[4] = gOffset.GetStringFromCstr(gOffset.hostPackageName);
             break;
     }
     gOffset.orig_cameraNativeSetup_dvm(args, pResult, method, self);
@@ -340,7 +357,10 @@ replaceCameraNativeSetupMethod(JNIEnv *env, jobject javaMethod, jboolean isArt, 
                 gOffset.orig_native_cameraNativeSetupFunc.t3 = (Native_cameraNativeSetupFunc_T3) (*jniFuncPtr);
                 *jniFuncPtr = (void *) new_native_cameraNativeSetupFunc_T3;
                 break;
-
+            case 4:
+                gOffset.orig_native_cameraNativeSetupFunc.t4 = (Native_cameraNativeSetupFunc_T4) (*jniFuncPtr);
+                *jniFuncPtr = (void *) new_native_cameraNativeSetupFunc_T4;
+                break;
         }
     }
 
