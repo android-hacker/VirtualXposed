@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import mirror.android.app.ActivityManagerNative;
+import mirror.android.app.ActivityManagerOreo;
 import mirror.android.app.IActivityManager;
 import mirror.android.content.pm.ParceledListSlice;
 import mirror.android.os.ServiceManager;
@@ -72,7 +73,8 @@ public class ActivityManagerPatch extends PatchDelegate<HookDelegate<IInterface>
     public void inject() throws Throwable {
         if (BuildCompat.isOreo()) {
             //Android Oreo(8.X)
-            // No any field in ActivityManagerNative?
+            Object singleton = ActivityManagerOreo.IActivityManagerSingleton.get();
+            Singleton.mInstance.set(singleton, getHookDelegate().getProxyInterface());
         } else {
             if (ActivityManagerNative.gDefault.type() == IActivityManager.TYPE) {
                 ActivityManagerNative.gDefault.set(getHookDelegate().getProxyInterface());
