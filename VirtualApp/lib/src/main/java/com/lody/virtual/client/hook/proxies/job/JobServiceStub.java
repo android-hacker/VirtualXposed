@@ -26,8 +26,8 @@ public class JobServiceStub extends BinderInvocationProxy {
 	}
 
 	@Override
-	protected void onBindHooks() {
-		super.onBindHooks();
+	protected void onBindMethods() {
+		super.onBindMethods();
 		addMethodProxy(new schedule());
 		addMethodProxy(new getAllPendingJobs());
 		addMethodProxy(new cancelAll());

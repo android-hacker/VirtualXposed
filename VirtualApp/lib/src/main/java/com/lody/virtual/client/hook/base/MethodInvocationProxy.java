@@ -15,7 +15,7 @@ import java.lang.reflect.Modifier;
  *         This class is responsible with:
  *         - Instantiating a {@link MethodInvocationStub.HookInvocationHandler} on {@link #getInvocationStub()} ()}
  *         - Install a bunch of {@link MethodProxy}s, either with a @{@link Inject} annotation or manually
- *         calling {@link #addMethodProxy(MethodProxy)} from {@link #onBindHooks()}
+ *         calling {@link #addMethodProxy(MethodProxy)} from {@link #onBindMethods()}
  *         - Install the hooked object on the Runtime via {@link #inject()}
  *         <p>
  *         All {@link MethodInvocationProxy}s (plus a couple of other @{@link IInjector}s are installed by
@@ -28,11 +28,11 @@ public abstract class MethodInvocationProxy<T extends MethodInvocationStub> impl
 
     public MethodInvocationProxy(T invocationStub) {
         this.mInvocationStub = invocationStub;
-        onBindHooks();
+        onBindMethods();
         afterHookApply(invocationStub);
     }
 
-    protected void onBindHooks() {
+    protected void onBindMethods() {
 
         if (mInvocationStub == null) {
             return;

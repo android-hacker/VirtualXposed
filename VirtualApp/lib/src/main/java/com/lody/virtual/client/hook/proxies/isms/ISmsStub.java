@@ -19,8 +19,8 @@ public class ISmsStub extends BinderInvocationProxy {
     }
 
     @Override
-    protected void onBindHooks() {
-        super.onBindHooks();
+    protected void onBindMethods() {
+        super.onBindMethods();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             addMethodProxy(new ReplaceSpecPkgMethodProxy("getAllMessagesFromIccEfForSubscriber", 1));
             addMethodProxy(new ReplaceSpecPkgMethodProxy("updateMessageOnIccEfForSubscriber", 1));

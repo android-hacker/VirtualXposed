@@ -30,8 +30,8 @@ public class LibCoreStub extends MethodInvocationProxy<MethodInvocationStub<Obje
     }
 
     @Override
-    protected void onBindHooks() {
-        super.onBindHooks();
+    protected void onBindMethods() {
+        super.onBindMethods();
         addMethodProxy(new ReplaceUidMethodProxy("chown", 1));
         addMethodProxy(new ReplaceUidMethodProxy("fchown", 1));
         addMethodProxy(new ReplaceUidMethodProxy("getpwuid", 0));

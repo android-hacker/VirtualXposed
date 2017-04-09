@@ -21,8 +21,8 @@ public class ShortcutServiceStub extends BinderInvocationProxy {
     }
 
     @Override
-    protected void onBindHooks() {
-        super.onBindHooks();
+    protected void onBindMethods() {
+        super.onBindMethods();
         addMethodProxy(new ReplaceCallingPkgMethodProxy("getManifestShortcuts"));
         addMethodProxy(new ReplaceCallingPkgMethodProxy("getDynamicShortcuts"));
         addMethodProxy(new ReplaceCallingPkgMethodProxy("setDynamicShortcuts"));

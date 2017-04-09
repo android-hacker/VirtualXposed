@@ -18,8 +18,8 @@ public class BackupManagerStub extends BinderInvocationProxy {
 	}
 
 	@Override
-	protected void onBindHooks() {
-		super.onBindHooks();
+	protected void onBindMethods() {
+		super.onBindMethods();
 		addMethodProxy(new ResultStaticMethodProxy("dataChanged", null));
 		addMethodProxy(new ResultStaticMethodProxy("clearBackupData", null));
 		addMethodProxy(new ResultStaticMethodProxy("agentConnected", null));

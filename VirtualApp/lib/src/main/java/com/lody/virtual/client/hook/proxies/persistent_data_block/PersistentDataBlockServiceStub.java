@@ -15,8 +15,8 @@ public class PersistentDataBlockServiceStub extends BinderInvocationProxy {
 	}
 
 	@Override
-	protected void onBindHooks() {
-		super.onBindHooks();
+	protected void onBindMethods() {
+		super.onBindMethods();
 		addMethodProxy(new ResultStaticMethodProxy("write", -1));
 		addMethodProxy(new ResultStaticMethodProxy("read", new byte[0]));
 		addMethodProxy(new ResultStaticMethodProxy("wipe", null));

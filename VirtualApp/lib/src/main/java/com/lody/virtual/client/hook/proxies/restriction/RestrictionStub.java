@@ -20,8 +20,8 @@ public class RestrictionStub extends BinderInvocationProxy {
 	}
 
 	@Override
-	protected void onBindHooks() {
-		super.onBindHooks();
+	protected void onBindMethods() {
+		super.onBindMethods();
 		addMethodProxy(new ReplaceCallingPkgMethodProxy("getApplicationRestrictions"));
 		addMethodProxy(new ReplaceCallingPkgMethodProxy("notifyPermissionResponse"));
 		addMethodProxy(new ReplaceCallingPkgMethodProxy("requestPermission"));

@@ -22,8 +22,8 @@ public class AppWidgetManagerStub extends BinderInvocationProxy {
 	}
 
 	@Override
-	protected void onBindHooks() {
-		super.onBindHooks();
+	protected void onBindMethods() {
+		super.onBindMethods();
 		addMethodProxy(new ResultStaticMethodProxy("startListening", new int[0]));
 		addMethodProxy(new ResultStaticMethodProxy("stopListening", 0));
 		addMethodProxy(new ResultStaticMethodProxy("allocateAppWidgetId", 0));

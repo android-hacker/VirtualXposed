@@ -13,8 +13,8 @@ public class TelephonyRegistryStub extends BinderInvocationProxy {
 	}
 
 	@Override
-	protected void onBindHooks() {
-		super.onBindHooks();
+	protected void onBindMethods() {
+		super.onBindMethods();
 		addMethodProxy(new ReplaceCallingPkgMethodProxy("listen"));
 		addMethodProxy(new ReplaceSequencePkgMethodProxy("listenForSubscriber", 1));
 	}

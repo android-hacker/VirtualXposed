@@ -43,8 +43,8 @@ public class LocationManagerStub extends BinderInvocationProxy {
 	}
 
 	@Override
-	protected void onBindHooks() {
-		super.onBindHooks();
+	protected void onBindMethods() {
+		super.onBindMethods();
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			addMethodProxy(new ReplaceLastPkgMethodProxy("addTestProvider"));
 			addMethodProxy(new ReplaceLastPkgMethodProxy("removeTestProvider"));

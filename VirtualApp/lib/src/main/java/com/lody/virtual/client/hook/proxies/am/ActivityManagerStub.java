@@ -64,8 +64,8 @@ public class ActivityManagerStub extends MethodInvocationProxy<MethodInvocationS
     }
 
     @Override
-    protected void onBindHooks() {
-        super.onBindHooks();
+    protected void onBindMethods() {
+        super.onBindMethods();
         if (VirtualCore.get().isVAppProcess()) {
             addMethodProxy(new ReplaceLastUidMethodProxy("checkPermissionWithToken"));
             addMethodProxy(new isUserRunning());

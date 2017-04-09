@@ -30,9 +30,9 @@ public final class SpecialComponentList {
     private static String PROTECT_ACTION_PREFIX = "_VA_protected_";
 
     static {
-        SYSTEM_BROADCAST_ACTION.add("android.net.wifi.STATE_CHANGE");
-        SYSTEM_BROADCAST_ACTION.add("android.net.wifi.WIFI_STATE_CHANGED");
-        SYSTEM_BROADCAST_ACTION.add("android.net.conn.CONNECTIVITY_CHANGE");
+        SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_SCREEN_ON);
+        SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_SCREEN_OFF);
+        SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_NEW_OUTGOING_CALL);
         SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_TIME_TICK);
         SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_TIME_CHANGED);
         SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_TIMEZONE_CHANGED);
@@ -41,6 +41,12 @@ public final class SpecialComponentList {
         SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_BATTERY_OKAY);
         SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_POWER_CONNECTED);
         SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_POWER_DISCONNECTED);
+        SYSTEM_BROADCAST_ACTION.add("android.provider.Telephony.SMS_RECEIVED");
+        SYSTEM_BROADCAST_ACTION.add("android.provider.Telephony.SMS_DELIVER");
+        SYSTEM_BROADCAST_ACTION.add("android.net.wifi.STATE_CHANGE");
+        SYSTEM_BROADCAST_ACTION.add("android.net.wifi.SCAN_RESULTS");
+        SYSTEM_BROADCAST_ACTION.add("android.net.wifi.WIFI_STATE_CHANGED");
+        SYSTEM_BROADCAST_ACTION.add("android.net.conn.CONNECTIVITY_CHANGE");
         SYSTEM_BROADCAST_ACTION.add("android.intent.action.ANY_DATA_STATE");
         SYSTEM_BROADCAST_ACTION.add("android.intent.action.SIM_STATE_CHANGED");
         SYSTEM_BROADCAST_ACTION.add("android.location.PROVIDERS_CHANGED");

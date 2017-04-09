@@ -17,7 +17,7 @@ public class MmsStub extends BinderInvocationProxy {
 	}
 
 	@Override
-	protected void onBindHooks() {
+	protected void onBindMethods() {
 		addMethodProxy(new ReplaceSpecPkgMethodProxy("sendMessage", 1));
 		addMethodProxy(new ReplaceSpecPkgMethodProxy("downloadMessage", 1));
 		addMethodProxy(new ReplaceCallingPkgMethodProxy("importTextMessage"));

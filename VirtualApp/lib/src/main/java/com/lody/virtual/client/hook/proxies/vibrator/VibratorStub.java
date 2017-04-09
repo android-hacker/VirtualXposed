@@ -20,7 +20,7 @@ public class VibratorStub extends BinderInvocationProxy {
     }
 
     @Override
-    protected void onBindHooks() {
+    protected void onBindMethods() {
         //Samsung  {
         addMethodProxy(new VibrateMethodProxy("vibrateMagnitude"));
         addMethodProxy(new VibrateMethodProxy("vibratePatternMagnitude"));

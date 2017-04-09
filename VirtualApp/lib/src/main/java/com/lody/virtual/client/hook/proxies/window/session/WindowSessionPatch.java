@@ -16,7 +16,7 @@ public class WindowSessionPatch extends MethodInvocationProxy<MethodInvocationSt
 	}
 
 	@Override
-	public void onBindHooks() {
+	public void onBindMethods() {
 		addMethodProxy(new BaseMethodProxy("add"));
 		addMethodProxy(new BaseMethodProxy("addToDisplay"));
 		addMethodProxy(new BaseMethodProxy("addToDisplayWithoutInputChannel"));

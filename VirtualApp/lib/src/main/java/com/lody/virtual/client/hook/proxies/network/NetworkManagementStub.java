@@ -17,8 +17,8 @@ NetworkManagementStub extends BinderInvocationProxy {
 	}
 
 	@Override
-	protected void onBindHooks() {
-		super.onBindHooks();
+	protected void onBindMethods() {
+		super.onBindMethods();
 		addMethodProxy(new ReplaceUidMethodProxy("setUidCleartextNetworkPolicy", 0));
 	}
 }

@@ -12,8 +12,8 @@ public class ContextHubServiceStub extends BinderInvocationProxy {
     }
 
     @Override
-    protected void onBindHooks() {
-        super.onBindHooks();
+    protected void onBindMethods() {
+        super.onBindMethods();
         addMethodProxy(new ResultStaticMethodProxy("registerCallback", 0));
     }
 }

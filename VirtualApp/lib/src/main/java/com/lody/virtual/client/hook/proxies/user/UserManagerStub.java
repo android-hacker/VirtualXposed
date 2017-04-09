@@ -24,8 +24,8 @@ public class UserManagerStub extends BinderInvocationProxy {
 	}
 
 	@Override
-	protected void onBindHooks() {
-		super.onBindHooks();
+	protected void onBindMethods() {
+		super.onBindMethods();
 		addMethodProxy(new ReplaceCallingPkgMethodProxy("setApplicationRestrictions"));
 		addMethodProxy(new ReplaceCallingPkgMethodProxy("getApplicationRestrictions"));
 		addMethodProxy(new ReplaceCallingPkgMethodProxy("getApplicationRestrictionsForUser"));

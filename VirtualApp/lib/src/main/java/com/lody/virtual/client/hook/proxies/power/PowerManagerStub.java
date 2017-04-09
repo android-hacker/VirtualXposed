@@ -22,8 +22,8 @@ public class PowerManagerStub extends BinderInvocationProxy {
 	}
 
 	@Override
-	protected void onBindHooks() {
-		super.onBindHooks();
+	protected void onBindMethods() {
+		super.onBindMethods();
 		addMethodProxy(new ReplaceSequencePkgMethodProxy("acquireWakeLock", 2) {
 			@Override
 			public Object call(Object who, Method method, Object... args) throws Throwable {

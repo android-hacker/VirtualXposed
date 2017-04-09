@@ -19,8 +19,8 @@ public class AudioManagerStub extends BinderInvocationProxy {
 	}
 
 	@Override
-	protected void onBindHooks() {
-		super.onBindHooks();
+	protected void onBindMethods() {
+		super.onBindMethods();
 		addMethodProxy(new ReplaceLastPkgMethodProxy("adjustVolume"));
 		addMethodProxy(new ReplaceLastPkgMethodProxy("adjustLocalOrRemoteStreamVolume"));
 		addMethodProxy(new ReplaceLastPkgMethodProxy("adjustSuggestedStreamVolume"));

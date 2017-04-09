@@ -22,8 +22,8 @@ public final class PackageManagerStub extends MethodInvocationProxy<MethodInvoca
 	}
 
 	@Override
-	protected void onBindHooks() {
-		super.onBindHooks();
+	protected void onBindMethods() {
+		super.onBindMethods();
 		addMethodProxy(new ResultStaticMethodProxy("addPermissionAsync", true));
 		addMethodProxy(new ResultStaticMethodProxy("addPermission", true));
 		addMethodProxy(new ResultStaticMethodProxy("performDexOpt", true));

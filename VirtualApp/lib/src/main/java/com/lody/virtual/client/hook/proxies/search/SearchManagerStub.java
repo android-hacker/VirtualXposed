@@ -26,8 +26,8 @@ public class SearchManagerStub extends BinderInvocationProxy {
     }
 
     @Override
-    protected void onBindHooks() {
-        super.onBindHooks();
+    protected void onBindMethods() {
+        super.onBindMethods();
         addMethodProxy(new StaticMethodProxy("launchLegacyAssist"));
         addMethodProxy(new GetSearchableInfo());
     }

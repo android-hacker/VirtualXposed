@@ -21,8 +21,8 @@ public class DisplayStub extends MethodInvocationProxy<MethodInvocationStub<IInt
 	}
 
 	@Override
-	protected void onBindHooks() {
-		super.onBindHooks();
+	protected void onBindMethods() {
+		super.onBindMethods();
 		addMethodProxy(new ReplaceCallingPkgMethodProxy("createVirtualDisplay"));
 	}
 

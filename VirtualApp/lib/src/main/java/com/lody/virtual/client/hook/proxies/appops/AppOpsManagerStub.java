@@ -27,8 +27,8 @@ public class AppOpsManagerStub extends BinderInvocationProxy {
 	}
 
 	@Override
-	protected void onBindHooks() {
-		super.onBindHooks();
+	protected void onBindMethods() {
+		super.onBindMethods();
 		addMethodProxy(new BaseMethodProxy("checkOperation", 1, 2));
 		addMethodProxy(new BaseMethodProxy("noteOperation", 1, 2));
 		addMethodProxy(new BaseMethodProxy("startOperation", 2, 3));

@@ -16,8 +16,8 @@ public class ISubStub extends BinderInvocationProxy {
     }
 
     @Override
-    protected void onBindHooks() {
-        super.onBindHooks();
+    protected void onBindMethods() {
+        super.onBindMethods();
         addMethodProxy(new ReplaceCallingPkgMethodProxy("getAllSubInfoList"));
         addMethodProxy(new ReplaceCallingPkgMethodProxy("getAllSubInfoCount"));
         addMethodProxy(new ReplaceLastPkgMethodProxy("getActiveSubscriptionInfo"));
