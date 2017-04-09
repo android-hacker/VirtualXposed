@@ -23,6 +23,7 @@ import com.lody.virtual.server.notification.VNotificationManagerService;
 import com.lody.virtual.server.pm.VAppManagerService;
 import com.lody.virtual.server.pm.VPackageManagerService;
 import com.lody.virtual.server.pm.VUserManagerService;
+import com.lody.virtual.server.vs.VirtualStorageService;
 
 /**
  * @author Lody
@@ -54,6 +55,7 @@ public final class BinderProvider extends ContentProvider {
         VAppManagerService.get().scanApps();
         VAccountManagerService.systemReady();
         addService(ServiceManagerNative.ACCOUNT, VAccountManagerService.get());
+        addService(ServiceManagerNative.VS, VirtualStorageService.get());
         return true;
     }
 

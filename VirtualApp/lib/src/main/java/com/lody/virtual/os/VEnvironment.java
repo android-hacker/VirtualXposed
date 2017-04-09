@@ -87,6 +87,14 @@ public class VEnvironment {
         return new File(getSystemSecureDirectory(), "packages.ini");
     }
 
+    /**
+     *
+     * @return Virtual storage config file
+     */
+    public static File getVSConfigFile() {
+        return new File(getSystemSecureDirectory(), "vss.ini");
+    }
+
     public static File getBakPackageListFile() {
         return new File(getSystemSecureDirectory(), "packages.ini.bak");
     }

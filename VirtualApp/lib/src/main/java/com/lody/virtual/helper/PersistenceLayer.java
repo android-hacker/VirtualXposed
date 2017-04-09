@@ -2,10 +2,9 @@ package com.lody.virtual.helper;
 
 import android.os.Parcel;
 
-import com.lody.virtual.os.VEnvironment;
-
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -54,7 +53,7 @@ public abstract class PersistenceLayer {
     }
 
     public void read() {
-        File file = VEnvironment.getPackageListFile();
+        File file = mPersistenceFile;
         Parcel p = Parcel.obtain();
         try {
             FileInputStream fis = new FileInputStream(file);
@@ -79,7 +78,9 @@ public abstract class PersistenceLayer {
             }
             readPersistenceData(p);
         } catch (Exception e) {
-            e.printStackTrace();
+            if (!(e instanceof FileNotFoundException)) {
+                e.printStackTrace();
+            }
         } finally {
             p.recycle();
         }

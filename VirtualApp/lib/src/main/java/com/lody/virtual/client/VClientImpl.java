@@ -36,8 +36,10 @@ import com.lody.virtual.client.hook.proxies.am.HCallbackStub;
 import com.lody.virtual.client.hook.secondary.ProxyServiceFactory;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.ipc.VPackageManager;
+import com.lody.virtual.client.ipc.VirtualStorageManager;
 import com.lody.virtual.client.stub.StubManifest;
 import com.lody.virtual.helper.compat.BuildCompat;
+import com.lody.virtual.helper.compat.StorageManagerCompat;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.os.VUserHandle;
@@ -49,6 +51,7 @@ import com.taobao.android.dex.interpret.ARTUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -358,21 +361,43 @@ public final class VClientImpl extends IVClient.Stub {
     @SuppressLint("SdCardPath")
     private void startIOUniformer() {
         ApplicationInfo info = mBoundApplication.appInfo;
+        int userId = VUserHandle.myUserId();
         NativeEngine.redirectDirectory("/data/data/" + info.packageName, info.dataDir);
         NativeEngine.redirectDirectory("/data/user/0/" + info.packageName, info.dataDir);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             NativeEngine.redirectDirectory("/data/user_de/0/" + info.packageName, info.dataDir);
         }
-        /*
-         *  /data/user/0/{Host-Pkg}/virtual/data/user/{user-id}/lib -> /data/user/0/{Host-Pkg}/virtual/data/app/{App-Pkg}/lib/
-         */
         NativeEngine.redirectDirectory(
-                new File(VEnvironment.getUserSystemDirectory(VUserHandle.myUserId()).getAbsolutePath(), "lib").getAbsolutePath(),
+                new File(VEnvironment.getUserSystemDirectory(userId).getAbsolutePath(), "lib").getAbsolutePath(),
                 info.nativeLibraryDir);
 
         NativeEngine.readOnly(VEnvironment.getDataAppDirectory().getPath());
-
+        VirtualStorageManager vsManager = VirtualStorageManager.get();
+        String vsPath = vsManager.getVirtualStorage(info.packageName, userId);
+        boolean enable = vsManager.isVirtualStorageEnable(info.packageName, userId);
+        if (enable && vsPath != null) {
+            File vsDirectory = new File(vsPath);
+            if (vsDirectory.exists() || vsDirectory.mkdirs()) {
+                HashSet<String> mountPoints = getMountPoints();
+                for (String mountPoint : mountPoints) {
+                    NativeEngine.redirectDirectory(mountPoint, vsPath);
+                }
+            }
+        }
         NativeEngine.hook();
+    }
+
+    @SuppressLint("SdCardPath")
+    private HashSet<String> getMountPoints() {
+        HashSet<String> mountPoints = new HashSet<>(3);
+        mountPoints.add("/mnt/sdcard/");
+        mountPoints.add("/sdcard/");
+        String[] points = StorageManagerCompat.getAllPoints(VirtualCore.get().getContext());
+        if (points != null) {
+            Collections.addAll(mountPoints, points);
+        }
+        return mountPoints;
+
     }
 
     private Context createPackageContext(String packageName) {
@@ -417,7 +442,7 @@ public final class VClientImpl extends IVClient.Stub {
         if (mTempLock != null) {
             mTempLock.block();
         }
-        if (!VClientImpl.get().isBound()) {
+        if (!isBound()) {
             VClientImpl.get().bindApplication(info.packageName, info.processName);
         }
         IInterface provider = null;

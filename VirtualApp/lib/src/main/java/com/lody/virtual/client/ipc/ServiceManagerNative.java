@@ -23,6 +23,8 @@ public class ServiceManagerNative {
 	public static final String ACCOUNT = "account";
 	public static final String JOB = "job";
 	public static final String NOTIFICATION ="notification";
+	public static final String VS ="vs";
+
 	public static final String SERVICE_DEF_AUTH = "virtual.service.BinderProvider";
 	private static final String TAG = ServiceManagerNative.class.getSimpleName();
 	public static String SERVICE_CP_AUTH = "virtual.service.BinderProvider";
