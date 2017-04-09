@@ -2,15 +2,14 @@ package com.lody.virtual.client.fixer;
 
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.DropBoxManager;
 
-import com.lody.virtual.client.core.PatchManager;
+import com.lody.virtual.client.core.InvocationStubManager;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.hook.base.HookBinderDelegate;
-import com.lody.virtual.client.hook.patchs.dropbox.DropBoxManagerPatch;
-import com.lody.virtual.client.hook.patchs.graphics.GraphicsStatsPatch;
+import com.lody.virtual.client.hook.base.BinderInvocationStub;
+import com.lody.virtual.client.hook.proxies.dropbox.DropBoxManagerStub;
+import com.lody.virtual.client.hook.proxies.graphics.GraphicsStatsStub;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.ReflectException;
 
@@ -36,7 +35,7 @@ public class ContextFixer {
         } catch (Throwable e) {
             return;
         }
-        PatchManager.getInstance().checkEnv(GraphicsStatsPatch.class);
+        InvocationStubManager.getInstance().checkEnv(GraphicsStatsStub.class);
         int deep = 0;
         while (context instanceof ContextWrapper) {
             context = ((ContextWrapper) context).getBaseContext();
@@ -55,7 +54,7 @@ public class ContextFixer {
             return;
         }
         DropBoxManager dm = (DropBoxManager) context.getSystemService(Context.DROPBOX_SERVICE);
-        HookBinderDelegate boxBinder = PatchManager.getInstance().getHookObject(DropBoxManagerPatch.class);
+        BinderInvocationStub boxBinder = InvocationStubManager.getInstance().getInvocationStub(DropBoxManagerStub.class);
         if (boxBinder != null) {
             try {
                 Reflect.on(dm).set("mService", boxBinder.getProxyInterface());

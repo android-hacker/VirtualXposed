@@ -90,6 +90,7 @@ public class ActivityThread {
         public static RefObject<Object> info;
         public static RefObject<String> processName;
         public static RefObject<ComponentName> instrumentationName;
+        public static RefObject<List<ProviderInfo>> providers;
     }
 
     public static class H {

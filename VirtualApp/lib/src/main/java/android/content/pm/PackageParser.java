@@ -20,7 +20,6 @@ public class PackageParser {
         public int icon;
         public int logo;
         public int banner;
-        public int preferred;
     }
 
     public static class Component<II extends IntentInfo> {

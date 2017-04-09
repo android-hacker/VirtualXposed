@@ -177,9 +177,9 @@ public final class VirtualCore {
             unHookPackageManager = context.getPackageManager();
             hostPkgInfo = unHookPackageManager.getPackageInfo(context.getPackageName(), PackageManager.GET_PROVIDERS);
             detectProcessType();
-            PatchManager patchManager = PatchManager.getInstance();
-            patchManager.init();
-            patchManager.injectAll();
+            InvocationStubManager invocationStubManager = InvocationStubManager.getInstance();
+            invocationStubManager.init();
+            invocationStubManager.injectAll();
             ContextFixer.fixContext(context);
             isStartUp = true;
             if (initLock != null) {

@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 
 import com.flurry.android.FlurryAgent;
-import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.stub.StubManifest;
 import com.tencent.bugly.crashreport.CrashReport;
@@ -60,9 +59,6 @@ public class VApp extends Application {
 
             @Override
             public void onVirtualProcess() {
-                VClientImpl.get().setCrashHandler((t, e) -> {
-                    CrashReport.postCatchedException(e, t);
-                });
                 //listener components
                 virtualCore.setComponentDelegate(new MyComponentDelegate());
                 //fake phone imei,macAddress,BluetoothAddress

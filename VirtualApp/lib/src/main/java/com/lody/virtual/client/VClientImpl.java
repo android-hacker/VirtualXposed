@@ -25,14 +25,14 @@ import android.os.RemoteException;
 import android.os.StrictMode;
 
 import com.lody.virtual.client.core.CrashHandler;
-import com.lody.virtual.client.core.PatchManager;
+import com.lody.virtual.client.core.InvocationStubManager;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.fixer.ContextFixer;
 import com.lody.virtual.client.hook.delegate.AppInstrumentation;
-import com.lody.virtual.client.hook.patchs.am.HCallbackHook;
 import com.lody.virtual.client.hook.providers.ProviderHook;
+import com.lody.virtual.client.hook.proxies.am.HCallbackStub;
 import com.lody.virtual.client.hook.secondary.ProxyServiceFactory;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.ipc.VPackageManager;
@@ -288,14 +288,13 @@ public final class VClientImpl extends IVClient.Stub {
 
         boolean conflict = SpecialComponentList.isConflictingInstrumentation(packageName);
         if (!conflict) {
-            PatchManager.getInstance().checkEnv(AppInstrumentation.class);
+            InvocationStubManager.getInstance().checkEnv(AppInstrumentation.class);
         }
         mInitialApplication = LoadedApk.makeApplication.call(data.info, false, null);
         mirror.android.app.ActivityThread.mInitialApplication.set(mainThread, mInitialApplication);
         ContextFixer.fixContext(mInitialApplication);
-        List<ProviderInfo> providers = VPackageManager.get().queryContentProviders(data.processName, vuid, PackageManager.GET_META_DATA);
-        if (providers != null) {
-            installContentProviders(mInitialApplication, providers);
+        if (data.providers != null) {
+            installContentProviders(mInitialApplication, data.providers);
         }
         if (lock != null) {
             lock.open();
@@ -303,9 +302,9 @@ public final class VClientImpl extends IVClient.Stub {
         }
         try {
             mInstrumentation.callApplicationOnCreate(mInitialApplication);
-            PatchManager.getInstance().checkEnv(HCallbackHook.class);
+            InvocationStubManager.getInstance().checkEnv(HCallbackStub.class);
             if (conflict) {
-                PatchManager.getInstance().checkEnv(AppInstrumentation.class);
+                InvocationStubManager.getInstance().checkEnv(AppInstrumentation.class);
             }
             Application createdApp = ActivityThread.mInitialApplication.get(mainThread);
             if (createdApp != null) {
@@ -384,12 +383,15 @@ public final class VClientImpl extends IVClient.Stub {
     }
 
     private Object fixBoundApp(AppBindData data) {
-        // TODO: Using Native VM Hook to fix the `Camera` and `AudioRecord`.
         Object thread = VirtualCore.mainThread();
         Object boundApp = mirror.android.app.ActivityThread.mBoundApplication.get(thread);
         mirror.android.app.ActivityThread.AppBindData.appInfo.set(boundApp, data.appInfo);
         mirror.android.app.ActivityThread.AppBindData.processName.set(boundApp, data.processName);
-        mirror.android.app.ActivityThread.AppBindData.instrumentationName.set(boundApp, new ComponentName(data.appInfo.packageName, Instrumentation.class.getName()));
+        mirror.android.app.ActivityThread.AppBindData.instrumentationName.set(
+                boundApp,
+                new ComponentName(data.appInfo.packageName, Instrumentation.class.getName())
+        );
+        ActivityThread.AppBindData.providers.set(boundApp, data.providers);
         return boundApp;
     }
 

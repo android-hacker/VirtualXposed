@@ -13,7 +13,7 @@ import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.fixer.ActivityFixer;
 import com.lody.virtual.client.fixer.ContextFixer;
-import com.lody.virtual.client.interfaces.Injectable;
+import com.lody.virtual.client.interfaces.IInjector;
 import com.lody.virtual.client.ipc.ActivityClientRecord;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.helper.compat.BundleCompat;
@@ -25,7 +25,7 @@ import mirror.android.app.ActivityThread;
 /**
  * @author Lody
  */
-public final class AppInstrumentation extends InstrumentationDelegate implements Injectable {
+public final class AppInstrumentation extends InstrumentationDelegate implements IInjector {
 
     private static final String TAG = AppInstrumentation.class.getSimpleName();
 
