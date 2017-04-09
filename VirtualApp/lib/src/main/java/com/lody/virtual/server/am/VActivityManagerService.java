@@ -988,7 +988,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
         }
         String originAction = SpecialComponentList.unprotectAction(realIntent.getAction());
         if (originAction != null) {
-            // restore to origin action.
+            // Java_nativeRestore to origin action.
             realIntent.setAction(originAction);
         }
         handleStaticBroadcastAsUser(vuid, info, realIntent, result);

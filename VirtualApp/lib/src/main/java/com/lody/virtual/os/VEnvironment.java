@@ -41,8 +41,7 @@ public class VEnvironment {
                 FileUtils.chmod(DATA_DIRECTORY.getAbsolutePath(), FileUtils.FileMode.MODE_755);
                 FileUtils.chmod(getDataAppDirectory().getAbsolutePath(), FileUtils.FileMode.MODE_755);
             } catch (Exception e) {
-                // ignore
-                VLog.e(TAG, "chmod dir", e);
+                e.printStackTrace();
             }
         }
     }

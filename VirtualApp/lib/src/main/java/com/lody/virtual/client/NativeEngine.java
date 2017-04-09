@@ -71,9 +71,38 @@ public class NativeEngine {
         return origPath;
     }
 
-    public static void redirect(String origPath, String newPath) {
+    public static void redirectDirectory(String origPath, String newPath) {
+        if (!origPath.endsWith("/")) {
+            origPath = origPath + "/";
+        }
+        if (!newPath.endsWith("/")) {
+            newPath = newPath + "/";
+        }
         try {
             nativeRedirect(origPath, newPath);
+        } catch (Throwable e) {
+            VLog.e(TAG, VLog.getStackTraceString(e));
+        }
+    }
+
+    public static void redirectFile(String origPath, String newPath) {
+        if (origPath.endsWith("/")) {
+            origPath = origPath.substring(0, origPath.length() - 1);
+        }
+        if (newPath.endsWith("/")) {
+            newPath = newPath.substring(0, newPath.length() - 1);
+        }
+
+        try {
+            nativeRedirect(origPath, newPath);
+        } catch (Throwable e) {
+            VLog.e(TAG, VLog.getStackTraceString(e));
+        }
+    }
+
+    public static void readOnly(String path) {
+        try {
+            nativeReadOnly(path);
         } catch (Throwable e) {
             VLog.e(TAG, VLog.getStackTraceString(e));
         }
@@ -87,7 +116,7 @@ public class NativeEngine {
         }
     }
 
-    public static void hookNative() {
+    static void hookNative() {
         Method[] methods = {NativeMethods.gOpenDexFileNative, NativeMethods.gCameraNativeSetup, NativeMethods.gAudioRecordNativeCheckPermission};
         try {
             nativeHookNative(methods, VirtualCore.get().getHostPkg(), VirtualRuntime.isArt(), Build.VERSION.SDK_INT, NativeMethods.gCameraMethodType);
@@ -144,7 +173,9 @@ public class NativeEngine {
 
     private static native String nativeGetRedirectedPath(String orgPath);
 
-    private static native void nativeRedirect(String orgPath, String newPath);
+    private static native void nativeRedirect(String origPath, String newPath);
+
+    private static native void nativeReadOnly(String path);
 
     private static native void nativeHook(int apiLevel);
 

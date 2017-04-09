@@ -68,8 +68,8 @@ static struct {
 } gOffset;
 
 
-extern JavaVM *g_vm;
-extern jclass g_jclass;
+extern JavaVM *gVm;
+extern jclass gClass;
 
 
 void mark() {
@@ -85,7 +85,7 @@ jint getCallingUid(JNIEnv *env, jclass jclazz) {
         int (*func_self)(void) = (int (*)(void)) gOffset.sym_IPCThreadState_self;
         uid = org_getCallingUid(func_self());
     }
-    uid = env->CallStaticIntMethod(g_jclass, gOffset.method_onGetCallingUid, uid);
+    uid = env->CallStaticIntMethod(gClass, gOffset.method_onGetCallingUid, uid);
     return uid;
 }
 
@@ -110,7 +110,7 @@ static jobject new_native_openDexNativeFunc(JNIEnv *env, jclass jclazz, jstring 
     if (javaOutputName) {
         env->SetObjectArrayElement(array, 1, javaOutputName);
     }
-    env->CallStaticVoidMethod(g_jclass, gOffset.method_onOpenDexFileNative, array);
+    env->CallStaticVoidMethod(gClass, gOffset.method_onOpenDexFileNative, array);
 
     jstring newSource = (jstring) env->GetObjectArrayElement(array, 0);
     jstring newOutput = (jstring) env->GetObjectArrayElement(array, 1);
@@ -131,7 +131,7 @@ static jobject new_native_openDexNativeFunc_N(JNIEnv *env, jclass jclazz, jstrin
     if (javaOutputName) {
         env->SetObjectArrayElement(array, 1, javaOutputName);
     }
-    env->CallStaticVoidMethod(g_jclass, gOffset.method_onOpenDexFileNative, array);
+    env->CallStaticVoidMethod(gClass, gOffset.method_onOpenDexFileNative, array);
 
     jstring newSource = (jstring) env->GetObjectArrayElement(array, 0);
     jstring newOutput = (jstring) env->GetObjectArrayElement(array, 1);
@@ -144,8 +144,8 @@ static jobject new_native_openDexNativeFunc_N(JNIEnv *env, jclass jclazz, jstrin
 static void
 new_bridge_openDexNativeFunc(const void **args, void *pResult, const void *method, void *self) {
     JNIEnv *env = NULL;
-    g_vm->GetEnv((void **) &env, JNI_VERSION_1_6);
-    g_vm->AttachCurrentThread(&env, NULL);
+    gVm->GetEnv((void **) &env, JNI_VERSION_1_6);
+    gVm->AttachCurrentThread(&env, NULL);
 
     typedef char *(*GetCstrFromString)(void *);
     typedef void *(*GetStringFromCstr)(const char *);
@@ -165,7 +165,7 @@ new_bridge_openDexNativeFunc(const void **args, void *pResult, const void *metho
         env->SetObjectArrayElement(array, 1, orgOutput);
     }
 
-    env->CallStaticVoidMethod(g_jclass, gOffset.method_onOpenDexFileNative, array);
+    env->CallStaticVoidMethod(gClass, gOffset.method_onOpenDexFileNative, array);
 
     jstring newSource = (jstring) env->GetObjectArrayElement(array, 0);
     jstring newOutput = (jstring) env->GetObjectArrayElement(array, 1);
@@ -237,8 +237,8 @@ new_native_audioRecordNativeCheckPermission(JNIEnv *env, jobject thiz, jstring _
 static void
 new_bridge_cameraNativeSetupFunc(const void **args, void *pResult, const void *method, void *self) {
     JNIEnv *env = NULL;
-    g_vm->GetEnv((void **) &env, JNI_VERSION_1_6);
-    g_vm->AttachCurrentThread(&env, NULL);
+    gVm->GetEnv((void **) &env, JNI_VERSION_1_6);
+    gVm->AttachCurrentThread(&env, NULL);
     // args[0] = this
     switch (gOffset.cameraMethodType) {
         case 1:
@@ -260,7 +260,7 @@ new_bridge_cameraNativeSetupFunc(const void **args, void *pResult, const void *m
 
 void measureNativeOffset(JNIEnv *env, bool isArt) {
 
-    jmethodID mtd_nativeHook = env->GetStaticMethodID(g_jclass, gMarkMethods[0].name,
+    jmethodID mtd_nativeHook = env->GetStaticMethodID(gClass, gMarkMethods[0].name,
                                                       gMarkMethods[0].signature);
 
     size_t startAddress = (size_t) mtd_nativeHook;
@@ -389,10 +389,10 @@ void patchAndroidVM(jobjectArray javaMethods, jstring packageName, jboolean isAr
                     jint cameraMethodType) {
 
     JNIEnv *env = NULL;
-    g_vm->GetEnv((void **) &env, JNI_VERSION_1_6);
-    g_vm->AttachCurrentThread(&env, NULL);
+    gVm->GetEnv((void **) &env, JNI_VERSION_1_6);
+    gVm->AttachCurrentThread(&env, NULL);
 
-    if (env->RegisterNatives(g_jclass, gMarkMethods, NELEM(gMarkMethods)) < 0) {
+    if (env->RegisterNatives(gClass, gMarkMethods, NELEM(gMarkMethods)) < 0) {
         return;
     }
     gOffset.isArt = isArt;
@@ -401,8 +401,8 @@ void patchAndroidVM(jobjectArray javaMethods, jstring packageName, jboolean isAr
     gOffset.apiLevel = apiLevel;
     void *soInfo = getVMHandle();
     gOffset.binder_class = env->FindClass("android/os/Binder");
-    gOffset.method_onGetCallingUid = env->GetStaticMethodID(g_jclass, "onGetCallingUid", "(I)I");
-    gOffset.method_onOpenDexFileNative = env->GetStaticMethodID(g_jclass, "onOpenDexFileNative",
+    gOffset.method_onGetCallingUid = env->GetStaticMethodID(gClass, "onGetCallingUid", "(I)I");
+    gOffset.method_onOpenDexFileNative = env->GetStaticMethodID(gClass, "onOpenDexFileNative",
                                                                 "([Ljava/lang/String;)V");
 
     if (isArt) {

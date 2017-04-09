@@ -5,6 +5,7 @@
 #include "IOUniformer.h"
 #include "native_hook.h"
 
+static list<std::string> ReadOnlyPathMap;
 static std::map<std::string/*orig_path*/, std::string/*new_path*/> IORedirectMap;
 static std::map<std::string/*orig_path*/, std::string/*new_path*/> RootIORedirectMap;
 
@@ -57,9 +58,6 @@ static void add_pair(const char *_orig_path, const char *_new_path) {
 
 
 const char *match_redirected_path(const char *_path) {
-    if (_path == NULL) {
-        return NULL;
-    }
     std::string path(_path);
     if (path.length() <= 1) {
         return _path;
@@ -83,12 +81,28 @@ const char *match_redirected_path(const char *_path) {
 
 
 void IOUniformer::redirect(const char *orig_path, const char *new_path) {
-    LOGI("Start redirect : from %s to %s", orig_path, new_path);
+    LOGI("Start Java_nativeRedirect : from %s to %s", orig_path, new_path);
     add_pair(orig_path, new_path);
 }
 
 const char *IOUniformer::query(const char *orig_path) {
     return match_redirected_path(orig_path);
+}
+
+void IOUniformer::readOnly(const char *_path) {
+    std::string path(_path);
+    ReadOnlyPathMap.push_back(path);
+}
+
+bool isReadOnlyPath(const char *_path) {
+    std::string path(_path);
+    list<std::string>::iterator it;
+    for (it = ReadOnlyPathMap.begin(); it != ReadOnlyPathMap.end(); ++it) {
+        if (startWith(path, *it)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 
@@ -141,6 +155,9 @@ HOOK_DEF(int, faccessat, int dirfd, const char *pathname, int mode, int flags) {
 // int fchmodat(int dirfd, const char *pathname, mode_t mode, int flags);
 HOOK_DEF(int, fchmodat, int dirfd, const char *pathname, mode_t mode, int flags) {
     const char *redirect_path = match_redirected_path(pathname);
+    if (isReadOnlyPath(redirect_path)) {
+        return -1;
+    }
     int ret = syscall(__NR_fchmodat, dirfd, redirect_path, mode, flags);
     FREE(redirect_path, pathname);
     return ret;
@@ -148,6 +165,9 @@ HOOK_DEF(int, fchmodat, int dirfd, const char *pathname, mode_t mode, int flags)
 // int fchmod(const char *pathname, mode_t mode);
 HOOK_DEF(int, fchmod, const char *pathname, mode_t mode) {
     const char *redirect_path = match_redirected_path(pathname);
+    if (isReadOnlyPath(redirect_path)) {
+        return -1;
+    }
     int ret = syscall(__NR_chmod, redirect_path, mode);
     FREE(redirect_path, pathname);
     return ret;
@@ -199,6 +219,9 @@ HOOK_DEF(int, utimensat, int dirfd, const char *pathname, const struct timespec 
 // int fchownat(int dirfd, const char *pathname, uid_t owner, gid_t group, int flags);
 HOOK_DEF(int, fchownat, int dirfd, const char *pathname, uid_t owner, gid_t group, int flags) {
     const char *redirect_path = match_redirected_path(pathname);
+    if (isReadOnlyPath(redirect_path)) {
+        return -1;
+    }
     int ret = syscall(__NR_fchownat, dirfd, redirect_path, owner, group, flags);
     FREE(redirect_path, pathname);
     return ret;
@@ -217,6 +240,9 @@ HOOK_DEF(int, chroot, const char *pathname) {
 HOOK_DEF(int, renameat, int olddirfd, const char *oldpath, int newdirfd, const char *newpath) {
     const char *redirect_path_old = match_redirected_path(oldpath);
     const char *redirect_path_new = match_redirected_path(newpath);
+    if (isReadOnlyPath(redirect_path_old) || isReadOnlyPath(redirect_path_new)) {
+        return -1;
+    }
     int ret = syscall(__NR_renameat, olddirfd, redirect_path_old, newdirfd, redirect_path_new);
     FREE(redirect_path_old, oldpath);
     FREE(redirect_path_new, newpath);
@@ -226,6 +252,9 @@ HOOK_DEF(int, renameat, int olddirfd, const char *oldpath, int newdirfd, const c
 HOOK_DEF(int, rename, const char *oldpath, const char *newpath) {
     const char *redirect_path_old = match_redirected_path(oldpath);
     const char *redirect_path_new = match_redirected_path(newpath);
+    if (isReadOnlyPath(redirect_path_old) || isReadOnlyPath(redirect_path_new)) {
+        return -1;
+    }
     int ret = syscall(__NR_rename, redirect_path_old, redirect_path_new);
     FREE(redirect_path_old, oldpath);
     FREE(redirect_path_new, newpath);
@@ -236,6 +265,9 @@ HOOK_DEF(int, rename, const char *oldpath, const char *newpath) {
 // int unlinkat(int dirfd, const char *pathname, int flags);
 HOOK_DEF(int, unlinkat, int dirfd, const char *pathname, int flags) {
     const char *redirect_path = match_redirected_path(pathname);
+    if (isReadOnlyPath(redirect_path)) {
+        return -1;
+    }
     int ret = syscall(__NR_unlinkat, dirfd, redirect_path, flags);
     FREE(redirect_path, pathname);
     return ret;
@@ -243,6 +275,9 @@ HOOK_DEF(int, unlinkat, int dirfd, const char *pathname, int flags) {
 // int unlink(const char *pathname);
 HOOK_DEF(int, unlink, const char *pathname) {
     const char *redirect_path = match_redirected_path(pathname);
+    if (isReadOnlyPath(redirect_path)) {
+        return -1;
+    }
     int ret = syscall(__NR_unlink, redirect_path);
     FREE(redirect_path, pathname);
     return ret;
@@ -262,6 +297,9 @@ HOOK_DEF(int, symlinkat, const char *oldpath, int newdirfd, const char *newpath)
 HOOK_DEF(int, symlink, const char *oldpath, const char *newpath) {
     const char *redirect_path_old = match_redirected_path(oldpath);
     const char *redirect_path_new = match_redirected_path(newpath);
+    if (isReadOnlyPath(redirect_path_old) || isReadOnlyPath(newpath)) {
+        return -1;
+    }
     int ret = syscall(__NR_symlink, redirect_path_old, redirect_path_new);
     FREE(redirect_path_old, oldpath);
     FREE(redirect_path_new, newpath);
@@ -274,6 +312,9 @@ HOOK_DEF(int, linkat, int olddirfd, const char *oldpath, int newdirfd, const cha
          int flags) {
     const char *redirect_path_old = match_redirected_path(oldpath);
     const char *redirect_path_new = match_redirected_path(newpath);
+    if (isReadOnlyPath(redirect_path_old) || isReadOnlyPath(newpath)) {
+        return -1;
+    }
     int ret = syscall(__NR_linkat, olddirfd, redirect_path_old, newdirfd, redirect_path_new, flags);
     FREE(redirect_path_old, oldpath);
     FREE(redirect_path_new, newpath);
@@ -302,6 +343,9 @@ HOOK_DEF(int, utimes, const char *pathname, const struct timeval *tvp) {
 // int access(const char *pathname, int mode);
 HOOK_DEF(int, access, const char *pathname, int mode) {
     const char *redirect_path = match_redirected_path(pathname);
+    if (mode & W_OK && isReadOnlyPath(redirect_path)) {
+        return -1;
+    }
     int ret = syscall(__NR_access, redirect_path, mode);
     FREE(redirect_path, pathname);
     return ret;
@@ -311,6 +355,9 @@ HOOK_DEF(int, access, const char *pathname, int mode) {
 // int chmod(const char *path, mode_t mode);
 HOOK_DEF(int, chmod, const char *pathname, mode_t mode) {
     const char *redirect_path = match_redirected_path(pathname);
+    if (isReadOnlyPath(redirect_path)) {
+        return -1;
+    }
     int ret = syscall(__NR_chmod, redirect_path, mode);
     FREE(redirect_path, pathname);
     return ret;
@@ -445,6 +492,9 @@ HOOK_DEF(int, __open, const char *pathname, int flags, int mode) {
 // int lchown(const char *pathname, uid_t owner, gid_t group);
 HOOK_DEF(int, lchown, const char *pathname, uid_t owner, gid_t group) {
     const char *redirect_path = match_redirected_path(pathname);
+    if (isReadOnlyPath(redirect_path)) {
+        return -1;
+    }
     int ret = syscall(__NR_lchown, redirect_path, owner, group);
     FREE(redirect_path, pathname);
     return ret;
@@ -518,13 +568,13 @@ HOOK_DEF(void*, dlsym, void *handle, char *symbol) {
 // int kill(pid_t pid, int sig);
 HOOK_DEF(int, kill, pid_t pid, int sig) {
     LOGD(">>>>> kill >>> pid: %d, sig: %d.", pid, sig);
-    extern JavaVM *g_vm;
-    extern jclass g_jclass;
+    extern JavaVM *gVm;
+    extern jclass gClass;
     JNIEnv *env = NULL;
-    g_vm->GetEnv((void **) &env, JNI_VERSION_1_4);
-    g_vm->AttachCurrentThread(&env, NULL);
-    jmethodID method = env->GetStaticMethodID(g_jclass, "onKillProcess", "(II)V");
-    env->CallStaticVoidMethod(g_jclass, method, pid, sig);
+    gVm->GetEnv((void **) &env, JNI_VERSION_1_4);
+    gVm->AttachCurrentThread(&env, NULL);
+    jmethodID method = env->GetStaticMethodID(gClass, "onKillProcess", "(II)V");
+    env->CallStaticVoidMethod(gClass, method, pid, sig);
     int ret = syscall(__NR_kill, pid, sig);
     return ret;
 }
