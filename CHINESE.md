@@ -4,6 +4,8 @@
 ---
 **VirtualApp**是一个**App虚拟化引擎**（简称`VA`）。
 
+**VirtualApp已兼容Android 0(8.0 Preview)。**
+
 VirtualApp在你的App内创建一个`虚拟空间`，你可以在虚拟空间内任意的`安装`、`启动`和`卸载`APK，这一切都与外部隔离，如同一个`沙盒`。
 
 运行在`VA`中的APK无需在外部安装，即VA支持**免安装运行APK**。
