@@ -26,7 +26,6 @@ import com.lody.virtual.client.hook.proxies.input.InputMethodManagerStub;
 import com.lody.virtual.client.hook.proxies.isms.ISmsStub;
 import com.lody.virtual.client.hook.proxies.isub.ISubStub;
 import com.lody.virtual.client.hook.proxies.job.JobServiceStub;
-import com.lody.virtual.client.hook.proxies.launcher_apps.LauncherAppsStub;
 import com.lody.virtual.client.hook.proxies.libcore.LibCoreStub;
 import com.lody.virtual.client.hook.proxies.location.LocationManagerStub;
 import com.lody.virtual.client.hook.proxies.media.router.MediaRouterServiceStub;
@@ -41,15 +40,14 @@ import com.lody.virtual.client.hook.proxies.power.PowerManagerStub;
 import com.lody.virtual.client.hook.proxies.restriction.RestrictionStub;
 import com.lody.virtual.client.hook.proxies.search.SearchManagerStub;
 import com.lody.virtual.client.hook.proxies.shortcut.ShortcutServiceStub;
-import com.lody.virtual.client.hook.proxies.telephony.TelephonyStub;
 import com.lody.virtual.client.hook.proxies.telephony.TelephonyRegistryStub;
+import com.lody.virtual.client.hook.proxies.telephony.TelephonyStub;
 import com.lody.virtual.client.hook.proxies.user.UserManagerStub;
 import com.lody.virtual.client.hook.proxies.vibrator.VibratorStub;
 import com.lody.virtual.client.hook.proxies.wifi.WifiManagerStub;
 import com.lody.virtual.client.hook.proxies.wifi_scanner.WifiScannerStub;
 import com.lody.virtual.client.hook.proxies.window.WindowManagerStub;
 import com.lody.virtual.client.interfaces.IInjector;
-import com.lody.virtual.helper.compat.BuildCompat;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -175,9 +173,6 @@ public final class InvocationStubManager {
                 addInjector(new WifiScannerStub());
                 addInjector(new ShortcutServiceStub());
             }
-            if (BuildCompat.isOreo()) {
-				addInjector(new LauncherAppsStub());
-			}
 		}
 	}
 
