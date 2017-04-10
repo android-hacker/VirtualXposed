@@ -613,15 +613,16 @@ void hook_dlopen(int api_level) {
 }
 
 
-void IOUniformer::startUniformer(int api_level) {
+
+void IOUniformer::startUniformer(int api_level, int preview_api_level) {
     HOOK_SYMBOL(RTLD_DEFAULT, kill);
-    HOOK_SYMBOL(RTLD_DEFAULT, utimes);
     HOOK_SYMBOL(RTLD_DEFAULT, __getcwd);
     HOOK_SYMBOL(RTLD_DEFAULT, truncate);
     HOOK_SYMBOL(RTLD_DEFAULT, __statfs64);
     HOOK_SYMBOL(RTLD_DEFAULT, execve);
     HOOK_SYMBOL(RTLD_DEFAULT, __open);
-    if (api_level <= 24) {
+    if ((api_level < 25) || (api_level == 25 && preview_api_level == 0)) {
+        HOOK_SYMBOL(RTLD_DEFAULT, utimes);
         HOOK_SYMBOL(RTLD_DEFAULT, mkdir);
         HOOK_SYMBOL(RTLD_DEFAULT, chmod);
         HOOK_SYMBOL(RTLD_DEFAULT, lstat);
@@ -651,7 +652,6 @@ void IOUniformer::startUniformer(int api_level) {
     HOOK_SYMBOL(RTLD_DEFAULT, fchownat);
     HOOK_SYMBOL(RTLD_DEFAULT, mknodat);
 //    hook_dlopen(api_level);
-//    HOOK_SYMBOL(RTLD_DEFAULT, dlsym);
 
 #if defined(__i386__) || defined(__x86_64__)
     // Do nothing

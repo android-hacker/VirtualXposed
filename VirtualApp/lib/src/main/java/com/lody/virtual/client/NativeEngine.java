@@ -110,7 +110,8 @@ public class NativeEngine {
 
     public static void hook() {
         try {
-            nativeHook(Build.VERSION.SDK_INT);
+            int previewSdkInt = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? Build.VERSION.PREVIEW_SDK_INT : 0;
+            nativeStartUniformer(Build.VERSION.SDK_INT, previewSdkInt);
         } catch (Throwable e) {
             VLog.e(TAG, VLog.getStackTraceString(e));
         }
@@ -177,7 +178,7 @@ public class NativeEngine {
 
     private static native void nativeReadOnly(String path);
 
-    private static native void nativeHook(int apiLevel);
+    private static native void nativeStartUniformer(int apiLevel, int previewApiLevel);
 
     public static int onGetUid(int uid) {
         return VClientImpl.get().getBaseVUid();

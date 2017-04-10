@@ -27,7 +27,7 @@
 
 
 namespace IOUniformer {
-    void startUniformer(int api_level);
+    void startUniformer(int api_level, int preview_api_level);
 
     void redirect(const char*orig_path, const char*new_path);
 
