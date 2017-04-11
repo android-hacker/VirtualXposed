@@ -124,6 +124,22 @@ public class VActivityManagerService extends IActivityManager.Stub {
     }
 
     @Override
+    public int startActivities(Intent[] intents, String[] resolvedTypes, IBinder token, Bundle options, int userId) {
+        synchronized (this) {
+            ActivityInfo[] infos = new ActivityInfo[intents.length];
+            for (int i = 0; i < intents.length; i++) {
+                ActivityInfo ai = VirtualCore.get().resolveActivityInfo(intents[i], userId);
+                if (ai == null) {
+                    return ActivityManagerCompat.START_INTENT_NOT_RESOLVED;
+                }
+                infos[i] = ai;
+
+            }
+            return mMainStack.startActivitiesLocked(userId, intents, infos, resolvedTypes, token, options);
+        }
+    }
+
+    @Override
     public String getPackageForIntentSender(IBinder binder) {
         PendingIntentData data = mPendingIntents.getPendingIntent(binder);
         if (data != null) {
@@ -988,7 +1004,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
         }
         String originAction = SpecialComponentList.unprotectAction(realIntent.getAction());
         if (originAction != null) {
-            // Java_nativeRestore to origin action.
+            // restore to origin action.
             realIntent.setAction(originAction);
         }
         handleStaticBroadcastAsUser(vuid, info, realIntent, result);

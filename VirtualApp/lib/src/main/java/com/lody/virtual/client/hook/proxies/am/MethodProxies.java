@@ -425,7 +425,6 @@ class MethodProxies {
                 }
                 return method.invoke(who, args);
             }
-
             int res = VActivityManager.get().startActivity(intent, activityInfo, resultTo, options, resultWho, requestCode, VUserHandle.myUserId());
             if (res != 0 && resultTo != null && requestCode > 0) {
                 VActivityManager.get().sendActivityResult(resultTo, resultWho, requestCode);
@@ -493,6 +492,28 @@ class MethodProxies {
             return false;
         }
 
+    }
+
+    static class StartActivities extends MethodProxy {
+
+        @Override
+        public String getMethodName() {
+            return "startActivities";
+        }
+
+        @Override
+        public Object call(Object who, Method method, Object... args) throws Throwable {
+            Intent[] intents = ArrayUtils.getFirst(args, Intent[].class);
+            String[] resolvedTypes = ArrayUtils.getFirst(args, String[].class);
+            IBinder token = null;
+            int tokenIndex = ArrayUtils.indexOfObject(args, IBinder.class, 2);
+            if (tokenIndex != -1) {
+                token = (IBinder) args[tokenIndex];
+            }
+            Bundle options = ArrayUtils.getFirst(args, Bundle.class);
+
+            return VActivityManager.get().startActivities(intents, resolvedTypes, token, options, VUserHandle.myUserId());
+        }
     }
 
 

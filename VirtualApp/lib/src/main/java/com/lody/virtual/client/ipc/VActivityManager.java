@@ -70,6 +70,14 @@ public class VActivityManager {
         }
     }
 
+    public int startActivities(Intent[] intents, String[] resolvedTypes, IBinder token, Bundle options, int userId) {
+        try {
+            return getService().startActivities(intents, resolvedTypes, token, options, userId);
+        } catch (RemoteException e) {
+            return VirtualRuntime.crash(e);
+        }
+    }
+
     public int startActivity(Intent intent, int userId) {
         if (userId < 0) {
             return ActivityManagerCompat.START_NOT_CURRENT_USER_ACTIVITY;

@@ -6,7 +6,6 @@ import android.content.Context;
 import com.flurry.android.FlurryAgent;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.stub.StubManifest;
-import com.tencent.bugly.crashreport.CrashReport;
 
 import io.virtualapp.delegate.MyAppRequestListener;
 import io.virtualapp.delegate.MyComponentDelegate;
@@ -42,7 +41,6 @@ public class VApp extends Application {
     public void onCreate() {
         gApp = this;
         super.onCreate();
-        CrashReport.initCrashReport(getApplicationContext(), "3642321b1a", false);
         VirtualCore virtualCore = VirtualCore.get();
         virtualCore.initialize(new VirtualCore.VirtualInitializer() {
 

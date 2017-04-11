@@ -14,7 +14,6 @@ import android.content.pm.ProviderInfo;
 import android.content.pm.ServiceInfo;
 import android.content.pm.Signature;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Parcel;
 import android.text.TextUtils;
 
@@ -388,12 +387,12 @@ public class PackageParserEx {
         if (!checkUseInstalledOrHidden(state, flags)) {
             return null;
         }
-        if (!copyNeeded(flags, a.owner, a.metaData)) {
-            return a.info;
-        }
         // Make shallow copies so we can store the metadata safely
         ActivityInfo ai = new ActivityInfo(a.info);
-        ai.metaData = a.metaData;
+        if ((flags & PackageManager.GET_META_DATA) != 0
+                && (a.metaData != null)) {
+            ai.metaData = a.metaData;
+        }
         ai.applicationInfo = generateApplicationInfo(a.owner, flags, state, userId);
         return ai;
     }
@@ -404,12 +403,11 @@ public class PackageParserEx {
         if (!checkUseInstalledOrHidden(state, flags)) {
             return null;
         }
-        if (!copyNeeded(flags, s.owner, s.metaData)) {
-            return s.info;
-        }
-        // Make shallow copies so we can store the metadata safely
         ServiceInfo si = new ServiceInfo(s.info);
-        si.metaData = s.metaData;
+        // Make shallow copies so we can store the metadata safely
+        if ((flags & PackageManager.GET_META_DATA) != 0 && s.metaData != null) {
+            si.metaData = s.metaData;
+        }
         si.applicationInfo = generateApplicationInfo(s.owner, flags, state, userId);
         return si;
     }
@@ -420,14 +418,13 @@ public class PackageParserEx {
         if (!checkUseInstalledOrHidden(state, flags)) {
             return null;
         }
-        if (!copyNeeded(flags, p.owner, p.metaData)
-                && ((flags & PackageManager.GET_URI_PERMISSION_PATTERNS) != 0
-                || p.info.uriPermissionPatterns == null)) {
-            return p.info;
-        }
         // Make shallow copies so we can store the metadata safely
         ProviderInfo pi = new ProviderInfo(p.info);
-        pi.metaData = p.metaData;
+        if ((flags & PackageManager.GET_META_DATA) != 0
+                && (p.metaData != null)) {
+            pi.metaData = p.metaData;
+        }
+
         if ((flags & PackageManager.GET_URI_PERMISSION_PATTERNS) == 0) {
             pi.uriPermissionPatterns = null;
         }
@@ -466,19 +463,6 @@ public class PackageParserEx {
         PermissionGroupInfo pgi = new PermissionGroupInfo(pg.info);
         pgi.metaData = pg.metaData;
         return pgi;
-    }
-
-    private static boolean copyNeeded(int flags, VPackage p,
-                                      Bundle metaData) {
-        if ((flags & PackageManager.GET_META_DATA) != 0
-                && (metaData != null || p.mAppMetaData != null)) {
-            return true;
-        }
-        if ((flags & PackageManager.GET_SHARED_LIBRARY_FILES) != 0
-                && p.usesLibraries != null) {
-            return true;
-        }
-        return false;
     }
 
     private static boolean checkUseInstalledOrHidden(PackageUserState state, int flags) {
