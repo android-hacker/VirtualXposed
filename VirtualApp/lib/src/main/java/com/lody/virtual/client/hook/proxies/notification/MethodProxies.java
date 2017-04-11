@@ -8,7 +8,6 @@ import com.lody.virtual.client.hook.base.MethodProxy;
 import com.lody.virtual.client.hook.utils.MethodParameterUtils;
 import com.lody.virtual.client.ipc.VNotificationManager;
 import com.lody.virtual.helper.utils.ArrayUtils;
-import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Method;
 
@@ -16,6 +15,7 @@ import java.lang.reflect.Method;
  * @author Lody
  */
 
+@SuppressWarnings("unused")
 class MethodProxies {
 
     static class EnqueueNotification extends MethodProxy {
@@ -27,8 +27,10 @@ class MethodProxies {
 
         @Override
         public Object call(Object who, Method method, Object... args) throws Throwable {
-            //enqueueNotification(pkg, id, notification, idOut);
             String pkg = (String) args[0];
+            if (getHostPkg().equals(pkg)) {
+                return method.invoke(who, args);
+            }
             int notificationIndex = ArrayUtils.indexOfFirst(args, Notification.class);
             int idIndex = ArrayUtils.indexOfFirst(args, Integer.class);
             int id = (int) args[idIndex];
@@ -64,15 +66,17 @@ class MethodProxies {
             //24 enqueueNotificationWithTag(pkg, mContext.getOpPackageName(), tag, id, notification, idOut, user.getIdentifier());
             //25 enqueueNotificationWithTag(pkg, mContext.getOpPackageName(), tag, id, notification, idOut, user.getIdentifier());
             String pkg = (String) args[0];
+            if (getHostPkg().equals(pkg)) {
+                return method.invoke(who, args);
+            }
             int notificationIndex = ArrayUtils.indexOfFirst(args, Notification.class);
             int idIndex = ArrayUtils.indexOfFirst(args, Integer.class);
             int tagIndex = (Build.VERSION.SDK_INT >= 18 ? 2 : 1);
             int id = (int) args[idIndex];
-    //        int user = (Build.VERSION.SDK_INT>=17?((int)args[args.length-1]):0);
             String tag = (String) args[tagIndex];
 
             id = VNotificationManager.get().dealNotificationId(id, pkg, tag, getAppUserId());
-            tag= VNotificationManager.get().dealNotificationTag(id, pkg, tag, getAppUserId());
+            tag = VNotificationManager.get().dealNotificationTag(id, pkg, tag, getAppUserId());
             args[idIndex] = id;
             args[tagIndex] = tag;
             //key(tag,id)
@@ -106,17 +110,10 @@ class MethodProxies {
 
         @Override
         public Object call(Object who, Method method, Object... args) throws Throwable {
-            //15 cancelNotificationWithTag(pkg, tag, id);
-            //16 cancelNotificationWithTag(pkg, tag, id);
-            //17 cancelNotificationWithTag(pkg, tag, id, UserHandle.myUserId());
-            //18 cancelNotificationWithTag(pkg, tag, id, UserHandle.myUserId());
-            //19 cancelNotificationWithTag(pkg, tag, id, UserHandle.myUserId());
-            //21 cancelNotificationWithTag(pkg, tag, id, UserHandle.myUserId());
-            //22 cancelNotificationWithTag(pkg, tag, id, UserHandle.myUserId());
-            //23 cancelNotificationWithTag(pkg, tag, id, UserHandle.myUserId());
-            //24 cancelNotificationWithTag(pkg, tag, id, user.getIdentifier());
-            //25 cancelNotificationWithTag(pkg, tag, id, user.getIdentifier());
             String pkg = MethodParameterUtils.replaceFirstAppPkg(args);
+            if (getHostPkg().equals(pkg)) {
+                return method.invoke(who, args);
+            }
             String tag = (String) args[1];
             int id = (int) args[2];
             id = VNotificationManager.get().dealNotificationId(id, pkg, tag, getAppUserId());
@@ -124,7 +121,6 @@ class MethodProxies {
 
             args[1] = tag;
             args[2] = id;
-            VLog.d("notification", "need cancel " + tag + " " + id);
             return method.invoke(who, args);
         }
     }
@@ -142,10 +138,6 @@ class MethodProxies {
         @Override
         public Object call(Object who, Method method, Object... args) throws Throwable {
             String pkg = MethodParameterUtils.replaceFirstAppPkg(args);
-    //        int user = 0;
-    //        if (Build.VERSION.SDK_INT >= 17) {
-    //            user = (int) args[1];
-    //        }
             if (VirtualCore.get().isAppInstalled(pkg)) {
                 VNotificationManager.get().cancelAllNotification(pkg, getAppUserId());
                 return 0;
@@ -162,9 +154,11 @@ class MethodProxies {
 
         @Override
         public Object call(Object who, Method method, Object... args) throws Throwable {
-            String pkg  = (String) args[0];
+            String pkg = (String) args[0];
+            if (getHostPkg().equals(pkg)) {
+                return method.invoke(who, args);
+            }
             return VNotificationManager.get().areNotificationsEnabledForPackage(pkg, getAppUserId());
-    //        return super.call(who, method, args);
         }
     }
 
@@ -173,9 +167,13 @@ class MethodProxies {
         public String getMethodName() {
             return "setNotificationsEnabledForPackage";
         }
+
         @Override
         public Object call(Object who, Method method, Object... args) throws Throwable {
-            String pkg  = (String) args[0];
+            String pkg = (String) args[0];
+            if (getHostPkg().equals(pkg)) {
+                return method.invoke(who, args);
+            }
             int enableIndex = ArrayUtils.indexOfFirst(args, Boolean.class);
             boolean enable = (boolean) args[enableIndex];
             VNotificationManager.get().setNotificationsEnabledForPackage(pkg, enable, getAppUserId());
