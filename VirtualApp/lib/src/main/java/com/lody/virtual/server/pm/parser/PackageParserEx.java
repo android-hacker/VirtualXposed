@@ -200,12 +200,6 @@ public class PackageParserEx {
             String hostPrimaryCpuAbi = ApplicationInfoL.primaryCpuAbi.get(VirtualCore.get().getContext().getApplicationInfo());
             ApplicationInfoL.primaryCpuAbi.set(ai, hostPrimaryCpuAbi);
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            ApplicationInfoN.deviceEncryptedDataDir.set(ai, ai.dataDir);
-            ApplicationInfoN.deviceProtectedDataDir.set(ai, ai.dataDir);
-            ApplicationInfoN.credentialEncryptedDataDir.set(ai, ai.dataDir);
-            ApplicationInfoN.credentialProtectedDataDir.set(ai, ai.dataDir);
-        }
 
         if (ps.dependSystem) {
             String[] sharedLibraryFiles = sSharedLibCache.get(ps.packageName);
@@ -226,6 +220,12 @@ public class PackageParserEx {
 
     private static void initApplicationAsUser(ApplicationInfo ai, int userId) {
         ai.dataDir = VEnvironment.getDataUserPackageDirectory(userId, ai.packageName).getPath();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            ApplicationInfoN.deviceEncryptedDataDir.set(ai, ai.dataDir);
+            ApplicationInfoN.deviceProtectedDataDir.set(ai, ai.dataDir);
+            ApplicationInfoN.credentialEncryptedDataDir.set(ai, ai.dataDir);
+            ApplicationInfoN.credentialProtectedDataDir.set(ai, ai.dataDir);
+        }
     }
 
     private static void addOwner(VPackage p) {

@@ -367,9 +367,11 @@ public final class VClientImpl extends IVClient.Stub {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             NativeEngine.redirectDirectory("/data/user_de/0/" + info.packageName, info.dataDir);
         }
-        NativeEngine.redirectDirectory(
-                new File(VEnvironment.getUserSystemDirectory(userId).getAbsolutePath(), "lib").getAbsolutePath(),
-                info.nativeLibraryDir);
+        String libPath = new File(VEnvironment.getDataAppPackageDirectory(info.packageName), "lib").getAbsolutePath();
+        String userLibPath = new File(VEnvironment.getUserSystemDirectory(userId), "lib").getAbsolutePath();
+        NativeEngine.redirectDirectory(userLibPath, libPath);
+        NativeEngine.redirectDirectory("/data/data/" + info.packageName + "/lib/", libPath);
+        NativeEngine.redirectDirectory("/data/user/0/" + info.packageName + "/lib/", libPath);
 
         NativeEngine.readOnly(VEnvironment.getDataAppDirectory().getPath());
         VirtualStorageManager vsManager = VirtualStorageManager.get();
