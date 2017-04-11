@@ -64,7 +64,10 @@ class MethodProxies {
                 path = (String) args[1];
             }
             File file = new File(path);
-            return file.exists() || file.mkdirs() ? 0 : -1;
+            if (!file.exists() && !file.mkdirs()) {
+                return -1;
+            }
+            return 0;
         }
     }
 }
