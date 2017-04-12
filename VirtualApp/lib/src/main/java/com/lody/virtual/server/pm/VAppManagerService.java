@@ -326,6 +326,7 @@ public class VAppManagerService extends IAppManager.Stub {
                 mPersistenceLayer.save();
                 FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(userId, packageName));
             }
+            return true;
         }
         return false;
     }
