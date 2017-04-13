@@ -556,7 +556,6 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
             component = ComponentUtils.toComponentName(info);
         }
         targetIntent.setType(component.flattenToString());
-        targetIntent.addFlags(intent.getFlags());
         StubActivityRecord saveInstance = new StubActivityRecord(intent, info,
                 sourceRecord != null ? sourceRecord.component : null, userId);
         saveInstance.saveToIntent(targetIntent);
