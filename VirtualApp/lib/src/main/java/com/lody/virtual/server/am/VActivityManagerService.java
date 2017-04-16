@@ -567,6 +567,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
                 info.clientCount = r.getClientCount();
                 info.service = ComponentUtils.toComponentName(r.serviceInfo);
                 info.started = r.startId > 0;
+                services.add(info);
             }
             return new VParceledListSlice<>(services);
         }
