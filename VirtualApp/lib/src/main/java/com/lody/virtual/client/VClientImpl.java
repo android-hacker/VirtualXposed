@@ -23,6 +23,7 @@ import android.os.Message;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.StrictMode;
+import android.util.Log;
 
 import com.lody.virtual.client.core.CrashHandler;
 import com.lody.virtual.client.core.InvocationStubManager;
@@ -230,6 +231,7 @@ public final class VClientImpl extends IVClient.Stub {
         data.appInfo = VPackageManager.get().getApplicationInfo(packageName, 0, getUserId(vuid));
         data.processName = processName;
         data.providers = VPackageManager.get().queryContentProviders(processName, getVUid(), PackageManager.GET_META_DATA);
+        Log.i(TAG, "Binding application " + data.appInfo.packageName + " (" + data.processName + ")");
         mBoundApplication = data;
         VirtualRuntime.setupRuntime(data.processName, data.appInfo);
         Runtime.getRuntime().addShutdownHook(new Thread() {
