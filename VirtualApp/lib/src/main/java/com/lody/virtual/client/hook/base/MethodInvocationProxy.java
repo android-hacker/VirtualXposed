@@ -30,6 +30,11 @@ public abstract class MethodInvocationProxy<T extends MethodInvocationStub> impl
         this.mInvocationStub = invocationStub;
         onBindMethods();
         afterHookApply(invocationStub);
+
+        LogInvocation loggingAnnotation = getClass().getAnnotation(LogInvocation.class);
+        if (loggingAnnotation != null) {
+            invocationStub.setInvocationLoggingCondition(loggingAnnotation.value());
+        }
     }
 
     protected void onBindMethods() {
