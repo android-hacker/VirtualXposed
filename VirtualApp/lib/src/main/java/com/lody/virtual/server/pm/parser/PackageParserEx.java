@@ -220,6 +220,10 @@ public class PackageParserEx {
 
     private static void initApplicationAsUser(ApplicationInfo ai, int userId) {
         ai.dataDir = VEnvironment.getDataUserPackageDirectory(userId, ai.packageName).getPath();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            ApplicationInfoL.scanSourceDir.set(ai, ai.dataDir);
+            ApplicationInfoL.scanPublicSourceDir.set(ai, ai.dataDir);
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             ApplicationInfoN.deviceEncryptedDataDir.set(ai, ai.dataDir);
             ApplicationInfoN.deviceProtectedDataDir.set(ai, ai.dataDir);
