@@ -380,16 +380,18 @@ class MethodProxies {
             List<ResolveInfo> appResult = VPackageManager.get().queryIntentServices((Intent) args[0],
                     (String) args[1], (Integer) args[2], userId);
             Object _hostResult = method.invoke(who, args);
-            List<ResolveInfo> hostResult = slice ? ParceledListSlice.getList.call(_hostResult)
-                    : (List) _hostResult;
-            Iterator<ResolveInfo> iterator = hostResult.iterator();
-            while (iterator.hasNext()) {
-                ResolveInfo info = iterator.next();
-                if (info == null || info.serviceInfo == null || !isVisiblePackage(info.serviceInfo.applicationInfo)) {
-                    iterator.remove();
+            if (_hostResult != null) {
+                List<ResolveInfo> hostResult = slice ? ParceledListSlice.getList.call(_hostResult)
+                        : (List) _hostResult;
+                Iterator<ResolveInfo> iterator = hostResult.iterator();
+                while (iterator.hasNext()) {
+                    ResolveInfo info = iterator.next();
+                    if (info == null || info.serviceInfo == null || !isVisiblePackage(info.serviceInfo.applicationInfo)) {
+                        iterator.remove();
+                    }
                 }
+                appResult.addAll(hostResult);
             }
-            appResult.addAll(hostResult);
             if (slice) {
                 return ParceledListSliceCompat.create(appResult);
             }
@@ -474,16 +476,18 @@ class MethodProxies {
             List<ResolveInfo> appResult = VPackageManager.get().queryIntentActivities((Intent) args[0],
                     (String) args[1], (Integer) args[2], userId);
             Object _hostResult = method.invoke(who, args);
-            List<ResolveInfo> hostResult = slice ? ParceledListSlice.getList.call(_hostResult)
-                    : (List) _hostResult;
-            Iterator<ResolveInfo> iterator = hostResult.iterator();
-            while (iterator.hasNext()) {
-                ResolveInfo info = iterator.next();
-                if (info == null || info.activityInfo == null || !isVisiblePackage(info.activityInfo.applicationInfo)) {
-                    iterator.remove();
+            if (_hostResult != null) {
+                List<ResolveInfo> hostResult = slice ? ParceledListSlice.getList.call(_hostResult)
+                        : (List) _hostResult;
+                Iterator<ResolveInfo> iterator = hostResult.iterator();
+                while (iterator.hasNext()) {
+                    ResolveInfo info = iterator.next();
+                    if (info == null || info.activityInfo == null || !isVisiblePackage(info.activityInfo.applicationInfo)) {
+                        iterator.remove();
+                    }
                 }
+                appResult.addAll(hostResult);
             }
-            appResult.addAll(hostResult);
             if (slice) {
                 return ParceledListSliceCompat.create(appResult);
             }
