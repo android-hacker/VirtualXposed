@@ -1521,7 +1521,7 @@ class MethodProxies {
                 ComponentName componentName = shortcut.resolveActivity(getPM());
                 if (componentName != null) {
                     Intent newShortcutIntent = new Intent();
-                    newShortcutIntent.putExtra("_VA_|_uri_", shortcut);
+                    newShortcutIntent.putExtra("_VA_|_uri_", shortcut.toUri(0));
                     newShortcutIntent.setClassName(getHostPkg(), Constants.SHORTCUT_PROXY_ACTIVITY_NAME);
                     newShortcutIntent.removeExtra(Intent.EXTRA_SHORTCUT_INTENT);
                     intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, newShortcutIntent);
