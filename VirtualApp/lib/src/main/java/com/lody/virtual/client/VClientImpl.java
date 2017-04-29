@@ -46,7 +46,6 @@ import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.remote.InstalledAppInfo;
 import com.lody.virtual.remote.PendingResultData;
-import com.lody.virtual.server.secondary.FakeIdentityBinder;
 import com.taobao.android.dex.interpret.ARTUtils;
 
 import java.io.File;
@@ -144,13 +143,7 @@ public final class VClientImpl extends IVClient.Stub {
 
     @Override
     public IBinder getAppThread() {
-        Binder appThread = ActivityThread.getApplicationThread.call(VirtualCore.mainThread());
-        return new FakeIdentityBinder(appThread) {
-            @Override
-            protected int getFakeUid() {
-                return Process.SYSTEM_UID;
-            }
-        };
+        return ActivityThread.getApplicationThread.call(VirtualCore.mainThread());
     }
 
     @Override
