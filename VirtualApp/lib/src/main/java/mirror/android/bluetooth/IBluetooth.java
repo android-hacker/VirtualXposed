@@ -16,7 +16,7 @@ public class IBluetooth {
      * @see android.bluetooth.IBluetooth.Stub
      * */
     public static class Stub {
-        public static Class<?> TYPE = RefClass.load(Stub.class, "android.net.IConnectivityManager$Stub");
+        public static Class<?> TYPE = RefClass.load(Stub.class, "android.bluetooth.IBluetooth$Stub");
         @MethodParams({IBinder.class})
         public static RefStaticMethod<IInterface> asInterface;
     }
