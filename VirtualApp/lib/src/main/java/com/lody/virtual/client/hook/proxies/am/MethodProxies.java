@@ -814,8 +814,8 @@ class MethodProxies {
             }
             int userId = VUserHandle.myUserId();
             if (service.getBooleanExtra("_VA_|_from_inner_", false)) {
-                service = service.getParcelableExtra("_VA_|_intent_");
                 userId = service.getIntExtra("_VA_|_user_id_", userId);
+                service = service.getParcelableExtra("_VA_|_intent_");
             } else {
                 if (isServerProcess()) {
                     userId = service.getIntExtra("_VA_|_user_id_", VUserHandle.USER_NULL);
@@ -1521,7 +1521,7 @@ class MethodProxies {
                 ComponentName componentName = shortcut.resolveActivity(getPM());
                 if (componentName != null) {
                     Intent newShortcutIntent = new Intent();
-                    newShortcutIntent.putExtra("_VA_|_uri_", shortcut);
+                    newShortcutIntent.putExtra("_VA_|_uri_", shortcut.toUri(0));
                     newShortcutIntent.setClassName(getHostPkg(), Constants.SHORTCUT_PROXY_ACTIVITY_NAME);
                     newShortcutIntent.removeExtra(Intent.EXTRA_SHORTCUT_INTENT);
                     intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, newShortcutIntent);
