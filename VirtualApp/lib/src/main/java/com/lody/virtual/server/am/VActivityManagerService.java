@@ -369,7 +369,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
     public boolean stopServiceToken(ComponentName className, IBinder token, int startId, int userId) {
         synchronized (this) {
             ServiceRecord r = (ServiceRecord) token;
-            if (r != null && r.startId == startId) {
+            if (r != null && (r.startId == startId || startId == -1)) {
                 try {
                     IApplicationThreadCompat.scheduleStopService(r.process.appThread, r);
                 } catch (RemoteException e) {
