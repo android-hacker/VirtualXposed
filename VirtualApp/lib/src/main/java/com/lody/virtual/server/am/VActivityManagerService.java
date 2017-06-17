@@ -413,54 +413,8 @@ public class VActivityManagerService extends IActivityManager.Stub {
             if (r == null) {
                 return 0;
             }
-            if (!r.hasAutoCreateConnections()) {
 
-                // Report to all of the connections that the service is no longer
-                // available.
-                if (r.connections != null && r.connections.values() != null) {
-                    Iterator<ArrayList<ConnectionRecord>> crs = r.connections.values().iterator();
-                    while (crs.hasNext()) {
-                        ArrayList<ConnectionRecord> c = crs.next();
-                        for (int i = 0; i < c.size(); i++) {
-                            ConnectionRecord cr = c.get(i);
-                            // There is still a connection to the service that is
-                            // being brought down.  Mark it as dead.
-                            cr.serviceDead = true;
-                            try {
-                                cr.conn.connected(r.name, null);
-                            } catch (Exception e) {
-
-                            }
-                        }
-                    }
-                }
-
-                // Tell the service that it has been unbound.
-                if (r.process != null && r.process.appThread != null) {
-                    Set<Map.Entry<Intent.FilterComparison, ServiceRecord.IntentBindRecord>> entrySet
-                            = r.bindings.entrySet();
-                    for (Map.Entry<Intent.FilterComparison, ServiceRecord.IntentBindRecord> entry
-                            : entrySet) {
-                        ServiceRecord.IntentBindRecord ibr = entry.getValue();
-                        if (ibr.hasBound) {
-                            try {
-                                ibr.hasBound = false;
-                                IApplicationThreadCompat.scheduleUnbindService(r.process.appThread,
-                                        r, ibr.intent);
-                            } catch (Exception e) {
-
-                            }
-                        }
-                    }
-                }
-
-                try {
-                    IApplicationThreadCompat.scheduleStopService(r.process.appThread, r);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
-                mHistory.remove(r);
-            }
+            stopServiceCommon(r);
             return 1;
         }
     }
@@ -470,18 +424,67 @@ public class VActivityManagerService extends IActivityManager.Stub {
         synchronized (this) {
             ServiceRecord r = (ServiceRecord) token;
             if (r != null && (r.startId == startId || startId == -1)) {
-                try {
-                    IApplicationThreadCompat.scheduleStopService(r.process.appThread, r);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                    mHistory.remove(r);
-                }
+                stopServiceCommon(r);
                 return true;
             }
             return false;
         }
+    }
+
+    /**
+     * Extracting common method of stopService(see bringDownServiceIfNeededLocked in android source)
+     * @param r
+     */
+    private void stopServiceCommon(ServiceRecord r) {
+        if (r.hasAutoCreateConnections()) {
+            return;
+        }
+
+        // Report to all of the connections that the service is no longer
+        // available.
+        if (r.connections != null && r.connections.values() != null) {
+            Iterator<ArrayList<ConnectionRecord>> crs = r.connections.values().iterator();
+            while (crs.hasNext()) {
+                ArrayList<ConnectionRecord> c = crs.next();
+                for (int i = 0; i < c.size(); i++) {
+                    ConnectionRecord cr = c.get(i);
+                    // There is still a connection to the service that is
+                    // being brought down.  Mark it as dead.
+                    cr.serviceDead = true;
+                    try {
+                        cr.conn.connected(r.name, null);
+                    } catch (Exception e) {
+
+                    }
+                }
+            }
+        }
+
+        // Tell the service that it has been unbound.
+        if (r.process != null && r.process.appThread != null) {
+            Set<Map.Entry<Intent.FilterComparison, ServiceRecord.IntentBindRecord>> entrySet
+                    = r.bindings.entrySet();
+            for (Map.Entry<Intent.FilterComparison, ServiceRecord.IntentBindRecord> entry
+                    : entrySet) {
+                ServiceRecord.IntentBindRecord ibr = entry.getValue();
+                if (ibr.hasBound) {
+                    try {
+                        ibr.hasBound = false;
+                        IApplicationThreadCompat.scheduleUnbindService(r.process.appThread,
+                                r, ibr.intent);
+                    } catch (Exception e) {
+
+                    }
+                }
+            }
+        }
+
+        try {
+            IApplicationThreadCompat.scheduleStopService(r.process.appThread, r);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        mHistory.remove(r);
     }
 
     @Override
