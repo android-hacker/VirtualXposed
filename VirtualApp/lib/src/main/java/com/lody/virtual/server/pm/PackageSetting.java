@@ -31,7 +31,7 @@ public class PackageSetting implements Parcelable {
     /**
      * In this mode we skip the dex2oat so we can load the class.dex very fast.
      */
-    public boolean artFlyMode;
+    public boolean skipDexOpt;
     public int appId;
     public long firstInstallTime;
     public long lastUpdateTime;
@@ -48,11 +48,11 @@ public class PackageSetting implements Parcelable {
         this.appId = in.readInt();
         //noinspection unchecked
         this.userState = in.readSparseArray(PackageUserState.class.getClassLoader());
-        this.artFlyMode = in.readByte() != 0;
+        this.skipDexOpt = in.readByte() != 0;
     }
 
     public InstalledAppInfo getAppInfo() {
-        return new InstalledAppInfo(packageName, apkPath, libPath, dependSystem, artFlyMode, appId);
+        return new InstalledAppInfo(packageName, apkPath, libPath, dependSystem, skipDexOpt, appId);
     }
 
     PackageUserState modifyUserState(int userId) {
@@ -97,7 +97,7 @@ public class PackageSetting implements Parcelable {
         dest.writeInt(this.appId);
         //noinspection unchecked
         dest.writeSparseArray((SparseArray) this.userState);
-        dest.writeByte(this.artFlyMode ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.skipDexOpt ? (byte) 1 : (byte) 0);
     }
 
     public boolean isLaunched(int userId) {

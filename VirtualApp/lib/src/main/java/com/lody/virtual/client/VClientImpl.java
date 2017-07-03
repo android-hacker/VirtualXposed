@@ -47,6 +47,7 @@ import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.remote.InstalledAppInfo;
 import com.lody.virtual.remote.PendingResultData;
 import com.taobao.android.dex.interpret.ARTUtils;
+import com.taobao.android.runtime.DalvikUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -217,9 +218,15 @@ public final class VClientImpl extends IVClient.Stub {
             Process.killProcess(0);
             System.exit(0);
         }
-        if (!info.dependSystem && info.artFlyMode) {
-            ARTUtils.init(VirtualCore.get().getContext());
-            ARTUtils.setIsDex2oatEnabled(false);
+        if (!info.dependSystem && info.skipDexOpt) {
+            VLog.d(TAG, "Dex opt skipped.");
+            if (VirtualRuntime.isArt()) {
+                ARTUtils.init(VirtualCore.get().getContext());
+                ARTUtils.setIsDex2oatEnabled(false);
+            } else {
+                DalvikUtils.init();
+                DalvikUtils.setDexOptMode(DalvikUtils.OPTIMIZE_MODE_NONE);
+            }
         }
         data.appInfo = VPackageManager.get().getApplicationInfo(packageName, 0, getUserId(vuid));
         data.processName = processName;

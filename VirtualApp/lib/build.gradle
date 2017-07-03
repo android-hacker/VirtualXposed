@@ -33,4 +33,5 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     //    compile 'net.lingala.zip4j:zip4j:1.3.2'
     compile files('src/main/libs/android-art-interpret-3.0.0.jar')
+    compile files('src/main/libs/dalvik_hack-3.0.0.5.jar')
 }

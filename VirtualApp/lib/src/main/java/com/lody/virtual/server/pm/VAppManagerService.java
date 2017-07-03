@@ -8,7 +8,6 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.helper.collection.IntArray;
 import com.lody.virtual.helper.compat.NativeLibraryHelperCompat;
 import com.lody.virtual.helper.utils.ArrayUtils;
@@ -143,7 +142,7 @@ public class VAppManagerService extends IAppManager.Stub {
         if (path == null) {
             return InstallResult.makeFailure("path = NULL");
         }
-        boolean artFlyMode = VirtualRuntime.isArt() && (flags & InstallStrategy.ART_FLY_MODE) != 0;
+        boolean skipDexOpt = (flags & InstallStrategy.SKIP_DEX_OPT) != 0;
         File packageFile = new File(path);
         if (!packageFile.exists() || !packageFile.isFile()) {
             return InstallResult.makeFailure("Package File is not exist.");
@@ -216,7 +215,7 @@ public class VAppManagerService extends IAppManager.Stub {
         } else {
             ps = new PackageSetting();
         }
-        ps.artFlyMode = artFlyMode;
+        ps.skipDexOpt = skipDexOpt;
         ps.dependSystem = dependSystem;
         ps.apkPath = packageFile.getPath();
         ps.libPath = libDir.getPath();
