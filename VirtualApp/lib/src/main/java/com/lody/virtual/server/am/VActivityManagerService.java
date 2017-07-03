@@ -78,7 +78,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
     private final SparseArray<ProcessRecord> mPidsSelfLocked = new SparseArray<ProcessRecord>();
     private final ActivityStack mMainStack = new ActivityStack(this);
     private final Set<ServiceRecord> mHistory = new HashSet<ServiceRecord>();
-    final ArrayMap<IBinder, ArrayList<ConnectionRecord>> mServiceConnections
+    private final ArrayMap<IBinder, ArrayList<ConnectionRecord>> mServiceConnections
             = new ArrayMap<IBinder, ArrayList<ConnectionRecord>>();
     private final ProcessMap<ProcessRecord> mProcessNames = new ProcessMap<ProcessRecord>();
     private final PendingIntents mPendingIntents = new PendingIntents();
@@ -211,7 +211,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
     }
 
 
-    public void processDead(ProcessRecord record) {
+    private void processDead(ProcessRecord record) {
         synchronized (mHistory) {
             Iterator<ServiceRecord> iterator = mHistory.iterator();
             while (iterator.hasNext()) {
@@ -433,7 +433,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
     /**
      * Extracting common method of stopService(see bringDownServiceIfNeededLocked in android source)
-     * @param r
+     * @param r ServiceRecord
      */
     private void stopServiceCommon(ServiceRecord r) {
         if (r.hasAutoCreateConnections()) {
@@ -442,10 +442,8 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
         // Report to all of the connections that the service is no longer
         // available.
-        if (r.connections != null && r.connections.values() != null) {
-            Iterator<ArrayList<ConnectionRecord>> crs = r.connections.values().iterator();
-            while (crs.hasNext()) {
-                ArrayList<ConnectionRecord> c = crs.next();
+        if (r.connections != null && !r.connections.isEmpty()) {
+            for (ArrayList<ConnectionRecord> c : r.connections.values()) {
                 for (int i = 0; i < c.size(); i++) {
                     ConnectionRecord cr = c.get(i);
                     // There is still a connection to the service that is
@@ -454,7 +452,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
                     try {
                         cr.conn.connected(r.name, null);
                     } catch (Exception e) {
-
+                        e.printStackTrace();
                     }
                 }
             }
@@ -473,14 +471,16 @@ public class VActivityManagerService extends IActivityManager.Stub {
                         IApplicationThreadCompat.scheduleUnbindService(r.process.appThread,
                                 r, ibr.intent);
                     } catch (Exception e) {
-
+                        e.printStackTrace();
                     }
                 }
             }
         }
 
         try {
-            IApplicationThreadCompat.scheduleStopService(r.process.appThread, r);
+            if (r.process != null) {
+                IApplicationThreadCompat.scheduleStopService(r.process.appThread, r);
+            }
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -493,7 +493,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
     }
 
-    final ProcessRecord getRecordForAppLocked(IBinder caller, int userId) {
+    private ProcessRecord getRecordForAppLocked(IBinder caller, int userId) {
         synchronized (mProcessNames) {
             ArrayMap<String, SparseArray<ProcessRecord>> map = mProcessNames.getMap();
             int N = map.size();
@@ -550,7 +550,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
             IBinder binder = connection.asBinder();
             ArrayList<ConnectionRecord> clist = r.connections.get(binder);
             if (clist == null) {
-                clist = new ArrayList<ConnectionRecord>();
+                clist = new ArrayList<>();
                 r.connections.put(binder, clist);
             }
             clist.add(c);
@@ -558,7 +558,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
             clist = mServiceConnections.get(binder);
             if (clist == null) {
-                clist = new ArrayList<ConnectionRecord>();
+                clist = new ArrayList<>();
                 mServiceConnections.put(binder, clist);
             }
             clist.add(c);
@@ -591,7 +591,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
         }
     }
 
-    void removeConnectionLocked(
+    private void removeConnectionLocked(
             ConnectionRecord c) {
         IBinder binder = c.conn.asBinder();
         AppBindRecord b = c.binding;
@@ -777,7 +777,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
             try {
                 return Integer.parseInt(stubProcessName.substring(prefix.length()));
             } catch (NumberFormatException e) {
-                e.printStackTrace();
+                // ignore
             }
         }
         return -1;
@@ -979,7 +979,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
         synchronized (mPidsSelfLocked) {
             ProcessRecord r = mPidsSelfLocked.get(pid);
             if (r != null) {
-                return new ArrayList<String>(r.pkgList);
+                return new ArrayList<>(r.pkgList);
             }
         }
         return null;
