@@ -18,14 +18,7 @@ VA目前被广泛应用于双开/多开，但它决不仅限于此，Android本�
 
 **您需要授权才可以使用lib的代码，VirtualApp已申请国家专利, 并获得软件著作权保护, 当你的行为对项目或是项目作者构成利益冲突时,我们将追究法律责任。若需使用本项目，请与作者联系。**
 
-谁在使用本项目
--------------
-* 地铁跑酷
-* 骑士助手
-* X-Phone
-* Dual app
-* 机友精灵
-* 隐秘(PrivateMe)
+
 
 已支持的加固
 ----------
@@ -36,6 +29,22 @@ VA目前被广泛应用于双开/多开，但它决不仅限于此，Android本�
 * 百度加固
 * 娜迦加固
 * (非VMP的加固都可以通过VA来脱壳，但目前本技术尚不公开)
+
+
+在VA使用Google服务
+-----------
+由于某些原因，VA无法直接运行官方的Google服务套件，但是我们提供了对`MicroGms`的支持，
+
+并屏蔽了外部的Google服务套件，
+
+因此您可以通过在VA中安装`MicroGms`来支持`Google服务`。
+
+MicroGms套件可在此下载：[Download MicroGms](https://microg.org/download.html)
+
+必要模块：
+* Services Core
+* Services Framework Proxy
+* Store
 
 
 使用说明
