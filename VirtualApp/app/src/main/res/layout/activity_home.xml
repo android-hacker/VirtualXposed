@@ -35,16 +35,17 @@
                 android:layout_height="match_parent"
                 android:gravity="center|end"
                 android:orientation="horizontal"
-                android:visibility="invisible">
+                android:visibility="visible">
 
                 <io.virtualapp.widgets.MaterialRippleLayout
                     android:layout_width="60dp"
                     android:layout_height="60dp">
 
                     <ImageView
+                        android:id="@+id/home_menu"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_margin="20dp"
+                        android:padding="15dp"
                         android:src="@drawable/ic_menu" />
                 </io.virtualapp.widgets.MaterialRippleLayout>
 

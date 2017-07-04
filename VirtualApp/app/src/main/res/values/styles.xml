@@ -2,7 +2,6 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
-        <!-- Customize your theme here. -->
         <item name="windowNoTitle">true</item>
         <item name="android:windowIsTranslucent">false</item>
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -12,7 +11,6 @@
     </style>
 
     <style name="UITheme" parent="Theme.AppCompat.NoActionBar">
-        <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -37,4 +35,6 @@
         <item name="maxHeight">48dip</item>
         <item name="indicatorName">BallPulseIndicator</item>
     </style>
+
+
 </resources>

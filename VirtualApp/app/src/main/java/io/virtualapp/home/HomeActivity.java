@@ -2,7 +2,9 @@ package io.virtualapp.home;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -12,14 +14,22 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.OrientationHelper;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.ContextThemeWrapper;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.lody.virtual.client.stub.ChooseTypeAndAccountActivity;
+import com.lody.virtual.os.VUserInfo;
+import com.lody.virtual.os.VUserManager;
 import com.melnykov.fab.FloatingActionButton;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 import io.virtualapp.R;
@@ -55,6 +65,8 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
     private TwoGearsView mLoadingView;
     private RecyclerView mLauncherView;
     private FloatingActionButton mFloatingButton;
+    private View mMenuView;
+    private PopupMenu mPopupMenu;
     private View bottomArea;
     private View createShortcutArea;
     private View deleteAppArea;
@@ -78,13 +90,58 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         bindViews();
         initLaunchpad();
         initFab();
+        initMenu();
         new HomePresenterImpl(this).start();
+    }
+
+    private void initMenu() {
+        mPopupMenu = new PopupMenu(new ContextThemeWrapper(this, R.style.Theme_AppCompat_Light), mMenuView);
+        Menu menu = mPopupMenu.getMenu();
+        setIconEnable(menu, true);
+        menu.add("Accounts").setIcon(R.drawable.ic_account).setOnMenuItemClickListener(item -> {
+            List<VUserInfo> users = VUserManager.get().getUsers();
+            List<String> names = new ArrayList<>(users.size());
+            for (VUserInfo info : users) {
+                names.add(info.name);
+            }
+            CharSequence[] items = new CharSequence[names.size()];
+            for (int i = 0; i < names.size(); i++) {
+                items[i] = names.get(i);
+            }
+            new AlertDialog.Builder(this)
+                    .setTitle("Please select an user")
+                    .setItems(items, (dialog, which) -> {
+                        VUserInfo info = users.get(which);
+                        Intent intent = new Intent(this, ChooseTypeAndAccountActivity.class);
+                        intent.putExtra(ChooseTypeAndAccountActivity.KEY_USER_ID, info.id);
+                        startActivity(intent);
+                    }).show();
+            return false;
+        });
+        menu.add("Settings").setIcon(R.drawable.ic_settings).setOnMenuItemClickListener(item -> {
+            // TODO
+            return false;
+        });
+
+        mMenuView.setOnClickListener(v -> mPopupMenu.show());
+    }
+
+    private static void setIconEnable(Menu menu, boolean enable) {
+        try {
+            @SuppressLint("PrivateApi")
+            Method m = menu.getClass().getDeclaredMethod("setOptionalIconsVisible", boolean.class);
+            m.setAccessible(true);
+            m.invoke(menu, enable);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void bindViews() {
         mLoadingView = (TwoGearsView) findViewById(R.id.pb_loading_app);
         mLauncherView = (RecyclerView) findViewById(R.id.home_launcher);
         mFloatingButton = (FloatingActionButton) findViewById(R.id.home_fab);
+        mMenuView = findViewById(R.id.home_menu);
         bottomArea = findViewById(R.id.bottom_area);
         createShortcutArea = findViewById(R.id.create_shortcut_area);
         deleteAppArea = findViewById(R.id.delete_app_area);
