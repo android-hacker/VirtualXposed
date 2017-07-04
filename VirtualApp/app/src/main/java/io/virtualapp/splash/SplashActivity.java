@@ -3,6 +3,7 @@ package io.virtualapp.splash;
 import android.os.Bundle;
 import android.view.WindowManager;
 
+import com.lody.virtual.GmsSupport;
 import com.lody.virtual.client.core.VirtualCore;
 
 import io.virtualapp.R;
@@ -29,7 +30,7 @@ public class SplashActivity extends VActivity {
                 Once.markDone("collect_flurry");
             }
             long time = System.currentTimeMillis();
-            VirtualCore.get().waitForEngine();
+            doActionInThread();
             time = System.currentTimeMillis() - time;
             long delta = 1000L - time;
             if (delta > 0) {
@@ -41,4 +42,10 @@ public class SplashActivity extends VActivity {
         });
     }
 
+    private void doActionInThread() {
+        VirtualCore.get().waitForEngine();
+        if (!GmsSupport.isGoogleFrameworkInstalled()) {
+            GmsSupport.installGApps(0);
+        }
+    }
 }

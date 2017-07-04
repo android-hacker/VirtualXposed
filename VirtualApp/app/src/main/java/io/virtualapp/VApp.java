@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 
 import com.flurry.android.FlurryAgent;
+import com.lody.virtual.GmsSupport;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.stub.StubManifest;
 
