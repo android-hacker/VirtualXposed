@@ -8,7 +8,7 @@ import android.content.pm.ComponentInfo;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.SpecialComponentList;
-import com.lody.virtual.client.hook.secondary.GmsSupport;
+import com.lody.virtual.GmsSupport;
 import com.lody.virtual.helper.compat.ObjectsCompat;
 
 import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_INSTANCE;
