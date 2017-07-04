@@ -118,6 +118,10 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
                     }).show();
             return false;
         });
+        menu.add("Virtual Storage").setIcon(R.drawable.ic_vs).setOnMenuItemClickListener(item -> {
+            // TODO
+            return false;
+        });
         menu.add("Settings").setIcon(R.drawable.ic_settings).setOnMenuItemClickListener(item -> {
             // TODO
             return false;
