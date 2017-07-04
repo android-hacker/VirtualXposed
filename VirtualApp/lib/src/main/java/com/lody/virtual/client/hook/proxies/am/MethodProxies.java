@@ -1494,16 +1494,14 @@ class MethodProxies {
                     if (icon != null && !TextUtils.equals(icon.packageName, getHostPkg())) {
                         try {
                             Resources resources = VirtualCore.get().getResources(pkg);
-                            if (resources != null) {
-                                int resId = resources.getIdentifier(icon.resourceName, "drawable", pkg);
-                                if (resId > 0) {
-                                    //noinspection deprecation
-                                    Drawable iconDrawable = resources.getDrawable(resId);
-                                    Bitmap newIcon = BitmapUtils.drawableToBitmap(iconDrawable);
-                                    if (newIcon != null) {
-                                        intent.removeExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE);
-                                        intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, newIcon);
-                                    }
+                            int resId = resources.getIdentifier(icon.resourceName, "drawable", pkg);
+                            if (resId > 0) {
+                                //noinspection deprecation
+                                Drawable iconDrawable = resources.getDrawable(resId);
+                                Bitmap newIcon = BitmapUtils.drawableToBitmap(iconDrawable);
+                                if (newIcon != null) {
+                                    intent.removeExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE);
+                                    intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, newIcon);
                                 }
                             }
                         } catch (Throwable e) {

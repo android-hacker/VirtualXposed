@@ -11,6 +11,7 @@
 
         <activity
             android:name=".splash.SplashActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,16 +21,19 @@
 
         <activity
             android:name=".home.HomeActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/UITheme" />
 
         <activity
             android:name=".home.ListAppActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/UITheme" />
 
         <activity
             android:name=".home.LoadingActivity"
             android:excludeFromRecents="true"
             android:noHistory="true"
+            android:screenOrientation="portrait"
             android:taskAffinity="va.task.loading"
             android:theme="@style/TransparentTheme" />
 

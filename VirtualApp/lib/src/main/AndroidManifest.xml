@@ -254,6 +254,22 @@
             android:process=":x" />
 
         <activity
+            android:name=".client.stub.ChooseAccountTypeActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:process=":x"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".client.stub.ChooseTypeAndAccountActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:process=":x"
+            android:screenOrientation="portrait" />
+
+        <activity
             android:name=".client.stub.ChooserActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
             android:excludeFromRecents="true"
