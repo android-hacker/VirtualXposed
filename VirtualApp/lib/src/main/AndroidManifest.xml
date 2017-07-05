@@ -225,40 +225,40 @@
     <application>
         <service
             android:name="com.lody.virtual.client.stub.DaemonService"
-            android:process=":x" />
+            android:process="@string/engine_process_name" />
 
         <service
             android:name="com.lody.virtual.client.stub.DaemonService$InnerService"
-            android:process=":x" />
+            android:process="@string/engine_process_name" />
 
         <activity
             android:name="com.lody.virtual.client.stub.ShortcutHandleActivity"
             android:exported="true"
-            android:process=":x"
+            android:process="@string/engine_process_name"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
         <activity
             android:name=".client.stub.StubPendingActivity"
-            android:process=":x" />
+            android:process="@string/engine_process_name" />
 
         <service
             android:name=".client.stub.StubPendingService"
-            android:process=":x" />
+            android:process="@string/engine_process_name" />
         <receiver
             android:name=".client.stub.StubPendingReceiver"
-            android:process=":x" />
+            android:process="@string/engine_process_name" />
 
         <service
             android:name=".client.stub.StubJob"
             android:permission="android.permission.BIND_JOB_SERVICE"
-            android:process=":x" />
+            android:process="@string/engine_process_name" />
 
         <activity
             android:name=".client.stub.ChooseAccountTypeActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
             android:excludeFromRecents="true"
             android:exported="false"
-            android:process=":x"
+            android:process="@string/engine_process_name"
             android:screenOrientation="portrait" />
 
         <activity
@@ -266,7 +266,7 @@
             android:configChanges="keyboard|keyboardHidden|orientation"
             android:excludeFromRecents="true"
             android:exported="false"
-            android:process=":x"
+            android:process="@string/engine_process_name"
             android:screenOrientation="portrait" />
 
         <activity
@@ -275,7 +275,7 @@
             android:excludeFromRecents="true"
             android:exported="true"
             android:finishOnCloseSystemDialogs="true"
-            android:process=":x"
+            android:process="@string/engine_process_name"
             android:screenOrientation="portrait"
             android:theme="@style/VAAlertTheme" />
 
@@ -285,7 +285,7 @@
             android:excludeFromRecents="true"
             android:exported="true"
             android:finishOnCloseSystemDialogs="true"
-            android:process=":x"
+            android:process="@string/engine_process_name"
             android:screenOrientation="portrait"
             android:theme="@style/VAAlertTheme" />
 
@@ -293,7 +293,7 @@
             android:name="com.lody.virtual.server.BinderProvider"
             android:authorities="${applicationId}.virtual.service.BinderProvider"
             android:exported="false"
-            android:process=":x" />
+            android:process="@string/engine_process_name" />
 
         <activity
             android:name="com.lody.virtual.client.stub.StubActivity$C0"

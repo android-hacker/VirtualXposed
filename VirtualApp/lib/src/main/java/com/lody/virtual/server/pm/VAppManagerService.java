@@ -72,6 +72,7 @@ public class VAppManagerService extends IAppManager.Stub {
         synchronized (this) {
             mBooting = true;
             mPersistenceLayer.read();
+            PrivilegeAppOptimizer.get().performOptimizeAllApps();
             mBooting = false;
         }
     }

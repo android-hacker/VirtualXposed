@@ -15,6 +15,9 @@ public class StubManifest {
     public static String RESOLVER_ACTIVITY = ResolverActivity.class.getName();
     public static String STUB_CP_AUTHORITY = "virtual_stub_";
     public static int STUB_COUNT = 50;
+    public static String[] PRIVILEGE_APPS = new String[] {
+            "com.google.android.gms"
+    };
 
     /**
      * If enable,
@@ -46,5 +49,4 @@ public class StubManifest {
     public static String getStubAuthority(int index) {
         return String.format(Locale.ENGLISH, "%s%d", STUB_CP_AUTHORITY, index);
     }
-
 }

@@ -43,7 +43,9 @@ public class SplashActivity extends VActivity {
     }
 
     private void doActionInThread() {
-        VirtualCore.get().waitForEngine();
+        if (!VirtualCore.get().isEngineLaunched()) {
+            VirtualCore.get().waitForEngine();
+        }
         if (!GmsSupport.isGoogleFrameworkInstalled()) {
             GmsSupport.installGApps(0);
         }
