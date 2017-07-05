@@ -250,4 +250,11 @@ public class VPackageManager {
 		}
 	}
 
+	public String  getNameForUid(int uid) {
+		try {
+			return getInterface().getNameForUid(uid);
+		} catch (RemoteException e) {
+			return VirtualRuntime.crash(e);
+		}
+	}
 }

@@ -840,7 +840,8 @@ class MethodProxies {
 
         @Override
         public Object call(Object who, Method method, Object... args) throws Throwable {
-            throw new RuntimeException("TODO");
+            int uid = (int) args[0];
+            return VPackageManager.get().getNameForUid(uid);
         }
     }
 
