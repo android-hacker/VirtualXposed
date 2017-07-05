@@ -24,6 +24,7 @@ public class SplashActivity extends VActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        showBanner();
         VUiKit.defer().when(() -> {
             if (!Once.beenDone("collect_flurry")) {
                 FlurryROMCollector.startCollect();
@@ -42,12 +43,13 @@ public class SplashActivity extends VActivity {
         });
     }
 
+    private void showBanner() {
+
+    }
+
     private void doActionInThread() {
         if (!VirtualCore.get().isEngineLaunched()) {
             VirtualCore.get().waitForEngine();
-        }
-        if (!GmsSupport.isGoogleFrameworkInstalled()) {
-            GmsSupport.installGApps(0);
         }
     }
 }

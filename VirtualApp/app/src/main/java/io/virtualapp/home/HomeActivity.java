@@ -22,7 +22,9 @@ import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.lody.virtual.GmsSupport;
 import com.lody.virtual.client.stub.ChooseTypeAndAccountActivity;
 import com.lody.virtual.os.VUserInfo;
 import com.lody.virtual.os.VUserManager;
@@ -119,11 +121,15 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
             return false;
         });
         menu.add("Virtual Storage").setIcon(R.drawable.ic_vs).setOnMenuItemClickListener(item -> {
-            // TODO
+            Toast.makeText(this, "The coming", Toast.LENGTH_SHORT).show();
+            return false;
+        });
+        menu.add("Notification").setIcon(R.drawable.ic_notification).setOnMenuItemClickListener(item -> {
+            Toast.makeText(this, "The coming", Toast.LENGTH_SHORT).show();
             return false;
         });
         menu.add("Settings").setIcon(R.drawable.ic_settings).setOnMenuItemClickListener(item -> {
-            // TODO
+            Toast.makeText(this, "The coming", Toast.LENGTH_SHORT).show();
             return false;
         });
 
@@ -259,9 +265,6 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 
     @Override
     public void loadFinish(List<AppData> list) {
-        while (list.size() < 9) {
-            list.add(new EmptyAppData());
-        }
         mLaunchpadAdapter.setList(list);
         hideLoading();
     }
@@ -304,6 +307,25 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
     @Override
     public void refreshLauncherItem(AppData model) {
         mLaunchpadAdapter.refresh(model);
+    }
+
+    @Override
+    public void askInstallGms() {
+        new AlertDialog.Builder(this)
+                .setTitle("Hi")
+                .setMessage("We found that your device has been installed the Google service, whether you need to install them?")
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    defer().when(() -> {
+                        showLoading();
+                        GmsSupport.installGoogleService(0);
+                    }).done((res) -> {
+                        mPresenter.dataChanged();
+                    });
+                })
+                .setNegativeButton(android.R.string.cancel, (dialog, which) ->
+                        Toast.makeText(HomeActivity.this, "You can also find it in the Settings", Toast.LENGTH_LONG).show())
+                .setCancelable(false)
+                .show();
     }
 
     @Override

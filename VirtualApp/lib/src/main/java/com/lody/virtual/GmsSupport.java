@@ -5,7 +5,6 @@ import android.content.pm.PackageManager;
 
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.server.pm.VAppManagerService;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,6 +43,10 @@ public class GmsSupport {
 
     public static boolean isGoogleFrameworkInstalled() {
         return VirtualCore.get().isAppInstalled("com.google.android.gms");
+    }
+
+    public static boolean isOutsideGoogleFrameworkExist() {
+        return VirtualCore.get().isOutsideInstalled("com.google.android.gms");
     }
 
     private static void installPackages(List<String> list, int userId) {

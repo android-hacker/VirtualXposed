@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.Collections;
 import java.util.List;
 
 import io.virtualapp.R;
@@ -148,10 +149,9 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
         this.mAppClickListener = mAppClickListener;
     }
 
-    public void moveItem(int pos, int targetPos) {
-        AppData model = mList.remove(pos);
-        mList.add(targetPos, model);
-        notifyItemMoved(pos, targetPos);
+    public void moveItem(int fromPosition, int toPosition) {
+        Collections.swap(mList, fromPosition, toPosition);
+        notifyItemMoved(fromPosition, toPosition);
     }
 
     public void refresh(AppData model) {
