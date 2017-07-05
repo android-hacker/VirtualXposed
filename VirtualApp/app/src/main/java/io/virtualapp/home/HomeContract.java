@@ -31,10 +31,6 @@ import io.virtualapp.home.models.AppInfoLite;
 
 		void addAppToLauncher(AppData model);
 
-        void showFab();
-
-        void hideFab();
-
         void removeAppToLauncher(AppData model);
 
 		void refreshLauncherItem(AppData model);

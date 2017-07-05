@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -22,6 +21,7 @@ import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lody.virtual.GmsSupport;
@@ -41,6 +41,7 @@ import io.virtualapp.abs.ui.VActivity;
 import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.home.adapters.LaunchpadAdapter;
 import io.virtualapp.home.adapters.decorations.ItemOffsetDecoration;
+import io.virtualapp.home.models.AddAppButton;
 import io.virtualapp.home.models.AppData;
 import io.virtualapp.home.models.AppInfoLite;
 import io.virtualapp.home.models.EmptyAppData;
@@ -66,12 +67,13 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
     private HomeContract.HomePresenter mPresenter;
     private TwoGearsView mLoadingView;
     private RecyclerView mLauncherView;
-    private FloatingActionButton mFloatingButton;
     private View mMenuView;
     private PopupMenu mPopupMenu;
-    private View bottomArea;
-    private View createShortcutArea;
-    private View deleteAppArea;
+    private View mBottomArea;
+    private View mCreateShortcutBox;
+    private TextView mCreateShortcutTextView;
+    private View mDeleteAppBox;
+    private TextView mDeleteAppTextView;
     private LaunchpadAdapter mLaunchpadAdapter;
     private Handler mUiHandler;
 
@@ -91,7 +93,6 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         mUiHandler = new Handler(Looper.getMainLooper());
         bindViews();
         initLaunchpad();
-        initFab();
         initMenu();
         new HomePresenterImpl(this).start();
     }
@@ -150,11 +151,12 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
     private void bindViews() {
         mLoadingView = (TwoGearsView) findViewById(R.id.pb_loading_app);
         mLauncherView = (RecyclerView) findViewById(R.id.home_launcher);
-        mFloatingButton = (FloatingActionButton) findViewById(R.id.home_fab);
         mMenuView = findViewById(R.id.home_menu);
-        bottomArea = findViewById(R.id.bottom_area);
-        createShortcutArea = findViewById(R.id.create_shortcut_area);
-        deleteAppArea = findViewById(R.id.delete_app_area);
+        mBottomArea = findViewById(R.id.bottom_area);
+        mCreateShortcutBox = findViewById(R.id.create_shortcut_area);
+        mCreateShortcutTextView = (TextView) findViewById(R.id.create_shortcut_text);
+        mDeleteAppBox = findViewById(R.id.delete_app_area);
+        mDeleteAppTextView = (TextView) findViewById(R.id.delete_app_text);
     }
 
     private void initLaunchpad() {
@@ -172,18 +174,17 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         touchHelper.attachToRecyclerView(mLauncherView);
         mLaunchpadAdapter.setAppClickListener((pos, data) -> {
             if (!data.isLoading()) {
+                if (data instanceof AddAppButton) {
+                    onAddAppButtonClick();
+                }
                 mLaunchpadAdapter.notifyItemChanged(pos);
                 mPresenter.launchApp(data);
             }
         });
     }
 
-    private void initFab() {
-        mFloatingButton.setOnClickListener(v -> {
-            CircularAnim.fullActivity(this, mFloatingButton)
-                    .colorOrImageRes(R.color.colorPrimaryRavel)
-                    .go(() -> ListAppActivity.gotoListApp(this));
-        });
+    private void onAddAppButtonClick() {
+        ListAppActivity.gotoListApp(this);
     }
 
     private void deleteApp(int position) {
@@ -212,16 +213,15 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 
     @Override
     public void showBottomAction() {
-        hideFab();
-        bottomArea.setTranslationY(bottomArea.getHeight());
-        bottomArea.setVisibility(View.VISIBLE);
-        bottomArea.animate().translationY(0).setDuration(500L).start();
+        mBottomArea.setTranslationY(mBottomArea.getHeight());
+        mBottomArea.setVisibility(View.VISIBLE);
+        mBottomArea.animate().translationY(0).setDuration(500L).start();
     }
 
     @Override
     public void hideBottomAction() {
-        bottomArea.setTranslationY(0);
-        ObjectAnimator transAnim = ObjectAnimator.ofFloat(bottomArea, "translationY", 0, bottomArea.getHeight());
+        mBottomArea.setTranslationY(0);
+        ObjectAnimator transAnim = ObjectAnimator.ofFloat(mBottomArea, "translationY", 0, mBottomArea.getHeight());
         transAnim.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animator) {
@@ -230,14 +230,12 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 
             @Override
             public void onAnimationEnd(Animator animator) {
-                bottomArea.setVisibility(View.GONE);
-                showFab();
+                mBottomArea.setVisibility(View.GONE);
             }
 
             @Override
             public void onAnimationCancel(Animator animator) {
-                bottomArea.setVisibility(View.GONE);
-                showFab();
+                mBottomArea.setVisibility(View.GONE);
             }
 
             @Override
@@ -251,20 +249,19 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 
     @Override
     public void showLoading() {
-        mFloatingButton.hide(false);
         mLoadingView.setVisibility(View.VISIBLE);
         mLoadingView.startAnim();
     }
 
     @Override
     public void hideLoading() {
-        mFloatingButton.show();
         mLoadingView.setVisibility(View.GONE);
         mLoadingView.stopAnim();
     }
 
     @Override
     public void loadFinish(List<AppData> list) {
+        list.add(new AddAppButton(this));
         mLaunchpadAdapter.setList(list);
         hideLoading();
     }
@@ -322,19 +319,9 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
                     });
                 })
                 .setNegativeButton(android.R.string.cancel, (dialog, which) ->
-                        Toast.makeText(HomeActivity.this, "You can also find it in the Settings", Toast.LENGTH_LONG).show())
+                        Toast.makeText(HomeActivity.this, "You can also find it in the Settings~", Toast.LENGTH_LONG).show())
                 .setCancelable(false)
                 .show();
-    }
-
-    @Override
-    public void showFab() {
-        mFloatingButton.show();
-    }
-
-    @Override
-    public void hideFab() {
-        mFloatingButton.hide();
     }
 
     @Override
@@ -405,7 +392,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
                         dragHolder = viewHolder;
                         viewHolder.itemView.setScaleX(1.2f);
                         viewHolder.itemView.setScaleY(1.2f);
-                        if (bottomArea.getVisibility() == View.GONE) {
+                        if (mBottomArea.getVisibility() == View.GONE) {
                             showBottomAction();
                         }
                     }
@@ -438,7 +425,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
             }
             super.clearView(recyclerView, viewHolder);
             if (dragHolder == viewHolder) {
-                if (bottomArea.getVisibility() == View.VISIBLE) {
+                if (mBottomArea.getVisibility() == View.VISIBLE) {
                     mUiHandler.postDelayed(HomeActivity.this::hideBottomAction, 200L);
                     if (upAtCreateShortcutArea) {
                         createShortcut(viewHolder.getAdapterPosition());
@@ -466,33 +453,27 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
             int x = (int) (location[0] + dX);
             int y = (int) (location[1] + dY);
 
-            bottomArea.getLocationInWindow(location);
-            int baseLine = location[1] - bottomArea.getHeight();
+            mBottomArea.getLocationInWindow(location);
+            int baseLine = location[1] - mBottomArea.getHeight();
             if (y >= baseLine) {
-                deleteAppArea.getLocationInWindow(location);
+                mDeleteAppBox.getLocationInWindow(location);
                 int deleteAppAreaStartX = location[0];
                 if (x < deleteAppAreaStartX) {
                     upAtCreateShortcutArea = true;
                     upAtDeleteAppArea = false;
-                    createShortcutArea.setBackgroundColor(Color.parseColor("#0099cc"));
-                    deleteAppArea.setBackgroundColor(Color.TRANSPARENT);
-                    createShortcutArea.setAlpha(0.7f);
-                    deleteAppArea.setAlpha(1f);
+                    mCreateShortcutTextView.setTextColor(Color.parseColor("#0099cc"));
+                    mDeleteAppTextView.setTextColor(Color.WHITE);
                 } else {
                     upAtDeleteAppArea = true;
                     upAtCreateShortcutArea = false;
-                    deleteAppArea.setBackgroundColor(Color.RED);
-                    createShortcutArea.setBackgroundColor(Color.TRANSPARENT);
-                    deleteAppArea.setAlpha(0.7f);
-                    createShortcutArea.setAlpha(1f);
+                    mDeleteAppTextView.setTextColor(Color.parseColor("#0099cc"));
+                    mCreateShortcutTextView.setTextColor(Color.WHITE);
                 }
             } else {
                 upAtCreateShortcutArea = false;
                 upAtDeleteAppArea = false;
-                createShortcutArea.setBackgroundColor(Color.TRANSPARENT);
-                deleteAppArea.setBackgroundColor(Color.TRANSPARENT);
-                createShortcutArea.setAlpha(1f);
-                deleteAppArea.setAlpha(1f);
+                mDeleteAppTextView.setTextColor(Color.WHITE);
+                mCreateShortcutTextView.setTextColor(Color.WHITE);
             }
         }
     }
