@@ -11,6 +11,7 @@ android {
         targetSdkVersion 21
         versionCode 23
         versionName "1.2.4"
+        multiDexEnabled true
         android {
             defaultConfig {
                 ndk {
@@ -37,6 +38,7 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':lib')
     //Android Lib
+    compile 'com.android.support:multidex:1.0.1'
     compile 'com.android.support:appcompat-v7:25.0.1'
     compile 'com.melnykov:floatingactionbutton:1.3.0'
     compile 'com.android.support:recyclerview-v7:25.0.1'
@@ -48,5 +50,6 @@ dependencies {
     // ThirdParty
     compile 'com.jonathanfinerty.once:once:1.0.3'
     compile 'com.flurry.android:analytics:6.9.2'
+    compile 'com.google.android.gms:play-services-ads:11.0.0'
 
 }

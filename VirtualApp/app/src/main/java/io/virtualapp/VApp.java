@@ -2,8 +2,10 @@ package io.virtualapp;
 
 import android.app.Application;
 import android.content.Context;
+import android.support.multidex.MultiDexApplication;
 
 import com.flurry.android.FlurryAgent;
+import com.google.android.gms.ads.MobileAds;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.stub.StubManifest;
 
@@ -16,7 +18,7 @@ import jonathanfinerty.once.Once;
 /**
  * @author Lody
  */
-public class VApp extends Application {
+public class VApp extends MultiDexApplication {
 
 
     private static VApp gApp;
@@ -47,6 +49,7 @@ public class VApp extends Application {
             @Override
             public void onMainProcess() {
                 Once.initialise(VApp.this);
+                MobileAds.initialize(VApp.this, "ca-app-pub-1609791120068944~5426483711");
                 new FlurryAgent.Builder()
                         .withLogEnabled(true)
                         .withListener(() -> {

@@ -17,11 +17,15 @@
         android:textColor="@android:color/white"
         android:textSize="26sp" />
 
-    <LinearLayout
+    <com.google.android.gms.ads.AdView
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
         android:id="@+id/splash_banner"
-        android:gravity="center_horizontal"
         android:layout_width="match_parent"
-        android:layout_height="80dp" />
+        android:layout_height="70dp"
+        ads:adSize="SMART_BANNER"
+        ads:adUnitId="ca-app-pub-1609791120068944/6624015319">
+    </com.google.android.gms.ads.AdView>
+
 
 
 </LinearLayout>
