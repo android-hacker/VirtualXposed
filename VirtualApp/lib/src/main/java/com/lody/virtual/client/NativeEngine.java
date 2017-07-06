@@ -28,6 +28,8 @@ public class NativeEngine {
 
     private static Map<String, InstalledAppInfo> sDexOverrideMap;
 
+    private static boolean sFlag = false;
+
     static {
         try {
             System.loadLibrary("va-native");
@@ -118,12 +120,16 @@ public class NativeEngine {
     }
 
     static void hookNative() {
+        if (sFlag) {
+            return;
+        }
         Method[] methods = {NativeMethods.gOpenDexFileNative, NativeMethods.gCameraNativeSetup, NativeMethods.gAudioRecordNativeCheckPermission};
         try {
             nativeHookNative(methods, VirtualCore.get().getHostPkg(), VirtualRuntime.isArt(), Build.VERSION.SDK_INT, NativeMethods.gCameraMethodType);
         } catch (Throwable e) {
             VLog.e(TAG, VLog.getStackTraceString(e));
         }
+        sFlag = true;
     }
 
     public static void onKillProcess(int pid, int signal) {
