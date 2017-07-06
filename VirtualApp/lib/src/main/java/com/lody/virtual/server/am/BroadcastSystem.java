@@ -244,6 +244,10 @@ public class BroadcastSystem {
             if ((intent.getFlags() & FLAG_RECEIVER_REGISTERED_ONLY) != 0 || isInitialStickyBroadcast()) {
                 return;
             }
+            String privilegePkg = intent.getStringExtra("_VA_|_privilege_pkg_");
+            if (privilegePkg != null && !info.packageName.equals(privilegePkg)) {
+                return;
+            }
             PendingResult result = goAsync();
             if (!mAMS.handleStaticBroadcast(appId, info, intent, new PendingResultData(result))) {
                 result.finish();

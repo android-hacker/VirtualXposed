@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.virtualapp">
 
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:name=".VApp"
         android:allowBackup="true"
@@ -11,6 +12,7 @@
 
         <activity
             android:name=".splash.SplashActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,16 +22,19 @@
 
         <activity
             android:name=".home.HomeActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/UITheme" />
 
         <activity
             android:name=".home.ListAppActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/UITheme" />
 
         <activity
             android:name=".home.LoadingActivity"
             android:excludeFromRecents="true"
             android:noHistory="true"
+            android:screenOrientation="portrait"
             android:taskAffinity="va.task.loading"
             android:theme="@style/TransparentTheme" />
 

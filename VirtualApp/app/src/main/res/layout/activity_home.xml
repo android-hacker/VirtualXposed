@@ -35,16 +35,17 @@
                 android:layout_height="match_parent"
                 android:gravity="center|end"
                 android:orientation="horizontal"
-                android:visibility="invisible">
+                android:visibility="visible">
 
                 <io.virtualapp.widgets.MaterialRippleLayout
                     android:layout_width="60dp"
                     android:layout_height="60dp">
 
                     <ImageView
+                        android:id="@+id/home_menu"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_margin="20dp"
+                        android:padding="15dp"
                         android:src="@drawable/ic_menu" />
                 </io.virtualapp.widgets.MaterialRippleLayout>
 
@@ -71,17 +72,6 @@
                 android:layout_height="100dp"
                 android:layout_gravity="center"
                 android:layout_marginBottom="30dp" />
-
-            <com.melnykov.fab.FloatingActionButton
-                android:id="@+id/home_fab"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="bottom|end"
-                android:layout_margin="30dp"
-                android:src="@drawable/ic_add"
-                fab:fab_colorNormal="@color/colorPrimary"
-                fab:fab_colorPressed="@color/colorPrimaryDark" />
-
         </FrameLayout>
     </LinearLayout>
 
@@ -109,6 +99,7 @@
                 android:src="@drawable/ic_shortcut" />
 
             <TextView
+                android:id="@+id/create_shortcut_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
@@ -135,6 +126,7 @@
                 android:src="@drawable/ic_crash" />
 
             <TextView
+                android:id="@+id/delete_app_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"

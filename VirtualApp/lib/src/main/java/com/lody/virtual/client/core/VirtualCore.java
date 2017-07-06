@@ -1,6 +1,7 @@
 package com.lody.virtual.client.core;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +20,7 @@ import android.os.Looper;
 import android.os.Process;
 import android.os.RemoteException;
 
+import com.lody.virtual.R;
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.env.VirtualRuntime;
@@ -191,6 +193,21 @@ public final class VirtualCore {
 
     public void waitForEngine() {
         ServiceManagerNative.ensureServerStarted();
+    }
+
+    public boolean isEngineLaunched() {
+        String engineProcessName = getEngineProcessName();
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningAppProcessInfo info : am.getRunningAppProcesses()) {
+            if (info.processName.endsWith(engineProcessName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String getEngineProcessName() {
+        return context.getString(R.string.engine_process_name);
     }
 
     public void initialize(VirtualInitializer initializer) {
@@ -532,7 +549,7 @@ public final class VirtualCore {
         return false;
     }
 
-    public Resources getResources(String pkg) {
+    public Resources getResources(String pkg) throws Resources.NotFoundException {
         InstalledAppInfo installedAppInfo = getInstalledAppInfo(pkg, 0);
         if (installedAppInfo != null) {
             AssetManager assets = mirror.android.content.res.AssetManager.ctor.newInstance();
@@ -540,7 +557,7 @@ public final class VirtualCore {
             Resources hostRes = context.getResources();
             return new Resources(assets, hostRes.getDisplayMetrics(), hostRes.getConfiguration());
         }
-        return null;
+        throw new Resources.NotFoundException(pkg);
     }
 
     public synchronized ActivityInfo resolveActivityInfo(Intent intent, int userId) {

@@ -33,11 +33,11 @@ VA目前被广泛应用于双开/多开，但它决不仅限于此，Android本�
 
 在VA使用Google服务
 -----------
-由于某些原因，VA无法直接运行官方的Google服务套件，但是我们提供了对`MicroGms`的支持，
+VA支持运行官方的Google服务套件，同时我们也提供了对`MicroGms`的支持。
 
-并屏蔽了外部的Google服务套件，
+您可以通过在VA中安装`MicroGms`来支持`Google服务`，
 
-因此您可以通过在VA中安装`MicroGms`来支持`Google服务`。
+这样，即使外部没有Google服务，用户也可以在VA中享受Google服务。
 
 MicroGms套件可在此下载：[Download MicroGms](https://microg.org/download.html)
 
@@ -45,6 +45,12 @@ MicroGms套件可在此下载：[Download MicroGms](https://microg.org/download.
 * Services Core
 * Services Framework Proxy
 * Store
+
+如果您需要在VA中使用官方的Google服务套件（外部已安装的前提下），
+
+则可以通过 `GmsSupport.installGms(userId)` 来安装。
+
+##### 注意，您不能同时安装MicroGms和官方的Gms。
 
 
 使用说明

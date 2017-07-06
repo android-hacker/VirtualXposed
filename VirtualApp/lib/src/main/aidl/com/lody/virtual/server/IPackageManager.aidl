@@ -69,4 +69,6 @@ interface IPackageManager {
          VParceledListSlice queryContentProviders(in String processName, int vuid, int flags);
 
          List<String> querySharedPackages(in String packageName);
+
+         String getNameForUid(int uid);
 }

@@ -383,7 +383,7 @@ class MethodProxies {
             if (_hostResult != null) {
                 List<ResolveInfo> hostResult = slice ? ParceledListSlice.getList.call(_hostResult)
                         : (List) _hostResult;
-                if(hostResult != null) {
+                if (hostResult != null) {
                     Iterator<ResolveInfo> iterator = hostResult.iterator();
                     while (iterator.hasNext()) {
                         ResolveInfo info = iterator.next();
@@ -481,7 +481,7 @@ class MethodProxies {
             if (_hostResult != null) {
                 List<ResolveInfo> hostResult = slice ? ParceledListSlice.getList.call(_hostResult)
                         : (List) _hostResult;
-                if(hostResult != null) {
+                if (hostResult != null) {
                     Iterator<ResolveInfo> iterator = hostResult.iterator();
                     while (iterator.hasNext()) {
                         ResolveInfo info = iterator.next();
@@ -799,7 +799,6 @@ class MethodProxies {
                         if (ArrayUtils.isEmpty(two)) {
                             return PackageManager.SIGNATURE_SECOND_NOT_SIGNED;
                         } else {
-                            // 走到了这里说明两个包的签名都在
                             if (Arrays.equals(one, two)) {
                                 return PackageManager.SIGNATURE_MATCH;
                             } else {
@@ -813,6 +812,36 @@ class MethodProxies {
             }
 
             return method.invoke(who, args);
+        }
+    }
+
+    static class checkUidSignatures extends MethodProxy {
+
+        @Override
+        public String getMethodName() {
+            return "checkUidSignatures";
+        }
+
+        @Override
+        public Object call(Object who, Method method, Object... args) throws Throwable {
+            int uid1 = (int) args[0];
+            int uid2 = (int) args[1];
+            // TODO: verify the signatures by uid.
+            return PackageManager.SIGNATURE_MATCH;
+        }
+    }
+
+    static class getNameForUid extends MethodProxy {
+
+        @Override
+        public String getMethodName() {
+            return "getNameForUid";
+        }
+
+        @Override
+        public Object call(Object who, Method method, Object... args) throws Throwable {
+            int uid = (int) args[0];
+            return VPackageManager.get().getNameForUid(uid);
         }
     }
 
@@ -1022,7 +1051,7 @@ class MethodProxies {
             Object _hostResult = method.invoke(who, args);
             List<ResolveInfo> hostResult = slice ? ParceledListSlice.getList.call(_hostResult)
                     : (List) _hostResult;
-            if(hostResult != null) {
+            if (hostResult != null) {
                 Iterator<ResolveInfo> iterator = hostResult.iterator();
                 while (iterator.hasNext()) {
                     ResolveInfo info = iterator.next();
@@ -1126,7 +1155,7 @@ class MethodProxies {
             Object _hostResult = method.invoke(who, args);
             List<ResolveInfo> hostResult = slice ? ParceledListSlice.getList.call(_hostResult)
                     : (List) _hostResult;
-            if(hostResult != null) {
+            if (hostResult != null) {
                 Iterator<ResolveInfo> iterator = hostResult.iterator();
                 while (iterator.hasNext()) {
                     ResolveInfo info = iterator.next();

@@ -738,6 +738,20 @@ public class VPackageManagerService extends IPackageManager.Stub {
         }
     }
 
+    @Override
+    public String getNameForUid(int uid) {
+        int appId = VUserHandle.getAppId(uid);
+        synchronized (mPackages) {
+            for (VPackage p : mPackages.values()) {
+                PackageSetting ps = (PackageSetting) p.mExtras;
+                if (ps.appId == appId) {
+                    return ps.packageName;
+                }
+            }
+            return null;
+        }
+    }
+
 
     @Override
     public List<String> querySharedPackages(String packageName) {
