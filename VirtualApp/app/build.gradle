@@ -8,7 +8,7 @@ android {
     defaultConfig {
         applicationId "io.virtualapp"
         minSdkVersion 15
-        targetSdkVersion 21
+        targetSdkVersion 22
         versionCode 23
         versionName "1.2.4"
         multiDexEnabled true

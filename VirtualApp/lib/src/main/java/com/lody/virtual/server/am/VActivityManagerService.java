@@ -730,6 +730,9 @@ public class VActivityManagerService extends IActivityManager.Stub {
         synchronized (mHistory) {
             List<ActivityManager.RunningServiceInfo> services = new ArrayList<>(mHistory.size());
             for (ServiceRecord r : mHistory) {
+                if (r.process == null) {
+                    continue;
+                }
                 if (r.process.userId != userId) {
                     continue;
                 }

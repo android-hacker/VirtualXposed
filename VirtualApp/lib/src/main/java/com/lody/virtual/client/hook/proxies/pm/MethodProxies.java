@@ -448,21 +448,6 @@ class MethodProxies {
 
     }
 
-
-    static class AddOnPermissionsChangeListener extends MethodProxy {
-
-        @Override
-        public String getMethodName() {
-            return "addOnPermissionsChangeListener";
-        }
-
-        @Override
-        public Object call(Object who, Method method, Object... args) throws Throwable {
-            return 0;
-        }
-    }
-
-
     @SuppressWarnings("unchecked")
     static class QueryIntentActivities extends MethodProxy {
 
@@ -1178,19 +1163,6 @@ class MethodProxies {
     }
 
 
-    static class RemoveOnPermissionsChangeListener extends MethodProxy {
-
-        @Override
-        public String getMethodName() {
-            return "removeOnPermissionsChangeListener";
-        }
-
-        @Override
-        public Object call(Object who, Method method, Object... args) throws Throwable {
-            return 0;
-        }
-    }
-
     static class GetApplicationBlockedSettingAsUser extends MethodProxy {
 
         @Override
@@ -1204,4 +1176,5 @@ class MethodProxies {
             return method.invoke(who, args);
         }
     }
+
 }
