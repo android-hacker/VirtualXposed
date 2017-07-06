@@ -255,13 +255,19 @@ class MethodProxies {
                     new InvocationHandler() {
                         @Override
                         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                            String name = method.getName();
-                            if (name.equals("getMySessions")) {
-                                MethodParameterUtils.replaceFirstAppPkg(args);
-                            } else if (name.equals("createSession")) {
-                                MethodParameterUtils.replaceFirstAppPkg(args);
+                            try {
+                                return method.invoke(installer, args);
+                            } catch (Throwable e) {
+
                             }
-                            return method.invoke(installer, args);
+                            if (method.getReturnType() == int.class) {
+                                return 0;
+                            }
+                            if (method.getReturnType() == void.class) {
+                                return 0;
+                            } else {
+                                return null;
+                            }
                         }
                     });
         }

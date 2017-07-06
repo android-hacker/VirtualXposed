@@ -16,6 +16,8 @@ import android.content.pm.PermissionGroupInfo;
 import com.lody.virtual.remote.ReceiverInfo;
 import com.lody.virtual.remote.VParceledListSlice;
 
+import com.lody.virtual.server.IPackageInstaller;
+
 interface IPackageManager {
 
         int getPackageUid(String packageName, int userId);
@@ -71,4 +73,6 @@ interface IPackageManager {
          List<String> querySharedPackages(in String packageName);
 
          String getNameForUid(int uid);
+
+         IPackageInstaller getPackageInstaller();
 }
