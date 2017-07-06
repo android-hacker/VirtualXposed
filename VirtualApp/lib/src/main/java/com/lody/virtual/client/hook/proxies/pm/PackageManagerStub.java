@@ -30,7 +30,7 @@ public final class PackageManagerStub extends MethodInvocationProxy<MethodInvoca
         addMethodProxy(new ResultStaticMethodProxy("performDexOpt", true));
         addMethodProxy(new ResultStaticMethodProxy("performDexOptIfNeeded", false));
         addMethodProxy(new ResultStaticMethodProxy("performDexOptSecondary", true));
-        addMethodProxy(new ResultStaticMethodProxy("AddOnPermissionsChangeListener", 0));
+        addMethodProxy(new ResultStaticMethodProxy("addOnPermissionsChangeListener", 0));
         addMethodProxy(new ResultStaticMethodProxy("removeOnPermissionsChangeListener", 0));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             addMethodProxy(new ResultStaticMethodProxy("checkPackageStartable", 0));
