@@ -10,7 +10,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 22
         versionCode 23
-        versionName "1.2.4"
+        versionName "1.2.5"
         multiDexEnabled true
         android {
             defaultConfig {
