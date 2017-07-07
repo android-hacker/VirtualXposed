@@ -77,8 +77,8 @@ public class LoadingActivity extends VActivity {
                     e.printStackTrace();
                 }
             }
-        }).done((res) ->
-                VActivityManager.get().startActivity(intent, userId));
+            VActivityManager.get().startActivity(intent, userId);
+        });
 
     }
 
