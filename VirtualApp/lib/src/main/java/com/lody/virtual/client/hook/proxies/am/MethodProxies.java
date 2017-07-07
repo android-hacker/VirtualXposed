@@ -511,8 +511,12 @@ class MethodProxies {
                 token = (IBinder) args[tokenIndex];
             }
             Bundle options = ArrayUtils.getFirst(args, Bundle.class);
-
             return VActivityManager.get().startActivities(intents, resolvedTypes, token, options, VUserHandle.myUserId());
+        }
+
+        @Override
+        public boolean isEnable() {
+            return isAppProcess();
         }
     }
 

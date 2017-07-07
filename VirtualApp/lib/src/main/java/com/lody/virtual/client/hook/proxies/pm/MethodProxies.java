@@ -263,6 +263,9 @@ class MethodProxies {
                             if (method.getReturnType() == int.class) {
                                 return 0;
                             }
+                            if (method.getReturnType() == ParceledListSlice.TYPE) {
+                                return ParceledListSliceCompat.create(new ArrayList());
+                            }
                             if (method.getReturnType() == void.class) {
                                 return 0;
                             } else {
