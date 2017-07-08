@@ -25,12 +25,10 @@ public class VNotificationManager {
     }
 
     public INotificationManager getService() {
-        if (mRemote == null) {
+        if (mRemote == null || !mRemote.asBinder().isBinderAlive()) {
             synchronized (VNotificationManager.class) {
-                if (mRemote == null) {
-                    final IBinder pmBinder = ServiceManagerNative.getService(ServiceManagerNative.NOTIFICATION);
-                    mRemote = INotificationManager.Stub.asInterface(pmBinder);
-                }
+                final IBinder pmBinder = ServiceManagerNative.getService(ServiceManagerNative.NOTIFICATION);
+                mRemote = INotificationManager.Stub.asInterface(pmBinder);
             }
         }
         return mRemote;

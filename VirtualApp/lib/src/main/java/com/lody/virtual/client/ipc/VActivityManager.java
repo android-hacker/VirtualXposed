@@ -45,12 +45,10 @@ public class VActivityManager {
     }
 
     public IActivityManager getService() {
-        if (mRemote == null) {
+        if (mRemote == null || !mRemote.asBinder().isBinderAlive()) {
             synchronized (VActivityManager.class) {
-                if (mRemote == null) {
-                    final Object remote = getRemoteInterface();
-                    mRemote = LocalProxyUtils.genProxy(IActivityManager.class, remote);
-                }
+                final Object remote = getRemoteInterface();
+                mRemote = LocalProxyUtils.genProxy(IActivityManager.class, remote);
             }
         }
         return mRemote;

@@ -32,9 +32,11 @@ public class VAccountManager {
     }
 
     public IAccountManager getRemote() {
-        if (mRemote == null) {
-            Object remote = getStubInterface();
-            mRemote = LocalProxyUtils.genProxy(IAccountManager.class, remote);
+        if (mRemote == null || !mRemote.asBinder().isBinderAlive()) {
+            synchronized (VAccountManager.class) {
+                Object remote = getStubInterface();
+                mRemote = LocalProxyUtils.genProxy(IAccountManager.class, remote);
+            }
         }
         return mRemote;
     }

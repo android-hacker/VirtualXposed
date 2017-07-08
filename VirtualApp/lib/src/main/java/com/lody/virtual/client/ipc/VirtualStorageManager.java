@@ -23,12 +23,10 @@ public class VirtualStorageManager {
 
 
     public IVirtualStorageService getRemote() {
-        if (mRemote == null) {
+        if (mRemote == null || !mRemote.asBinder().isBinderAlive()) {
             synchronized (this) {
-                if (mRemote == null) {
-                    Object remote = getRemoteInterface();
-                    mRemote = LocalProxyUtils.genProxy(IVirtualStorageService.class, remote);
-                }
+                Object remote = getRemoteInterface();
+                mRemote = LocalProxyUtils.genProxy(IVirtualStorageService.class, remote);
             }
         }
         return mRemote;

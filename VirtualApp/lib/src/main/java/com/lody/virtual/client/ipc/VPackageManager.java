@@ -32,12 +32,10 @@ public class VPackageManager {
     }
 
     public IPackageManager getInterface() {
-        if (mRemote == null) {
+        if (mRemote == null || !mRemote.asBinder().isBinderAlive()) {
             synchronized (VPackageManager.class) {
-                if (mRemote == null) {
-                    Object remote = getRemoteInterface();
-                    mRemote = LocalProxyUtils.genProxy(IPackageManager.class, remote);
-                }
+                Object remote = getRemoteInterface();
+                mRemote = LocalProxyUtils.genProxy(IPackageManager.class, remote);
             }
         }
         return mRemote;
