@@ -18,6 +18,9 @@ VA目前被广泛应用于双开/多开，但它决不仅限于此，Android本�
 
 **当您需要将VA用于商业途径时，需要进行授权，因此请务必与作者联系（联系方式见下）。**
 
+请注意
+-----
+VirtualApp代码的更新频率非常快（`以小时为单位`），每一次代码的更新都有可能修复重大BUG，所以请 `watch` 本项目，并注意随时更新代码，以免给您带来损失！
 
 
 已支持的加固
@@ -33,15 +36,15 @@ VA目前被广泛应用于双开/多开，但它决不仅限于此，Android本�
 
 在VA使用Google服务
 -----------
-VA支持运行官方的Google服务套件，同时我们也提供了对`MicroGms`的支持。
+VA支持运行官方的Google服务套件，同时我们也提供了对`MicroG`的支持。
 
-您可以通过在VA中安装`MicroGms`来支持`Google服务`，
+您可以通过在VA中安装`MicroG`来支持`Google服务`，
 
 这样，即使外部没有Google服务，用户也可以在VA中享受Google服务。
 
-MicroGms套件可在此下载：[Download MicroGms](https://microg.org/download.html)
+MicroG套件可在此下载：[Download MicroG](https://microg.org/download.html)
 
-必要模块：
+MicroG的必要模块：
 * Services Core
 * Services Framework Proxy
 * Store
