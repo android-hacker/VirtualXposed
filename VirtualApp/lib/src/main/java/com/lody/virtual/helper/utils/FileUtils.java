@@ -38,7 +38,7 @@ public class FileUtils {
                 Os.chmod(path, mode);
                 return;
             } catch (Exception e) {
-                e.printStackTrace();
+                // ignore
             }
         }
 
