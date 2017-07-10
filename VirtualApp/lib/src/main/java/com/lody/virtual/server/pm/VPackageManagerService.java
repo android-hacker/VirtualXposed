@@ -24,7 +24,9 @@ import com.lody.virtual.client.stub.StubManifest;
 import com.lody.virtual.helper.compat.ObjectsCompat;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.remote.VParceledListSlice;
+import com.lody.virtual.server.IPackageInstaller;
 import com.lody.virtual.server.IPackageManager;
+import com.lody.virtual.server.pm.installer.VPackageInstallerService;
 import com.lody.virtual.server.pm.parser.PackageParserEx;
 import com.lody.virtual.server.pm.parser.VPackage;
 
@@ -779,6 +781,11 @@ public class VPackageManagerService extends IPackageManager.Stub {
             e.printStackTrace();
             throw e;
         }
+    }
+
+    @Override
+    public IPackageInstaller getPackageInstaller() {
+        return VPackageInstallerService.get();
     }
 
     void createNewUser(int userId, File userPath) {

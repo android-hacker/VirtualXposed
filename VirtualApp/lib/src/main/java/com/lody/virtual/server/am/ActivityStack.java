@@ -74,6 +74,8 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
         }
     }
 
+
+
     private void deliverNewIntentLocked(ActivityRecord sourceRecord, ActivityRecord targetRecord, Intent intent) {
         if (targetRecord == null) {
             return;
@@ -278,6 +280,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
         ReuseTarget reuseTarget = ReuseTarget.CURRENT;
         ClearTarget clearTarget = ClearTarget.NOTHING;
         boolean clearTop = containFlags(intent, Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        boolean clearTask = containFlags(intent, Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         if (intent.getComponent() == null) {
             intent.setComponent(new ComponentName(info.packageName, info.name));
@@ -289,7 +292,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
             removeFlags(intent, Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             clearTarget = ClearTarget.TOP;
         }
-        if (containFlags(intent, Intent.FLAG_ACTIVITY_CLEAR_TASK)) {
+        if (clearTask) {
             if (containFlags(intent, Intent.FLAG_ACTIVITY_NEW_TASK)) {
                 clearTarget = ClearTarget.TASK;
             } else {
@@ -371,7 +374,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
         } else {
             boolean delivered = false;
             mAM.moveTaskToFront(reuseTask.taskId, 0);
-            boolean startTaskToFront = !clearTop && ComponentUtils.isSameIntent(intent, reuseTask.taskRoot);
+            boolean startTaskToFront = !clearTask && !clearTop && ComponentUtils.isSameIntent(intent, reuseTask.taskRoot);
 
             if (clearTarget.deliverIntent || singleTop) {
                 taskMarked = markTaskByClearTarget(reuseTask, clearTarget, intent.getComponent());
@@ -449,10 +452,11 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 
     private boolean startActivityFromSourceTask(TaskRecord task, Intent intent, ActivityInfo info, String resultWho,
                                                 int requestCode, Bundle options) {
-        ActivityRecord top = topActivityInTask(task);
+        ActivityRecord top = task.activities.isEmpty() ? null : task.activities.get(task.activities.size() - 1);
         if (top != null) {
             if (startActivityProcess(task.userId, top, intent, info) != null) {
                 realStartActivityLocked(top.token, intent, resultWho, requestCode, options);
+                return true;
             }
         }
         return false;
@@ -644,7 +648,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
         synchronized (mHistory) {
             ActivityRecord r = findActivityByToken(userId, token);
             if (r != null) {
-                return r.caller;
+                return r.caller != null ? r.caller : r.component;
             }
             return null;
         }

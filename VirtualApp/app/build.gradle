@@ -1,3 +1,5 @@
+import java.security.acl.Group
+
 apply plugin: 'com.android.application'
 apply plugin: 'me.tatarka.retrolambda'
 
@@ -8,9 +10,9 @@ android {
     defaultConfig {
         applicationId "io.virtualapp"
         minSdkVersion 15
-        targetSdkVersion 21
-        versionCode 23
-        versionName "1.2.4"
+        targetSdkVersion 22
+        versionCode 24
+        versionName "1.2.5"
         multiDexEnabled true
         android {
             defaultConfig {
@@ -50,6 +52,8 @@ dependencies {
     // ThirdParty
     compile 'com.jonathanfinerty.once:once:1.0.3'
     compile 'com.flurry.android:analytics:6.9.2'
-    compile 'com.google.android.gms:play-services-ads:11.0.0'
+    compile ('com.google.android.gms:play-services-ads:11.0.0'){
+        exclude group:'com.android.support'
+    }
 
 }

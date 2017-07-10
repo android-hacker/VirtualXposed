@@ -503,28 +503,17 @@ HOOK_DEF(int, lchown, const char *pathname, uid_t owner, gid_t group) {
 // int (*origin_execve)(const char *pathname, char *const argv[], char *const envp[]);
 HOOK_DEF(int, execve, const char *pathname, char *const argv[], char *const envp[]) {
 
-    /**
-     * TODO (RUC):
-     * Fix the LD_PRELOAD.
-     * Now we just fill it.
-     */
-    if (!strcmp(pathname, "dex2oat")) {
-        for (int i = 0; envp[i] != NULL; ++i) {
-            if (!strncmp(envp[i], "LD_PRELOAD=", 11)) {
-                const_cast<char **>(envp)[i] = getenv("LD_PRELOAD");
-            }
-        }
-    }
-
-    LOGD("execve: %s, LD_PRELOAD: %s.", pathname, getenv("LD_PRELOAD"));
+    LOGE("execve: %s, LD_PRELOAD: %s.", pathname, getenv("LD_PRELOAD"));
     for (int i = 0; argv[i] != NULL; ++i) {
-        LOGD("argv[%i] : %s", i, argv[i]);
+        LOGE("argv[%i] : %s", i, argv[i]);
     }
     for (int i = 0; envp[i] != NULL; ++i) {
-        LOGD("envp[%i] : %s", i, envp[i]);
+        LOGE("envp[%i] : %s", i, envp[i]);
     }
     const char *redirect_path = match_redirected_path(pathname);
+    LOGE("before execve, map.size() = %i", IORedirectMap.size());
     int ret = syscall(__NR_execve, redirect_path, argv, envp);
+    LOGE("after execve");
     FREE(redirect_path, pathname);
     return ret;
 }
@@ -579,6 +568,10 @@ HOOK_DEF(int, kill, pid_t pid, int sig) {
     return ret;
 }
 
+HOOK_DEF(pid_t, vfork) {
+    return fork();
+}
+
 __END_DECLS
 // end IO DEF
 
@@ -615,6 +608,7 @@ void hook_dlopen(int api_level) {
 
 
 void IOUniformer::startUniformer(int api_level, int preview_api_level) {
+    HOOK_SYMBOL(RTLD_DEFAULT, vfork);
     HOOK_SYMBOL(RTLD_DEFAULT, kill);
     HOOK_SYMBOL(RTLD_DEFAULT, __getcwd);
     HOOK_SYMBOL(RTLD_DEFAULT, truncate);

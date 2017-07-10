@@ -9,4 +9,5 @@
     <string name="delete">Delete</string>
     <string name="create_shortcut">Create shortcut</string>
     <string name="splash_desc">Install your app to the SandBox</string>
+    <string name="new_user">New User</string>
 </resources>

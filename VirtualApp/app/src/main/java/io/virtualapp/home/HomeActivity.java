@@ -313,7 +313,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
                 .setMessage("We found that your device has been installed the Google service, whether you need to install them?")
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                     defer().when(() -> {
-                        GmsSupport.installGoogleService(0);
+                        GmsSupport.installGApps(0);
                     }).done((res) -> {
                         mPresenter.dataChanged();
                     });

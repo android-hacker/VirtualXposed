@@ -55,7 +55,7 @@ public class SessionParams implements Parcelable {
     }
 
 
-    public PackageInstaller.SessionParams a() {
+    public PackageInstaller.SessionParams build() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             PackageInstaller.SessionParams params = new PackageInstaller.SessionParams(mode);
             SessionParamsMarshmallow.installFlags.set(params, installFlags);
@@ -86,7 +86,7 @@ public class SessionParams implements Parcelable {
         return params;
     }
 
-    public static SessionParams a(PackageInstaller.SessionParams sessionParams) {
+    public static SessionParams create(PackageInstaller.SessionParams sessionParams) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             SessionParams params = new SessionParams(SessionParamsMarshmallow.mode.get(sessionParams));
             params.installFlags = SessionParamsMarshmallow.installFlags.get(sessionParams);

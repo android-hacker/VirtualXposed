@@ -24,12 +24,10 @@ public class VJobScheduler {
     }
 
     public IJobScheduler getRemote() {
-        if (mRemote == null) {
+        if (mRemote == null || !mRemote.asBinder().isBinderAlive()) {
             synchronized (this) {
-                if (mRemote == null) {
-                    Object remote = getRemoteInterface();
-                    mRemote = LocalProxyUtils.genProxy(IJobScheduler.class, remote);
-                }
+                Object remote = getRemoteInterface();
+                mRemote = LocalProxyUtils.genProxy(IJobScheduler.class, remote);
             }
         }
         return mRemote;

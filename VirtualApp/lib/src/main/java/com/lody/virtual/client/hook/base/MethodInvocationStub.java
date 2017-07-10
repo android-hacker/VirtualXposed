@@ -220,4 +220,14 @@ public class MethodInvocationStub<T> {
         }
     }
 
+    private void dumpMethodProxies() {
+        StringBuilder sb = new StringBuilder(50);
+        sb.append("*********************");
+        for (MethodProxy proxy : mInternalMethodProxies.values()) {
+            sb.append(proxy.getMethodName()).append("\n");
+        }
+        sb.append("*********************");
+        VLog.e(TAG, sb.toString());
+    }
+
 }

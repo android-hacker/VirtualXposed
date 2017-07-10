@@ -4,6 +4,7 @@
 #include <elf.h>
 #include <sys/mman.h>
 #include <Helper.h>
+#include <unistd.h>
 #include "Log.h"
 
 /* memory map for libraries */
