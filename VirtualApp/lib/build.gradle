@@ -26,6 +26,10 @@ android {
             path file("src/main/jni/Android.mk")
         }
     }
+    lintOptions {
+        //IJobService need NewApi
+        warning 'NewApi','OnClick'
+    }
 }
 
 
