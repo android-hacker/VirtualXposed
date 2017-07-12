@@ -38,7 +38,7 @@ import com.lody.virtual.client.hook.secondary.ProxyServiceFactory;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.client.ipc.VirtualStorageManager;
-import com.lody.virtual.client.stub.StubManifest;
+import com.lody.virtual.client.stub.VASettings;
 import com.lody.virtual.helper.compat.BuildCompat;
 import com.lody.virtual.helper.compat.StorageManagerCompat;
 import com.lody.virtual.helper.utils.VLog;
@@ -247,7 +247,7 @@ public final class VClientImpl extends IVClient.Stub {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && targetSdkVersion < Build.VERSION_CODES.LOLLIPOP) {
             mirror.android.os.Message.updateCheckRecycle.call(targetSdkVersion);
         }
-        if (StubManifest.ENABLE_IO_REDIRECT) {
+        if (VASettings.ENABLE_IO_REDIRECT) {
             startIOUniformer();
         }
         NativeEngine.hookNative();
@@ -474,7 +474,7 @@ public final class VClientImpl extends IVClient.Stub {
                     continue;
                 }
                 ProviderInfo info = ContentProviderHolderOreo.info.get(holder);
-                if (!info.authority.startsWith(StubManifest.STUB_CP_AUTHORITY)) {
+                if (!info.authority.startsWith(VASettings.STUB_CP_AUTHORITY)) {
                     provider = ProviderHook.createProxy(true, info.authority, provider);
                     ActivityThread.ProviderClientRecordJB.mProvider.set(clientRecord, provider);
                     ContentProviderHolderOreo.provider.set(holder, provider);
@@ -486,7 +486,7 @@ public final class VClientImpl extends IVClient.Stub {
                     continue;
                 }
                 ProviderInfo info = IActivityManager.ContentProviderHolder.info.get(holder);
-                if (!info.authority.startsWith(StubManifest.STUB_CP_AUTHORITY)) {
+                if (!info.authority.startsWith(VASettings.STUB_CP_AUTHORITY)) {
                     provider = ProviderHook.createProxy(true, info.authority, provider);
                     ActivityThread.ProviderClientRecordJB.mProvider.set(clientRecord, provider);
                     IActivityManager.ContentProviderHolder.provider.set(holder, provider);
@@ -494,7 +494,7 @@ public final class VClientImpl extends IVClient.Stub {
             } else {
                 String authority = ActivityThread.ProviderClientRecord.mName.get(clientRecord);
                 IInterface provider = ActivityThread.ProviderClientRecord.mProvider.get(clientRecord);
-                if (provider != null && !authority.startsWith(StubManifest.STUB_CP_AUTHORITY)) {
+                if (provider != null && !authority.startsWith(VASettings.STUB_CP_AUTHORITY)) {
                     provider = ProviderHook.createProxy(true, authority, provider);
                     ActivityThread.ProviderClientRecord.mProvider.set(clientRecord, provider);
                 }

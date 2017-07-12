@@ -9,6 +9,62 @@ static list<std::string> ReadOnlyPathMap;
 static std::map<std::string/*orig_path*/, std::string/*new_path*/> IORedirectMap;
 static std::map<std::string/*orig_path*/, std::string/*new_path*/> RootIORedirectMap;
 
+static struct {
+    const char *selfSoPath;
+    int api_level;
+    int preview_api_level;
+    bool hooked_process;
+} gVars;
+
+
+void IOUniformer::init_array() {
+    // TODO: init hook for child process
+//    if (!gVars.hooked_process) {
+//        gVars.selfSoPath = getenv("V_SELF_SO");;
+//        if (gVars.selfSoPath != NULL) {
+//            LOGE("start init child process, io.size = %i", IORedirectMap.size());
+//            gVars.api_level = atoi(getenv("V_API_LEVEL"));
+//            gVars.preview_api_level = atoi(getenv("V_PREVIEW_API_LEVEL"));
+//            startUniformer(gVars.api_level, gVars.preview_api_level);
+//        }
+//    }
+}
+
+void IOUniformer::saveEnvironment(const char *selfSoPath, int api_level, int preview_api_level) {
+    LOGE("Saving environment, so : %s, api: %i, io.size : %i.", selfSoPath, api_level,
+         IORedirectMap.size());
+    gVars.selfSoPath = selfSoPath;
+    gVars.api_level = api_level;
+    gVars.preview_api_level = preview_api_level;
+    char chars[5];
+    char envName[30];
+    char buffer[200];
+    setenv("V_SELF_SO", gVars.selfSoPath, 1);
+    sprintf(chars, "%i", api_level);
+    setenv("V_API_LEVEL", chars, 1);
+    memset(chars, sizeof(chars), 0);
+    sprintf(chars, "%i", preview_api_level);
+    setenv("V_PREVIEW_API_LEVEL", chars, 1);
+    std::map<std::string, std::string>::iterator iterator;
+    int i = 0;
+    for (iterator = IORedirectMap.begin(); iterator != IORedirectMap.end(); iterator++, i++) {
+        const std::string &prefix = iterator->first;
+        const std::string &new_prefix = iterator->second;
+        memset(envName, sizeof(envName), 0);
+        memset(buffer, sizeof(buffer), 0);
+        sprintf(envName, "V_IO_REDIRECT_%i", i);
+        sprintf(buffer, "%s&%s", prefix.c_str(), new_prefix.c_str());
+        setenv(envName, buffer, 1);
+    }
+    i = 0;
+    list<std::string>::iterator it;
+    for (it = ReadOnlyPathMap.begin(); it != ReadOnlyPathMap.end(); it++, i++) {
+        memset(envName, sizeof(envName), 0);
+        memset(buffer, sizeof(buffer), 0);
+        sprintf(envName, "V_IO_RO_%i", i);
+        setenv(envName, it->c_str(), 1);
+    }
+}
 
 /**
  *
@@ -503,17 +559,22 @@ HOOK_DEF(int, lchown, const char *pathname, uid_t owner, gid_t group) {
 // int (*origin_execve)(const char *pathname, char *const argv[], char *const envp[]);
 HOOK_DEF(int, execve, const char *pathname, char *const argv[], char *const envp[]) {
 
-    LOGE("execve: %s, LD_PRELOAD: %s.", pathname, getenv("LD_PRELOAD"));
     for (int i = 0; argv[i] != NULL; ++i) {
         LOGE("argv[%i] : %s", i, argv[i]);
+    }
+    for (int i = 0; envp[i] != NULL; ++i) {
+        if (!strncmp(envp[i], "LD_PRELOAD=", 11)) {
+            char preload_path[200];
+            sprintf(preload_path, "LD_PRELOAD=%s:%s", gVars.selfSoPath, envp[i] + 11);
+            const_cast<char **>(envp)[i] = preload_path;
+            break;
+        }
     }
     for (int i = 0; envp[i] != NULL; ++i) {
         LOGE("envp[%i] : %s", i, envp[i]);
     }
     const char *redirect_path = match_redirected_path(pathname);
-    LOGE("before execve, map.size() = %i", IORedirectMap.size());
     int ret = syscall(__NR_execve, redirect_path, argv, envp);
-    LOGE("after execve");
     FREE(redirect_path, pathname);
     return ret;
 }
@@ -606,8 +667,8 @@ void hook_dlopen(int api_level) {
 }
 
 
-
 void IOUniformer::startUniformer(int api_level, int preview_api_level) {
+    gVars.hooked_process = true;
     HOOK_SYMBOL(RTLD_DEFAULT, vfork);
     HOOK_SYMBOL(RTLD_DEFAULT, kill);
     HOOK_SYMBOL(RTLD_DEFAULT, __getcwd);

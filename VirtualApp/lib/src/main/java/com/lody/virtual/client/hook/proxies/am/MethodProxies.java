@@ -41,7 +41,7 @@ import com.lody.virtual.client.ipc.ActivityClientRecord;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.client.stub.ChooserActivity;
-import com.lody.virtual.client.stub.StubManifest;
+import com.lody.virtual.client.stub.VASettings;
 import com.lody.virtual.client.stub.StubPendingActivity;
 import com.lody.virtual.client.stub.StubPendingReceiver;
 import com.lody.virtual.client.stub.StubPendingService;
@@ -1275,7 +1275,7 @@ class MethodProxies {
                 if (targetVPid == -1) {
                     return null;
                 }
-                args[nameIdx] = StubManifest.getStubAuthority(targetVPid);
+                args[nameIdx] = VASettings.getStubAuthority(targetVPid);
                 Object holder = method.invoke(who, args);
                 if (holder == null) {
                     return null;
@@ -1467,7 +1467,7 @@ class MethodProxies {
             if ("android.intent.action.CREATE_SHORTCUT".equals(action)
                     || "com.android.launcher.action.INSTALL_SHORTCUT".equals(action)) {
 
-                return StubManifest.ENABLE_INNER_SHORTCUT ? handleInstallShortcutIntent(intent) : null;
+                return VASettings.ENABLE_INNER_SHORTCUT ? handleInstallShortcutIntent(intent) : null;
 
             } else if ("com.android.launcher.action.UNINSTALL_SHORTCUT".equals(action)) {
 

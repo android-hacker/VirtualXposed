@@ -31,7 +31,7 @@ import com.lody.virtual.client.IVClient;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.client.ipc.ProviderCall;
-import com.lody.virtual.client.stub.StubManifest;
+import com.lody.virtual.client.stub.VASettings;
 import com.lody.virtual.helper.collection.ArrayMap;
 import com.lody.virtual.helper.collection.SparseArray;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
@@ -58,7 +58,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -856,7 +855,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
     @Override
     public int getFreeStubCount() {
-        return StubManifest.STUB_COUNT - mPidsSelfLocked.size();
+        return VASettings.STUB_COUNT - mPidsSelfLocked.size();
     }
 
     @Override
@@ -925,7 +924,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
         extras.putInt("_VA_|_vuid_", vuid);
         extras.putString("_VA_|_process_", processName);
         extras.putString("_VA_|_pkg_", info.packageName);
-        Bundle res = ProviderCall.call(StubManifest.getStubAuthority(vpid), "_VA_|_init_process_", null, extras);
+        Bundle res = ProviderCall.call(VASettings.getStubAuthority(vpid), "_VA_|_init_process_", null, extras);
         if (res == null) {
             return null;
         }
@@ -936,7 +935,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
     }
 
     private int queryFreeStubProcessLocked() {
-        for (int vpid = 0; vpid < StubManifest.STUB_COUNT; vpid++) {
+        for (int vpid = 0; vpid < VASettings.STUB_COUNT; vpid++) {
             int N = mPidsSelfLocked.size();
             boolean using = false;
             while (N-- > 0) {

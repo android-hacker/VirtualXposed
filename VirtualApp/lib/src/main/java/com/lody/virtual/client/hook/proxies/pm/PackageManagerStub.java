@@ -41,6 +41,7 @@ public final class PackageManagerStub extends MethodInvocationProxy<MethodInvoca
             addMethodProxy(new ResultStaticMethodProxy("setInstantAppCookie", false));
             addMethodProxy(new ResultStaticMethodProxy("isInstantApp", false));
         }
+
     }
 
     @Override

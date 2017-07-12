@@ -11,9 +11,8 @@ import android.os.Bundle;
 import com.lody.virtual.server.pm.PackageCacheManager;
 import com.lody.virtual.server.pm.PackageSetting;
 
-class AppAccountParser implements IAccountParser {
+public class RegisteredServicesParser {
 
-    @Override
     public XmlResourceParser getParser(Context context, ServiceInfo serviceInfo, String name) {
         Bundle meta = serviceInfo.metaData;
         if (meta != null) {
@@ -29,7 +28,6 @@ class AppAccountParser implements IAccountParser {
         return null;
     }
 
-    @Override
     public Resources getResources(Context context, ApplicationInfo appInfo) throws Exception {
         PackageSetting ps = PackageCacheManager.getSetting(appInfo.packageName);
         if (ps != null) {

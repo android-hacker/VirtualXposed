@@ -15,7 +15,9 @@ void Java_nativeHookNative(JNIEnv *env, jclass jclazz, jobjectArray javaMethods,
 }
 
 
-void Java_nativeStartUniformer(JNIEnv *env, jclass jclazz, jint apiLevel, jint previewApiLevel) {
+void Java_nativeStartUniformer(JNIEnv *env, jclass jclazz, jstring selfSoPath, jint apiLevel, jint previewApiLevel) {
+    const char *soPath = env->GetStringUTFChars(selfSoPath, NULL);
+    IOUniformer::saveEnvironment(soPath, apiLevel, previewApiLevel);
     IOUniformer::startUniformer(apiLevel, previewApiLevel);
 }
 
@@ -44,7 +46,7 @@ jstring Java_nativeRestore(JNIEnv *env, jclass jclazz, jstring redirectedPath) {
 
 
 static JNINativeMethod gMethods[] = {
-        NATIVE_METHOD((void *) Java_nativeStartUniformer, "nativeStartUniformer", "(II)V"),
+        NATIVE_METHOD((void *) Java_nativeStartUniformer, "nativeStartUniformer", "(Ljava/lang/String;II)V"),
         NATIVE_METHOD((void *) Java_nativeReadOnly, "nativeReadOnly", "(Ljava/lang/String;)V"),
         NATIVE_METHOD((void *) Java_nativeRedirect, "nativeRedirect",
                       "(Ljava/lang/String;Ljava/lang/String;)V"),
@@ -78,6 +80,9 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     return JNI_VERSION_1_6;
 }
 
+extern "C" void _init(void) {
+    IOUniformer::init_array();
+}
 
 JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved) {
     JNIEnv *env;
