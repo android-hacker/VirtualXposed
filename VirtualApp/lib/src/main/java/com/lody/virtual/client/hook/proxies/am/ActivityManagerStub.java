@@ -9,6 +9,7 @@ import android.os.IInterface;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.BinderInvocationStub;
 import com.lody.virtual.client.hook.base.Inject;
+import com.lody.virtual.client.hook.base.LogInvocation;
 import com.lody.virtual.client.hook.base.MethodInvocationProxy;
 import com.lody.virtual.client.hook.base.MethodInvocationStub;
 import com.lody.virtual.client.hook.base.MethodProxy;
@@ -37,6 +38,7 @@ import mirror.android.util.Singleton;
  * @see android.app.ActivityManager
  */
 
+@LogInvocation(LogInvocation.Condition.ALWAYS)
 @Inject(MethodProxies.class)
 public class ActivityManagerStub extends MethodInvocationProxy<MethodInvocationStub<IInterface>> {
 
@@ -67,6 +69,12 @@ public class ActivityManagerStub extends MethodInvocationProxy<MethodInvocationS
     protected void onBindMethods() {
         super.onBindMethods();
         if (VirtualCore.get().isVAppProcess()) {
+            addMethodProxy(new StaticMethodProxy("navigateUpTo") {
+                @Override
+                public Object call(Object who, Method method, Object... args) throws Throwable {
+                    throw new RuntimeException("Call navigateUpTo!!!!");
+                }
+            });
             addMethodProxy(new ReplaceLastUidMethodProxy("checkPermissionWithToken"));
             addMethodProxy(new isUserRunning());
             addMethodProxy(new ResultStaticMethodProxy("updateConfiguration", 0));

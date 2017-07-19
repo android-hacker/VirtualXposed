@@ -14,7 +14,7 @@ import android.text.TextUtils;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.ipc.VJobScheduler;
-import com.lody.virtual.client.stub.StubManifest;
+import com.lody.virtual.client.stub.VASettings;
 import com.lody.virtual.helper.utils.Singleton;
 import com.lody.virtual.os.VBinder;
 import com.lody.virtual.os.VEnvironment;
@@ -48,7 +48,7 @@ public class VJobSchedulerService extends IJobScheduler.Stub {
     private final ComponentName mJobProxyComponent;
 
     private VJobSchedulerService() {
-        mJobProxyComponent = new ComponentName(VirtualCore.get().getHostPkg(), StubManifest.STUB_JOB);
+        mJobProxyComponent = new ComponentName(VirtualCore.get().getHostPkg(), VASettings.STUB_JOB);
         readJobs();
     }
 
@@ -310,7 +310,7 @@ public class VJobSchedulerService extends IJobScheduler.Stub {
             Iterator<JobInfo> iterator = jobs.listIterator();
             while (iterator.hasNext()) {
                 JobInfo job = iterator.next();
-                if (!StubManifest.STUB_JOB.equals(job.getService().getClassName())) {
+                if (!VASettings.STUB_JOB.equals(job.getService().getClassName())) {
                     // Schedule by Host, invisible in VA.
                     iterator.remove();
                     continue;

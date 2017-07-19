@@ -1,5 +1,6 @@
 package com.lody.virtual.client;
 
+import android.annotation.SuppressLint;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Process;
@@ -8,6 +9,7 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.natives.NativeMethods;
+import com.lody.virtual.helper.compat.BuildCompat;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.remote.InstalledAppInfo;
@@ -112,8 +114,11 @@ public class NativeEngine {
 
     public static void hook() {
         try {
-            int previewSdkInt = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? Build.VERSION.PREVIEW_SDK_INT : 0;
-            nativeStartUniformer(Build.VERSION.SDK_INT, previewSdkInt);
+            String soPath = String.format("/data/data/%s/lib/libva-native.so", VirtualCore.get().getHostPkg());
+            if (!new File(soPath).exists()) {
+                throw new RuntimeException("Unable to find the so.");
+            }
+            nativeStartUniformer(soPath, Build.VERSION.SDK_INT, BuildCompat.getPreviewSDKInt());
         } catch (Throwable e) {
             VLog.e(TAG, VLog.getStackTraceString(e));
         }
@@ -184,7 +189,7 @@ public class NativeEngine {
 
     private static native void nativeReadOnly(String path);
 
-    private static native void nativeStartUniformer(int apiLevel, int previewApiLevel);
+    private static native void nativeStartUniformer(String selfSoPath, int apiLevel, int previewApiLevel);
 
     public static int onGetUid(int uid) {
         return VClientImpl.get().getBaseVUid();

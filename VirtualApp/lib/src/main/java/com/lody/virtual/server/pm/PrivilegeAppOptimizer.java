@@ -2,7 +2,7 @@ package com.lody.virtual.server.pm;
 
 import android.content.Intent;
 
-import com.lody.virtual.client.stub.StubManifest;
+import com.lody.virtual.client.stub.VASettings;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.server.am.VActivityManagerService;
 
@@ -20,7 +20,7 @@ public class PrivilegeAppOptimizer {
     private final List<String> privilegeApps = new ArrayList<>();
 
     private PrivilegeAppOptimizer() {
-        Collections.addAll(privilegeApps, StubManifest.PRIVILEGE_APPS);
+        Collections.addAll(privilegeApps, VASettings.PRIVILEGE_APPS);
     }
 
     public static PrivilegeAppOptimizer get() {
