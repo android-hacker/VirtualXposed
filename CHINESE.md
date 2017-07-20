@@ -1,10 +1,5 @@
 [![VA banner](https://raw.githubusercontent.com/asLody/VirtualApp/master/Logo.png)](https://github.com/asLody/VirtualApp)
 
-警告
----
-**近期有不少骗子贩卖外挂，当用户付了钱以后，骗子就将VirtualApp的链接发给你，请不要相信这种骗局！**
-
-
 简介
 ---
 **VirtualApp**是一个**App虚拟化引擎**（简称`VA`）。
