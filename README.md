@@ -2,6 +2,11 @@
 
 [中国人猛戳这里](CHINESE.md "中文")
 
+TO NoxApp+ Developer
+--------
+You have no authorization, Please contact me as soon as possible.
+
+
 About
 -----
 **VirtualApp** is an open platform for Android that allows you to create a `Virtual Space`,
