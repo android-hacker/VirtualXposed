@@ -37,8 +37,6 @@ public class PhoneSubInfoStub extends BinderInvocationProxy {
 		addMethodProxy(new ReplaceLastPkgMethodProxy("getVoiceMailNumberForSubscriber"));
 		addMethodProxy(new ReplaceCallingPkgMethodProxy("getVoiceMailAlphaTag"));
 		addMethodProxy(new ReplaceLastPkgMethodProxy("getVoiceMailAlphaTagForSubscriber"));
-		addMethodProxy(new ReplaceCallingPkgMethodProxy("getIccSerialNumber"));
-		addMethodProxy(new ReplaceLastPkgMethodProxy("getIccSerialNumberForSubscriber"));
 	}
 
 }
