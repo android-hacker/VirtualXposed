@@ -46,7 +46,7 @@ public class AppPagerAdapter extends FragmentPagerAdapter {
         } else {
             // Fallback: only support the default storage sources
             File storageFir = Environment.getExternalStorageDirectory();
-            if (storageFir.list() != null) {
+            if (storageFir != null && storageFir.isDirectory()) {
                 titles.add(VApp.getApp().getResources().getString(R.string.external_storage));
                 dirs.add(storageFir);
             }
