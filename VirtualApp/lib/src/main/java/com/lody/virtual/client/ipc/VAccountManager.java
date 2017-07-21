@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.RemoteException;
 
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.stub.AmsTask;
 import com.lody.virtual.os.VUserHandle;
@@ -32,7 +33,8 @@ public class VAccountManager {
     }
 
     public IAccountManager getRemote() {
-        if (mRemote == null || !mRemote.asBinder().isBinderAlive()) {
+        if (mRemote == null ||
+                (!mRemote.asBinder().isBinderAlive() && !VirtualCore.get().isVAppProcess())) {
             synchronized (VAccountManager.class) {
                 Object remote = getStubInterface();
                 mRemote = LocalProxyUtils.genProxy(IAccountManager.class, remote);

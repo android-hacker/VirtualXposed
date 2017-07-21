@@ -3,6 +3,7 @@ package com.lody.virtual.client.ipc;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.remote.VDeviceInfo;
 import com.lody.virtual.server.IDeviceInfoManager;
@@ -23,7 +24,8 @@ public class VDeviceManager {
 
 
     public IDeviceInfoManager getRemote() {
-        if (mRemote == null || !mRemote.asBinder().isBinderAlive()) {
+        if (mRemote == null ||
+                (!mRemote.asBinder().isBinderAlive() && !VirtualCore.get().isVAppProcess())) {
             synchronized (this) {
                 Object remote = getRemoteInterface();
                 mRemote = LocalProxyUtils.genProxy(IDeviceInfoManager.class, remote);
