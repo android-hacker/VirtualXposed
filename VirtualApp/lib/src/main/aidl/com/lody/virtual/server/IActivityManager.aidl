@@ -80,7 +80,7 @@ interface IActivityManager {
     boolean stopServiceToken(in ComponentName className, in IBinder token, int startId, int userId);
 
     void setServiceForeground(in ComponentName className, in IBinder token, int id,
-                            in Notification notification, boolean keepNotification, int userId);
+                            in Notification notification, boolean removeNotification, int userId);
 
     int bindService(in IBinder caller, in IBinder token, in Intent service,
                     String resolvedType, in IServiceConnection connection, int flags, int userId);

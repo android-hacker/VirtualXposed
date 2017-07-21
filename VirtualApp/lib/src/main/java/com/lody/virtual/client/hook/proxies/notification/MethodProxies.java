@@ -8,6 +8,7 @@ import com.lody.virtual.client.hook.base.MethodProxy;
 import com.lody.virtual.client.hook.utils.MethodParameterUtils;
 import com.lody.virtual.client.ipc.VNotificationManager;
 import com.lody.virtual.helper.utils.ArrayUtils;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.Method;
 
@@ -55,16 +56,6 @@ class MethodProxies {
 
         @Override
         public Object call(Object who, Method method, Object... args) throws Throwable {
-            //15 enqueueNotificationWithTag(pkg, tag, id, notification, idOut);
-            //16 enqueueNotificationWithTag(pkg, tag, id, notification, idOut);
-            //17 enqueueNotificationWithTag(pkg, tag, id, notification, idOut, UserHandle.myUserId());
-            //18 enqueueNotificationWithTag(pkg, mContext.getBasePackageName(), tag, id, notification, idOut, UserHandle.myUserId());
-            //19 enqueueNotificationWithTag(pkg, mContext.getOpPackageName(), tag, id, notification, idOut, UserHandle.myUserId());
-            //21 enqueueNotificationWithTag(pkg, mContext.getOpPackageName(), tag, id, notification, idOut, UserHandle.myUserId());
-            //22 enqueueNotificationWithTag(pkg, mContext.getOpPackageName(), tag, id, notification, idOut, UserHandle.myUserId());
-            //23 enqueueNotificationWithTag(pkg, mContext.getOpPackageName(), tag, id, notification, idOut, UserHandle.myUserId());
-            //24 enqueueNotificationWithTag(pkg, mContext.getOpPackageName(), tag, id, notification, idOut, user.getIdentifier());
-            //25 enqueueNotificationWithTag(pkg, mContext.getOpPackageName(), tag, id, notification, idOut, user.getIdentifier());
             String pkg = (String) args[0];
             if (getHostPkg().equals(pkg)) {
                 return method.invoke(who, args);

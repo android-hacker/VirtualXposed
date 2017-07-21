@@ -18,17 +18,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import android.app.Notification;
+
 public class ServiceRecord extends Binder {
 	final HashMap<Intent.FilterComparison, IntentBindRecord> bindings
 			= new HashMap<Intent.FilterComparison, IntentBindRecord>();
 	public long activeSince;
 	public long lastActivityTime;
-	public ComponentName name; // service component.
+	public ComponentName name;
 	public ServiceInfo serviceInfo;
 	public int startId;
 	public ProcessRecord process;
 	final HashMap<IBinder, ArrayList<ConnectionRecord>> connections
 			= new HashMap<IBinder, ArrayList<ConnectionRecord>>();
+	public Notification foregroundNoti;
+	public int foregroundId;
 
 	public boolean containConnection(IServiceConnection connection) {
 		for (IntentBindRecord record : bindings.values()) {

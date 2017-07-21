@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.app.IServiceConnection;
 import android.app.IStopUserCallback;
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -31,6 +32,7 @@ import com.lody.virtual.client.IVClient;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.client.ipc.ProviderCall;
+import com.lody.virtual.client.ipc.VNotificationManager;
 import com.lody.virtual.client.stub.VASettings;
 import com.lody.virtual.helper.collection.ArrayMap;
 import com.lody.virtual.helper.collection.SparseArray;
@@ -83,6 +85,8 @@ public class VActivityManagerService extends IActivityManager.Stub {
     private final PendingIntents mPendingIntents = new PendingIntents();
     private ActivityManager am = (ActivityManager) VirtualCore.get().getContext()
             .getSystemService(Context.ACTIVITY_SERVICE);
+    private NotificationManager nm = (NotificationManager) VirtualCore.get().getContext()
+            .getSystemService(Context.NOTIFICATION_SERVICE);
 
     public static VActivityManagerService get() {
         return sService.get();
@@ -432,6 +436,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
     /**
      * Extracting common method of stopService(see bringDownServiceIfNeededLocked in android source)
+     *
      * @param r ServiceRecord
      */
     private void stopServiceCommon(ServiceRecord r) {
@@ -488,8 +493,43 @@ public class VActivityManagerService extends IActivityManager.Stub {
 
     @Override
     public void setServiceForeground(ComponentName className, IBinder token, int id, Notification notification,
-                                     boolean keepNotification, int userId) {
+                                     boolean removeNotification, int userId) {
+        ServiceRecord r = (ServiceRecord) token;
+        if (r != null) {
+            if (id != 0) {
+                if (notification == null) {
+                    throw new IllegalArgumentException("null notification");
+                }
+                if (r.foregroundId != id) {
+                    if (r.foregroundId != 0) {
+                        cancelNotification(userId, r.foregroundId, r.serviceInfo.packageName);
+                    }
+                    r.foregroundId = id;
+                }
+                r.foregroundNoti = notification;
+                postNotification(userId, id, r.serviceInfo.packageName, notification);
+            } else {
+                if (removeNotification) {
+                    cancelNotification(userId, r.foregroundId, r.serviceInfo.packageName);
+                    r.foregroundId = 0;
+                    r.foregroundNoti = null;
+                }
+            }
+        }
+    }
 
+    private void cancelNotification(int userId, int id, String pkg) {
+        id = VNotificationManager.get().dealNotificationId(id, pkg, null, userId);
+        String tag = VNotificationManager.get().dealNotificationTag(id, pkg, null, userId);
+        nm.cancel(tag, id);
+    }
+
+    private void postNotification(int userId, int id, String pkg, Notification notification) {
+        id = VNotificationManager.get().dealNotificationId(id, pkg, null, userId);
+        String tag = VNotificationManager.get().dealNotificationTag(id, pkg, null, userId);
+        VNotificationManager.get().dealNotification(id, notification, pkg);
+        VNotificationManager.get().addNotification(id, tag, pkg, userId);
+        nm.notify(tag, id, notification);
     }
 
     private ProcessRecord getRecordForAppLocked(IBinder caller, int userId) {

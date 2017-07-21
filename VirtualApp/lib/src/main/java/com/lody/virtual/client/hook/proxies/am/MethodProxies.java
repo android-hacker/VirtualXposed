@@ -4,7 +4,9 @@ import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.app.IServiceConnection;
+import android.app.Notification;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.IIntentReceiver;
 import android.content.Intent;
@@ -41,10 +43,10 @@ import com.lody.virtual.client.ipc.ActivityClientRecord;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.client.stub.ChooserActivity;
-import com.lody.virtual.client.stub.VASettings;
 import com.lody.virtual.client.stub.StubPendingActivity;
 import com.lody.virtual.client.stub.StubPendingReceiver;
 import com.lody.virtual.client.stub.StubPendingService;
+import com.lody.virtual.client.stub.VASettings;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.compat.BuildCompat;
 import com.lody.virtual.helper.utils.ArrayUtils;
@@ -285,9 +287,6 @@ class MethodProxies {
             String[] resolvedTypes = (String[]) args[6];
             int type = (int) args[0];
             int flags = (int) args[7];
-            if ((PendingIntent.FLAG_UPDATE_CURRENT & flags) != 0) {
-                flags = (flags & ~(PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_NO_CREATE)) | PendingIntent.FLAG_CANCEL_CURRENT;
-            }
             if (args[5] instanceof Intent[]) {
                 Intent[] intents = (Intent[]) args[5];
                 if (intents.length > 0) {
@@ -673,6 +672,20 @@ class MethodProxies {
 
         @Override
         public Object call(Object who, Method method, Object... args) throws Throwable {
+            ComponentName component = (ComponentName) args[0];
+            IBinder token = (IBinder) args[1];
+            int id = (int) args[2];
+            Notification notification = (Notification) args[3];
+            boolean removeNotification = false;
+            if (args[4] instanceof Boolean) {
+                removeNotification = (boolean) args[4];
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && args[4] instanceof Integer) {
+                int flags = (int) args[4];
+                removeNotification = (flags & Service.STOP_FOREGROUND_REMOVE) != 0;
+            } else {
+                VLog.e(getClass().getSimpleName(), "Unknown flag : " + args[4]);
+            }
+            VActivityManager.get().setServiceForeground(component, token, id, notification, removeNotification);
             return 0;
         }
 
