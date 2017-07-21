@@ -529,7 +529,11 @@ public class VActivityManagerService extends IActivityManager.Stub {
         String tag = VNotificationManager.get().dealNotificationTag(id, pkg, null, userId);
         VNotificationManager.get().dealNotification(id, notification, pkg);
         VNotificationManager.get().addNotification(id, tag, pkg, userId);
-        nm.notify(tag, id, notification);
+        try {
+            nm.notify(tag, id, notification);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     private ProcessRecord getRecordForAppLocked(IBinder caller, int userId) {
