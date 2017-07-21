@@ -1,9 +1,8 @@
 [![VA banner](https://raw.githubusercontent.com/asLody/VirtualApp/master/Logo.png)](https://github.com/asLody/VirtualApp)
 
-警告
----
-**近期有不少骗子贩卖外挂，当用户付了钱以后，骗子就将VirtualApp的链接发给你，请不要相信这种骗局！**
-
+NoxApp+开发者看这里
+--------
+你们正在未经许可使用代码，请尽快与我们取得联系!
 
 简介
 ---
