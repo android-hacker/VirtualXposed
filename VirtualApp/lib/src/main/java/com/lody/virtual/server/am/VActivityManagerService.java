@@ -219,7 +219,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
             Iterator<ServiceRecord> iterator = mHistory.iterator();
             while (iterator.hasNext()) {
                 ServiceRecord r = iterator.next();
-                if (r.process.pid == record.pid) {
+                if (r.process != null && r.process.pid == record.pid) {
                     iterator.remove();
                 }
             }
