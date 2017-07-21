@@ -1,7 +1,9 @@
 package com.lody.virtual.client.hook.providers;
 
+import android.os.Build;
 import android.os.Bundle;
 
+import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.hook.base.MethodBox;
 
 import java.lang.reflect.InvocationTargetException;
@@ -24,6 +26,7 @@ public class SettingsProviderHook extends ExternalProviderHook {
 
     static {
         PRE_SET_VALUES.put("user_setup_complete", "1");
+        PRE_SET_VALUES.put("install_non_market_apps", "0");
     }
 
 
@@ -52,9 +55,10 @@ public class SettingsProviderHook extends ExternalProviderHook {
         if (METHOD_GET == methodType) {
             String presetValue = PRE_SET_VALUES.get(arg);
             if (presetValue != null) {
-                Bundle res = new Bundle();
-                res.putString("value", presetValue);
-                return res;
+                return wrapBundle(arg, presetValue);
+            }
+            if ("android_id".equals(arg)) {
+                return wrapBundle("android_id", VClientImpl.get().getDeviceInfo().androidId);
             }
         }
         if (METHOD_PUT == methodType) {
@@ -70,6 +74,17 @@ public class SettingsProviderHook extends ExternalProviderHook {
             }
             throw e;
         }
+    }
+
+    private Bundle wrapBundle(String name, String value) {
+        Bundle bundle = new Bundle();
+        if (Build.VERSION.SDK_INT >= 24) {
+            bundle.putString("name", name);
+            bundle.putString("value", value);
+        } else {
+            bundle.putString(name, value);
+        }
+        return bundle;
     }
 
     @Override

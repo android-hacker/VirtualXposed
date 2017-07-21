@@ -4,10 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.lody.virtual.os.VEnvironment;
-import com.lody.virtual.os.VUserHandle;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
