@@ -11,9 +11,11 @@ import io.virtualapp.R;
 
 public class AddAppButton implements AppData {
 
+    private String name;
     private Drawable icon;
 
     public AddAppButton(Context context) {
+        name = context.getResources().getString(R.string.add_app);
         icon = context.getResources().getDrawable(R.drawable.ic_add_circle);
     }
 
@@ -34,7 +36,7 @@ public class AddAppButton implements AppData {
 
     @Override
     public String getName() {
-        return "Add App";
+        return name;
     }
 
     @Override

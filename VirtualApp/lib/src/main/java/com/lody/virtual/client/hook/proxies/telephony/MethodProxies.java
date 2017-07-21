@@ -1,16 +1,16 @@
 package com.lody.virtual.client.hook.proxies.telephony;
 
-import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgMethodProxy;
+import com.lody.virtual.helper.utils.Mark;
 
 import java.lang.reflect.Method;
 
 /**
  * @author Lody
  */
-
 class MethodProxies {
 
+    @Mark("fake device id.")
     static class GetDeviceId extends ReplaceCallingPkgMethodProxy {
 
         public GetDeviceId() {
@@ -18,14 +18,8 @@ class MethodProxies {
         }
 
         @Override
-        public Object afterCall(Object who, Method method, Object[] args, Object result) throws Throwable {
-            if (VirtualCore.get().getPhoneInfoDelegate() != null) {
-                String res = VirtualCore.get().getPhoneInfoDelegate().getDeviceId((String) result, getAppUserId());
-                if (res != null) {
-                    return res;
-                }
-            }
-            return super.afterCall(who, method, args, result);
+        public Object call(Object who, Method method, Object... args) throws Throwable {
+            return getDeviceInfo().deviceId;
         }
     }
 }

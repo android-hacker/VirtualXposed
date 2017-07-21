@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">VirtualApp</string>
+    <string name="desktop">桌面</string>
+    <string name="add_app">添加App</string>
+    <string name="preparing">正在打开App，请稍等…</string>
+    <string name="delete">删除</string>
+    <string name="create_shortcut">创建快捷方式</string>
+    <string name="new_user">新的用户</string>
+    <string name="enable">开启</string>
+    <string name="save">保存</string>
+    <string name="save_success">保存成功!</string>
+    <string name="manufacturer">制造商</string>
+    <string name="wait">请稍后…</string>
+    <string name="brand">品牌</string>
+    <string name="device">机型</string>
+    <string name="fake_device_info">伪造设备信息</string>
+    <string name="wifi_status">Wifi状态</string>
+    <string name="config_device_info">配置设备信息</string>
+    <string name="about">关于</string>
+    <string name="clone_apps">克隆App</string>
+    <string name="external_storage">外置存储</string>
+    <string name="install_d">安装 (%d)</string>
+    <string name="install_too_much_once_time">不能一次性安装超过9个App!</string>
+</resources>

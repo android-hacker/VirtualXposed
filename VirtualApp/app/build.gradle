@@ -25,7 +25,6 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
@@ -34,6 +33,15 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+}
+
+android {
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
 }
 
 dependencies {
@@ -52,6 +60,7 @@ dependencies {
     // ThirdParty
     compile 'com.jonathanfinerty.once:once:1.0.3'
     compile 'com.flurry.android:analytics:6.9.2'
+    compile 'com.kyleduo.switchbutton:library:1.4.6'
     compile ('com.google.android.gms:play-services-ads:11.0.0'){
         exclude group:'com.android.support'
     }

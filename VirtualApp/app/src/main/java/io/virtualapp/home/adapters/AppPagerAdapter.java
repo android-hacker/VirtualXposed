@@ -15,6 +15,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.virtualapp.R;
 import io.virtualapp.VApp;
 import io.virtualapp.home.ListAppFragment;
 
@@ -27,7 +28,7 @@ public class AppPagerAdapter extends FragmentPagerAdapter {
 
     public AppPagerAdapter(FragmentManager fm) {
         super(fm);
-        titles.add("Clone Apps");
+        titles.add(VApp.getApp().getResources().getString(R.string.clone_apps));
         dirs.add(null);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Context ctx = VApp.getApp();
@@ -46,7 +47,7 @@ public class AppPagerAdapter extends FragmentPagerAdapter {
             // Fallback: only support the default storage sources
             File storageFir = Environment.getExternalStorageDirectory();
             if (storageFir.list() != null) {
-                titles.add("Ghost Installation");
+                titles.add(VApp.getApp().getResources().getString(R.string.external_storage));
                 dirs.add(storageFir);
             }
         }

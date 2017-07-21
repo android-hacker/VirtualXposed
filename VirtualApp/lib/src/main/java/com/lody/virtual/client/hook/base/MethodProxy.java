@@ -8,6 +8,7 @@ import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.os.VUserHandle;
+import com.lody.virtual.remote.VDeviceInfo;
 
 import java.lang.reflect.Method;
 
@@ -60,6 +61,10 @@ public abstract class MethodProxy {
 
     protected static int getRealUid() {
         return VirtualCore.get().myUid();
+    }
+
+    protected static VDeviceInfo getDeviceInfo() {
+        return VClientImpl.get().getDeviceInfo();
     }
 
     public static boolean isVisiblePackage(ApplicationInfo info) {

@@ -1,13 +1,24 @@
 <resources>
     <string name="app_name">VirtualApp</string>
-    <string name="app_welcome">Welcome to Virtual App</string>
-    <string name="setup_enter_new_world">Enter new world</string>
     <string name="wait">Please wait…</string>
     <string name="desktop">Desktop</string>
     <string name="add_app">Add App</string>
     <string name="preparing">Opening the app…</string>
     <string name="delete">Delete</string>
     <string name="create_shortcut">Create shortcut</string>
-    <string name="splash_desc">Install your app to the SandBox</string>
     <string name="new_user">New User</string>
+    <string name="enable">Enable</string>
+    <string name="save">Save</string>
+    <string name="save_success">Save success!</string>
+    <string name="manufacturer">Manufacturer</string>
+    <string name="brand">Brand</string>
+    <string name="device">Device</string>
+    <string name="fake_device_info">Fake Device Info</string>
+    <string name="wifi_status">Wifi Status</string>
+    <string name="config_device_info">Device Info</string>
+    <string name="about">About</string>
+    <string name="clone_apps">Clone Apps</string>
+    <string name="external_storage">External Storage</string>
+    <string name="install_d">Install (%d)</string>
+    <string name="install_too_much_once_time">No more then 9 apps can be chosen at a time!</string>
 </resources>

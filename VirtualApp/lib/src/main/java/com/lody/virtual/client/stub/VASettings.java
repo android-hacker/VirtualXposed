@@ -49,10 +49,4 @@ public class VASettings {
         return String.format(Locale.ENGLISH, "%s%d", STUB_CP_AUTHORITY, index);
     }
 
-    public static class Wifi {
-        public static boolean FAKE_WIFI_STATE = false;
-        public static String BSSID = "66:55:44:33:22:11";
-        public static String MAC = "11:22:33:44:55:66";
-        public static String SSID = "Virtual-Wifi";
-    }
 }

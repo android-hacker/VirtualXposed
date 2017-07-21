@@ -17,7 +17,7 @@ import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.server.accounts.VAccountManagerService;
 import com.lody.virtual.server.am.BroadcastSystem;
 import com.lody.virtual.server.am.VActivityManagerService;
-import com.lody.virtual.server.connectivity.VConnectivityManagerService;
+import com.lody.virtual.server.device.VDeviceManagerService;
 import com.lody.virtual.server.interfaces.IServiceFetcher;
 import com.lody.virtual.server.job.VJobSchedulerService;
 import com.lody.virtual.server.notification.VNotificationManagerService;
@@ -56,8 +56,8 @@ public final class BinderProvider extends ContentProvider {
         VAppManagerService.get().scanApps();
         VAccountManagerService.systemReady();
         addService(ServiceManagerNative.ACCOUNT, VAccountManagerService.get());
-        addService(ServiceManagerNative.CONNECTIVITY, VConnectivityManagerService.get());
         addService(ServiceManagerNative.VS, VirtualStorageService.get());
+        addService(ServiceManagerNative.DEVICE, VDeviceManagerService.get());
         return true;
     }
 

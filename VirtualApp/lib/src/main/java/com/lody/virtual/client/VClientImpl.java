@@ -36,6 +36,7 @@ import com.lody.virtual.client.hook.providers.ProviderHook;
 import com.lody.virtual.client.hook.proxies.am.HCallbackStub;
 import com.lody.virtual.client.hook.secondary.ProxyServiceFactory;
 import com.lody.virtual.client.ipc.VActivityManager;
+import com.lody.virtual.client.ipc.VDeviceManager;
 import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.client.ipc.VirtualStorageManager;
 import com.lody.virtual.client.stub.VASettings;
@@ -46,6 +47,7 @@ import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.remote.InstalledAppInfo;
 import com.lody.virtual.remote.PendingResultData;
+import com.lody.virtual.remote.VDeviceInfo;
 import com.taobao.android.dex.interpret.ARTUtils;
 import com.taobao.android.runtime.DalvikUtils;
 
@@ -90,6 +92,7 @@ public final class VClientImpl extends IVClient.Stub {
     private Instrumentation mInstrumentation = AppInstrumentation.getDefault();
     private IBinder token;
     private int vuid;
+    private VDeviceInfo deviceInfo;
     private AppBindData mBoundApplication;
     private Application mInitialApplication;
     private CrashHandler crashHandler;
@@ -100,6 +103,10 @@ public final class VClientImpl extends IVClient.Stub {
 
     public boolean isBound() {
         return mBoundApplication != null;
+    }
+
+    public VDeviceInfo getDeviceInfo() {
+        return deviceInfo;
     }
 
     public Application getCurrentApplication() {
@@ -155,6 +162,7 @@ public final class VClientImpl extends IVClient.Stub {
     public void initProcess(IBinder token, int vuid) {
         this.token = token;
         this.vuid = vuid;
+        this.deviceInfo = VDeviceManager.get().getDeviceInfo(getUserId(vuid));
     }
 
     private void handleNewIntent(NewIntentData data) {
@@ -207,6 +215,8 @@ public final class VClientImpl extends IVClient.Stub {
         } catch (Throwable e) {
             e.printStackTrace();
         }
+        mirror.android.os.Build.SERIAL.set(deviceInfo.serial);
+        mirror.android.os.Build.DEVICE.set(Build.DEVICE.replace(" ", "_"));
         ActivityThread.mInitialApplication.set(
                 VirtualCore.mainThread(),
                 null
@@ -357,6 +367,10 @@ public final class VClientImpl extends IVClient.Stub {
     private void startIOUniformer() {
         ApplicationInfo info = mBoundApplication.appInfo;
         int userId = VUserHandle.myUserId();
+        String wifiMacAddressFile = deviceInfo.getWifiFile(userId).getPath();
+        NativeEngine.redirectDirectory("/sys/class/net/wlan0/address", wifiMacAddressFile);
+        NativeEngine.redirectDirectory("/sys/class/net/eth0/address", wifiMacAddressFile);
+        NativeEngine.redirectDirectory("/sys/class/net/wifi/address", wifiMacAddressFile);
         NativeEngine.redirectDirectory("/data/data/" + info.packageName, info.dataDir);
         NativeEngine.redirectDirectory("/data/user/0/" + info.packageName, info.dataDir);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

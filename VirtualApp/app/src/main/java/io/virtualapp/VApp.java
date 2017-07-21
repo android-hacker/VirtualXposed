@@ -1,12 +1,17 @@
 package io.virtualapp;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.support.multidex.MultiDexApplication;
+import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.flurry.android.FlurryAgent;
 import com.google.android.gms.ads.MobileAds;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.stub.VASettings;
+import com.lody.virtual.helper.utils.Reflect;
 
 import io.virtualapp.delegate.MyAppRequestListener;
 import io.virtualapp.delegate.MyComponentDelegate;
@@ -19,8 +24,8 @@ import jonathanfinerty.once.Once;
  */
 public class VApp extends MultiDexApplication {
 
-
     private static VApp gApp;
+    private SharedPreferences mPreferences;
 
     public static VApp getApp() {
         return gApp;
@@ -29,6 +34,7 @@ public class VApp extends MultiDexApplication {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
+        mPreferences = base.getSharedPreferences("va", Context.MODE_MULTI_PROCESS);
         VASettings.ENABLE_IO_REDIRECT = true;
         VASettings.ENABLE_INNER_SHORTCUT = false;
         try {
@@ -80,6 +86,10 @@ public class VApp extends MultiDexApplication {
                 virtualCore.addVisibleOutsidePackage("com.immomo.momo");
             }
         });
+    }
+
+    public static SharedPreferences getPreferences() {
+        return getApp().mPreferences;
     }
 
 }

@@ -28,7 +28,6 @@ import com.lody.virtual.GmsSupport;
 import com.lody.virtual.client.stub.ChooseTypeAndAccountActivity;
 import com.lody.virtual.os.VUserInfo;
 import com.lody.virtual.os.VUserManager;
-import com.melnykov.fab.FloatingActionButton;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -46,7 +45,6 @@ import io.virtualapp.home.models.AppData;
 import io.virtualapp.home.models.AppInfoLite;
 import io.virtualapp.home.models.EmptyAppData;
 import io.virtualapp.home.models.PackageAppData;
-import io.virtualapp.widgets.CircularAnim;
 import io.virtualapp.widgets.TwoGearsView;
 
 import static android.support.v7.widget.helper.ItemTouchHelper.ACTION_STATE_DRAG;
@@ -133,7 +131,6 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
             Toast.makeText(this, "The coming", Toast.LENGTH_SHORT).show();
             return false;
         });
-
         mMenuView.setOnClickListener(v -> mPopupMenu.show());
     }
 

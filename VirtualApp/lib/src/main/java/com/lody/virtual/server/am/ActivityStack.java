@@ -342,11 +342,11 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
                 clearTarget = ClearTarget.SPEC_ACTIVITY;
             }
         }
-        String affinity = ComponentUtils.getTaskAffinity(info);
-        if ((sourceTask == null && reuseTarget == ReuseTarget.CURRENT) || (sourceTask != null && !sourceTask.affinity.equals(affinity))) {
+        if (sourceTask == null && reuseTarget == ReuseTarget.CURRENT) {
             reuseTarget = ReuseTarget.AFFINITY;
         }
 
+        String affinity = ComponentUtils.getTaskAffinity(info);
         TaskRecord reuseTask = null;
         switch (reuseTarget) {
             case AFFINITY:
@@ -443,16 +443,14 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
         }
     }
 
-    private boolean startActivityFromSourceTask(TaskRecord task, Intent intent, ActivityInfo info, String resultWho,
-                                                int requestCode, Bundle options) {
+    private void startActivityFromSourceTask(TaskRecord task, Intent intent, ActivityInfo info, String resultWho,
+                                             int requestCode, Bundle options) {
         ActivityRecord top = task.activities.isEmpty() ? null : task.activities.get(task.activities.size() - 1);
         if (top != null) {
             if (startActivityProcess(task.userId, top, intent, info) != null) {
                 realStartActivityLocked(top.token, intent, resultWho, requestCode, options);
-                return true;
             }
         }
-        return false;
     }
 
 

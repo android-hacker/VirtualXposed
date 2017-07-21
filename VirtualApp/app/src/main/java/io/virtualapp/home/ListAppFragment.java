@@ -85,7 +85,7 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
                 int count = mAdapter.getSelectedCount();
                 if (!mAdapter.isIndexSelected(position)) {
                     if (count >= 9) {
-                        Toast.makeText(getContext(), "No more then 9 apps can be chosen at a time!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), R.string.install_too_much_once_time, Toast.LENGTH_SHORT).show();
                         return;
                     }
                 }
@@ -99,7 +99,7 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
         });
         mAdapter.setSelectionListener(count -> {
             mInstallButton.setEnabled(count > 0);
-            mInstallButton.setText(String.format(Locale.ENGLISH, "Install (%d)", count));
+            mInstallButton.setText(String.format(Locale.ENGLISH, getResources().getString(R.string.install_d), count));
         });
         mInstallButton.setOnClickListener(v -> {
             Integer[] selectedIndices = mAdapter.getSelectedIndices();
