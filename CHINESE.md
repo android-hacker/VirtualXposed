@@ -1,9 +1,5 @@
 [![VA banner](https://raw.githubusercontent.com/asLody/VirtualApp/master/Logo.png)](https://github.com/asLody/VirtualApp)
 
-NoxApp+开发者看这里
---------
-你们正在未经许可使用代码，请尽快与我们取得联系!
-
 简介
 ---
 **VirtualApp**是一个**App虚拟化引擎**（简称`VA`）。
