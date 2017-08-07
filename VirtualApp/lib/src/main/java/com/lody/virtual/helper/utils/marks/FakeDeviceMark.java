@@ -1,4 +1,4 @@
-package com.lody.virtual.helper.utils;
+package com.lody.virtual.helper.utils.marks;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -8,6 +8,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
-public @interface Mark {
+public @interface FakeDeviceMark {
     String value() default "";
 }

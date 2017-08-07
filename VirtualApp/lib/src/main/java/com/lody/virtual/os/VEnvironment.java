@@ -83,6 +83,10 @@ public class VEnvironment {
         return new File(getSystemSecureDirectory(), "account-list.ini");
     }
 
+    public static File getVirtualLocationFile() {
+        return new File(getSystemSecureDirectory(), "virtual-loc.ini");
+    }
+
     public static File getDeviceInfoFile() {
         return new File(getSystemSecureDirectory(), "device-info.ini");
     }

@@ -8,6 +8,7 @@ import java.util.Locale;
 
 public class VASettings {
     public static final String STUB_DEF_AUTHORITY = "virtual_stub_";
+    public static long LOCATION_UPDATE_PERIOD = 3000L;
     public static String STUB_ACTIVITY = StubActivity.class.getName();
     public static String STUB_DIALOG = StubDialog.class.getName();
     public static String STUB_CP = StubContentProvider.class.getName();

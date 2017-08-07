@@ -1,7 +1,7 @@
 package com.lody.virtual.client.hook.proxies.phonesubinfo;
 
 import com.lody.virtual.client.hook.base.MethodProxy;
-import com.lody.virtual.helper.utils.Mark;
+import com.lody.virtual.helper.utils.marks.FakeDeviceMark;
 
 import java.lang.reflect.Method;
 
@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
 @SuppressWarnings("ALL")
 class MethodProxies {
 
-    @Mark("fake device id")
+    @FakeDeviceMark("fake device id")
     static class GetDeviceId extends MethodProxy {
 
         @Override
@@ -34,7 +34,7 @@ class MethodProxies {
 
     }
 
-    @Mark("fake iccid")
+    @FakeDeviceMark("fake iccid")
     static class GetIccSerialNumber extends MethodProxy {
 
         @Override

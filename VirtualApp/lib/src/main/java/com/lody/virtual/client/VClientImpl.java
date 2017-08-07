@@ -114,11 +114,12 @@ public final class VClientImpl extends IVClient.Stub {
     }
 
     public String getCurrentPackage() {
-        return mBoundApplication != null ? mBoundApplication.appInfo.packageName : null;
+        return mBoundApplication != null ?
+                mBoundApplication.appInfo.packageName : VPackageManager.get().getNameForUid(getVUid());
     }
 
     public ApplicationInfo getCurrentApplicationInfo() {
-        return mInitialApplication != null ? mInitialApplication.getApplicationInfo() : null;
+        return mBoundApplication != null ? mBoundApplication.appInfo : null;
     }
 
     public CrashHandler getCrashHandler() {

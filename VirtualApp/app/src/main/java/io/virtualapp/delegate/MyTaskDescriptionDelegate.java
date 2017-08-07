@@ -15,9 +15,13 @@ import com.lody.virtual.os.VUserManager;
 public class MyTaskDescriptionDelegate implements TaskDescriptionDelegate {
     @Override
     public ActivityManager.TaskDescription getTaskDescription(ActivityManager.TaskDescription oldTaskDescription) {
+        if (oldTaskDescription == null) {
+            return null;
+        }
         String labelPrefix = "[" + VUserManager.get().getUserName() + "] ";
+        String oldLabel = oldTaskDescription.getLabel() != null ? oldTaskDescription.getLabel() : "";
 
-        if (!oldTaskDescription.getLabel().startsWith(labelPrefix)) {
+        if (!oldLabel.startsWith(labelPrefix)) {
             // Is it really necessary?
             return new ActivityManager.TaskDescription(labelPrefix + oldTaskDescription.getLabel(), oldTaskDescription.getIcon(), oldTaskDescription.getPrimaryColor());
         } else {
