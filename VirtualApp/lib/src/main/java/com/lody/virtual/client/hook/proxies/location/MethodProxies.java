@@ -6,6 +6,7 @@ import android.location.LocationManager;
 import android.location.LocationRequest;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.os.SystemClock;
 
 import com.lody.virtual.client.env.VirtualRuntime;
@@ -70,7 +71,16 @@ public class MethodProxies {
         @Override
         public void run() {
             final VLocation vLocation = VirtualLocationManager.get().getLocation(MethodProxy.getAppUserId(), MethodProxy.getAppPkg());
-            Location location = createLocation(vLocation);
+            if (vLocation != null) {
+                Location location = createLocation(vLocation);
+                if (listener.asBinder().isBinderAlive()) {
+                    try {
+                        listener.onLocationChanged(location);
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
     }
 
