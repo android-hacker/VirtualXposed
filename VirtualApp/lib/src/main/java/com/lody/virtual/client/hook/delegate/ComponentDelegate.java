@@ -1,6 +1,7 @@
 package com.lody.virtual.client.hook.delegate;
 
 
+import android.app.Application;
 import android.content.Intent;
 
 import android.app.Activity;
@@ -53,7 +54,21 @@ public interface ComponentDelegate {
         public void onSendBroadcast(Intent intent) {
             // Empty
         }
+
+        @Override
+        public void beforeApplicationCreate(Application application) {
+            // Empty
+        }
+
+        @Override
+        public void afterApplicationCreate(Application application) {
+            // Empty
+        }
     };
+
+    void beforeApplicationCreate(Application application);
+
+    void afterApplicationCreate(Application application);
 
     void beforeActivityCreate(Activity activity);
 
