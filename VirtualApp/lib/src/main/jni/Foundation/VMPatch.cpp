@@ -408,12 +408,20 @@ void patchAndroidVM(jobjectArray javaMethods, jstring packageName, jboolean isAr
     if (isArt) {
         gOffset.art_work_around_app_jni_bugs = dlsym(soInfo, "art_work_around_app_jni_bugs");
     } else {
-        gOffset.sym_IPCThreadState_self = dlsym(RTLD_DEFAULT, "_ZN7android14IPCThreadState4selfEv");
-        gOffset.sym_IPCThreadState_getCallingUid = dlsym(RTLD_DEFAULT,
-                                                         "_ZNK7android14IPCThreadState13getCallingUidEv");
-        if (gOffset.sym_IPCThreadState_getCallingUid == NULL) {
+        // workaround for dlsym returns null when system has libhoudini
+        void *h = dlopen("/system/lib/libandroid_runtime.so", RTLD_LAZY);
+        {
+            gOffset.sym_IPCThreadState_self = dlsym(RTLD_DEFAULT,
+                                                    "_ZN7android14IPCThreadState4selfEv");
             gOffset.sym_IPCThreadState_getCallingUid = dlsym(RTLD_DEFAULT,
-                                                             "_ZN7android14IPCThreadState13getCallingUidEv");
+                                                             "_ZNK7android14IPCThreadState13getCallingUidEv");
+            if (gOffset.sym_IPCThreadState_getCallingUid == NULL) {
+                gOffset.sym_IPCThreadState_getCallingUid = dlsym(RTLD_DEFAULT,
+                                                                 "_ZN7android14IPCThreadState13getCallingUidEv");
+            }
+        }
+        if (h != NULL) {
+            dlclose(h);
         }
 
         gOffset.GetCstrFromString = (char *(*)(void *)) dlsym(soInfo,
