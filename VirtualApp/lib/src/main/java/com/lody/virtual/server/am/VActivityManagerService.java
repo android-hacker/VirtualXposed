@@ -363,16 +363,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
             if (r == null) {
                 return 0;
             }
-            if (r.getClientCount() <= 0) {
-                try {
-                    IApplicationThreadCompat.scheduleStopService(r.process.appThread, r);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                    mHistory.remove(r);
-                }
-            }
+            stopServiceCommon(r, ComponentUtils.toComponentName(serviceInfo));
             return 1;
         }
     }
@@ -381,19 +372,39 @@ public class VActivityManagerService extends IActivityManager.Stub {
     public boolean stopServiceToken(ComponentName className, IBinder token, int startId, int userId) {
         synchronized (this) {
             ServiceRecord r = (ServiceRecord) token;
-            if (r != null && r.startId == startId) {
+            if (r != null && (r.startId == startId || startId == -1)) {
+                stopServiceCommon(r, className);
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    private void stopServiceCommon(ServiceRecord r, ComponentName className) {
+        for (ServiceRecord.IntentBindRecord bindRecord : r.bindings) {
+            for (IServiceConnection connection : bindRecord.connections) {
+                // Report to all of the connections that the service is no longer
+                // available.
                 try {
-                    IApplicationThreadCompat.scheduleStopService(r.process.appThread, r);
+                    connection.connected(className, null);
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                    mHistory.remove(r);
-                }
-                return true;
             }
-            return false;
+            try {
+                IApplicationThreadCompat.scheduleUnbindService(r.process.appThread, r, bindRecord.intent);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
+        try {
+            IApplicationThreadCompat.scheduleStopService(r.process.appThread, r);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        mHistory.remove(r);
+
     }
 
     @Override
