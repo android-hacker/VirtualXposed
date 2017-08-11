@@ -4,41 +4,94 @@
 #include <util.h>
 #include "IOUniformer.h"
 
-static std::list<std::string> ReadOnlyPathMap;
-static std::map<std::string/*orig_path*/, std::string/*new_path*/> IORedirectMap;
-static std::map<std::string/*orig_path*/, std::string/*new_path*/> RootIORedirectMap;
 
-static struct {
+struct Environ {
     const char *selfSoPath;
     int api_level;
     int preview_api_level;
-    bool hooked_process;
-} gVars;
+    std::list<std::string> ReadOnlyPathMap;
+    std::map<std::string/*orig_path*/, std::string/*new_path*/> IORedirectMap;
+    std::map<std::string/*orig_path*/, std::string/*new_path*/> RootIORedirectMap;
+};
 
+Environ *gVars;
+
+
+static inline bool startWith(const std::string &str, const std::string &prefix) {
+    return str.compare(0, prefix.length(), prefix) == 0;
+}
+
+
+static inline bool endWith(const std::string &str, const char &suffix) {
+    return *(str.end() - 1) == suffix;
+}
+
+
+static void add_pair(const char *_orig_path, const char *_new_path) {
+    std::string origPath = std::string(_orig_path);
+    std::string newPath = std::string(_new_path);
+    gVars->IORedirectMap.insert(std::pair<std::string, std::string>(origPath, newPath));
+    if (endWith(origPath, '/')) {
+        gVars->RootIORedirectMap.insert(
+                std::pair<std::string, std::string>(
+                        origPath.substr(0, origPath.length() - 1),
+                        newPath.substr(0, newPath.length() - 1))
+        );
+    }
+}
 
 void IOUniformer::init_array() {
-    // TODO: init hook for child process
-//    if (!gVars.hooked_process) {
-//        gVars.selfSoPath = getenv("V_SELF_SO");;
-//        if (gVars.selfSoPath != NULL) {
-//            LOGE("start init child process, io.size = %i", IORedirectMap.size());
-//            gVars.api_level = atoi(getenv("V_API_LEVEL"));
-//            gVars.preview_api_level = atoi(getenv("V_PREVIEW_API_LEVEL"));
-//            startUniformer(gVars.api_level, gVars.preview_api_level);
-//        }
-//    }
+    LOGE("-> init array");
+    gVars = new Environ;
+    gVars->selfSoPath = getenv("V_SELF_SO");;
+    if (gVars->selfSoPath != NULL) {
+        LOGE("start init child process, io.size = %i", gVars->IORedirectMap.size());
+        gVars->api_level = atoi(getenv("V_API_LEVEL"));
+        gVars->preview_api_level = atoi(getenv("V_PREVIEW_API_LEVEL"));
+        int i = 0;
+        char envName[30];
+        while (1) {
+            memset(envName, sizeof(envName), 0);
+            sprintf(envName, "V_IO_REDIRECT_%i", i);
+            char *env = getenv(envName);
+            if (env != NULL) {
+                const char *orig_path = strdup(strtok(env, "&"));
+                const char *new_path = strdup(strtok(NULL, "&"));
+                add_pair(orig_path, new_path);
+                LOGE("add RD env: %s -> %s", orig_path, new_path);
+            } else {
+                break;
+            }
+            i++;
+        }
+        i = 0;
+        while (1) {
+            memset(envName, sizeof(envName), 0);
+            sprintf(envName, "V_IO_RO_%i", i);
+            char *env = getenv(envName);
+            if (env != NULL) {
+                readOnly(strdup(env));
+                LOGE("add RO env: %s", env);
+            } else {
+                break;
+            }
+            i++;
+        }
+        startUniformer(gVars->api_level, gVars->preview_api_level);
+    }
+
 }
 
 void IOUniformer::saveEnvironment(const char *selfSoPath, int api_level, int preview_api_level) {
     LOGE("Saving environment, so : %s, api: %i, io.size : %i.", selfSoPath, api_level,
-         IORedirectMap.size());
-    gVars.selfSoPath = selfSoPath;
-    gVars.api_level = api_level;
-    gVars.preview_api_level = preview_api_level;
+         gVars->IORedirectMap.size());
+    gVars->selfSoPath = selfSoPath;
+    gVars->api_level = api_level;
+    gVars->preview_api_level = preview_api_level;
     char chars[5];
     char envName[30];
     char buffer[200];
-    setenv("V_SELF_SO", gVars.selfSoPath, 1);
+    setenv("V_SELF_SO", gVars->selfSoPath, 1);
     sprintf(chars, "%i", api_level);
     setenv("V_API_LEVEL", chars, 1);
     memset(chars, sizeof(chars), 0);
@@ -46,7 +99,8 @@ void IOUniformer::saveEnvironment(const char *selfSoPath, int api_level, int pre
     setenv("V_PREVIEW_API_LEVEL", chars, 1);
     std::map<std::string, std::string>::iterator iterator;
     int i = 0;
-    for (iterator = IORedirectMap.begin(); iterator != IORedirectMap.end(); iterator++, i++) {
+    for (iterator = gVars->IORedirectMap.begin();
+         iterator != gVars->IORedirectMap.end(); iterator++, i++) {
         const std::string &prefix = iterator->first;
         const std::string &new_prefix = iterator->second;
         memset(envName, sizeof(envName), 0);
@@ -57,7 +111,7 @@ void IOUniformer::saveEnvironment(const char *selfSoPath, int api_level, int pre
     }
     i = 0;
     std::list<std::string>::iterator it;
-    for (it = ReadOnlyPathMap.begin(); it != ReadOnlyPathMap.end(); it++, i++) {
+    for (it = gVars->ReadOnlyPathMap.begin(); it != gVars->ReadOnlyPathMap.end(); it++, i++) {
         memset(envName, sizeof(envName), 0);
         memset(buffer, sizeof(buffer), 0);
         sprintf(envName, "V_IO_RO_%i", i);
@@ -88,42 +142,19 @@ hook_template(void *handle, const char *symbol, void *new_func, void **old_func)
 
 void onSoLoaded(const char *name, void *handle);
 
-
-static inline bool startWith(const std::string &str, const std::string &prefix) {
-    return str.compare(0, prefix.length(), prefix) == 0;
-}
-
-
-static inline bool endWith(const std::string &str, const char &suffix) {
-    return *(str.end() - 1) == suffix;
-}
-
-static void add_pair(const char *_orig_path, const char *_new_path) {
-    std::string origPath = std::string(_orig_path);
-    std::string newPath = std::string(_new_path);
-    IORedirectMap.insert(std::pair<std::string, std::string>(origPath, newPath));
-    if (endWith(origPath, '/')) {
-        RootIORedirectMap.insert(
-                std::pair<std::string, std::string>(
-                        origPath.substr(0, origPath.length() - 1),
-                        newPath.substr(0, newPath.length() - 1))
-        );
-    }
-}
-
-
 const char *match_redirected_path(const char *_path) {
     std::string path(_path);
     if (path.length() <= 1) {
         return _path;
     }
     std::map<std::string, std::string>::iterator iterator;
-    iterator = RootIORedirectMap.find(path);
-    if (iterator != RootIORedirectMap.end()) {
+    iterator = gVars->RootIORedirectMap.find(path);
+    if (iterator != gVars->RootIORedirectMap.end()) {
         return strdup(iterator->second.c_str());
     }
 
-    for (iterator = IORedirectMap.begin(); iterator != IORedirectMap.end(); iterator++) {
+    for (iterator = gVars->IORedirectMap.begin();
+         iterator != gVars->IORedirectMap.end(); iterator++) {
         const std::string &prefix = iterator->first;
         const std::string &new_prefix = iterator->second;
         if (startWith(path, prefix)) {
@@ -148,13 +179,13 @@ const char *IOUniformer::query(const char *orig_path) {
 
 void IOUniformer::readOnly(const char *_path) {
     std::string path(_path);
-    ReadOnlyPathMap.push_back(path);
+    gVars->ReadOnlyPathMap.push_back(path);
 }
 
 bool isReadOnlyPath(const char *_path) {
     std::string path(_path);
     std::list<std::string>::iterator it;
-    for (it = ReadOnlyPathMap.begin(); it != ReadOnlyPathMap.end(); ++it) {
+    for (it = gVars->ReadOnlyPathMap.begin(); it != gVars->ReadOnlyPathMap.end(); ++it) {
         if (startWith(path, *it)) {
             return true;
         }
@@ -172,11 +203,12 @@ const char *IOUniformer::restore(const char *_path) {
         return _path;
     }
     std::map<std::string, std::string>::iterator iterator;
-    iterator = RootIORedirectMap.find(path);
-    if (iterator != RootIORedirectMap.end()) {
+    iterator = gVars->RootIORedirectMap.find(path);
+    if (iterator != gVars->RootIORedirectMap.end()) {
         return strdup(iterator->second.c_str());
     }
-    for (iterator = RootIORedirectMap.begin(); iterator != RootIORedirectMap.end(); iterator++) {
+    for (iterator = gVars->RootIORedirectMap.begin();
+         iterator != gVars->RootIORedirectMap.end(); iterator++) {
         const std::string &origin = iterator->first;
         const std::string &redirected = iterator->second;
         if (path == redirected) {
@@ -184,7 +216,8 @@ const char *IOUniformer::restore(const char *_path) {
         }
     }
 
-    for (iterator = IORedirectMap.begin(); iterator != IORedirectMap.end(); iterator++) {
+    for (iterator = gVars->IORedirectMap.begin();
+         iterator != gVars->IORedirectMap.end(); iterator++) {
         const std::string &prefix = iterator->first;
         const std::string &new_prefix = iterator->second;
         if (startWith(path, new_prefix)) {
@@ -584,7 +617,7 @@ HOOK_DEF(int, execve, const char *pathname, char *const argv[], char *const envp
     for (int i = 0; envp[i] != NULL; ++i) {
         if (!strncmp(envp[i], "LD_PRELOAD=", 11)) {
             char preload_path[200];
-            sprintf(preload_path, "LD_PRELOAD=%s:%s", gVars.selfSoPath, envp[i] + 11);
+            sprintf(preload_path, "LD_PRELOAD=%s:%s", gVars->selfSoPath, envp[i] + 11);
             const_cast<char **>(envp)[i] = preload_path;
             break;
         }
@@ -687,7 +720,6 @@ void hook_dlopen(int api_level) {
 
 
 void IOUniformer::startUniformer(int api_level, int preview_api_level) {
-    gVars.hooked_process = true;
     void *handle = dlopen("libc.so", RTLD_NOW);
     if (handle) {
         HOOK_SYMBOL(handle, faccessat);
@@ -710,8 +742,7 @@ void IOUniformer::startUniformer(int api_level, int preview_api_level) {
 //        HOOK_SYMBOL(handle, __getdents64);
         HOOK_SYMBOL(handle, chdir);
         HOOK_SYMBOL(handle, execve);
-        if ( api_level <= 20 )
-        {
+        if (api_level <= 20) {
             HOOK_SYMBOL(handle, access);
             HOOK_SYMBOL(handle, __open);
             HOOK_SYMBOL(handle, stat);
