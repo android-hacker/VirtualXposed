@@ -3,9 +3,8 @@
 //
 #include <util.h>
 #include "IOUniformer.h"
-#include "native_hook.h"
 
-static list<std::string> ReadOnlyPathMap;
+static std::list<std::string> ReadOnlyPathMap;
 static std::map<std::string/*orig_path*/, std::string/*new_path*/> IORedirectMap;
 static std::map<std::string/*orig_path*/, std::string/*new_path*/> RootIORedirectMap;
 
@@ -57,7 +56,7 @@ void IOUniformer::saveEnvironment(const char *selfSoPath, int api_level, int pre
         setenv(envName, buffer, 1);
     }
     i = 0;
-    list<std::string>::iterator it;
+    std::list<std::string>::iterator it;
     for (it = ReadOnlyPathMap.begin(); it != ReadOnlyPathMap.end(); it++, i++) {
         memset(envName, sizeof(envName), 0);
         memset(buffer, sizeof(buffer), 0);
@@ -82,7 +81,7 @@ hook_template(void *handle, const char *symbol, void *new_func, void **old_func)
 #if defined(__i386__) || defined(__x86_64__)
     inlineHookDirect((unsigned int) (addr), new_func, old_func);
 #else
-    GodinHook::NativeHook::registeredHook((size_t) addr, (size_t) new_func, (size_t **) old_func);
+    inlineHookDirect((unsigned int) (addr), new_func, old_func);
 #endif
 }
 
@@ -152,7 +151,7 @@ void IOUniformer::readOnly(const char *_path) {
 
 bool isReadOnlyPath(const char *_path) {
     std::string path(_path);
-    list<std::string>::iterator it;
+    std::list<std::string>::iterator it;
     for (it = ReadOnlyPathMap.begin(); it != ReadOnlyPathMap.end(); ++it) {
         if (startWith(path, *it)) {
             return true;
@@ -237,6 +236,16 @@ HOOK_DEF(int, fstatat, int dirfd, const char *pathname, struct stat *buf, int fl
     FREE(redirect_path, pathname);
     return ret;
 }
+
+// int fstatat64(int dirfd, const char *pathname, struct stat *buf, int flags);
+HOOK_DEF(int, fstatat64, int dirfd, const char *pathname, struct stat *buf, int flags) {
+    const char *redirect_path = match_redirected_path(pathname);
+    int ret = syscall(__NR_fstatat64, dirfd, redirect_path, buf, flags);
+    FREE(redirect_path, pathname);
+    return ret;
+}
+
+
 // int fstat(const char *pathname, struct stat *buf, int flags);
 HOOK_DEF(int, fstat, const char *pathname, struct stat *buf) {
     const char *redirect_path = match_redirected_path(pathname);
@@ -545,6 +554,14 @@ HOOK_DEF(int, __open, const char *pathname, int flags, int mode) {
     return ret;
 }
 
+// int __statfs (__const char *__file, struct statfs *__buf);
+HOOK_DEF(int, __statfs, __const char *__file, struct statfs *__buf) {
+    const char *redirect_path = match_redirected_path(__file);
+    int ret = syscall(__NR_statfs, redirect_path, __buf);
+    FREE(redirect_path, __file);
+    return ret;
+}
+
 // int lchown(const char *pathname, uid_t owner, gid_t group);
 HOOK_DEF(int, lchown, const char *pathname, uid_t owner, gid_t group) {
     const char *redirect_path = match_redirected_path(pathname);
@@ -669,48 +686,55 @@ void hook_dlopen(int api_level) {
 
 void IOUniformer::startUniformer(int api_level, int preview_api_level) {
     gVars.hooked_process = true;
-    HOOK_SYMBOL(RTLD_DEFAULT, vfork);
-    HOOK_SYMBOL(RTLD_DEFAULT, kill);
-    HOOK_SYMBOL(RTLD_DEFAULT, __getcwd);
-    HOOK_SYMBOL(RTLD_DEFAULT, truncate);
-    HOOK_SYMBOL(RTLD_DEFAULT, __statfs64);
-    HOOK_SYMBOL(RTLD_DEFAULT, execve);
-    HOOK_SYMBOL(RTLD_DEFAULT, __open);
-    if ((api_level < 25) || (api_level == 25 && preview_api_level == 0)) {
-        HOOK_SYMBOL(RTLD_DEFAULT, utimes);
-        HOOK_SYMBOL(RTLD_DEFAULT, mkdir);
-        HOOK_SYMBOL(RTLD_DEFAULT, chmod);
-        HOOK_SYMBOL(RTLD_DEFAULT, lstat);
-        HOOK_SYMBOL(RTLD_DEFAULT, link);
-        HOOK_SYMBOL(RTLD_DEFAULT, symlink);
-        HOOK_SYMBOL(RTLD_DEFAULT, mknod);
-        HOOK_SYMBOL(RTLD_DEFAULT, rmdir);
-        HOOK_SYMBOL(RTLD_DEFAULT, chown);
-        HOOK_SYMBOL(RTLD_DEFAULT, rename);
-        HOOK_SYMBOL(RTLD_DEFAULT, stat);
-        HOOK_SYMBOL(RTLD_DEFAULT, chdir);
-        HOOK_SYMBOL(RTLD_DEFAULT, access);
-        HOOK_SYMBOL(RTLD_DEFAULT, readlink);
-        HOOK_SYMBOL(RTLD_DEFAULT, unlink);
+    void *handle = dlopen("libc.so", RTLD_NOW);
+    if (handle) {
+        HOOK_SYMBOL(handle, faccessat);
+        HOOK_SYMBOL(handle, __openat);
+        HOOK_SYMBOL(handle, fchmodat);
+        HOOK_SYMBOL(handle, fchownat);
+        HOOK_SYMBOL(handle, renameat);
+        HOOK_SYMBOL(handle, fstatat64);
+        HOOK_SYMBOL(handle, __statfs);
+        HOOK_SYMBOL(handle, __statfs64);
+        HOOK_SYMBOL(handle, mkdirat);
+        HOOK_SYMBOL(handle, mknodat);
+        HOOK_SYMBOL(handle, truncate);
+        HOOK_SYMBOL(handle, linkat);
+        HOOK_SYMBOL(handle, readlinkat);
+        HOOK_SYMBOL(handle, unlinkat);
+        HOOK_SYMBOL(handle, symlinkat);
+        HOOK_SYMBOL(handle, utimensat);
+        HOOK_SYMBOL(handle, __getcwd);
+//        HOOK_SYMBOL(handle, __getdents64);
+        HOOK_SYMBOL(handle, chdir);
+        HOOK_SYMBOL(handle, execve);
+        if ( api_level <= 20 )
+        {
+            HOOK_SYMBOL(handle, access);
+            HOOK_SYMBOL(handle, __open);
+            HOOK_SYMBOL(handle, stat);
+            HOOK_SYMBOL(handle, lstat);
+            HOOK_SYMBOL(handle, fstatat);
+            HOOK_SYMBOL(handle, chmod);
+            HOOK_SYMBOL(handle, chown);
+            HOOK_SYMBOL(handle, rename);
+            HOOK_SYMBOL(handle, rmdir);
+            HOOK_SYMBOL(handle, mkdir);
+            HOOK_SYMBOL(handle, mknod);
+            HOOK_SYMBOL(handle, link);
+            HOOK_SYMBOL(handle, unlink);
+            HOOK_SYMBOL(handle, readlink);
+            HOOK_SYMBOL(handle, symlink);
+//            HOOK_SYMBOL(handle, getdents);
+//            HOOK_SYMBOL(handle, execv);
+        }
+        dlclose(handle);
     }
-    HOOK_SYMBOL(RTLD_DEFAULT, fstatat);
-    HOOK_SYMBOL(RTLD_DEFAULT, fchmodat);
-    HOOK_SYMBOL(RTLD_DEFAULT, symlinkat);
-    HOOK_SYMBOL(RTLD_DEFAULT, readlinkat);
-    HOOK_SYMBOL(RTLD_DEFAULT, unlinkat);
-    HOOK_SYMBOL(RTLD_DEFAULT, linkat);
-    HOOK_SYMBOL(RTLD_DEFAULT, utimensat);
-    HOOK_SYMBOL(RTLD_DEFAULT, __openat);
-    HOOK_SYMBOL(RTLD_DEFAULT, faccessat);
-    HOOK_SYMBOL(RTLD_DEFAULT, mkdirat);
-    HOOK_SYMBOL(RTLD_DEFAULT, renameat);
-    HOOK_SYMBOL(RTLD_DEFAULT, fchownat);
-    HOOK_SYMBOL(RTLD_DEFAULT, mknodat);
+
 //    hook_dlopen(api_level);
 
 #if defined(__i386__) || defined(__x86_64__)
     // Do nothing
 #else
-    GodinHook::NativeHook::hookAllRegistered();
 #endif
 }
