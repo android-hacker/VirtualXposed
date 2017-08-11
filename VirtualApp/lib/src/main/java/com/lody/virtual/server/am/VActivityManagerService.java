@@ -57,6 +57,7 @@ import com.lody.virtual.server.pm.VPackageManagerService;
 import com.lody.virtual.server.secondary.BinderDelegateService;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -887,7 +888,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
                 return new ArrayList<>(r.pkgList);
             }
         }
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
