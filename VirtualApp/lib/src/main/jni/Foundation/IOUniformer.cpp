@@ -713,9 +713,6 @@ void hook_dlopen(int api_level) {
             inlineHookDirect((unsigned int) symbol, (void *) new_dlopen, (void **) &orig_dlopen);
         }
     }
-    if (!symbol) {
-        HOOK_SYMBOL(RTLD_DEFAULT, dlopen);
-    }
 }
 
 
@@ -764,7 +761,7 @@ void IOUniformer::startUniformer(int api_level, int preview_api_level) {
         dlclose(handle);
     }
 
-//    hook_dlopen(api_level);
+    hook_dlopen(api_level);
 
 #if defined(__i386__) || defined(__x86_64__)
     // Do nothing

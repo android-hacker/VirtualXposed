@@ -378,7 +378,7 @@ public final class VClientImpl extends IVClient.Stub {
             NativeEngine.redirectDirectory("/data/user_de/0/" + info.packageName, info.dataDir);
         }
         String libPath = new File(VEnvironment.getDataAppPackageDirectory(info.packageName), "lib").getAbsolutePath();
-        String userLibPath = new File(VEnvironment.getUserSystemDirectory(userId), "lib").getAbsolutePath();
+        String userLibPath = new File(VEnvironment.getUserSystemDirectory(userId), info.packageName + "/lib").getAbsolutePath();
         NativeEngine.redirectDirectory(userLibPath, libPath);
         NativeEngine.redirectDirectory("/data/data/" + info.packageName + "/lib/", libPath);
         NativeEngine.redirectDirectory("/data/user/0/" + info.packageName + "/lib/", libPath);
