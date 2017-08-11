@@ -417,6 +417,7 @@ public final class VClientImpl extends IVClient.Stub {
             Context hostContext = VirtualCore.get().getContext();
             return hostContext.createPackageContext(packageName, Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
         } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
             VirtualRuntime.crash(new RemoteException());
         }
         throw new RuntimeException();
