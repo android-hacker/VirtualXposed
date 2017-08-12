@@ -289,14 +289,14 @@ class MethodProxies {
             int flags = (int) args[7];
             if (args[5] instanceof Intent[]) {
                 Intent[] intents = (Intent[]) args[5];
-                if (intents.length > 0) {
-                    Intent intent = intents[intents.length - 1];
-                    if (resolvedTypes != null && resolvedTypes.length > 0) {
-                        intent.setDataAndType(intent.getData(), resolvedTypes[resolvedTypes.length - 1]);
+                for (int i = 0; i < intents.length; i++) {
+                    Intent intent = intents[i];
+                    if (resolvedTypes != null && i < resolvedTypes.length) {
+                        intent.setDataAndType(intent.getData(), resolvedTypes[i]);
                     }
                     Intent targetIntent = redirectIntentSender(type, creator, intent);
                     if (targetIntent != null) {
-                        args[5] = new Intent[]{targetIntent};
+                        intents[i] = targetIntent;
                     }
                 }
             }
