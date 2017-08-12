@@ -41,6 +41,7 @@ import com.lody.virtual.client.hook.secondary.ServiceConnectionDelegate;
 import com.lody.virtual.client.hook.utils.MethodParameterUtils;
 import com.lody.virtual.client.ipc.ActivityClientRecord;
 import com.lody.virtual.client.ipc.VActivityManager;
+import com.lody.virtual.client.ipc.VNotificationManager;
 import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.client.stub.ChooserActivity;
 import com.lody.virtual.client.stub.StubPendingActivity;
@@ -685,6 +686,7 @@ class MethodProxies {
             } else {
                 VLog.e(getClass().getSimpleName(), "Unknown flag : " + args[4]);
             }
+            VNotificationManager.get().dealNotification(id, notification, getAppPkg());
             VActivityManager.get().setServiceForeground(component, token, id, notification, removeNotification);
             return 0;
         }

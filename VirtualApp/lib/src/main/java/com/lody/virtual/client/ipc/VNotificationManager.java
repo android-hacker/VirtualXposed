@@ -36,6 +36,7 @@ public class VNotificationManager {
     }
 
     public boolean dealNotification(int id, Notification notification, String packageName) {
+        if(notification == null)return false;
         return VirtualCore.get().getHostPkg().equals(packageName)
                 || mNotificationCompat.dealNotification(id, notification, packageName);
     }
