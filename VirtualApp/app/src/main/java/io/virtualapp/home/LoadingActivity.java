@@ -61,19 +61,10 @@ public class LoadingActivity extends VActivity {
         }
         VirtualCore.get().setUiCallback(intent, mUiCallback);
         VUiKit.defer().when(() -> {
-            long startTime = System.currentTimeMillis();
             if (!appModel.fastOpen) {
                 try {
                     VirtualCore.get().preOpt(appModel.packageName);
                 } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            long spend = System.currentTimeMillis() - startTime;
-            if (spend < 500) {
-                try {
-                    Thread.sleep(500 - spend);
-                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }

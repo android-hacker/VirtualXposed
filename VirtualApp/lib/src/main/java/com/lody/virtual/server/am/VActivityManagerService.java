@@ -57,10 +57,10 @@ import com.lody.virtual.server.pm.VPackageManagerService;
 import com.lody.virtual.server.secondary.BinderDelegateService;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -72,7 +72,7 @@ import static com.lody.virtual.os.VUserHandle.getUserId;
  */
 public class VActivityManagerService extends IActivityManager.Stub {
 
-    private static final boolean BROADCAST_NOT_STARTED_PKG = true;
+    private static final boolean BROADCAST_NOT_STARTED_PKG = false;
 
     private static final AtomicReference<VActivityManagerService> sService = new AtomicReference<>();
     private static final String TAG = VActivityManagerService.class.getSimpleName();
@@ -364,16 +364,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
             if (r == null) {
                 return 0;
             }
-            if (r.getClientCount() <= 0) {
-                try {
-                    IApplicationThreadCompat.scheduleStopService(r.process.appThread, r);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                    mHistory.remove(r);
-                }
-            }
+            stopServiceCommon(r, ComponentUtils.toComponentName(serviceInfo));
             return 1;
         }
     }
@@ -382,19 +373,39 @@ public class VActivityManagerService extends IActivityManager.Stub {
     public boolean stopServiceToken(ComponentName className, IBinder token, int startId, int userId) {
         synchronized (this) {
             ServiceRecord r = (ServiceRecord) token;
-            if (r != null && r.startId == startId) {
+            if (r != null && (r.startId == startId || startId == -1)) {
+                stopServiceCommon(r, className);
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    private void stopServiceCommon(ServiceRecord r, ComponentName className) {
+        for (ServiceRecord.IntentBindRecord bindRecord : r.bindings) {
+            for (IServiceConnection connection : bindRecord.connections) {
+                // Report to all of the connections that the service is no longer
+                // available.
                 try {
-                    IApplicationThreadCompat.scheduleStopService(r.process.appThread, r);
+                    connection.connected(className, null);
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                    mHistory.remove(r);
-                }
-                return true;
             }
-            return false;
+            try {
+                IApplicationThreadCompat.scheduleUnbindService(r.process.appThread, r, bindRecord.intent);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
+        try {
+            IApplicationThreadCompat.scheduleStopService(r.process.appThread, r);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        mHistory.remove(r);
+
     }
 
     @Override
@@ -877,7 +888,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
                 return new ArrayList<>(r.pkgList);
             }
         }
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
