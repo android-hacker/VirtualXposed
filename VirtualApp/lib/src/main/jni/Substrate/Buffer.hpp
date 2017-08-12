@@ -19,16 +19,20 @@
 **/
 /* }}} */
 
-#ifndef SUBSTRATE_DEBUG_HPP
-#define SUBSTRATE_DEBUG_HPP
+#ifndef SUBSTRATE_BUFFER_HPP
+#define SUBSTRATE_BUFFER_HPP
 
-#include "Log.h"
-#include <stddef.h>
-#define lprintf(format, ...) \
-    MSLog(MSLogLevelNotice, format, ## __VA_ARGS__)
+#include <string.h>
 
-extern "C" bool MSDebug;
-void MSLogHexEx(const void *vdata, size_t size, size_t stride, const char *mark = 0);
-void MSLogHex(const void *vdata, size_t size, const char *mark = 0);
+template <typename Type_>
+_disused static _finline void MSWrite(uint8_t *&buffer, Type_ value) {
+    *reinterpret_cast<Type_ *>(buffer) = value;
+    buffer += sizeof(Type_);
+}
 
-#endif//SUBSTRATE_DEBUG_HPP
+_disused static _finline void MSWrite(uint8_t *&buffer, uint8_t *data, size_t size) {
+    memcpy(buffer, data, size);
+    buffer += size;
+}
+
+#endif//SUBSTRATE_BUFFER_HPP

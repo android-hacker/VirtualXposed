@@ -80,7 +80,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     return JNI_VERSION_1_6;
 }
 
-extern "C" void _init(void) {
+extern "C" __attribute__((constructor)) void _init(void) {
     IOUniformer::init_array();
 }
 

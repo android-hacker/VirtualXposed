@@ -16,7 +16,6 @@
 #include<dirent.h>
 #include <sys/syscall.h>
 
-#include <MSHook.h>
 #include "Helper.h"
 
 

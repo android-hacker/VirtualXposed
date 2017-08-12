@@ -22,15 +22,6 @@
 #ifndef SUBSTRATE_ARM_HPP
 #define SUBSTRATE_ARM_HPP
 
-#include "CydiaSubstrate.h"
-#include "Log.h"
-#include "Debug.h"
-#include <sys/mman.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <stdint.h>
-
 enum A$r {
     A$r0, A$r1, A$r2, A$r3,
     A$r4, A$r5, A$r6, A$r7,
@@ -71,11 +62,4 @@ enum A$c {
 #define A$stmia_sp$_$r0$  0xe8ad0001 /* stmia sp!, {r0}   */
 #define A$bx_r0           0xe12fff10 /* bx r0             */
 
-static inline bool A$pcrel$r(uint32_t ic) {
-	return (ic & 0x0c000000) == 0x04000000 && (ic & 0xf0000000) != 0xf0000000 && (ic & 0x000f0000) == 0x000f0000;
-}
-
-namespace ARM{
-	extern "C" void SubstrateHookFunctionARM(SubstrateProcessRef process, void *symbol, void *replace, void **result);
-}
 #endif//SUBSTRATE_ARM_HPP

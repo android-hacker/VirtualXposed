@@ -1,5 +1,5 @@
-#ifndef HOOK_UTIL_H_
-#define HOOK_UTIL_H_
+#ifndef SYMBOL_FINDER
+#define SYMBOL_FINDER
 
 #include <unistd.h>
 
