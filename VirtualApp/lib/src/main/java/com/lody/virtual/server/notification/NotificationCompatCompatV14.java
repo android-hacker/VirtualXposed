@@ -30,14 +30,17 @@ class NotificationCompatCompatV14 extends NotificationCompat {
             return false;
         }
         if (VirtualCore.get().isOutsideInstalled(packageName)) {
-            getNotificationFixer().fixIconImage(appContext.getResources(), notification.contentView, false, notification);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                getNotificationFixer().fixIconImage(appContext.getResources(), notification.bigContentView, false, notification);
+            if(notification.icon != 0) {
+                getNotificationFixer().fixIconImage(appContext.getResources(), notification.contentView, false, notification);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    getNotificationFixer().fixIconImage(appContext.getResources(), notification.bigContentView, false, notification);
+                }
+                notification.icon = getHostContext().getApplicationInfo().icon;
             }
-            notification.icon = getHostContext().getApplicationInfo().icon;
             return true;
         }
         if (notification.tickerView != null) {
+
             if (isSystemLayout(notification.tickerView)) {
                 getNotificationFixer().fixRemoteViewActions(appContext, false, notification.tickerView);
             } else {
@@ -75,7 +78,9 @@ class NotificationCompatCompatV14 extends NotificationCompat {
                 }
             }
         }
-        notification.icon = getHostContext().getApplicationInfo().icon;
+        if(notification.icon != 0) {
+            notification.icon = getHostContext().getApplicationInfo().icon;
+        }
         return true;
     }
 

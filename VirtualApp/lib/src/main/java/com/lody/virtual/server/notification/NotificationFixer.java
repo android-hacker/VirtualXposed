@@ -76,6 +76,7 @@ import mirror.com.android.internal.R_Hide;
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.M)
     void fixIcon(Icon icon, Context appContext, boolean installed) {
         if (icon == null) {
             return;
@@ -200,7 +201,7 @@ import mirror.com.android.internal.R_Hide;
     }
 
     void fixIconImage(Resources resources, RemoteViews remoteViews, boolean hasIconBitmap, Notification notification) {
-        if (remoteViews == null) return;
+        if (remoteViews == null || notification.icon == 0) return;
         if (!mNotificationCompat.isSystemLayout(remoteViews)) {
             return;
         }

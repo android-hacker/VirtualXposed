@@ -52,14 +52,16 @@ import static com.lody.virtual.os.VEnvironment.getPackageResourcePath;
 
         //Fix RemoteViews
         getNotificationFixer().fixNotificationRemoteViews(appContext, notification);
-        //Fix Icon
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getNotificationFixer().fixIcon(notification.getSmallIcon(), appContext, packageInfo != null);
-            getNotificationFixer().fixIcon(notification.getLargeIcon(), appContext, packageInfo != null);
-        } else {
-            getNotificationFixer().fixIconImage(appContext.getResources(), notification.contentView, false, notification);
+        if(notification.icon != 0) {
+            //Fix Icon
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                getNotificationFixer().fixIcon(notification.getSmallIcon(), appContext, packageInfo != null);
+                getNotificationFixer().fixIcon(notification.getLargeIcon(), appContext, packageInfo != null);
+            } else {
+                getNotificationFixer().fixIconImage(appContext.getResources(), notification.contentView, false, notification);
+            }
+            notification.icon = host.icon;
         }
-        notification.icon = host.icon;
 
         ApplicationInfo proxyApplicationInfo = new ApplicationInfo(host);
 
