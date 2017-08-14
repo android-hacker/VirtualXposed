@@ -213,6 +213,10 @@ import mirror.com.android.internal.R_Hide;
                 drawable.setLevel(notification.iconLevel);
                 Bitmap bitmap = drawableToBitMap(drawable);
                 remoteViews.setImageViewBitmap(id, bitmap);
+                //emui
+                if(notification.largeIcon == null){
+                    notification.largeIcon = bitmap;
+                }
             }
             if (Build.VERSION.SDK_INT >= 21) {
                 remoteViews.setInt(id, "setBackgroundColor", Color.TRANSPARENT);
