@@ -19,9 +19,11 @@
 **/
 /* }}} */
 
-#include "CydiaSubstrate.h"
-#include "Debug.h"
+#include "SubstrateHook.h"
+#include "SubstrateDebug.hpp"
 
+#include <stdint.h>
+#include <stdlib.h>
 #include <stdio.h>
 
 _extern bool MSDebug;
@@ -34,8 +36,7 @@ static char _MSHexChar(uint8_t value) {
 #define HexWidth_ 16
 #define HexDepth_ 4
 
-
-void MSLogHexExInner(const void *vdata, size_t size, size_t stride, const char *mark) {
+void MSLogHexEx(const void *vdata, size_t size, size_t stride, const char *mark) {
     const uint8_t *data((const uint8_t *) vdata);
 
     size_t i(0), j;
@@ -47,7 +48,7 @@ void MSLogHexExInner(const void *vdata, size_t size, size_t stride, const char *
     while (i != size) {
         if (i % HexWidth_ == 0) {
             if (mark != NULL)
-                b += sprintf(d + b, "[%s] ", mark);
+                b += sprintf(d + b, "\n[%s] ", mark);
             b += sprintf(d + b, "0x%.3zx:", i);
         }
 
@@ -90,14 +91,6 @@ void MSLogHexExInner(const void *vdata, size_t size, size_t stride, const char *
     }
 }
 
-void MSLogHexEx(const void *vdata, size_t size, size_t stride, const char *mark) {
-    if (MSDebug) {
-        MSLogHexExInner(vdata, size, stride, mark);
-    }
-}
-
 void MSLogHex(const void *vdata, size_t size, const char *mark) {
-    if (MSDebug) {
-        MSLogHexEx(vdata, size, 1, mark);
-    }
+    return MSLogHexEx(vdata, size, 1, mark);
 }

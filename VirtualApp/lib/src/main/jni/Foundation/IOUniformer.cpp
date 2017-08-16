@@ -1,7 +1,9 @@
 //
 // VirtualApp Native Project
 //
-#include <util.h>
+#include <unistd.h>
+#include <Substrate/CydiaSubstrate.h>
+#include <Substrate/SymbolFinder.h>
 #include "IOUniformer.h"
 
 
@@ -132,11 +134,7 @@ hook_template(void *handle, const char *symbol, void *new_func, void **old_func)
         LOGW("Error: unable to find the Symbol : %s.", symbol);
         return;
     }
-#if defined(__i386__) || defined(__x86_64__)
-    inlineHookDirect((unsigned int) (addr), new_func, old_func);
-#else
-    inlineHookDirect((unsigned int) (addr), new_func, old_func);
-#endif
+    MSHookFunction(addr, new_func, old_func);
 }
 
 
@@ -610,26 +608,46 @@ HOOK_DEF(int, lchown, const char *pathname, uid_t owner, gid_t group) {
 
 // int (*origin_execve)(const char *pathname, char *const argv[], char *const envp[]);
 HOOK_DEF(int, execve, const char *pathname, char *const argv[], char *const envp[]) {
+    int i, j, ldi = -1;
+    char **new_env;
 
-    for (int i = 0; argv[i] != NULL; ++i) {
-        LOGE("argv[%i] : %s", i, argv[i]);
+    // Look if the provided environment already contains LD_PRELOAD
+    for (i = 0; envp[i]; i++) {
+        if (strstr(envp[i], "LD_PRELOAD"))
+            ldi = i;
     }
-    for (int i = 0; envp[i] != NULL; ++i) {
-        if (!strncmp(envp[i], "LD_PRELOAD=", 11)) {
-            char preload_path[200];
-            sprintf(preload_path, "LD_PRELOAD=%s:%s", gVars->selfSoPath, envp[i] + 11);
-            const_cast<char **>(envp)[i] = preload_path;
-            break;
-        }
+    // If it doesn't, add it at the end
+    if (ldi == -1) {
+        ldi = i;
+        i++;
     }
-    for (int i = 0; envp[i] != NULL; ++i) {
-        LOGE("envp[%i] : %s", i, envp[i]);
+    // Create a new environment
+    new_env = (char **) malloc((i + 1) * sizeof(char *));
+    // Copy the old environment in the new one, except for LD_PRELOAD
+    for (j = 0; j < i; j++) {
+        // Overwrite or create the LD_PRELOAD variable
+        if (j == ldi) {
+            new_env[j] = (char *) malloc(1200);
+            strcpy(new_env[j], "LD_PRELOAD=");
+            strcat(new_env[j], gVars->selfSoPath);
+            if (envp[j] != NULL) {
+                strcat(new_env[j], ":");
+                strcat(new_env[j], envp[j] + 11);
+            }
+        } else
+            new_env[j] = envp[j];
+    }
+    // That string array is NULL terminated
+    new_env[i] = NULL;
+    for (int n = 0; new_env[n] != NULL; ++n) {
+        LOGE("new_env[%i] = %s", n, new_env[n]);
     }
     const char *redirect_path = match_redirected_path(pathname);
     int ret = syscall(__NR_execve, redirect_path, argv, envp);
     FREE(redirect_path, pathname);
     return ret;
 }
+
 
 HOOK_DEF(void*, dlopen, const char *filename, int flag) {
     const char *redirect_path = match_redirected_path(filename);
@@ -692,25 +710,29 @@ __END_DECLS
 void onSoLoaded(const char *name, void *handle) {
 }
 
+int findSymbol(const char *name, const char *libn,
+               unsigned long *addr) {
+    return find_name(getpid(), name, libn, addr);
+}
 
 void hook_dlopen(int api_level) {
     void *symbol = NULL;
     if (api_level > 23) {
         if (findSymbol("__dl__Z9do_dlopenPKciPK17android_dlextinfoPv", "linker",
                        (unsigned long *) &symbol) == 0) {
-            inlineHookDirect((unsigned int) symbol, (void *) new_do_dlopen_V24,
-                             (void **) &orig_do_dlopen_V24);
+            MSHookFunction(symbol, (void *) new_do_dlopen_V24,
+                           (void **) &orig_do_dlopen_V24);
         }
     } else if (api_level >= 19) {
         if (findSymbol("__dl__Z9do_dlopenPKciPK17android_dlextinfo", "linker",
                        (unsigned long *) &symbol) == 0) {
-            inlineHookDirect((unsigned int) symbol, (void *) new_do_dlopen_V19,
-                             (void **) &orig_do_dlopen_V19);
+            MSHookFunction(symbol, (void *) new_do_dlopen_V19,
+                           (void **) &orig_do_dlopen_V19);
         }
     } else {
         if (findSymbol("__dl_dlopen", "linker",
                        (unsigned long *) &symbol) == 0) {
-            inlineHookDirect((unsigned int) symbol, (void *) new_dlopen, (void **) &orig_dlopen);
+            MSHookFunction(symbol, (void *) new_dlopen, (void **) &orig_dlopen);
         }
     }
 }
@@ -762,9 +784,4 @@ void IOUniformer::startUniformer(int api_level, int preview_api_level) {
     }
 
     hook_dlopen(api_level);
-
-#if defined(__i386__) || defined(__x86_64__)
-    // Do nothing
-#else
-#endif
 }
