@@ -154,8 +154,8 @@ public class ProviderHook implements InvocationHandler {
                 return getType(methodBox, (Uri) args[0]);
             } else if ("delete".equals(name)) {
                 Uri url = (Uri) args[0];
-                String selection = (String) args[1];
-                String[] selectionArgs = (String[]) args[2];
+                String selection = (String) args[start + 1];
+                String[] selectionArgs = (String[]) args[start + 2];
                 return delete(methodBox, url, selection, selectionArgs);
             } else if ("bulkInsert".equals(name)) {
                 Uri url = (Uri) args[start];
