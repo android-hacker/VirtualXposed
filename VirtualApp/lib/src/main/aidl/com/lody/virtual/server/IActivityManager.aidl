@@ -5,6 +5,7 @@ import com.lody.virtual.remote.VParceledListSlice;
 import com.lody.virtual.remote.AppTaskInfo;
 import com.lody.virtual.remote.PendingIntentData;
 import com.lody.virtual.remote.PendingResultData;
+import com.lody.virtual.remote.BadgerInfo;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.app.Notification;
@@ -110,4 +111,6 @@ interface IActivityManager {
     void processRestarted(in String packageName, in String processName, int userId);
 
     void broadcastFinish(in PendingResultData res);
+
+    void notifyBadgerChange(in BadgerInfo info);
 }

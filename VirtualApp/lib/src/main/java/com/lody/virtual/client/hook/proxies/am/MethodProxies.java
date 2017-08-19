@@ -5,7 +5,6 @@ import android.app.ActivityManager;
 import android.app.Application;
 import android.app.IServiceConnection;
 import android.app.Notification;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.IIntentReceiver;
@@ -31,6 +30,7 @@ import android.text.TextUtils;
 import android.util.TypedValue;
 
 import com.lody.virtual.client.VClientImpl;
+import com.lody.virtual.client.badger.BadgerManager;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.env.SpecialComponentList;
@@ -1486,6 +1486,8 @@ class MethodProxies {
 
                 handleUninstallShortcutIntent(intent);
 
+            } else if (BadgerManager.handleBadger(intent)) {
+                return null;
             } else {
                 return ComponentUtils.redirectBroadcastIntent(intent, VUserHandle.myUserId());
             }
