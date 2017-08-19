@@ -703,7 +703,7 @@ static size_t SubstrateHookFunction(SubstrateProcessRef process, void *symbol, v
 
 #if defined(__i386__) || defined(__x86_64__)
 
-#include "Substratex86.hpp"
+#include "SubstrateX86.hpp"
 
 static size_t MSGetInstructionWidthIntel(void *start) {
     hde64s decode;
