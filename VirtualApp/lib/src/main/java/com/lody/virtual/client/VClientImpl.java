@@ -205,6 +205,9 @@ public final class VClientImpl extends IVClient.Stub {
     }
 
     private void bindApplicationNoCheck(String packageName, String processName, ConditionVariable lock) {
+        if (processName == null) {
+            processName = packageName;
+        }
         mTempLock = lock;
         try {
             setupUncaughtHandler();
