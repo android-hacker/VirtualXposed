@@ -4,16 +4,21 @@ import android.app.Activity;
 import android.app.IServiceConnection;
 import android.app.Notification;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ProviderInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.IInterface;
 import android.os.RemoteException;
+import android.util.Log;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
+import com.lody.virtual.client.hook.secondary.ServiceConnectionDelegate;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.os.VUserHandle;
@@ -30,6 +35,8 @@ import java.util.List;
 import java.util.Map;
 
 import mirror.android.app.ActivityThread;
+import mirror.android.app.ContextImpl;
+import mirror.android.app.LoadedApk;
 import mirror.android.content.ContentProviderNative;
 
 /**
@@ -195,6 +202,30 @@ public class VActivityManager {
             getService().setServiceForeground(className, token, id, notification,removeNotification,  VUserHandle.myUserId());
         } catch (RemoteException e) {
             e.printStackTrace();
+        }
+    }
+
+    public int bindService(Context context, Intent service, ServiceConnection connection, int flags) {
+        IServiceConnection sd = null;
+        if (connection == null) {
+            throw new IllegalArgumentException("connection is null");
+        }
+        try {
+            Object activityThread = ActivityThread.currentActivityThread.call();
+            Object loadApk = ContextImpl.mPackageInfo.get(VirtualCore.get().getContext());
+            Handler handler = ActivityThread.getHandler.call(activityThread);
+            sd = LoadedApk.getServiceDispatcher.call(loadApk, connection, context, handler, flags);
+        } catch (Exception e) {
+            Log.e("kk", "bindService", e);
+        }
+        if (sd == null) {
+            throw new RuntimeException("Not supported in system context");
+        }
+        try {
+            IServiceConnection conn = ServiceConnectionDelegate.getDelegate(sd);
+            return getService().bindService(null, null, service, null, conn, flags, 0);
+        } catch (RemoteException e) {
+            return VirtualRuntime.crash(e);
         }
     }
 
