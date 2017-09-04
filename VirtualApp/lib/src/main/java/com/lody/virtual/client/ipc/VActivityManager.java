@@ -10,11 +10,9 @@ import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ProviderInfo;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.IInterface;
 import android.os.RemoteException;
-import android.util.Log;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
@@ -35,8 +33,6 @@ import java.util.List;
 import java.util.Map;
 
 import mirror.android.app.ActivityThread;
-import mirror.android.app.ContextImpl;
-import mirror.android.app.LoadedApk;
 import mirror.android.content.ContentProviderNative;
 
 /**
@@ -279,17 +275,12 @@ public class VActivityManager {
         }
     }
 
-    public boolean processRestarted(String packageName, String processName, int userId) {
-        if(!VirtualCore.get().isAppInstalled(packageName)){
-            return false;
-        }
+    public void processRestarted(String packageName, String processName, int userId) {
         try {
             getService().processRestarted(packageName, processName, userId);
-            return true;
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-        return false;
     }
 
     public String getAppProcessName(int pid) {

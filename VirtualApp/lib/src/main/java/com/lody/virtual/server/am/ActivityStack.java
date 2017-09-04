@@ -22,6 +22,7 @@ import com.lody.virtual.remote.StubActivityRecord;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 
 import mirror.android.app.ActivityManagerNative;
@@ -602,7 +603,30 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
         }
     }
 
+    private List<Integer> getRunningTaskIds(){
+        List<Integer> tasks =new ArrayList<>();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            List<ActivityManager.AppTask> appTasks = mAM.getAppTasks();
+            if (appTasks != null) {
+                for (ActivityManager.AppTask appTask : appTasks) {
+                    if (appTask.getTaskInfo() != null) {
+                        tasks.add(appTask.getTaskInfo().id);
+                    }
+                }
+            }
+        } else {
+            List<ActivityManager.RunningTaskInfo> runningTaskInfos = mAM.getRunningTasks(255);
+            if (runningTaskInfos != null) {
+                for (ActivityManager.RunningTaskInfo runningTaskInfo : runningTaskInfos) {
+                    tasks.add(runningTaskInfo.id);
+                }
+            }
+        }
+        return tasks;
+    }
+
     void processDied(ProcessRecord record) {
+        List<Integer> tasks = getRunningTaskIds();
         synchronized (mHistory) {
             optimizeTasksLocked();
             int N = mHistory.size();
@@ -613,15 +637,16 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
                     while (iterator.hasNext()) {
                         ActivityRecord r = iterator.next();
                         if (r.process.pid == record.pid) {
-                            iterator.remove();
-                            if (task.activities.isEmpty()) {
-                                mHistory.remove(task.taskId);
+                            if(!tasks.contains(task.taskId)){
+                                iterator.remove();
+                                if (task.activities.isEmpty()) {
+                                    mHistory.remove(task.taskId);
+                                }
                             }
                         }
                     }
                 }
             }
-
         }
     }
 
