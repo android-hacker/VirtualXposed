@@ -206,24 +206,18 @@ public class VActivityManager {
     }
 
     public int bindService(Context context, Intent service, ServiceConnection connection, int flags) {
-        IServiceConnection sd = null;
-        if (connection == null) {
-            throw new IllegalArgumentException("connection is null");
-        }
         try {
-            Object activityThread = ActivityThread.currentActivityThread.call();
-            Object loadApk = ContextImpl.mPackageInfo.get(VirtualCore.get().getContext());
-            Handler handler = ActivityThread.getHandler.call(activityThread);
-            sd = LoadedApk.getServiceDispatcher.call(loadApk, connection, context, handler, flags);
-        } catch (Exception e) {
-            Log.e("kk", "bindService", e);
-        }
-        if (sd == null) {
-            throw new RuntimeException("Not supported in system context");
-        }
-        try {
-            IServiceConnection conn = ServiceConnectionDelegate.getDelegate(sd);
+            IServiceConnection conn = ServiceConnectionDelegate.getDelegate(context, connection, flags);
             return getService().bindService(null, null, service, null, conn, flags, 0);
+        } catch (RemoteException e) {
+            return VirtualRuntime.crash(e);
+        }
+    }
+
+    public boolean unbindService(ServiceConnection connection) {
+        try {
+            IServiceConnection conn = ServiceConnectionDelegate.removeDelegate(connection);
+            return getService().unbindService(conn, VUserHandle.myUserId());
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
