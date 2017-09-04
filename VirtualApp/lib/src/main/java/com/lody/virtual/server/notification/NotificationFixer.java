@@ -16,6 +16,7 @@ import android.os.Build;
 import android.widget.RemoteViews;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.utils.OSUtils;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
 
@@ -215,15 +216,11 @@ import mirror.com.android.internal.R_Hide;
                 Bitmap bitmap = drawableToBitMap(drawable);
                 remoteViews.setImageViewBitmap(id, bitmap);
                 //emui
-                if(notification.largeIcon == null){
-                    notification.largeIcon = bitmap;
+                if(OSUtils.getInstance().isEmui()) {
+                    if (notification.largeIcon == null) {
+                        notification.largeIcon = bitmap;
+                    }
                 }
-            }
-            if (Build.VERSION.SDK_INT >= 21) {
-                remoteViews.setInt(id, "setBackgroundColor", Color.TRANSPARENT);
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                remoteViews.setViewPadding(id, 0, 0, 0, 0);
             }
         } catch (Exception e) {
             e.printStackTrace();
