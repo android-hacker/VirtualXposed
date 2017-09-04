@@ -1,6 +1,7 @@
 package com.lody.virtual.remote;
 
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -37,6 +38,10 @@ public final class InstalledAppInfo implements Parcelable {
 
     public ApplicationInfo getApplicationInfo(int userId) {
         return VPackageManager.get().getApplicationInfo(packageName, 0, userId);
+    }
+
+    public PackageInfo getPackageInfo(int userId) {
+        return VPackageManager.get().getPackageInfo(packageName, 0, userId);
     }
 
     public int[] getInstalledUsers() {

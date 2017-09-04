@@ -279,12 +279,17 @@ public class VActivityManager {
         }
     }
 
-    public void processRestarted(String packageName, String processName, int userId) {
+    public boolean processRestarted(String packageName, String processName, int userId) {
+        if(!VirtualCore.get().isAppInstalled(packageName)){
+            return false;
+        }
         try {
             getService().processRestarted(packageName, processName, userId);
+            return true;
         } catch (RemoteException e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     public String getAppProcessName(int pid) {

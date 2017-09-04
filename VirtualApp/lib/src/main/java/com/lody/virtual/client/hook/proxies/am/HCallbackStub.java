@@ -106,7 +106,9 @@ import mirror.android.app.IActivityManager;
             IBinder token = ActivityThread.ActivityClientRecord.token.get(r);
             ActivityInfo info = saveInstance.info;
             if (VClientImpl.get().getToken() == null) {
-                VActivityManager.get().processRestarted(info.packageName, info.processName, saveInstance.userId);
+                if(!VActivityManager.get().processRestarted(info.packageName, info.processName, saveInstance.userId)){
+                    return true;
+                }
                 getH().sendMessageAtFrontOfQueue(Message.obtain(msg));
                 return false;
             }
