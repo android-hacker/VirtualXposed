@@ -214,9 +214,9 @@ public class VActivityManager {
         }
     }
 
-    public boolean unbindService(ServiceConnection connection) {
+    public boolean unbindService(Context context, ServiceConnection connection) {
         try {
-            IServiceConnection conn = ServiceConnectionDelegate.removeDelegate(connection);
+            IServiceConnection conn = ServiceConnectionDelegate.removeDelegate(context, connection);
             return getService().unbindService(conn, VUserHandle.myUserId());
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
