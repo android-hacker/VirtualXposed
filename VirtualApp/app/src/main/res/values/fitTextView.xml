@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="FitTextView">
+        <attr name="ftMinTextSize" format="dimension"/>
+        <attr name="ftMaxTextSize" format="dimension"/>
+    </declare-styleable>
+</resources>

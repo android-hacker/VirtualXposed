@@ -20,6 +20,13 @@ android {
             }
         }
     }
+
+    sourceSets {
+        main{
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -62,5 +69,4 @@ dependencies {
     compile ('com.google.android.gms:play-services-ads:11.0.0'){
         exclude group:'com.android.support'
     }
-
 }
