@@ -2,24 +2,63 @@ package com.lody.virtual.client.hook.secondary;
 
 import android.app.IServiceConnection;
 import android.content.ComponentName;
+import android.content.Context;
+import android.content.ServiceConnection;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.Log;
 
 import com.lody.virtual.client.VClientImpl;
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.collection.ArrayMap;
 import com.lody.virtual.server.IBinderDelegateService;
+
+import mirror.android.app.ActivityThread;
+import mirror.android.app.ContextImpl;
+import mirror.android.app.LoadedApk;
 
 /**
  * @author Lody
  */
 
 public class ServiceConnectionDelegate extends IServiceConnection.Stub {
-
+    private final static ArrayMap<ServiceConnection, IServiceConnection> CONNECTION_ARRAY_MAP = new ArrayMap<>();
     private final static ArrayMap<IBinder, ServiceConnectionDelegate> DELEGATE_MAP = new ArrayMap<>();
     private IServiceConnection mConn;
 
     private ServiceConnectionDelegate(IServiceConnection mConn) {
         this.mConn = mConn;
+    }
+
+    public static IServiceConnection getDelegate(Context context, ServiceConnection connection,int flags) {
+        IServiceConnection sd = CONNECTION_ARRAY_MAP.get(connection);
+        if(sd != null){
+            Log.d("ConnectionDelegate", "bindService:use old:"+sd);
+            return getDelegate(sd);
+        }
+        if (connection == null) {
+            throw new IllegalArgumentException("connection is null");
+        }
+        try {
+            Object activityThread = ActivityThread.currentActivityThread.call();
+            Object loadApk = ContextImpl.mPackageInfo.get(VirtualCore.get().getContext());
+            Handler handler = ActivityThread.getHandler.call(activityThread);
+            sd = LoadedApk.getServiceDispatcher.call(loadApk, connection, context, handler, flags);
+        } catch (Exception e) {
+            Log.e("ConnectionDelegate", "bindService", e);
+        }
+        if (sd == null) {
+            throw new RuntimeException("Not supported in system context");
+        }
+        CONNECTION_ARRAY_MAP.put(connection, sd);
+        return getDelegate(sd);
+    }
+
+    public static IServiceConnection removeDelegate(ServiceConnection conn) {
+        ServiceConnectionDelegate serviceConnectionDelegate = ServiceConnectionDelegate.removeDelegate(CONNECTION_ARRAY_MAP.get(conn));
+        Log.d("ConnectionDelegate", "removeDelegate:" + serviceConnectionDelegate);
+        return serviceConnectionDelegate;
     }
 
     public static ServiceConnectionDelegate getDelegate(IServiceConnection conn) {

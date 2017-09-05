@@ -41,6 +41,7 @@ import com.lody.virtual.client.hook.secondary.ServiceConnectionDelegate;
 import com.lody.virtual.client.hook.utils.MethodParameterUtils;
 import com.lody.virtual.client.ipc.ActivityClientRecord;
 import com.lody.virtual.client.ipc.VActivityManager;
+import com.lody.virtual.client.ipc.VNotificationManager;
 import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.client.stub.ChooserActivity;
 import com.lody.virtual.client.stub.StubPendingActivity;
@@ -289,14 +290,14 @@ class MethodProxies {
             int flags = (int) args[7];
             if (args[5] instanceof Intent[]) {
                 Intent[] intents = (Intent[]) args[5];
-                if (intents.length > 0) {
-                    Intent intent = intents[intents.length - 1];
-                    if (resolvedTypes != null && resolvedTypes.length > 0) {
-                        intent.setDataAndType(intent.getData(), resolvedTypes[resolvedTypes.length - 1]);
+                for (int i = 0; i < intents.length; i++) {
+                    Intent intent = intents[i];
+                    if (resolvedTypes != null && i < resolvedTypes.length) {
+                        intent.setDataAndType(intent.getData(), resolvedTypes[i]);
                     }
                     Intent targetIntent = redirectIntentSender(type, creator, intent);
                     if (targetIntent != null) {
-                        args[5] = new Intent[]{targetIntent};
+                        intents[i] = targetIntent;
                     }
                 }
             }
@@ -685,6 +686,7 @@ class MethodProxies {
             } else {
                 VLog.e(getClass().getSimpleName(), "Unknown flag : " + args[4]);
             }
+            VNotificationManager.get().dealNotification(id, notification, getAppPkg());
             VActivityManager.get().setServiceForeground(component, token, id, notification, removeNotification);
             return 0;
         }

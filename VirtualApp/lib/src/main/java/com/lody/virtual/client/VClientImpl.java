@@ -312,6 +312,7 @@ public final class VClientImpl extends IVClient.Stub {
             lock.open();
             mTempLock = null;
         }
+        VirtualCore.get().getComponentDelegate().beforeApplicationCreate(mInitialApplication);
         try {
             mInstrumentation.callApplicationOnCreate(mInitialApplication);
             InvocationStubManager.getInstance().checkEnv(HCallbackStub.class);
@@ -330,6 +331,7 @@ public final class VClientImpl extends IVClient.Stub {
             }
         }
         VActivityManager.get().appDoneExecuting();
+        VirtualCore.get().getComponentDelegate().afterApplicationCreate(mInitialApplication);
     }
 
     private void setupUncaughtHandler() {

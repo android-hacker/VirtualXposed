@@ -3,12 +3,14 @@ package mirror.android.app;
 import java.lang.ref.WeakReference;
 
 import android.app.Application;
+import android.app.IServiceConnection;
 import android.app.Instrumentation;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IIntentReceiver;
 import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
+import android.os.Handler;
 import android.os.IInterface;
 
 import mirror.RefClass;
@@ -21,6 +23,8 @@ public class LoadedApk {
     public static RefObject<ApplicationInfo> mApplicationInfo;
     @MethodParams({boolean.class, Instrumentation.class})
     public static RefMethod<Application> makeApplication;
+    @MethodParams({ServiceConnection.class, Context.class, Handler.class, int.class})
+    public static RefMethod<IServiceConnection> getServiceDispatcher;
 
     public static class ReceiverDispatcher {
         public static Class Class = RefClass.load(ReceiverDispatcher.class, "android.app.LoadedApk$ReceiverDispatcher");

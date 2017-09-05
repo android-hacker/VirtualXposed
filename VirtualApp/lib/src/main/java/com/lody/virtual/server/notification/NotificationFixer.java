@@ -16,6 +16,7 @@ import android.os.Build;
 import android.widget.RemoteViews;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.utils.OSUtils;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
 
@@ -76,6 +77,7 @@ import mirror.com.android.internal.R_Hide;
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.M)
     void fixIcon(Icon icon, Context appContext, boolean installed) {
         if (icon == null) {
             return;
@@ -200,7 +202,7 @@ import mirror.com.android.internal.R_Hide;
     }
 
     void fixIconImage(Resources resources, RemoteViews remoteViews, boolean hasIconBitmap, Notification notification) {
-        if (remoteViews == null) return;
+        if (remoteViews == null || notification.icon == 0) return;
         if (!mNotificationCompat.isSystemLayout(remoteViews)) {
             return;
         }
@@ -213,12 +215,12 @@ import mirror.com.android.internal.R_Hide;
                 drawable.setLevel(notification.iconLevel);
                 Bitmap bitmap = drawableToBitMap(drawable);
                 remoteViews.setImageViewBitmap(id, bitmap);
-            }
-            if (Build.VERSION.SDK_INT >= 21) {
-                remoteViews.setInt(id, "setBackgroundColor", Color.TRANSPARENT);
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                remoteViews.setViewPadding(id, 0, 0, 0, 0);
+                //emui
+                if(OSUtils.getInstance().isEmui()) {
+                    if (notification.largeIcon == null) {
+                        notification.largeIcon = bitmap;
+                    }
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

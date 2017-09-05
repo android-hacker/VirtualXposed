@@ -626,7 +626,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
     private void postNotification(int userId, int id, String pkg, Notification notification) {
         id = VNotificationManager.get().dealNotificationId(id, pkg, null, userId);
         String tag = VNotificationManager.get().dealNotificationTag(id, pkg, null, userId);
-        VNotificationManager.get().dealNotification(id, notification, pkg);
+//        VNotificationManager.get().dealNotification(id, notification, pkg);
         VNotificationManager.get().addNotification(id, tag, pkg, userId);
         try {
             nm.notify(tag, id, notification);
