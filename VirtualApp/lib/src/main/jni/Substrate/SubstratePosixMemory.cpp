@@ -51,7 +51,7 @@ extern "C" SubstrateMemoryRef SubstrateMemoryCreate(SubstrateAllocatorRef alloca
     if (size == 0)
         return NULL;
 
-    int page(getpagesize());
+    long page(sysconf(_SC_PAGESIZE)); // Portable applications should employ sysconf(_SC_PAGESIZE) instead of getpagesize
 
     uintptr_t base(reinterpret_cast<uintptr_t>(data) / page * page);
     size_t width(((reinterpret_cast<uintptr_t>(data) + size - 1) / page + 1) * page - base);
