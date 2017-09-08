@@ -233,9 +233,11 @@ public class PackageParserEx {
             ApplicationInfoL.scanPublicSourceDir.set(ai, ai.dataDir);
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            ApplicationInfoN.deviceEncryptedDataDir.set(ai, ai.dataDir);
+            if(Build.VERSION.SDK_INT < 26) {
+                ApplicationInfoN.deviceEncryptedDataDir.set(ai, ai.dataDir);
+                ApplicationInfoN.credentialEncryptedDataDir.set(ai, ai.dataDir);
+            }
             ApplicationInfoN.deviceProtectedDataDir.set(ai, ai.dataDir);
-            ApplicationInfoN.credentialEncryptedDataDir.set(ai, ai.dataDir);
             ApplicationInfoN.credentialProtectedDataDir.set(ai, ai.dataDir);
         }
     }
