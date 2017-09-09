@@ -42,6 +42,7 @@ import com.lody.virtual.client.hook.proxies.search.SearchManagerStub;
 import com.lody.virtual.client.hook.proxies.shortcut.ShortcutServiceStub;
 import com.lody.virtual.client.hook.proxies.telephony.TelephonyRegistryStub;
 import com.lody.virtual.client.hook.proxies.telephony.TelephonyStub;
+import com.lody.virtual.client.hook.proxies.usage.UsageStatsManagerStub;
 import com.lody.virtual.client.hook.proxies.user.UserManagerStub;
 import com.lody.virtual.client.hook.proxies.vibrator.VibratorStub;
 import com.lody.virtual.client.hook.proxies.wifi.WifiManagerStub;
@@ -165,6 +166,7 @@ public final class InvocationStubManager {
 			}
 			if (Build.VERSION.SDK_INT >= LOLLIPOP_MR1) {
 				addInjector(new GraphicsStatsStub());
+				addInjector(new UsageStatsManagerStub());
 			}
 			if (Build.VERSION.SDK_INT >= M) {
 				addInjector(new NetworkManagementStub());
