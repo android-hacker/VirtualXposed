@@ -7,7 +7,6 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.remote.vloc.VCell;
 import com.lody.virtual.remote.vloc.VLocation;
-import com.lody.virtual.remote.vloc.VWifi;
 import com.lody.virtual.server.IVirtualLocationManager;
 
 import java.util.List;
@@ -162,5 +161,20 @@ public class VirtualLocationManager {
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
+    }
+
+    /**
+     * @param userId
+     * @param gpsListener gpslistener/gssnlistener
+     */
+    public void addGpsStatusListener(int userId, String packageName, Object gpsListener) {
+    }
+
+    /**
+     * @param userId
+     * @param gpsListener gpslistener/gssnlistener
+     */
+    public void removeGpsStatusListener(int userId, String packageName, Object gpsListener) {
+
     }
 }
