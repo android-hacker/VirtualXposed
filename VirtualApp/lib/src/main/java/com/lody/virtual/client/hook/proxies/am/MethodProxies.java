@@ -416,7 +416,7 @@ class MethodProxies {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
                 args[intentIndex - 1] = getHostPkg();
             }
-            if(intent.getScheme().equals(SCHEME_PACKAGE) && intent.getData()!=null){
+            if(SCHEME_PACKAGE.equals(intent.getScheme()) && intent.getData()!=null){
                 if(intent.getAction().startsWith("android.settings.")){
                     intent.setData(Uri.parse("package:"+getHostPkg()));
                 }
