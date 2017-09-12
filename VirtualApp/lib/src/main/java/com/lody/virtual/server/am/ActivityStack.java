@@ -5,6 +5,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -526,6 +528,16 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
                 showWallpaper = ent.array.getBoolean(R_Styleable_Window_windowShowWallpaper, false);
                 isTranslucent = ent.array.getBoolean(R_Styleable_Window_windowIsTranslucent, false);
                 isFloating = ent.array.getBoolean(R_Styleable_Window_windowIsFloating, false);
+            }else {
+                Resources resources = VirtualCore.get().getResources(targetInfo.packageName);
+                if (resources != null) {
+                    TypedArray typedArray = resources.newTheme().obtainStyledAttributes(targetInfo.theme, R_Styleable_Window);
+                    if (typedArray != null) {
+                        showWallpaper = typedArray.getBoolean(R_Styleable_Window_windowShowWallpaper, false);
+                        isTranslucent = typedArray.getBoolean(R_Styleable_Window_windowIsTranslucent, false);
+                        isFloating = typedArray.getBoolean(R_Styleable_Window_windowIsFloating, false);
+                    }
+                }
             }
         } catch (Throwable e) {
             e.printStackTrace();
