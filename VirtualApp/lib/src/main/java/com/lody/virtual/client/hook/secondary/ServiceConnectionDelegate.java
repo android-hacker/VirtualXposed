@@ -4,6 +4,7 @@ import android.app.IServiceConnection;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -80,8 +81,12 @@ public class ServiceConnectionDelegate extends IServiceConnection.Stub {
         return DELEGATE_MAP.remove(conn.asBinder());
     }
 
-    @Override
     public void connected(ComponentName name, IBinder service) throws RemoteException {
+        connected(name, service, false);
+    }
+
+    @Override
+    public void connected(ComponentName name, IBinder service, boolean dead) throws RemoteException {
         IBinderDelegateService delegateService = IBinderDelegateService.Stub.asInterface(service);
         if (delegateService != null) {
             name = delegateService.getComponent();
@@ -91,6 +96,11 @@ public class ServiceConnectionDelegate extends IServiceConnection.Stub {
                 service = proxy;
             }
         }
-        mConn.connected(name, service);
+
+        if(Build.VERSION.SDK_INT>=26) {
+            mConn.connected(name, service, dead);
+        }else {
+            mirror.android.app.IServiceConnection.connected.call(mConn, name, service);
+        }
     }
 }

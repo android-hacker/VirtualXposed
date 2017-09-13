@@ -387,7 +387,11 @@ public class VActivityManagerService extends IActivityManager.Stub {
                 // Report to all of the connections that the service is no longer
                 // available.
                 try {
-                    connection.connected(className, null);
+                    if(Build.VERSION.SDK_INT >= 26) {
+                        connection.connected(className, null, true);
+                    } else {
+                        mirror.android.app.IServiceConnection.connected.call(connection, className, null);
+                    }
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
@@ -437,7 +441,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
                     }
                 }
                 ComponentName componentName = new ComponentName(r.serviceInfo.packageName, r.serviceInfo.name);
-                connectService(connection, componentName, boundRecord);
+                connectService(connection, componentName, boundRecord, false);
             } else {
                 try {
                     IApplicationThreadCompat.scheduleBindService(r.process.appThread, r, service, false, 0);
@@ -547,17 +551,21 @@ public class VActivityManagerService extends IActivityManager.Stub {
                     boundRecord.binder = service;
                     for (IServiceConnection conn : boundRecord.connections) {
                         ComponentName component = ComponentUtils.toComponentName(r.serviceInfo);
-                        connectService(conn, component, boundRecord);
+                        connectService(conn, component, boundRecord, false);
                     }
                 }
             }
         }
     }
 
-    private void connectService(IServiceConnection conn, ComponentName component, ServiceRecord.IntentBindRecord r) {
+    private void connectService(IServiceConnection conn, ComponentName component, ServiceRecord.IntentBindRecord r,boolean dead) {
         try {
             BinderDelegateService delegateService = new BinderDelegateService(component, r.binder);
-            conn.connected(component, delegateService);
+            if (Build.VERSION.SDK_INT >= 26) {
+                conn.connected(component, delegateService, dead);
+            } else {
+                mirror.android.app.IServiceConnection.connected.call(conn, component, delegateService);
+            }
         } catch (RemoteException e) {
             e.printStackTrace();
         }
