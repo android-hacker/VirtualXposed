@@ -4,6 +4,7 @@ import android.app.IServiceConnection;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -16,6 +17,7 @@ import com.lody.virtual.server.IBinderDelegateService;
 
 import mirror.android.app.ActivityThread;
 import mirror.android.app.ContextImpl;
+import mirror.android.app.IServiceConnectionO;
 import mirror.android.app.LoadedApk;
 
 /**
@@ -23,7 +25,6 @@ import mirror.android.app.LoadedApk;
  */
 
 public class ServiceConnectionDelegate extends IServiceConnection.Stub {
-    private final static ArrayMap<ServiceConnection, IServiceConnection> CONNECTION_ARRAY_MAP = new ArrayMap<>();
     private final static ArrayMap<IBinder, ServiceConnectionDelegate> DELEGATE_MAP = new ArrayMap<>();
     private IServiceConnection mConn;
 
@@ -32,11 +33,7 @@ public class ServiceConnectionDelegate extends IServiceConnection.Stub {
     }
 
     public static IServiceConnection getDelegate(Context context, ServiceConnection connection,int flags) {
-        IServiceConnection sd = CONNECTION_ARRAY_MAP.get(connection);
-        if(sd != null){
-            Log.d("ConnectionDelegate", "bindService:use old:"+sd);
-            return getDelegate(sd);
-        }
+        IServiceConnection sd = null;
         if (connection == null) {
             throw new IllegalArgumentException("connection is null");
         }
@@ -46,19 +43,26 @@ public class ServiceConnectionDelegate extends IServiceConnection.Stub {
             Handler handler = ActivityThread.getHandler.call(activityThread);
             sd = LoadedApk.getServiceDispatcher.call(loadApk, connection, context, handler, flags);
         } catch (Exception e) {
-            Log.e("ConnectionDelegate", "bindService", e);
+            Log.e("ConnectionDelegate", "getServiceDispatcher", e);
         }
         if (sd == null) {
             throw new RuntimeException("Not supported in system context");
         }
-        CONNECTION_ARRAY_MAP.put(connection, sd);
         return getDelegate(sd);
     }
 
-    public static IServiceConnection removeDelegate(ServiceConnection conn) {
-        ServiceConnectionDelegate serviceConnectionDelegate = ServiceConnectionDelegate.removeDelegate(CONNECTION_ARRAY_MAP.get(conn));
-        Log.d("ConnectionDelegate", "removeDelegate:" + serviceConnectionDelegate);
-        return serviceConnectionDelegate;
+    public static IServiceConnection removeDelegate(Context context, ServiceConnection conn) {
+        IServiceConnection connection = null;
+        try{
+            Object loadApk = ContextImpl.mPackageInfo.get(VirtualCore.get().getContext());
+            connection = LoadedApk.forgetServiceDispatcher.call(loadApk, context, conn);
+        }catch (Exception e){
+            Log.e("ConnectionDelegate", "forgetServiceDispatcher", e);
+        }
+        if(connection == null){
+            return null;
+        }
+        return ServiceConnectionDelegate.removeDelegate(connection);
     }
 
     public static ServiceConnectionDelegate getDelegate(IServiceConnection conn) {
@@ -80,6 +84,10 @@ public class ServiceConnectionDelegate extends IServiceConnection.Stub {
 
     @Override
     public void connected(ComponentName name, IBinder service) throws RemoteException {
+        connected(name, service, false);
+    }
+
+    public void connected(ComponentName name, IBinder service, boolean dead) throws RemoteException {
         IBinderDelegateService delegateService = IBinderDelegateService.Stub.asInterface(service);
         if (delegateService != null) {
             name = delegateService.getComponent();
@@ -89,6 +97,11 @@ public class ServiceConnectionDelegate extends IServiceConnection.Stub {
                 service = proxy;
             }
         }
-        mConn.connected(name, service);
+
+        if(Build.VERSION.SDK_INT>=26) {
+            IServiceConnectionO.connected.call(mConn, name, service, dead);
+        }else {
+            mConn.connected(name, service);
+        }
     }
 }

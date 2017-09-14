@@ -10,11 +10,9 @@ import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ProviderInfo;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.IInterface;
 import android.os.RemoteException;
-import android.util.Log;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
@@ -35,8 +33,6 @@ import java.util.List;
 import java.util.Map;
 
 import mirror.android.app.ActivityThread;
-import mirror.android.app.ContextImpl;
-import mirror.android.app.LoadedApk;
 import mirror.android.content.ContentProviderNative;
 
 /**
@@ -214,9 +210,9 @@ public class VActivityManager {
         }
     }
 
-    public boolean unbindService(ServiceConnection connection) {
+    public boolean unbindService(Context context, ServiceConnection connection) {
         try {
-            IServiceConnection conn = ServiceConnectionDelegate.removeDelegate(connection);
+            IServiceConnection conn = ServiceConnectionDelegate.removeDelegate(context, connection);
             return getService().unbindService(conn, VUserHandle.myUserId());
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);

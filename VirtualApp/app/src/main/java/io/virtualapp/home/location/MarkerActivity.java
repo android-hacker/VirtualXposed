@@ -80,6 +80,7 @@ public class MarkerActivity extends VActivity implements TencentMap.OnMapClickLi
                 isNoPoint = false;
             }
             if (!TextUtils.isEmpty(address)) {
+                mAddress = address;
                 pathText.setText(address);
             } else {
                 pathText.setText("Unknown");

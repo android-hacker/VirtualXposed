@@ -3,6 +3,7 @@ package com.lody.virtual.client.hook.proxies.am;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.ServiceInfo;
 import android.os.Handler;
 import android.os.IBinder;
@@ -15,6 +16,7 @@ import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.remote.InstalledAppInfo;
 import com.lody.virtual.remote.StubActivityRecord;
 
 import mirror.android.app.ActivityManagerNative;
@@ -106,6 +108,10 @@ import mirror.android.app.IActivityManager;
             IBinder token = ActivityThread.ActivityClientRecord.token.get(r);
             ActivityInfo info = saveInstance.info;
             if (VClientImpl.get().getToken() == null) {
+                InstalledAppInfo installedAppInfo = VirtualCore.get().getInstalledAppInfo(info.packageName, 0);
+                if(installedAppInfo == null){
+                    return true;
+                }
                 VActivityManager.get().processRestarted(info.packageName, info.processName, saveInstance.userId);
                 getH().sendMessageAtFrontOfQueue(Message.obtain(msg));
                 return false;

@@ -27,7 +27,9 @@ public abstract class SchedulerTask implements Runnable {
         @Override
         public void run() {
             SchedulerTask.this.run();
-            mHandler.postDelayed(this, mDelay);
+            if(mDelay > 0) {
+                mHandler.postDelayed(this, mDelay);
+            }
         }
     };
 }

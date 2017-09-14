@@ -25,6 +25,8 @@ public class LoadedApk {
     public static RefMethod<Application> makeApplication;
     @MethodParams({ServiceConnection.class, Context.class, Handler.class, int.class})
     public static RefMethod<IServiceConnection> getServiceDispatcher;
+    @MethodParams({Context.class, ServiceConnection.class})
+    public static RefMethod<IServiceConnection> forgetServiceDispatcher;
 
     public static class ReceiverDispatcher {
         public static Class Class = RefClass.load(ReceiverDispatcher.class, "android.app.LoadedApk$ReceiverDispatcher");
