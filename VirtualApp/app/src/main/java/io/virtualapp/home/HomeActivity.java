@@ -129,7 +129,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
             Toast.makeText(this, "The coming", Toast.LENGTH_SHORT).show();
             return false;
         });
-        menu.add("Location").setIcon(R.drawable.ic_notification).setOnMenuItemClickListener(item -> {
+        menu.add("Virtual Location").setIcon(R.drawable.ic_notification).setOnMenuItemClickListener(item -> {
             startActivity(new Intent(this, VirtualLocationSettings.class));
             return true;
         });

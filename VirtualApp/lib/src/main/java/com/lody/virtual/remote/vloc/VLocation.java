@@ -43,6 +43,10 @@ public class VLocation implements Parcelable {
         this.bearing = in.readFloat();
     }
 
+    public boolean isEmpty() {
+        return latitude == 0 && longitude == 0;
+    }
+
     public static final Parcelable.Creator<VLocation> CREATOR = new Parcelable.Creator<VLocation>() {
         @Override
         public VLocation createFromParcel(Parcel source) {
@@ -54,4 +58,16 @@ public class VLocation implements Parcelable {
             return new VLocation[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return "VLocation{" +
+                "latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", altitude=" + altitude +
+                ", accuracy=" + accuracy +
+                ", speed=" + speed +
+                ", bearing=" + bearing +
+                '}';
+    }
 }
