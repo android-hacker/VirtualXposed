@@ -17,6 +17,7 @@ import com.lody.virtual.server.IBinderDelegateService;
 
 import mirror.android.app.ActivityThread;
 import mirror.android.app.ContextImpl;
+import mirror.android.app.IServiceConnectionO;
 import mirror.android.app.LoadedApk;
 
 /**
@@ -81,11 +82,11 @@ public class ServiceConnectionDelegate extends IServiceConnection.Stub {
         return DELEGATE_MAP.remove(conn.asBinder());
     }
 
+    @Override
     public void connected(ComponentName name, IBinder service) throws RemoteException {
         connected(name, service, false);
     }
 
-    @Override
     public void connected(ComponentName name, IBinder service, boolean dead) throws RemoteException {
         IBinderDelegateService delegateService = IBinderDelegateService.Stub.asInterface(service);
         if (delegateService != null) {
@@ -98,9 +99,9 @@ public class ServiceConnectionDelegate extends IServiceConnection.Stub {
         }
 
         if(Build.VERSION.SDK_INT>=26) {
-            mConn.connected(name, service, dead);
+            IServiceConnectionO.connected.call(mConn, name, service, dead);
         }else {
-            mirror.android.app.IServiceConnection.connected.call(mConn, name, service);
+            mConn.connected(name, service);
         }
     }
 }

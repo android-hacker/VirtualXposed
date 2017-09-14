@@ -65,6 +65,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import mirror.android.app.IServiceConnectionO;
+
 import static android.os.Process.killProcess;
 import static com.lody.virtual.os.VUserHandle.getUserId;
 
@@ -388,9 +390,9 @@ public class VActivityManagerService extends IActivityManager.Stub {
                 // available.
                 try {
                     if(Build.VERSION.SDK_INT >= 26) {
-                        connection.connected(className, null, true);
+                        IServiceConnectionO.connected.call(connection, className, null, true);
                     } else {
-                        mirror.android.app.IServiceConnection.connected.call(connection, className, null);
+                        connection.connected(className, null);
                     }
                 } catch (RemoteException e) {
                     e.printStackTrace();
@@ -562,9 +564,9 @@ public class VActivityManagerService extends IActivityManager.Stub {
         try {
             BinderDelegateService delegateService = new BinderDelegateService(component, r.binder);
             if (Build.VERSION.SDK_INT >= 26) {
-                conn.connected(component, delegateService, dead);
+                IServiceConnectionO.connected.call(conn, component, delegateService, dead);
             } else {
-                mirror.android.app.IServiceConnection.connected.call(conn, component, delegateService);
+                conn.connected(component, delegateService);
             }
         } catch (RemoteException e) {
             e.printStackTrace();
