@@ -3,8 +3,6 @@ package io.virtualapp.splash;
 import android.os.Bundle;
 import android.view.WindowManager;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.lody.virtual.client.core.VirtualCore;
 
 import io.virtualapp.R;
@@ -17,7 +15,6 @@ import jonathanfinerty.once.Once;
 
 public class SplashActivity extends VActivity {
 
-    private AdView mAdView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +24,6 @@ public class SplashActivity extends VActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-        showBanner();
         VUiKit.defer().when(() -> {
             if (!Once.beenDone("collect_flurry")) {
                 FlurryROMCollector.startCollect();
@@ -46,11 +42,6 @@ public class SplashActivity extends VActivity {
         });
     }
 
-    private void showBanner() {
-        mAdView = (AdView) findViewById(R.id.splash_banner);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
-    }
 
     private void doActionInThread() {
         if (!VirtualCore.get().isEngineLaunched()) {

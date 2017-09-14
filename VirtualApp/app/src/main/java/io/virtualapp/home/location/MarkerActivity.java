@@ -37,9 +37,6 @@ import com.tencent.tencentmap.mapsdk.map.TencentMap;
 import io.virtualapp.abs.ui.VActivity;
 import io.virtualapp.R;
 
-/**
- * AMapV2地图中简单介绍一些Marker的用法.
- */
 public class MarkerActivity extends VActivity implements TencentMap.OnMapClickListener, TencentLocationListener {
     private TencentMap mMap;
     private MapView mapView;

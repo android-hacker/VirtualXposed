@@ -3,9 +3,6 @@ package io.virtualapp.home;
 import android.app.Activity;
 import android.graphics.Bitmap;
 
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.InterstitialAd;
 import com.lody.virtual.GmsSupport;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.os.VUserInfo;
@@ -17,7 +14,6 @@ import java.io.IOException;
 
 import io.virtualapp.VCommends;
 import io.virtualapp.abs.ui.VUiKit;
-import io.virtualapp.home.ads.AdScheduler;
 import io.virtualapp.home.models.AppData;
 import io.virtualapp.home.models.AppInfoLite;
 import io.virtualapp.home.models.MultiplePackageAppData;
@@ -34,9 +30,6 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
     private HomeContract.HomeView mView;
     private Activity mActivity;
     private AppRepository mRepo;
-    private InterstitialAd mInterstitialAd;
-    private AdScheduler mScheduler = new AdScheduler(10000L);
-
     private AppData mTempAppData;
 
 
@@ -45,19 +38,6 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
         mActivity = view.getActivity();
         mRepo = new AppRepository(mActivity);
         mView.setPresenter(this);
-        mInterstitialAd = new InterstitialAd(mActivity);
-        mInterstitialAd.setAdUnitId("ca-app-pub-1609791120068944/6903216910");
-        mInterstitialAd.loadAd(new AdRequest.Builder().build());
-        mInterstitialAd.setAdListener(new AdListener() {
-            @Override
-            public void onAdClosed() {
-                if (mTempAppData != null) {
-                    launchApp(mTempAppData);
-                    mTempAppData = null;
-                }
-                mInterstitialAd.loadAd(new AdRequest.Builder().build());
-            }
-        });
     }
 
     @Override
@@ -75,16 +55,6 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
 
     @Override
     public void launchApp(AppData data) {
-        if (mInterstitialAd.isLoaded() && mScheduler.shouldShowAd()) {
-            mTempAppData = data;
-            mInterstitialAd.show();
-            mScheduler.adShowed();
-        } else {
-            launchAppNoAd(data);
-        }
-    }
-
-    public void launchAppNoAd(AppData data) {
         try {
             if (data instanceof PackageAppData) {
                 PackageAppData appData = (PackageAppData) data;

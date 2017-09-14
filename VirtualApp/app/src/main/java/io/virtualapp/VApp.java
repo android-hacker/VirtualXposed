@@ -2,16 +2,11 @@ package io.virtualapp;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.support.multidex.MultiDexApplication;
-import android.text.TextUtils;
-import android.widget.Toast;
 
 import com.flurry.android.FlurryAgent;
-import com.google.android.gms.ads.MobileAds;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.stub.VASettings;
-import com.lody.virtual.helper.utils.Reflect;
 
 import io.virtualapp.delegate.MyAppRequestListener;
 import io.virtualapp.delegate.MyComponentDelegate;
@@ -54,7 +49,6 @@ public class VApp extends MultiDexApplication {
             @Override
             public void onMainProcess() {
                 Once.initialise(VApp.this);
-                MobileAds.initialize(VApp.this, "ca-app-pub-1609791120068944~5426483711");
                 new FlurryAgent.Builder()
                         .withLogEnabled(true)
                         .withListener(() -> {
