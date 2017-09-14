@@ -53,7 +53,7 @@ void IOUniformer::init_array() {
         int i = 0;
         char envName[30];
         while (1) {
-            memset(envName, sizeof(envName), 0);
+            memset(envName, 0, sizeof(envName));
             sprintf(envName, "V_IO_REDIRECT_%i", i);
             char *env = getenv(envName);
             if (env != NULL) {
@@ -68,7 +68,7 @@ void IOUniformer::init_array() {
         }
         i = 0;
         while (1) {
-            memset(envName, sizeof(envName), 0);
+            memset(envName, 0, sizeof(envName));
             sprintf(envName, "V_IO_RO_%i", i);
             char *env = getenv(envName);
             if (env != NULL) {
@@ -96,7 +96,7 @@ void IOUniformer::saveEnvironment(const char *selfSoPath, int api_level, int pre
     setenv("V_SELF_SO", gVars->selfSoPath, 1);
     sprintf(chars, "%i", api_level);
     setenv("V_API_LEVEL", chars, 1);
-    memset(chars, sizeof(chars), 0);
+    memset(chars, 0, sizeof(chars));
     sprintf(chars, "%i", preview_api_level);
     setenv("V_PREVIEW_API_LEVEL", chars, 1);
     std::map<std::string, std::string>::iterator iterator;
@@ -105,8 +105,8 @@ void IOUniformer::saveEnvironment(const char *selfSoPath, int api_level, int pre
          iterator != gVars->IORedirectMap.end(); iterator++, i++) {
         const std::string &prefix = iterator->first;
         const std::string &new_prefix = iterator->second;
-        memset(envName, sizeof(envName), 0);
-        memset(buffer, sizeof(buffer), 0);
+        memset(envName, 0, sizeof(envName));
+        memset(buffer, 0, sizeof(buffer));
         sprintf(envName, "V_IO_REDIRECT_%i", i);
         sprintf(buffer, "%s&%s", prefix.c_str(), new_prefix.c_str());
         setenv(envName, buffer, 1);
@@ -114,8 +114,8 @@ void IOUniformer::saveEnvironment(const char *selfSoPath, int api_level, int pre
     i = 0;
     std::list<std::string>::iterator it;
     for (it = gVars->ReadOnlyPathMap.begin(); it != gVars->ReadOnlyPathMap.end(); it++, i++) {
-        memset(envName, sizeof(envName), 0);
-        memset(buffer, sizeof(buffer), 0);
+        memset(envName, 0, sizeof(envName));
+        memset(buffer, 0, sizeof(buffer));
         sprintf(envName, "V_IO_RO_%i", i);
         setenv(envName, it->c_str(), 1);
     }

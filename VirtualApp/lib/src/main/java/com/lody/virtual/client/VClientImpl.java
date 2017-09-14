@@ -106,6 +106,13 @@ public final class VClientImpl extends IVClient.Stub {
     }
 
     public VDeviceInfo getDeviceInfo() {
+        if (deviceInfo == null) {
+            synchronized (this) {
+                if (deviceInfo == null) {
+                    deviceInfo = VDeviceManager.get().getDeviceInfo(getUserId(vuid));
+                }
+            }
+        }
         return deviceInfo;
     }
 
@@ -163,7 +170,6 @@ public final class VClientImpl extends IVClient.Stub {
     public void initProcess(IBinder token, int vuid) {
         this.token = token;
         this.vuid = vuid;
-        this.deviceInfo = VDeviceManager.get().getDeviceInfo(getUserId(vuid));
     }
 
     private void handleNewIntent(NewIntentData data) {
@@ -205,6 +211,7 @@ public final class VClientImpl extends IVClient.Stub {
     }
 
     private void bindApplicationNoCheck(String packageName, String processName, ConditionVariable lock) {
+        VDeviceInfo deviceInfo = getDeviceInfo();
         if (processName == null) {
             processName = packageName;
         }
@@ -252,11 +259,6 @@ public final class VClientImpl extends IVClient.Stub {
         if (targetSdkVersion < Build.VERSION_CODES.GINGERBREAD) {
             StrictMode.ThreadPolicy newPolicy = new StrictMode.ThreadPolicy.Builder(StrictMode.getThreadPolicy()).permitNetwork().build();
             StrictMode.setThreadPolicy(newPolicy);
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            if (mirror.android.os.StrictMode.sVmPolicyMask != null) {
-                mirror.android.os.StrictMode.sVmPolicyMask.set(0);
-            }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && targetSdkVersion < Build.VERSION_CODES.LOLLIPOP) {
             mirror.android.os.Message.updateCheckRecycle.call(targetSdkVersion);

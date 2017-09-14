@@ -51,6 +51,9 @@ public class SettingsProviderHook extends ExternalProviderHook {
 
     @Override
     public Bundle call(MethodBox methodBox, String method, String arg, Bundle extras) throws InvocationTargetException {
+        if (!VClientImpl.get().isBound()) {
+            return methodBox.call();
+        }
         int methodType = getMethodType(method);
         if (METHOD_GET == methodType) {
             String presetValue = PRE_SET_VALUES.get(arg);

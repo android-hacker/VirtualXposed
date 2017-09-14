@@ -7,4 +7,6 @@ interface IDeviceInfoManager {
 
     VDeviceInfo getDeviceInfo(int userId);
 
+    void updateDeviceInfo(int userId, in VDeviceInfo info);
+
 }

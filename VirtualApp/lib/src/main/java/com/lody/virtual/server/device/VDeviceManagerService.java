@@ -66,6 +66,16 @@ public class VDeviceManagerService extends IDeviceInfoManager.Stub {
         return info;
     }
 
+    @Override
+    public void updateDeviceInfo(int userId, VDeviceInfo info) throws RemoteException {
+        synchronized (mDeviceInfos) {
+            if (info != null) {
+                mDeviceInfos.put(userId, info);
+                mPersistenceLayer.save();
+            }
+        }
+    }
+
     private VDeviceInfo generateRandomDeviceInfo() {
         VDeviceInfo info = new VDeviceInfo();
         String value;
