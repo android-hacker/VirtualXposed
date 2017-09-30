@@ -449,7 +449,11 @@ public final class VClientImpl extends IVClient.Stub {
         try {
             for (ProviderInfo cpi : providers) {
                 if (cpi.enabled) {
-                    ActivityThread.installProvider(mainThread, app, cpi, null);
+                    try {
+                        ActivityThread.installProvider(mainThread, app, cpi, null);
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         } finally {
