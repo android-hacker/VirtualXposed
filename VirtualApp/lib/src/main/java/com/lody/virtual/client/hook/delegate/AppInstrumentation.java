@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.PersistableBundle;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.VClientImpl;
@@ -68,6 +69,9 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 
     @Override
     public void callActivityOnCreate(Activity activity, Bundle icicle) {
+        if (icicle != null) {
+            BundleCompat.clearParcelledData(icicle);
+        }
         VirtualCore.get().getComponentDelegate().beforeActivityCreate(activity);
         IBinder token = mirror.android.app.Activity.mToken.get(activity);
         ActivityClientRecord r = VActivityManager.get().getActivityRecord(token);
@@ -91,6 +95,14 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
         }
         super.callActivityOnCreate(activity, icicle);
         VirtualCore.get().getComponentDelegate().afterActivityCreate(activity);
+    }
+
+    @Override
+    public void callActivityOnCreate(Activity activity, Bundle icicle, PersistableBundle persistentState) {
+        if (icicle != null) {
+            BundleCompat.clearParcelledData(icicle);
+        }
+        super.callActivityOnCreate(activity, icicle, persistentState);
     }
 
     @Override
