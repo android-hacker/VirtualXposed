@@ -2,7 +2,7 @@
 
 简介
 ---
-**VirtualApp**(著作权登记名称：ILoader) 是一个**App虚拟化引擎**（简称`VA`）。
+**VirtualApp**是一个**App虚拟化引擎**（简称`VA`）。
 
 **VirtualApp已兼容Android 0(8.0 Preview)。**
 
@@ -96,8 +96,4 @@ GPL 3.0
 
 技术支持
 ------------
-Lody (imlody@foxmail.com)
-
-QQ/WeChat (382816028)
-
 QQ群：562814070
