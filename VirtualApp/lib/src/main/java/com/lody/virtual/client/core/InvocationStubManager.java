@@ -20,6 +20,7 @@ import com.lody.virtual.client.hook.proxies.content.ContentServiceStub;
 import com.lody.virtual.client.hook.proxies.context_hub.ContextHubServiceStub;
 import com.lody.virtual.client.hook.proxies.display.DisplayStub;
 import com.lody.virtual.client.hook.proxies.dropbox.DropBoxManagerStub;
+import com.lody.virtual.client.hook.proxies.fingerprint.FingerprintManagerStub;
 import com.lody.virtual.client.hook.proxies.graphics.GraphicsStatsStub;
 import com.lody.virtual.client.hook.proxies.imms.MmsStub;
 import com.lody.virtual.client.hook.proxies.input.InputMethodManagerStub;
@@ -169,6 +170,7 @@ public final class InvocationStubManager {
 				addInjector(new UsageStatsManagerStub());
 			}
 			if (Build.VERSION.SDK_INT >= M) {
+				addInjector(new FingerprintManagerStub());
 				addInjector(new NetworkManagementStub());
 			}
 			if (Build.VERSION.SDK_INT >= N) {
