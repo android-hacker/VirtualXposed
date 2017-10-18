@@ -160,7 +160,7 @@ public class ProviderHook implements InvocationHandler {
             } else if ("getType".equals(name)) {
                 return getType(methodBox, (Uri) args[0]);
             } else if ("delete".equals(name)) {
-                Uri url = (Uri) args[0];
+                Uri url = (Uri) args[start];
                 String selection = (String) args[start + 1];
                 String[] selectionArgs = (String[]) args[start + 2];
                 return delete(methodBox, url, selection, selectionArgs);
