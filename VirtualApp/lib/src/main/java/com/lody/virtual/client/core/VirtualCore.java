@@ -446,7 +446,7 @@ public final class VirtualCore {
         }
         shortcutIntent.putExtra("_VA_|_intent_", targetIntent);
         shortcutIntent.putExtra("_VA_|_uri_", targetIntent.toUri(0));
-        shortcutIntent.putExtra("_VA_|_user_id_", VUserHandle.myUserId());
+        shortcutIntent.putExtra("_VA_|_user_id_", userId);
 
         Intent addIntent = new Intent();
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
