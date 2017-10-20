@@ -13,48 +13,40 @@ import java.lang.reflect.Method;
 
 class MethodProxies {
 
-    static class StartInput extends MethodProxy {
+    static class StartInput extends StartInputOrWindowGainedFocus {
 
         @Override
         public String getMethodName() {
             return "startInput";
         }
-
-        @Override
-        public Object call(Object who, Method method, Object... args) throws Throwable {
-            if (args.length > 2 && args[2] instanceof EditorInfo) {
-                EditorInfo attribute = (EditorInfo) args[2];
-                attribute.packageName = getHostPkg();
-            }
-            return method.invoke(who, args);
-        }
-
     }
 
-    static class WindowGainedFocus extends MethodProxy {
-
-        private Boolean noEditorInfo = null;
-        private int editorInfoIndex = -1;
+    static class WindowGainedFocus extends StartInputOrWindowGainedFocus {
 
         @Override
         public String getMethodName() {
             return "windowGainedFocus";
         }
 
+
+    }
+
+    static class StartInputOrWindowGainedFocus extends MethodProxy {
+
+
+        @Override
+        public String getMethodName() {
+            return "startInputOrWindowGainedFocus";
+        }
+
         @Override
         public Object call(Object who, Method method, Object... args) throws Throwable {
-            if (noEditorInfo == null) {
-                editorInfoIndex = ArrayUtils.indexOfFirst(args, EditorInfo.class);
-                noEditorInfo = editorInfoIndex == -1;
-            }
-            if (!noEditorInfo) {
+            int editorInfoIndex = ArrayUtils.indexOfFirst(args, EditorInfo.class);
+            if (editorInfoIndex != -1) {
                 EditorInfo attribute = (EditorInfo) args[editorInfoIndex];
-                if (attribute != null) {
-                    attribute.packageName = getHostPkg();
-                }
+                attribute.packageName = getHostPkg();
             }
             return method.invoke(who, args);
         }
-
     }
 }

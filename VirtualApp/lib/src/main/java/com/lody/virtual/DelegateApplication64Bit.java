@@ -1,5 +1,6 @@
 package com.lody.virtual;
 
+import android.annotation.TargetApi;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -24,6 +25,7 @@ import java.util.List;
  *         <p>
  *         Copy the file to your Project.
  */
+@TargetApi(Build.VERSION_CODES.M)
 public abstract class DelegateApplication64Bit extends Application {
 
     private Application mTarget;
