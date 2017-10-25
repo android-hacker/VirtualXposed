@@ -185,15 +185,17 @@ public class ProviderHook implements InvocationHandler {
             } else if ("query".equals(name)) {
                 Uri url = (Uri) args[start];
                 String[] projection = (String[]) args[start + 1];
-                String selection;
-                String[] selectionArgs;
-                String sortOrder;
+                String selection = null;
+                String[] selectionArgs = null;
+                String sortOrder = null;
                 Bundle queryArgs = null;
                 if (Build.VERSION.SDK_INT >= 26) {
                     queryArgs = (Bundle) args[start + 2];
-                    selection = queryArgs.getString(QUERY_ARG_SQL_SELECTION);
-                    selectionArgs = queryArgs.getStringArray(QUERY_ARG_SQL_SELECTION_ARGS);
-                    sortOrder = queryArgs.getString(QUERY_ARG_SQL_SORT_ORDER);
+                    if (queryArgs != null) {
+                        selection = queryArgs.getString(QUERY_ARG_SQL_SELECTION);
+                        selectionArgs = queryArgs.getStringArray(QUERY_ARG_SQL_SELECTION_ARGS);
+                        sortOrder = queryArgs.getString(QUERY_ARG_SQL_SORT_ORDER);
+                    }
                 } else {
                     selection = (String) args[start + 2];
                     selectionArgs = (String[]) args[start + 3];
