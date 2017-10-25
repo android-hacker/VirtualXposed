@@ -19,7 +19,7 @@
 #include "Helper.h"
 
 
-#define HOOK_SYMBOL(handle, func) hook_template(handle, #func, (void*) new_##func, (void**) &orig_##func)
+#define HOOK_SYMBOL(handle, func) hook_function(handle, #func, (void*) new_##func, (void**) &orig_##func)
 #define HOOK_DEF(ret, func, ...) \
   ret (*orig_##func)(__VA_ARGS__); \
   ret new_##func(__VA_ARGS__)
@@ -27,9 +27,7 @@
 
 namespace IOUniformer {
 
-    void init_array();
-
-    void saveEnvironment(const char *selfSoPath, int api_level, int preview_api_level);
+    void init_before_all();
 
     void startUniformer(int api_level, int preview_api_level);
 

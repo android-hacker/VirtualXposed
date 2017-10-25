@@ -9,17 +9,15 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/Foundation
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/Substrate
 
-
 LOCAL_SRC_FILES := Core.cpp \
 				   Foundation/IOUniformer.cpp \
 				   Foundation/VMPatch.cpp \
-                   Substrate/hde64.c \
-                   Substrate/SubstrateDebug.cpp \
-                   Substrate/SubstrateHook.cpp \
-                   Substrate/SubstratePosixMemory.cpp \
-                   Substrate/SymbolFinder.cpp \
-
+				   Foundation/SymbolFinder.cpp \
+				   Foundation/Path.cpp \
+				   Foundation/SandboxFs.cpp \
 
 LOCAL_LDLIBS := -llog
+LOCAL_STATIC_LIBRARIES := hookzz
 
 include $(BUILD_SHARED_LIBRARY)
+include $(LOCAL_PATH)/HookZz/Android.mk

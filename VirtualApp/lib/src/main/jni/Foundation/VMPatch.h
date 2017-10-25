@@ -2,8 +2,8 @@
 // VirtualApp Native Project
 //
 
-#ifndef NDK_HOOK_NATIVE_H
-#define NDK_HOOK_NATIVE_H
+#ifndef FOUNDATION_PATH
+#define FOUNDATION_PATH
 
 
 #include <jni.h>

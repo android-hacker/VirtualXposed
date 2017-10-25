@@ -1,0 +1,3 @@
+[submodule "tools/deps/MachoParser"]
+	path = tools/deps/MachoParser
+	url = https://github.com/jmpews/MachoParser.git

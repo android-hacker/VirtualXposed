@@ -15,10 +15,16 @@ void Java_nativeHookNative(JNIEnv *env, jclass jclazz, jobjectArray javaMethods,
 }
 
 
-void Java_nativeStartUniformer(JNIEnv *env, jclass jclazz, jstring selfSoPath, jint apiLevel, jint previewApiLevel) {
-    const char *soPath = env->GetStringUTFChars(selfSoPath, NULL);
-    IOUniformer::saveEnvironment(soPath, apiLevel, previewApiLevel);
-    IOUniformer::startUniformer(apiLevel, previewApiLevel);
+void Java_nativeStartUniformer(JNIEnv *env, jclass jclazz, jstring selfSoPath, jint apiLevel,
+                               jint preview_api_level) {
+    const char *so_path = env->GetStringUTFChars(selfSoPath, NULL);
+    char api_level_chars[5];
+    setenv("V_SO_PATH", so_path, 1);
+    sprintf(api_level_chars, "%i", apiLevel);
+    setenv("V_API_LEVEL", api_level_chars, 1);
+    sprintf(api_level_chars, "%i", preview_api_level);
+    setenv("V_PREVIEW_API_LEVEL", api_level_chars, 1);
+    IOUniformer::startUniformer(apiLevel, preview_api_level);
 }
 
 void Java_nativeReadOnly(JNIEnv *env, jclass jclazz, jstring _path) {
@@ -35,7 +41,10 @@ void Java_nativeRedirect(JNIEnv *env, jclass jclazz, jstring orgPath, jstring ne
 jstring Java_nativeQuery(JNIEnv *env, jclass jclazz, jstring orgPath) {
     const char *org_path = env->GetStringUTFChars(orgPath, NULL);
     const char *redirected_path = IOUniformer::query(org_path);
-    return env->NewStringUTF(redirected_path);
+    if (redirected_path != NULL) {
+        return env->NewStringUTF(redirected_path);
+    }
+    return NULL;
 }
 
 jstring Java_nativeRestore(JNIEnv *env, jclass jclazz, jstring redirectedPath) {
@@ -46,7 +55,8 @@ jstring Java_nativeRestore(JNIEnv *env, jclass jclazz, jstring redirectedPath) {
 
 
 static JNINativeMethod gMethods[] = {
-        NATIVE_METHOD((void *) Java_nativeStartUniformer, "nativeStartUniformer", "(Ljava/lang/String;II)V"),
+        NATIVE_METHOD((void *) Java_nativeStartUniformer, "nativeStartUniformer",
+                      "(Ljava/lang/String;II)V"),
         NATIVE_METHOD((void *) Java_nativeReadOnly, "nativeReadOnly", "(Ljava/lang/String;)V"),
         NATIVE_METHOD((void *) Java_nativeRedirect, "nativeRedirect",
                       "(Ljava/lang/String;Ljava/lang/String;)V"),
@@ -81,7 +91,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
 }
 
 extern "C" __attribute__((constructor)) void _init(void) {
-    IOUniformer::init_array();
+    IOUniformer::init_before_all();
 }
 
 JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved) {
