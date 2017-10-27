@@ -12,6 +12,7 @@ import android.telephony.NeighboringCellInfo;
 import android.telephony.cdma.CdmaCellLocation;
 import android.telephony.gsm.GsmCellLocation;
 
+import com.lody.virtual.client.hook.base.MethodProxy;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgMethodProxy;
 import com.lody.virtual.client.hook.base.StaticMethodProxy;
 import com.lody.virtual.client.ipc.VirtualLocationManager;
@@ -56,6 +57,21 @@ class MethodProxies {
                 if (cell != null) {
                     return getCellLocationInternal(cell);
                 }
+            }
+            return super.call(who, method, args);
+        }
+    }
+
+    static class getAllCellInfoUsingSubId extends ReplaceCallingPkgMethodProxy {
+
+        public getAllCellInfoUsingSubId() {
+            super("getAllCellInfoUsingSubId");
+        }
+
+        @Override
+        public Object call(Object who, Method method, Object... args) throws Throwable {
+            if (isFakeLocationEnable()) {
+                return null;
             }
             return super.call(who, method, args);
         }
@@ -120,7 +136,7 @@ class MethodProxies {
                     CdmaCellLocation cellLoc = new CdmaCellLocation();
                     cellLoc.setCellLocationData(cell.baseStationId, Integer.MAX_VALUE, Integer.MAX_VALUE, cell.systemId, cell.networkId);
                     cellLoc.fillInNotifierBundle(cellData);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     cellData.putInt("baseStationId", cell.baseStationId);
                     cellData.putInt("baseStationLatitude", Integer.MAX_VALUE);
                     cellData.putInt("baseStationLongitude", Integer.MAX_VALUE);
@@ -132,7 +148,7 @@ class MethodProxies {
                     GsmCellLocation cellLoc = new GsmCellLocation();
                     cellLoc.setLacAndCid(cell.lac, cell.cid);
                     cellLoc.fillInNotifierBundle(cellData);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     cellData.putInt("lac", cell.lac);
                     cellData.putInt("cid", cell.cid);
                     cellData.putInt("psc", cell.psc);

@@ -1,7 +1,14 @@
 package com.lody.virtual.remote.vloc;
 
+import android.location.Location;
+import android.location.LocationManager;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.lody.virtual.client.env.VirtualGPSSatalines;
+import com.lody.virtual.helper.utils.Reflect;
 
 /**
  * @author Lody
@@ -23,24 +30,24 @@ public class VLocation implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeDouble(this.latitude);
-        dest.writeDouble(this.longitude);
-        dest.writeDouble(this.altitude);
-        dest.writeFloat(this.accuracy);
-        dest.writeFloat(this.speed);
-        dest.writeFloat(this.bearing);
+        dest.writeDouble(latitude);
+        dest.writeDouble(longitude);
+        dest.writeDouble(altitude);
+        dest.writeFloat(accuracy);
+        dest.writeFloat(speed);
+        dest.writeFloat(bearing);
     }
 
     public VLocation() {
     }
 
     public VLocation(Parcel in) {
-        this.latitude = in.readDouble();
-        this.longitude = in.readDouble();
-        this.altitude = in.readDouble();
-        this.accuracy = in.readFloat();
-        this.speed = in.readFloat();
-        this.bearing = in.readFloat();
+        latitude = in.readDouble();
+        longitude = in.readDouble();
+        altitude = in.readDouble();
+        accuracy = in.readFloat();
+        speed = in.readFloat();
+        bearing = in.readFloat();
     }
 
     public boolean isEmpty() {
@@ -69,5 +76,25 @@ public class VLocation implements Parcelable {
                 ", speed=" + speed +
                 ", bearing=" + bearing +
                 '}';
+    }
+
+    public Location toSysLocation() {
+        Location location = new Location(LocationManager.GPS_PROVIDER);
+        location.setAccuracy(8f);
+        Bundle extraBundle = new Bundle();
+        location.setBearing(bearing);
+        Reflect.on(location).call("setIsFromMockProvider", false);
+        location.setLatitude(latitude);
+        location.setLongitude(longitude);
+        location.setSpeed(speed);
+        location.setTime(System.currentTimeMillis());
+        location.setExtras(extraBundle);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            location.setElapsedRealtimeNanos(277000000);
+        }
+        int svCount = VirtualGPSSatalines.get().getSvCount();
+        extraBundle.putInt("satellites", svCount);
+        extraBundle.putInt("satellitesvalue", svCount);
+        return location;
     }
 }
