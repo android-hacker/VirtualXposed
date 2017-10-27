@@ -41,6 +41,12 @@ ref to: [frida-gum](https://github.com/frida/frida-gum) and [minhook](https://gi
 1. for arsenal - [zzdeps](https://github.com/jmpews/zzdeps)
 2. for low-level control
 
+# Who use this?
+
+**[VirtualApp](https://github.com/asLody/VirtualApp) An open source implementation of MultiAccount.(Support 4.0 - 8.0)**
+
+**[AppleTrace](https://github.com/everettjf/AppleTrace) Trace tool for iOS/macOS (similar to systrace for Android)**
+
 # Docs
 
 [Move to HookZz docs](https://jmpews.github.io/zzpp/hookzz-docs/) **[need update]**
@@ -55,7 +61,7 @@ ref to: [frida-gum](https://github.com/frida/frida-gum) and [minhook](https://gi
 
 # Compile
 
-## build for arm64-io
+## build for arm64-ios
 
 #### 1. build `libhookzz.dylib` and `libhookzz.static.a`
 
