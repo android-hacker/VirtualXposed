@@ -122,20 +122,6 @@ public class WifiManagerStub extends BinderInvocationProxy {
             addMethodProxy(new RemoveWorkSourceMethodProxy("startScan"));
             addMethodProxy(new RemoveWorkSourceMethodProxy("requestBatchedScan"));
         }
-        addMethodProxy(new MethodProxy() {
-            @Override
-            public String getMethodName() {
-                return "getWifiEnabledState";
-            }
-
-            @Override
-            public Object call(Object who, Method method, Object... args) throws Throwable {
-                if (isFakeLocationEnable()) {
-                    return WifiManager.WIFI_STATE_DISABLED;
-                }
-                return super.call(who, method, args);
-            }
-        });
     }
 
     @FakeLocMark("Fake wifi bssid")
@@ -149,6 +135,10 @@ public class WifiManagerStub extends BinderInvocationProxy {
         @Override
         public Object call(Object who, Method method, Object... args) throws Throwable {
             WifiInfo wifiInfo = (WifiInfo) method.invoke(who, args);
+            if (isFakeLocationEnable()) {
+                mirror.android.net.wifi.WifiInfo.mBSSID.set(wifiInfo, "00:00:00:00:00:00");
+                mirror.android.net.wifi.WifiInfo.mMacAddress.set(wifiInfo, "00:00:00:00:00:00");
+            }
             if (VASettings.Wifi.FAKE_WIFI_STATE) {
                 return createWifiInfo();
             }

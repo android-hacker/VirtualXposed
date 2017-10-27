@@ -5,6 +5,7 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
+import com.lody.virtual.client.hook.base.MethodProxy;
 import com.lody.virtual.remote.vloc.VCell;
 import com.lody.virtual.remote.vloc.VLocation;
 import com.lody.virtual.server.IVirtualLocationManager;
@@ -19,6 +20,10 @@ public class VirtualLocationManager {
 
     private static final VirtualLocationManager sInstance = new VirtualLocationManager();
     private IVirtualLocationManager mRemote;
+
+    public static final int MODE_CLOSE = 0;
+    public static final int MODE_USE_GLOBAL = 1;
+    public static final int MODE_USE_SELF = 2;
 
 
     public static VirtualLocationManager get() {
@@ -48,6 +53,10 @@ public class VirtualLocationManager {
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
+    }
+
+    public int getMode() {
+        return getMode(MethodProxy.getAppUserId(), MethodProxy.getAppPkg());
     }
 
     public void setMode(int userId, String pkg, int mode) {
@@ -147,6 +156,10 @@ public class VirtualLocationManager {
         }
     }
 
+    public VLocation getLocation() {
+        return getLocation(MethodProxy.getAppUserId(), MethodProxy.getAppPkg());
+    }
+
     public void setGlobalLocation(VLocation loc) {
         try {
             getRemote().setGlobalLocation(loc);
@@ -161,20 +174,5 @@ public class VirtualLocationManager {
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
-    }
-
-    /**
-     * @param userId
-     * @param gpsListener gpslistener/gssnlistener
-     */
-    public void addGpsStatusListener(int userId, String packageName, Object gpsListener) {
-    }
-
-    /**
-     * @param userId
-     * @param gpsListener gpslistener/gssnlistener
-     */
-    public void removeGpsStatusListener(int userId, String packageName, Object gpsListener) {
-
     }
 }

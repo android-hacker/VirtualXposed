@@ -121,7 +121,6 @@ const char *relocate_path(const char *_path, int *result) {
             redirect_path += path + item.orig_size;
             *result = MATCH;
             free(path);
-            LOGD("[RD] %s", redirect_path.c_str());
             return strdup(redirect_path.c_str());
         }
     }
