@@ -2,6 +2,7 @@
 // VirtualApp Native Project
 //
 #include <unistd.h>
+#include <Substrate/CydiaSubstrate.h>
 
 extern "C" {
 #include <HookZz/include/hookzz.h>
@@ -68,7 +69,8 @@ hook_function(void *handle, const char *symbol, void *new_func, void **old_func)
     if (addr == NULL) {
         return;
     }
-    ZzHookReplace(addr, new_func, old_func);
+//    ZzHookReplace(addr, new_func, old_func);
+    MSHookFunction(addr, new_func, old_func);
 }
 
 
