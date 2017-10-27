@@ -74,7 +74,8 @@ zpointer zz_thumb_writer_put_ldr_b_reg_address(ZzThumbWriter *self, ZzARMReg reg
         if (ri.meta <= ZZ_ARM_REG_R7) {
             zz_thumb_writer_put_ldr_reg_imm(self, reg, 0x0);
         } else {
-            zz_thumb_writer_put_ldr_reg_imm(self, reg, 0x2);
+            zz_thumb_writer_put_ldr_reg_imm(self, reg, 0x4);
+            zz_thumb_writer_put_nop(self);
         }
     }
 
