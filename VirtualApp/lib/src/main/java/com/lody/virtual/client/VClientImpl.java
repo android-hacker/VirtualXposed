@@ -15,6 +15,7 @@ import android.content.pm.ProviderInfo;
 import android.os.Binder;
 import android.os.Build;
 import android.os.ConditionVariable;
+import android.os.Debug;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.IInterface;
@@ -465,12 +466,10 @@ public final class VClientImpl extends IVClient.Stub {
         Object mainThread = VirtualCore.mainThread();
         try {
             for (ProviderInfo cpi : providers) {
-                if (cpi.enabled) {
-                    try {
-                        ActivityThread.installProvider(mainThread, app, cpi, null);
-                    } catch (Throwable e) {
-                        e.printStackTrace();
-                    }
+                try {
+                    ActivityThread.installProvider(mainThread, app, cpi, null);
+                } catch (Throwable e) {
+                    e.printStackTrace();
                 }
             }
         } finally {
