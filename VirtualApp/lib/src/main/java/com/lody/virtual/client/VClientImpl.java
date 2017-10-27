@@ -52,6 +52,7 @@ import com.taobao.android.dex.interpret.ARTUtils;
 import com.taobao.android.runtime.DalvikUtils;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -307,6 +308,9 @@ public final class VClientImpl extends IVClient.Stub {
         mInitialApplication = LoadedApk.makeApplication.call(data.info, false, null);
         mirror.android.app.ActivityThread.mInitialApplication.set(mainThread, mInitialApplication);
         ContextFixer.fixContext(mInitialApplication);
+        if (Build.VERSION.SDK_INT >= 24 && "com.tencent.mm:recovery".equals(processName)) {
+            fixWeChatRecovery(mInitialApplication);
+        }
         if (data.providers != null) {
             installContentProviders(mInitialApplication, data.providers);
         }
@@ -334,6 +338,19 @@ public final class VClientImpl extends IVClient.Stub {
         }
         VActivityManager.get().appDoneExecuting();
         VirtualCore.get().getComponentDelegate().afterApplicationCreate(mInitialApplication);
+    }
+
+    private void fixWeChatRecovery(Application app) {
+        try {
+            Field field = app.getClassLoader().loadClass("com.tencent.recovery.Recovery").getField("context");
+            field.setAccessible(true);
+            if (field.get(null) != null) {
+                return;
+            }
+            field.set(null, app.getBaseContext());
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     private void setupUncaughtHandler() {
