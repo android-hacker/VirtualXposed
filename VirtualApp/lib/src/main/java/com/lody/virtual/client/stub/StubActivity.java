@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.InvocationStubManager;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.hook.proxies.am.HCallbackStub;
@@ -32,6 +33,7 @@ public abstract class StubActivity extends Activity {
                 // Retry to inject the HCallback to instead of the exist one.
 				InvocationStubManager.getInstance().checkEnv(HCallbackStub.class);
 				Intent intent = r.intent;
+				intent.setExtrasClassLoader(VClientImpl.get().getCurrentApplication().getClassLoader());
 				startActivity(intent);
 			} else {
                 // Start the target Activity in other process.
