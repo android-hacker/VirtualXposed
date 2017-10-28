@@ -10,28 +10,28 @@ int forbidden_item_count;
 int replace_item_count;
 
 int add_keep_item(const char *path) {
-    char env_name[25];
-    sprintf(env_name, "V_KEEP_ITEM_%d", keep_item_count);
-    setenv(env_name, path, 1);
+    char keep_env_name[25];
+    sprintf(keep_env_name, "V_KEEP_ITEM_%d", keep_item_count);
+    setenv(keep_env_name, path, 1);
     keep_items = (PathItem *) realloc(keep_items,
                                       keep_item_count * sizeof(PathItem) + sizeof(PathItem));
     PathItem &item = keep_items[keep_item_count];
     item.path = strdup(path);
     item.size = strlen(path);
-    item.is_folder = (path[strlen(path) - 1] == '/');
     return ++keep_item_count;
 }
 
 int add_forbidden_item(const char *path) {
-    char env_name[25];
-    sprintf(env_name, "V_FORBID_ITEM_%d", forbidden_item_count);
-    setenv(env_name, path, 1);
+    char forbidden_env_name[25];
+    sprintf(forbidden_env_name, "V_FORBID_ITEM_%d", forbidden_item_count);
+    setenv(forbidden_env_name, path, 1);
     forbidden_items = (PathItem *) realloc(forbidden_items,
                                            forbidden_item_count * sizeof(PathItem) +
                                            sizeof(PathItem));
     PathItem &item = forbidden_items[forbidden_item_count];
     item.path = strdup(path);
     item.size = strlen(path);
+    item.is_folder = (path[strlen(path) - 1] == '/');
     return ++forbidden_item_count;
 }
 
@@ -97,6 +97,14 @@ const char *relocate_path(const char *_path, int *result) {
         return NULL;
     }
     char *path = canonicalize_filename(_path);
+    for (int i = 0; i < keep_item_count; ++i) {
+        PathItem &item = keep_items[i];
+        if (strcmp(item.path, path) == 0) {
+            *result = KEEP;
+            free(path);
+            return _path;
+        }
+    }
     for (int i = 0; i < forbidden_item_count; ++i) {
         PathItem &item = forbidden_items[i];
         if (match_path(item.is_folder, item.size, item.path, path)) {
@@ -105,13 +113,6 @@ const char *relocate_path(const char *_path, int *result) {
             *__errno() = 13;
             free(path);
             return NULL;
-        }
-    }
-    for (int i = 0; i < keep_item_count; ++i) {
-        PathItem &item = keep_items[i];
-        if (match_path(item.is_folder, item.size, item.path, path)) {
-            *result = KEEP;
-            return path;
         }
     }
     for (int i = 0; i < replace_item_count; ++i) {
@@ -126,4 +127,18 @@ const char *relocate_path(const char *_path, int *result) {
     }
     *result = NOT_MATCH;
     return _path;
+}
+
+
+int relocate_path_inplace(char *_path, size_t  size, int *result) {
+    const char *redirect_path = relocate_path(_path, result);
+    if (redirect_path && redirect_path != _path) {
+        if (strlen(redirect_path) <= size) {
+            strcpy(_path, redirect_path);
+        } else{
+            return -1;
+        }
+        free((void *) redirect_path);
+    }
+    return 0;
 }

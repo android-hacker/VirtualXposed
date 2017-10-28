@@ -1,6 +1,5 @@
 package com.lody.virtual.client;
 
-import android.annotation.SuppressLint;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Process;
@@ -34,7 +33,7 @@ public class NativeEngine {
 
     static {
         try {
-            System.loadLibrary("va-native");
+            System.loadLibrary("va++");
         } catch (Throwable e) {
             VLog.e(TAG, VLog.getStackTraceString(e));
         }
@@ -83,7 +82,7 @@ public class NativeEngine {
             newPath = newPath + "/";
         }
         try {
-            nativeRedirect(origPath, newPath);
+            nativeIORedirect(origPath, newPath);
         } catch (Throwable e) {
             VLog.e(TAG, VLog.getStackTraceString(e));
         }
@@ -98,39 +97,50 @@ public class NativeEngine {
         }
 
         try {
-            nativeRedirect(origPath, newPath);
+            nativeIORedirect(origPath, newPath);
         } catch (Throwable e) {
             VLog.e(TAG, VLog.getStackTraceString(e));
         }
     }
 
-    public static void readOnly(String path) {
+    public static void whitelist(String path) {
         try {
-            nativeReadOnly(path);
+            nativeIOWhitelist(path);
         } catch (Throwable e) {
             VLog.e(TAG, VLog.getStackTraceString(e));
         }
     }
 
-    public static void hook() {
+    public static void forbid(String path) {
+        if (!path.endsWith("/")) {
+            path = path + "/";
+        }
         try {
-            String soPath = String.format("/data/data/%s/lib/libva-native.so", VirtualCore.get().getHostPkg());
+            nativeIOForbid(path);
+        } catch (Throwable e) {
+            VLog.e(TAG, VLog.getStackTraceString(e));
+        }
+    }
+
+    public static void enableIORedirect() {
+        try {
+            String soPath = String.format("/data/data/%s/lib/libva++.so", VirtualCore.get().getHostPkg());
             if (!new File(soPath).exists()) {
                 throw new RuntimeException("Unable to find the so.");
             }
-            nativeStartUniformer(soPath, Build.VERSION.SDK_INT, BuildCompat.getPreviewSDKInt());
+            nativeEnableIORedirect(soPath, Build.VERSION.SDK_INT, BuildCompat.getPreviewSDKInt());
         } catch (Throwable e) {
             VLog.e(TAG, VLog.getStackTraceString(e));
         }
     }
 
-    static void hookNative() {
+    static void launchEngine() {
         if (sFlag) {
             return;
         }
         Method[] methods = {NativeMethods.gOpenDexFileNative, NativeMethods.gCameraNativeSetup, NativeMethods.gAudioRecordNativeCheckPermission};
         try {
-            nativeHookNative(methods, VirtualCore.get().getHostPkg(), VirtualRuntime.isArt(), Build.VERSION.SDK_INT, NativeMethods.gCameraMethodType);
+            nativeLaunchEngine(methods, VirtualCore.get().getHostPkg(), VirtualRuntime.isArt(), Build.VERSION.SDK_INT, NativeMethods.gCameraMethodType);
         } catch (Throwable e) {
             VLog.e(TAG, VLog.getStackTraceString(e));
         }
@@ -177,7 +187,7 @@ public class NativeEngine {
     }
 
 
-    private static native void nativeHookNative(Object method, String hostPackageName, boolean isArt, int apiLevel, int cameraMethodType);
+    private static native void nativeLaunchEngine(Object method, String hostPackageName, boolean isArt, int apiLevel, int cameraMethodType);
 
     private static native void nativeMark();
 
@@ -185,11 +195,13 @@ public class NativeEngine {
 
     private static native String nativeGetRedirectedPath(String orgPath);
 
-    private static native void nativeRedirect(String origPath, String newPath);
+    private static native void nativeIORedirect(String origPath, String newPath);
 
-    private static native void nativeReadOnly(String path);
+    private static native void nativeIOWhitelist(String path);
 
-    private static native void nativeStartUniformer(String selfSoPath, int apiLevel, int previewApiLevel);
+    private static native void nativeIOForbid(String path);
+
+    private static native void nativeEnableIORedirect(String selfSoPath, int apiLevel, int previewApiLevel);
 
     public static int onGetUid(int uid) {
         return VClientImpl.get().getBaseVUid();

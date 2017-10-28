@@ -33,11 +33,13 @@ namespace IOUniformer {
 
     void redirect(const char*orig_path, const char*new_path);
 
-    void readOnly(const char*path);
+    void whitelist(const char *path);
 
     const char *query(const char *orig_path);
 
     const char *restore(const char *redirected_path);
+
+    void forbid(const char *path);
 }
 
 #endif //NDK_HOOK_H

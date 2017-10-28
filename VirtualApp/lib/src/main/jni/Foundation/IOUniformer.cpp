@@ -13,11 +13,15 @@ extern "C" {
 #include "Path.h"
 #include "SymbolFinder.h"
 
+bool iu_loaded = false;
+
 void IOUniformer::init_before_all() {
+    if (iu_loaded)
+        return;
     char *api_level_chars = getenv("V_API_LEVEL");
     char *preview_api_level_chars = getenv("V_PREVIEW_API_LEVEL");
     if (api_level_chars) {
-        LOGD("Start init before all.");
+        LOGE("Enter init before all.");
         int api_level = atoi(api_level_chars);
         int preview_api_level;
         preview_api_level = atoi(preview_api_level_chars);
@@ -58,6 +62,7 @@ void IOUniformer::init_before_all() {
             i++;
         }
         startUniformer(api_level, preview_api_level);
+        iu_loaded = true;
     }
 }
 
@@ -83,8 +88,12 @@ const char *IOUniformer::query(const char *orig_path) {
     return relocate_path(orig_path, &res);
 }
 
-void IOUniformer::readOnly(const char *_path) {
+void IOUniformer::whitelist(const char *_path) {
     add_keep_item(_path);
+}
+
+void IOUniformer::forbid(const char *_path) {
+    add_forbidden_item(_path);
 }
 
 
@@ -121,9 +130,6 @@ HOOK_DEF(int, faccessat, int dirfd, const char *pathname, int mode, int flags) {
 HOOK_DEF(int, fchmodat, int dirfd, const char *pathname, mode_t mode, int flags) {
     int res;
     const char *redirect_path = relocate_path(pathname, &res);
-    if (res == KEEP) {
-        return -1;
-    }
     int ret = syscall(__NR_fchmodat, dirfd, redirect_path, mode, flags);
     FREE(redirect_path, pathname);
     return ret;
@@ -132,9 +138,6 @@ HOOK_DEF(int, fchmodat, int dirfd, const char *pathname, mode_t mode, int flags)
 HOOK_DEF(int, fchmod, const char *pathname, mode_t mode) {
     int res;
     const char *redirect_path = relocate_path(pathname, &res);
-    if (res == KEEP) {
-        return -1;
-    }
     int ret = syscall(__NR_chmod, redirect_path, mode);
     FREE(redirect_path, pathname);
     return ret;
@@ -203,9 +206,6 @@ HOOK_DEF(int, utimensat, int dirfd, const char *pathname, const struct timespec 
 HOOK_DEF(int, fchownat, int dirfd, const char *pathname, uid_t owner, gid_t group, int flags) {
     int res;
     const char *redirect_path = relocate_path(pathname, &res);
-    if (res == KEEP) {
-        return -1;
-    }
     int ret = syscall(__NR_fchownat, dirfd, redirect_path, owner, group, flags);
     FREE(redirect_path, pathname);
     return ret;
@@ -227,9 +227,6 @@ HOOK_DEF(int, renameat, int olddirfd, const char *oldpath, int newdirfd, const c
     int res_new;
     const char *redirect_path_old = relocate_path(oldpath, &res_old);
     const char *redirect_path_new = relocate_path(newpath, &res_new);
-    if (res_old == KEEP || res_new == KEEP) {
-        return -1;
-    }
     int ret = syscall(__NR_renameat, olddirfd, redirect_path_old, newdirfd, redirect_path_new);
     FREE(redirect_path_old, oldpath);
     FREE(redirect_path_new, newpath);
@@ -241,9 +238,6 @@ HOOK_DEF(int, rename, const char *oldpath, const char *newpath) {
     int res_new;
     const char *redirect_path_old = relocate_path(oldpath, &res_old);
     const char *redirect_path_new = relocate_path(newpath, &res_new);
-    if (res_old == KEEP || res_new == KEEP) {
-        return -1;
-    }
     int ret = syscall(__NR_rename, redirect_path_old, redirect_path_new);
     FREE(redirect_path_old, oldpath);
     FREE(redirect_path_new, newpath);
@@ -255,9 +249,6 @@ HOOK_DEF(int, rename, const char *oldpath, const char *newpath) {
 HOOK_DEF(int, unlinkat, int dirfd, const char *pathname, int flags) {
     int res;
     const char *redirect_path = relocate_path(pathname, &res);
-    if (res == KEEP) {
-        return -1;
-    }
     int ret = syscall(__NR_unlinkat, dirfd, redirect_path, flags);
     FREE(redirect_path, pathname);
     return ret;
@@ -266,9 +257,6 @@ HOOK_DEF(int, unlinkat, int dirfd, const char *pathname, int flags) {
 HOOK_DEF(int, unlink, const char *pathname) {
     int res;
     const char *redirect_path = relocate_path(pathname, &res);
-    if (res == KEEP) {
-        return -1;
-    }
     int ret = syscall(__NR_unlink, redirect_path);
     FREE(redirect_path, pathname);
     return ret;
@@ -292,9 +280,6 @@ HOOK_DEF(int, symlink, const char *oldpath, const char *newpath) {
     int res_new;
     const char *redirect_path_old = relocate_path(oldpath, &res_old);
     const char *redirect_path_new = relocate_path(newpath, &res_new);
-    if (res_old == KEEP || res_new == KEEP) {
-        return -1;
-    }
     int ret = syscall(__NR_symlink, redirect_path_old, redirect_path_new);
     FREE(redirect_path_old, oldpath);
     FREE(redirect_path_new, newpath);
@@ -309,9 +294,6 @@ HOOK_DEF(int, linkat, int olddirfd, const char *oldpath, int newdirfd, const cha
     int res_new;
     const char *redirect_path_old = relocate_path(oldpath, &res_old);
     const char *redirect_path_new = relocate_path(newpath, &res_new);
-    if (res_old == KEEP || res_new == KEEP) {
-        return -1;
-    }
     int ret = syscall(__NR_linkat, olddirfd, redirect_path_old, newdirfd, redirect_path_new, flags);
     FREE(redirect_path_old, oldpath);
     FREE(redirect_path_new, newpath);
@@ -344,9 +326,6 @@ HOOK_DEF(int, utimes, const char *pathname, const struct timeval *tvp) {
 HOOK_DEF(int, access, const char *pathname, int mode) {
     int res;
     const char *redirect_path = relocate_path(pathname, &res);
-    if (mode & W_OK && res == KEEP) {
-        return -1;
-    }
     int ret = syscall(__NR_access, redirect_path, mode);
     FREE(redirect_path, pathname);
     return ret;
@@ -357,9 +336,6 @@ HOOK_DEF(int, access, const char *pathname, int mode) {
 HOOK_DEF(int, chmod, const char *pathname, mode_t mode) {
     int res;
     const char *redirect_path = relocate_path(pathname, &res);
-    if (res == KEEP) {
-        return -1;
-    }
     int ret = syscall(__NR_chmod, redirect_path, mode);
     FREE(redirect_path, pathname);
     return ret;
@@ -436,7 +412,7 @@ HOOK_DEF(int, readlinkat, int dirfd, const char *pathname, char *buf, size_t buf
 HOOK_DEF(ssize_t, readlink, const char *pathname, char *buf, size_t bufsiz) {
     int res;
     const char *redirect_path = relocate_path(pathname, &res);
-    ssize_t ret = static_cast<ssize_t>(syscall(__NR_readlink, redirect_path, buf, bufsiz));
+    ssize_t ret = syscall(__NR_readlink, redirect_path, buf, bufsiz);
     FREE(redirect_path, pathname);
     return ret;
 }
@@ -461,10 +437,13 @@ HOOK_DEF(int, truncate, const char *pathname, off_t length) {
     return ret;
 }
 
+#define RETURN_IF_FORBID if(res == FORBID) return -1;
+
 // int truncate64(const char *pathname, off_t length);
 HOOK_DEF(int, truncate64, const char *pathname, off_t length) {
     int res;
     const char *redirect_path = relocate_path(pathname, &res);
+    RETURN_IF_FORBID
     int ret = syscall(__NR_truncate64, redirect_path, length);
     FREE(redirect_path, pathname);
     return ret;
@@ -475,6 +454,7 @@ HOOK_DEF(int, truncate64, const char *pathname, off_t length) {
 HOOK_DEF(int, chdir, const char *pathname) {
     int res;
     const char *redirect_path = relocate_path(pathname, &res);
+    RETURN_IF_FORBID
     int ret = syscall(__NR_chdir, redirect_path);
     FREE(redirect_path, pathname);
     return ret;
@@ -484,6 +464,9 @@ HOOK_DEF(int, chdir, const char *pathname) {
 // int __getcwd(char *buf, size_t size);
 HOOK_DEF(int, __getcwd, char *buf, size_t size) {
     int ret = syscall(__NR_getcwd, buf, size);
+    if (!ret) {
+        
+    }
     return ret;
 }
 
@@ -518,51 +501,58 @@ HOOK_DEF(int, __statfs, __const char *__file, struct statfs *__buf) {
 HOOK_DEF(int, lchown, const char *pathname, uid_t owner, gid_t group) {
     int res;
     const char *redirect_path = relocate_path(pathname, &res);
-    if (res == KEEP) {
-        return -1;
-    }
     int ret = syscall(__NR_lchown, redirect_path, owner, group);
     FREE(redirect_path, pathname);
     return ret;
 }
 
+int inline getArrayItemCount(char *const array[]) {
+    int i;
+    for (i = 0; array[i]; ++i);
+    return i;
+}
+
 
 char **build_new_env(char *const envp[]) {
-    int i, j, ldi = -1;
-    char **new_env;
+    char *provided_ld_preload = NULL;
+    int provided_ld_preload_index = -1;
+    int orig_envp_count = getArrayItemCount(envp);
 
-//     Look if the provided environment already contains LD_PRELOAD
-    for (i = 0; envp[i]; i++) {
-        if (strstr(envp[i], "LD_PRELOAD"))
-            ldi = i;
+    for (int i = 0; i < orig_envp_count; i++) {
+        if (strstr(envp[i], "LD_PRELOAD")) {
+            provided_ld_preload = envp[i];
+            provided_ld_preload_index = i;
+        }
     }
-    // If it doesn't, add it at the end
-    if (ldi == -1) {
-        ldi = i;
-        i++;
+    char ld_preload[200];
+    char *so_path = getenv("V_SO_PATH");
+    if (provided_ld_preload) {
+        sprintf(ld_preload, "LD_PRELOAD=%s:%s", so_path, provided_ld_preload + 11);
+    } else {
+        sprintf(ld_preload, "LD_PRELOAD=%s", so_path);
     }
-    // Create a new environment
-    new_env = (char **) malloc((i + 1) * sizeof(char *));
-    // Copy the old environment in the new one, except for LD_PRELOAD
-    for (j = 0; j < i; j++) {
-        // Overwrite or create the LD_PRELOAD variable
-        if (j == ldi) {
-            new_env[j] = (char *) malloc(1200);
-            strcpy(new_env[j], "LD_PRELOAD=");
-            strcat(new_env[j], getenv("V_SO_PATH"));
-            if (envp[j] != NULL) {
-                strcat(new_env[j], ":");
-                strcat(new_env[j], envp[j] + 11);
-            }
-        } else
-            new_env[j] = envp[j];
+    int new_envp_count = orig_envp_count
+                         + get_keep_item_count()
+                         + get_forbidden_item_count()
+                         + get_replace_item_count() * 2 + 1;
+    if (provided_ld_preload) {
+        new_envp_count--;
     }
-    // That string array is NULL terminated
-    new_env[i] = NULL;
-//    for (int n = 0; new_env[n] != NULL; ++n) {
-//        LOGE("new_env[%i] = %s", n, new_env[n]);
-//    }
-    return new_env;
+    char **new_envp = (char **) malloc(new_envp_count * sizeof(char *));
+    int cur = 0;
+    new_envp[cur++] = ld_preload;
+    for (int i = 0; i < orig_envp_count; ++i) {
+        if (i != provided_ld_preload_index) {
+            new_envp[cur++] = envp[i];
+        }
+    }
+    for (int i = 0; environ[i]; ++i) {
+        if (environ[i][0] == 'V' && environ[i][1] == '_') {
+            new_envp[cur++] = environ[i];
+        }
+    }
+    new_envp[cur] = NULL;
+    return new_envp;
 }
 
 // int (*origin_execve)(const char *pathname, char *const argv[], char *const envp[]);
@@ -572,7 +562,7 @@ HOOK_DEF(int, execve, const char *pathname, char *argv[], char *const envp[]) {
      *
      * We will support 64Bit to adopt it.
      */
-//    char **new_envp = build_new_env(envp);
+    LOGE("execve : %s", pathname);
     int res;
     const char *redirect_path = relocate_path(pathname, &res);
     char *ld = getenv("LD_PRELOAD");
@@ -583,7 +573,13 @@ HOOK_DEF(int, execve, const char *pathname, char *argv[], char *const envp[]) {
             return ret;
         }
     }
-    int ret = syscall(__NR_execve, pathname, argv, envp);
+    if (strstr(pathname, "dex2oat")) {
+        char **new_envp = build_new_env(envp);
+        int ret = syscall(__NR_execve, redirect_path, argv, new_envp);
+        FREE(redirect_path, pathname);
+        return ret;
+    }
+    int ret = syscall(__NR_execve, redirect_path, argv, envp);
     FREE(redirect_path, pathname);
     return ret;
 }

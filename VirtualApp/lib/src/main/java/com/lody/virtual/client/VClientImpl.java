@@ -15,7 +15,6 @@ import android.content.pm.ProviderInfo;
 import android.os.Binder;
 import android.os.Build;
 import android.os.ConditionVariable;
-import android.os.Debug;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.IInterface;
@@ -268,7 +267,7 @@ public final class VClientImpl extends IVClient.Stub {
         if (VASettings.ENABLE_IO_REDIRECT) {
             startIOUniformer();
         }
-        NativeEngine.hookNative();
+        NativeEngine.launchEngine();
         Object mainThread = VirtualCore.mainThread();
         NativeEngine.startDexOverride();
         Context context = createPackageContext(data.appInfo.packageName);
@@ -397,18 +396,18 @@ public final class VClientImpl extends IVClient.Stub {
         NativeEngine.redirectDirectory("/sys/class/net/wlan0/address", wifiMacAddressFile);
         NativeEngine.redirectDirectory("/sys/class/net/eth0/address", wifiMacAddressFile);
         NativeEngine.redirectDirectory("/sys/class/net/wifi/address", wifiMacAddressFile);
+
         NativeEngine.redirectDirectory("/data/data/" + info.packageName, info.dataDir);
         NativeEngine.redirectDirectory("/data/user/0/" + info.packageName, info.dataDir);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             NativeEngine.redirectDirectory("/data/user_de/0/" + info.packageName, info.dataDir);
         }
-        String libPath = new File(VEnvironment.getDataAppPackageDirectory(info.packageName), "lib").getAbsolutePath();
+        String libPath = VEnvironment.getAppLibDirectory(info.packageName).getAbsolutePath();
         String userLibPath = new File(VEnvironment.getUserSystemDirectory(userId), info.packageName + "/lib").getAbsolutePath();
         NativeEngine.redirectDirectory(userLibPath, libPath);
         NativeEngine.redirectDirectory("/data/data/" + info.packageName + "/lib/", libPath);
         NativeEngine.redirectDirectory("/data/user/0/" + info.packageName + "/lib/", libPath);
 
-        NativeEngine.readOnly(VEnvironment.getDataAppDirectory().getPath() + "/");
         VirtualStorageManager vsManager = VirtualStorageManager.get();
         String vsPath = vsManager.getVirtualStorage(info.packageName, userId);
         boolean enable = vsManager.isVirtualStorageEnable(info.packageName, userId);
@@ -421,7 +420,7 @@ public final class VClientImpl extends IVClient.Stub {
                 }
             }
         }
-        NativeEngine.hook();
+        NativeEngine.enableIORedirect();
     }
 
     @SuppressLint("SdCardPath")
