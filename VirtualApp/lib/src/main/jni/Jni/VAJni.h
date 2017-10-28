@@ -13,10 +13,10 @@
 #include "Foundation/VMPatch.h"
 #include "Foundation/IOUniformer.h"
 
-__BEGIN_DECLS
+extern alias_ref<jclass> nativeEngineClass;
+
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved);
 JNIEXPORT void JNICALL JNI_OnUnload(JavaVM* vm, void* reserved);
-__END_DECLS
 
 
 #endif //NDK_CORE_H

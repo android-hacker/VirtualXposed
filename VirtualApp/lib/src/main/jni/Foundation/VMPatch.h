@@ -11,16 +11,20 @@
 #include <stddef.h>
 #include <fcntl.h>
 #include <sys/system_properties.h>
+#include <fb/include/fb/ALog.h>
+#include <fb/include/fb/fbjni.h>
+#include "Jni/Helper.h"
 
-#include "Helper.h"
+using namespace facebook::jni;
 
 enum METHODS {
-    OPEN_DEX = 0, CAMERA_SETUP, VIVO_AUDIORECORD_NATIVE_CHECK_PERMISSION
+    OPEN_DEX = 0, CAMERA_SETUP, AUDIO_NATIVE_CHECK_PERMISSION
 };
 
-void patchAndroidVM(jobjectArray javaMethods, jstring packageName, jboolean isArt, jint apiLevel, jint cameraMethodType);
+void hookAndroidVM(JArrayClass<jobject> javaMethods,
+                   jstring packageName, jboolean isArt, jint apiLevel, jint cameraMethodType);
 
-void *getVMHandle();
+void *getDvmOrArtSOHandle();
 
 
 #endif //NDK_HOOK_NATIVE_H

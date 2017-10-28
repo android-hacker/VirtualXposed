@@ -16,7 +16,7 @@
 #include<dirent.h>
 #include <sys/syscall.h>
 
-#include "Helper.h"
+#include "Jni/Helper.h"
 
 
 #define HOOK_SYMBOL(handle, func) hook_function(handle, #func, (void*) new_##func, (void**) &orig_##func)
@@ -29,7 +29,7 @@ namespace IOUniformer {
 
     void init_before_all();
 
-    void startUniformer(int api_level, int preview_api_level);
+    void startUniformer(const char *so_path, int api_level, int preview_api_level);
 
     void redirect(const char*orig_path, const char*new_path);
 

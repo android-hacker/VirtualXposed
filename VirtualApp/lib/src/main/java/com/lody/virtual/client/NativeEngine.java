@@ -187,7 +187,7 @@ public class NativeEngine {
     }
 
 
-    private static native void nativeLaunchEngine(Object method, String hostPackageName, boolean isArt, int apiLevel, int cameraMethodType);
+    private static native void nativeLaunchEngine(Object[] method, String hostPackageName, boolean isArt, int apiLevel, int cameraMethodType);
 
     private static native void nativeMark();
 

@@ -2,6 +2,8 @@
 // VirtualApp Native Project
 //
 #include <unistd.h>
+#include <stdlib.h>
+#include <fb/include/fb/ALog.h>
 
 extern "C" {
 #include <HookZz/include/hookzz.h>
@@ -21,7 +23,7 @@ void IOUniformer::init_before_all() {
     char *api_level_chars = getenv("V_API_LEVEL");
     char *preview_api_level_chars = getenv("V_PREVIEW_API_LEVEL");
     if (api_level_chars) {
-        LOGE("Enter init before all.");
+        ALOGE("Enter init before all.");
         int api_level = atoi(api_level_chars);
         int preview_api_level;
         preview_api_level = atoi(preview_api_level_chars);
@@ -61,7 +63,7 @@ void IOUniformer::init_before_all() {
             add_replace_item(item_src, item_dst);
             i++;
         }
-        startUniformer(api_level, preview_api_level);
+        startUniformer(getenv("V_SO_PATH"),api_level, preview_api_level);
         iu_loaded = true;
     }
 }
@@ -115,6 +117,7 @@ const char *IOUniformer::restore(const char *_path) {
 
 __BEGIN_DECLS
 
+#define FREE(ptr, org_ptr) { if ((void*) ptr != NULL && (void*) ptr != (void*) org_ptr) { free((void*) ptr); } }
 
 // int faccessat(int dirfd, const char *pathname, int mode, int flags);
 HOOK_DEF(int, faccessat, int dirfd, const char *pathname, int mode, int flags) {
@@ -465,7 +468,7 @@ HOOK_DEF(int, chdir, const char *pathname) {
 HOOK_DEF(int, __getcwd, char *buf, size_t size) {
     int ret = syscall(__NR_getcwd, buf, size);
     if (!ret) {
-        
+
     }
     return ret;
 }
@@ -562,7 +565,7 @@ HOOK_DEF(int, execve, const char *pathname, char *argv[], char *const envp[]) {
      *
      * We will support 64Bit to adopt it.
      */
-    LOGE("execve : %s", pathname);
+    ALOGE("execve : %s", pathname);
     int res;
     const char *redirect_path = relocate_path(pathname, &res);
     char *ld = getenv("LD_PRELOAD");
@@ -590,7 +593,7 @@ HOOK_DEF(void*, dlopen, const char *filename, int flag) {
     const char *redirect_path = relocate_path(filename, &res);
     void *ret = orig_dlopen(redirect_path, flag);
     onSoLoaded(filename, ret);
-    LOGD("dlopen : %s, return : %p.", redirect_path, ret);
+    ALOGD("dlopen : %s, return : %p.", redirect_path, ret);
     FREE(redirect_path, filename);
     return ret;
 }
@@ -600,7 +603,7 @@ HOOK_DEF(void*, do_dlopen_V19, const char *filename, int flag, const void *extin
     const char *redirect_path = relocate_path(filename, &res);
     void *ret = orig_do_dlopen_V19(redirect_path, flag, extinfo);
     onSoLoaded(filename, ret);
-    LOGD("do_dlopen : %s, return : %p.", redirect_path, ret);
+    ALOGD("do_dlopen : %s, return : %p.", redirect_path, ret);
     FREE(redirect_path, filename);
     return ret;
 }
@@ -611,7 +614,7 @@ HOOK_DEF(void*, do_dlopen_V24, const char *name, int flags, const void *extinfo,
     const char *redirect_path = relocate_path(name, &res);
     void *ret = orig_do_dlopen_V24(redirect_path, flags, extinfo, caller_addr);
     onSoLoaded(name, ret);
-    LOGD("do_dlopen : %s, return : %p.", redirect_path, ret);
+    ALOGD("do_dlopen : %s, return : %p.", redirect_path, ret);
     FREE(redirect_path, name);
     return ret;
 }
@@ -620,20 +623,13 @@ HOOK_DEF(void*, do_dlopen_V24, const char *name, int flags, const void *extinfo,
 
 //void *dlsym(void *handle,const char *symbol)
 HOOK_DEF(void*, dlsym, void *handle, char *symbol) {
-    LOGD("dlsym : %p %s.", handle, symbol);
+    ALOGD("dlsym : %p %s.", handle, symbol);
     return orig_dlsym(handle, symbol);
 }
 
 // int kill(pid_t pid, int sig);
 HOOK_DEF(int, kill, pid_t pid, int sig) {
-    LOGD(">>>>> kill >>> pid: %d, sig: %d.", pid, sig);
-    extern JavaVM *gVm;
-    extern jclass gClass;
-    JNIEnv *env = NULL;
-    gVm->GetEnv((void **) &env, JNI_VERSION_1_4);
-    gVm->AttachCurrentThread(&env, NULL);
-    jmethodID method = env->GetStaticMethodID(gClass, "onKillProcess", "(II)V");
-    env->CallStaticVoidMethod(gClass, method, pid, sig);
+    ALOGD(">>>>> kill >>> pid: %d, sig: %d.", pid, sig);
     int ret = syscall(__NR_kill, pid, sig);
     return ret;
 }
@@ -677,7 +673,14 @@ void hook_dlopen(int api_level) {
 }
 
 
-void IOUniformer::startUniformer(int api_level, int preview_api_level) {
+void IOUniformer::startUniformer(const char *so_path, int api_level, int preview_api_level) {
+    char api_level_chars[5];
+    setenv("V_SO_PATH", so_path, 1);
+    sprintf(api_level_chars, "%i", api_level);
+    setenv("V_API_LEVEL", api_level_chars, 1);
+    sprintf(api_level_chars, "%i", preview_api_level);
+    setenv("V_PREVIEW_API_LEVEL", api_level_chars, 1);
+
     void *handle = dlopen("libc.so", RTLD_NOW);
     if (handle) {
         HOOK_SYMBOL(handle, faccessat);
