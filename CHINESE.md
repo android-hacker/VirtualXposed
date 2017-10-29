@@ -90,10 +90,6 @@ MicroG的必要模块：
     VirtualCore.getCore().findApp({PackageName});
 ```
 
-License
--------
-GPL 3.0
-
 技术支持
 ------------
 QQ群：598536
