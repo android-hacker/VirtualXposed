@@ -130,12 +130,51 @@ const char *relocate_path(const char *_path, int *result) {
 }
 
 
-int relocate_path_inplace(char *_path, size_t  size, int *result) {
+int relocate_path_inplace(char *_path, size_t size, int *result) {
     const char *redirect_path = relocate_path(_path, result);
     if (redirect_path && redirect_path != _path) {
         if (strlen(redirect_path) <= size) {
             strcpy(_path, redirect_path);
-        } else{
+        } else {
+            return -1;
+        }
+        free((void *) redirect_path);
+    }
+    return 0;
+}
+
+
+const char *reverse_relocate_path(const char *_path) {
+    if (_path == NULL) {
+        return NULL;
+    }
+    char *path = canonicalize_filename(_path);
+    for (int i = 0; i < keep_item_count; ++i) {
+        PathItem &item = keep_items[i];
+        if (strcmp(item.path, path) == 0) {
+            free(path);
+            return _path;
+        }
+    }
+    for (int i = 0; i < replace_item_count; ++i) {
+        ReplaceItem &item = replace_items[i];
+        if (match_path(item.is_folder, item.new_size, item.new_path, path)) {
+            std::string reverse_path(item.orig_path);
+            reverse_path += path + item.new_size;
+            free(path);
+            return strdup(reverse_path.c_str());
+        }
+    }
+    return _path;
+}
+
+
+int reverse_relocate_path_inplace(char *_path, size_t size) {
+    const char *redirect_path = reverse_relocate_path(_path);
+    if (redirect_path && redirect_path != _path) {
+        if (strlen(redirect_path) <= size) {
+            strcpy(_path, redirect_path);
+        } else {
             return -1;
         }
         free((void *) redirect_path);

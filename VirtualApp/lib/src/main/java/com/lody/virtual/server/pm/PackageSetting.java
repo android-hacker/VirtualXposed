@@ -28,9 +28,7 @@ public class PackageSetting implements Parcelable {
     public String apkPath;
     public String libPath;
     public boolean dependSystem;
-    /**
-     * In this mode we skip the dex2oat so we can load the class.dex very fast.
-     */
+    @Deprecated
     public boolean skipDexOpt;
     public int appId;
     public long firstInstallTime;

@@ -20,7 +20,6 @@ public final class InstalledAppInfo implements Parcelable {
     public String apkPath;
     public String libPath;
     public boolean dependSystem;
-    public boolean skipDexOpt;
     public int appId;
 
     public InstalledAppInfo(String packageName, String apkPath, String libPath, boolean dependSystem, boolean skipDexOpt, int appId) {
@@ -28,7 +27,6 @@ public final class InstalledAppInfo implements Parcelable {
         this.apkPath = apkPath;
         this.libPath = libPath;
         this.dependSystem = dependSystem;
-        this.skipDexOpt = skipDexOpt;
         this.appId = appId;
     }
 
@@ -63,7 +61,6 @@ public final class InstalledAppInfo implements Parcelable {
         dest.writeString(this.apkPath);
         dest.writeString(this.libPath);
         dest.writeByte(this.dependSystem ? (byte) 1 : (byte) 0);
-        dest.writeByte(this.skipDexOpt ? (byte) 1 : (byte) 0);
         dest.writeInt(this.appId);
     }
 
@@ -72,7 +69,6 @@ public final class InstalledAppInfo implements Parcelable {
         this.apkPath = in.readString();
         this.libPath = in.readString();
         this.dependSystem = in.readByte() != 0;
-        this.skipDexOpt = in.readByte() != 0;
         this.appId = in.readInt();
     }
 

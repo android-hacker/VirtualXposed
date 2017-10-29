@@ -17,7 +17,7 @@ extern "C" {
 
 bool iu_loaded = false;
 
-void IOUniformer::init_before_all() {
+void IOUniformer::init_env_before_all() {
     if (iu_loaded)
         return;
     char *api_level_chars = getenv("V_API_LEVEL");
@@ -86,8 +86,7 @@ void IOUniformer::redirect(const char *orig_path, const char *new_path) {
 }
 
 const char *IOUniformer::query(const char *orig_path) {
-    int res;
-    return relocate_path(orig_path, &res);
+    return reverse_relocate_path(orig_path);
 }
 
 void IOUniformer::whitelist(const char *_path) {
@@ -99,19 +98,8 @@ void IOUniformer::forbid(const char *_path) {
 }
 
 
-const char *IOUniformer::restore(const char *_path) {
-    char *path = canonicalize_filename(_path);
-    for (int i = 0; i < get_replace_item_count(); ++i) {
-        ReplaceItem &item = get_replace_items()[i];
-        if (strncmp(item.new_path, path, item.new_size) == 0) {
-            char *redirect_path = (char *) malloc(strlen(path) - item.new_size + item.orig_size);
-            strncpy(redirect_path, item.orig_path, item.orig_size);
-            strcpy(redirect_path + item.orig_size, path + item.new_size);
-            free(path);
-            return redirect_path;
-        }
-    }
-    return _path;
+const char *IOUniformer::reverse(const char *_path) {
+    return reverse_relocate_path(_path);
 }
 
 

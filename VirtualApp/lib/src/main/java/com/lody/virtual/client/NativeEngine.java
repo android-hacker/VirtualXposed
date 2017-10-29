@@ -65,9 +65,9 @@ public class NativeEngine {
         return origPath;
     }
 
-    public static String restoreRedirectedPath(String origPath) {
+    public static String resverseRedirectedPath(String origPath) {
         try {
-            return nativeRestoreRedirectedPath(origPath);
+            return nativeReverseRedirectedPath(origPath);
         } catch (Throwable e) {
             VLog.e(TAG, VLog.getStackTraceString(e));
         }
@@ -191,7 +191,7 @@ public class NativeEngine {
 
     private static native void nativeMark();
 
-    private static native String nativeRestoreRedirectedPath(String redirectedPath);
+    private static native String nativeReverseRedirectedPath(String redirectedPath);
 
     private static native String nativeGetRedirectedPath(String orgPath);
 

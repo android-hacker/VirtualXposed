@@ -27,17 +27,23 @@ enum RelocateResult {
 
 const char *relocate_path(const char *_path, int *result);
 
+int relocate_path_inplace(char *_path, size_t size, int *result);
+
+const char *reverse_relocate_path(const char *_path);
+
+int reverse_relocate_path_inplace(char *_path, size_t size);
+
 int add_keep_item(const char *path);
 
 int add_forbidden_item(const char *path);
 
 int add_replace_item(const char *orig_path, const char *new_path);
 
-PathItem * get_keep_items();
+PathItem *get_keep_items();
 
-PathItem * get_forbidden_item();
+PathItem *get_forbidden_item();
 
-ReplaceItem * get_replace_items();
+ReplaceItem *get_replace_items();
 
 int get_keep_item_count();
 
