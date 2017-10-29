@@ -110,7 +110,7 @@ const char *relocate_path(const char *_path, int *result) {
         if (match_path(item.is_folder, item.size, item.path, path)) {
             *result = FORBID;
             // Permission denied
-            *__errno() = 13;
+            errno = 13;
             free(path);
             return NULL;
         }

@@ -2,6 +2,7 @@
 #define SANDBOX_FS_H
 
 #include <string>
+#include <errno.h>
 
 typedef struct PathItem {
     char *path;
