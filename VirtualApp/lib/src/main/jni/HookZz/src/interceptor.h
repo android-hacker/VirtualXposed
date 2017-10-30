@@ -93,6 +93,4 @@ typedef struct _ZzInterceptor {
     ZzAllocator *allocator;
 } ZzInterceptor;
 
-zbool ZzIsEnableDebugMode(void);
-
 #endif

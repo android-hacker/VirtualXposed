@@ -48,12 +48,8 @@
 zbool insn_is_thumb2(zuint32 insn) {
     // PAGE: A6-221
     // PAGE: A6-230
-    if (get_insn_sub(insn & 0x0000FFFF, 11, 2) == 0) {
-        return FALSE;
-    }
-    return TRUE;
 
-    if (insn_equal(insn & 0x0000FFFF, "11101xxxxxxxxxxx") || insn_equal(insn & 0x0000FFFF, "11110xxxxxxxxxxx") ||
+    if (insn_equal(insn & 0x0000FFFF, "11101xxxxxxxxxxx") || insn_equal(insn & 0x0000FFFF, "11111xxxxxxxxxxx") ||
         insn_equal(insn & 0x0000FFFF, "11110xxxxxxxxxxx")) {
         return TRUE;
     } else {
@@ -63,7 +59,8 @@ zbool insn_is_thumb2(zuint32 insn) {
 
 zpointer zz_thumb_reader_read_one_instruction(ZzInstruction *insn_ctx, zpointer address) {
     // ZzInstruction *insn_ctx = (ZzInstruction *)malloc(sizeof(ZzInstruction));
-    insn_ctx->pc = (zaddr)address;
+    insn_ctx->pc = (zaddr)address + 4;
+    insn_ctx->address = (zaddr)address;
     insn_ctx->insn = *(zuint32 *)address;
 
     // PAGE: A6-221
@@ -88,12 +85,16 @@ THUMBInsnType GetTHUMBInsnType(zuint32 insn) {
     // zuint32 insn = insn_ctx->insn;
     zuint32 op, op1;
 
+    if (!insn_is_thumb2(insn) && insn_equal(insn, "01000100xxxxxxxx")) {
+        return THUMB_INS_ADD_register_T2;
+    }
+
     if (!insn_is_thumb2(insn) && insn_equal(insn, "01001xxxxxxxxxxx")) {
-        return THUMB_INS_LDR_T1;
+        return THUMB_INS_LDR_literal_T1;
     }
 
     if (insn_is_thumb2(insn) && insn_equal(insn, "11111000x1011111xxxxxxxxxxxxxxxx")) {
-        return THUMB_INS_LDR_T2;
+        return THUMB_INS_LDR_literal_T2;
     }
 
     if (!insn_is_thumb2(insn) && insn_equal(insn, "10100xxxxxxxxxxx")) {
@@ -125,11 +126,11 @@ THUMBInsnType GetTHUMBInsnType(zuint32 insn) {
     }
 
     if (insn_is_thumb2(insn) && insn_equal(insn, "11110xxxxxxxxxxx11x1xxxxxxxxxxxx")) {
-        return THUMB_INS_BLBLX_T1;
+        return THUMB_INS_BLBLX_immediate_T1;
     }
 
     if (insn_is_thumb2(insn) && insn_equal(insn, "11110xxxxxxxxxxx11x0xxxxxxxxxxxx")) {
-        return THUMB_INS_BLBLX_T2;
+        return THUMB_INS_BLBLX_immediate_T2;
     }
 
     return THUMB_UNDEF;

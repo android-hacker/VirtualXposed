@@ -73,19 +73,29 @@ void zz_arm_relocator_write_all(ZzArmRelocator *self) {
     while (zz_arm_relocator_write_one(self))
         count++;
 }
+// PAGE: A8-312
+static zbool zz_arm_relocator_rewrite_ADD_register_A1(ZzArmRelocator *self, const ZzInstruction *insn_ctx) {
+    zuint32 insn = insn_ctx->insn;
 
-// static zbool zz_arm_branch_is_unconditional(const cs_insn *insn_ctx) {
-//     switch (insn_ctx->detail->arm.cc) {
-//     case ARM_CC_INVALID:
-//     case ARM_CC_AL:
-//         return TRUE;
-//     default:
-//         return FALSE;
-//     }
-// }
+    zuint32 Rn_ndx, Rd_ndx, Rm_ndx;
+    Rn_ndx = get_insn_sub(insn, 16, 4);
+    Rd_ndx = get_insn_sub(insn, 12, 4);
+    Rm_ndx = get_insn_sub(insn, 0, 4);
+
+    if (Rn_ndx != ZZ_ARM_REG_PC) {
+        return FALSE;
+    }
+    // push R7
+    zz_arm_writer_put_push_reg(self->output, 1 << 7);
+    zz_arm_writer_put_ldr_b_reg_address(self->output, ZZ_ARM_REG_R7, insn_ctx->pc);
+    zz_arm_writer_put_instruction(self->output, (insn & 0xFFFF0FFF) | ZZ_ARM_REG_R7 << 16);
+    // pop R7
+    zz_arm_writer_put_pop_reg(self->output, 1 << 7);
+    return TRUE;
+}
 
 // PAGE: A8-410
-static zbool zz_arm_relocator_rewrite_LDR_A1(ZzArmRelocator *self, ZzInstruction *insn_ctx) {
+static zbool zz_arm_relocator_rewrite_LDR_literal_A1(ZzArmRelocator *self, const ZzInstruction *insn_ctx) {
     zuint32 insn = insn_ctx->insn;
     zuint32 imm12 = get_insn_sub(insn, 0, 12);
     zuint32 imm32 = imm12 << 2;
@@ -103,7 +113,7 @@ static zbool zz_arm_relocator_rewrite_LDR_A1(ZzArmRelocator *self, ZzInstruction
 }
 
 // PAGE: A8-322
-static zbool zz_arm_relocator_rewrite_ADR_A1(ZzArmRelocator *self, ZzInstruction *insn_ctx) {
+static zbool zz_arm_relocator_rewrite_ADR_A1(ZzArmRelocator *self, const ZzInstruction *insn_ctx) {
     zuint32 insn = insn_ctx->insn;
     zuint32 imm12 = get_insn_sub(insn, 0, 12);
     zuint32 imm32 = imm12 << 2;
@@ -115,7 +125,7 @@ static zbool zz_arm_relocator_rewrite_ADR_A1(ZzArmRelocator *self, ZzInstruction
 }
 
 // PAGE: A8-322
-static zbool zz_arm_relocator_rewrite_ADR_A2(ZzArmRelocator *self, ZzInstruction *insn_ctx) {
+static zbool zz_arm_relocator_rewrite_ADR_A2(ZzArmRelocator *self, const ZzInstruction *insn_ctx) {
     zuint32 insn = insn_ctx->insn;
     zuint32 imm12 = get_insn_sub(insn, 0, 12);
     zuint32 imm32 = imm12 << 2;
@@ -127,7 +137,7 @@ static zbool zz_arm_relocator_rewrite_ADR_A2(ZzArmRelocator *self, ZzInstruction
 }
 
 // PAGE: A8-334
-static zbool zz_arm_relocator_rewrite_B_A1(ZzArmRelocator *self, ZzInstruction *insn_ctx) {
+static zbool zz_arm_relocator_rewrite_B_A1(ZzArmRelocator *self, const ZzInstruction *insn_ctx) {
     zuint32 insn = insn_ctx->insn;
     zuint32 imm24 = get_insn_sub(insn, 0, 24);
     zuint32 imm32 = imm24 << 2;
@@ -138,32 +148,32 @@ static zbool zz_arm_relocator_rewrite_B_A1(ZzArmRelocator *self, ZzInstruction *
 }
 
 // PAGE: A8-348
-static zbool zz_arm_relocator_rewrite_BLBLX_A1(ZzArmRelocator *self, ZzInstruction *insn_ctx) {
+static zbool zz_arm_relocator_rewrite_BLBLX_immediate_A1(ZzArmRelocator *self, const ZzInstruction *insn_ctx) {
     zuint32 insn = insn_ctx->insn;
     zuint32 imm24 = get_insn_sub(insn, 0, 24);
     zuint32 imm32 = imm24 << 2;
     zaddr target_address;
     target_address = insn_ctx->pc + imm32;
-    zz_arm_writer_put_ldr_reg_address(self->output, ZZ_ARM_REG_LR, insn_ctx->pc + 2 * 4);
+    zz_arm_writer_put_ldr_b_reg_address(self->output, ZZ_ARM_REG_LR, insn_ctx->pc + 2 * 4);
     zz_arm_writer_put_ldr_reg_address(self->output, ZZ_ARM_REG_PC, target_address);
     return TRUE;
 }
 
 // PAGE: A8-348
-static zbool zz_arm_relocator_rewrite_BLBLX_A2(ZzArmRelocator *self, ZzInstruction *insn_ctx) {
+static zbool zz_arm_relocator_rewrite_BLBLX_immediate_A2(ZzArmRelocator *self, const ZzInstruction *insn_ctx) {
     zuint32 insn = insn_ctx->insn;
     zuint32 H = get_insn_sub(insn, 24, 1);
     zuint32 imm24 = get_insn_sub(insn, 0, 24);
-    zuint32 imm32 = imm24 << 2 | H << 1;
+    zuint32 imm32 = (imm24 << 2) | (H << 1);
     zaddr target_address;
     target_address = insn_ctx->pc + imm32;
-    zz_arm_writer_put_ldr_reg_address(self->output, ZZ_ARM_REG_LR, insn_ctx->pc + 2 * 4);
+    zz_arm_writer_put_ldr_b_reg_address(self->output, ZZ_ARM_REG_LR, insn_ctx->pc + 2 * 4);
     zz_arm_writer_put_ldr_reg_address(self->output, ZZ_ARM_REG_PC, target_address);
     return TRUE;
 }
 
 zbool zz_arm_relocator_write_one(ZzArmRelocator *self) {
-    ZzInstruction *insn_ctx;
+    const ZzInstruction *insn_ctx;
     zbool rewritten = FALSE;
 
     if (self->inpos != self->outpos) {
@@ -172,11 +182,12 @@ zbool zz_arm_relocator_write_one(ZzArmRelocator *self) {
     } else
         return FALSE;
 
-    insn_ctx->pc = self->input_pc + 8;
-
     switch (GetARMInsnType(insn_ctx->insn)) {
-    case ARM_INS_LDR_A1:
-        rewritten = zz_arm_relocator_rewrite_LDR_A1(self, insn_ctx);
+    case ARM_INS_ADD_register_A1:
+        rewritten = zz_arm_relocator_rewrite_ADD_register_A1(self, insn_ctx);
+        break;
+    case ARM_INS_LDR_literal_A1:
+        rewritten = zz_arm_relocator_rewrite_LDR_literal_A1(self, insn_ctx);
         break;
     case ARM_INS_ADR_A1:
         rewritten = zz_arm_relocator_rewrite_ADR_A1(self, insn_ctx);
@@ -187,11 +198,11 @@ zbool zz_arm_relocator_write_one(ZzArmRelocator *self) {
     case ARM_INS_B_A1:
         rewritten = zz_arm_relocator_rewrite_B_A1(self, insn_ctx);
         break;
-    case ARM_INS_BLBLX_A1:
-        rewritten = zz_arm_relocator_rewrite_BLBLX_A1(self, insn_ctx);
+    case ARM_INS_BLBLX_immediate_A1:
+        rewritten = zz_arm_relocator_rewrite_BLBLX_immediate_A1(self, insn_ctx);
         break;
-    case ARM_INS_BLBLX_A2:
-        rewritten = zz_arm_relocator_rewrite_BLBLX_A2(self, insn_ctx);
+    case ARM_INS_BLBLX_immediate_A2:
+        rewritten = zz_arm_relocator_rewrite_BLBLX_immediate_A2(self, insn_ctx);
         break;
     case ARM_UNDEF:
         rewritten = FALSE;
@@ -202,7 +213,7 @@ zbool zz_arm_relocator_write_one(ZzArmRelocator *self) {
     return TRUE;
 }
 
-// static zbool zz_arm_relocator_rewrite_ldr(ZzArmRelocator *self, ZzInstruction *insn_ctx) {
+// static zbool zz_arm_relocator_rewrite_ldr(ZzArmRelocator *self, const ZzInstruction *insn_ctx) {
 
 //     const cs_arm_op *dst = &insn_ctx->detail->operands[0];
 //     const cs_arm_op *src = &insn_ctx->detail->operands[1];
@@ -223,7 +234,7 @@ zbool zz_arm_relocator_write_one(ZzArmRelocator *self) {
 //     return TRUE;
 // }
 
-// static zbool zz_arm_relocator_rewrite_add(ZzArmRelocator *self, ZzInstruction *insn_ctx) {
+// static zbool zz_arm_relocator_rewrite_add(ZzArmRelocator *self, const ZzInstruction *insn_ctx) {
 //     const cs_arm_op *dst = &insn_ctx->detail->operands[0];
 //     const cs_arm_op *left = &insn_ctx->detail->operands[1];
 //     const cs_arm_op *right = &insn_ctx->detail->operands[2];

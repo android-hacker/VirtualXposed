@@ -15,6 +15,7 @@
  */
 
 #include "thunker-arm64.h"
+#include "zzinfo.h"
 #include <string.h>
 
 /*
@@ -524,7 +525,7 @@ ZZSTATUS ZzThunkerBuildThunk(ZzInterceptorBackend *self) {
         sprintf(buffer + strlen(buffer), "%s\n", "ZzThunkerBuildThunk:");
         sprintf(buffer + strlen(buffer), "LogInfo: enter_thunk at %p, use enter_thunk_template.\n",
                 (void *)enter_thunk_template);
-        Xinfo("%s", buffer);
+        ZzInfoLog("%s", buffer);
     }
 
     zz_arm64_writer_reset(arm64_writer, temp_code_slice_data);
@@ -552,7 +553,7 @@ ZZSTATUS ZzThunkerBuildThunk(ZzInterceptorBackend *self) {
         sprintf(buffer + strlen(buffer), "%s\n", "ZzThunkerBuildThunk:");
         sprintf(buffer + strlen(buffer), "LogInfo: leave_thunk at %p, length: %ld.\n", code_slice->data,
                 code_slice->size);
-        Xinfo("%s", buffer);
+        ZzInfoLog("%s", buffer);
     }
 
     /* set arm64 leave_thunk */

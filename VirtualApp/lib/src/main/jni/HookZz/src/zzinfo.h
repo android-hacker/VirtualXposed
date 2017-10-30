@@ -12,32 +12,35 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#ifndef platforms_arch_arm_reader_arm_h
-#define platforms_arch_arm_reader_arm_h
+#ifndef zzinfo_h
+#define zzinfo_h
 
 // platforms
-#include "instructions.h"
 
 // hookzz
+#include "hookzz.h"
 
 // zzdeps
-#include "hookzz.h"
 #include "zzdefs.h"
 #include "zzdeps/common/debugbreak.h"
 #include "zzdeps/zz.h"
 
-typedef enum _ARMInsnType {
-    ARM_INS_ADD_register_A1,
-    ARM_INS_LDR_literal_A1,
-    ARM_INS_ADR_A1,
-    ARM_INS_ADR_A2,
-    ARM_INS_B_A1,
-    ARM_INS_BLBLX_immediate_A1,
-    ARM_INS_BLBLX_immediate_A2,
-    ARM_UNDEF
-} ARMInsnType;
+typedef struct _ZzInfo {
+    zbool g_enable_debug_flag;
+    LOGFUNC g_log_func;
+} ZzInfo;
 
-ARMInsnType GetARMInsnType(zuint32 insn);
-zpointer zz_arm_reader_read_one_instruction(ZzInstruction *insn_ctx, zpointer address);
+ZzInfo *ZzInfoObtain(void);
+zbool ZzIsEnableDebugMode();
 
+#if TARGET_OS_IPHONE
+#include <CoreFoundation/CoreFoundation.h>
+void NSLog(CFStringRef format, ...);
+#define ZzInfoLog(fmt, ...)                                                                                            \
+    { NSLog(CFSTR(fmt), ##__VA_ARGS__); }
+#elif defined(__ANDROID__)
+#include <android/log.h>
+#define ZzInfoLog(fmt, ...)                                                                                            \
+    { __android_log_print(ANDROID_LOG_INFO, "zzinfo", fmt, __VA_ARGS__); }
+#endif
 #endif

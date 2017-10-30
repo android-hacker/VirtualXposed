@@ -50,7 +50,7 @@ zpointer zz_arm_reader_read_one_instruction(ZzInstruction *insn_ctx, zpointer ad
 
     insn_ctx->type = ARM_INSN;
     insn_ctx->address = (zaddr)address;
-    insn_ctx->pc = (zaddr)address;
+    insn_ctx->pc = (zaddr)address + 8;
     insn_ctx->insn = *(zuint32 *)address;
     insn_ctx->size = 4;
     return (zpointer)insn_ctx->pc;
@@ -63,8 +63,12 @@ ARMInsnType GetARMInsnType(zuint32 insn) {
     zuint32 op, op1;
     op1 = get_insn_sub(insn, 20, 5);
 
+    if (insn_equal(insn, "xxxx0000100xxxxxxxxxxxxxxxx0xxxx")) {
+        return ARM_INS_ADD_register_A1;
+    }
+
     if (insn_equal(insn, "xxxx0101x0011111xxxxxxxxxxxxxxxx")) {
-        return ARM_INS_LDR_A1;
+        return ARM_INS_LDR_literal_A1;
     }
 
     if (insn_equal(insn, "xxxx001010001111xxxxxxxxxxxxxxxx")) {
@@ -80,10 +84,10 @@ ARMInsnType GetARMInsnType(zuint32 insn) {
     }
 
     if (insn_equal(insn, "xxxx1011xxxxxxxxxxxxxxxxxxxxxxxx")) {
-        return ARM_INS_BLBLX_A1;
+        return ARM_INS_BLBLX_immediate_A1;
     }
     if (insn_equal(insn, "1111101xxxxxxxxxxxxxxxxxxxxxxxxx")) {
-        return ARM_INS_BLBLX_A2;
+        return ARM_INS_BLBLX_immediate_A2;
     }
     return ARM_UNDEF;
 }

@@ -22,9 +22,8 @@
 #define ZZHOOKENTRIES_DEFAULT 100
 ZzInterceptor *g_interceptor = NULL;
 
-zbool g_DebugModeFlag = FALSE;
-
-ZZSTATUS ZzInitializeInterceptor(void) {
+ZZSTATUS
+ZzInitializeInterceptor(void) {
     ZzInterceptor *interceptor = g_interceptor;
     ZzHookFunctionEntrySet *hook_function_entry_set;
 
@@ -51,10 +50,6 @@ ZZSTATUS ZzInitializeInterceptor(void) {
     }
     return ZZ_ALREADY_INIT;
 }
-
-void ZzEnableDebugMode(void) { g_DebugModeFlag = TRUE; }
-
-zbool ZzIsEnableDebugMode(void) { return g_DebugModeFlag; }
 
 ZzHookFunctionEntry *ZzFindHookFunctionEntry(zpointer target_ptr) {
     ZzInterceptor *interceptor = g_interceptor;

@@ -15,6 +15,7 @@
  */
 
 #include "interceptor-arm.h"
+#include "zzinfo.h"
 
 #include <stdlib.h>
 
@@ -139,7 +140,7 @@ ZZSTATUS ZzBuildEnterTransferTrampoline(ZzInterceptorBackend *self, ZzHookFuncti
         sprintf(buffer + strlen(buffer),
                 "LogInfo: on_enter_transfer_trampoline at %p, length: %ld. and will jump to on_enter_trampoline(%p).\n",
                 code_slice->data, code_slice->size, entry->on_enter_trampoline);
-        Xinfo("%s", buffer);
+        ZzInfoLog("%s", buffer);
     }
     return status;
 }
@@ -201,7 +202,7 @@ ZZSTATUS ZzBuildEnterTrampoline(ZzInterceptorBackend *self, ZzHookFunctionEntry 
         sprintf(buffer + strlen(buffer),
                 "LogInfo: on_enter_trampoline at %p, length: %ld. hook-entry: %p. and will jump to enter_thunk(%p)\n",
                 code_slice->data, code_slice->size, (void *)entry, (void *)self->enter_thunk);
-        Xinfo("%s", buffer);
+        ZzInfoLog("%s", buffer);
     }
 
     entry->on_enter_trampoline = code_slice->data + 1;
@@ -390,7 +391,7 @@ ZZSTATUS ZzBuildInvokeTrampoline(ZzInterceptorBackend *self, ZzHookFunctionEntry
         }
         sprintf(buffer + strlen(buffer), "origin_prologue: %s\n", origin_prologue);
 
-        Xinfo("%s", buffer);
+        ZzInfoLog("%s", buffer);
     }
 
     return status;
@@ -506,7 +507,7 @@ ZZSTATUS ZzBuildLeaveTrampoline(ZzInterceptorBackend *self, ZzHookFunctionEntry 
         sprintf(buffer + strlen(buffer),
                 "LogInfo: on_leave_trampoline at %p, length: %ld. and will jump to leave_thunk(%p).\n",
                 code_slice->data, code_slice->size, self->leave_thunk);
-        Xinfo("%s", buffer);
+        ZzInfoLog("%s", buffer);
     }
 
     /* set thumb on_leave_trampoline */

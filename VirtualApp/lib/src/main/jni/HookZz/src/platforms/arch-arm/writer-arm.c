@@ -44,6 +44,8 @@ void zz_arm_writer_reset(ZzArmWriter *self, zpointer data_ptr) {
     self->size = 0;
 }
 
+zsize zz_arm_writer_near_jump_range_size() { return ((1 << 23) << 2); }
+
 // ------- user custom -------
 
 void zz_arm_writer_put_ldr_b_reg_address(ZzArmWriter *self, ZzARMReg reg, zaddr address) {
@@ -179,4 +181,18 @@ void zz_arm_writer_put_bx_reg(ZzArmWriter *self, ZzARMReg reg) {
 
 void zz_arm_writer_put_nop(ZzArmWriter *self) { zz_arm_writer_put_instruction(self, 0xe320f000); }
 
-zsize zz_arm_writer_near_jump_range_size() { return ((1 << 23) << 2); }
+zpointer zz_arm_writer_put_push_reg(ZzArmWriter *self, zint32 regs) {
+    zuint32 register_list;
+    register_list = regs & 0xFFFF;
+
+    zz_arm_writer_put_instruction(self, 0b11011001001011010000000000000000 | register_list);
+    return self->pc;
+}
+
+zpointer zz_arm_writer_put_pop_reg(ZzArmWriter *self, zint32 regs) {
+    zuint32 register_list;
+    register_list = regs & 0xFFFF;
+
+    zz_arm_writer_put_instruction(self, 0b11011000101111010000000000000000 | register_list);
+    return self->pc;
+}

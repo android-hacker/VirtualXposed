@@ -27,8 +27,9 @@
 #include "zzdeps/zz.h"
 
 typedef enum _THUMBInsnType {
-    THUMB_INS_LDR_T1,
-    THUMB_INS_LDR_T2,
+    THUMB_INS_ADD_register_T2,
+    THUMB_INS_LDR_literal_T1,
+    THUMB_INS_LDR_literal_T2,
     THUMB_INS_ADR_T1,
     THUMB_INS_ADR_T2,
     THUMB_INS_ADR_T3,
@@ -36,8 +37,8 @@ typedef enum _THUMBInsnType {
     THUMB_INS_B_T2,
     THUMB_INS_B_T3,
     THUMB_INS_B_T4,
-    THUMB_INS_BLBLX_T1,
-    THUMB_INS_BLBLX_T2,
+    THUMB_INS_BLBLX_immediate_T1,
+    THUMB_INS_BLBLX_immediate_T2,
     THUMB_UNDEF
 } THUMBInsnType;
 

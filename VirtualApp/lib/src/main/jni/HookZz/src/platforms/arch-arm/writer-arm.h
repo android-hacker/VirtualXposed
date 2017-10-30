@@ -38,6 +38,7 @@ typedef ZzWriter ZzArmWriter;
 ZzArmWriter *zz_arm_writer_new(zpointer data_ptr);
 void zz_arm_writer_init(ZzArmWriter *self, zpointer data_ptr);
 void zz_arm_writer_reset(ZzArmWriter *self, zpointer data_ptr);
+zsize zz_arm_writer_near_jump_range_size();
 
 // ------- user custom -------
 
@@ -61,6 +62,7 @@ void zz_arm_writer_put_ldr_reg_reg_imm_A1(ZzArmWriter *self, ZzARMReg dst_reg, Z
 void zz_arm_writer_put_ldr_reg_address(ZzArmWriter *self, ZzARMReg reg, zaddr address);
 void zz_arm_writer_put_add_reg_reg_imm(ZzArmWriter *self, ZzARMReg dst_reg, ZzARMReg src_reg, zuint32 imm);
 void zz_arm_writer_put_sub_reg_reg_imm(ZzArmWriter *self, ZzARMReg dst_reg, ZzARMReg src_reg, zuint32 imm);
-zsize zz_arm_writer_near_jump_range_size();
+zpointer zz_arm_writer_put_push_reg(ZzArmWriter *self, zint32 regs);
+zpointer zz_arm_writer_put_pop_reg(ZzArmWriter *self, zint32 regs);
 
 #endif

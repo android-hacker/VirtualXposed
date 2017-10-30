@@ -47,6 +47,7 @@ zpointer zz_thumb_writer_put_ldr_b_reg_address(ZzThumbWriter *self, ZzARMReg reg
 ZzThumbWriter *zz_thumb_writer_new(zpointer data_ptr);
 void zz_thumb_writer_init(ZzThumbWriter *self, zpointer data_ptr);
 void zz_thumb_writer_reset(ZzThumbWriter *self, zpointer data_ptr);
+zsize zz_thumb_writer_near_jump_range_size();
 zpointer zz_thumb_writer_put_nop(ZzThumbWriter *self);
 zpointer zz_thumb_writer_put_bytes(ZzThumbWriter *self, zbyte *data, zuint data_size);
 zpointer zz_thumb_writer_put_instruction(ZzThumbWriter *self, uint16_t insn);
@@ -79,5 +80,8 @@ zpointer zz_thumb_writer_put_add_reg_reg_imm(ZzThumbWriter *self, ZzARMReg dst_r
                                              zint32 right_value);
 zpointer zz_thumb_writer_put_sub_reg_reg_imm(ZzThumbWriter *self, ZzARMReg dst_reg, ZzARMReg left_reg,
                                              zint32 right_value);
-zsize zz_thumb_writer_near_jump_range_size();
+zpointer zz_thumb_writer_put_push_reg(ZzThumbWriter *self, zint32 regs);
+zpointer zz_thumb_writer_put_pop_reg(ZzThumbWriter *self, zint32 regs);
+zpointer zz_thumb_writer_put_add_reg_reg_reg(ZzThumbWriter *self, ZzARMReg dst_reg, ZzARMReg left_reg,
+                                             ZzARMReg right_reg);
 #endif
