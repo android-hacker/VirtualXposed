@@ -27,7 +27,7 @@
 
 typedef struct _ZzInfo {
     zbool g_enable_debug_flag;
-    LOGFUNC g_log_func;
+//    LOGFUNC g_log_func;
 } ZzInfo;
 
 ZzInfo *ZzInfoObtain(void);
