@@ -42,7 +42,7 @@ typedef enum _THUMBInsnType {
     THUMB_UNDEF
 } THUMBInsnType;
 
-THUMBInsnType GetTHUMBInsnType(zuint32 insn);
+THUMBInsnType GetTHUMBInsnType(zuint16 insn1, zuint16 insn2);
 zpointer zz_thumb_reader_read_one_instruction(ZzInstruction *insn_ctx, zpointer address);
 
 #endif

@@ -6,6 +6,8 @@ ref to: [frida-gum](https://github.com/frida/frida-gum) and [minhook](https://gi
 
 **special thanks to [frida-gum](https://github.com/frida/frida-gum) perfect code and modular architecture, frida is aircraft carrier, HookZz is boat, but still with some tricks**
 
+**thanks for @lauos with contributing android code**
+
 # Features
 
 - **inlinehook without Jailbreak [new-90%]**
@@ -22,7 +24,7 @@ ref to: [frida-gum](https://github.com/frida/frida-gum) and [minhook](https://gi
 
 - hook **address(a piece of code)** with `pre_call` and `half_call`
 
-- (almost)only **one instruction** to hook(i.e. hook **short funciton, even only one instruction**) [arm64]
+- (almost)only **one instruction** to hook(i.e. hook **short funciton, even only one instruction**) [arm/thumb/arm64]
 
 - runtime code patch, without codesign limit
 
@@ -163,7 +165,7 @@ and check `build/android-armv7/*`
 
 #### `test_hook_printf.c` output for arm64-ios
 
-test hook `printf` with `try_near_jump` option and `replace_call`, `pre_call`, `post_call`
+test hook `printf` with `try_near_jump` option , and `ZzEnableDebugMode()` with `replace_call`, `pre_call`, `post_call`.
 
 ```
 ZzThunkerBuildThunk:

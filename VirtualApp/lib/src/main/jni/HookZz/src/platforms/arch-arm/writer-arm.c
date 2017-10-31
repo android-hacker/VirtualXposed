@@ -20,7 +20,7 @@
 
 // ATTENTION !!!:
 // 写 writer 部分, 需要参考, `Instrcution Set Encoding` 部分
-// `witer` REF: `ZzInstruction Set Encoding`
+// `writer` REF: `ZzInstruction Set Encoding`
 
 ZzArmWriter *zz_arm_writer_new(zpointer data_ptr) {
     ZzArmWriter *writer = (ZzArmWriter *)malloc(sizeof(ZzArmWriter));

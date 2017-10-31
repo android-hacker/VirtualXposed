@@ -48,22 +48,7 @@ zsize zz_thumb_writer_near_jump_range_size() { return ((1 << 23) << 1); }
 
 zpointer zz_thumb_writer_put_ldr_b_reg_address(ZzThumbWriter *self, ZzARMReg reg, zaddr address) {
     ZzArmRegInfo ri;
-
     zz_arm_register_describe(reg, &ri);
-
-    // if (((zaddr)self->pc) % 4) {
-    //     zz_thumb_writer_put_ldr_reg_imm(self, reg, 0x4);
-    //     if (ri.meta <= ZZ_ARM_REG_R7) {
-    //         zz_thumb_writer_put_nop(self);
-    //     }
-    // } else {
-    //     if (ri.meta <= ZZ_ARM_REG_R7) {
-    //         zz_thumb_writer_put_ldr_reg_imm(self, reg, 0x0);
-    //     } else {
-    //         zz_thumb_writer_put_ldr_reg_imm(self, reg, 0x4);
-    //         zz_thumb_writer_put_nop(self);
-    //     }
-    // }
 
     if ((((zaddr)self->pc) % 4)) {
         if (ri.meta <= ZZ_ARM_REG_R7) {
@@ -88,8 +73,8 @@ zpointer zz_thumb_writer_put_ldr_b_reg_address(ZzThumbWriter *self, ZzARMReg reg
 
 zpointer zz_thumb_writer_put_ldr_reg_address(ZzThumbWriter *self, ZzARMReg reg, zaddr address) {
     ZzArmRegInfo ri;
-
     zz_arm_register_describe(reg, &ri);
+
     if ((((zaddr)self->pc) % 4)) {
         if (ri.meta <= ZZ_ARM_REG_R7) {
             zz_thumb_writer_put_ldr_reg_imm(self, reg, 0x0);
@@ -103,9 +88,6 @@ zpointer zz_thumb_writer_put_ldr_reg_address(ZzThumbWriter *self, ZzARMReg reg, 
             zz_thumb_writer_put_nop(self);
     }
 
-    // if ((((zaddr)self->pc) % 4)) {
-    //     zz_thumb_writer_put_nop(self);
-    // }
     zz_thumb_writer_put_bytes(self, (zpointer)&address, sizeof(zpointer));
     return self->pc;
 }
@@ -218,60 +200,6 @@ zpointer zz_thumb_writer_put_ldr_reg_imm(ZzThumbWriter *self, ZzARMReg reg, zint
     }
     return self->pc;
 }
-
-// static zpointer zz_thumb_writer_put_transfer_reg_reg_offset(ZzThumbWriter
-// *self,
-//                                                         ZzThumbMemoryOperation
-//                                                         operation,
-//                                                         ZzARMReg left_reg,
-//                                                         ZzARMReg right_reg,
-//                                                         zint32 right_offset)
-//                                                         {
-//     zz_arm_register_describe(left_reg, &lr);
-//     zz_arm_register_describe(right_reg, &rr);
-
-//     if (right_offset >= 0) {
-//         if (lr.meta <= ZZ_ARM_REG_R7 && (rr.meta <= ZZ_ARM_REG_R7 || rr.meta ==
-//         ZZ_ARM_REG_SP) &&
-//             ((rr.meta == ZZ_ARM_REG_SP && right_offset <= 1020) ||
-//              (rr.meta != ZZ_ARM_REG_SP && right_offset <= 124)) &&
-//             (right_offset % 4) == 0) {
-//             zuint16 insn;
-
-//             if (rr.meta == ZZ_ARM_REG_SP)
-//                 insn = 0x9000 | (lr.index << 8) | (right_offset / 4);
-//             else
-//                 insn = 0x6000 | (right_offset / 4) << 6 | (rr.index << 3) |
-//                 lr.index;
-
-//             if (operation == ZZ_THUMB_MEMORY_LOAD)
-//                 insn |= 0x0800;
-
-//             zz_thumb_writer_put_instruction(self, insn);
-//         } else {
-//             if (right_offset > 4095)
-//                 return;
-//             zz_thumb_writer_put_instruction(
-//                 self, 0xf8c0 | ((operation == ZZ_THUMB_MEMORY_LOAD) ? 0x0010
-//                 : 0x0000) |
-//                 rr.index);
-//             zz_thumb_writer_put_instruction(self, (lr.index << 12) |
-//             right_offset);
-//         }
-//     } else {
-//         if ((rr.index & 0xF) == 0xF) {
-//             zz_thumb_writer_put_ldr_reg_imm(self, left_reg, right_offset);
-//         } else {
-//             zz_thumb_writer_put_instruction(
-//                 self, 0xf840 | ((operation == ZZ_THUMB_MEMORY_LOAD) ? 0x0010
-//                 : 0x0000) |
-//                 rr.index);
-//             zz_thumb_writer_put_instruction(self, 0x0c00 | (lr.index << 12) |
-//                                                       (ABS(right_offset) &
-//                                                       ZZ_INT8_MASK));
-//         }
-//     }
-// }
 
 zpointer zz_thumb_writer_put_transfer_reg_reg_offset_T1(ZzThumbWriter *self, ZzThumbMemoryOperation operation,
                                                         ZzARMReg left_reg, ZzARMReg right_reg, zint32 right_offset) {
@@ -507,6 +435,7 @@ zpointer zz_thumb_writer_put_push_reg(ZzThumbWriter *self, zint32 regs) {
     register_list = regs & 0xFF;
 
     zz_thumb_writer_put_instruction(self, 0b1011010000000000 | M << 8 | register_list);
+    return self->pc;
 }
 
 zpointer zz_thumb_writer_put_pop_reg(ZzThumbWriter *self, zint32 regs) {
@@ -515,6 +444,7 @@ zpointer zz_thumb_writer_put_pop_reg(ZzThumbWriter *self, zint32 regs) {
     register_list = regs & 0xFF;
 
     zz_thumb_writer_put_instruction(self, 0b1011110000000000 | P << 8 | register_list);
+    return self->pc;
 }
 
 zpointer zz_thumb_writer_put_add_reg_reg_reg(ZzThumbWriter *self, ZzARMReg dst_reg, ZzARMReg left_reg,
@@ -530,4 +460,5 @@ zpointer zz_thumb_writer_put_add_reg_reg_reg(ZzThumbWriter *self, ZzARMReg dst_r
     Rn_ndx = left.index;
 
     zz_thumb_writer_put_instruction(self, 0b0001100000000000 | Rm_ndx << 6 | Rn_ndx << 3 | Rd_ndx);
+    return self->pc;
 }

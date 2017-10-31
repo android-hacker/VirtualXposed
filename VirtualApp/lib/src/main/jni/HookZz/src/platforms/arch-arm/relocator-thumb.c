@@ -173,6 +173,12 @@ zbool zz_thumb_relocator_rewrite_ADR_T3(ZzThumbRelocator *self, const ZzInstruct
     return TRUE;
 }
 
+// 0x000 : b.cond 0x0;
+// 0x002 : b 0x6
+// 0x004 : ldr pc, [pc, #0]
+// 0x008 : .long 0x0
+// 0x00c : remain code
+
 // PAGE: A8-334
 zbool zz_thumb_relocator_rewrite_B_T1(ZzThumbRelocator *self, const ZzInstruction *insn_ctx) {
     zuint32 insn1 = insn_ctx->insn1;
@@ -182,7 +188,12 @@ zbool zz_thumb_relocator_rewrite_B_T1(ZzThumbRelocator *self, const ZzInstructio
     zuint32 imm32 = imm8 << 1;
     zaddr target_address = insn_ctx->pc + imm32;
 
-    zz_thumb_writer_put_instruction(self->output, (insn1 & 0xFF00));
+    /* for align , simple solution, maybe the correct solution is get `ldr_reg_address` length and adjust the immediate
+     * of `b_imm`. */
+    if ((zaddr)self->output->pc % 4) {
+        zz_thumb_writer_put_nop(self->output);
+    }
+    zz_thumb_writer_put_instruction(self->output, (insn1 & 0xFF00) | 0);
     zz_thumb_writer_put_b_imm(self->output, 0x6);
     zz_thumb_writer_put_ldr_reg_address(self->output, ZZ_ARM_REG_PC, target_address);
     return TRUE;
@@ -191,7 +202,6 @@ zbool zz_thumb_relocator_rewrite_B_T1(ZzThumbRelocator *self, const ZzInstructio
 // PAGE: A8-334
 zbool zz_thumb_relocator_rewrite_B_T2(ZzThumbRelocator *self, const ZzInstruction *insn_ctx) {
     zuint32 insn1 = insn_ctx->insn1;
-    // zuint32 insn2 = insn_ctx->insn2;
 
     zuint32 imm11 = get_insn_sub(insn1, 0, 11);
     zuint32 imm32 = imm11 << 1;
@@ -200,6 +210,12 @@ zbool zz_thumb_relocator_rewrite_B_T2(ZzThumbRelocator *self, const ZzInstructio
     zz_thumb_writer_put_ldr_reg_address(self->output, ZZ_ARM_REG_PC, target_address);
     return TRUE;
 }
+
+// 0x002 : b.cond.W 0x2;
+// 0x006 : b 0x6
+// 0x008 : ldr pc, [pc, #0]
+// 0x00c : .long 0x0
+// 0x010 : remain code
 
 // PAGE: A8-334
 zbool zz_thumb_relocator_rewrite_B_T3(ZzThumbRelocator *self, const ZzInstruction *insn_ctx) {
@@ -216,7 +232,13 @@ zbool zz_thumb_relocator_rewrite_B_T3(ZzThumbRelocator *self, const ZzInstructio
     zaddr target_address;
     target_address = insn_ctx->pc + imm32;
 
-    zz_thumb_writer_put_instruction(self->output, (insn_ctx->insn & 0b11010000000000001111101111000000) | 0b1);
+    /* for align , simple solution, maybe the correct solution is get `ldr_reg_address` length and adjust the immediate
+     * of `b_imm`. */
+    if ((zaddr)self->output->pc % 4 == 0) {
+        zz_thumb_writer_put_nop(self->output);
+    }
+    zz_thumb_writer_put_instruction(self->output, insn_ctx->insn1 & 0b1111101111000000);
+    zz_thumb_writer_put_instruction(self->output, (insn_ctx->insn2 & 0b1101000000000000) | 0b1);
     zz_thumb_writer_put_b_imm(self->output, 0x6);
     zz_thumb_writer_put_ldr_reg_address(self->output, ZZ_ARM_REG_PC, target_address);
     return TRUE;
@@ -297,7 +319,7 @@ zbool zz_thumb_relocator_write_one(ZzThumbRelocator *self) {
     } else
         return FALSE;
 
-    switch (GetTHUMBInsnType(insn_ctx->insn)) {
+    switch (GetTHUMBInsnType(insn_ctx->insn1, insn_ctx->insn2)) {
     case THUMB_INS_ADD_register_T2:
         rewritten = zz_thumb_relocator_rewrite_ADD_register_T2(self, insn_ctx);
         break;

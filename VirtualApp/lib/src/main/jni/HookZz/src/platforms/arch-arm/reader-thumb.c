@@ -81,55 +81,55 @@ zpointer zz_thumb_reader_read_one_instruction(ZzInstruction *insn_ctx, zpointer 
 // ARM Manual
 // A5 ARM Instruction Set Encoding
 // A5.3 Load/store word and unsigned byte
-THUMBInsnType GetTHUMBInsnType(zuint32 insn) {
-    // zuint32 insn = insn_ctx->insn;
+THUMBInsnType GetTHUMBInsnType(zuint16 insn1, zuint16 insn2) {
+    // zuint32 insn1 = insn_ctx->insn1;
     zuint32 op, op1;
 
-    if (!insn_is_thumb2(insn) && insn_equal(insn, "01000100xxxxxxxx")) {
+    if (!insn_is_thumb2(insn1) && insn_equal(insn1, "01000100xxxxxxxx")) {
         return THUMB_INS_ADD_register_T2;
     }
 
-    if (!insn_is_thumb2(insn) && insn_equal(insn, "01001xxxxxxxxxxx")) {
+    if (!insn_is_thumb2(insn1) && insn_equal(insn1, "01001xxxxxxxxxxx")) {
         return THUMB_INS_LDR_literal_T1;
     }
 
-    if (insn_is_thumb2(insn) && insn_equal(insn, "11111000x1011111xxxxxxxxxxxxxxxx")) {
+    if (insn_is_thumb2(insn1) && insn_equal(insn1, "11111000x1011111") && insn_equal(insn2, "xxxxxxxxxxxxxxxx")) {
         return THUMB_INS_LDR_literal_T2;
     }
 
-    if (!insn_is_thumb2(insn) && insn_equal(insn, "10100xxxxxxxxxxx")) {
+    if (!insn_is_thumb2(insn1) && insn_equal(insn1, "10100xxxxxxxxxxx")) {
         return THUMB_INS_ADR_T1;
     }
 
-    if (insn_is_thumb2(insn) && insn_equal(insn, "11110x10101011110xxxxxxxxxxxxxxx")) {
+    if (insn_is_thumb2(insn1) && insn_equal(insn1, "11110x1010101111") && insn_equal(insn2, "0xxxxxxxxxxxxxxx")) {
         return THUMB_INS_ADR_T2;
     }
 
-    if (insn_is_thumb2(insn) && insn_equal(insn, "11110x10000011110xxxxxxxxxxxxxxx")) {
+    if (insn_is_thumb2(insn1) && insn_equal(insn1, "11110x1000001111") && insn_equal(insn2, "0xxxxxxxxxxxxxxx")) {
         return THUMB_INS_ADR_T3;
     }
 
-    if (!insn_is_thumb2(insn) && insn_equal(insn, "1101xxxxxxxxxxxx")) {
+    if (!insn_is_thumb2(insn1) && insn_equal(insn1, "1101xxxxxxxxxxxx")) {
         return THUMB_INS_B_T1;
     }
 
-    if (!insn_is_thumb2(insn) && insn_equal(insn, "11100xxxxxxxxxxx")) {
+    if (!insn_is_thumb2(insn1) && insn_equal(insn1, "11100xxxxxxxxxxx")) {
         return THUMB_INS_B_T2;
     }
 
-    if (insn_is_thumb2(insn) && insn_equal(insn, "11110xxxxxxxxxxx10x0xxxxxxxxxxxx")) {
+    if (insn_is_thumb2(insn1) && insn_equal(insn1, "11110xxxxxxxxxxx") && insn_equal(insn2, "10x0xxxxxxxxxxxx")) {
         return THUMB_INS_B_T3;
     }
 
-    if (insn_is_thumb2(insn) && insn_equal(insn, "11110xxxxxxxxxxx10x0xxxxxxxxxxxx")) {
+    if (insn_is_thumb2(insn1) && insn_equal(insn1, "11110xxxxxxxxxxx") && insn_equal(insn2, "10x0xxxxxxxxxxxx")) {
         return THUMB_INS_B_T4;
     }
 
-    if (insn_is_thumb2(insn) && insn_equal(insn, "11110xxxxxxxxxxx11x1xxxxxxxxxxxx")) {
+    if (insn_is_thumb2(insn1) && insn_equal(insn1, "11110xxxxxxxxxxx") && insn_equal(insn2, "11x1xxxxxxxxxxxx")) {
         return THUMB_INS_BLBLX_immediate_T1;
     }
 
-    if (insn_is_thumb2(insn) && insn_equal(insn, "11110xxxxxxxxxxx11x0xxxxxxxxxxxx")) {
+    if (insn_is_thumb2(insn1) && insn_equal(insn1, "11110xxxxxxxxxxx") && insn_equal(insn2, "11x0xxxxxxxxxxxx")) {
         return THUMB_INS_BLBLX_immediate_T2;
     }
 

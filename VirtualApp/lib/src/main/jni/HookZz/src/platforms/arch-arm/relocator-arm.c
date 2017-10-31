@@ -116,7 +116,7 @@ static zbool zz_arm_relocator_rewrite_LDR_literal_A1(ZzArmRelocator *self, const
 static zbool zz_arm_relocator_rewrite_ADR_A1(ZzArmRelocator *self, const ZzInstruction *insn_ctx) {
     zuint32 insn = insn_ctx->insn;
     zuint32 imm12 = get_insn_sub(insn, 0, 12);
-    zuint32 imm32 = imm12 << 2;
+    zuint32 imm32 = imm12;
     zaddr target_address;
     target_address = insn_ctx->pc + imm32;
     int Rt_ndx = get_insn_sub(insn, 12, 4);
@@ -128,13 +128,19 @@ static zbool zz_arm_relocator_rewrite_ADR_A1(ZzArmRelocator *self, const ZzInstr
 static zbool zz_arm_relocator_rewrite_ADR_A2(ZzArmRelocator *self, const ZzInstruction *insn_ctx) {
     zuint32 insn = insn_ctx->insn;
     zuint32 imm12 = get_insn_sub(insn, 0, 12);
-    zuint32 imm32 = imm12 << 2;
+    zuint32 imm32 = imm12;
     zaddr target_address;
     target_address = insn_ctx->pc - imm32;
     int Rt_ndx = get_insn_sub(insn, 12, 4);
     zz_arm_writer_put_ldr_b_reg_address(self->output, Rt_ndx, target_address);
     return TRUE;
 }
+
+// 0x000 : b.cond 0x0;
+// 0x004 : b 0x4
+// 0x008 : ldr pc, [pc, #0]
+// 0x00c : .long 0x0
+// 0x010 : remain code
 
 // PAGE: A8-334
 static zbool zz_arm_relocator_rewrite_B_A1(ZzArmRelocator *self, const ZzInstruction *insn_ctx) {
@@ -143,9 +149,25 @@ static zbool zz_arm_relocator_rewrite_B_A1(ZzArmRelocator *self, const ZzInstruc
     zuint32 imm32 = imm24 << 2;
     zaddr target_address;
     target_address = insn_ctx->pc + imm32;
+
+    zz_arm_writer_put_instruction(self->output, (insn & 0xFF000000) | 0);
+    zz_arm_writer_put_b_imm(self->output, 0x4);
     zz_arm_writer_put_ldr_reg_address(self->output, ZZ_ARM_REG_PC, target_address);
     return TRUE;
 }
+
+// 0x000 : bl.cond 0x0;
+
+// 0x004 : b 0x10
+
+// 0x008 : ldr lr, [pc, #0]
+// 0x00c : b 0x0
+// 0x010 : .long 0x0
+
+// 0x014 : ldr pc, [pc, #0]
+// 0x018 : .long 0x0
+
+// 0x01c : remain code
 
 // PAGE: A8-348
 static zbool zz_arm_relocator_rewrite_BLBLX_immediate_A1(ZzArmRelocator *self, const ZzInstruction *insn_ctx) {
@@ -154,7 +176,10 @@ static zbool zz_arm_relocator_rewrite_BLBLX_immediate_A1(ZzArmRelocator *self, c
     zuint32 imm32 = imm24 << 2;
     zaddr target_address;
     target_address = insn_ctx->pc + imm32;
-    zz_arm_writer_put_ldr_b_reg_address(self->output, ZZ_ARM_REG_LR, insn_ctx->pc + 2 * 4);
+
+    zz_arm_writer_put_instruction(self->output, (insn & 0xFF000000) | 0);
+    zz_arm_writer_put_b_imm(self->output, 0x10);
+    zz_arm_writer_put_ldr_b_reg_address(self->output, ZZ_ARM_REG_LR, insn_ctx->pc + 0xc);
     zz_arm_writer_put_ldr_reg_address(self->output, ZZ_ARM_REG_PC, target_address);
     return TRUE;
 }
@@ -167,7 +192,7 @@ static zbool zz_arm_relocator_rewrite_BLBLX_immediate_A2(ZzArmRelocator *self, c
     zuint32 imm32 = (imm24 << 2) | (H << 1);
     zaddr target_address;
     target_address = insn_ctx->pc + imm32;
-    zz_arm_writer_put_ldr_b_reg_address(self->output, ZZ_ARM_REG_LR, insn_ctx->pc + 2 * 4);
+    zz_arm_writer_put_ldr_b_reg_address(self->output, ZZ_ARM_REG_LR, insn_ctx->pc + 0x8);
     zz_arm_writer_put_ldr_reg_address(self->output, ZZ_ARM_REG_PC, target_address);
     return TRUE;
 }

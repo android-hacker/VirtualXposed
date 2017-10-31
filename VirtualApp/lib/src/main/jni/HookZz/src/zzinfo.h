@@ -27,20 +27,18 @@
 
 typedef struct _ZzInfo {
     zbool g_enable_debug_flag;
-//    LOGFUNC g_log_func;
 } ZzInfo;
 
 ZzInfo *ZzInfoObtain(void);
 zbool ZzIsEnableDebugMode();
 
-#if TARGET_OS_IPHONE
-#include <CoreFoundation/CoreFoundation.h>
-void NSLog(CFStringRef format, ...);
-#define ZzInfoLog(fmt, ...)                                                                                            \
-    { NSLog(CFSTR(fmt), ##__VA_ARGS__); }
-#elif defined(__ANDROID__)
+#if defined(__ANDROID__)
 #include <android/log.h>
 #define ZzInfoLog(fmt, ...)                                                                                            \
     { __android_log_print(ANDROID_LOG_INFO, "zzinfo", fmt, __VA_ARGS__); }
+#else
+#define ZzInfoLog(fmt, ...)                                                                                            \
+    { Xinfo(fmt, __VA_ARGS__); }
 #endif
+
 #endif
