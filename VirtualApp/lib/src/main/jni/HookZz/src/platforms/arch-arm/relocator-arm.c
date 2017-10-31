@@ -98,7 +98,7 @@ static zbool zz_arm_relocator_rewrite_ADD_register_A1(ZzArmRelocator *self, cons
 static zbool zz_arm_relocator_rewrite_LDR_literal_A1(ZzArmRelocator *self, const ZzInstruction *insn_ctx) {
     zuint32 insn = insn_ctx->insn;
     zuint32 imm12 = get_insn_sub(insn, 0, 12);
-    zuint32 imm32 = imm12 << 2;
+    zuint32 imm32 = imm12;
     zbool add = get_insn_sub(insn, 7 + 16, 1) == 1;
     zaddr target_address;
     if (add)
