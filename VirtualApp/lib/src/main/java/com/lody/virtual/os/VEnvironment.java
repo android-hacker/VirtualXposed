@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Build;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.helper.utils.FileUtils;
 import com.lody.virtual.helper.utils.VLog;
 
@@ -116,7 +117,7 @@ public class VEnvironment {
     }
 
     public static File getOdexFile(String packageName) {
-        return new File(DALVIK_CACHE_DIRECTORY, "base.odex");
+        return new File(DALVIK_CACHE_DIRECTORY, "data@app@" + packageName + "-1@base.apk@classes.dex");
     }
 
     public static File getDataAppPackageDirectory(String packageName) {
