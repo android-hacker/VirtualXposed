@@ -282,7 +282,7 @@ public class MethodProxies {
 
         @Override
         public Object afterCall(Object who, Method method, Object[] args, Object result) throws Throwable {
-            if (isFakeLocationEnable()) {
+            if (!isFakeLocationEnable()) {
                 return super.afterCall(who, method, args, result);
             }
             try {
