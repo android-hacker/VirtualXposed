@@ -181,18 +181,17 @@ void zz_arm_writer_put_bx_reg(ZzArmWriter *self, ZzARMReg reg) {
 
 void zz_arm_writer_put_nop(ZzArmWriter *self) { zz_arm_writer_put_instruction(self, 0xe320f000); }
 
-zpointer zz_arm_writer_put_push_reg(ZzArmWriter *self, zint32 regs) {
-    zuint32 register_list;
-    register_list = regs & 0xFFFF;
-
-    zz_arm_writer_put_instruction(self, 0b11011001001011010000000000000000 | register_list);
+zpointer zz_arm_writer_put_push_reg(ZzArmWriter *self, ZzARMReg reg) {
+    ZzArmRegInfo ri;
+    zz_arm_register_describe(reg, &ri);
+    zz_arm_writer_put_instruction(self, 0b11100101001011010000000000000100 | ri.index << 12);
     return self->pc;
 }
 
-zpointer zz_arm_writer_put_pop_reg(ZzArmWriter *self, zint32 regs) {
-    zuint32 register_list;
-    register_list = regs & 0xFFFF;
+zpointer zz_arm_writer_put_pop_reg(ZzArmWriter *self, ZzARMReg reg) {
+    ZzArmRegInfo ri;
+    zz_arm_register_describe(reg, &ri);
 
-    zz_arm_writer_put_instruction(self, 0b11011000101111010000000000000000 | register_list);
+    zz_arm_writer_put_instruction(self, 0b11100100100111010000000000000100 | ri.index << 12);
     return self->pc;
 }

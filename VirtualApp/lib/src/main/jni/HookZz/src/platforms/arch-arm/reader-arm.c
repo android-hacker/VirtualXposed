@@ -16,35 +16,6 @@
 
 #include "reader-arm.h"
 
-// static csh handle;
-
-// void zz_arm_reader_capstone_init(void) {
-//     cs_err err = 0;
-
-//     err = cs_open(CS_ARCH_ARM, CS_MODE_ARM, &handle);
-//     if (err) {
-//         Xerror("Failed on cs_open() with error returned: %u\n", err);
-//         exit(-1);
-//     }
-
-//     cs_option(handle, CS_OPT_DETAIL, CS_OPT_ON);
-// }
-
-// cs_insn *zz_arm_reader_disassemble_at(zpointer address) {
-//     if (!handle)
-//         zz_arm_reader_capstone_init();
-//     cs_insn *insn;
-//     size_t count;
-//     count = cs_disasm(handle, address, 16, (unsigned long)address, 0, &insn);
-//     if (!insn) {
-// #if defined(DEBUG_MODE)
-//         debug_break();
-// #endif
-//         Xerror("zz_arm_reader_disassemble_at error at %p", (zpointer)address);
-//     }
-//     return insn;
-// }
-
 zpointer zz_arm_reader_read_one_instruction(ZzInstruction *insn_ctx, zpointer address) {
     // ZzInstruction *insn = (ZzInstruction *)malloc(sizeof(ZzInstruction));
 
@@ -60,34 +31,30 @@ zpointer zz_arm_reader_read_one_instruction(ZzInstruction *insn_ctx, zpointer ad
 // A5 ARM Instruction Set Encoding
 // A5.3 Load/store word and unsigned byte
 ARMInsnType GetARMInsnType(zuint32 insn) {
-    zuint32 op, op1;
-    op1 = get_insn_sub(insn, 20, 5);
 
-    if (insn_equal(insn, "xxxx0000100xxxxxxxxxxxxxxxx0xxxx")) {
+    if (insn_equal(insn, "xxxx0000100xxxxxxxxxxxxxxxx0xxxx") && (get_insn_sub(insn, 28, 4) != 0xF)) {
         return ARM_INS_ADD_register_A1;
     }
 
-    if (insn_equal(insn, "xxxx0101x0011111xxxxxxxxxxxxxxxx")) {
+    if (insn_equal(insn, "xxxx0101x0011111xxxxxxxxxxxxxxxx") && (get_insn_sub(insn, 28, 4) != 0xF)) {
         return ARM_INS_LDR_literal_A1;
     }
 
-    if (insn_equal(insn, "xxxx001010001111xxxxxxxxxxxxxxxx")) {
+    if (insn_equal(insn, "xxxx001010001111xxxxxxxxxxxxxxxx") && (get_insn_sub(insn, 28, 4) != 0xF)) {
         return ARM_INS_ADR_A1;
     }
-
-    if (insn_equal(insn, "xxxx001001001111xxxxxxxxxxxxxxxx")) {
+    if (insn_equal(insn, "xxxx001001001111xxxxxxxxxxxxxxxx") && (get_insn_sub(insn, 28, 4) != 0xF)) {
         return ARM_INS_ADR_A2;
     }
-
-    if (insn_equal(insn, "xxxx1010xxxxxxxxxxxxxxxxxxxxxxxx")) {
+    if (insn_equal(insn, "xxxx1010xxxxxxxxxxxxxxxxxxxxxxxx") && (get_insn_sub(insn, 28, 4) != 0xF)) {
         return ARM_INS_B_A1;
     }
-
-    if (insn_equal(insn, "xxxx1011xxxxxxxxxxxxxxxxxxxxxxxx")) {
+    if (insn_equal(insn, "xxxx1011xxxxxxxxxxxxxxxxxxxxxxxx") && (get_insn_sub(insn, 28, 4) != 0xF)) {
         return ARM_INS_BLBLX_immediate_A1;
     }
     if (insn_equal(insn, "1111101xxxxxxxxxxxxxxxxxxxxxxxxx")) {
         return ARM_INS_BLBLX_immediate_A2;
     }
+
     return ARM_UNDEF;
 }

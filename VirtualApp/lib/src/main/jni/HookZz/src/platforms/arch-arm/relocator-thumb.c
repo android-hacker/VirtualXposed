@@ -254,8 +254,8 @@ zbool zz_thumb_relocator_rewrite_B_T4(ZzThumbRelocator *self, const ZzInstructio
     zuint32 J1 = get_insn_sub(insn_ctx->insn2, 13, 1);
     zuint32 imm10 = get_insn_sub(insn_ctx->insn1, 0, 10);
     zuint32 imm11 = get_insn_sub(insn_ctx->insn2, 0, 11);
-    zuint32 I1 = (~(J1 ^ S));
-    zuint32 I2 = (~(J2 ^ S));
+    zuint32 I1 = (~(J1 ^ S)) & 0x1;
+    zuint32 I2 = (~(J2 ^ S)) & 0x1;
     zuint32 imm32 =
         imm11 << 1 | imm10 << (1 + 11) | I1 << (1 + 11 + 6) | I2 << (1 + 11 + 6 + 1) | S << (1 + 11 + 6 + 1 + 1);
     zaddr target_address;
@@ -275,14 +275,18 @@ zbool zz_thumb_relocator_rewrite_BLBLX_immediate_T1(ZzThumbRelocator *self, cons
     zuint32 J1 = get_insn_sub(insn_ctx->insn2, 13, 1);
     zuint32 imm10 = get_insn_sub(insn_ctx->insn1, 0, 10);
     zuint32 imm11 = get_insn_sub(insn_ctx->insn2, 0, 11);
-    zuint32 I1 = (~(J1 ^ S));
-    zuint32 I2 = (~(J2 ^ S));
+    zuint32 I1 = (~(J1 ^ S)) & 0x1;
+    zuint32 I2 = (~(J2 ^ S)) & 0x1;
     zuint32 imm32 =
         imm11 << 1 | imm10 << (1 + 11) | I1 << (1 + 11 + 6) | I2 << (1 + 11 + 6 + 1) | S << (1 + 11 + 6 + 1 + 1);
     zaddr target_address;
-    target_address = insn_ctx->pc + imm32;
 
-    zz_thumb_writer_put_ldr_b_reg_address(self->output, ZZ_ARM_REG_LR, insn_ctx->pc + 2 * 4);
+    target_address = insn_ctx->pc + imm32;
+    if ((zaddr)insn_ctx->pc % 4)
+        target_address -= 2;
+
+    zz_thumb_writer_put_ldr_b_reg_address(self->output, ZZ_ARM_REG_LR,
+                                          (insn_ctx->type == THUMB2_INSN) ? insn_ctx->pc : (insn_ctx->pc - 2));
     zz_thumb_writer_put_ldr_reg_address(self->output, ZZ_ARM_REG_PC, target_address + 1);
     return TRUE;
 }
@@ -296,15 +300,17 @@ zbool zz_thumb_relocator_rewrite_BLBLX_T2(ZzThumbRelocator *self, const ZzInstru
     zuint32 J2 = get_insn_sub(insn_ctx->insn2, 11, 1);
     zuint32 J1 = get_insn_sub(insn_ctx->insn2, 13, 1);
     zuint32 imm10_1 = get_insn_sub(insn_ctx->insn1, 0, 10);
-    zuint32 imm10_16 = get_insn_sub(insn_ctx->insn2, 1, 10);
-    zuint32 I1 = (~(J1 ^ S));
-    zuint32 I2 = (~(J2 ^ S));
+    zuint32 imm10_2 = get_insn_sub(insn_ctx->insn2, 1, 10);
+    zuint32 I1 = (~(J1 ^ S)) & 0x1;
+    zuint32 I2 = (~(J2 ^ S)) & 0x1;
+    ;
+    zuint32 H = get_insn_sub(insn_ctx->insn2, 0, 1);
     zuint32 imm32 =
-        imm10_1 << 2 | imm10_16 << (2 + 10) | I1 << (2 + 10 + 6) | I2 << (2 + 10 + 6 + 1) | S << (2 + 10 + 6 + 1 + 1);
+        imm10_2 << 2 | imm10_1 << (2 + 10) | I1 << (2 + 10 + 6) | I2 << (2 + 10 + 6 + 1) | S << (2 + 10 + 6 + 1 + 1);
     zaddr target_address;
     target_address = insn_ctx->pc + imm32;
 
-    zz_thumb_writer_put_ldr_b_reg_address(self->output, ZZ_ARM_REG_LR, insn_ctx->pc + 2 * 4);
+    zz_thumb_writer_put_ldr_b_reg_address(self->output, ZZ_ARM_REG_LR, insn_ctx->pc);
     zz_thumb_writer_put_ldr_reg_address(self->output, ZZ_ARM_REG_PC, target_address + 1);
     return TRUE;
 }

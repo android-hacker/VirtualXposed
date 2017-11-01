@@ -62,7 +62,7 @@ void zz_arm_writer_put_ldr_reg_reg_imm_A1(ZzArmWriter *self, ZzARMReg dst_reg, Z
 void zz_arm_writer_put_ldr_reg_address(ZzArmWriter *self, ZzARMReg reg, zaddr address);
 void zz_arm_writer_put_add_reg_reg_imm(ZzArmWriter *self, ZzARMReg dst_reg, ZzARMReg src_reg, zuint32 imm);
 void zz_arm_writer_put_sub_reg_reg_imm(ZzArmWriter *self, ZzARMReg dst_reg, ZzARMReg src_reg, zuint32 imm);
-zpointer zz_arm_writer_put_push_reg(ZzArmWriter *self, zint32 regs);
-zpointer zz_arm_writer_put_pop_reg(ZzArmWriter *self, zint32 regs);
+zpointer zz_arm_writer_put_push_reg(ZzArmWriter *self, ZzARMReg reg);
+zpointer zz_arm_writer_put_pop_reg(ZzArmWriter *self, ZzARMReg reg);
 
 #endif

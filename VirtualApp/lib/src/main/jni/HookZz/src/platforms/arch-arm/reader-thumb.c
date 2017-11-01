@@ -16,35 +16,6 @@
 
 #include "reader-thumb.h"
 
-// static csh handle;
-
-// void zz_thumb_reader_capstone_init(void) {
-//     cs_err err = 0;
-
-//     err = cs_open(CS_ARCH_ARM, CS_MODE_THUMB, &handle);
-//     if (err) {
-//         Xerror("Failed on cs_open() with error returned: %u\n", err);
-//         exit(-1);
-//     }
-
-//     cs_option(handle, CS_OPT_DETAIL, CS_OPT_ON);
-// }
-
-// cs_insn *zz_thumb_reader_disassemble_at(zpointer address) {
-//     if (!handle)
-//         zz_thumb_reader_capstone_init();
-//     cs_insn *insn;
-//     size_t count;
-//     count = cs_disasm(handle, address, 16, (unsigned long)address, 0, &insn);
-//     if (!insn) {
-// #if defined(DEBUG_MODE)
-//         debug_break();
-// #endif
-//         Xerror("zz_thumb_reader_disassemble_at error at %p", (zpointer)address);
-//     }
-//     return insn;
-// }
-
 zbool insn_is_thumb2(zuint32 insn) {
     // PAGE: A6-221
     // PAGE: A6-230
@@ -121,7 +92,7 @@ THUMBInsnType GetTHUMBInsnType(zuint16 insn1, zuint16 insn2) {
         return THUMB_INS_B_T3;
     }
 
-    if (insn_is_thumb2(insn1) && insn_equal(insn1, "11110xxxxxxxxxxx") && insn_equal(insn2, "10x0xxxxxxxxxxxx")) {
+    if (insn_is_thumb2(insn1) && insn_equal(insn1, "11110xxxxxxxxxxx") && insn_equal(insn2, "10x1xxxxxxxxxxxx")) {
         return THUMB_INS_B_T4;
     }
 
