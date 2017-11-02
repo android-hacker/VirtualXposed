@@ -43,6 +43,7 @@ public final class SpecialComponentList {
         SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_BATTERY_OKAY);
         SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_POWER_CONNECTED);
         SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_POWER_DISCONNECTED);
+        SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_USER_PRESENT);
         SYSTEM_BROADCAST_ACTION.add("android.provider.Telephony.SMS_RECEIVED");
         SYSTEM_BROADCAST_ACTION.add("android.provider.Telephony.SMS_DELIVER");
         SYSTEM_BROADCAST_ACTION.add("android.net.wifi.STATE_CHANGE");
