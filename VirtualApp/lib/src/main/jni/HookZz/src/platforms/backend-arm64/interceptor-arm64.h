@@ -57,4 +57,7 @@ void leave_thunk_template();
 void on_enter_trampoline_template();
 void on_invoke_trampoline_template();
 void on_leave_trampoline_template();
+
+ZzCodeSlice *zz_code_patch_arm64_writer(ZzArm64Writer *arm64_writer, ZzAllocator *allocator, zaddr target_addr,
+                                        zsize range_size);
 #endif

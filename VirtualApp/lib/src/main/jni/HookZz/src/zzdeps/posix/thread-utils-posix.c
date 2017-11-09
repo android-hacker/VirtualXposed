@@ -35,8 +35,8 @@ zbool zz_posix_thread_add_thread_local_key(ThreadLocalKeyList *keylist, ThreadLo
         return FALSE;
 
     if (keylist->size >= keylist->capacity) {
-        ThreadLocalKey **keys_tmp = (ThreadLocalKey **)realloc(
-            keylist->keys, sizeof(ThreadLocalKey *) * keylist->capacity * 2);
+        ThreadLocalKey **keys_tmp =
+            (ThreadLocalKey **)realloc(keylist->keys, sizeof(ThreadLocalKey *) * keylist->capacity * 2);
         if (!keys_tmp)
             return FALSE;
         keylist->keys = keys_tmp;
@@ -65,9 +65,11 @@ zpointer zz_posix_thread_new_thread_local_key_ptr() {
 
 zpointer zz_posix_thread_get_current_thread_data(zpointer key_ptr) {
     ThreadLocalKeyList *g_keys = g_thread_local_key_list;
+    zsize i;
+
     if (!key_ptr)
         return NULL;
-    for (zsize i = 0; i < g_keys->size; i++) {
+    for (i = 0; i < g_keys->size; i++) {
         if (g_keys->keys[i] == key_ptr)
             return (zpointer)pthread_getspecific(g_keys->keys[i]->key);
     }
@@ -76,8 +78,9 @@ zpointer zz_posix_thread_get_current_thread_data(zpointer key_ptr) {
 
 zbool zz_posix_thread_set_current_thread_data(zpointer key_ptr, zpointer data) {
     ThreadLocalKeyList *g_keys = g_thread_local_key_list;
+    zsize i;
 
-    for (zsize i = 0; i < g_keys->size; i++) {
+    for (i = 0; i < g_keys->size; i++) {
         if (g_keys->keys[i] == key_ptr)
             return pthread_setspecific(g_keys->keys[i]->key, data);
     }

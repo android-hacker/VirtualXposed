@@ -115,27 +115,6 @@ public class ActivityManagerStub extends MethodInvocationProxy<MethodInvocationS
                     return _infos;
                 }
             });
-            addMethodProxy(new StaticMethodProxy("getRunningTasks") {
-                @Override
-                public Object call(Object who, Method method, Object... args) throws Throwable {
-                    Object _infos = method.invoke(who, args);
-                    //noinspection unchecked
-                    List<ActivityManager.RunningTaskInfo> infos =
-                            ParceledListSliceCompat.isReturnParceledListSlice(method)
-                                    ? ParceledListSlice.getList.call(_infos)
-                                    : (List) _infos;
-                    for (ActivityManager.RunningTaskInfo info : infos) {
-                        AppTaskInfo taskInfo = VActivityManager.get().getTaskInfo(info.id);
-                        if (taskInfo == null) {
-                            continue;
-                        }
-                        info.description = "Virtual";
-                        info.topActivity = taskInfo.topActivity;
-                        info.baseActivity = taskInfo.baseActivity;
-                    }
-                    return _infos;
-                }
-            });
         }
     }
 

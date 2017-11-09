@@ -19,11 +19,22 @@
 
 #include "hookzz.h"
 
+#define MAX_LITERAL_INSN_SIZE 128
+
+typedef struct _ZzLiteralInstruction {
+    zpointer literal_insn_ptr;
+    zaddr *literal_address_ptr;
+} ZzLiteralInstruction;
+
 typedef struct _ZzWriter {
-    zpointer *codedata;
+    zpointer codedata;
     zpointer base;
-    zpointer pc;
-    zuint size;
+    zaddr pc;
+    zsize size;
+
+    ZzLiteralInstruction literal_insns[MAX_LITERAL_INSN_SIZE];
+    zsize literal_insn_size;
+
 } ZzWriter;
 
 #endif

@@ -58,7 +58,8 @@ ZzHookFunctionEntry *ZzFindHookFunctionEntry(zpointer target_ptr) {
 
     ZzHookFunctionEntrySet *hook_function_entry_set = &(interceptor->hook_function_entry_set);
 
-    for (int i = 0; i < hook_function_entry_set->size; ++i) {
+    int i;
+    for (i = 0; i < hook_function_entry_set->size; ++i) {
         if ((hook_function_entry_set->entries)[i] && target_ptr == (hook_function_entry_set->entries)[i]->target_ptr) {
             return (hook_function_entry_set->entries)[i];
         }

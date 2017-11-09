@@ -144,8 +144,9 @@ ZZSTATUS ZzAddMemoryPage(ZzAllocator *allocator, ZzMemoryPage *page) {
 ZzCodeSlice *ZzNewCodeSlice(ZzAllocator *allocator, zsize code_slice_size) {
     ZzCodeSlice *code_slice = NULL;
     ZzMemoryPage *page = NULL;
+    int i;
 
-    for (int i = 0; i < allocator->size; i++) {
+    for (i = 0; i < allocator->size; i++) {
         page = allocator->memory_pages[i];
         // 1. page is initialized
         // 2. can't be codecave
@@ -195,8 +196,8 @@ ZzCodeSlice *ZzNewNearCodeSlice(ZzAllocator *allocator, zaddr address, zsize red
                                 zsize code_slice_size) {
     ZzCodeSlice *code_slice = NULL;
     ZzMemoryPage *page = NULL;
-
-    for (int i = 0; i < allocator->size; i++) {
+    int i;
+    for (i = 0; i < allocator->size; i++) {
         page = allocator->memory_pages[i];
         // 1. page is initialized
         // 2. can't be codecave

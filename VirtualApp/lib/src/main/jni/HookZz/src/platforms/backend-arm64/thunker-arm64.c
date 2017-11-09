@@ -497,29 +497,14 @@ ZZSTATUS ZzThunkerBuildThunk(ZzInterceptorBackend *self) {
     arm64_writer = &self->arm64_writer;
     zz_arm64_writer_reset(arm64_writer, temp_code_slice_data);
 
-    code_slice = NULL;
-    do {
-        zz_arm64_thunker_build_enter_thunk(arm64_writer);
-        if (code_slice) {
-            if (!ZzMemoryPatchCode((zaddr)code_slice->data, arm64_writer->base, arm64_writer->size))
-                return ZZ_FAILED;
-            break;
-        }
-        code_slice = ZzNewCodeSlice(self->allocator, arm64_writer->size + 4);
-        if (!code_slice) {
-#if defined(DEBUG_MODE)
-            debug_break();
-#endif
-            return ZZ_FAILED;
-        } else {
-            zz_arm64_writer_reset(arm64_writer, temp_code_slice_data);
-            arm64_writer->pc = code_slice->data;
-        }
-    } while (code_slice);
+    zz_arm64_thunker_build_enter_thunk(arm64_writer);
 
-    /* set arm64 enter_thunk */
-    // self->enter_thunk = code_slice->data;
-    self->enter_thunk = (void *)enter_thunk_template;
+    code_slice = zz_code_patch_arm64_writer(arm64_writer, self->allocator, 0, 0);
+    if (code_slice)
+        self->enter_thunk = (void *)enter_thunk_template;
+    else
+        return ZZ_FAILED;
+
     if (ZzIsEnableDebugMode()) {
         char buffer[1024] = {};
         sprintf(buffer + strlen(buffer), "%s\n", "ZzThunkerBuildThunk:");
@@ -529,25 +514,13 @@ ZZSTATUS ZzThunkerBuildThunk(ZzInterceptorBackend *self) {
     }
 
     zz_arm64_writer_reset(arm64_writer, temp_code_slice_data);
-    code_slice = NULL;
-    do {
-        zz_arm64_thunker_build_leave_thunk(arm64_writer);
-        if (code_slice) {
-            if (!ZzMemoryPatchCode((zaddr)code_slice->data, arm64_writer->base, arm64_writer->size))
-                return ZZ_FAILED;
-            break;
-        }
-        code_slice = ZzNewCodeSlice(self->allocator, arm64_writer->size + 4);
-        if (!code_slice) {
-#if defined(DEBUG_MODE)
-            debug_break();
-#endif
-            return ZZ_FAILED;
-        } else {
-            zz_arm64_writer_reset(arm64_writer, temp_code_slice_data);
-            arm64_writer->pc = code_slice->data;
-        }
-    } while (code_slice);
+    zz_arm64_thunker_build_leave_thunk(arm64_writer);
+
+    code_slice = zz_code_patch_arm64_writer(arm64_writer, self->allocator, 0, 0);
+    if (code_slice)
+        self->leave_thunk = code_slice->data;
+    else
+        return ZZ_FAILED;
     if (ZzIsEnableDebugMode()) {
         char buffer[1024] = {};
         sprintf(buffer + strlen(buffer), "%s\n", "ZzThunkerBuildThunk:");
@@ -555,33 +528,14 @@ ZZSTATUS ZzThunkerBuildThunk(ZzInterceptorBackend *self) {
                 code_slice->size);
         ZzInfoLog("%s", buffer);
     }
-
-    /* set arm64 leave_thunk */
-    self->leave_thunk = code_slice->data;
-
     zz_arm64_writer_reset(arm64_writer, temp_code_slice_data);
-    code_slice = NULL;
-    do {
-        zz_arm64_thunker_build_half_thunk(arm64_writer);
-        if (code_slice) {
-            if (!ZzMemoryPatchCode((zaddr)code_slice->data, arm64_writer->base, arm64_writer->size))
-                return ZZ_FAILED;
-            break;
-        }
-        code_slice = ZzNewCodeSlice(self->allocator, arm64_writer->size + 4);
-        if (!code_slice) {
-#if defined(DEBUG_MODE)
-            debug_break();
-#endif
-            return ZZ_FAILED;
-        } else {
-            zz_arm64_writer_reset(arm64_writer, temp_code_slice_data);
-            arm64_writer->pc = code_slice->data;
-        }
-    } while (code_slice);
+    zz_arm64_thunker_build_half_thunk(arm64_writer);
 
-    /* set arm64 half_thunk */
-    self->half_thunk = code_slice->data;
+    code_slice = zz_code_patch_arm64_writer(arm64_writer, self->allocator, 0, 0);
+    if (code_slice)
+        self->half_thunk = code_slice->data;
+    else
+        return ZZ_FAILED;
 
     return status;
 }

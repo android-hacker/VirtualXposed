@@ -157,7 +157,6 @@ void function_context_end_invocation(ZzHookFunctionEntry *entry, zpointer next_h
     ZzFreeCallStack(callstack);
 }
 
-// A4.1.10 BX
 void zz_thumb_thunker_build_enter_thunk(ZzWriter *writer) {
 
     /* save general registers and sp */
@@ -286,26 +285,15 @@ ZZSTATUS ZzThunkerBuildThunk(ZzInterceptorBackend *self) {
 
     thumb_writer = &self->thumb_writer;
     zz_thumb_writer_reset(thumb_writer, temp_code_slice_data);
+    zz_thumb_thunker_build_enter_thunk(thumb_writer);
 
-    code_slice = NULL;
-    do {
-        zz_thumb_thunker_build_enter_thunk(thumb_writer);
-        if (code_slice) {
-            if (!ZzMemoryPatchCode((zaddr)code_slice->data, thumb_writer->base, thumb_writer->size))
-                return ZZ_FAILED;
-            break;
-        }
-        code_slice = ZzNewCodeSlice(self->allocator, thumb_writer->size + 4);
-        if (!code_slice) {
-#if defined(DEBUG_MODE)
-            debug_break();
-#endif
-            return ZZ_FAILED;
-        } else {
-            zz_thumb_writer_reset(thumb_writer, temp_code_slice_data);
-            thumb_writer->pc = code_slice->data + 4;
-        }
-    } while (code_slice);
+    code_slice = zz_code_patch_thumb_writer(thumb_writer, self->allocator, 0, 0);
+    if (code_slice)
+        self->enter_thunk = code_slice->data + 1;
+    else
+        return ZZ_FAILED;
+    /* set thumb enter_thunk */
+
     if (ZzIsEnableDebugMode()) {
         char buffer[1024] = {};
         sprintf(buffer + strlen(buffer), "%s\n", "ZzThunkerBuildThunk:");
@@ -314,29 +302,16 @@ ZZSTATUS ZzThunkerBuildThunk(ZzInterceptorBackend *self) {
         ZzInfoLog("%s", buffer);
     }
 
-    /* set thumb enter_thunk */
-    self->enter_thunk = code_slice->data + 1;
-
     zz_thumb_writer_reset(thumb_writer, temp_code_slice_data);
-    code_slice = NULL;
-    do {
-        zz_thumb_thunker_build_leave_thunk(thumb_writer);
-        if (code_slice) {
-            if (!ZzMemoryPatchCode((zaddr)code_slice->data, thumb_writer->base, thumb_writer->size))
-                return ZZ_FAILED;
-            break;
-        }
-        code_slice = ZzNewCodeSlice(self->allocator, thumb_writer->size + 4);
-        if (!code_slice) {
-#if defined(DEBUG_MODE)
-            debug_break();
-#endif
-            return ZZ_FAILED;
-        } else {
-            zz_thumb_writer_reset(thumb_writer, temp_code_slice_data);
-            thumb_writer->pc = code_slice->data + 4;
-        }
-    } while (code_slice);
+    zz_thumb_thunker_build_leave_thunk(thumb_writer);
+
+    code_slice = zz_code_patch_thumb_writer(thumb_writer, self->allocator, 0, 0);
+    if (code_slice)
+        self->leave_thunk = code_slice->data + 1;
+    else
+        return ZZ_FAILED;
+    /* set thumb leave_thunk */
+
     if (ZzIsEnableDebugMode()) {
         char buffer[1024] = {};
         sprintf(buffer + strlen(buffer), "%s\n", "ZzThunkerBuildThunk:");
@@ -345,31 +320,13 @@ ZZSTATUS ZzThunkerBuildThunk(ZzInterceptorBackend *self) {
         ZzInfoLog("%s", buffer);
     }
 
-    /* set thumb leave_thunk */
-    self->leave_thunk = code_slice->data + 1;
-
     zz_thumb_writer_reset(thumb_writer, temp_code_slice_data);
-    code_slice = NULL;
-    do {
-        zz_thumb_thunker_build_half_thunk(thumb_writer);
-        if (code_slice) {
-            if (!ZzMemoryPatchCode((zaddr)code_slice->data, thumb_writer->base, thumb_writer->size))
-                return ZZ_FAILED;
-            break;
-        }
-        code_slice = ZzNewCodeSlice(self->allocator, thumb_writer->size + 4);
-        if (!code_slice) {
-#if defined(DEBUG_MODE)
-            debug_break();
-#endif
-            return ZZ_FAILED;
-        } else {
-            zz_thumb_writer_reset(thumb_writer, temp_code_slice_data);
-            thumb_writer->pc = code_slice->data + 4;
-        }
-    } while (code_slice);
+    zz_thumb_thunker_build_half_thunk(thumb_writer);
 
-    /* set thumb half_thunk */
-    self->half_thunk = code_slice->data + 1;
+    code_slice = zz_code_patch_thumb_writer(thumb_writer, self->allocator, 0, 0);
+    if (code_slice)
+        self->half_thunk = code_slice->data + 1;
+    else
+        return ZZ_FAILED;
     return status;
 }

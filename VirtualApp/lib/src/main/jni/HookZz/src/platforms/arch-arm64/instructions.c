@@ -6,7 +6,8 @@ zuint32 get_insn_sub(zuint32 insn, int start, int length) { return (insn >> star
 zbool insn_equal(zuint32 insn, char *opstr) {
     zuint32 mask = 0, value = 0;
     zsize length = strlen(opstr);
-    for (int i = length - 1, j = 0; i >= 0 && j < length; i--, j++) {
+    int i, j;
+    for (i = length - 1, j = 0; i >= 0 && j < length; i--, j++) {
         if (opstr[i] == 'x') {
             mask = mask | (0 << j);
         } else if (opstr[i] == '0') {

@@ -8,7 +8,7 @@ HOOKZZ_DIR := $(abspath .)
 LOCAL_PATH := $(abspath .)
 OUTPUT_DIR := $(abspath build)
 
-CFLAGS ?= -O0 -g -std=c99
+CFLAGS ?= -O0 -g
 CXXFLAGS = $(CFLAGS) -stdlib=libc++ -std=c++11 -gmodules
 LDFLAGS ?=
 LIBS_CFLAGS ?= -fPIC

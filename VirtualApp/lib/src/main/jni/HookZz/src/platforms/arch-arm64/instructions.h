@@ -26,6 +26,12 @@ typedef struct _ZzInstruction {
     zuint32 insn;
 } ZzInstruction;
 
+typedef struct _ZzRelocateInstruction {
+    const ZzInstruction *insn_ctx;
+    zaddr relocated_offset;
+    zsize relocated_length;
+} ZzRelocateInstruction;
+
 zuint32 get_insn_sub(zuint32 insn, int start, int length);
 zbool insn_equal(zuint32 insn, char *opstr);
 

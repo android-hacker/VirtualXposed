@@ -332,8 +332,8 @@ zpointer zz_vm_search_code_cave(zaddr address, zsize range_size, zsize size) {
 
     MemoryLayout *mlayout = zz_vm_get_memory_layout_via_task(mach_task_self());
 
-    for (int i = 0; i < mlayout->size; i++) {
-
+    int i;
+    for (i = 0; i < mlayout->size; i++) {
         if (mlayout->mem[i].flags == (1 << 0 | 1 << 2)) {
             search_start = (zaddr)mlayout->mem[i].start;
             search_end = (zaddr)mlayout->mem[i].end;

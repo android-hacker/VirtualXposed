@@ -53,8 +53,10 @@ zpointer zz_thumb_reader_read_one_instruction(ZzInstruction *insn_ctx, zpointer 
 // A5 ARM Instruction Set Encoding
 // A5.3 Load/store word and unsigned byte
 THUMBInsnType GetTHUMBInsnType(zuint16 insn1, zuint16 insn2) {
-    // zuint32 insn1 = insn_ctx->insn1;
-    zuint32 op, op1;
+
+    if (!insn_is_thumb2(insn1) && insn_equal(insn1, "1011x0x1xxxxxxxx")) {
+        return THUMB_INS_CBNZ_CBZ;
+    }
 
     if (!insn_is_thumb2(insn1) && insn_equal(insn1, "01000100xxxxxxxx")) {
         return THUMB_INS_ADD_register_T2;

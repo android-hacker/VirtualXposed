@@ -55,4 +55,9 @@ typedef struct _ZzArmHookFuntionEntryBackend {
     zuint redirect_code_size;
 } ZzArmHookFunctionEntryBackend;
 
+ZzCodeSlice *zz_code_patch_thumb_writer(ZzThumbWriter *thumb_writer, ZzAllocator *allocator, zaddr target_addr,
+                                        zsize range_size);
+ZzCodeSlice *zz_code_patch_arm_writer(ZzArmWriter *arm_writer, ZzAllocator *allocator, zaddr target_addr,
+                                      zsize range_size);
+
 #endif

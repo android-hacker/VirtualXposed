@@ -80,8 +80,8 @@ zpointer zz_linux_vm_search_code_cave(zaddr address, zsize range_size, zsize siz
 
     MemoryLayout *mlayout = zz_linux_vm_get_memory_layout_via_pid(-1);
 
-    for (int i = 0; i < mlayout->size; i++) {
-
+    int i;
+    for (i = 0; i < mlayout->size; i++) {
         if (mlayout->mem[i].flags == (1 << 0 | 1 << 2)) {
             search_start = (zaddr)mlayout->mem[i].start;
             search_end = (zaddr)mlayout->mem[i].end;

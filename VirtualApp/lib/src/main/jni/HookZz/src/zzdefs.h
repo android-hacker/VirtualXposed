@@ -39,3 +39,5 @@
 #define ZZ_INT28_MASK 0x0fffffff
 
 #define THUMB_FUNCTION_ADDRESS(target_addr) (void *)((unsigned long)target_addr & ~(unsigned long)1)
+#define INSTRUCTION_IS_THUMB(insn_addr) ((insn_addr & 0x1) == 0x1)
+#define ALIGN_4(target_addr) ((unsigned long)target_addr & ~(unsigned long)3)
