@@ -142,8 +142,7 @@ import mirror.com.android.internal.R_Hide;
                         mActions.remove(action);
                         continue;
                     }
-                    if (ReflectionActionCompat.isInstance(action)
-                            || (action.getClass().getSimpleName().endsWith("ReflectionAction"))) {
+                    if (ReflectionActionCompat.isInstance(action)) {
                         int viewId = Reflect.on(action).get("viewId");
 
                         String methodName = Reflect.on(action).get("methodName");
