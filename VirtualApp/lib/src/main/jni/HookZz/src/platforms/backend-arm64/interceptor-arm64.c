@@ -28,6 +28,8 @@ ZzInterceptorBackend *ZzBuildInteceptorBackend(ZzAllocator *allocator) {
         // return backend;
     }
     ZzInterceptorBackend *backend = (ZzInterceptorBackend *)malloc(sizeof(ZzInterceptorBackend));
+    memset(backend, 0, sizeof(ZzInterceptorBackend));
+
     backend->allocator = allocator;
 
     zz_arm64_writer_init(&backend->arm64_writer, NULL);
@@ -79,20 +81,23 @@ ZzCodeSlice *zz_code_patch_arm64_relocate_writer(ZzArm64Relocator *relocator, Zz
 
 ZZSTATUS ZzPrepareTrampoline(ZzInterceptorBackend *self, ZzHookFunctionEntry *entry) {
     zaddr target_addr = (zaddr)entry->target_ptr;
-    zuint redirect_limit;
+    zuint redirect_limit = 0;
 
     ZzArm64HookFunctionEntryBackend *entry_backend;
     entry_backend = (ZzArm64HookFunctionEntryBackend *)malloc(sizeof(ZzArm64HookFunctionEntryBackend));
+    memset(entry_backend, 0, sizeof(ZzArm64HookFunctionEntryBackend));
+
     entry->backend = (struct _ZzHookFunctionEntryBackend *)entry_backend;
 
     if (entry->try_near_jump) {
         entry_backend->redirect_code_size = ZZ_ARM64_TINY_REDIRECT_SIZE;
     } else {
         zz_arm64_relocator_try_relocate((zpointer)target_addr, ZZ_ARM64_FULL_REDIRECT_SIZE, &redirect_limit);
-        if (redirect_limit > ZZ_ARM64_TINY_REDIRECT_SIZE && redirect_limit < ZZ_ARM64_FULL_REDIRECT_SIZE) {
+        if (redirect_limit != 0 && redirect_limit > ZZ_ARM64_TINY_REDIRECT_SIZE &&
+            redirect_limit < ZZ_ARM64_FULL_REDIRECT_SIZE) {
             entry->try_near_jump = TRUE;
             entry_backend->redirect_code_size = ZZ_ARM64_TINY_REDIRECT_SIZE;
-        } else if (redirect_limit < ZZ_ARM64_TINY_REDIRECT_SIZE) {
+        } else if (redirect_limit != 0 && redirect_limit < ZZ_ARM64_TINY_REDIRECT_SIZE) {
             return ZZ_FAILED;
         } else {
             entry_backend->redirect_code_size = ZZ_ARM64_FULL_REDIRECT_SIZE;

@@ -30,27 +30,32 @@
 
 ZzArm64Writer *zz_arm64_writer_new(zpointer data_ptr) {
     ZzArm64Writer *writer = (ZzArm64Writer *)malloc(sizeof(ZzArm64Writer));
-    int t = 4 - (zaddr)data_ptr % 4;
+    memset(writer, 0, sizeof(ZzArm64Writer));
 
-    writer->codedata = data_ptr + t;
-    writer->base = data_ptr + t;
-    writer->pc = (zaddr)data_ptr + t;
+    zaddr align_address = (zaddr)data_ptr & ~(zaddr)3;
+    writer->codedata = (zpointer)align_address;
+    writer->base = (zpointer)align_address;
+    writer->pc = align_address;
     writer->size = 0;
+
+    writer->literal_insn_size = 0;
+    memset(writer->literal_insns, 0, sizeof(ZzLiteralInstruction) * MAX_LITERAL_INSN_SIZE);
+
     return writer;
 }
 
 void zz_arm64_writer_init(ZzArm64Writer *self, zpointer target_addr) { zz_arm64_writer_reset(self, target_addr); }
 
 void zz_arm64_writer_reset(ZzArm64Writer *self, zpointer data_ptr) {
-    int t = (zaddr)data_ptr % 4;
+    zaddr align_address = (zaddr)data_ptr & ~(zaddr)3;
 
-    ZzArm64Writer tmp = {0};
-    *self = tmp;
-
-    self->codedata = data_ptr + t;
-    self->base = data_ptr + t;
-    self->pc = (zaddr)data_ptr + t;
+    self->codedata = (zpointer)align_address;
+    self->base = (zpointer)align_address;
+    self->pc = align_address;
     self->size = 0;
+
+    self->literal_insn_size = 0;
+    memset(self->literal_insns, 0, sizeof(ZzLiteralInstruction) * MAX_LITERAL_INSN_SIZE);
 }
 
 // ======= relocator =======

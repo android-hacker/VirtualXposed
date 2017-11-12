@@ -286,17 +286,26 @@ ZZSTATUS ZzThunkerBuildThunk(ZzInterceptorBackend *self) {
     thumb_writer = &self->thumb_writer;
     zz_thumb_writer_reset(thumb_writer, temp_code_slice_data);
     zz_thumb_thunker_build_enter_thunk(thumb_writer);
-
     code_slice = zz_code_patch_thumb_writer(thumb_writer, self->allocator, 0, 0);
     if (code_slice)
         self->enter_thunk = code_slice->data + 1;
     else
         return ZZ_FAILED;
-    /* set thumb enter_thunk */
 
     if (ZzIsEnableDebugMode()) {
-        char buffer[1024] = {};
+        char buffer[2048] = {};
+        char thunk_buffer[2048] = {};
+        int t = 0;
+        zpointer p;
         sprintf(buffer + strlen(buffer), "%s\n", "ZzThunkerBuildThunk:");
+
+        for (p = thumb_writer->base; p < thumb_writer->base + thumb_writer->size; p++, t = t + 5) {
+            sprintf(thunk_buffer + t, "0x%.2x ", *(unsigned char *)p);
+        }
+
+        ZzInfoLog("%s", thunk_buffer);
+        // sprintf(buffer + strlen(buffer), "enter_thunk: %s\n", thunk_buffer);
+
         sprintf(buffer + strlen(buffer), "LogInfo: enter_thunk at %p, length: %ld.\n", code_slice->data,
                 code_slice->size);
         ZzInfoLog("%s", buffer);
@@ -304,17 +313,26 @@ ZZSTATUS ZzThunkerBuildThunk(ZzInterceptorBackend *self) {
 
     zz_thumb_writer_reset(thumb_writer, temp_code_slice_data);
     zz_thumb_thunker_build_leave_thunk(thumb_writer);
-
     code_slice = zz_code_patch_thumb_writer(thumb_writer, self->allocator, 0, 0);
     if (code_slice)
         self->leave_thunk = code_slice->data + 1;
     else
         return ZZ_FAILED;
-    /* set thumb leave_thunk */
 
     if (ZzIsEnableDebugMode()) {
-        char buffer[1024] = {};
+        char buffer[2048] = {};
+        char thunk_buffer[2048] = {};
+        int t = 0;
+        zpointer p;
         sprintf(buffer + strlen(buffer), "%s\n", "ZzThunkerBuildThunk:");
+
+        for (p = thumb_writer->base; p < thumb_writer->base + thumb_writer->size; p++, t = t + 5) {
+            sprintf(thunk_buffer + t, "0x%.2x ", *(unsigned char *)p);
+        }
+
+        ZzInfoLog("%s", thunk_buffer);
+        // sprintf(buffer + strlen(buffer), "enter_thunk: %s\n", thunk_buffer);
+
         sprintf(buffer + strlen(buffer), "LogInfo: leave_thunk at %p, length: %ld.\n", code_slice->data,
                 code_slice->size);
         ZzInfoLog("%s", buffer);
@@ -322,7 +340,6 @@ ZZSTATUS ZzThunkerBuildThunk(ZzInterceptorBackend *self) {
 
     zz_thumb_writer_reset(thumb_writer, temp_code_slice_data);
     zz_thumb_thunker_build_half_thunk(thumb_writer);
-
     code_slice = zz_code_patch_thumb_writer(thumb_writer, self->allocator, 0, 0);
     if (code_slice)
         self->half_thunk = code_slice->data + 1;

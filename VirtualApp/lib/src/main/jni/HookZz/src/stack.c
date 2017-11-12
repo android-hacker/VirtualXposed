@@ -44,6 +44,7 @@ ZzThreadStack *ZzNewThreadStack(zpointer key_ptr) {
 ZzCallStack *ZzNewCallStack() {
     ZzCallStack *callstack;
     callstack = (ZzCallStack *)malloc(sizeof(ZzCallStack));
+
     callstack->capacity = 4;
 
     callstack->items = (ZzCallStackItem *)malloc(sizeof(ZzCallStackItem) * callstack->capacity);

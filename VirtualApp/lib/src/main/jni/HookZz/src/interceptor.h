@@ -50,7 +50,6 @@ struct _ZzInterceptor;
 struct _ZzHookFunctionEntryBackend;
 typedef struct _ZzHookFunctionEntry {
     int hook_type;
-    zbool isNearJump;
     unsigned long id;
     zbool isEnabled;
     zbool try_near_jump;

@@ -22,6 +22,9 @@
 #define MAX_RELOCATOR_INSTRUCIONS_SIZE 64
 
 void zz_arm_relocator_init(ZzArmRelocator *relocator, zpointer input_code, ZzArmWriter *output) {
+
+    memset(relocator, 0, sizeof(ZzArmRelocator));
+
     relocator->inpos = 0;
     relocator->outpos = 0;
     relocator->input_start = input_code;
@@ -42,6 +45,7 @@ void zz_arm_relocator_init(ZzArmRelocator *relocator, zpointer input_code, ZzArm
 }
 
 void zz_arm_relocator_reset(ZzArmRelocator *self, zpointer input_code, ZzArmWriter *output) {
+
     self->input_cur = input_code;
     self->input_start = input_code;
     self->input_pc = (zaddr)input_code;

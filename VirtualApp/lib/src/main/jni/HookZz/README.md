@@ -10,7 +10,7 @@ ref to: [frida-gum](https://github.com/frida/frida-gum) and [minhook](https://gi
 
 # Features
 
-- **inlinehook without Jailbreak [new-90%]**
+- **solidify inlinehook without Jailbreak [new-90%]**
 
 - **GOT hook with HookZz(i.e. change fishhook to inlinehook), better for APM [new-0%]**
 

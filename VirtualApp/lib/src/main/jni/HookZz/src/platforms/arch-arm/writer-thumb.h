@@ -76,8 +76,8 @@ void zz_thumb_writer_put_add_reg_imm(ZzThumbWriter *self, ZzARMReg dst_reg, zint
 void zz_thumb_writer_put_sub_reg_imm(ZzThumbWriter *self, ZzARMReg dst_reg, zint32 imm);
 void zz_thumb_writer_put_add_reg_reg_imm(ZzThumbWriter *self, ZzARMReg dst_reg, ZzARMReg left_reg, zint32 right_value);
 void zz_thumb_writer_put_sub_reg_reg_imm(ZzThumbWriter *self, ZzARMReg dst_reg, ZzARMReg left_reg, zint32 right_value);
-void zz_thumb_writer_put_push_reg(ZzThumbWriter *self, zint32 regs);
-void zz_thumb_writer_put_pop_reg(ZzThumbWriter *self, zint32 regs);
+void zz_thumb_writer_put_push_reg(ZzThumbWriter *self, ZzARMReg reg);
+void zz_thumb_writer_put_pop_reg(ZzThumbWriter *self, ZzARMReg reg);
 void zz_thumb_writer_put_add_reg_reg_reg(ZzThumbWriter *self, ZzARMReg dst_reg, ZzARMReg left_reg, ZzARMReg right_reg);
 ZzLiteralInstruction *zz_thumb_writer_put_ldr_reg_relocate_address(ZzThumbWriter *self, ZzARMReg reg, zaddr address,
                                                                    ZzLiteralInstruction **literal_insn_ptr);

@@ -27,6 +27,12 @@ test:
 	@$(ZZ_GCC_TEST) -dynamiclib -Wl,-U,_func -framework Foundation -L$(HOOKZZ_LIB_DIR) -lhookzz.static test_hook_printf.o -o $(HOOKZZ_LIB_DIR)/test_hook_printf.dylib
 	@echo "$(OK_COLOR)build [test_hook_printf.dylib] success for armv7-ios! $(NO_COLOR)"
 
+
+	@$(ZZ_GCC_TEST) -I$(HOOKZZ_INCLUDE_DIR) -c test_hook_freeaddr.c -o test_hook_freeaddr.o
+	@$(ZZ_GCC_TEST) -dynamiclib -Wl,-U,_func -framework Foundation -L$(HOOKZZ_LIB_DIR) -lhookzz.static test_hook_freeaddr.o -o $(HOOKZZ_LIB_DIR)/test_hook_freeaddr.dylib
+	@echo "$(OK_COLOR)build [test_hook_freeaddr.dylib] success for armv7-ios! $(NO_COLOR)"
+
+
 	@echo "$(OK_COLOR)build [test] success for armv7-ios-hookzz! $(NO_COLOR)"
 
 clean:
