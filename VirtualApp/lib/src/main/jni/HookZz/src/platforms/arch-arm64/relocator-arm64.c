@@ -67,7 +67,7 @@ zsize zz_arm64_relocator_read_one(ZzArm64Relocator *self, ZzInstruction *instruc
     self->inpos++;
 
     if (instruction != NULL)
-        instruction = insn_ctx;
+        *instruction = *insn_ctx;
 
     self->input_cur += insn_ctx->size;
     self->input_pc += insn_ctx->size;
@@ -156,6 +156,7 @@ static zbool zz_arm64_relocator_rewrite_LDR_literal(ZzArm64Relocator *self, cons
 
     zz_arm64_writer_put_ldr_b_reg_address(self->output, Rt_ndx, target_address);
     zz_arm64_writer_put_ldr_reg_reg_offset(self->output, Rt_ndx, Rt_ndx, 0);
+
     return TRUE;
 }
 
@@ -172,6 +173,7 @@ static zbool zz_arm64_relocator_rewrite_ADR(ZzArm64Relocator *self, const ZzInst
     int Rt_ndx = get_insn_sub(insn, 0, 4);
 
     zz_arm64_writer_put_ldr_b_reg_address(self->output, Rt_ndx, target_address);
+
     return TRUE;
 }
 
@@ -189,6 +191,7 @@ static zbool zz_arm64_relocator_rewrite_ADRP(ZzArm64Relocator *self, const ZzIns
     int Rt_ndx = get_insn_sub(insn, 0, 4);
 
     zz_arm64_writer_put_ldr_b_reg_address(self->output, Rt_ndx, target_address);
+
     return TRUE;
 }
 
@@ -202,7 +205,6 @@ static zbool zz_arm64_relocator_rewrite_B(ZzArm64Relocator *self, const ZzInstru
 
     zaddr target_address;
     target_address = insn_ctx->pc + offset;
-    int Rt_ndx = get_insn_sub(insn, 0, 4);
 
     zz_arm64_writer_put_ldr_br_reg_address(self->output, ZZ_ARM64_REG_X17, target_address);
 
@@ -219,7 +221,6 @@ static zbool zz_arm64_relocator_rewrite_BL(ZzArm64Relocator *self, const ZzInstr
 
     zaddr target_address;
     target_address = insn_ctx->pc + offset;
-    int Rt_ndx = get_insn_sub(insn, 0, 4);
 
     zz_arm64_writer_put_ldr_blr_b_reg_address(self->output, ZZ_ARM64_REG_X17, target_address);
     ZzLiteralInstruction **literal_insn_ptr = &(self->relocate_literal_insns[self->relocate_literal_insns_size++]);

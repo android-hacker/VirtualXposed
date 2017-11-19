@@ -61,6 +61,32 @@ ifeq ($(BACKEND), ios)
 	ZZ_GXX_SOURCE := $(ZZ_GXX_BIN) -isysroot $(ZZ_SDK_ROOT)
 	ZZ_GCC_TEST := $(ZZ_GCC_BIN) -isysroot $(ZZ_SDK_ROOT)
 	ZZ_GXX_TEST := $(ZZ_GXX_BIN) -isysroot $(ZZ_SDK_ROOT)
+else ifeq ($(BACKEND), macos)
+	ifeq ($(ARCH), x86)
+		ZZ_ARCH := i386
+	else ifeq ($(ARCH), x86_64)
+		ZZ_ARCH := x86_64
+	endif
+
+	ZZ_BACKEND := macos
+	ZZ_GXX_BIN := $(shell xcrun --sdk macosx --find clang++)
+	ZZ_GCC_BIN := $(shell xcrun --sdk macosx --find clang)
+	ZZ_SDK_ROOT := $(shell xcrun --sdk macosx --show-sdk-path)
+	ZZ_AR_BIN := $(shell which ar)
+	ZZ_RANLIB_BIN := $(shell which ranlib)
+
+	ZZ_DEPS_SRCS += $(wildcard $(ZZ_DEPS_PATH)/darwin/*.c)
+	ZZ_SRCS += $(wildcard $(ZZ_SRCS_PATH)/platforms/backend-darwin/*.c)
+	
+	ZZ_CFLAGS := -g -fPIC -shared -dynamiclib
+	ZZ_DLL := lib$(HOOKZZ_NAME).dylib
+
+	CFLAGS += -arch $(ZZ_ARCH)
+	
+	ZZ_GCC_SOURCE := $(ZZ_GCC_BIN) -isysroot $(ZZ_SDK_ROOT)
+	ZZ_GXX_SOURCE := $(ZZ_GXX_BIN) -isysroot $(ZZ_SDK_ROOT)
+	ZZ_GCC_TEST := $(ZZ_GCC_BIN) -isysroot $(ZZ_SDK_ROOT)
+	ZZ_GXX_TEST := $(ZZ_GXX_BIN) -isysroot $(ZZ_SDK_ROOT)
 else ifeq ($(BACKEND), android)
 	ZZ_BACKEND := android
 
@@ -68,19 +94,27 @@ else ifeq ($(BACKEND), android)
 		ZZ_ARCH := armv7
 		ZZ_API_LEVEL := android-19
 		ZZ_CROSS_PREFIX := arm-linux-androideabi-
+		ZZ_BIN_CROSS_PREFIX := arm-linux-androideabi-
 	else ifeq ($(ARCH), arm64)
 		ZZ_ARCH := arm64
 		ZZ_API_LEVEL := android-21
 		ZZ_CROSS_PREFIX := aarch64-linux-android-
+		ZZ_BIN_CROSS_PREFIX := aarch64-linux-android-
+	else ifeq ($(ARCH), x86)
+		ZZ_ARCH := x86
+		ZZ_API_LEVEL := android-21
+		ZZ_CROSS_PREFIX := x86-
+		ZZ_BIN_CROSS_PREFIX := i686-linux-android-
+
 	endif
 
 	HOST_DIR := $(shell echo $(HOST) | tr A-Z a-z)-$(HOST_ARCH)
 	ZZ_NDK_HOME := $(shell dirname `which ndk-build`)
 	ZZ_SDK_ROOT := $(ZZ_NDK_HOME)/platforms/$(ZZ_API_LEVEL)/arch-$(ARCH)
-	ZZ_GCC_BIN := $(ZZ_NDK_HOME)/toolchains/$(ZZ_CROSS_PREFIX)4.9/prebuilt/$(HOST_DIR)/bin/$(ZZ_CROSS_PREFIX)gcc
-	ZZ_GXX_BIN := $(ZZ_NDK_HOME)/toolchains/$(ZZ_CROSS_PREFIX)4.9/prebuilt/$(HOST_DIR)/bin/$(ZZ_CROSS_PREFIX)g++
-	ZZ_AR_BIN := $(ZZ_NDK_HOME)/toolchains/$(ZZ_CROSS_PREFIX)4.9/prebuilt/$(HOST_DIR)/bin/$(ZZ_CROSS_PREFIX)ar
-	ZZ_RANLIB_BIN := $(ZZ_NDK_HOME)/toolchains/$(ZZ_CROSS_PREFIX)4.9/prebuilt/$(HOST_DIR)/bin/$(ZZ_CROSS_PREFIX)ranlib
+	ZZ_GCC_BIN := $(ZZ_NDK_HOME)/toolchains/$(ZZ_CROSS_PREFIX)4.9/prebuilt/$(HOST_DIR)/bin/$(ZZ_BIN_CROSS_PREFIX)gcc
+	ZZ_GXX_BIN := $(ZZ_NDK_HOME)/toolchains/$(ZZ_CROSS_PREFIX)4.9/prebuilt/$(HOST_DIR)/bin/$(ZZ_BIN_CROSS_PREFIX)g++
+	ZZ_AR_BIN := $(ZZ_NDK_HOME)/toolchains/$(ZZ_CROSS_PREFIX)4.9/prebuilt/$(HOST_DIR)/bin/$(ZZ_BIN_CROSS_PREFIX)ar
+	ZZ_RANLIB_BIN := $(ZZ_NDK_HOME)/toolchains/$(ZZ_CROSS_PREFIX)4.9/prebuilt/$(HOST_DIR)/bin/$(ZZ_BIN_CROSS_PREFIX)ranlib
 
 	ZZ_DEPS_SRCS += $(wildcard $(ZZ_DEPS_PATH)/linux/*.c)
 	ZZ_SRCS += $(wildcard $(ZZ_SRCS_PATH)/platforms/backend-linux/*.c)

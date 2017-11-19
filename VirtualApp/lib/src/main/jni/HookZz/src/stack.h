@@ -52,15 +52,10 @@ typedef struct _ZzThreadStack {
 } ZzThreadStack;
 
 ZzThreadStack *ZzNewThreadStack(zpointer key_ptr);
-
-ZzThreadStack *ZzGetCurrentThreadStack(zpointer key_ptr);
-
 ZzCallStack *ZzNewCallStack();
-
-void ZzFreeCallStack(ZzCallStack *callstack);
-
-ZzCallStack *ZzPopCallStack(ZzThreadStack *stack);
-
+ZzThreadStack *ZzGetCurrentThreadStack(zpointer key_ptr);
 zbool ZzPushCallStack(ZzThreadStack *stack, ZzCallStack *callstack);
+ZzCallStack *ZzPopCallStack(ZzThreadStack *stack);
+void ZzFreeCallStack(ZzCallStack *callstack);
 
 #endif

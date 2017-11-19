@@ -15,16 +15,16 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "interceptor.h"
 #include "trampoline.h"
-#include <string.h>
+#include "zzinfo.h"
 
 #define ZZHOOKENTRIES_DEFAULT 100
 ZzInterceptor *g_interceptor = NULL;
 
-ZZSTATUS
-ZzInitializeInterceptor(void) {
+ZZSTATUS ZzInitializeInterceptor(void) {
     ZzInterceptor *interceptor = g_interceptor;
     ZzHookFunctionEntrySet *hook_function_entry_set;
 
@@ -125,6 +125,10 @@ void ZzInitializeHookFunctionEntry(ZzHookFunctionEntry *entry, int hook_type, zp
 
 ZZSTATUS ZzBuildHook(zpointer target_ptr, zpointer replace_call_ptr, zpointer *origin_ptr, PRECALL pre_call_ptr,
                      POSTCALL post_call_ptr, zbool try_near_jump) {
+#if defined(__i386__) || defined(__x86_64__)
+    ZzInfoLog("%s", "x86 & x86_64 arch not support");
+    return ZZ_FAILED;
+#endif
 
     ZZSTATUS status = ZZ_DONE_HOOK;
     ZzInterceptor *interceptor = g_interceptor;
@@ -165,7 +169,10 @@ ZZSTATUS ZzBuildHook(zpointer target_ptr, zpointer replace_call_ptr, zpointer *o
 
 ZZSTATUS ZzBuildHookAddress(zpointer target_start_ptr, zpointer target_end_ptr, PRECALL pre_call_ptr,
                             HALFCALL half_call_ptr, zbool try_near_jump) {
-
+#if defined(__i386__) || defined(__x86_64__)
+    ZzInfoLog("%s", "x86 & x86_64 arch not support");
+    return ZZ_FAILED;
+#endif
     ZZSTATUS status = ZZ_DONE_HOOK;
     ZzInterceptor *interceptor = g_interceptor;
     ZzHookFunctionEntrySet *hook_function_entry_set = NULL;

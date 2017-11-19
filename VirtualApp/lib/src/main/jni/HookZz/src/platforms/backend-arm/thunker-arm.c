@@ -89,20 +89,22 @@ void function_context_begin_invocation(ZzHookFunctionEntry *entry, zpointer next
                                        zpointer caller_ret_addr) {
 
     Xdebug("target %p call begin-invocation", entry->target_ptr);
+
     ZzThreadStack *threadstack = ZzGetCurrentThreadStack(entry->thread_local_key);
     if (!threadstack) {
         threadstack = ZzNewThreadStack(entry->thread_local_key);
     }
-
     ZzCallStack *callstack = ZzNewCallStack();
     ZzPushCallStack(threadstack, callstack);
 
+    /* call pre_call */
     if (entry->pre_call) {
         PRECALL pre_call;
         pre_call = entry->pre_call;
         (*pre_call)(rs, (ThreadStack *)threadstack, (CallStack *)callstack);
     }
 
+    /* set next hop */
     if (entry->replace_call) {
         *(zpointer *)next_hop = entry->replace_call;
     } else {
@@ -118,6 +120,7 @@ void function_context_begin_invocation(ZzHookFunctionEntry *entry, zpointer next
 void function_context_half_invocation(ZzHookFunctionEntry *entry, zpointer next_hop, RegState *rs,
                                       zpointer caller_ret_addr) {
     Xdebug("target %p call half-invocation", entry->target_ptr);
+
     ZzThreadStack *threadstack = ZzGetCurrentThreadStack(entry->thread_local_key);
     if (!threadstack) {
 #if defined(DEBUG_MODE)
@@ -126,11 +129,14 @@ void function_context_half_invocation(ZzHookFunctionEntry *entry, zpointer next_
     }
     ZzCallStack *callstack = ZzPopCallStack(threadstack);
 
+    /* call half_call */
     if (entry->half_call) {
         HALFCALL half_call;
         half_call = entry->half_call;
         (*half_call)(rs, (ThreadStack *)threadstack, (CallStack *)callstack);
     }
+
+    /* set next hop */
     *(zpointer *)next_hop = (zpointer)entry->target_half_ret_addr;
 
     ZzFreeCallStack(callstack);
@@ -139,6 +145,7 @@ void function_context_half_invocation(ZzHookFunctionEntry *entry, zpointer next_
 // just like post_call, wow!
 void function_context_end_invocation(ZzHookFunctionEntry *entry, zpointer next_hop, RegState *rs) {
     Xdebug("%p call end-invocation", entry->target_ptr);
+
     ZzThreadStack *threadstack = ZzGetCurrentThreadStack(entry->thread_local_key);
     if (!threadstack) {
 #if defined(DEBUG_MODE)
@@ -147,11 +154,14 @@ void function_context_end_invocation(ZzHookFunctionEntry *entry, zpointer next_h
     }
     ZzCallStack *callstack = ZzPopCallStack(threadstack);
 
+    /* call post_call */
     if (entry->post_call) {
         POSTCALL post_call;
         post_call = entry->post_call;
         (*post_call)(rs, (ThreadStack *)threadstack, (CallStack *)callstack);
     }
+
+    /* set next hop */
     *(zpointer *)next_hop = callstack->caller_ret_addr;
 
     ZzFreeCallStack(callstack);
@@ -160,7 +170,6 @@ void function_context_end_invocation(ZzHookFunctionEntry *entry, zpointer next_h
 void zz_thumb_thunker_build_enter_thunk(ZzWriter *writer) {
 
     /* save general registers and sp */
-
     zz_thumb_writer_put_bx_reg(writer, ZZ_ARM_REG_PC);
     zz_arm_writer_put_bytes(writer, THUMB_FUNCTION_ADDRESS((void *)ctx_save), 15 * 4);
     zz_arm_writer_put_add_reg_reg_imm(writer, ZZ_ARM_REG_R1, ZZ_ARM_REG_PC, 1);
@@ -186,7 +195,6 @@ void zz_thumb_thunker_build_enter_thunk(ZzWriter *writer) {
 
     /* restore general registers and sp */
     zz_thumb_writer_put_add_reg_imm(writer, ZZ_ARM_REG_SP, 0x8);
-
     zz_thumb_writer_put_bx_reg(writer, ZZ_ARM_REG_PC);
     zz_arm_writer_put_bytes(writer, THUMB_FUNCTION_ADDRESS((void *)ctx_restore), 14 * 4);
     zz_arm_writer_put_bx_to_thumb(writer);
@@ -228,7 +236,6 @@ void zz_thumb_thunker_build_half_thunk(ZzWriter *writer) {
 
     /* restore general registers and sp */
     zz_thumb_writer_put_add_reg_imm(writer, ZZ_ARM_REG_SP, 0x8);
-
     zz_thumb_writer_put_bx_reg(writer, ZZ_ARM_REG_PC);
     zz_arm_writer_put_bytes(writer, THUMB_FUNCTION_ADDRESS((void *)ctx_restore), 14 * 4);
     zz_arm_writer_put_bx_to_thumb(writer);
@@ -254,8 +261,11 @@ void zz_thumb_thunker_build_leave_thunk(ZzWriter *writer) {
     zz_thumb_writer_put_str_reg_reg_offset(writer, ZZ_ARM_REG_R1, ZZ_ARM_REG_SP, 0x4);
 
     /* pass enter func args */
+    /* entry */
     zz_thumb_writer_put_ldr_reg_reg_offset(writer, ZZ_ARM_REG_R0, ZZ_ARM_REG_SP, CTX_SAVE_STACK_OFFSET + 0x8);
+    /* next hop*/
     zz_thumb_writer_put_add_reg_reg_imm(writer, ZZ_ARM_REG_R1, ZZ_ARM_REG_SP, CTX_SAVE_STACK_OFFSET + 0x8 + 0x4);
+    /* RegState */
     zz_thumb_writer_put_add_reg_reg_imm(writer, ZZ_ARM_REG_R2, ZZ_ARM_REG_SP, 0x4);
 
     /* call function_context_begin_invocation */
@@ -264,7 +274,6 @@ void zz_thumb_thunker_build_leave_thunk(ZzWriter *writer) {
 
     /* restore general registers and sp */
     zz_thumb_writer_put_add_reg_imm(writer, ZZ_ARM_REG_SP, 0x8);
-
     zz_thumb_writer_put_bx_reg(writer, ZZ_ARM_REG_PC);
     zz_arm_writer_put_bytes(writer, THUMB_FUNCTION_ADDRESS((void *)ctx_restore), 14 * 4);
     zz_arm_writer_put_bx_to_thumb(writer);
@@ -285,13 +294,18 @@ ZZSTATUS ZzThunkerBuildThunk(ZzInterceptorBackend *self) {
 
     thumb_writer = &self->thumb_writer;
     zz_thumb_writer_reset(thumb_writer, temp_code_slice_data);
+
+    /* buid enter_thunk */
     zz_thumb_thunker_build_enter_thunk(thumb_writer);
+
+    /* code patch */
     code_slice = zz_code_patch_thumb_writer(thumb_writer, self->allocator, 0, 0);
     if (code_slice)
         self->enter_thunk = code_slice->data + 1;
     else
         return ZZ_FAILED;
 
+    /* debug log */
     if (ZzIsEnableDebugMode()) {
         char buffer[2048] = {};
         char thunk_buffer[2048] = {};
@@ -312,13 +326,18 @@ ZZSTATUS ZzThunkerBuildThunk(ZzInterceptorBackend *self) {
     }
 
     zz_thumb_writer_reset(thumb_writer, temp_code_slice_data);
+
+    /* build leave_thunk */
     zz_thumb_thunker_build_leave_thunk(thumb_writer);
+
+    /* code patch */
     code_slice = zz_code_patch_thumb_writer(thumb_writer, self->allocator, 0, 0);
     if (code_slice)
         self->leave_thunk = code_slice->data + 1;
     else
         return ZZ_FAILED;
 
+    /* debug log */
     if (ZzIsEnableDebugMode()) {
         char buffer[2048] = {};
         char thunk_buffer[2048] = {};
@@ -339,11 +358,36 @@ ZZSTATUS ZzThunkerBuildThunk(ZzInterceptorBackend *self) {
     }
 
     zz_thumb_writer_reset(thumb_writer, temp_code_slice_data);
+
+    /* build half_thunk */
     zz_thumb_thunker_build_half_thunk(thumb_writer);
+
+    /* code patch */
     code_slice = zz_code_patch_thumb_writer(thumb_writer, self->allocator, 0, 0);
     if (code_slice)
         self->half_thunk = code_slice->data + 1;
     else
         return ZZ_FAILED;
+
+    /* debug log */
+    if (ZzIsEnableDebugMode()) {
+        char buffer[2048] = {};
+        char thunk_buffer[2048] = {};
+        int t = 0;
+        zpointer p;
+        sprintf(buffer + strlen(buffer), "%s\n", "ZzThunkerBuildThunk:");
+
+        for (p = thumb_writer->base; p < thumb_writer->base + thumb_writer->size; p++, t = t + 5) {
+            sprintf(thunk_buffer + t, "0x%.2x ", *(unsigned char *)p);
+        }
+
+        ZzInfoLog("%s", thunk_buffer);
+        // sprintf(buffer + strlen(buffer), "half_thunk: %s\n", thunk_buffer);
+
+        sprintf(buffer + strlen(buffer), "LogInfo: half_thunk at %p, length: %ld.\n", code_slice->data,
+                code_slice->size);
+        ZzInfoLog("%s", buffer);
+    }
+
     return status;
 }

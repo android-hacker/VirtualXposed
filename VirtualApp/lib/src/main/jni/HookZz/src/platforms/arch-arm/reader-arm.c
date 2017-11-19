@@ -17,8 +17,6 @@
 #include "reader-arm.h"
 
 zpointer zz_arm_reader_read_one_instruction(ZzInstruction *insn_ctx, zpointer address) {
-    // ZzInstruction *insn = (ZzInstruction *)malloc(sizeof(ZzInstruction));
-
     insn_ctx->type = ARM_INSN;
     insn_ctx->address = (zaddr)address;
     insn_ctx->pc = (zaddr)address + 8;

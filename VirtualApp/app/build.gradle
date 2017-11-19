@@ -1,10 +1,9 @@
 apply plugin: 'com.android.application'
-apply plugin: 'me.tatarka.retrolambda'
 
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "io.virtualapp"
         minSdkVersion 15
@@ -53,13 +52,13 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':lib')
     //Android Lib
-    compile 'com.android.support:multidex:1.0.1'
-    compile 'com.android.support:appcompat-v7:25.0.1'
+    compile 'com.android.support:multidex:1.0.2'
+    compile 'com.android.support:appcompat-v7:25.4.0'
     compile 'com.melnykov:floatingactionbutton:1.3.0'
-    compile 'com.android.support:recyclerview-v7:25.0.1'
-    compile 'com.android.support:percent:25.0.1'
-    compile 'com.android.support:design:25.0.1'
-    compile 'com.android.support:cardview-v7:25.0.1'
+    compile 'com.android.support:recyclerview-v7:25.4.0'
+    compile 'com.android.support:percent:25.4.0'
+    compile 'com.android.support:design:25.4.0'
+    compile 'com.android.support:cardview-v7:25.4.0'
     //Promise Support
     compile 'org.jdeferred:jdeferred-android-aar:1.2.4'
     // ThirdParty

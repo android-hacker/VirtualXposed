@@ -100,7 +100,12 @@ typedef struct _RegState {
 
     zuint32 lr;
 } RegState;
+#elif defined(__i386__)
+typedef struct _RegState {
+} RegState;
 #elif defined(__x86_64__)
+typedef struct _RegState {
+} RegState;
 #endif
 #endif
 
