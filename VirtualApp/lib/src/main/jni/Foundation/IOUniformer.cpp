@@ -86,7 +86,8 @@ void IOUniformer::redirect(const char *orig_path, const char *new_path) {
 }
 
 const char *IOUniformer::query(const char *orig_path) {
-    return reverse_relocate_path(orig_path);
+    int res;
+    return relocate_path(orig_path, &res);
 }
 
 void IOUniformer::whitelist(const char *_path) {
