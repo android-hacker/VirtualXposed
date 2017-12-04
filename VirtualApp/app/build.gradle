@@ -5,11 +5,11 @@ android {
     compileSdkVersion 25
     buildToolsVersion '26.0.2'
     defaultConfig {
-        applicationId "io.virtualapp"
+        applicationId "io.va.exposed"
         minSdkVersion 15
         targetSdkVersion 22
         versionCode 24
-        versionName "1.2.5"
+        versionName "0.1.6"
         multiDexEnabled true
         android {
             defaultConfig {
