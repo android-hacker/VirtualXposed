@@ -3,10 +3,18 @@ package io.virtualapp;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.multidex.MultiDexApplication;
+import android.util.Log;
 
 import com.flurry.android.FlurryAgent;
+import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.stub.VASettings;
+import com.lody.virtual.helper.utils.FileUtils;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import io.virtualapp.delegate.MyAppRequestListener;
 import io.virtualapp.delegate.MyComponentDelegate;
@@ -55,6 +63,34 @@ public class VApp extends MultiDexApplication {
                             // nothing
                         })
                         .build(VApp.this, "48RJJP7ZCZZBB6KMMWW5");
+                final String xposedPackageName = "de.robv.android.xposed.installer";
+
+                boolean isXposedInstalled = VirtualCore.get().isAppInstalled(xposedPackageName);
+                if (!isXposedInstalled) {
+                    File xposedInstallerApk = getFileStreamPath("XposedInstaller.apk");
+                    if (!xposedInstallerApk.exists()) {
+                        InputStream input = null;
+                        OutputStream output = null;
+                        try {
+                            input = getApplicationContext().getAssets().open("XposedInstaller_3.1.4.apk_");
+                            output = new FileOutputStream(xposedInstallerApk);
+                            byte[] buffer = new byte[1024];
+                            int length;
+                            while ((length = input.read(buffer)) > 0) {
+                                output.write(buffer, 0, length);
+                            }
+                        } catch (Throwable e) {
+                            Log.e("mylog", "copy file error", e);
+                        } finally {
+                            FileUtils.closeQuietly(input);
+                            FileUtils.closeQuietly(output);
+                        }
+                    }
+
+                    if (xposedInstallerApk.isFile()) {
+                        VirtualCore.get().installPackage(xposedInstallerApk.getPath(), InstallStrategy.TERMINATE_IF_EXIST);
+                    }
+                }
             }
 
             @Override
