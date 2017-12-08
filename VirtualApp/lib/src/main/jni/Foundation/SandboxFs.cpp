@@ -118,11 +118,19 @@ const char *relocate_path(const char *_path, int *result) {
     for (int i = 0; i < replace_item_count; ++i) {
         ReplaceItem &item = replace_items[i];
         if (match_path(item.is_folder, item.orig_size, item.orig_path, path)) {
-            std::string redirect_path(item.new_path);
-            redirect_path += path + item.orig_size;
             *result = MATCH;
-            free(path);
-            return strdup(redirect_path.c_str());
+            int len = strlen(path);
+            if (len < item.orig_size) {
+                //remove last /
+                std::string redirect_path(item.new_path, 0, item.new_size-1);
+                free(path);
+                return strdup(redirect_path.c_str());
+            } else {
+                std::string redirect_path(item.new_path);
+                redirect_path += path + item.orig_size;
+                free(path);
+                return strdup(redirect_path.c_str());
+            }
         }
     }
     *result = NOT_MATCH;
@@ -159,10 +167,18 @@ const char *reverse_relocate_path(const char *_path) {
     for (int i = 0; i < replace_item_count; ++i) {
         ReplaceItem &item = replace_items[i];
         if (match_path(item.is_folder, item.new_size, item.new_path, path)) {
-            std::string reverse_path(item.orig_path);
-            reverse_path += path + item.new_size;
-            free(path);
-            return strdup(reverse_path.c_str());
+            int len = strlen(path);
+            if (len < item.new_size) {
+                //remove last /
+                std::string reverse_path(item.orig_path, 0, item.orig_size - 1);
+                free(path);
+                return strdup(reverse_path.c_str());
+            } else {
+                std::string reverse_path(item.orig_path);
+                reverse_path += path + item.new_size;
+                free(path);
+                return strdup(reverse_path.c_str());
+            }
         }
     }
     return _path;
