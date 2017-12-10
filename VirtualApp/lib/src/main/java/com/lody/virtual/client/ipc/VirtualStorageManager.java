@@ -5,7 +5,7 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.helper.ipcbus.IPCSingleton;
-import com.lody.virtual.server.IVirtualStorageService;
+import com.lody.virtual.server.interfaces.IVirtualStorageService;
 
 /**
  * @author Lody

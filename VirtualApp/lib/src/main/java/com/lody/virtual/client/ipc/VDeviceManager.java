@@ -5,7 +5,7 @@ import android.os.RemoteException;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.helper.ipcbus.IPCSingleton;
 import com.lody.virtual.remote.VDeviceInfo;
-import com.lody.virtual.server.IDeviceInfoManager;
+import com.lody.virtual.server.interfaces.IDeviceInfoManager;
 
 /**
  * @author Lody

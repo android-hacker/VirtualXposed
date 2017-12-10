@@ -5,14 +5,14 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.lody.virtual.helper.utils.VLog;
-import com.lody.virtual.server.INotificationManager;
+import com.lody.virtual.server.interfaces.INotificationManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class VNotificationManagerService extends INotificationManager.Stub {
+public class VNotificationManagerService implements INotificationManager {
     private static final AtomicReference<VNotificationManagerService> gService = new AtomicReference<>();
     private NotificationManager mNotificationManager;
     static final String TAG = NotificationCompat.class.getSimpleName();

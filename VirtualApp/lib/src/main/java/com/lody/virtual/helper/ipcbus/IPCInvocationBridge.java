@@ -8,12 +8,12 @@ import java.lang.reflect.Method;
 /**
  * @author Lody
  */
-public class IPCTranslator implements InvocationHandler {
+public class IPCInvocationBridge implements InvocationHandler {
 
     private ServerInterface serverInterface;
     private IBinder binder;
 
-    public IPCTranslator(ServerInterface serverInterface, IBinder binder) {
+    public IPCInvocationBridge(ServerInterface serverInterface, IBinder binder) {
         this.serverInterface = serverInterface;
         this.binder = binder;
     }

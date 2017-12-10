@@ -9,7 +9,7 @@ import com.lody.virtual.helper.collection.SparseArray;
 import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.remote.vloc.VCell;
 import com.lody.virtual.remote.vloc.VLocation;
-import com.lody.virtual.server.IVirtualLocationManager;
+import com.lody.virtual.server.interfaces.IVirtualLocationManager;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.Map;
  * @author Lody
  */
 
-public class VirtualLocationService extends IVirtualLocationManager.Stub {
+public class VirtualLocationService implements IVirtualLocationManager {
 
     private static final VirtualLocationService sInstance = new VirtualLocationService();
     private final SparseArray<Map<String, VLocConfig>> mLocConfigs = new SparseArray<>();
@@ -123,7 +123,7 @@ public class VirtualLocationService extends IVirtualLocationManager.Stub {
     }
 
     @Override
-    public int getMode(int userId, String pkg) throws RemoteException {
+    public int getMode(int userId, String pkg) {
         synchronized (mLocConfigs) {
             VLocConfig config = getOrCreateConfig(userId, pkg);
             mPersistenceLayer.save();
@@ -132,7 +132,7 @@ public class VirtualLocationService extends IVirtualLocationManager.Stub {
     }
 
     @Override
-    public void setMode(int userId, String pkg, int mode) throws RemoteException {
+    public void setMode(int userId, String pkg, int mode) {
         synchronized (mLocConfigs) {
             getOrCreateConfig(userId, pkg).mode = mode;
             mPersistenceLayer.save();
@@ -155,43 +155,43 @@ public class VirtualLocationService extends IVirtualLocationManager.Stub {
     }
 
     @Override
-    public void setCell(int userId, String pkg, VCell cell) throws RemoteException {
+    public void setCell(int userId, String pkg, VCell cell) {
         getOrCreateConfig(userId, pkg).cell = cell;
         mPersistenceLayer.save();
     }
 
     @Override
-    public void setAllCell(int userId, String pkg, List<VCell> cell) throws RemoteException {
+    public void setAllCell(int userId, String pkg, List<VCell> cell) {
         getOrCreateConfig(userId, pkg).allCell = cell;
         mPersistenceLayer.save();
     }
 
     @Override
-    public void setNeighboringCell(int userId, String pkg, List<VCell> cell) throws RemoteException {
+    public void setNeighboringCell(int userId, String pkg, List<VCell> cell) {
         getOrCreateConfig(userId, pkg).neighboringCell = cell;
         mPersistenceLayer.save();
     }
 
     @Override
-    public void setGlobalCell(VCell cell) throws RemoteException {
+    public void setGlobalCell(VCell cell) {
         mGlobalConfig.cell = cell;
         mPersistenceLayer.save();
     }
 
     @Override
-    public void setGlobalAllCell(List<VCell> cell) throws RemoteException {
+    public void setGlobalAllCell(List<VCell> cell) {
         mGlobalConfig.allCell = cell;
         mPersistenceLayer.save();
     }
 
     @Override
-    public void setGlobalNeighboringCell(List<VCell> cell) throws RemoteException {
+    public void setGlobalNeighboringCell(List<VCell> cell) {
         mGlobalConfig.neighboringCell = cell;
         mPersistenceLayer.save();
     }
 
     @Override
-    public VCell getCell(int userId, String pkg) throws RemoteException {
+    public VCell getCell(int userId, String pkg) {
         VLocConfig config = getOrCreateConfig(userId, pkg);
         mPersistenceLayer.save();
         switch (config.mode) {
@@ -206,7 +206,7 @@ public class VirtualLocationService extends IVirtualLocationManager.Stub {
     }
 
     @Override
-    public List<VCell> getAllCell(int userId, String pkg) throws RemoteException {
+    public List<VCell> getAllCell(int userId, String pkg) {
         VLocConfig config = getOrCreateConfig(userId, pkg);
         mPersistenceLayer.save();
         switch (config.mode) {
@@ -221,7 +221,7 @@ public class VirtualLocationService extends IVirtualLocationManager.Stub {
     }
 
     @Override
-    public List<VCell> getNeighboringCell(int userId, String pkg) throws RemoteException {
+    public List<VCell> getNeighboringCell(int userId, String pkg) {
         VLocConfig config = getOrCreateConfig(userId, pkg);
         mPersistenceLayer.save();
         switch (config.mode) {
@@ -236,13 +236,13 @@ public class VirtualLocationService extends IVirtualLocationManager.Stub {
     }
 
     @Override
-    public void setLocation(int userId, String pkg, VLocation loc) throws RemoteException {
+    public void setLocation(int userId, String pkg, VLocation loc) {
         getOrCreateConfig(userId, pkg).location = loc;
         mPersistenceLayer.save();
     }
 
     @Override
-    public VLocation getLocation(int userId, String pkg) throws RemoteException {
+    public VLocation getLocation(int userId, String pkg) {
         VLocConfig config = getOrCreateConfig(userId, pkg);
         mPersistenceLayer.save();
         switch (config.mode) {
@@ -257,12 +257,12 @@ public class VirtualLocationService extends IVirtualLocationManager.Stub {
     }
 
     @Override
-    public void setGlobalLocation(VLocation loc) throws RemoteException {
+    public void setGlobalLocation(VLocation loc) {
         mGlobalConfig.location = loc;
     }
 
     @Override
-    public VLocation getGlobalLocation() throws RemoteException {
+    public VLocation getGlobalLocation() {
         return mGlobalConfig.location;
     }
 

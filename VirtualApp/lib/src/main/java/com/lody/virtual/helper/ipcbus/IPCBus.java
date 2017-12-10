@@ -37,6 +37,6 @@ public class IPCBus {
             return null;
         }
         //noinspection unchecked
-        return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class[]{interfaceClass}, new IPCTranslator(serverInterface, binder));
+        return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class[]{interfaceClass}, new IPCInvocationBridge(serverInterface, binder));
     }
 }
