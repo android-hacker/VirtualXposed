@@ -13,8 +13,8 @@ import android.content.pm.ServiceInfo;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
+import com.lody.virtual.helper.ipcbus.IPCSingleton;
 import com.lody.virtual.server.IPackageInstaller;
 import com.lody.virtual.server.IPackageManager;
 
@@ -26,21 +26,14 @@ import java.util.List;
 public class VPackageManager {
 
     private static final VPackageManager sMgr = new VPackageManager();
-    private IPackageManager mRemote;
+    private IPCSingleton<IPackageManager> singleton = new IPCSingleton<>(IPackageManager.class);
 
     public static VPackageManager get() {
         return sMgr;
     }
 
-    public IPackageManager getInterface() {
-        if (mRemote == null ||
-                (!mRemote.asBinder().isBinderAlive() && !VirtualCore.get().isVAppProcess())) {
-            synchronized (VPackageManager.class) {
-                Object remote = getRemoteInterface();
-                mRemote = LocalProxyUtils.genProxy(IPackageManager.class, remote);
-            }
-        }
-        return mRemote;
+    public IPackageManager getService() {
+       return singleton.get();
     }
 
     private Object getRemoteInterface() {
@@ -50,7 +43,7 @@ public class VPackageManager {
 
     public int checkPermission(String permName, String pkgName, int userId) {
         try {
-            return getInterface().checkPermission(permName, pkgName, userId);
+            return getService().checkPermission(permName, pkgName, userId);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -58,7 +51,7 @@ public class VPackageManager {
 
     public ResolveInfo resolveService(Intent intent, String resolvedType, int flags, int userId) {
         try {
-            return getInterface().resolveService(intent, resolvedType, flags, userId);
+            return getService().resolveService(intent, resolvedType, flags, userId);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -66,7 +59,7 @@ public class VPackageManager {
 
     public PermissionGroupInfo getPermissionGroupInfo(String name, int flags) {
         try {
-            return getInterface().getPermissionGroupInfo(name, flags);
+            return getService().getPermissionGroupInfo(name, flags);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -75,7 +68,7 @@ public class VPackageManager {
     public List<ApplicationInfo> getInstalledApplications(int flags, int userId) {
         try {
             // noinspection unchecked
-            return getInterface().getInstalledApplications(flags, userId).getList();
+            return getService().getInstalledApplications(flags, userId).getList();
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -83,7 +76,7 @@ public class VPackageManager {
 
     public PackageInfo getPackageInfo(String packageName, int flags, int userId) {
         try {
-            return getInterface().getPackageInfo(packageName, flags, userId);
+            return getService().getPackageInfo(packageName, flags, userId);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -91,7 +84,7 @@ public class VPackageManager {
 
     public ResolveInfo resolveIntent(Intent intent, String resolvedType, int flags, int userId) {
         try {
-            return getInterface().resolveIntent(intent, resolvedType, flags, userId);
+            return getService().resolveIntent(intent, resolvedType, flags, userId);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -99,7 +92,7 @@ public class VPackageManager {
 
     public List<ResolveInfo> queryIntentContentProviders(Intent intent, String resolvedType, int flags, int userId) {
         try {
-            return getInterface().queryIntentContentProviders(intent, resolvedType, flags, userId);
+            return getService().queryIntentContentProviders(intent, resolvedType, flags, userId);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -107,7 +100,7 @@ public class VPackageManager {
 
     public ActivityInfo getReceiverInfo(ComponentName componentName, int flags, int userId) {
         try {
-            return getInterface().getReceiverInfo(componentName, flags, userId);
+            return getService().getReceiverInfo(componentName, flags, userId);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -115,7 +108,7 @@ public class VPackageManager {
 
     public List<PackageInfo> getInstalledPackages(int flags, int userId) {
         try {
-            return getInterface().getInstalledPackages(flags, userId).getList();
+            return getService().getInstalledPackages(flags, userId).getList();
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -123,7 +116,7 @@ public class VPackageManager {
 
     public List<PermissionInfo> queryPermissionsByGroup(String group, int flags) {
         try {
-            return getInterface().queryPermissionsByGroup(group, flags);
+            return getService().queryPermissionsByGroup(group, flags);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -131,7 +124,7 @@ public class VPackageManager {
 
     public PermissionInfo getPermissionInfo(String name, int flags) {
         try {
-            return getInterface().getPermissionInfo(name, flags);
+            return getService().getPermissionInfo(name, flags);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -139,7 +132,7 @@ public class VPackageManager {
 
     public ActivityInfo getActivityInfo(ComponentName componentName, int flags, int userId) {
         try {
-            return getInterface().getActivityInfo(componentName, flags, userId);
+            return getService().getActivityInfo(componentName, flags, userId);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -147,7 +140,7 @@ public class VPackageManager {
 
     public List<ResolveInfo> queryIntentReceivers(Intent intent, String resolvedType, int flags, int userId) {
         try {
-            return getInterface().queryIntentReceivers(intent, resolvedType, flags, userId);
+            return getService().queryIntentReceivers(intent, resolvedType, flags, userId);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -155,7 +148,7 @@ public class VPackageManager {
 
     public List<PermissionGroupInfo> getAllPermissionGroups(int flags) {
         try {
-            return getInterface().getAllPermissionGroups(flags);
+            return getService().getAllPermissionGroups(flags);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -163,7 +156,7 @@ public class VPackageManager {
 
     public List<ResolveInfo> queryIntentActivities(Intent intent, String resolvedType, int flags, int userId) {
         try {
-            return getInterface().queryIntentActivities(intent, resolvedType, flags, userId);
+            return getService().queryIntentActivities(intent, resolvedType, flags, userId);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -171,7 +164,7 @@ public class VPackageManager {
 
     public List<ResolveInfo> queryIntentServices(Intent intent, String resolvedType, int flags, int userId) {
         try {
-            return getInterface().queryIntentServices(intent, resolvedType, flags, userId);
+            return getService().queryIntentServices(intent, resolvedType, flags, userId);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -179,7 +172,7 @@ public class VPackageManager {
 
     public ApplicationInfo getApplicationInfo(String packageName, int flags, int userId) {
         try {
-            return getInterface().getApplicationInfo(packageName, flags, userId);
+            return getService().getApplicationInfo(packageName, flags, userId);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -187,7 +180,7 @@ public class VPackageManager {
 
     public ProviderInfo resolveContentProvider(String name, int flags, int userId) {
         try {
-            return getInterface().resolveContentProvider(name, flags, userId);
+            return getService().resolveContentProvider(name, flags, userId);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -195,7 +188,7 @@ public class VPackageManager {
 
     public ServiceInfo getServiceInfo(ComponentName componentName, int flags, int userId) {
         try {
-            return getInterface().getServiceInfo(componentName, flags, userId);
+            return getService().getServiceInfo(componentName, flags, userId);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -203,7 +196,7 @@ public class VPackageManager {
 
     public ProviderInfo getProviderInfo(ComponentName componentName, int flags, int userId) {
         try {
-            return getInterface().getProviderInfo(componentName, flags, userId);
+            return getService().getProviderInfo(componentName, flags, userId);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -211,7 +204,7 @@ public class VPackageManager {
 
     public boolean activitySupportsIntent(ComponentName component, Intent intent, String resolvedType) {
         try {
-            return getInterface().activitySupportsIntent(component, intent, resolvedType);
+            return getService().activitySupportsIntent(component, intent, resolvedType);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -220,7 +213,7 @@ public class VPackageManager {
     public List<ProviderInfo> queryContentProviders(String processName, int uid, int flags) {
         try {
             // noinspection unchecked
-            return getInterface().queryContentProviders(processName, uid, flags).getList();
+            return getService().queryContentProviders(processName, uid, flags).getList();
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -228,7 +221,7 @@ public class VPackageManager {
 
     public List<String> querySharedPackages(String packageName) {
         try {
-            return getInterface().querySharedPackages(packageName);
+            return getService().querySharedPackages(packageName);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -236,7 +229,7 @@ public class VPackageManager {
 
     public String[] getPackagesForUid(int uid) {
         try {
-            return getInterface().getPackagesForUid(uid);
+            return getService().getPackagesForUid(uid);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -244,7 +237,7 @@ public class VPackageManager {
 
     public int getPackageUid(String packageName, int userId) {
         try {
-            return getInterface().getPackageUid(packageName, userId);
+            return getService().getPackageUid(packageName, userId);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -252,7 +245,7 @@ public class VPackageManager {
 
     public String getNameForUid(int uid) {
         try {
-            return getInterface().getNameForUid(uid);
+            return getService().getNameForUid(uid);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -261,7 +254,7 @@ public class VPackageManager {
 
     public IPackageInstaller getPackageInstaller() {
         try {
-            return getInterface().getPackageInstaller();
+            return getService().getPackageInstaller();
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }

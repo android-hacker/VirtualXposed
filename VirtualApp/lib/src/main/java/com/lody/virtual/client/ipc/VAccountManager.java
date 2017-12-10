@@ -13,8 +13,11 @@ import android.os.RemoteException;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.stub.AmsTask;
+import com.lody.virtual.helper.ipcbus.IPCBus;
+import com.lody.virtual.helper.ipcbus.IPCSingleton;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.server.IAccountManager;
+import com.lody.virtual.server.IActivityManager;
 
 import static com.lody.virtual.helper.compat.AccountManagerCompat.KEY_ANDROID_PACKAGE_NAME;
 
@@ -26,26 +29,14 @@ public class VAccountManager {
 
     private static VAccountManager sMgr = new VAccountManager();
 
-    private IAccountManager mRemote;
+    private IPCSingleton<IAccountManager> singleton = new IPCSingleton<>(IAccountManager.class);
 
     public static VAccountManager get() {
         return sMgr;
     }
 
     public IAccountManager getRemote() {
-        if (mRemote == null ||
-                (!mRemote.asBinder().isBinderAlive() && !VirtualCore.get().isVAppProcess())) {
-            synchronized (VAccountManager.class) {
-                Object remote = getStubInterface();
-                mRemote = LocalProxyUtils.genProxy(IAccountManager.class, remote);
-            }
-        }
-        return mRemote;
-    }
-
-    private Object getStubInterface() {
-        return IAccountManager.Stub
-                .asInterface(ServiceManagerNative.getService(ServiceManagerNative.ACCOUNT));
+        return singleton.get();
     }
 
     public AuthenticatorDescription[] getAuthenticatorTypes() {
@@ -265,7 +256,6 @@ public class VAccountManager {
      * <p>This method may be called from any thread, but the returned
      * {@link AccountManagerFuture} must not be used on the main thread.
      * <p>
-     *
      */
     public AccountManagerFuture<Bundle> addAccount(final int userId, final String accountType,
                                                    final String authTokenType, final String[] requiredFeatures,

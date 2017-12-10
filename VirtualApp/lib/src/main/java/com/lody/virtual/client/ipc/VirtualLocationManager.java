@@ -1,11 +1,10 @@
 package com.lody.virtual.client.ipc;
 
-import android.os.IBinder;
 import android.os.RemoteException;
 
-import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.hook.base.MethodProxy;
+import com.lody.virtual.helper.ipcbus.IPCSingleton;
 import com.lody.virtual.remote.vloc.VCell;
 import com.lody.virtual.remote.vloc.VLocation;
 import com.lody.virtual.server.IVirtualLocationManager;
@@ -19,7 +18,7 @@ import java.util.List;
 public class VirtualLocationManager {
 
     private static final VirtualLocationManager sInstance = new VirtualLocationManager();
-    private IVirtualLocationManager mRemote;
+    private IPCSingleton<IVirtualLocationManager> singleton = new IPCSingleton<>(IVirtualLocationManager.class);
 
     public static final int MODE_CLOSE = 0;
     public static final int MODE_USE_GLOBAL = 1;
@@ -31,25 +30,14 @@ public class VirtualLocationManager {
     }
 
 
-    public IVirtualLocationManager getRemote() {
-        if (mRemote == null ||
-                (!mRemote.asBinder().isBinderAlive() && !VirtualCore.get().isVAppProcess())) {
-            synchronized (this) {
-                Object remote = getRemoteInterface();
-                mRemote = LocalProxyUtils.genProxy(IVirtualLocationManager.class, remote);
-            }
-        }
-        return mRemote;
+    public IVirtualLocationManager getService() {
+        return singleton.get();
     }
 
-    private Object getRemoteInterface() {
-        final IBinder binder = ServiceManagerNative.getService(ServiceManagerNative.VIRTUAL_LOC);
-        return IVirtualLocationManager.Stub.asInterface(binder);
-    }
 
     public int getMode(int userId, String pkg) {
         try {
-            return getRemote().getMode(userId, pkg);
+            return getService().getMode(userId, pkg);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -61,7 +49,7 @@ public class VirtualLocationManager {
 
     public void setMode(int userId, String pkg, int mode) {
         try {
-            getRemote().setMode(userId, pkg, mode);
+            getService().setMode(userId, pkg, mode);
         } catch (RemoteException e) {
             VirtualRuntime.crash(e);
         }
@@ -69,7 +57,7 @@ public class VirtualLocationManager {
 
     public void setCell(int userId, String pkg, VCell cell) {
         try {
-            getRemote().setCell(userId, pkg, cell);
+            getService().setCell(userId, pkg, cell);
         } catch (RemoteException e) {
             VirtualRuntime.crash(e);
         }
@@ -77,7 +65,7 @@ public class VirtualLocationManager {
 
     public void setAllCell(int userId, String pkg, List<VCell> cell) {
         try {
-            getRemote().setAllCell(userId, pkg, cell);
+            getService().setAllCell(userId, pkg, cell);
         } catch (RemoteException e) {
             VirtualRuntime.crash(e);
         }
@@ -85,7 +73,7 @@ public class VirtualLocationManager {
 
     public void setNeighboringCell(int userId, String pkg, List<VCell> cell) {
         try {
-            getRemote().setNeighboringCell(userId, pkg, cell);
+            getService().setNeighboringCell(userId, pkg, cell);
         } catch (RemoteException e) {
             VirtualRuntime.crash(e);
         }
@@ -93,7 +81,7 @@ public class VirtualLocationManager {
 
     public VCell getCell(int userId, String pkg) {
         try {
-            return getRemote().getCell(userId, pkg);
+            return getService().getCell(userId, pkg);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -101,7 +89,7 @@ public class VirtualLocationManager {
 
     public List<VCell> getAllCell(int userId, String pkg) {
         try {
-            return getRemote().getAllCell(userId, pkg);
+            return getService().getAllCell(userId, pkg);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -109,7 +97,7 @@ public class VirtualLocationManager {
 
     public List<VCell> getNeighboringCell(int userId, String pkg) {
         try {
-            return getRemote().getNeighboringCell(userId, pkg);
+            return getService().getNeighboringCell(userId, pkg);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -118,7 +106,7 @@ public class VirtualLocationManager {
 
     public void setGlobalCell(VCell cell) {
         try {
-            getRemote().setGlobalCell(cell);
+            getService().setGlobalCell(cell);
         } catch (RemoteException e) {
             VirtualRuntime.crash(e);
         }
@@ -126,7 +114,7 @@ public class VirtualLocationManager {
 
     public void setGlobalAllCell(List<VCell> cell) {
         try {
-            getRemote().setGlobalAllCell(cell);
+            getService().setGlobalAllCell(cell);
         } catch (RemoteException e) {
             VirtualRuntime.crash(e);
         }
@@ -134,7 +122,7 @@ public class VirtualLocationManager {
 
     public void setGlobalNeighboringCell(List<VCell> cell) {
         try {
-            getRemote().setGlobalNeighboringCell(cell);
+            getService().setGlobalNeighboringCell(cell);
         } catch (RemoteException e) {
             VirtualRuntime.crash(e);
         }
@@ -142,7 +130,7 @@ public class VirtualLocationManager {
 
     public void setLocation(int userId, String pkg, VLocation loc) {
         try {
-            getRemote().setLocation(userId, pkg, loc);
+            getService().setLocation(userId, pkg, loc);
         } catch (RemoteException e) {
             VirtualRuntime.crash(e);
         }
@@ -150,7 +138,7 @@ public class VirtualLocationManager {
 
     public VLocation getLocation(int userId, String pkg) {
         try {
-            return getRemote().getLocation(userId, pkg);
+            return getService().getLocation(userId, pkg);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -162,7 +150,7 @@ public class VirtualLocationManager {
 
     public void setGlobalLocation(VLocation loc) {
         try {
-            getRemote().setGlobalLocation(loc);
+            getService().setGlobalLocation(loc);
         } catch (RemoteException e) {
             VirtualRuntime.crash(e);
         }
@@ -170,7 +158,7 @@ public class VirtualLocationManager {
 
     public VLocation getGlobalLocation() {
         try {
-            return getRemote().getGlobalLocation();
+            return getService().getGlobalLocation();
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }

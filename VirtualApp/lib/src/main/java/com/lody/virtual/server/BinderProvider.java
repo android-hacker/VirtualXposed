@@ -14,6 +14,7 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.ipc.ServiceManagerNative;
 import com.lody.virtual.client.stub.DaemonService;
 import com.lody.virtual.helper.compat.BundleCompat;
+import com.lody.virtual.helper.ipcbus.IPCBus;
 import com.lody.virtual.server.accounts.VAccountManagerService;
 import com.lody.virtual.server.am.BroadcastSystem;
 import com.lody.virtual.server.am.VActivityManagerService;
@@ -42,30 +43,25 @@ public final class BinderProvider extends ContentProvider {
             return true;
         }
         VPackageManagerService.systemReady();
-        addService(ServiceManagerNative.PACKAGE, VPackageManagerService.get());
+        IPCBus.register(IPackageManager.class, VPackageManagerService.get());
         VActivityManagerService.systemReady(context);
-        addService(ServiceManagerNative.ACTIVITY, VActivityManagerService.get());
-        addService(ServiceManagerNative.USER, VUserManagerService.get());
+        IPCBus.register(IActivityManager.class, VActivityManagerService.get());
+        IPCBus.register(IUserManager.class, VUserManagerService.get());
         VAppManagerService.systemReady();
-        addService(ServiceManagerNative.APP, VAppManagerService.get());
+        IPCBus.register(IAppManager.class, VAppManagerService.get());
         BroadcastSystem.attach(VActivityManagerService.get(), VAppManagerService.get());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            addService(ServiceManagerNative.JOB, VJobSchedulerService.get());
+            IPCBus.register(IJobScheduler.class, VJobSchedulerService.get());
         }
         VNotificationManagerService.systemReady(context);
-        addService(ServiceManagerNative.NOTIFICATION, VNotificationManagerService.get());
+        IPCBus.register(INotificationManager.class, VNotificationManagerService.get());
         VAppManagerService.get().scanApps();
         VAccountManagerService.systemReady();
-        addService(ServiceManagerNative.ACCOUNT, VAccountManagerService.get());
-        addService(ServiceManagerNative.VS, VirtualStorageService.get());
-        addService(ServiceManagerNative.DEVICE, VDeviceManagerService.get());
-        addService(ServiceManagerNative.VIRTUAL_LOC, VirtualLocationService.get());
+        IPCBus.register(IAccountManager.class, VAccountManagerService.get());
+        IPCBus.register(IVirtualStorageService.class, VirtualStorageService.get());
+        IPCBus.register(IDeviceInfoManager.class, VDeviceManagerService.get());
+        IPCBus.register(IVirtualLocationManager.class, VirtualLocationService.get());
         return true;
-    }
-
-
-    private void addService(String name, IBinder service) {
-        ServiceCache.addService(name, service);
     }
 
     @Override
@@ -74,6 +70,9 @@ public final class BinderProvider extends ContentProvider {
             Bundle bundle = new Bundle();
             BundleCompat.putBinder(bundle, "_VA_|_binder_", mServiceFetcher);
             return bundle;
+        }
+        if ("register".equals(method)) {
+
         }
         return null;
     }
