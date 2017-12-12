@@ -305,8 +305,6 @@ public final class VClientImpl extends IVClient.Stub {
 
         mInitialApplication = LoadedApk.makeApplication.call(data.info, false, null);
 
-        ExposedBridge.patchAppClassLoader(context);
-
         mirror.android.app.ActivityThread.mInitialApplication.set(mainThread, mInitialApplication);
         ContextFixer.fixContext(mInitialApplication);
         if (Build.VERSION.SDK_INT >= 24 && "com.tencent.mm:recovery".equals(processName)) {
