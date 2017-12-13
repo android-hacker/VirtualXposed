@@ -179,8 +179,10 @@ public final class InvocationStubManager {
                 addInjector(new WifiScannerStub());
                 addInjector(new ShortcutServiceStub());
                 addInjector(new DevicePolicyManagerStub());
-				addInjector(new AutoFillManagerStub());
             }
+            if (Build.VERSION.SDK_INT >= 26) {
+				addInjector(new AutoFillManagerStub());
+			}
 		}
 	}
 
