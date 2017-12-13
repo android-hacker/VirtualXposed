@@ -8,6 +8,8 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.VirtualRuntime;
+import com.lody.virtual.helper.ArtDexOptimizer;
 import com.lody.virtual.helper.collection.IntArray;
 import com.lody.virtual.helper.compat.NativeLibraryHelperCompat;
 import com.lody.virtual.helper.utils.ArrayUtils;
@@ -236,17 +238,17 @@ public class VAppManagerService extends IAppManager.Stub {
         PackageCacheManager.put(pkg, ps);
         mPersistenceLayer.save();
         if (!dependSystem) {
-            boolean runDexOpt = true;
-//            if (VirtualRuntime.isArt()) {
-//                try {
-//                    ArtDexOptimizer.interpretDex2Oat(ps.apkPath, VEnvironment.getOdexFile(ps.packageName).getPath());
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                    runDexOpt = true;
-//                }
-//            } else {
-//                runDexOpt = true;
-//            }
+            boolean runDexOpt = false;
+            if (VirtualRuntime.isArt()) {
+                try {
+                    ArtDexOptimizer.compileDex2Oat(ps.apkPath, VEnvironment.getOdexFile(ps.packageName).getPath());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    runDexOpt = true;
+                }
+            } else {
+                runDexOpt = true;
+            }
             if (runDexOpt) {
                 try {
                     DexFile.loadDex(ps.apkPath, VEnvironment.getOdexFile(ps.packageName).getPath(), 0).close();
