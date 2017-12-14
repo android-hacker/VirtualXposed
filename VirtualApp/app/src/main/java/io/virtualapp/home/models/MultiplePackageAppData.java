@@ -14,6 +14,7 @@ public class MultiplePackageAppData implements AppData {
     public InstalledAppInfo appInfo;
     public int userId;
     public boolean isFirstOpen;
+    public boolean isInstalling;
     public boolean isLoading;
     public Drawable icon;
     public String name;
@@ -29,6 +30,11 @@ public class MultiplePackageAppData implements AppData {
             }
         }
         name = target.name;
+    }
+
+    @Override
+    public boolean isInstalling() {
+        return isLoading;
     }
 
     @Override
