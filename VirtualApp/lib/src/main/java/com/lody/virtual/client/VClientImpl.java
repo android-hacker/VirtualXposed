@@ -305,7 +305,7 @@ public final class VClientImpl extends IVClient.Stub {
 
         mInitialApplication = LoadedApk.makeApplication.call(data.info, false, null);
 
-        ExposedBridge.patchAppClassLoader(context);
+        // ExposedBridge.patchAppClassLoader(context);
 
         mirror.android.app.ActivityThread.mInitialApplication.set(mainThread, mInitialApplication);
         ContextFixer.fixContext(mInitialApplication);
