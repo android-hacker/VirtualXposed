@@ -1,6 +1,7 @@
 package io.virtualapp.home;
 
 import android.app.Activity;
+import android.content.pm.PackageInfo;
 import android.graphics.Bitmap;
 
 import com.lody.virtual.GmsSupport;
@@ -12,6 +13,7 @@ import com.lody.virtual.remote.InstalledAppInfo;
 
 import java.io.IOException;
 
+import io.virtualapp.VApp;
 import io.virtualapp.VCommends;
 import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.home.models.AppData;
@@ -83,11 +85,13 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
             private PackageAppData appData;
             private int userId;
             private boolean justEnableHidden;
+            private boolean addedToLaucher;
         }
         AddResult addResult = new AddResult();
         VUiKit.defer().when(() -> {
             InstalledAppInfo installedAppInfo = VirtualCore.get().getInstalledAppInfo(info.packageName, 0);
             addResult.justEnableHidden = installedAppInfo != null;
+            addResult.addedToLaucher = false;
             if (addResult.justEnableHidden) {
                 int[] userIds = installedAppInfo.getInstalledUsers();
                 int nextUserId = userIds.length;
@@ -116,24 +120,52 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
                     throw new IllegalStateException();
                 }
             } else {
+                PackageInfo pkgInfo = null;
+                try {
+                    pkgInfo = VApp.getApp().getPackageManager().getPackageArchiveInfo(info.path, 0);
+                    pkgInfo.applicationInfo.sourceDir = info.path;
+                    pkgInfo.applicationInfo.publicSourceDir = info.path;
+                } catch (Exception e) {
+                }
+                if(pkgInfo != null) {
+                    PackageAppData data = PackageAppDataStorage.get().acquire(pkgInfo.applicationInfo);
+                    addResult.appData = data;
+                    data.isInstalling = true;
+                    data.isFirstOpen = false;
+                    mView.addAppToLauncher(data);
+                    addResult.addedToLaucher = true;
+                }
+
                 InstallResult res = mRepo.addVirtualApp(info);
                 if (!res.isSuccess) {
+                    if (addResult.appData != null) mView.removeAppToLauncher(addResult.appData);
                     throw new IllegalStateException();
                 }
             }
         }).then((res) -> {
-            addResult.appData = PackageAppDataStorage.get().acquire(info.packageName);
+            if (addResult.appData == null) {
+                addResult.appData = PackageAppDataStorage.get().acquire(info.packageName);
+                addResult.addedToLaucher = false;
+            }
         }).done(res -> {
             boolean multipleVersion = addResult.justEnableHidden && addResult.userId != 0;
             if (!multipleVersion) {
                 PackageAppData data = addResult.appData;
+                data.isInstalling = false;
                 data.isLoading = true;
-                mView.addAppToLauncher(data);
+                if (addResult.addedToLaucher)
+                    mView.refreshLauncherItem(data);
+                else
+                    mView.addAppToLauncher(data);
                 handleOptApp(data, info.packageName, true);
             } else {
                 MultiplePackageAppData data = new MultiplePackageAppData(addResult.appData, addResult.userId);
+                data.isInstalling = false;
                 data.isLoading = true;
-                mView.addAppToLauncher(data);
+                if (addResult.addedToLaucher)
+                    mView.refreshLauncherItem(data);
+                else
+                    mView.addAppToLauncher(data);
                 handleOptApp(data, info.packageName, false);
             }
         });

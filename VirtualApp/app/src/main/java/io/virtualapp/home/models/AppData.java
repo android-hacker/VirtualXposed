@@ -8,6 +8,8 @@ import android.graphics.drawable.Drawable;
 
 public interface AppData {
 
+    boolean isInstalling();
+
     boolean isLoading();
 
     boolean isFirstOpen();

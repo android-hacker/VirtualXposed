@@ -77,15 +77,28 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
         } else {
             holder.spaceLabelView.setVisibility(View.INVISIBLE);
         }
-        if (data.isLoading()) {
+        if (data.isInstalling()) {
+            startInstallingAnimation(holder.iconView);
+        } else if (data.isLoading()) {
             startLoadingAnimation(holder.iconView);
         } else {
             holder.iconView.setProgress(100, false);
         }
     }
 
+    private void startInstallingAnimation(LauncherIconView iconView) {
+        iconView.setProgress(20, true);
+        VUiKit.defer().when(() -> {
+            try {
+                Thread.sleep(1900L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).done((res) -> iconView.setProgress(40, true));
+    }
+
     private void startLoadingAnimation(LauncherIconView iconView) {
-        iconView.setProgress(40, true);
+        iconView.setProgress(60, false);
         VUiKit.defer().when(() -> {
             try {
                 Thread.sleep(900L);

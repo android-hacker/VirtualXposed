@@ -20,6 +20,11 @@ public class AddAppButton implements AppData {
     }
 
     @Override
+    public boolean isInstalling() {
+        return false;
+    }
+
+    @Override
     public boolean isLoading() {
         return false;
     }
