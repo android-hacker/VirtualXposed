@@ -55,6 +55,7 @@ import com.lody.virtual.helper.utils.ArrayUtils;
 import com.lody.virtual.helper.utils.BitmapUtils;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.DrawableUtils;
+import com.lody.virtual.helper.utils.FileUtils;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
@@ -63,6 +64,10 @@ import com.lody.virtual.remote.AppTaskInfo;
 import com.lody.virtual.server.interfaces.IAppRequestListener;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -360,6 +365,7 @@ class MethodProxies {
 
         private static final String SCHEME_FILE = "file";
         private static final String SCHEME_PACKAGE = "package";
+        private static final String SCHEME_CONTENT = "content";
 
         @Override
         public String getMethodName() {
@@ -471,6 +477,32 @@ class MethodProxies {
                     File sourceFile = new File(packageUri.getPath());
                     try {
                         listener.onRequestInstall(sourceFile.getPath());
+                        return true;
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                } else if (SCHEME_CONTENT.equals(packageUri.getScheme())){
+                    InputStream inputStream = null;
+                    OutputStream outputStream = null;
+                    File sharedFileCopy = new File(getHostContext().getCacheDir(), packageUri.getLastPathSegment());
+                    try {
+                        inputStream = getHostContext().getContentResolver().openInputStream(packageUri);
+                        outputStream = new FileOutputStream(sharedFileCopy);
+                        byte[] buffer = new byte[1024];
+                        int count;
+                        while ((count = inputStream.read(buffer)) > 0) {
+                            outputStream.write(buffer, 0, count);
+                        }
+                        outputStream.flush();
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        FileUtils.closeQuietly(inputStream);
+                        FileUtils.closeQuietly(outputStream);
+                    }
+                    try {
+                        listener.onRequestInstall(sharedFileCopy.getPath());
                         return true;
                     } catch (RemoteException e) {
                         e.printStackTrace();
