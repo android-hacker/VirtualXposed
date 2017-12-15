@@ -25,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lody.virtual.GmsSupport;
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.stub.ChooseTypeAndAccountActivity;
 import com.lody.virtual.os.VUserInfo;
 import com.lody.virtual.os.VUserManager;
@@ -136,6 +137,10 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         menu.add("Settings").setIcon(R.drawable.ic_settings).setOnMenuItemClickListener(item -> {
             Toast.makeText(this, "The coming", Toast.LENGTH_SHORT).show();
             return false;
+        });
+        menu.add("Reboot").setIcon(R.drawable.ic_reboot).setOnMenuItemClickListener(item -> {
+            VirtualCore.get().killAllApps();
+            return true;
         });
         mMenuView.setOnClickListener(v -> mPopupMenu.show());
     }
