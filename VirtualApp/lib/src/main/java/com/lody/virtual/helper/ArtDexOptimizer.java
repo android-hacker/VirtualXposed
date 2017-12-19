@@ -18,13 +18,13 @@ import mirror.dalvik.system.VMRuntime;
 public class ArtDexOptimizer {
 
     /**
-     * Optimize the dex in interpret mode.
+     * Optimize the dex in compile mode.
      *
      * @param dexFilePath dex file path
      * @param oatFilePath oat file path
      * @throws IOException
      */
-    public static void interpretDex2Oat(String dexFilePath, String oatFilePath) throws IOException {
+    public static void compileDex2Oat(String dexFilePath, String oatFilePath) throws IOException {
         final File oatFile = new File(oatFilePath);
         if (!oatFile.exists()) {
             oatFile.getParentFile().mkdirs();
@@ -42,10 +42,13 @@ public class ArtDexOptimizer {
         commandAndParams.add("--dex-file=" + dexFilePath);
         commandAndParams.add("--oat-file=" + oatFilePath);
         commandAndParams.add("--instruction-set=" + VMRuntime.getCurrentInstructionSet.call());
+        commandAndParams.add("--compiler-filter=speed");
         if (Build.VERSION.SDK_INT > 25) {
-            commandAndParams.add("--compiler-filter=quicken");
+            // commandAndParams.add("--compiler-filter=quicken");
+            commandAndParams.add("--inline-max-code-units=0");
         } else {
-            commandAndParams.add("--compiler-filter=interpret-only");
+            // commandAndParams.add("--compiler-filter=interpret-only");
+            commandAndParams.add("--inline-depth-limit=0");
         }
 
         final ProcessBuilder pb = new ProcessBuilder(commandAndParams);

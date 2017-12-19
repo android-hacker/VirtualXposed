@@ -9,6 +9,11 @@ import android.graphics.drawable.Drawable;
 public class EmptyAppData implements AppData {
 
     @Override
+    public boolean isInstalling() {
+        return false;
+    }
+
+    @Override
     public boolean isLoading() {
         return false;
     }

@@ -1,5 +1,7 @@
 package io.virtualapp.home.repo;
 
+import android.content.pm.ApplicationInfo;
+
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.remote.InstalledAppInfo;
 
@@ -52,6 +54,31 @@ public class PackageAppDataStorage {
             return data;
         }
         return null;
+    }
+
+    public PackageAppData acquire(ApplicationInfo appInfo) {
+        PackageAppData data;
+        synchronized (packageDataMap) {
+            data = packageDataMap.get(appInfo.packageName);
+            if (data == null) {
+                data = loadAppData(appInfo);
+            }
+        }
+        return data;
+    }
+
+    public void acquire(ApplicationInfo appInfo, Callback<PackageAppData> callback) {
+        VUiKit.defer()
+                .when(() -> acquire(appInfo))
+                .done(callback::callback);
+    }
+
+    private PackageAppData loadAppData(ApplicationInfo appInfo) {
+        PackageAppData data = new PackageAppData(VApp.getApp(), appInfo);
+        synchronized (packageDataMap) {
+            packageDataMap.put(appInfo.packageName, data);
+        }
+        return data;
     }
 
 }
