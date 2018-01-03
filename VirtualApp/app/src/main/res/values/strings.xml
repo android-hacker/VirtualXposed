@@ -22,4 +22,6 @@
     <string name="external_storage">External Storage</string>
     <string name="install_d">Install (%d)</string>
     <string name="install_too_much_once_time">No more then 9 apps can be chosen at a time!</string>
+    <string name="versionchecklib_confirm">Download</string>
+    <string name="versionchecklib_cancel">Cancel</string>
 </resources>

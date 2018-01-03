@@ -61,4 +61,5 @@ dependencies {
     compile 'com.jonathanfinerty.once:once:1.0.3'
     compile 'com.flurry.android:analytics:6.9.2'
     compile 'com.kyleduo.switchbutton:library:1.4.6'
+    compile('com.allenliu.versionchecklib:library:1.8.3')
 }
