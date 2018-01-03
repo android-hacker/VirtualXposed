@@ -51,6 +51,10 @@
             android:screenOrientation="portrait"
             android:theme="@style/UITheme"
             />
+
+        <service android:name=".update.VAVersionService"
+            android:exported="true"
+            android:enabled="true"/>
     </application>
 
 
