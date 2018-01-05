@@ -24,4 +24,7 @@
     <string name="install_too_much_once_time">No more then 9 apps can be chosen at a time!</string>
     <string name="versionchecklib_confirm">Download</string>
     <string name="versionchecklib_cancel">Cancel</string>
+    <string name="menu_virtual_location">Virtual Location</string>
+    <string name="menu_settings">About</string>
+    <string name="menu_reboot">Reboot</string>
 </resources>
