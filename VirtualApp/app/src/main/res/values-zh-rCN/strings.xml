@@ -27,7 +27,7 @@
     <string name="menu_virtual_location">虚拟定位</string>
     <string name="menu_feedback">问题反馈</string>
     <string name="menu_feedback_string">开源项目地址：https://github.com/android-hacker/VAExposed\n 问题反馈地址：https://github.com/android-hacker/exposed/issues\n
-    \n遇到问题请详细描述你的 机型,系统版本,ROM,操作流程,问题情况,如果是开发者，最好能提供Logcat日志；谢谢配合（一句简单的用不了,有问题, 黑屏了等等解决不了任何问题）\n\n
+    \n遇到问题请详细描述你的机型,系统版本,ROM,操作流程,问题情况,如果是开发者，最好能提供Logcat日志；谢谢配合（简单的"用不了,有问题, 黑屏了"等等解决不了任何问题） 欢迎提出任何有价值的BUG和建议 :)\n\n
     QQ群：59748474</string>
     <string name="menu_reboot">重启</string>
 </resources>
