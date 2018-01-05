@@ -10,6 +10,7 @@ import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.stub.VASettings;
 import com.lody.virtual.helper.utils.FileUtils;
+import com.lody.virtual.os.VEnvironment;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,11 +23,14 @@ import io.virtualapp.delegate.MyPhoneInfoDelegate;
 import io.virtualapp.delegate.MyTaskDescriptionDelegate;
 import io.virtualapp.update.VAVersionService;
 import jonathanfinerty.once.Once;
+import me.weishu.exposed.LogcatService;
 
 /**
  * @author Lody
  */
 public class VApp extends MultiDexApplication {
+
+    private static final String XPOSED_INSTALLER_PACKAGE = "de.robv.android.xposed.installer";
 
     private static VApp gApp;
     private SharedPreferences mPreferences;
@@ -64,9 +68,8 @@ public class VApp extends MultiDexApplication {
                             // nothing
                         })
                         .build(VApp.this, "48RJJP7ZCZZBB6KMMWW5");
-                final String xposedPackageName = "de.robv.android.xposed.installer";
 
-                boolean isXposedInstalled = VirtualCore.get().isAppInstalled(xposedPackageName);
+                boolean isXposedInstalled = VirtualCore.get().isAppInstalled(XPOSED_INSTALLER_PACKAGE);
                 if (!isXposedInstalled) {
                     File xposedInstallerApk = getFileStreamPath("XposedInstaller.apk");
                     if (!xposedInstallerApk.exists()) {
@@ -106,6 +109,8 @@ public class VApp extends MultiDexApplication {
                 virtualCore.setPhoneInfoDelegate(new MyPhoneInfoDelegate());
                 //fake task description's icon and title
                 virtualCore.setTaskDescriptionDelegate(new MyTaskDescriptionDelegate());
+                // ensure the logcat service alive when every virtual process start.
+                LogcatService.start(VApp.this, VEnvironment.getDataUserPackageDirectory(0, XPOSED_INSTALLER_PACKAGE));
             }
 
             @Override
