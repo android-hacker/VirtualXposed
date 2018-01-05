@@ -21,6 +21,10 @@ import org.json.JSONObject;
 public class VAVersionService extends AVersionService {
     private static final String TAG = "VAVersionService";
 
+    static {
+        AllenChecker.init(false);
+    }
+
     public static final String CHECK_VERION_URL = "http://vaexposed.weishu.me/update.json";
 
     @Override
@@ -28,9 +32,9 @@ public class VAVersionService extends AVersionService {
         try {
             JSONObject versionInfo = new JSONObject(response);
 //            {
-//                url: "https://raw.githubusercontent.com/feicien/android-auto-update/develop/extras/android-auto-update-v1.2.apk",
-//                        versionCode: 3,
-//                    updateMessage: "Android 7.0"
+//                url: "download url",
+//                versionCode: 3,
+//                updateMessage: "Android 7.0"
 //            }
             String url = versionInfo.getString("url");
             int versionCode = versionInfo.getInt("versionCode");
