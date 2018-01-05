@@ -9,6 +9,8 @@ import com.lody.virtual.helper.utils.VLog;
 
 import java.io.File;
 
+import mirror.dalvik.system.VMRuntime;
+
 /**
  * @author Lody
  */
@@ -116,7 +118,14 @@ public class VEnvironment {
     }
 
     public static File getOdexFile(String packageName) {
-        return new File(DALVIK_CACHE_DIRECTORY, "base.odex");
+        if (isAndroidO()) {
+            // in Android O, the oatfile is relate with classloader, we must ensure the correct location to avoid repeated load dex.
+            String instructionSet = VMRuntime.getCurrentInstructionSet.call();
+            File oatDir = ensureCreated(new File(getDataAppPackageDirectory(packageName), "oat" + File.separator + instructionSet));
+            return new File(oatDir, "base.odex");
+        } else {
+            return new File(DALVIK_CACHE_DIRECTORY, "data@app@" + packageName + "-1@base.apk@classes.dex");
+        }
     }
 
     public static File getDataAppPackageDirectory(String packageName) {
@@ -157,5 +166,9 @@ public class VEnvironment {
 
     public static File getPackageInstallerStageDir() {
         return ensureCreated(new File(DATA_DIRECTORY, ".session_dir"));
+    }
+
+    public static boolean isAndroidO() {
+        return Build.VERSION.SDK_INT > 25;
     }
 }
