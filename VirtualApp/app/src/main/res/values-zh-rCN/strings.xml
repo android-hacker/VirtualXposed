@@ -22,4 +22,9 @@
     <string name="external_storage">外置存储</string>
     <string name="install_d">安装 (%d)</string>
     <string name="install_too_much_once_time">不能一次性安装超过9个App!</string>
+    <string name="versionchecklib_confirm">立即更新</string>
+    <string name="versionchecklib_cancel">取消</string>
+    <string name="menu_virtual_location">虚拟定位</string>
+    <string name="menu_settings">关于</string>
+    <string name="menu_reboot">重启</string>
 </resources>
