@@ -25,6 +25,8 @@
     <string name="versionchecklib_confirm">Download</string>
     <string name="versionchecklib_cancel">Cancel</string>
     <string name="menu_virtual_location">Virtual Location</string>
-    <string name="menu_settings">About</string>
+    <string name="menu_feedback">Feedback</string>
+    <string name="menu_feedback_string">Project: https://github.com/android-hacker/VAExposed\n Feedback：https://github.com/android-hacker/exposed/issues\n\n
+    QQ群：59748474</string>
     <string name="menu_reboot">Reboot</string>
 </resources>
