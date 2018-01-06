@@ -67,7 +67,7 @@ public class VApp extends MultiDexApplication {
                         .withListener(() -> {
                             // nothing
                         })
-                        .build(VApp.this, "48RJJP7ZCZZBB6KMMWW5");
+                        .build(VApp.this, "TWJ6CT7F55SH7VFWNRZ2");
 
                 boolean isXposedInstalled = VirtualCore.get().isAppInstalled(XPOSED_INSTALLER_PACKAGE);
                 if (!isXposedInstalled) {
