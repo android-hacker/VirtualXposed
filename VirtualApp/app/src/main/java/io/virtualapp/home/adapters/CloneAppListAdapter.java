@@ -68,7 +68,7 @@ public class CloneAppListAdapter extends DragSelectRecyclerViewAdapter<CloneAppL
         super.onBindViewHolder(holder, position);
         AppInfo info = mAppList.get(position);
         holder.iconView.setImageDrawable(info.icon);
-        holder.nameView.setText(info.name);
+        holder.nameView.setText(String.format("%s: %s", info.name, info.version));
         if (isIndexSelected(position)) {
             holder.iconView.setAlpha(1f);
             holder.appCheckView.setImageResource(R.drawable.ic_check);
