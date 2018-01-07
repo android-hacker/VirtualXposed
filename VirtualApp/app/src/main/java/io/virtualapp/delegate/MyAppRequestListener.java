@@ -1,6 +1,7 @@
 package io.virtualapp.delegate;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.widget.Toast;
 
 import com.lody.virtual.client.core.InstallStrategy;
@@ -8,6 +9,8 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.remote.InstallResult;
 
 import java.io.IOException;
+
+import io.virtualapp.R;
 
 /**
  * @author Lody
@@ -23,7 +26,8 @@ public class MyAppRequestListener implements VirtualCore.AppRequestListener {
 
     @Override
     public void onRequestInstall(String path) {
-        Toast.makeText(context, "Installing: " + path, Toast.LENGTH_SHORT).show();
+        Resources resources = VirtualCore.get().getContext().getResources();
+        Toast.makeText(context, resources.getString(R.string.installing_tips, path), Toast.LENGTH_SHORT).show();
         InstallResult res = VirtualCore.get().installPackage(path, InstallStrategy.UPDATE_IF_EXIST);
         if (res.isSuccess) {
             try {
@@ -32,12 +36,15 @@ public class MyAppRequestListener implements VirtualCore.AppRequestListener {
                 e.printStackTrace();
             }
             if (res.isUpdate) {
-                Toast.makeText(context, "Update: " + res.packageName + " success!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, resources.getString(R.string.update_success_tips, res.packageName),
+                        Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(context, "Install: " + res.packageName + " success!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, resources.getString(R.string.install_success_tips),
+                        Toast.LENGTH_SHORT).show();
             }
         } else {
-            Toast.makeText(context, "Install failed: " + res.error, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, resources.getString(R.string.install_fail_tips, res.packageName, res.error),
+                    Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -81,12 +81,16 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
     private VirtualCore.PackageObserver mPackageObserver = new VirtualCore.PackageObserver() {
         @Override
         public void onPackageInstalled(String packageName) throws RemoteException {
-            runOnUiThread(() -> mPresenter.dataChanged());
+            if (!isForground) {
+                runOnUiThread(() -> mPresenter.dataChanged());
+            }
         }
 
         @Override
         public void onPackageUninstalled(String packageName) throws RemoteException {
-            runOnUiThread(() -> mPresenter.dataChanged());
+            if (!isForground) {
+                runOnUiThread(() -> mPresenter.dataChanged());
+            }
         }
 
         @Override
@@ -97,6 +101,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         public void onPackageUninstalledAsUser(int userId, String packageName) throws RemoteException {
         }
     };
+    private boolean isForground = false;
     //endregion
 
     public static void goHome(Context context) {
@@ -117,6 +122,18 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         initMenu();
         new HomePresenterImpl(this).start();
         VirtualCore.get().registerObserver(mPackageObserver);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isForground = true;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        isForground = false;
     }
 
     @Override
