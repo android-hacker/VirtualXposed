@@ -12,5 +12,6 @@ public class AppInfo {
     public boolean fastOpen;
     public Drawable icon;
     public CharSequence name;
+    public CharSequence version;
     public int cloneCount;
 }
