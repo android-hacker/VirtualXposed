@@ -3,6 +3,7 @@ package io.virtualapp.home;
 import android.app.Activity;
 import android.content.pm.PackageInfo;
 import android.graphics.Bitmap;
+import android.os.SystemClock;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.os.VUserInfo;
@@ -76,9 +77,14 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
     @Override
     public void dataChanged() {
         mView.showLoading();
-        mRepo.getVirtualApps().done(mView::loadFinish).fail(mView::loadError);
+        long start = SystemClock.elapsedRealtime();
+        mRepo.getVirtualApps().then(result -> {
+            long delta = 500 - (SystemClock.elapsedRealtime() - start);
+            if (delta > 0) {
+                SystemClock.sleep(delta);
+            }
+        }).done(mView::loadFinish).fail(mView::loadError);
     }
-
 
     @Override
     public void addApp(AppInfoLite info) {
