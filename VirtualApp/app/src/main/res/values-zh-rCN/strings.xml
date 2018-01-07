@@ -30,4 +30,8 @@
     \n遇到问题请详细描述你的机型,系统版本,ROM,操作流程,问题情况,如果是开发者，最好能提供Logcat日志；谢谢配合（简单的"用不了,有问题, 黑屏了"等等解决不了任何问题） 欢迎提出任何有价值的BUG和建议 :)\n\n
     QQ群：597478474</string>
     <string name="menu_reboot">重启</string>
+    <string name="installing_tips">正在安装 %1$s…</string>
+    <string name="update_success_tips">%1$s 更新成功！</string>
+    <string name="install_success_tips">模块安装完后需要去XposedInstaller的模块设置里勾选才能生效哦～</string>
+    <string name="install_fail_tips">%1$s 安装失败，错误码： %2$s</string>
 </resources>
