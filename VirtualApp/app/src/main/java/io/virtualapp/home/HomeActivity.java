@@ -40,7 +40,6 @@ import io.virtualapp.abs.ui.VActivity;
 import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.home.adapters.LaunchpadAdapter;
 import io.virtualapp.home.adapters.decorations.ItemOffsetDecoration;
-import io.virtualapp.home.location.VirtualLocationSettings;
 import io.virtualapp.home.models.AddAppButton;
 import io.virtualapp.home.models.AppData;
 import io.virtualapp.home.models.AppInfoLite;
@@ -130,10 +129,6 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 //            return false;
 //        });
 
-        menu.add(getResources().getString(R.string.menu_virtual_location)).setIcon(R.drawable.ic_notification).setOnMenuItemClickListener(item -> {
-            startActivity(new Intent(this, VirtualLocationSettings.class));
-            return true;
-        });
         final SpannableString s = new SpannableString(getResources().getString(R.string.menu_feedback_string));
         Linkify.addLinks(s, Linkify.ALL);
         menu.add(getResources().getString(R.string.menu_feedback)).setIcon(R.drawable.ic_settings).setOnMenuItemClickListener(item -> {
