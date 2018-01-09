@@ -73,4 +73,4 @@ VirtualApp currently has **no documentation**, If you are interested in VirtualA
 Contact us
 ------------
 
-    zlu@QQ.com
+    zl@aluohe.com
