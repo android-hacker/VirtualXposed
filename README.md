@@ -70,7 +70,7 @@ Documentation
 
 VirtualApp currently has **no documentation**, If you are interested in VirtualApp, please send email to me.
 
-About Author
+Contact us
 ------------
 
-    Lody (imlody@foxmail.com)
+    zl@aluohe.com
