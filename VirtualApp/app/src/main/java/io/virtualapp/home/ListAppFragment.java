@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Locale;
 
 import io.virtualapp.R;
+import io.virtualapp.VApp;
 import io.virtualapp.VCommends;
 import io.virtualapp.abs.ui.VFragment;
 import io.virtualapp.abs.ui.VUiKit;
@@ -99,7 +100,7 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
         });
         mAdapter.setSelectionListener(count -> {
             mInstallButton.setEnabled(count > 0);
-            mInstallButton.setText(String.format(Locale.ENGLISH, getResources().getString(R.string.install_d), count));
+            mInstallButton.setText(String.format(Locale.ENGLISH, VApp.getApp().getResources().getString(R.string.install_d), count));
         });
         mInstallButton.setOnClickListener(v -> {
             Integer[] selectedIndices = mAdapter.getSelectedIndices();
