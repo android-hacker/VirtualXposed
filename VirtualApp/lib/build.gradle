@@ -39,5 +39,9 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'me.weishu.exposed:exposed-core:0.3.5'
+    compile 'com.github.android-hacker:exposed:0.3.5'
+}
+
+repositories {
+    maven { url 'https://jitpack.io' }
 }
