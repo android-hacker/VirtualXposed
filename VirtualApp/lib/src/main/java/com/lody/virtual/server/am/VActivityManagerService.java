@@ -49,7 +49,7 @@ import com.lody.virtual.remote.BadgerInfo;
 import com.lody.virtual.remote.PendingIntentData;
 import com.lody.virtual.remote.PendingResultData;
 import com.lody.virtual.remote.VParceledListSlice;
-import com.lody.virtual.server.IActivityManager;
+import com.lody.virtual.server.interfaces.IActivityManager;
 import com.lody.virtual.server.interfaces.IProcessObserver;
 import com.lody.virtual.server.pm.PackageCacheManager;
 import com.lody.virtual.server.pm.PackageSetting;
@@ -68,12 +68,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import mirror.android.app.IServiceConnectionO;
 
 import static android.os.Process.killProcess;
+import static com.lody.virtual.os.VBinder.getCallingPid;
 import static com.lody.virtual.os.VUserHandle.getUserId;
 
 /**
  * @author Lody
  */
-public class VActivityManagerService extends IActivityManager.Stub {
+public class VActivityManagerService implements IActivityManager {
 
     private static final boolean BROADCAST_NOT_STARTED_PKG = false;
 
@@ -233,7 +234,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
     public IBinder acquireProviderClient(int userId, ProviderInfo info) {
         ProcessRecord callerApp;
         synchronized (mPidsSelfLocked) {
-            callerApp = findProcessLocked(VBinder.getCallingPid());
+            callerApp = findProcessLocked(getCallingPid());
         }
         if (callerApp == null) {
             throw new SecurityException("Who are you?");
@@ -261,17 +262,6 @@ public class VActivityManagerService extends IActivityManager.Stub {
     @Override
     public String getCallingPackage(int userId, IBinder token) {
         return mMainStack.getCallingPackage(userId, token);
-    }
-
-
-    @Override
-    public boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
-        try {
-            return super.onTransact(code, data, reply, flags);
-        } catch (Throwable e) {
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     private void addRecord(ServiceRecord r) {
@@ -389,7 +379,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
                 // Report to all of the connections that the service is no longer
                 // available.
                 try {
-                    if(Build.VERSION.SDK_INT >= 26) {
+                    if (Build.VERSION.SDK_INT >= 26) {
                         IServiceConnectionO.connected.call(connection, className, null, true);
                     } else {
                         connection.connected(className, null);
@@ -560,7 +550,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
         }
     }
 
-    private void connectService(IServiceConnection conn, ComponentName component, ServiceRecord.IntentBindRecord r,boolean dead) {
+    private void connectService(IServiceConnection conn, ComponentName component, ServiceRecord.IntentBindRecord r, boolean dead) {
         try {
             BinderDelegateService delegateService = new BinderDelegateService(component, r.binder);
             if (Build.VERSION.SDK_INT >= 26) {
@@ -718,7 +708,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
         }
         try {
             final ProcessRecord record = app;
-            clientBinder.linkToDeath(new DeathRecipient() {
+            clientBinder.linkToDeath(new IBinder.DeathRecipient() {
                 @Override
                 public void binderDied() {
                     clientBinder.unlinkToDeath(this, 0);
@@ -942,16 +932,6 @@ public class VActivityManagerService extends IActivityManager.Stub {
     }
 
     @Override
-    public void registerProcessObserver(IProcessObserver observer) {
-
-    }
-
-    @Override
-    public void unregisterProcessObserver(IProcessObserver observer) {
-
-    }
-
-    @Override
     public String getInitialPackage(int pid) {
         synchronized (mPidsSelfLocked) {
             ProcessRecord r = mPidsSelfLocked.get(pid);
@@ -970,7 +950,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
     @Override
     public void appDoneExecuting() {
         synchronized (mPidsSelfLocked) {
-            ProcessRecord r = mPidsSelfLocked.get(VBinder.getCallingPid());
+            ProcessRecord r = mPidsSelfLocked.get(getCallingPid());
             if (r != null) {
                 r.doneExecuting = true;
                 r.lock.open();
@@ -1118,7 +1098,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
     }
 
     @Override
-    public void notifyBadgerChange(BadgerInfo info) throws RemoteException {
+    public void notifyBadgerChange(BadgerInfo info) {
         Intent intent = new Intent(VASettings.ACTION_BADGER_CHANGE);
         intent.putExtra("userId", info.userId);
         intent.putExtra("packageName", info.packageName);

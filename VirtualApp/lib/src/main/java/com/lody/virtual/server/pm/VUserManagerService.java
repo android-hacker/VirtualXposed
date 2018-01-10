@@ -25,7 +25,7 @@ import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.os.VUserInfo;
 import com.lody.virtual.os.VUserManager;
 import com.lody.virtual.server.am.VActivityManagerService;
-import com.lody.virtual.server.IUserManager;
+import com.lody.virtual.server.interfaces.IUserManager;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -47,7 +47,7 @@ import java.util.List;
 /**
  * @author Lody
  */
-public class VUserManagerService extends IUserManager.Stub {
+public class VUserManagerService implements IUserManager {
 
     private static final String LOG_TAG = "VUserManagerService";
 
@@ -317,7 +317,7 @@ public class VUserManagerService extends IUserManager.Stub {
             if (info == null || info.partial) {
                 VLog.w(LOG_TAG, "makeInitialized: unknown user #" + userId);
             }
-            if ((info.flags& VUserInfo.FLAG_INITIALIZED) == 0) {
+            if ((info.flags & VUserInfo.FLAG_INITIALIZED) == 0) {
                 info.flags |= VUserInfo.FLAG_INITIALIZED;
                 writeUserLocked(info);
             }
@@ -360,6 +360,7 @@ public class VUserManagerService extends IUserManager.Stub {
     /**
      * Returns an array of user ids. This array is cached here for quick access, so do not modify or
      * cache it elsewhere.
+     *
      * @return the array of user ids.
      */
     public int[] getUserIds() {
@@ -513,7 +514,7 @@ public class VUserManagerService extends IUserManager.Stub {
             serializer.attribute(null, ATTR_LAST_LOGGED_IN_TIME,
                     Long.toString(userInfo.lastLoggedInTime));
             if (userInfo.iconPath != null) {
-                serializer.attribute(null,  ATTR_ICON_PATH, userInfo.iconPath);
+                serializer.attribute(null, ATTR_ICON_PATH, userInfo.iconPath);
             }
             if (userInfo.partial) {
                 serializer.attribute(null, ATTR_PARTIAL, "true");
@@ -699,7 +700,7 @@ public class VUserManagerService extends IUserManager.Stub {
             Intent addedIntent = new Intent(Constants.ACTION_USER_ADDED);
             addedIntent.putExtra(Constants.EXTRA_USER_HANDLE, userInfo.id);
             VActivityManagerService.get().sendBroadcastAsUser(addedIntent, VUserHandle.ALL,
-                        null);
+                    null);
         } finally {
             Binder.restoreCallingIdentity(ident);
         }
@@ -709,6 +710,7 @@ public class VUserManagerService extends IUserManager.Stub {
     /**
      * Removes a user and all data directories created for that user. This method should be called
      * after the user's processes have been terminated.
+     *
      * @param userHandle the user's id
      */
     public boolean removeUser(int userHandle) {
@@ -728,15 +730,16 @@ public class VUserManagerService extends IUserManager.Stub {
         }
         if (DBG) VLog.i(LOG_TAG, "Stopping user " + userHandle);
         int res = VActivityManagerService.get().stopUser(userHandle,
-                    new IStopUserCallback.Stub() {
-                        @Override
-                        public void userStopped(int userId) {
-                            finishRemoveUser(userId);
-                        }
-                        @Override
-                        public void userStopAborted(int userId) {
-                        }
-            });
+                new IStopUserCallback.Stub() {
+                    @Override
+                    public void userStopped(int userId) {
+                        finishRemoveUser(userId);
+                    }
+
+                    @Override
+                    public void userStopAborted(int userId) {
+                    }
+                });
         return res == ActivityManagerCompat.USER_OP_SUCCESS;
     }
 
@@ -749,14 +752,14 @@ public class VUserManagerService extends IUserManager.Stub {
             Intent addedIntent = new Intent(Constants.ACTION_USER_REMOVED);
             addedIntent.putExtra(Constants.EXTRA_USER_HANDLE, userHandle);
             VActivityManagerService.get().sendOrderedBroadcastAsUser(addedIntent, VUserHandle.ALL,
-                   null,
+                    null,
                     new BroadcastReceiver() {
                         @Override
                         public void onReceive(Context context, Intent intent) {
                             if (DBG) {
                                 VLog.i(LOG_TAG,
                                         "USER_REMOVED broadcast sent, cleaning up user data "
-                                        + userHandle);
+                                                + userHandle);
                             }
                             new Thread() {
                                 public void run() {
@@ -843,6 +846,7 @@ public class VUserManagerService extends IUserManager.Stub {
 
     /**
      * Make a note of the last started time of a user.
+     *
      * @param userId the user that was just foregrounded
      */
     public void userForeground(int userId) {
@@ -864,6 +868,7 @@ public class VUserManagerService extends IUserManager.Stub {
      * Returns the next available user id, filling in any holes in the ids.
      * TODO: May not be a good idea to recycle ids, in case it results in confusion
      * for data and battery stats collection, or unexpected cross-talk.
+     *
      * @return
      */
     private int getNextAvailableIdLocked() {
@@ -880,8 +885,4 @@ public class VUserManagerService extends IUserManager.Stub {
         }
     }
 
-    @Override
-    protected void dump(FileDescriptor fd, PrintWriter pw, String[] args) {
-
-    }
 }

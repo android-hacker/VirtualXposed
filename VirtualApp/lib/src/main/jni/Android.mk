@@ -16,10 +16,13 @@ LOCAL_SRC_FILES := Jni/VAJni.cpp \
 				   Foundation/SymbolFinder.cpp \
 				   Foundation/Path.cpp \
 				   Foundation/SandboxFs.cpp \
+				   Substrate/hde64.c \
+                   Substrate/SubstrateDebug.cpp \
+                   Substrate/SubstrateHook.cpp \
+                   Substrate/SubstratePosixMemory.cpp \
 
 LOCAL_LDLIBS := -llog -latomic
-LOCAL_STATIC_LIBRARIES := hookzz fb
+LOCAL_STATIC_LIBRARIES := fb
 
 include $(BUILD_SHARED_LIBRARY)
-include $(MAIN_LOCAL_PATH)/HookZz/Android.mk
 include $(MAIN_LOCAL_PATH)/fb/Android.mk

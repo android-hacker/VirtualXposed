@@ -10,11 +10,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.RemoteException;
 
-import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.stub.AmsTask;
+import com.lody.virtual.helper.ipcbus.IPCSingleton;
 import com.lody.virtual.os.VUserHandle;
-import com.lody.virtual.server.IAccountManager;
+import com.lody.virtual.server.interfaces.IAccountManager;
 
 import static com.lody.virtual.helper.compat.AccountManagerCompat.KEY_ANDROID_PACKAGE_NAME;
 
@@ -26,31 +26,19 @@ public class VAccountManager {
 
     private static VAccountManager sMgr = new VAccountManager();
 
-    private IAccountManager mRemote;
+    private IPCSingleton<IAccountManager> singleton = new IPCSingleton<>(IAccountManager.class);
 
     public static VAccountManager get() {
         return sMgr;
     }
 
-    public IAccountManager getRemote() {
-        if (mRemote == null ||
-                (!mRemote.asBinder().isBinderAlive() && !VirtualCore.get().isVAppProcess())) {
-            synchronized (VAccountManager.class) {
-                Object remote = getStubInterface();
-                mRemote = LocalProxyUtils.genProxy(IAccountManager.class, remote);
-            }
-        }
-        return mRemote;
-    }
-
-    private Object getStubInterface() {
-        return IAccountManager.Stub
-                .asInterface(ServiceManagerNative.getService(ServiceManagerNative.ACCOUNT));
+    public IAccountManager getService() {
+        return singleton.get();
     }
 
     public AuthenticatorDescription[] getAuthenticatorTypes() {
         try {
-            return getRemote().getAuthenticatorTypes(VUserHandle.myUserId());
+            return getService().getAuthenticatorTypes(VUserHandle.myUserId());
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -58,7 +46,7 @@ public class VAccountManager {
 
     public void removeAccount(IAccountManagerResponse response, Account account, boolean expectActivityLaunch) {
         try {
-            getRemote().removeAccount(VUserHandle.myUserId(), response, account, expectActivityLaunch);
+            getService().removeAccount(VUserHandle.myUserId(), response, account, expectActivityLaunch);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -66,7 +54,7 @@ public class VAccountManager {
 
     public void getAuthToken(IAccountManagerResponse response, Account account, String authTokenType, boolean notifyOnAuthFailure, boolean expectActivityLaunch, Bundle loginOptions) {
         try {
-            getRemote().getAuthToken(VUserHandle.myUserId(), response, account, authTokenType, notifyOnAuthFailure, expectActivityLaunch, loginOptions);
+            getService().getAuthToken(VUserHandle.myUserId(), response, account, authTokenType, notifyOnAuthFailure, expectActivityLaunch, loginOptions);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -74,7 +62,7 @@ public class VAccountManager {
 
     public boolean addAccountExplicitly(Account account, String password, Bundle extras) {
         try {
-            return getRemote().addAccountExplicitly(VUserHandle.myUserId(), account, password, extras);
+            return getService().addAccountExplicitly(VUserHandle.myUserId(), account, password, extras);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -82,7 +70,7 @@ public class VAccountManager {
 
     public Account[] getAccounts(int userId, String type) {
         try {
-            return getRemote().getAccounts(userId, type);
+            return getService().getAccounts(userId, type);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -90,7 +78,7 @@ public class VAccountManager {
 
     public Account[] getAccounts(String type) {
         try {
-            return getRemote().getAccounts(VUserHandle.myUserId(), type);
+            return getService().getAccounts(VUserHandle.myUserId(), type);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -98,7 +86,7 @@ public class VAccountManager {
 
     public String peekAuthToken(Account account, String authTokenType) {
         try {
-            return getRemote().peekAuthToken(VUserHandle.myUserId(), account, authTokenType);
+            return getService().peekAuthToken(VUserHandle.myUserId(), account, authTokenType);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -106,7 +94,7 @@ public class VAccountManager {
 
     public String getPreviousName(Account account) {
         try {
-            return getRemote().getPreviousName(VUserHandle.myUserId(), account);
+            return getService().getPreviousName(VUserHandle.myUserId(), account);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -114,7 +102,7 @@ public class VAccountManager {
 
     public void hasFeatures(IAccountManagerResponse response, Account account, String[] features) {
         try {
-            getRemote().hasFeatures(VUserHandle.myUserId(), response, account, features);
+            getService().hasFeatures(VUserHandle.myUserId(), response, account, features);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -122,7 +110,7 @@ public class VAccountManager {
 
     public boolean accountAuthenticated(Account account) {
         try {
-            return getRemote().accountAuthenticated(VUserHandle.myUserId(), account);
+            return getService().accountAuthenticated(VUserHandle.myUserId(), account);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -130,7 +118,7 @@ public class VAccountManager {
 
     public void clearPassword(Account account) {
         try {
-            getRemote().clearPassword(VUserHandle.myUserId(), account);
+            getService().clearPassword(VUserHandle.myUserId(), account);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -138,7 +126,7 @@ public class VAccountManager {
 
     public void renameAccount(IAccountManagerResponse response, Account accountToRename, String newName) {
         try {
-            getRemote().renameAccount(VUserHandle.myUserId(), response, accountToRename, newName);
+            getService().renameAccount(VUserHandle.myUserId(), response, accountToRename, newName);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -146,7 +134,7 @@ public class VAccountManager {
 
     public void setPassword(Account account, String password) {
         try {
-            getRemote().setPassword(VUserHandle.myUserId(), account, password);
+            getService().setPassword(VUserHandle.myUserId(), account, password);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -154,7 +142,7 @@ public class VAccountManager {
 
     public void addAccount(int userId, IAccountManagerResponse response, String accountType, String authTokenType, String[] requiredFeatures, boolean expectActivityLaunch, Bundle optionsIn) {
         try {
-            getRemote().addAccount(userId, response, accountType, authTokenType, requiredFeatures, expectActivityLaunch, optionsIn);
+            getService().addAccount(userId, response, accountType, authTokenType, requiredFeatures, expectActivityLaunch, optionsIn);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -162,7 +150,7 @@ public class VAccountManager {
 
     public void addAccount(IAccountManagerResponse response, String accountType, String authTokenType, String[] requiredFeatures, boolean expectActivityLaunch, Bundle optionsIn) {
         try {
-            getRemote().addAccount(VUserHandle.myUserId(), response, accountType, authTokenType, requiredFeatures, expectActivityLaunch, optionsIn);
+            getService().addAccount(VUserHandle.myUserId(), response, accountType, authTokenType, requiredFeatures, expectActivityLaunch, optionsIn);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -170,7 +158,7 @@ public class VAccountManager {
 
     public void updateCredentials(IAccountManagerResponse response, Account account, String authTokenType, boolean expectActivityLaunch, Bundle loginOptions) {
         try {
-            getRemote().updateCredentials(VUserHandle.myUserId(), response, account, authTokenType, expectActivityLaunch, loginOptions);
+            getService().updateCredentials(VUserHandle.myUserId(), response, account, authTokenType, expectActivityLaunch, loginOptions);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -178,7 +166,7 @@ public class VAccountManager {
 
     public boolean removeAccountExplicitly(Account account) {
         try {
-            return getRemote().removeAccountExplicitly(VUserHandle.myUserId(), account);
+            return getService().removeAccountExplicitly(VUserHandle.myUserId(), account);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -186,7 +174,7 @@ public class VAccountManager {
 
     public void setUserData(Account account, String key, String value) {
         try {
-            getRemote().setUserData(VUserHandle.myUserId(), account, key, value);
+            getService().setUserData(VUserHandle.myUserId(), account, key, value);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -194,7 +182,7 @@ public class VAccountManager {
 
     public void editProperties(IAccountManagerResponse response, String accountType, boolean expectActivityLaunch) {
         try {
-            getRemote().editProperties(VUserHandle.myUserId(), response, accountType, expectActivityLaunch);
+            getService().editProperties(VUserHandle.myUserId(), response, accountType, expectActivityLaunch);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -202,7 +190,7 @@ public class VAccountManager {
 
     public void getAuthTokenLabel(IAccountManagerResponse response, String accountType, String authTokenType) {
         try {
-            getRemote().getAuthTokenLabel(VUserHandle.myUserId(), response, accountType, authTokenType);
+            getService().getAuthTokenLabel(VUserHandle.myUserId(), response, accountType, authTokenType);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -210,7 +198,7 @@ public class VAccountManager {
 
     public void confirmCredentials(IAccountManagerResponse response, Account account, Bundle options, boolean expectActivityLaunch) {
         try {
-            getRemote().confirmCredentials(VUserHandle.myUserId(), response, account, options, expectActivityLaunch);
+            getService().confirmCredentials(VUserHandle.myUserId(), response, account, options, expectActivityLaunch);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -218,7 +206,7 @@ public class VAccountManager {
 
     public void invalidateAuthToken(String accountType, String authToken) {
         try {
-            getRemote().invalidateAuthToken(VUserHandle.myUserId(), accountType, authToken);
+            getService().invalidateAuthToken(VUserHandle.myUserId(), accountType, authToken);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -226,7 +214,7 @@ public class VAccountManager {
 
     public void getAccountsByFeatures(IAccountManagerResponse response, String type, String[] features) {
         try {
-            getRemote().getAccountsByFeatures(VUserHandle.myUserId(), response, type, features);
+            getService().getAccountsByFeatures(VUserHandle.myUserId(), response, type, features);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -234,7 +222,7 @@ public class VAccountManager {
 
     public void setAuthToken(Account account, String authTokenType, String authToken) {
         try {
-            getRemote().setAuthToken(VUserHandle.myUserId(), account, authTokenType, authToken);
+            getService().setAuthToken(VUserHandle.myUserId(), account, authTokenType, authToken);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -242,7 +230,7 @@ public class VAccountManager {
 
     public Object getPassword(Account account) {
         try {
-            return getRemote().getPassword(VUserHandle.myUserId(), account);
+            return getService().getPassword(VUserHandle.myUserId(), account);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -250,7 +238,7 @@ public class VAccountManager {
 
     public String getUserData(Account account, String key) {
         try {
-            return getRemote().getUserData(VUserHandle.myUserId(), account, key);
+            return getService().getUserData(VUserHandle.myUserId(), account, key);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -265,7 +253,6 @@ public class VAccountManager {
      * <p>This method may be called from any thread, but the returned
      * {@link AccountManagerFuture} must not be used on the main thread.
      * <p>
-     *
      */
     public AccountManagerFuture<Bundle> addAccount(final int userId, final String accountType,
                                                    final String authTokenType, final String[] requiredFeatures,

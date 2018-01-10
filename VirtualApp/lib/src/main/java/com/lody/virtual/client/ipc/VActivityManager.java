@@ -18,6 +18,7 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.hook.secondary.ServiceConnectionDelegate;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
+import com.lody.virtual.helper.ipcbus.IPCSingleton;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.remote.AppTaskInfo;
@@ -25,8 +26,7 @@ import com.lody.virtual.remote.BadgerInfo;
 import com.lody.virtual.remote.PendingIntentData;
 import com.lody.virtual.remote.PendingResultData;
 import com.lody.virtual.remote.VParceledListSlice;
-import com.lody.virtual.server.IActivityManager;
-import com.lody.virtual.server.interfaces.IProcessObserver;
+import com.lody.virtual.server.interfaces.IActivityManager;
 
 import java.util.HashMap;
 import java.util.List;
@@ -42,27 +42,14 @@ public class VActivityManager {
 
     private static final VActivityManager sAM = new VActivityManager();
     private final Map<IBinder, ActivityClientRecord> mActivities = new HashMap<IBinder, ActivityClientRecord>(6);
-    private IActivityManager mRemote;
+    private IPCSingleton<IActivityManager> singleton = new IPCSingleton<>(IActivityManager.class);
 
     public static VActivityManager get() {
         return sAM;
     }
 
     public IActivityManager getService() {
-        if (mRemote == null ||
-                (!mRemote.asBinder().isBinderAlive() && !VirtualCore.get().isVAppProcess())) {
-            synchronized (VActivityManager.class) {
-                final Object remote = getRemoteInterface();
-                mRemote = LocalProxyUtils.genProxy(IActivityManager.class, remote);
-            }
-        }
-        return mRemote;
-    }
-
-
-    private Object getRemoteInterface() {
-        return IActivityManager.Stub
-                .asInterface(ServiceManagerNative.getService(ServiceManagerNative.ACTIVITY));
+        return singleton.get();
     }
 
 
@@ -331,25 +318,9 @@ public class VActivityManager {
         }
     }
 
-    public void registerProcessObserver(IProcessObserver observer) {
-        try {
-            getService().registerProcessObserver(observer);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void killAppByPkg(String pkg, int userId) {
         try {
             getService().killAppByPkg(pkg, userId);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void unregisterProcessObserver(IProcessObserver observer) {
-        try {
-            getService().unregisterProcessObserver(observer);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
