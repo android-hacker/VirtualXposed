@@ -21,7 +21,6 @@ import android.os.IBinder;
 import android.os.IInterface;
 import android.os.Looper;
 import android.os.Message;
-import android.os.Parcelable;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.StrictMode;
@@ -249,6 +248,7 @@ public final class VClientImpl extends IVClient.Stub {
         }
         data.appInfo = VPackageManager.get().getApplicationInfo(packageName, 0, getUserId(vuid));
         data.processName = processName;
+        data.appInfo.processName = processName;
         data.providers = VPackageManager.get().queryContentProviders(processName, getVUid(), PackageManager.GET_META_DATA);
         Log.i(TAG, "Binding application " + data.appInfo.packageName + " (" + data.processName + ")");
         mBoundApplication = data;
