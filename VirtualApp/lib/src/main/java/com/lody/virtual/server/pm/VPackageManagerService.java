@@ -13,7 +13,8 @@ import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.os.Build;
-import android.os.IBinder;
+import android.os.Parcel;
+import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -24,7 +25,7 @@ import com.lody.virtual.helper.compat.ObjectsCompat;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.remote.VParceledListSlice;
 import com.lody.virtual.server.IPackageInstaller;
-import com.lody.virtual.server.interfaces.IPackageManager;
+import com.lody.virtual.server.IPackageManager;
 import com.lody.virtual.server.pm.installer.VPackageInstallerService;
 import com.lody.virtual.server.pm.parser.PackageParserEx;
 import com.lody.virtual.server.pm.parser.VPackage;
@@ -39,11 +40,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE;
 
 /**
  * @author Lody
  */
-public class VPackageManagerService implements IPackageManager {
+public class VPackageManagerService extends IPackageManager.Stub {
 
     static final String TAG = "PackageManager";
     static final Comparator<ResolveInfo> sResolvePrioritySorter = new Comparator<ResolveInfo>() {
@@ -267,7 +269,7 @@ public class VPackageManagerService implements IPackageManager {
             // give them what they want
         } else {
             // Caller expressed no opinion, so match based on user state
-            flags |= PackageManager.MATCH_DIRECT_BOOT_AWARE | PackageManager.MATCH_DIRECT_BOOT_UNAWARE;
+            flags |= PackageManager.MATCH_DIRECT_BOOT_AWARE | MATCH_DIRECT_BOOT_UNAWARE;
         }
         return flags;
     }
@@ -772,7 +774,17 @@ public class VPackageManagerService implements IPackageManager {
     }
 
     @Override
-    public IBinder getPackageInstaller() {
+    public boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
+        try {
+            return super.onTransact(code, data, reply, flags);
+        } catch (Throwable e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @Override
+    public IPackageInstaller getPackageInstaller() {
         return VPackageInstallerService.get();
     }
 

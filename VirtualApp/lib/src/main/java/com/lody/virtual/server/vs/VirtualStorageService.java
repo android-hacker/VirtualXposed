@@ -3,7 +3,7 @@ package com.lody.virtual.server.vs;
 import android.os.RemoteException;
 import android.util.SparseArray;
 
-import com.lody.virtual.server.interfaces.IVirtualStorageService;
+import com.lody.virtual.server.IVirtualStorageService;
 import com.lody.virtual.server.pm.VUserManagerService;
 
 import java.util.HashMap;
@@ -12,7 +12,7 @@ import java.util.HashMap;
  * @author Lody
  */
 
-public class VirtualStorageService implements IVirtualStorageService {
+public class VirtualStorageService extends IVirtualStorageService.Stub {
 
     private static final VirtualStorageService sService = new VirtualStorageService();
     private final VSPersistenceLayer mLayer = new VSPersistenceLayer(this);
@@ -31,7 +31,7 @@ public class VirtualStorageService implements IVirtualStorageService {
     }
 
     @Override
-    public void setVirtualStorage(String packageName, int userId, String vsPath) {
+    public void setVirtualStorage(String packageName, int userId, String vsPath) throws RemoteException {
         checkUserId(userId);
         synchronized (mConfigs) {
             VSConfig config = getOrCreateVSConfigLocked(packageName, userId);
@@ -57,7 +57,7 @@ public class VirtualStorageService implements IVirtualStorageService {
 
 
     @Override
-    public String getVirtualStorage(String packageName, int userId) {
+    public String getVirtualStorage(String packageName, int userId) throws RemoteException {
         checkUserId(userId);
         synchronized (mConfigs) {
             VSConfig config = getOrCreateVSConfigLocked(packageName, userId);
@@ -66,7 +66,7 @@ public class VirtualStorageService implements IVirtualStorageService {
     }
 
     @Override
-    public void setVirtualStorageState(String packageName, int userId, boolean enable) {
+    public void setVirtualStorageState(String packageName, int userId, boolean enable) throws RemoteException {
         checkUserId(userId);
         synchronized (mConfigs) {
             VSConfig config = getOrCreateVSConfigLocked(packageName, userId);
@@ -77,7 +77,7 @@ public class VirtualStorageService implements IVirtualStorageService {
     }
 
     @Override
-    public boolean isVirtualStorageEnable(String packageName, int userId) {
+    public boolean isVirtualStorageEnable(String packageName, int userId) throws RemoteException {
         checkUserId(userId);
         synchronized (mConfigs) {
             VSConfig config = getOrCreateVSConfigLocked(packageName, userId);

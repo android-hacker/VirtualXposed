@@ -7,7 +7,7 @@ import com.lody.virtual.client.hook.base.MethodProxy;
 import com.lody.virtual.helper.ipcbus.IPCSingleton;
 import com.lody.virtual.remote.vloc.VCell;
 import com.lody.virtual.remote.vloc.VLocation;
-import com.lody.virtual.server.interfaces.IVirtualLocationManager;
+import com.lody.virtual.server.IVirtualLocationManager;
 
 import java.util.List;
 

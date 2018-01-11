@@ -6,7 +6,7 @@ import android.os.RemoteException;
 
 import com.lody.virtual.helper.collection.SparseArray;
 import com.lody.virtual.remote.VDeviceInfo;
-import com.lody.virtual.server.interfaces.IDeviceInfoManager;
+import com.lody.virtual.server.IDeviceInfoManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,7 +17,7 @@ import java.util.Random;
  * @author Lody
  */
 
-public class VDeviceManagerService implements IDeviceInfoManager {
+public class VDeviceManagerService extends IDeviceInfoManager.Stub {
 
     private static VDeviceManagerService sInstance = new VDeviceManagerService();
     private final SparseArray<VDeviceInfo> mDeviceInfos = new SparseArray<>();
@@ -53,7 +53,7 @@ public class VDeviceManagerService implements IDeviceInfoManager {
     }
 
     @Override
-    public VDeviceInfo getDeviceInfo(int userId) {
+    public VDeviceInfo getDeviceInfo(int userId) throws RemoteException {
         VDeviceInfo info;
         synchronized (mDeviceInfos) {
             info = mDeviceInfos.get(userId);
@@ -67,7 +67,7 @@ public class VDeviceManagerService implements IDeviceInfoManager {
     }
 
     @Override
-    public void updateDeviceInfo(int userId, VDeviceInfo info) {
+    public void updateDeviceInfo(int userId, VDeviceInfo info) throws RemoteException {
         synchronized (mDeviceInfos) {
             if (info != null) {
                 mDeviceInfos.put(userId, info);

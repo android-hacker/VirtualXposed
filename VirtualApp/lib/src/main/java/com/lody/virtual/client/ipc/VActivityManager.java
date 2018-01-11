@@ -18,6 +18,7 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.hook.secondary.ServiceConnectionDelegate;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
+import com.lody.virtual.helper.ipcbus.IPCBus;
 import com.lody.virtual.helper.ipcbus.IPCSingleton;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.os.VUserHandle;
@@ -26,7 +27,8 @@ import com.lody.virtual.remote.BadgerInfo;
 import com.lody.virtual.remote.PendingIntentData;
 import com.lody.virtual.remote.PendingResultData;
 import com.lody.virtual.remote.VParceledListSlice;
-import com.lody.virtual.server.interfaces.IActivityManager;
+import com.lody.virtual.server.IActivityManager;
+import com.lody.virtual.server.interfaces.IProcessObserver;
 
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +52,12 @@ public class VActivityManager {
 
     public IActivityManager getService() {
         return singleton.get();
+    }
+
+
+    private Object getRemoteInterface() {
+        return IActivityManager.Stub
+                .asInterface(ServiceManagerNative.getService(ServiceManagerNative.ACTIVITY));
     }
 
 
@@ -318,9 +326,25 @@ public class VActivityManager {
         }
     }
 
+    public void registerProcessObserver(IProcessObserver observer) {
+        try {
+            getService().registerProcessObserver(observer);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void killAppByPkg(String pkg, int userId) {
         try {
             getService().killAppByPkg(pkg, userId);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void unregisterProcessObserver(IProcessObserver observer) {
+        try {
+            getService().unregisterProcessObserver(observer);
         } catch (RemoteException e) {
             e.printStackTrace();
         }

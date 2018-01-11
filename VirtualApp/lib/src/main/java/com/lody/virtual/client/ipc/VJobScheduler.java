@@ -5,7 +5,7 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.helper.ipcbus.IPCSingleton;
-import com.lody.virtual.server.interfaces.IJobService;
+import com.lody.virtual.server.IJobScheduler;
 
 import java.util.List;
 
@@ -17,13 +17,13 @@ public class VJobScheduler {
 
     private static final VJobScheduler sInstance = new VJobScheduler();
 
-    private IPCSingleton<IJobService> singleton = new IPCSingleton<>(IJobService.class);
+    private IPCSingleton<IJobScheduler> singleton = new IPCSingleton<>(IJobScheduler.class);
 
     public static VJobScheduler get() {
         return sInstance;
     }
 
-    public IJobService getService() {
+    public IJobScheduler getService() {
         return singleton.get();
     }
 

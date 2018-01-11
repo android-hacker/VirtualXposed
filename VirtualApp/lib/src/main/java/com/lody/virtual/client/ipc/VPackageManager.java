@@ -10,12 +10,13 @@ import android.content.pm.PermissionInfo;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
+import android.os.IBinder;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.helper.ipcbus.IPCSingleton;
 import com.lody.virtual.server.IPackageInstaller;
-import com.lody.virtual.server.interfaces.IPackageManager;
+import com.lody.virtual.server.IPackageManager;
 
 import java.util.List;
 
@@ -32,7 +33,12 @@ public class VPackageManager {
     }
 
     public IPackageManager getService() {
-        return singleton.get();
+       return singleton.get();
+    }
+
+    private Object getRemoteInterface() {
+        final IBinder pmBinder = ServiceManagerNative.getService(ServiceManagerNative.PACKAGE);
+        return IPackageManager.Stub.asInterface(pmBinder);
     }
 
     public int checkPermission(String permName, String pkgName, int userId) {
@@ -248,7 +254,7 @@ public class VPackageManager {
 
     public IPackageInstaller getPackageInstaller() {
         try {
-            return IPackageInstaller.Stub.asInterface(getService().getPackageInstaller());
+            return getService().getPackageInstaller();
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
