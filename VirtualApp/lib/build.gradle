@@ -35,5 +35,4 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'me.weishu.exposed:exposed-core:0.1.4'
 }
