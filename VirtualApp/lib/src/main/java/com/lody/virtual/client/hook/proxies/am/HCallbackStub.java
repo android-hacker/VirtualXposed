@@ -3,6 +3,7 @@ package com.lody.virtual.client.hook.proxies.am;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.ServiceInfo;
 import android.os.Handler;
 import android.os.IBinder;
@@ -18,9 +19,6 @@ import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.remote.InstalledAppInfo;
 import com.lody.virtual.remote.StubActivityRecord;
 
-import java.util.List;
-
-import me.weishu.exposed.ExposedBridge;
 import mirror.android.app.ActivityManagerNative;
 import mirror.android.app.ActivityThread;
 import mirror.android.app.IActivityManager;
@@ -109,8 +107,6 @@ import mirror.android.app.IActivityManager;
             ComponentName caller = saveInstance.caller;
             IBinder token = ActivityThread.ActivityClientRecord.token.get(r);
             ActivityInfo info = saveInstance.info;
-            ClassLoader appClassLoader = VClientImpl.get().getClassLoader(info.applicationInfo);
-
             if (VClientImpl.get().getToken() == null) {
                 InstalledAppInfo installedAppInfo = VirtualCore.get().getInstalledAppInfo(info.packageName, 0);
                 if(installedAppInfo == null){
@@ -121,12 +117,6 @@ import mirror.android.app.IActivityManager;
                 return false;
             }
             if (!VClientImpl.get().isBound()) {
-                ExposedBridge.initOnce(VirtualCore.get().getContext(), info.applicationInfo, appClassLoader);
-                List<InstalledAppInfo> installedApps = VirtualCore.get().getInstalledApps(0);
-                for (InstalledAppInfo installedApp : installedApps) {
-                    ExposedBridge.loadModule(installedApp.apkPath, installedApp.getOdexFile().getParent(),
-                            installedApp.libPath, info.applicationInfo, appClassLoader);
-                }
                 VClientImpl.get().bindApplication(info.packageName, info.processName);
                 getH().sendMessageAtFrontOfQueue(Message.obtain(msg));
                 return false;
@@ -137,8 +127,8 @@ import mirror.android.app.IActivityManager;
                     false
             );
             VActivityManager.get().onActivityCreate(ComponentUtils.toComponentName(info), caller, token, info, intent, ComponentUtils.getTaskAffinity(info), taskId, info.launchMode, info.flags);
-
-            intent.setExtrasClassLoader(ExposedBridge.getAppClassLoaderWithXposed(appClassLoader));
+            ClassLoader appClassLoader = VClientImpl.get().getClassLoader(info.applicationInfo);
+            intent.setExtrasClassLoader(appClassLoader);
             ActivityThread.ActivityClientRecord.intent.set(r, intent);
             ActivityThread.ActivityClientRecord.activityInfo.set(r, info);
             return true;
