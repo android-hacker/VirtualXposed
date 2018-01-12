@@ -51,6 +51,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/UITheme"
             />
+        <activity android:name=".about.AboutActivity" />
 
         <service android:name=".update.VAVersionService"
             android:exported="true"
