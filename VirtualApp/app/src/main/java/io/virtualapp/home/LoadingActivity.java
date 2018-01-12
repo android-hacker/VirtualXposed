@@ -84,12 +84,16 @@ public class LoadingActivity extends VActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        loadingView.startAnim();
+        if (loadingView != null) {
+            loadingView.startAnim();
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        loadingView.stopAnim();
+        if (loadingView != null) {
+            loadingView.stopAnim();
+        }
     }
 }
