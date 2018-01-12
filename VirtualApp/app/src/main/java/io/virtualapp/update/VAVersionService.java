@@ -41,7 +41,7 @@ public class VAVersionService extends AVersionService {
             String updateMessage = versionInfo.getString("updateMessage");
 
             int currentVersion = getCurrentVersionCode(this);
-            if (currentVersion != versionCode) {
+            if (currentVersion < versionCode) {
                 showVersionDialog(url, "VAExposed 更新啦: ", updateMessage);
             }
         } catch (JSONException e) {
