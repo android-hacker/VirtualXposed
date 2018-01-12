@@ -25,12 +25,15 @@
     <string name="versionchecklib_confirm">Download</string>
     <string name="versionchecklib_cancel">Cancel</string>
     <string name="menu_virtual_location">Virtual Location</string>
-    <string name="menu_feedback">Feedback</string>
-    <string name="menu_feedback_string">Project: https://github.com/android-hacker/VAExposed\n Feedback：https://github.com/android-hacker/exposed/issues\n\n
-    QQ群：597478474</string>
+    <string name="menu_about">About</string>
     <string name="menu_reboot">Reboot</string>
     <string name="installing_tips">Installing %1$s…</string>
     <string name="update_success_tips">Update %1$s success!</string>
     <string name="install_success_tips">Xposed module will not take effect after check it in XposedInstaller\'s module setting!</string>
     <string name="install_fail_tips">Install %1$s failed: %2$s</string>
+    <string name="copy_right" translatable="false" >Copyrights © %1$d</string>
+    <string name="about_page_description">VAExposed is an app provides the ability to use Xposed module without root, unlock the bootload or modify sysyem image.</string>
+    <string name="about_feedback_title">Feedback QQ Group: %1$s</string>
+    <string name="about_feedback_tips">QQ group number has been copied to clipboard!</string>
+    <string name="about_version_title">Version: %1$s</string>
 </resources>

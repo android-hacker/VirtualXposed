@@ -25,13 +25,14 @@
     <string name="versionchecklib_confirm">立即更新</string>
     <string name="versionchecklib_cancel">取消</string>
     <string name="menu_virtual_location">虚拟定位</string>
-    <string name="menu_feedback">问题反馈</string>
-    <string name="menu_feedback_string">开源项目地址：https://github.com/android-hacker/VAExposed\n 问题反馈地址：https://github.com/android-hacker/exposed/issues\n
-    \n遇到问题请详细描述你的机型,系统版本,ROM,操作流程,问题情况,如果是开发者，最好能提供Logcat日志；谢谢配合（简单的"用不了,有问题, 黑屏了"等等解决不了任何问题） 欢迎提出任何有价值的BUG和建议 :)\n\n
-    QQ群：597478474</string>
+    <string name="menu_about">关于</string>
     <string name="menu_reboot">重启</string>
     <string name="installing_tips">正在安装 %1$s…</string>
     <string name="update_success_tips">%1$s 更新成功！</string>
     <string name="install_success_tips">模块安装完后需要去XposedInstaller的模块设置里勾选才能生效哦～</string>
     <string name="install_fail_tips">%1$s 安装失败，错误码： %2$s</string>
+    <string name="about_page_description">VAExposed是一个基于VirtualApp的，免Root、免解锁BL、免刷机使用Xposed框架的APP。</string>
+    <string name="about_feedback_title">反馈 QQ 群: %1$s</string>
+    <string name="about_feedback_tips">QQ号已经复制到剪切版</string>
+    <string name="about_version_title">版本号: %1$s</string>
 </resources>
