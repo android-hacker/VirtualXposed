@@ -30,7 +30,7 @@ import me.weishu.exposed.LogcatService;
  */
 public class VApp extends MultiDexApplication {
 
-    private static final String XPOSED_INSTALLER_PACKAGE = "de.robv.android.xposed.installer";
+    public static final String XPOSED_INSTALLER_PACKAGE = "de.robv.android.xposed.installer";
 
     private static VApp gApp;
     private SharedPreferences mPreferences;
