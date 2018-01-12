@@ -18,8 +18,6 @@ import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.text.SpannableString;
-import android.text.util.Linkify;
 import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.View;
@@ -147,8 +145,6 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         Menu menu = mPopupMenu.getMenu();
         setIconEnable(menu, true);
 
-        final SpannableString s = new SpannableString(getResources().getString(R.string.menu_feedback_string));
-        Linkify.addLinks(s, Linkify.ALL);
         menu.add(getResources().getString(R.string.menu_about)).setIcon(R.drawable.ic_settings).setOnMenuItemClickListener(item -> {
             startActivity(new Intent(HomeActivity.this, AboutActivity.class));
             return true;
