@@ -543,6 +543,51 @@ char **build_new_env(char *const envp[]) {
     return new_envp;
 }
 
+char **build_new_argv(char *const envp[]) {
+    char *provided_ld_preload = NULL;
+    int provided_ld_preload_index = -1;
+    int orig_envp_count = getArrayItemCount(envp);
+
+    for (int i = 0; i < orig_envp_count; i++) {
+        if (strstr(envp[i], "compiler-filter")) {
+            provided_ld_preload = envp[i];
+            provided_ld_preload_index = i;
+        }
+    }
+    char ld_preload[40];
+    if (provided_ld_preload) {
+        sprintf(ld_preload, "--compiler-filter=%s", "speed");
+    }
+
+    char *api_level_char = getenv("V_API_LEVEL");
+    int api_level = atoi(api_level_char);
+
+    int new_envp_count = orig_envp_count;
+    if (api_level >= 23) {
+        new_envp_count = orig_envp_count + 1;
+    }
+    char **new_envp = (char **) malloc(new_envp_count * sizeof(char *));
+    int cur = 0;
+    for (int i = 0; i < orig_envp_count; ++i) {
+        if (i != provided_ld_preload_index) {
+            new_envp[cur++] = envp[i];
+        } else {
+            new_envp[i] = ld_preload;
+        }
+    }
+
+    if (new_envp_count != orig_envp_count) {
+        new_envp[new_envp_count - 1] = (char *) (api_level > 25 ? "--inline-max-code-units=0" : "--inline-depth-limit=0");
+    }
+
+//    int n = getArrayItemCount(new_envp);
+//    for (int i = 0; i < n; i++) {
+//        ALOGE("dex2oat : %s", new_envp[i]);
+//    }
+
+    return new_envp;
+}
+
 // int (*origin_execve)(const char *pathname, char *const argv[], char *const envp[]);
 HOOK_DEF(int, execve, const char *pathname, char *argv[], char *const envp[]) {
     /**
@@ -563,7 +608,8 @@ HOOK_DEF(int, execve, const char *pathname, char *argv[], char *const envp[]) {
     }
     if (strstr(pathname, "dex2oat")) {
         char **new_envp = build_new_env(envp);
-        int ret = syscall(__NR_execve, redirect_path, argv, new_envp);
+        char **new_argv = build_new_argv(argv);
+        int ret = syscall(__NR_execve, redirect_path, new_argv, new_envp);
         FREE(redirect_path, pathname);
         return ret;
     }
