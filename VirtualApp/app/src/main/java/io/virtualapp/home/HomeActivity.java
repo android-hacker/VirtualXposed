@@ -10,7 +10,9 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Process;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.OrientationHelper;
@@ -152,9 +154,37 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
 
         menu.add(getResources().getString(R.string.menu_reboot)).setIcon(R.drawable.ic_reboot).setOnMenuItemClickListener(item -> {
             VirtualCore.get().killAllApps();
+            showRebootTips();
             return true;
         });
         mMenuView.setOnClickListener(v -> mPopupMenu.show());
+    }
+
+    long lastClickRebootTime = 0;
+    int continuousClickCount = 0;
+    private void showRebootTips() {
+        final long INTERVAL = 2000;
+        long now = SystemClock.elapsedRealtime();
+        if (now - lastClickRebootTime > INTERVAL) {
+            Toast.makeText(this, R.string.reboot_tips_1, Toast.LENGTH_SHORT).show();
+            // valid click, reset
+            continuousClickCount = 0;
+        } else {
+            continuousClickCount++;
+            switch (continuousClickCount) {
+                case 1:
+                    Toast.makeText(this, R.string.reboot_tips_2, Toast.LENGTH_SHORT).show();
+                    break;
+                case 3:
+                    Toast.makeText(this, R.string.reboot_tips_3, Toast.LENGTH_SHORT).show();
+                    mUiHandler.postDelayed(() -> Process.killProcess(Process.myPid()), 1000);
+                    break;
+                default:
+                    Toast.makeText(this, R.string.reboot_tips_1, Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+        lastClickRebootTime = now;
     }
 
     private static void setIconEnable(Menu menu, boolean enable) {

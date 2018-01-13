@@ -10,6 +10,7 @@ import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.stub.VASettings;
 import com.lody.virtual.helper.utils.FileUtils;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VEnvironment;
 
 import java.io.File;
@@ -29,6 +30,8 @@ import me.weishu.exposed.LogcatService;
  * @author Lody
  */
 public class VApp extends MultiDexApplication {
+
+    private static final String TAG = "VApp";
 
     public static final String XPOSED_INSTALLER_PACKAGE = "de.robv.android.xposed.installer";
 
@@ -70,8 +73,20 @@ public class VApp extends MultiDexApplication {
                         .build(VApp.this, "TWJ6CT7F55SH7VFWNRZ2");
 
                 boolean isXposedInstalled = VirtualCore.get().isAppInstalled(XPOSED_INSTALLER_PACKAGE);
+                try {
+                    File oldXposedInstallerApk = getFileStreamPath("XposedInstaller.apk");
+                    if (oldXposedInstallerApk.exists()) {
+                        VirtualCore.get().uninstallPackage(XPOSED_INSTALLER_PACKAGE);
+                        oldXposedInstallerApk.delete();
+                        isXposedInstalled = false;
+                        Log.d(TAG, "remove xposed installer success!");
+                    }
+                } catch (Throwable e) {
+                    VLog.d(TAG, "remove xposed install failed.", e);
+                }
+
                 if (!isXposedInstalled) {
-                    File xposedInstallerApk = getFileStreamPath("XposedInstaller.apk");
+                    File xposedInstallerApk = getFileStreamPath("XposedInstaller_1_13.apk");
                     if (!xposedInstallerApk.exists()) {
                         InputStream input = null;
                         OutputStream output = null;
@@ -84,7 +99,7 @@ public class VApp extends MultiDexApplication {
                                 output.write(buffer, 0, length);
                             }
                         } catch (Throwable e) {
-                            Log.e("mylog", "copy file error", e);
+                            VLog.e(TAG, "copy file error", e);
                         } finally {
                             FileUtils.closeQuietly(input);
                             FileUtils.closeQuietly(output);

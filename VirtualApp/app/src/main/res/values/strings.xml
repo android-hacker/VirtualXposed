@@ -36,4 +36,7 @@
     <string name="about_feedback_title">Feedback QQ Group: %1$s</string>
     <string name="about_feedback_tips">QQ group number has been copied to clipboard!</string>
     <string name="about_version_title">Version: %1$s</string>
+    <string name="reboot_tips_1">Reboot Successfully!!</string>
+    <string name="reboot_tips_2">Reboot Successfully!!</string>
+    <string name="reboot_tips_3">Reboot Successfully!!</string>
 </resources>

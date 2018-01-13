@@ -44,7 +44,7 @@ public class AppRepository implements AppDataSource {
             "pp/downloader/apk",
             "pp/downloader/silent/apk");
 
-    private static final int MAX_SCAN_DEPTH = 4;
+    private static final int MAX_SCAN_DEPTH = 2;
 
     private Context mContext;
 
