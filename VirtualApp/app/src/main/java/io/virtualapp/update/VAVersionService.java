@@ -46,6 +46,8 @@ public class VAVersionService extends AVersionService {
             }
         } catch (JSONException e) {
             Log.e(TAG, "version info parse error!!", e);
+        } catch (Throwable e) {
+            Log.e(TAG, "check version failed:", e);
         }
     }
 
