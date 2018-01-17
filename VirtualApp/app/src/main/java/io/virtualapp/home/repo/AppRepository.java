@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import com.lody.virtual.GmsSupport;
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.utils.DeviceUtil;
 import com.lody.virtual.remote.InstallResult;
 import com.lody.virtual.remote.InstalledAppInfo;
 
@@ -196,6 +197,9 @@ public class AppRepository implements AppDataSource {
     public InstallResult addVirtualApp(AppInfoLite info) {
         int flags = InstallStrategy.COMPARE_VERSION | InstallStrategy.SKIP_DEX_OPT;
         info.fastOpen = false; // disable fast open for compile.
+        if (DeviceUtil.isMeizuBelowN()) {
+            info.fastOpen = true;
+        }
         if (info.fastOpen) {
             flags |= InstallStrategy.DEPEND_SYSTEM_IF_EXIST;
         }

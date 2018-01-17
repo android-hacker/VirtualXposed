@@ -9,6 +9,7 @@ import com.flurry.android.FlurryAgent;
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.stub.VASettings;
+import com.lody.virtual.helper.utils.DeviceUtil;
 import com.lody.virtual.helper.utils.FileUtils;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VEnvironment;
@@ -106,7 +107,7 @@ public class VApp extends MultiDexApplication {
                         }
                     }
 
-                    if (xposedInstallerApk.isFile()) {
+                    if (xposedInstallerApk.isFile() && !DeviceUtil.isMeizuBelowN()) {
                         VirtualCore.get().installPackage(xposedInstallerApk.getPath(), InstallStrategy.TERMINATE_IF_EXIST);
                     }
                 }

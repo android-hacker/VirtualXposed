@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import com.lody.virtual.helper.utils.DeviceUtil;
 import com.lody.virtual.helper.utils.Reflect;
 
 import java.io.File;
@@ -45,10 +46,12 @@ public class AppPagerAdapter extends FragmentPagerAdapter {
             }
         } else {
             // Fallback: only support the default storage sources
-            File storageFir = Environment.getExternalStorageDirectory();
-            if (storageFir != null && storageFir.isDirectory()) {
-                titles.add(VApp.getApp().getResources().getString(R.string.external_storage));
-                dirs.add(storageFir);
+            if (!DeviceUtil.isMeizuBelowN()) {
+                File storageFir = Environment.getExternalStorageDirectory();
+                if (storageFir != null && storageFir.isDirectory()) {
+                    titles.add(VApp.getApp().getResources().getString(R.string.external_storage));
+                    dirs.add(storageFir);
+                }
             }
         }
     }

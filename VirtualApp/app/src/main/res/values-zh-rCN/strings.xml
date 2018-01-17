@@ -38,4 +38,7 @@
     <string name="reboot_tips_1">虽然也许你不太相信，但是VAExposed确实重启完成了！</string>
     <string name="reboot_tips_2">别点了，不骗你，真的重启成功了。</string>
     <string name="reboot_tips_3">不信是吧，死给你看。。</string>
+    <string name="meizu_device_tips_title">检测到魅族系统：</string>
+    <string name="meizu_device_tips_content">受限于魅族系统的限制，您必须先在系统中安装相应的APP，以及Xposed模块；然后再克隆到VAExposed中才能正常使用。首先，您需要在系统中安装XposedInstaller，
+        是否立即安装？</string>
 </resources>
