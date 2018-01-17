@@ -42,13 +42,18 @@ public class ArtDexOptimizer {
         commandAndParams.add("--dex-file=" + dexFilePath);
         commandAndParams.add("--oat-file=" + oatFilePath);
         commandAndParams.add("--instruction-set=" + VMRuntime.getCurrentInstructionSet.call());
-        commandAndParams.add("--compiler-filter=speed");
+        commandAndParams.add("--compiler-filter=everything");
+        if (Build.VERSION.SDK_INT >= 22) {
+            commandAndParams.add("--compile-pic");
+        }
         if (Build.VERSION.SDK_INT > 25) {
             // commandAndParams.add("--compiler-filter=quicken");
             commandAndParams.add("--inline-max-code-units=0");
         } else {
             // commandAndParams.add("--compiler-filter=interpret-only");
-            commandAndParams.add("--inline-depth-limit=0");
+            if (Build.VERSION.SDK_INT >= 23) {
+                commandAndParams.add("--inline-depth-limit=0");
+            }
         }
 
         final ProcessBuilder pb = new ProcessBuilder(commandAndParams);
