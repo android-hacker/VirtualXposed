@@ -34,7 +34,7 @@ public class MultiplePackageAppData implements AppData {
 
     @Override
     public boolean isInstalling() {
-        return isLoading;
+        return isInstalling;
     }
 
     @Override

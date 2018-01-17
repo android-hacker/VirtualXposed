@@ -78,15 +78,15 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
             holder.spaceLabelView.setVisibility(View.INVISIBLE);
         }
         if (data.isInstalling()) {
-            startInstallingAnimation(holder.iconView);
+            startInstallingAnimation(holder.iconView, data);
         } else if (data.isLoading()) {
-            startLoadingAnimation(holder.iconView);
+            startLoadingAnimation(holder.iconView, data);
         } else {
             holder.iconView.setProgress(100, false);
         }
     }
 
-    private void startInstallingAnimation(LauncherIconView iconView) {
+    private void startInstallingAnimation(LauncherIconView iconView, AppData data) {
         iconView.setProgress(20, true);
         VUiKit.defer().when(() -> {
             try {
@@ -94,10 +94,15 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }).done((res) -> iconView.setProgress(40, true));
+        }).done((res) -> {
+            if (data != null && data.isInstalling()) {
+                iconView.setProgress(40, true);
+            }
+        }
+        );
     }
 
-    private void startLoadingAnimation(LauncherIconView iconView) {
+    private void startLoadingAnimation(LauncherIconView iconView, AppData data) {
         iconView.setProgress(60, false);
         VUiKit.defer().when(() -> {
             try {
@@ -105,7 +110,11 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }).done((res) -> iconView.setProgress(80, true));
+        }).done((res) -> {
+            if (data != null && data.isLoading()) {
+                iconView.setProgress(80, true);
+            }
+        });
     }
 
     private int getColor(int position) {
