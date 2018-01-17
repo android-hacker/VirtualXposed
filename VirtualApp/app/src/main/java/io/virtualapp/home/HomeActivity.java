@@ -5,11 +5,8 @@ import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -34,7 +31,6 @@ import com.lody.virtual.GmsSupport;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.DeviceUtil;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -550,31 +546,12 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         if (isXposedInstalled) {
             return;
         }
-        File xposedInstallerApk = getFileStreamPath("XposedInstaller_1_13.apk");
-        if (!xposedInstallerApk.exists()) {
-            return;
-        }
-        boolean[] isSystemExists = new boolean[]{false};
-        try {
-            PackageInfo packageInfo = VirtualCore.get().getUnHookPackageManager().getPackageInfo(VApp.XPOSED_INSTALLER_PACKAGE, 0);
-            isSystemExists[0] = packageInfo != null;
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
         mUiHandler.postDelayed(() -> {
             AlertDialog alertDialog = new AlertDialog.Builder(getContext())
                     .setTitle(R.string.meizu_device_tips_title)
                     .setMessage(R.string.meizu_device_tips_content)
                     .setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                        if (!isSystemExists[0]) {
-                            Intent intent = new Intent(Intent.ACTION_VIEW);
-                            intent.setDataAndType(Uri.fromFile(xposedInstallerApk), "application/vnd.android.package-archive");
-                            startActivity(intent);
-                        } else {
-                            onAddAppButtonClick();
-                        }
                     })
-                    .setNegativeButton(android.R.string.no, null)
                     .create();
             alertDialog.show();
         }, 2000);

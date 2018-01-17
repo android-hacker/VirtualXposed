@@ -40,6 +40,6 @@
     <string name="reboot_tips_2">Reboot Successfully!!</string>
     <string name="reboot_tips_3">Reboot Successfully!!</string>
     <string name="meizu_device_tips_title">Detect Meizu Device: </string>
-    <string name="meizu_device_tips_content">In Meizu OS, You can only use VAExposed by clone App. Install XposedInstaller now ?</string>
+    <string name="meizu_device_tips_content">In Meizu OS, You can only use VAExposed by clone App, Please Install XposedInstaller First.</string>
 
 </resources>
