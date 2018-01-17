@@ -559,16 +559,13 @@ char **build_new_argv(char *const envp[]) {
     }
     char ld_preload[40];
     if (provided_ld_preload) {
-        sprintf(ld_preload, "--compiler-filter=%s", "speed");
+        sprintf(ld_preload, "--compiler-filter=%s", "everything");
     }
 
     char *api_level_char = getenv("V_API_LEVEL");
     int api_level = atoi(api_level_char);
 
-    int new_envp_count = orig_envp_count;
-    if (api_level >= 23) {
-        new_envp_count = orig_envp_count + 1;
-    }
+    int new_envp_count = orig_envp_count + 3;
     char **new_envp = (char **) malloc(new_envp_count * sizeof(char *));
     int cur = 0;
     for (int i = 0; i < orig_envp_count; ++i) {
@@ -576,12 +573,17 @@ char **build_new_argv(char *const envp[]) {
             new_envp[cur++] = envp[i];
         } else {
             new_envp[i] = ld_preload;
+            cur++;
         }
     }
 
-    if (new_envp_count != orig_envp_count) {
-        new_envp[new_envp_count - 1] = (char *) (api_level > 25 ? "--inline-max-code-units=0" : "--inline-depth-limit=0");
+    if (api_level >= 22) {
+        new_envp[cur++] = (char *) "--compile-pic";
     }
+    if (api_level >= 23) {
+        new_envp[cur++] = (char *) (api_level > 25 ? "--inline-max-code-units=0" : "--inline-depth-limit=0");
+    }
+    new_envp[cur] = NULL;
 
 //    int n = getArrayItemCount(new_envp);
 //    for (int i = 0; i < n; i++) {
