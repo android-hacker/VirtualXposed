@@ -9,6 +9,7 @@ import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.natives.NativeMethods;
 import com.lody.virtual.helper.compat.BuildCompat;
+import com.lody.virtual.helper.utils.DeviceUtil;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.remote.InstalledAppInfo;
@@ -177,7 +178,7 @@ public class NativeEngine {
         try {
             String canonical = new File(dexOrJarPath).getCanonicalPath();
             InstalledAppInfo info = sDexOverrideMap.get(canonical);
-            if (info != null && !info.dependSystem) {
+            if (info != null && !info.dependSystem || info != null && DeviceUtil.isMeizuBelowN() && params[1] == null) {
                 outputPath = info.getOdexFile().getPath();
                 params[1] = outputPath;
             }
