@@ -6,6 +6,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Toast;
@@ -16,6 +17,7 @@ import io.virtualapp.R;
 import io.virtualapp.abs.ui.VActivity;
 import mehdi.sakout.aboutpage.AboutPage;
 import mehdi.sakout.aboutpage.Element;
+import moe.feng.alipay.zerosdk.AlipayZeroSdk;
 
 /**
  * author: weishu on 18/1/12.
@@ -34,6 +36,7 @@ public class AboutActivity extends VActivity {
                 .addEmail("twsxtd@gmail.com")
                 .addWebsite("https://github.com/android-hacker/VAExposed")
                 .addGitHub("tiann")
+                .addItem(getDonateElement())
                 .addItem(getCopyRightsElement())
                 .create();
 
@@ -78,5 +81,31 @@ public class AboutActivity extends VActivity {
             Toast.makeText(v.getContext(), getResources().getString(R.string.about_feedback_tips), Toast.LENGTH_SHORT).show();
         });
         return feedback;
+    }
+
+    Element getDonateElement() {
+        Element donate = new Element();
+        donate.setTitle(getResources().getString(R.string.about_donate_title));
+        donate.setIconDrawable(R.drawable.ic_menu_donate);
+        donate.setOnClickListener(v -> {
+            AlertDialog alertDialog = new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight_Dialog_Alert)
+                    .setTitle(R.string.donate_dialog_title)
+                    .setMessage(R.string.donate_dialog_content)
+                    .setPositiveButton(R.string.donate_dialog_yes, (dialog, which) -> {
+                        if (!AlipayZeroSdk.hasInstalledAlipayClient(v.getContext())) {
+                            Toast.makeText(v.getContext(), R.string.prompt_alipay_not_found, Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        AlipayZeroSdk.startAlipayClient(AboutActivity.this, "FKX016770URBZGZSR37U37");
+                    })
+                    .setNegativeButton(R.string.donate_dialog_no, null)
+                    .create();
+            try {
+                alertDialog.show();
+            } catch (Throwable ignored) {
+                // BadTokenException.
+            }
+        });
+        return donate;
     }
 }

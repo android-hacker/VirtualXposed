@@ -36,10 +36,19 @@
     <string name="about_feedback_title">Feedback QQ Group: %1$s</string>
     <string name="about_feedback_tips">QQ group number has been copied to clipboard!</string>
     <string name="about_version_title">Version: %1$s</string>
+    <string name="about_donate_title">Donate</string>
     <string name="reboot_tips_1">Reboot Successfully!!</string>
     <string name="reboot_tips_2">Reboot Successfully!!</string>
     <string name="reboot_tips_3">Reboot Successfully!!</string>
     <string name="meizu_device_tips_title">Detect Meizu Device: </string>
     <string name="meizu_device_tips_content">In Meizu OS, You can only use VAExposed by clone App, Please Install XposedInstaller First.</string>
+    <string name="donate_alipay">Alipay</string>
+    <string name="donate_wepay">Wechat Pay</string>
+    <string name="prompt_alipay_not_found">Alipay Not Found.</string>
+    <string name="prompt_wait">Please wait for a while.....</string>
+    <string name="donate_dialog_title">About Donate</string>
+    <string name="donate_dialog_content">empty</string>
+    <string name="donate_dialog_yes">Donate</string>
+    <string name="donate_dialog_no">Cancel</string>
 
 </resources>

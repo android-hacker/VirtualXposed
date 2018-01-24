@@ -35,9 +35,15 @@
     <string name="about_feedback_title">反馈 QQ 群: %1$s</string>
     <string name="about_feedback_tips">QQ号已经复制到剪切版</string>
     <string name="about_version_title">版本号: %1$s</string>
+    <string name="about_donate_title">支持我</string>
     <string name="reboot_tips_1">虽然也许你不太相信，但是VAExposed确实重启完成了！</string>
     <string name="reboot_tips_2">别点了，不骗你，真的重启成功了。</string>
     <string name="reboot_tips_3">不信是吧，死给你看。。</string>
     <string name="meizu_device_tips_title">检测到魅族系统：</string>
     <string name="meizu_device_tips_content">受限于魅族系统的限制，您必须先在系统中安装相应的APP以及Xposed模块，然后再克隆到VAExposed中才能正常使用。请首先在安装 XposedInstaller 然后克隆到 VAEposed 中！！</string>
+    <string name="prompt_alipay_not_found">你没有安装支付宝 ~_~</string>
+    <string name="donate_dialog_title">关于捐赠</string>
+    <string name="donate_dialog_content">VAExposed 是开源、免费软件，但是用到的升级服务器和fir下载服务是我自己付费的，如果你喜欢VAExposed，可以略尽绵薄之力 ^_^ </string>
+    <string name="donate_dialog_yes">去支付宝捐赠</string>
+    <string name="donate_dialog_no">先不了哈，加油~</string>
 </resources>
