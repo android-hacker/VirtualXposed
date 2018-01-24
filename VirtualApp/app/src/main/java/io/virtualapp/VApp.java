@@ -75,7 +75,7 @@ public class VApp extends MultiDexApplication {
 
                 boolean isXposedInstalled = VirtualCore.get().isAppInstalled(XPOSED_INSTALLER_PACKAGE);
                 try {
-                    File oldXposedInstallerApk = getFileStreamPath("XposedInstaller.apk");
+                    File oldXposedInstallerApk = getFileStreamPath("XposedInstaller_1_13.apk");
                     if (oldXposedInstallerApk.exists()) {
                         VirtualCore.get().uninstallPackage(XPOSED_INSTALLER_PACKAGE);
                         oldXposedInstallerApk.delete();
@@ -87,12 +87,12 @@ public class VApp extends MultiDexApplication {
                 }
 
                 if (!isXposedInstalled) {
-                    File xposedInstallerApk = getFileStreamPath("XposedInstaller_1_13.apk");
+                    File xposedInstallerApk = getFileStreamPath("XposedInstaller_1_24.apk");
                     if (!xposedInstallerApk.exists()) {
                         InputStream input = null;
                         OutputStream output = null;
                         try {
-                            input = getApplicationContext().getAssets().open("XposedInstaller_3.1.4.apk_");
+                            input = getApplicationContext().getAssets().open("XposedInstaller_3.1.5.apk_");
                             output = new FileOutputStream(xposedInstallerApk);
                             byte[] buffer = new byte[1024];
                             int length;
