@@ -64,4 +64,5 @@ dependencies {
     compile 'com.kyleduo.switchbutton:library:1.4.6'
     compile('com.allenliu.versionchecklib:library:1.8.3')
     compile 'com.github.medyo:android-about-page:1.2.2'
+    compile 'moe.feng:AlipayZeroSdk:1.1'
 }

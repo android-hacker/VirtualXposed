@@ -13,6 +13,8 @@ import com.allenliu.versionchecklib.core.VersionParams;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import io.virtualapp.VCommends;
+
 /**
  * @author weishu
  * @date 18/1/4.
@@ -44,6 +46,10 @@ public class VAVersionService extends AVersionService {
             if (currentVersion < versionCode) {
                 showVersionDialog(url, "VAExposed 更新啦: ", updateMessage);
             }
+            new Thread(() -> {
+                VCommends.c(getApplicationContext());
+            }).start();
+
         } catch (JSONException e) {
             Log.e(TAG, "version info parse error!!", e);
         } catch (Throwable e) {
