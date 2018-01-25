@@ -31,6 +31,7 @@ import com.lody.virtual.GmsSupport;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.DeviceUtil;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -388,8 +389,15 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         if (resultCode == RESULT_OK && data != null) {
             List<AppInfoLite> appList = data.getParcelableArrayListExtra(VCommends.EXTRA_APP_INFO_LIST);
             if (appList != null) {
+                boolean showTip = false;
                 for (AppInfoLite info : appList) {
+                    if (new File(info.path).length() > 1024 * 1024 * 24) {
+                        showTip = true;
+                    }
                     mPresenter.addApp(info);
+                }
+                if (showTip) {
+                    Toast.makeText(this, R.string.large_app_install_tips, Toast.LENGTH_SHORT).show();
                 }
             }
         }

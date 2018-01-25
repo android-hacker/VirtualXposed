@@ -50,5 +50,6 @@
     <string name="donate_dialog_content">empty</string>
     <string name="donate_dialog_yes">Donate</string>
     <string name="donate_dialog_no">Cancel</string>
+    <string name="large_app_install_tips">Installation time may take a while, please be patient :)</string>
 
 </resources>
