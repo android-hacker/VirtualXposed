@@ -2,10 +2,12 @@ package io.virtualapp;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Looper;
 import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
 import com.flurry.android.FlurryAgent;
+import com.lody.virtual.client.core.CrashHandler;
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.stub.VASettings;
@@ -125,6 +127,17 @@ public class VApp extends MultiDexApplication {
                 virtualCore.setPhoneInfoDelegate(new MyPhoneInfoDelegate());
                 //fake task description's icon and title
                 virtualCore.setTaskDescriptionDelegate(new MyTaskDescriptionDelegate());
+                virtualCore.setCrashHandler(new CrashHandler() {
+                    @Override
+                    public void handleUncaughtException(Thread t, Throwable e) {
+                        Log.i(TAG, "uncaught :" + t, e);
+                        if (t == Looper.getMainLooper().getThread()) {
+                            System.exit(0);
+                        } else {
+                            Log.e(TAG, "ignore uncaught exception of thread: " + t);
+                        }
+                    }
+                });
                 // ensure the logcat service alive when every virtual process start.
                 LogcatService.start(VApp.this, VEnvironment.getDataUserPackageDirectory(0, XPOSED_INSTALLER_PACKAGE));
             }
