@@ -40,7 +40,7 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
 //    compile 'com.github.android-hacker:exposed:0.3.6'
-    compile 'me.weishu.exposed:exposed-core:0.3.8'
+    compile 'me.weishu.exposed:exposed-core:0.4.0'
 }
 
 repositories {
