@@ -242,7 +242,11 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
     }
 
     private void deleteApp(int position) {
-        AppData data = mLaunchpadAdapter.getList().get(position);
+        List<AppData> mLaunchpadAdapterList = mLaunchpadAdapter.getList();
+        if (position >= mLaunchpadAdapterList.size() || position < 0) {
+            return;
+        }
+        AppData data = mLaunchpadAdapterList.get(position);
         AlertDialog alertDialog = new AlertDialog.Builder(this)
                 .setTitle("Delete app")
                 .setMessage("Do you want to delete " + data.getName() + "?")
