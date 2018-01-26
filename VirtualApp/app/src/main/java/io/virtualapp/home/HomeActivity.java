@@ -565,7 +565,9 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
                     .setPositiveButton(android.R.string.yes, (dialog, which) -> {
                     })
                     .create();
-            alertDialog.show();
+            try {
+                alertDialog.show();
+            } catch (Throwable ignored) {}
         }, 2000);
     }
 }
