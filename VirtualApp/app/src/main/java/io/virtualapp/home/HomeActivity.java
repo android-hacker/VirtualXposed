@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.os.Looper;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.OrientationHelper;
@@ -126,6 +128,24 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         new HomePresenterImpl(this).start();
         VirtualCore.get().registerObserver(mPackageObserver);
         alertForMeizu();
+        mUiHandler.postDelayed(() -> {
+            final String alertForIcon = "showIconAlert";
+            SharedPreferences defaultSp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            boolean show = defaultSp.getBoolean(alertForIcon, true);
+            defaultSp.edit().putBoolean(alertForIcon, false).apply();
+            if (show) {
+                AlertDialog alertDialog = new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight_Dialog_Alert)
+                        .setTitle(R.string.about_icon_title)
+                        .setMessage(R.string.about_icon_content)
+                        .setPositiveButton(R.string.about_icon_yes, null)
+                        .create();
+                try {
+                    alertDialog.show();
+                } catch (Throwable ignored) {
+                    // BadTokenException.
+                }
+            }
+        }, 5000);
     }
 
     @Override

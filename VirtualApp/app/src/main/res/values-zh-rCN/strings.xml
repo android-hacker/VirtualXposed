@@ -47,4 +47,7 @@
     <string name="donate_dialog_yes">去支付宝捐赠</string>
     <string name="donate_dialog_no">先不了哈，加油~</string>
     <string name="large_app_install_tips">安装大型APP可能需要花费较长的时间，请耐心等待~</string>
+    <string name="about_icon_title">关于图标</string>
+    <string name="about_icon_content">如果你不喜欢这个图标，赶紧为VAExposed设计一个吧！哈哈哈哈哈，我知道你们这些设计师肯定会看不下去的，啊哈哈哈</string>
+    <string name="about_icon_yes">。。。。</string>
 </resources>

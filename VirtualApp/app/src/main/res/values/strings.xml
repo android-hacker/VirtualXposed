@@ -51,5 +51,8 @@
     <string name="donate_dialog_yes">Donate</string>
     <string name="donate_dialog_no">Cancel</string>
     <string name="large_app_install_tips">Installation time may take a while, please be patient :)</string>
+    <string name="about_icon_title">About Icon</string>
+    <string name="about_icon_content">If you do not like my new icon, welcome to design a new icon for VAExposed</string>
+    <string name="about_icon_yes">OK</string>
 
 </resources>
