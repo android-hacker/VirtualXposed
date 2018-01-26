@@ -172,6 +172,9 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
     }
 
     public void moveItem(int pos, int targetPos) {
+        if (pos >= mList.size()) {
+            return;
+        }
         AppData model = mList.remove(pos);
         mList.add(targetPos, model);
         notifyItemMoved(pos, targetPos);
