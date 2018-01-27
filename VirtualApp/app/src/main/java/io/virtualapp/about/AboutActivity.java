@@ -47,7 +47,7 @@ public class AboutActivity extends VActivity {
         Element copyRightsElement = new Element();
         final String copyrights = String.format(getString(R.string.copy_right), Calendar.getInstance().get(Calendar.YEAR));
         copyRightsElement.setTitle(copyrights);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
             copyRightsElement.setIconDrawable(R.drawable.about_icon_copy_right);
         }
         copyRightsElement.setIconTint(mehdi.sakout.aboutpage.R.color.about_item_icon_color);
