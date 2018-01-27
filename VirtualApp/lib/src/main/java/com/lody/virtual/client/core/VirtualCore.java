@@ -1,6 +1,7 @@
 package com.lody.virtual.client.core;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -11,9 +12,13 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Icon;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.ConditionVariable;
 import android.os.Looper;
@@ -44,6 +49,7 @@ import com.lody.virtual.server.interfaces.IPackageObserver;
 import com.lody.virtual.server.interfaces.IUiCallback;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import dalvik.system.DexFile;
@@ -418,6 +424,7 @@ public final class VirtualCore {
         PackageManager pm = context.getPackageManager();
         String name;
         Bitmap icon;
+        String id = packageName + userId;
         try {
             CharSequence sequence = appInfo.loadLabel(pm);
             name = sequence.toString();
@@ -449,6 +456,17 @@ public final class VirtualCore {
         shortcutIntent.putExtra("_VA_|_uri_", targetIntent.toUri(0));
         shortcutIntent.putExtra("_VA_|_user_id_", userId);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+            // bad parcel.
+            shortcutIntent.removeExtra("_VA_|_intent_");
+            // crate app shortcuts.
+            createShortcutAboveN(context, id, name, icon, shortcutIntent);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            return createDeskShortcutAboveO(context, id, name, icon, shortcutIntent);
+        }
+
         Intent addIntent = new Intent();
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, name);
@@ -456,6 +474,47 @@ public final class VirtualCore {
         addIntent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
         context.sendBroadcast(addIntent);
         return true;
+    }
+
+    @TargetApi(Build.VERSION_CODES.N_MR1)
+    private static boolean createShortcutAboveN(Context context, String id, String label, Bitmap icon, Intent intent) {
+        intent.setAction(Intent.ACTION_VIEW);
+
+        Icon withBitmap = Icon.createWithBitmap(icon);
+        ShortcutInfo likeShortcut = new ShortcutInfo.Builder(context, id)
+                .setShortLabel(label)
+                .setIcon(withBitmap)
+                .setIntent(intent)
+                .build();
+
+        ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
+        if (shortcutManager == null) {
+            return false;
+        }
+        shortcutManager.setDynamicShortcuts(Arrays.asList(likeShortcut));
+        return true;
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private static boolean createDeskShortcutAboveO(Context context, String id, String label, Bitmap icon, Intent intent) {
+        ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
+        if (shortcutManager == null) {
+            return false;
+        }
+        if (shortcutManager.isRequestPinShortcutSupported()) {
+            ShortcutInfo info = new ShortcutInfo.Builder(context, id)
+                    .setIcon(Icon.createWithBitmap(icon))
+                    .setShortLabel(label)
+                    .setIntent(intent)
+                    .build();
+            // 当添加快捷方式的确认弹框弹出来时，将被回调
+            // PendingIntent shortcutCallbackIntent = PendingIntent.getBroadcast(context, 0,
+            // new Intent(context, MyReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT);
+
+            shortcutManager.requestPinShortcut(info, null);
+            return true;
+        }
+        return false;
     }
 
     public boolean removeShortcut(int userId, String packageName, Intent splash, OnEmitShortcutListener listener) {
