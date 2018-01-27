@@ -2,8 +2,10 @@ package io.virtualapp.about;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -100,7 +102,12 @@ public class AboutActivity extends VActivity {
                         }
                         AlipayZeroSdk.startAlipayClient(AboutActivity.this, "FKX016770URBZGZSR37U37");
                     })
-                    .setNegativeButton(R.string.donate_dialog_no, null)
+                    .setNegativeButton(R.string.donate_dialog_no, ((dialog, which) -> {
+                        Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_VIEW);
+                        intent.addCategory(Intent.CATEGORY_BROWSABLE);
+                        intent.setData(Uri.parse("https://github.com/android-hacker/exposed"));
+                    }))
                     .create();
             try {
                 alertDialog.show();
