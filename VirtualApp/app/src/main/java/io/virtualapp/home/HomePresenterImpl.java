@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.pm.PackageInfo;
 import android.graphics.Bitmap;
 import android.os.SystemClock;
+import android.widget.Toast;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.os.VUserInfo;
@@ -13,6 +14,7 @@ import com.lody.virtual.remote.InstalledAppInfo;
 
 import java.io.IOException;
 
+import io.virtualapp.R;
 import io.virtualapp.VApp;
 import io.virtualapp.VCommends;
 import io.virtualapp.abs.ui.VUiKit;
@@ -237,11 +239,15 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
                 return originName + "(VA)";
             }
         };
+        boolean result = false;
         if (data instanceof PackageAppData) {
-            VirtualCore.get().createShortcut(0, ((PackageAppData) data).packageName, listener);
+            result = VirtualCore.get().createShortcut(0, ((PackageAppData) data).packageName, listener);
         } else if (data instanceof MultiplePackageAppData) {
             MultiplePackageAppData appData = (MultiplePackageAppData) data;
-            VirtualCore.get().createShortcut(appData.userId, appData.appInfo.packageName, listener);
+            result = VirtualCore.get().createShortcut(appData.userId, appData.appInfo.packageName, listener);
+        }
+        if (result) {
+            Toast.makeText(mActivity, R.string.create_shortcut_success, Toast.LENGTH_SHORT).show();
         }
     }
 

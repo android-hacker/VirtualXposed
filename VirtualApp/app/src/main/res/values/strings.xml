@@ -54,5 +54,6 @@
     <string name="about_icon_title">About Icon</string>
     <string name="about_icon_content">If you do not like my new icon, welcome to design a new icon for VAExposed</string>
     <string name="about_icon_yes">OK</string>
+    <string name="create_shortcut_success">create shortcut success!</string>
 
 </resources>
