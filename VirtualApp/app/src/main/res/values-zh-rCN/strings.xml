@@ -33,7 +33,8 @@
     <string name="install_fail_tips">%1$s 安装失败，错误码： %2$s</string>
     <string name="about_page_description">VAExposed是一个基于VirtualApp的，免Root、免解锁BL、免刷机使用Xposed框架的APP。</string>
     <string name="about_feedback_title">反馈 QQ 群: %1$s</string>
-    <string name="about_feedback_tips">QQ号已经复制到剪切版</string>
+    <string name="about_feedback_wechat_title">反馈微信群: %1$s (不是作者，进群专用)</string>
+    <string name="about_feedback_tips">群号已经复制到剪切版</string>
     <string name="about_version_title">版本号: %1$s</string>
     <string name="about_donate_title">支持我</string>
     <string name="reboot_tips_1">虽然也许你不太相信，但是VAExposed确实重启完成了！</string>

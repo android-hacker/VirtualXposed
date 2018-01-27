@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 24
+    compileSdkVersion 26
     buildToolsVersion '26.0.2'
 
     defaultConfig {
@@ -40,7 +40,7 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
 //    compile 'com.github.android-hacker:exposed:0.3.6'
-    compile 'me.weishu.exposed:exposed-core:0.4.0'
+    compile 'me.weishu.exposed:exposed-core:0.4.1'
 }
 
 repositories {

@@ -35,6 +35,7 @@ public class AboutActivity extends VActivity {
                 .setImage(R.mipmap.ic_launcher)
                 .addItem(getVersionElement())
                 .addItem(getFeedbackElement())
+                .addItem(getFeedbackWechatElement())
                 .addEmail("twsxtd@gmail.com")
                 .addWebsite("https://github.com/android-hacker/VAExposed")
                 .addGitHub("tiann")
@@ -87,6 +88,21 @@ public class AboutActivity extends VActivity {
         return feedback;
     }
 
+    Element getFeedbackWechatElement() {
+        Element feedback = new Element();
+        final String weChatGroup = "CSYJZF";
+        feedback.setTitle(getResources().getString(R.string.about_feedback_wechat_title, weChatGroup));
+
+        feedback.setOnClickListener(v -> {
+            ClipboardManager clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            if (clipboardManager != null) {
+                clipboardManager.setPrimaryClip(ClipData.newPlainText(null, weChatGroup));
+            }
+            Toast.makeText(v.getContext(), getResources().getString(R.string.about_feedback_tips), Toast.LENGTH_SHORT).show();
+        });
+        return feedback;
+    }
+
     Element getDonateElement() {
         Element donate = new Element();
         donate.setTitle(getResources().getString(R.string.about_donate_title));
@@ -107,6 +123,7 @@ public class AboutActivity extends VActivity {
                         intent.setAction(Intent.ACTION_VIEW);
                         intent.addCategory(Intent.CATEGORY_BROWSABLE);
                         intent.setData(Uri.parse("https://github.com/android-hacker/exposed"));
+                        startActivity(intent);
                     }))
                     .create();
             try {
