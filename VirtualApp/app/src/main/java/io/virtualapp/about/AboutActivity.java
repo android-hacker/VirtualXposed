@@ -143,6 +143,7 @@ public class AboutActivity extends VActivity {
             AlertDialog alertDialog = new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight_Dialog_Alert)
                     .setTitle(R.string.thanks_dialog_title)
                     .setMessage(R.string.thanks_dialog_content)
+                    .setPositiveButton(R.string.about_icon_yes, null)
                     .create();
             try {
                 alertDialog.show();

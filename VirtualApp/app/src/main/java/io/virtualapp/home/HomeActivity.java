@@ -129,14 +129,14 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         VirtualCore.get().registerObserver(mPackageObserver);
         alertForMeizu();
         mUiHandler.postDelayed(() -> {
-            final String alertForIcon = "showIconAlert";
+            final String alertForIcon = "showThanks";
             SharedPreferences defaultSp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             boolean show = defaultSp.getBoolean(alertForIcon, true);
             defaultSp.edit().putBoolean(alertForIcon, false).apply();
             if (show) {
                 AlertDialog alertDialog = new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight_Dialog_Alert)
-                        .setTitle(R.string.about_icon_title)
-                        .setMessage(R.string.about_icon_content)
+                        .setTitle(R.string.thanks_dialog_title)
+                        .setMessage(R.string.thanks_dialog_content)
                         .setPositiveButton(R.string.about_icon_yes, null)
                         .create();
                 try {
