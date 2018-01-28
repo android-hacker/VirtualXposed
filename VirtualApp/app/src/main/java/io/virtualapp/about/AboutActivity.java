@@ -36,10 +36,11 @@ public class AboutActivity extends VActivity {
                 .addItem(getVersionElement())
                 .addItem(getFeedbackElement())
                 .addItem(getFeedbackWechatElement())
+                .addItem(getThanksElement())
+                .addItem(getDonateElement())
                 .addEmail("twsxtd@gmail.com")
                 .addWebsite("https://github.com/android-hacker/VAExposed")
                 .addGitHub("tiann")
-                .addItem(getDonateElement())
                 .addItem(getCopyRightsElement())
                 .create();
 
@@ -133,5 +134,22 @@ public class AboutActivity extends VActivity {
             }
         });
         return donate;
+    }
+
+    Element getThanksElement() {
+        Element thanks = new Element();
+        thanks.setTitle(getResources().getString(R.string.about_thanks));
+        thanks.setOnClickListener(v -> {
+            AlertDialog alertDialog = new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight_Dialog_Alert)
+                    .setTitle(R.string.thanks_dialog_title)
+                    .setMessage(R.string.thanks_dialog_content)
+                    .create();
+            try {
+                alertDialog.show();
+            } catch (Throwable ignored) {
+                // BadTokenException.
+            }
+        });
+        return thanks;
     }
 }

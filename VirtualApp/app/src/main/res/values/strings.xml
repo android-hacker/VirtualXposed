@@ -56,5 +56,8 @@
     <string name="about_icon_content">If you do not like my new icon, welcome to design a new icon for VAExposed</string>
     <string name="about_icon_yes">OK</string>
     <string name="create_shortcut_success">create shortcut success!</string>
+    <string name="about_thanks">Thanks</string>
+    <string name="thanks_dialog_title">Thanks</string>
+    <string name="thanks_dialog_content" >感谢 Cheney 提供超赞的Icon，另外谢谢芑芮、佩奇、以及另外一些我还不知道名字的设计师的辛勤付出；谢谢各位小伙伴提供的创意和建议，特别感谢 YingLin 不厌其烦地帮我实现我的稀烂设计 :)</string>
 
 </resources>
