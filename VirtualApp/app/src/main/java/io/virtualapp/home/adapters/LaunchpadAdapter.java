@@ -56,6 +56,9 @@ public class LaunchpadAdapter extends RecyclerView.Adapter<LaunchpadAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         AppData data = mList.get(position);
+        if (data == null) {
+            return;
+        }
         holder.color = getColor(position);
         holder.iconView.setImageDrawable(data.getIcon());
         holder.nameView.setText(data.getName());
