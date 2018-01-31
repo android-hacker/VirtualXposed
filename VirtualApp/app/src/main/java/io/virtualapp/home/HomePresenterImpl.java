@@ -236,7 +236,7 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
 
             @Override
             public String getName(String originName) {
-                return originName + "(VA)";
+                return originName + "(VAE)";
             }
         };
         boolean result = false;
