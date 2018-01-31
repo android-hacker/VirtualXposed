@@ -348,6 +348,9 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
     @Override
     public void addAppToLauncher(AppData model) {
         List<AppData> dataList = mLaunchpadAdapter.getList();
+        if (dataList == null) {
+            return;
+        }
         boolean replaced = false;
         for (int i = 0; i < dataList.size(); i++) {
             AppData data = dataList.get(i);
