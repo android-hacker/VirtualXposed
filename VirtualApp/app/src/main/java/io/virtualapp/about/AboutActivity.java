@@ -30,20 +30,23 @@ public class AboutActivity extends VActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        View aboutPage = new AboutPage(this)
+        AboutPage page = new AboutPage(this)
                 .isRTL(false)
                 .setImage(R.mipmap.ic_launcher)
                 .addItem(getVersionElement())
                 .addItem(getFeedbackElement())
-                .addItem(getFeedbackWechatElement())
-                .addItem(getThanksElement())
-                .addItem(getDonateElement())
-                .addEmail("twsxtd@gmail.com")
-                .addWebsite("https://github.com/android-hacker/VAExposed")
-                .addGitHub("tiann")
-                .addItem(getCopyRightsElement())
-                .create();
+                .addItem(getFeedbackWechatElement());
 
+        try {
+            page.addItem(getThanksElement())
+                    .addItem(getDonateElement())
+                    .addEmail("twsxtd@gmail.com")
+                    .addWebsite("https://github.com/android-hacker/VAExposed")
+                    .addGitHub("tiann")
+                    .addItem(getCopyRightsElement());
+        } catch (Throwable ignored) {
+        }
+        View aboutPage = page.create();
         setContentView(aboutPage);
     }
 
