@@ -55,4 +55,7 @@
     <string name="about_thanks">致谢</string>
     <string name="thanks_dialog_title">特别鸣谢</string>
     <string name="thanks_dialog_content">感谢 Cheney 提供超赞的Icon，另外谢谢芑芮、佩奇、以及另外一些我还不知道名字的设计师的辛勤付出；谢谢各位小伙伴提供的创意和建议，特别感谢 YingLin 不厌其烦地帮我实现我的稀烂设计 :)</string>
+    <string name="alert_for_doze_mode_title">关于后台运行</string>
+    <string name="alert_for_doze_mode_content">为了让VAExposed内部运行的应用不会频繁被系统杀死，请允许把VAExposed加入电池优化白名单；同时，VAExposed会尽量保证APP不滥用此权限。请在接下来的系统弹窗中选择"允许" :)</string>
+    <string name="alert_for_doze_mode_yes">朕同意了</string>
 </resources>

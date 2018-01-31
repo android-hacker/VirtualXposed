@@ -7,12 +7,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.OrientationHelper;
@@ -126,6 +130,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         new HomePresenterImpl(this).start();
         VirtualCore.get().registerObserver(mPackageObserver);
         alertForMeizu();
+        alertForDoze();
     }
 
     @Override
@@ -569,5 +574,33 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
                 alertDialog.show();
             } catch (Throwable ignored) {}
         }, 2000);
+    }
+
+    private void alertForDoze() {
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return;
+        }
+        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        if (powerManager == null) {
+            return;
+        }
+        String packageName = getPackageName();
+        boolean ignoringBatteryOptimizations = powerManager.isIgnoringBatteryOptimizations(packageName);
+        if (!ignoringBatteryOptimizations) {
+
+            mUiHandler.postDelayed(() -> {
+                AlertDialog alertDialog = new AlertDialog.Builder(getContext())
+                        .setTitle(R.string.alert_for_doze_mode_title)
+                        .setMessage(R.string.alert_for_doze_mode_content)
+                        .setPositiveButton(R.string.alert_for_doze_mode_yes, (dialog, which) -> {
+                            startActivity(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                                    Uri.parse("package:" + packageName)));
+                        })
+                        .create();
+                try {
+                    alertDialog.show();
+                } catch (Throwable ignored) {}
+            }, 3000);
+        }
     }
 }
