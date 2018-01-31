@@ -268,6 +268,9 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
     }
 
     private void createShortcut(int position) {
+        if (position < 0) {
+            return;
+        }
         AppData model = mLaunchpadAdapter.getList().get(position);
         if (model instanceof PackageAppData || model instanceof MultiplePackageAppData) {
             mPresenter.createShortcut(model);
