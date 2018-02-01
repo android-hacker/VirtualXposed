@@ -599,8 +599,12 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
                         .setTitle(R.string.alert_for_doze_mode_title)
                         .setMessage(R.string.alert_for_doze_mode_content)
                         .setPositiveButton(R.string.alert_for_doze_mode_yes, (dialog, which) -> {
-                            startActivity(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
-                                    Uri.parse("package:" + packageName)));
+                            try {
+                                startActivity(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                                        Uri.parse("package:" + packageName)));
+                            } catch (Throwable ignored) {
+                                // ActivityNotFoundException on some devices.
+                            }
                         })
                         .create();
                 try {
