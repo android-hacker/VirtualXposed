@@ -63,5 +63,13 @@
     <string name="alert_for_doze_mode_content">Please allow VAExposed running in background, otherwise you may not receive notification of some inner app.</string>
     <string name="alert_for_doze_mode_yes">Allow</string>
     <string name="about_faq_title">FAQ</string>
+    <string name="clear_app">Clear\nData</string>
+    <string name="stop_app">Force\nStop</string>
+    <string name="home_menu_delete_title">Delete App</string>
+    <string name="home_menu_delete_content">Do you want to delete %1$s ?</string>
+    <string name="home_menu_clear_title" >Clear App Data</string>
+    <string name="home_menu_clear_content" >Do you want to clear data of %1$s ?</string>
+    <string name="home_menu_kill_title">Force Stop</string>
+    <string name="home_menu_kill_content">Do you want to force stop %1$s, this may cause it works Unexpectedly.</string>
 
 </resources>
