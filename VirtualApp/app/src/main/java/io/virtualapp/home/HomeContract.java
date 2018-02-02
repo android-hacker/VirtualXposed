@@ -49,6 +49,10 @@ import io.virtualapp.home.models.AppInfoLite;
 		void deleteApp(AppData data);
 
         void createShortcut(AppData data);
-    }
+
+		void clearApp(AppData data);
+
+		void killApp(AppData data);
+	}
 
 }

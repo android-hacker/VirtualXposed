@@ -59,4 +59,12 @@
     <string name="alert_for_doze_mode_content">为了让VAExposed内部运行的应用不会频繁被系统杀死，请允许把VAExposed加入电池优化白名单；同时，VAExposed会尽量保证APP不滥用此权限。请在接下来的系统弹窗中选择"允许" :)</string>
     <string name="alert_for_doze_mode_yes">朕同意了</string>
     <string name="about_faq_title">常见问题</string>
+    <string name="clear_app">清除\n数据</string>
+    <string name="stop_app">强制\n停止</string>
+    <string name="home_menu_delete_title">删除应用</string>
+    <string name="home_menu_delete_content">是否要从 VAExposed 删除 %1$s ?</string>
+    <string name="home_menu_clear_title">清除数据</string>
+    <string name="home_menu_clear_content">确定要删除 %1$s 的数据吗？</string>
+    <string name="home_menu_kill_title">强制停止</string>
+    <string name="home_menu_kill_content">是否要强制停止 %1$s 的运行？</string>
 </resources>

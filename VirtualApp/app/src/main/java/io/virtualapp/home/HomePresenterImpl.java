@@ -251,4 +251,24 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
         }
     }
 
+    @Override
+    public void clearApp(AppData data) {
+        if (data instanceof PackageAppData) {
+            VirtualCore.get().clearPackage(((PackageAppData) data).packageName);
+        } else {
+            MultiplePackageAppData appData = (MultiplePackageAppData) data;
+            VirtualCore.get().clearPackageAsUser(appData.userId, appData.appInfo.packageName);
+        }
+    }
+
+    @Override
+    public void killApp(AppData data) {
+        if (data instanceof PackageAppData) {
+            VirtualCore.get().killApp(((PackageAppData) data).packageName, 0);
+        } else {
+            MultiplePackageAppData appData = (MultiplePackageAppData) data;
+            VirtualCore.get().killApp(((MultiplePackageAppData) data).appInfo.packageName, appData.userId);
+        }
+    }
+
 }
