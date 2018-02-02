@@ -34,6 +34,7 @@ public class AboutActivity extends VActivity {
                 .isRTL(false)
                 .setImage(R.mipmap.ic_launcher)
                 .addItem(getVersionElement())
+                .addItem(getFAQElement())
                 .addItem(getFeedbackElement())
                 .addItem(getFeedbackWechatElement());
 
@@ -155,5 +156,15 @@ public class AboutActivity extends VActivity {
             }
         });
         return thanks;
+    }
+
+    Element getFAQElement() {
+        Element faq = new Element();
+        faq.setTitle(getResources().getString(R.string.about_faq_title));
+
+        Uri uri = Uri.parse("https://github.com/android-hacker/VAExposed/wiki/FAQ");
+        Intent t = new Intent(Intent.ACTION_VIEW, uri);
+        faq.setIntent(t);
+        return faq;
     }
 }
