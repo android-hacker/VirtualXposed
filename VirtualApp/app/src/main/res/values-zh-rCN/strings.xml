@@ -58,4 +58,5 @@
     <string name="alert_for_doze_mode_title">关于后台运行</string>
     <string name="alert_for_doze_mode_content">为了让VAExposed内部运行的应用不会频繁被系统杀死，请允许把VAExposed加入电池优化白名单；同时，VAExposed会尽量保证APP不滥用此权限。请在接下来的系统弹窗中选择"允许" :)</string>
     <string name="alert_for_doze_mode_yes">朕同意了</string>
+    <string name="about_faq_title">常见问题</string>
 </resources>
