@@ -62,6 +62,7 @@
     <string name="alert_for_doze_mode_title">Tips</string>
     <string name="alert_for_doze_mode_content">Please allow VAExposed running in background, otherwise you may not receive notification of some inner app.</string>
     <string name="alert_for_doze_mode_yes">Allow</string>
+    <string name="alert_for_doze_mode_no">Deny</string>
     <string name="about_faq_title">FAQ</string>
     <string name="clear_app">Clear\nData</string>
     <string name="stop_app">Force\nStop</string>

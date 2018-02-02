@@ -3,6 +3,7 @@ package io.virtualapp.home;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
@@ -16,6 +17,7 @@ import android.os.PowerManager;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -71,6 +73,8 @@ import static android.support.v7.widget.helper.ItemTouchHelper.UP;
 public class HomeActivity extends VActivity implements HomeContract.HomeView {
 
     private static final String TAG = HomeActivity.class.getSimpleName();
+
+    private static final String SHOW_DOZE_ALERT_KEY = "SHOW_DOZE_ALERT_KEY";
 
     private HomeContract.HomePresenter mPresenter;
     private TwoGearsView mLoadingView;
@@ -697,6 +701,10 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         if (powerManager == null) {
             return;
         }
+        boolean showAlert = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(SHOW_DOZE_ALERT_KEY, true);
+        if (!showAlert) {
+            return;
+        }
         String packageName = getPackageName();
         boolean ignoringBatteryOptimizations = powerManager.isIgnoringBatteryOptimizations(packageName);
         if (!ignoringBatteryOptimizations) {
@@ -707,12 +715,23 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
                         .setMessage(R.string.alert_for_doze_mode_content)
                         .setPositiveButton(R.string.alert_for_doze_mode_yes, (dialog, which) -> {
                             try {
-                                startActivity(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
-                                        Uri.parse("package:" + packageName)));
-                            } catch (Throwable ignored) {
+                                startActivity(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + getPackageName())));
+                            } catch (ActivityNotFoundException ignored) {
                                 // ActivityNotFoundException on some devices.
+                                try {
+                                    startActivity(new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS));
+                                } catch (Throwable e) {
+                                    PreferenceManager.getDefaultSharedPreferences(HomeActivity.this)
+                                            .edit().putBoolean(SHOW_DOZE_ALERT_KEY, false).apply();
+                                }
+                            } catch (Throwable e) {
+                                PreferenceManager.getDefaultSharedPreferences(HomeActivity.this)
+                                        .edit().putBoolean(SHOW_DOZE_ALERT_KEY, false).apply();
                             }
                         })
+                        .setNegativeButton(R.string.alert_for_doze_mode_no, (dialog, which) ->
+                                PreferenceManager.getDefaultSharedPreferences(HomeActivity.this)
+                                .edit().putBoolean(SHOW_DOZE_ALERT_KEY, false).apply())
                         .create();
                 try {
                     alertDialog.show();
