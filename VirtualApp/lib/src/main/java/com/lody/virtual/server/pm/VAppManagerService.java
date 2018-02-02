@@ -32,7 +32,6 @@ import com.lody.virtual.server.pm.parser.VPackage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -353,9 +352,6 @@ public class VAppManagerService extends IAppManager.Stub {
         try {
             BroadcastSystem.get().stopApp(packageName);
             VActivityManagerService.get().killAppByPkg(packageName, VUserHandle.USER_ALL);
-
-            FileUtils.deleteDir(VEnvironment.getDataAppPackageDirectory(packageName),
-                    Collections.singleton(VEnvironment.getOdexFile(packageName)));
 
             for (int id : VUserManagerService.get().getUserIds()) {
                 FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(id, packageName));
