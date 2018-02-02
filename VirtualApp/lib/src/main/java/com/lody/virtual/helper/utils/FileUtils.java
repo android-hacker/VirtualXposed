@@ -21,6 +21,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -99,6 +100,19 @@ public class FileUtils {
             }
         }
         return dir.delete();
+    }
+
+    public static boolean deleteDir(File dir, Set<File> ignores) {
+        if (dir.isDirectory()) {
+            String[] children = dir.list();
+            for (String file : children) {
+                boolean success = deleteDir(new File(dir, file), ignores);
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+        return ignores != null && ignores.contains(dir) || dir.delete();
     }
 
     public static boolean deleteDir(String dir) {
