@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.RemoteViews;
 
+import com.lody.virtual.helper.compat.SystemPropertiesCompat;
 import com.lody.virtual.helper.utils.Reflect;
 
 import static com.lody.virtual.os.VEnvironment.getPackageResourcePath;
@@ -67,6 +68,7 @@ import static com.lody.virtual.os.VEnvironment.getPackageResourcePath;
         fixApplicationInfo(notification.contentView, proxyApplicationInfo);
         fixApplicationInfo(notification.bigContentView, proxyApplicationInfo);
         fixApplicationInfo(notification.headsUpContentView, proxyApplicationInfo);
+        fixCustomNotificationOnColorOs(notification);
         Bundle bundle = Reflect.on(notification).get("extras");
         if (bundle != null) {
             bundle.putParcelable(EXTRA_BUILDER_APPLICATION_INFO, proxyApplicationInfo);
@@ -108,6 +110,39 @@ import static com.lody.virtual.os.VEnvironment.getPackageResourcePath;
     private void fixApplicationInfo(RemoteViews remoteViews, ApplicationInfo ai) {
         if (remoteViews != null) {
             mirror.android.widget.RemoteViews.mApplication.set(remoteViews, ai);
+        }
+    }
+
+    /**
+     * http://bbs.coloros.com/thread-379265-1-1.html
+     * https://www.coloros.com/thread-519347-1-1.html
+     * @param notification the notification
+     */
+    private void fixCustomNotificationOnColorOs(Notification notification) {
+        final String opporom = "ro.build.version.opporom";
+        final String colorOsVersion = SystemPropertiesCompat.get(opporom, "");
+        if (TextUtils.isEmpty(colorOsVersion)) {
+            return;
+        }
+
+        // http://bbs.coloros.com/thread-311896-1-1.html
+        // this can take effect also, but we do not use it.
+        // notification.flags |= Notification.FLAG_ONGOING_EVENT;
+
+        if (!colorOsVersion.toLowerCase().startsWith("v3")) {
+            return;
+        }
+        if (notification.contentView != null) {
+            notification.contentView = null;
+        }
+        if (notification.headsUpContentView != null) {
+            notification.headsUpContentView = null;
+        }
+        if (notification.bigContentView != null) {
+            notification.bigContentView = null;
+        }
+        if (notification.tickerView != null) {
+            notification.tickerView = null;
         }
     }
 }
