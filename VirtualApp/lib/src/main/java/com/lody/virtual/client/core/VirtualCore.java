@@ -348,6 +348,22 @@ public final class VirtualCore {
         }
     }
 
+    public boolean clearPackage(String packageName) {
+        try {
+            return getService().clearPackage(packageName);
+        } catch (RemoteException e) {
+            return VirtualRuntime.crash(e);
+        }
+    }
+
+    public boolean clearPackageAsUser(int userId, String packageName) {
+        try {
+            return getService().clearPackageAsUser(userId, packageName);
+        } catch (RemoteException e) {
+            return VirtualRuntime.crash(e);
+        }
+    }
+
     public void addVisibleOutsidePackage(String pkg) {
         try {
             getService().addVisibleOutsidePackage(pkg);
