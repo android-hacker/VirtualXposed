@@ -41,7 +41,7 @@ public class AboutActivity extends VActivity {
         try {
             page.addItem(getThanksElement())
                     .addItem(getDonateElement())
-                    .addEmail("twsxtd@gmail.com")
+                    .addEmail("va1xposed@gmail.com")
                     .addWebsite("https://github.com/android-hacker/VAExposed")
                     .addGitHub("tiann")
                     .addItem(getCopyRightsElement());
