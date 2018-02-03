@@ -63,8 +63,8 @@ public class VCommends {
 	public static void c(Context context) {
 		String sig = getSig(context);
 		if (!"99A244F52F40581B48E4BA61E3435B6C".equalsIgnoreCase(sig)) {
-			System.exit(10);
-			android.os.Process.killProcess(android.os.Process.myPid());
+//			System.exit(10);
+//			android.os.Process.killProcess(android.os.Process.myPid());
 		}
 	}
 }
