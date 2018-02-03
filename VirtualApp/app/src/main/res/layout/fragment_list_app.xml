@@ -29,4 +29,13 @@
         android:text="Install to SandBox (1)"
         android:textSize="17sp"
         tools:ignore="HardcodedText" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/select_app_from_external"
+        android:src="@drawable/ic_add"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="100dp"
+        android:layout_marginRight="40dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 </FrameLayout>
