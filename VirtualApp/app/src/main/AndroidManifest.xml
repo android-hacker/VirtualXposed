@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="io.virtualapp">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="io.virtualapp">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <uses-sdk tools:overrideLibrary="com.android.launcher3,android.support.dynamicanimation" />
 
     <application
         android:name=".VApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@style/LauncherTheme"
+        tools:replace="android:icon,android:label">
+
+        <meta-data
+            android:name="android.support.VERSION"
+            android:value="com.android.support:design:25.4.0"
+            tools:replace="android:value" />
 
         <activity
             android:name=".splash.SplashActivity"

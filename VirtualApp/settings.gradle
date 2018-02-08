@@ -1,1 +1,1 @@
-include ':lib', ':app'
+include ':lib', ':app', ':launcher'
