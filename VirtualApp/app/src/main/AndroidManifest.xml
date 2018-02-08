@@ -60,6 +60,7 @@
             android:theme="@style/UITheme"
             />
         <activity android:name=".about.AboutActivity" />
+        <activity android:name=".home.NewHomeActivity" />
 
         <service android:name=".update.VAVersionService"
             android:exported="true"

@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.FragmentActivity;
 
 import com.flurry.android.FlurryAgent;
 
@@ -15,7 +15,7 @@ import io.virtualapp.abs.BaseView;
 /**
  * @author Lody
  */
-public class VActivity extends AppCompatActivity {
+public class VActivity extends FragmentActivity {
 
     /**
      * Implement of {@link BaseView#getActivity()}
