@@ -20,6 +20,16 @@ android {
         }
     }
 
+    // https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration.html?utm_source=android-studio
+    flavorDimensions 'main'
+
+    productFlavors {
+        aosp {
+            dimension 'main'
+            //matchingFallbacks ['aosp']
+        }
+    }
+
     sourceSets {
         main{
             jniLibs.srcDirs = ['libs']
@@ -47,6 +57,7 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':lib')
+    compile project(':launcher')
     //Android Lib
     compile 'com.android.support:multidex:1.0.2'
     compile 'com.android.support:appcompat-v7:25.4.0'
