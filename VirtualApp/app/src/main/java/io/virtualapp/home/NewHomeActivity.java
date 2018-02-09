@@ -5,16 +5,17 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.RemoteException;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.apps.nexuslauncher.NexusLauncherActivity;
-import com.lody.virtual.client.core.VirtualCore;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import io.virtualapp.R;
 import io.virtualapp.VCommends;
@@ -30,43 +31,20 @@ import io.virtualapp.home.models.AppInfoLite;
 public class NewHomeActivity extends NexusLauncherActivity implements HomeContract.HomeView {
 
     private HomeContract.HomePresenter mPresenter;
+    private Handler mUiHandler;
+    private int mInstallCount = 0;
+    private long mInstallStartTime;
 
-    //region ---------------package observer---------------
-    private VirtualCore.PackageObserver mPackageObserver = new VirtualCore.PackageObserver() {
-        @Override
-        public void onPackageInstalled(String packageName) throws RemoteException {
-            if (!isForground) {
-                runOnUiThread(() -> mPresenter.dataChanged());
-            }
-        }
-
-        @Override
-        public void onPackageUninstalled(String packageName) throws RemoteException {
-            if (!isForground) {
-                runOnUiThread(() -> mPresenter.dataChanged());
-            }
-        }
-
-        @Override
-        public void onPackageInstalledAsUser(int userId, String packageName) throws RemoteException {
-        }
-
-        @Override
-        public void onPackageUninstalledAsUser(int userId, String packageName) throws RemoteException {
-        }
-    };
-    private boolean isForground = false;
-    //endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mUiHandler = new Handler(getMainLooper());
         getHotseat().setAddAppClickListener(v -> onAddAppClicked());
         getHotseat().setSettingClickListener(v -> onSettingsClicked());
 
         new HomePresenterImpl(this).start();
-        VirtualCore.get().registerObserver(mPackageObserver);
     }
 
     @Override
@@ -121,7 +99,7 @@ public class NewHomeActivity extends NexusLauncherActivity implements HomeContra
 
     @Override
     public void addAppToLauncher(AppData model) {
-
+        refreshLoadingDialog(model);
     }
 
     @Override
@@ -131,7 +109,7 @@ public class NewHomeActivity extends NexusLauncherActivity implements HomeContra
 
     @Override
     public void refreshLauncherItem(AppData model) {
-
+        refreshLoadingDialog(model);
     }
 
     @Override
@@ -152,6 +130,7 @@ public class NewHomeActivity extends NexusLauncherActivity implements HomeContra
     private void onSettingsClicked() {
         startActivity(new Intent(NewHomeActivity.this, AboutActivity.class));
     }
+
     @Override
     public void onClickSettingsButton(View v) {
         // super.onClickSettingsButton(v);
@@ -165,7 +144,11 @@ public class NewHomeActivity extends NexusLauncherActivity implements HomeContra
             List<AppInfoLite> appList = data.getParcelableArrayListExtra(VCommends.EXTRA_APP_INFO_LIST);
             if (appList != null) {
                 boolean showTip = false;
-                for (AppInfoLite info : appList) {
+                int size = appList.size();
+                mInstallCount = size;
+                mInstallStartTime = SystemClock.elapsedRealtime();
+                for (int i = 0; i < size; i++) {
+                    AppInfoLite info = appList.get(i);
                     if (new File(info.path).length() > 1024 * 1024 * 24) {
                         showTip = true;
                     }
@@ -191,5 +174,34 @@ public class NewHomeActivity extends NexusLauncherActivity implements HomeContra
             throw new RuntimeException("can not found package name for:" + intent);
         }
         LoadingActivity.launch(this, packageName, usedId);
+    }
+
+    private LoadingDialog mLoadingDialog;
+
+    private void refreshLoadingDialog(AppData model) {
+        runOnUiThread(() -> {
+            if (mLoadingDialog == null) {
+                mLoadingDialog = new LoadingDialog(NewHomeActivity.this);
+                mUiHandler.postDelayed(() -> mLoadingDialog.dismiss(), TimeUnit.MINUTES.toMillis(6));
+            }
+            if (model.isInstalling()) {
+                mLoadingDialog.setTitle(getResources().getString(R.string.add_app_loading_tips, model.getName()));
+                mLoadingDialog.show();
+                mUiHandler.postDelayed(() -> mLoadingDialog.startLoading(), 30);
+            } else if (model.isLoading()) {
+                mLoadingDialog.setTitle(getResources().getString(R.string.add_app_installing_tips, model.getName()));
+                mLoadingDialog.show();
+                mUiHandler.postDelayed(() -> mLoadingDialog.startLoading(), 30);
+            } else {
+                mInstallCount--;
+                if (mInstallCount <= 0) {
+                    mInstallCount = 0;
+                    // only dismiss when the app is the last to install.
+                    mLoadingDialog.setTitle(getResources().getString(R.string.add_app_laoding_complete, model.getName()));
+                    mLoadingDialog.stopLoading();
+                    mUiHandler.postDelayed(() -> mLoadingDialog.dismiss(), 300);
+                }
+            }
+        });
     }
 }

@@ -68,4 +68,7 @@
     <string name="home_menu_clear_content">确定要删除 %1$s 的数据吗？</string>
     <string name="home_menu_kill_title">强制停止</string>
     <string name="home_menu_kill_content">是否要强制停止 %1$s 的运行？</string>
+    <string name="add_app_loading_tips">正在解析安装包 %1$s</string>
+    <string name="add_app_installing_tips">正在安装 %1$s </string>
+    <string name="add_app_laoding_complete">%1$s 安装成功！</string>
 </resources>
