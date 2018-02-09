@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="#E5E5E5">
+
+    <scut.carson_ho.kawaii_loadingview.Kawaii_LoadingView
+        android:id="@+id/loadingView"
+        android:layout_centerInParent="true"
+        app:initPosition="0"
+        app:layout_heightPercent="25%"
+        app:layout_widthPercent="45%" />
+
+    <TextView
+        android:id="@+id/loading_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/loadingView"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="12dp"
+        android:textColor="#de000000"
+        android:layout_marginTop="18dp"
+        android:textSize="12sp" />
+
+</android.support.percent.PercentRelativeLayout>

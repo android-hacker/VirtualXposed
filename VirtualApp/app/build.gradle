@@ -6,7 +6,7 @@ android {
     buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "io.va.exposed"
-        minSdkVersion 15
+        minSdkVersion 21
         targetSdkVersion 22
         versionCode 47
         versionName "0.4.7"
@@ -75,4 +75,5 @@ dependencies {
     compile('com.allenliu.versionchecklib:library:1.8.3')
     compile 'com.github.medyo:android-about-page:1.2.2'
     compile 'moe.feng:AlipayZeroSdk:1.1'
+    compile 'com.carson_ho:Kawaii_LoadingView:1.0.0'
 }

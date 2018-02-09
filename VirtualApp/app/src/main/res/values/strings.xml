@@ -72,5 +72,8 @@
     <string name="home_menu_clear_content" >Do you want to clear data of %1$s ?</string>
     <string name="home_menu_kill_title">Force Stop</string>
     <string name="home_menu_kill_content">Do you want to force stop %1$s, this may cause it works Unexpectedly.</string>
+    <string name="add_app_loading_tips">Parsing package for %1$s</string>
+    <string name="add_app_installing_tips">Installing %1$s</string>
+    <string name="add_app_laoding_complete">%1$s install success!</string>
 
 </resources>
