@@ -90,8 +90,8 @@ public class LoadingActivity extends VActivity {
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onStop() {
+        super.onStop();
         if (loadingView != null) {
             loadingView.stopAnim();
         }
