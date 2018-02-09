@@ -1,10 +1,12 @@
 package io.virtualapp.home;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 
@@ -174,5 +176,20 @@ public class NewHomeActivity extends NexusLauncherActivity implements HomeContra
                 }
             }
         }
+    }
+
+    @Override
+    public void startVirtualActivity(Intent intent, Bundle options, int usedId) {
+        String packageName = intent.getPackage();
+        if (TextUtils.isEmpty(packageName)) {
+            ComponentName component = intent.getComponent();
+            if (component != null) {
+                packageName = component.getPackageName();
+            }
+        }
+        if (packageName == null) {
+            throw new RuntimeException("can not found package name for:" + intent);
+        }
+        LoadingActivity.launch(this, packageName, usedId);
     }
 }
