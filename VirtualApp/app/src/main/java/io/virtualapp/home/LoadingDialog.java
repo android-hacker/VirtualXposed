@@ -2,6 +2,7 @@ package io.virtualapp.home;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -13,7 +14,7 @@ import scut.carson_ho.kawaii_loadingview.Kawaii_LoadingView;
  * author: weishu on 18/2/9.
  */
 
-public class LoadingDialog{
+public class LoadingDialog {
     Kawaii_LoadingView mLoadingView;
     TextView mLoadingText;
 
@@ -29,6 +30,7 @@ public class LoadingDialog{
                 .setView(root)
                 .setCancelable(false)
                 .create();
+        mDialog.getWindow().setBackgroundDrawable(new ColorDrawable());
     }
 
     public void startLoading() {
