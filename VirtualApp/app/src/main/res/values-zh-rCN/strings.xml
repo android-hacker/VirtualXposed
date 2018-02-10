@@ -71,4 +71,5 @@
     <string name="add_app_loading_tips">正在解析安装包 %1$s</string>
     <string name="add_app_installing_tips">正在安装 %1$s </string>
     <string name="add_app_laoding_complete">%1$s 安装成功！</string>
+    <string name="list_app_activity_install">添加到VAExposed</string>
 </resources>

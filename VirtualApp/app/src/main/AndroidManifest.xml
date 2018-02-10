@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="io.virtualapp">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <uses-sdk tools:overrideLibrary="com.android.launcher3,android.support.dynamicanimation" />
@@ -26,20 +26,20 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <activity
             android:name=".home.HomeActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/UITheme"/>
+            android:theme="@style/UITheme" />
 
         <activity
             android:name=".home.ListAppActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/UITheme"/>
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <activity
             android:name=".home.LoadingActivity"
@@ -47,24 +47,27 @@
             android:noHistory="true"
             android:screenOrientation="portrait"
             android:taskAffinity="va.task.loading"
-            android:theme="@style/TransparentTheme"/>
+            android:theme="@style/TransparentTheme" />
         <activity
             android:name=".home.location.VirtualLocationSettings"
             android:screenOrientation="portrait"
-            android:theme="@style/UITheme"
-            />
+            android:theme="@style/UITheme" />
 
         <activity
             android:name=".home.location.MarkerActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/UITheme"
-            />
-        <activity android:name=".about.AboutActivity" />
+            android:theme="@style/UITheme" />
+        <activity
+            android:name=".about.AboutActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
         <activity android:name=".home.NewHomeActivity" />
 
-        <service android:name=".update.VAVersionService"
-            android:exported="true"
-            android:enabled="true"/>
+        <service
+            android:name=".update.VAVersionService"
+            android:enabled="true"
+            android:exported="true" />
     </application>
 
 
