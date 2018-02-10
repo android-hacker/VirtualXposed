@@ -199,7 +199,7 @@ public class NewHomeActivity extends NexusLauncherActivity implements HomeContra
                     // only dismiss when the app is the last to install.
                     mLoadingDialog.setTitle(getResources().getString(R.string.add_app_laoding_complete, model.getName()));
                     mLoadingDialog.stopLoading();
-                    mUiHandler.postDelayed(() -> mLoadingDialog.dismiss(), 300);
+                    mUiHandler.postDelayed(() -> mLoadingDialog.dismiss(), 500);
                 }
             }
         });
