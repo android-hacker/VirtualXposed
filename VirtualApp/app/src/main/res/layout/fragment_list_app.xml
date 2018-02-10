@@ -26,7 +26,8 @@
         android:layout_gravity="bottom|center"
         android:layout_margin="15dp"
         android:background="@drawable/sel_clone_app_btn"
-        android:text="Install to SandBox (1)"
+        android:text="@string/list_app_activity_install"
+        android:textColor="@color/desktopColorB"
         android:textSize="17sp"
         tools:ignore="HardcodedText" />
 
