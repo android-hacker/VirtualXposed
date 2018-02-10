@@ -13,7 +13,7 @@
         android:id="@+id/loadingView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#77ffffff"
+        android:background="#aaffffff"
         app:initPosition="0"
         app:layout_heightPercent="25%"
         app:layout_widthPercent="65%" />
@@ -22,7 +22,7 @@
         android:id="@+id/loading_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#77ffffff"
+        android:background="#aaffffff"
         android:gravity="center"
         android:paddingBottom="18dp"
         android:textColor="#de000000"
