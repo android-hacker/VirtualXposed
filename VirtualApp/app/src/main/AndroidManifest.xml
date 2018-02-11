@@ -53,15 +53,7 @@
             android:screenOrientation="portrait"
             android:taskAffinity="va.task.loading"
             android:theme="@style/TransparentTheme" />
-        <activity
-            android:name=".home.location.VirtualLocationSettings"
-            android:screenOrientation="portrait"
-            android:theme="@style/UITheme" />
 
-        <activity
-            android:name=".home.location.MarkerActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/UITheme" />
         <activity
             android:name=".about.AboutActivity"
             android:screenOrientation="portrait"
