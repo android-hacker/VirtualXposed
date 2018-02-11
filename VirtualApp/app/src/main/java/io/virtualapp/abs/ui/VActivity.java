@@ -6,8 +6,6 @@ import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
-import com.flurry.android.FlurryAgent;
-
 import org.jdeferred.android.AndroidDeferredManager;
 
 import io.virtualapp.abs.BaseView;
@@ -46,12 +44,10 @@ public class VActivity extends FragmentActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        FlurryAgent.onStartSession(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        FlurryAgent.onEndSession(this);
     }
 }

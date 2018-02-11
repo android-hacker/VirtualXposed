@@ -6,7 +6,7 @@ import android.os.Looper;
 import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
-import com.flurry.android.FlurryAgent;
+import com.crashlytics.android.Crashlytics;
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.stub.VASettings;
@@ -20,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import io.fabric.sdk.android.Fabric;
 import io.virtualapp.delegate.MyAppRequestListener;
 import io.virtualapp.delegate.MyComponentDelegate;
 import io.virtualapp.delegate.MyPhoneInfoDelegate;
@@ -67,12 +68,8 @@ public class VApp extends MultiDexApplication {
             @Override
             public void onMainProcess() {
                 Once.initialise(VApp.this);
-                new FlurryAgent.Builder()
-                        .withLogEnabled(true)
-                        .withListener(() -> {
-                            // nothing
-                        })
-                        .build(VApp.this, "TWJ6CT7F55SH7VFWNRZ2");
+
+                Fabric.with(VApp.this, new Crashlytics());
 
                 boolean isXposedInstalled = VirtualCore.get().isAppInstalled(XPOSED_INSTALLER_PACKAGE);
                 try {
