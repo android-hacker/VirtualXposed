@@ -53,7 +53,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import dalvik.system.DexFile;
 import mirror.android.app.ActivityThread;
 
 /**
@@ -324,10 +323,11 @@ public final class VirtualCore {
      */
     @Deprecated
     public void preOpt(String pkg) throws IOException {
+        /*
         InstalledAppInfo info = getInstalledAppInfo(pkg, 0);
         if (info != null && !info.dependSystem) {
             DexFile.loadDex(info.apkPath, info.getOdexFile().getPath(), 0).close();
-        }
+        }*/
     }
 
     /**
