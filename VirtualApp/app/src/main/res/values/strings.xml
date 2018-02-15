@@ -82,5 +82,6 @@
     <string name="settings_desktop_text">Desktop Settings</string>
     <string name="app_manage_uninstall">Uninstall</string>
     <string name="settings_title">Settings</string>
+    <string name="task_manage_uninstall">Kill Process</string>
 
 </resources>

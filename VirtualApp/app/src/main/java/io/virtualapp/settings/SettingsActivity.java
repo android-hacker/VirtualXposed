@@ -64,6 +64,11 @@ public class SettingsActivity extends VActivity {
                 return false;
             });
 
+            taskManage.setOnPreferenceClickListener(preference -> {
+                startActivity(new Intent(getActivity(), TaskManageActivity.class));
+                return false;
+            });
+
             faq.setOnPreferenceClickListener(preference -> {
                 Uri uri = Uri.parse("https://github.com/android-hacker/VAExposed/wiki/FAQ");
                 Intent t = new Intent(Intent.ACTION_VIEW, uri);
