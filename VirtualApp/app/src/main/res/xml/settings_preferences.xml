@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <Preference
+        android:key="settings_app_manage"
+        android:title="@string/settings_app_manage_text"
+        android:persistent="false">
+    </Preference>
+
+    <Preference
+        android:key="settings_task_manage"
+        android:title="@string/settings_task_manage_text"
+        android:persistent="false">
+    </Preference>
+
+    <Preference
+        android:key="settings_desktop"
+        android:title="@string/settings_desktop_text"
+        android:persistent="false">
+    </Preference>
+
+    <Preference
+        android:key="settings_faq"
+        android:title="@string/about_faq_title"
+        android:persistent="false">
+    </Preference>
+
+    <Preference
+        android:key="settings_donate"
+        android:title="@string/about_donate_title"
+        android:persistent="false">
+    </Preference>
+
+    <Preference
+        android:key="settings_about"
+        android:title="@string/settings_about_text"
+        android:persistent="false">
+    </Preference>
+</PreferenceScreen>

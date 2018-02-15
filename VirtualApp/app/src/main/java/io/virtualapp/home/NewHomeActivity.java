@@ -19,9 +19,9 @@ import java.util.concurrent.TimeUnit;
 
 import io.virtualapp.R;
 import io.virtualapp.VCommends;
-import io.virtualapp.about.AboutActivity;
 import io.virtualapp.home.models.AppData;
 import io.virtualapp.home.models.AppInfoLite;
+import io.virtualapp.settings.SettingsActivity;
 
 /**
  * @author weishu
@@ -128,7 +128,7 @@ public class NewHomeActivity extends NexusLauncherActivity implements HomeContra
     }
 
     private void onSettingsClicked() {
-        startActivity(new Intent(NewHomeActivity.this, AboutActivity.class));
+        startActivity(new Intent(NewHomeActivity.this, SettingsActivity.class));
     }
 
     @Override

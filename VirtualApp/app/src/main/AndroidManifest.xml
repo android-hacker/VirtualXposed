@@ -23,8 +23,7 @@
 
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="797c6ad1f87c908a4d7f6e8091e6466848b1611d"
-            />
+            android:value="797c6ad1f87c908a4d7f6e8091e6466848b1611d" />
 
         <activity
             android:name=".splash.SplashActivity"
@@ -55,11 +54,14 @@
             android:theme="@style/TransparentTheme" />
 
         <activity
-            android:name=".about.AboutActivity"
+            android:name=".settings.AboutActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <activity android:name=".home.NewHomeActivity" />
+        <activity
+            android:name=".settings.SettingsActivity"
+            android:theme="@style/SettingsTheme" />
 
         <service
             android:name=".update.VAVersionService"
