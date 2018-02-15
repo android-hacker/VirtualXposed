@@ -9,6 +9,7 @@ import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
 import com.android.launcher3.LauncherFiles;
+import com.lody.virtual.client.core.VirtualCore;
 
 import io.virtualapp.R;
 import io.virtualapp.abs.ui.VActivity;
@@ -25,6 +26,7 @@ public class SettingsActivity extends VActivity {
     private static final String FAQ_SETTINGS_KEY = "settings_faq";
     private static final String DONATE_KEY = "settings_donate";
     private static final String ABOUT_KEY = "settings_about";
+    private static final String REBOOT_KEY = "settings_reboot";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +60,7 @@ public class SettingsActivity extends VActivity {
             Preference faq = findPreference(FAQ_SETTINGS_KEY);
             Preference donate = findPreference(DONATE_KEY);
             Preference about = findPreference(ABOUT_KEY);
+            Preference reboot = findPreference(REBOOT_KEY);
 
             appManage.setOnPreferenceClickListener(preference -> {
                 startActivity(new Intent(getActivity(), AppManageActivity.class));
@@ -112,7 +115,22 @@ public class SettingsActivity extends VActivity {
                 return false;
             });
 
+            reboot.setOnPreferenceClickListener(preference -> {
+                android.app.AlertDialog alertDialog = new android.app.AlertDialog.Builder(getActivity())
+                        .setTitle(R.string.settings_reboot_title)
+                        .setMessage(getResources().getString(R.string.settings_reboot_content))
+                        .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                            VirtualCore.get().killAllApps();
+                            Toast.makeText(getActivity(), R.string.reboot_tips_1, Toast.LENGTH_SHORT).show();
+                        })
+                        .setNegativeButton(android.R.string.no, null)
+                        .create();
+                try {
+                    alertDialog.show();
+                } catch (Throwable ignored) {
+                }
+                return false;
+            });
         }
     }
-
 }
