@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
 
 import org.jdeferred.android.AndroidDeferredManager;
 
@@ -13,7 +13,7 @@ import io.virtualapp.abs.BaseView;
 /**
  * @author Lody
  */
-public class VActivity extends FragmentActivity {
+public class VActivity extends AppCompatActivity {
 
     /**
      * Implement of {@link BaseView#getActivity()}

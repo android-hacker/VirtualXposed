@@ -80,5 +80,7 @@
     <string name="settings_task_manage_text">Manage Tasks</string>
     <string name="settings_app_manage_text">Manage Apps</string>
     <string name="settings_desktop_text">Desktop Settings</string>
+    <string name="app_manage_uninstall">Uninstall</string>
+    <string name="settings_title">Settings</string>
 
 </resources>
