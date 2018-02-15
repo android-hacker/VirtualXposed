@@ -10,7 +10,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
@@ -160,7 +159,6 @@ public class NewHomeActivity extends NexusLauncherActivity implements HomeContra
                 boolean showTip = false;
                 int size = appList.size();
                 mInstallCount = size;
-                mInstallStartTime = SystemClock.elapsedRealtime();
                 for (int i = 0; i < size; i++) {
                     AppInfoLite info = appList.get(i);
                     if (new File(info.path).length() > 1024 * 1024 * 24) {
