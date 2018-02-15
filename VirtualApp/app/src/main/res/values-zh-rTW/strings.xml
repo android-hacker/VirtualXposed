@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">VirtualApp</string>
+    <string name="app_name">VirtualXposed</string>
     <string name="desktop">桌面</string>
     <string name="add_app">新增App</string>
     <string name="preparing">正在打開App，請稍候…</string>
