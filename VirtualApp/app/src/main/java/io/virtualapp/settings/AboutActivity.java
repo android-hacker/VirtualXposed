@@ -1,12 +1,9 @@
-package io.virtualapp.about;
+package io.virtualapp.settings;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -20,7 +17,6 @@ import io.virtualapp.R;
 import io.virtualapp.abs.ui.VActivity;
 import mehdi.sakout.aboutpage.AboutPage;
 import mehdi.sakout.aboutpage.Element;
-import moe.feng.alipay.zerosdk.AlipayZeroSdk;
 
 /**
  * author: weishu on 18/1/12.
@@ -34,19 +30,13 @@ public class AboutActivity extends VActivity {
                 .isRTL(false)
                 .setImage(R.mipmap.ic_launcher)
                 .addItem(getVersionElement())
-                .addItem(getFAQElement())
                 .addItem(getFeedbackElement())
-                .addItem(getFeedbackWechatElement());
-
-        try {
-            page.addItem(getThanksElement())
-                    .addItem(getDonateElement())
-                    .addEmail("va1xposed@gmail.com")
-                    .addWebsite("https://github.com/android-hacker/VAExposed")
-                    .addGitHub("tiann")
-                    .addItem(getCopyRightsElement());
-        } catch (Throwable ignored) {
-        }
+                .addItem(getFeedbackWechatElement())
+                .addItem(getThanksElement())
+                .addEmail("va1xposed@gmail.com")
+                .addWebsite("https://github.com/android-hacker/VAExposed")
+                .addGitHub("tiann")
+                .addItem(getCopyRightsElement());
         View aboutPage = page.create();
         setContentView(aboutPage);
     }
@@ -55,9 +45,7 @@ public class AboutActivity extends VActivity {
         Element copyRightsElement = new Element();
         final String copyrights = String.format(getString(R.string.copy_right), Calendar.getInstance().get(Calendar.YEAR));
         copyRightsElement.setTitle(copyrights);
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-            copyRightsElement.setIconDrawable(R.drawable.about_icon_copy_right);
-        }
+        copyRightsElement.setIconDrawable(R.drawable.about_icon_copy_right);
         copyRightsElement.setIconTint(mehdi.sakout.aboutpage.R.color.about_item_icon_color);
         copyRightsElement.setIconNightTint(android.R.color.white);
         copyRightsElement.setGravity(Gravity.CENTER);
@@ -108,38 +96,6 @@ public class AboutActivity extends VActivity {
         return feedback;
     }
 
-    Element getDonateElement() {
-        Element donate = new Element();
-        donate.setTitle(getResources().getString(R.string.about_donate_title));
-        donate.setIconDrawable(R.drawable.ic_menu_donate);
-        donate.setOnClickListener(v -> {
-            AlertDialog alertDialog = new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight_Dialog_Alert)
-                    .setTitle(R.string.donate_dialog_title)
-                    .setMessage(R.string.donate_dialog_content)
-                    .setPositiveButton(R.string.donate_dialog_yes, (dialog, which) -> {
-                        if (!AlipayZeroSdk.hasInstalledAlipayClient(v.getContext())) {
-                            Toast.makeText(v.getContext(), R.string.prompt_alipay_not_found, Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        AlipayZeroSdk.startAlipayClient(AboutActivity.this, "FKX016770URBZGZSR37U37");
-                    })
-                    .setNegativeButton(R.string.donate_dialog_no, ((dialog, which) -> {
-                        Intent intent = new Intent();
-                        intent.setAction(Intent.ACTION_VIEW);
-                        intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                        intent.setData(Uri.parse("https://github.com/android-hacker/exposed"));
-                        startActivity(intent);
-                    }))
-                    .create();
-            try {
-                alertDialog.show();
-            } catch (Throwable ignored) {
-                // BadTokenException.
-            }
-        });
-        return donate;
-    }
-
     Element getThanksElement() {
         Element thanks = new Element();
         thanks.setTitle(getResources().getString(R.string.about_thanks));
@@ -156,15 +112,5 @@ public class AboutActivity extends VActivity {
             }
         });
         return thanks;
-    }
-
-    Element getFAQElement() {
-        Element faq = new Element();
-        faq.setTitle(getResources().getString(R.string.about_faq_title));
-
-        Uri uri = Uri.parse("https://github.com/android-hacker/VAExposed/wiki/FAQ");
-        Intent t = new Intent(Intent.ACTION_VIEW, uri);
-        faq.setIntent(t);
-        return faq;
     }
 }

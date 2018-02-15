@@ -72,4 +72,8 @@
     <string name="add_app_installing_tips">正在安装 %1$s </string>
     <string name="add_app_laoding_complete">%1$s 安装成功！</string>
     <string name="list_app_activity_install">添加到VAExposed</string>
+    <string name="settings_about_text">关于</string>
+    <string name="settings_task_manage_text">任务管理</string>
+    <string name="settings_app_manage_text">应用管理</string>
+    <string name="settings_desktop_text">桌面设置</string>
 </resources>

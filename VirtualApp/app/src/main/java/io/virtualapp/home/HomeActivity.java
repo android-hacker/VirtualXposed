@@ -44,7 +44,7 @@ import java.util.List;
 import io.virtualapp.R;
 import io.virtualapp.VApp;
 import io.virtualapp.VCommends;
-import io.virtualapp.about.AboutActivity;
+import io.virtualapp.settings.AboutActivity;
 import io.virtualapp.abs.Function;
 import io.virtualapp.abs.nestedadapter.SmartRecyclerAdapter;
 import io.virtualapp.abs.ui.VActivity;
