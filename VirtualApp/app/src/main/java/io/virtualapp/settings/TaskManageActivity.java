@@ -49,7 +49,6 @@ public class TaskManageActivity extends VActivity {
     }
 
     private void loadAsync() {
-        mInstalledApps.clear();
         defer().when(this::loadApp).done((v) -> mAdapter.notifyDataSetChanged());
     }
 
@@ -151,7 +150,7 @@ public class TaskManageActivity extends VActivity {
 
             holder.button.setOnClickListener(v -> {
                 VActivityManager.get().killApplicationProcess(item.name.toString(), item.uid);
-                loadAsync();
+                holder.button.postDelayed(TaskManageActivity.this::loadAsync, 300);
             });
 
             return convertView;
