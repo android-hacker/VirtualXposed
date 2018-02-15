@@ -79,4 +79,6 @@
     <string name="app_manage_uninstall">卸载</string>
     <string name="settings_title">设置</string>
     <string name="task_manage_uninstall">结束任务</string>
+    <string name="settings_reboot_title">重启 VirtualXposed</string>
+    <string name="settings_reboot_content">这将使所有运行在 VirtualXposed 内部的APP重启，确认要这么做吗？</string>
 </resources>

@@ -35,4 +35,10 @@
         android:title="@string/settings_about_text"
         android:persistent="false">
     </Preference>
+
+    <Preference
+        android:key="settings_reboot"
+        android:title="@string/menu_reboot"
+        android:persistent="false">
+    </Preference>
 </PreferenceScreen>
