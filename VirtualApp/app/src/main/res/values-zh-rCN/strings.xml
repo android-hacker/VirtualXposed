@@ -76,4 +76,6 @@
     <string name="settings_task_manage_text">任务管理</string>
     <string name="settings_app_manage_text">应用管理</string>
     <string name="settings_desktop_text">桌面设置</string>
+    <string name="app_manage_uninstall">卸载</string>
+    <string name="settings_title">设置</string>
 </resources>

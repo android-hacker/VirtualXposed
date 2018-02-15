@@ -59,9 +59,24 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <activity android:name=".home.NewHomeActivity" />
+
         <activity
             android:name=".settings.SettingsActivity"
-            android:theme="@style/SettingsTheme" />
+            android:label="@string/settings_title"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light" />
+
+        <activity
+            android:name=".settings.AppManageActivity"
+            android:label="@string/settings_app_manage_text"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light" />
+
+        <activity
+            android:name=".settings.TaskManageActivity"
+            android:label="@string/settings_task_manage_text"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light" />
 
         <service
             android:name=".update.VAVersionService"

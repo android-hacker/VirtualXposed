@@ -1,6 +1,5 @@
 package io.virtualapp.settings;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,12 +11,13 @@ import android.widget.Toast;
 import com.android.launcher3.LauncherFiles;
 
 import io.virtualapp.R;
+import io.virtualapp.abs.ui.VActivity;
 import moe.feng.alipay.zerosdk.AlipayZeroSdk;
 
 /**
  * Settings activity for Launcher. Currently implements the following setting: Allow rotation
  */
-public class SettingsActivity extends Activity {
+public class SettingsActivity extends VActivity {
 
     private static final String APP_MANAGE_KEY = "settings_app_manage";
     public static final String TASK_MANAGE_KEY = "settings_task_manage";
@@ -58,6 +58,11 @@ public class SettingsActivity extends Activity {
             Preference faq = findPreference(FAQ_SETTINGS_KEY);
             Preference donate = findPreference(DONATE_KEY);
             Preference about = findPreference(ABOUT_KEY);
+
+            appManage.setOnPreferenceClickListener(preference -> {
+                startActivity(new Intent(getActivity(), AppManageActivity.class));
+                return false;
+            });
 
             faq.setOnPreferenceClickListener(preference -> {
                 Uri uri = Uri.parse("https://github.com/android-hacker/VAExposed/wiki/FAQ");
