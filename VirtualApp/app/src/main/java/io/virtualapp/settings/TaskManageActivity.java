@@ -1,8 +1,7 @@
 package io.virtualapp.settings;
 
-import android.app.AlertDialog;
+import android.app.ActivityManager;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -17,6 +16,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.ipc.VActivityManager;
+import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.remote.InstalledAppInfo;
 
 import java.util.ArrayList;
@@ -33,13 +34,12 @@ import io.virtualapp.abs.ui.VActivity;
 public class TaskManageActivity extends VActivity {
 
     private ListView mListView;
-    private List<AppManageInfo> mInstalledApps = new ArrayList<>();
+    private List<TaskManageInfo> mInstalledApps = new ArrayList<>();
     private AppManageAdapter mAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle(R.string.settings_app_manage_text);
         setContentView(R.layout.activity_app_list);
         mListView = (ListView) findViewById(R.id.list);
         mAdapter = new AppManageAdapter();
@@ -55,20 +55,59 @@ public class TaskManageActivity extends VActivity {
 
     private void loadApp() {
 
-        List<InstalledAppInfo> installedApps = VirtualCore.get().getInstalledApps(0);
-        PackageManager packageManager = getPackageManager();
-        for (InstalledAppInfo installedApp : installedApps) {
-            int[] installedUsers = installedApp.getInstalledUsers();
-            for (int installedUser : installedUsers) {
-                AppManageInfo info = new AppManageInfo();
-                info.userId = installedUser;
-                ApplicationInfo applicationInfo = installedApp.getApplicationInfo(installedUser);
-                info.name = applicationInfo.loadLabel(packageManager);
-                info.icon = applicationInfo.loadIcon(packageManager);
-                info.pkgName = installedApp.packageName;
-                mInstalledApps.add(info);
+        ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        if (am == null) {
+            return;
+        }
+
+        List<TaskManageInfo> ret = new ArrayList<>();
+        List<ActivityManager.RunningAppProcessInfo> infoList = am.getRunningAppProcesses();
+        if (infoList == null) {
+            return;
+        }
+        List<ActivityManager.RunningAppProcessInfo> retList = new ArrayList<>();
+        String hostPkg = VirtualCore.get().getHostPkg();
+        for (ActivityManager.RunningAppProcessInfo info : infoList) {
+            if (VActivityManager.get().isAppPid(info.pid)) {
+                List<String> pkgList = VActivityManager.get().getProcessPkgList(info.pid);
+                if (pkgList.contains(hostPkg)) {
+                    continue;
+                }
+                String processName = VActivityManager.get().getAppProcessName(info.pid);
+                if (processName != null) {
+                    info.processName = processName;
+                }
+                info.pkgList = pkgList.toArray(new String[pkgList.size()]);
+                info.uid = VUserHandle.getAppId(VActivityManager.get().getUidByPid(info.pid));
+                retList.add(info);
             }
         }
+
+        PackageManager packageManager = getPackageManager();
+        for (ActivityManager.RunningAppProcessInfo runningAppProcessInfo : retList) {
+            TaskManageInfo info = new TaskManageInfo();
+            info.name = runningAppProcessInfo.processName;
+            info.pid = runningAppProcessInfo.pid;
+            info.uid = runningAppProcessInfo.uid;
+
+            Drawable icon = null;
+            if (runningAppProcessInfo.pkgList != null) {
+                for (String pkg : runningAppProcessInfo.pkgList) {
+                    InstalledAppInfo installedAppInfo = VirtualCore.get().getInstalledAppInfo(pkg, 0);
+                    if (installedAppInfo != null) {
+                        Drawable drawable = installedAppInfo.getApplicationInfo(0).loadIcon(packageManager);
+                        if (drawable != null) {
+                            icon = drawable;
+                            break;
+                        }
+                    }
+                }
+            }
+            info.icon = icon;
+            ret.add(info);
+        }
+        mInstalledApps.clear();
+        mInstalledApps.addAll(ret);
     }
 
     class AppManageAdapter extends BaseAdapter {
@@ -79,7 +118,7 @@ public class TaskManageActivity extends VActivity {
         }
 
         @Override
-        public AppManageInfo getItem(int position) {
+        public TaskManageInfo getItem(int position) {
             return mInstalledApps.get(position);
         }
 
@@ -99,17 +138,10 @@ public class TaskManageActivity extends VActivity {
                 holder = (ViewHolder) convertView.getTag();
             }
 
-            AppManageInfo item = getItem(position);
+            TaskManageInfo item = getItem(position);
 
-            holder.button.setText(R.string.app_manage_uninstall);
-            CharSequence name;
-            if (item.userId == 0) {
-                name = item.name;
-            } else {
-                name = item.name + "[" + (item.userId + 1) + "]";
-            }
-
-            holder.label.setText(name);
+            holder.button.setText(R.string.task_manage_uninstall);
+            holder.label.setText(item.name);
 
             if (item.icon == null) {
                 holder.icon.setVisibility(View.GONE);
@@ -118,19 +150,8 @@ public class TaskManageActivity extends VActivity {
             }
 
             holder.button.setOnClickListener(v -> {
-                AlertDialog alertDialog = new AlertDialog.Builder(TaskManageActivity.this)
-                        .setTitle(com.android.launcher3.R.string.home_menu_delete_title)
-                        .setMessage(getResources().getString(com.android.launcher3.R.string.home_menu_delete_content, name))
-                        .setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                            VirtualCore.get().uninstallPackageAsUser(item.pkgName, item.userId);
-                            loadAsync();
-                        })
-                        .setNegativeButton(android.R.string.no, null)
-                        .create();
-                try {
-                    alertDialog.show();
-                } catch (Throwable ignored) {
-                }
+                VActivityManager.get().killApplicationProcess(item.name.toString(), item.uid);
+                loadAsync();
             });
 
             return convertView;
@@ -152,10 +173,10 @@ public class TaskManageActivity extends VActivity {
         }
     }
 
-    static class AppManageInfo {
+    static class TaskManageInfo {
         CharSequence name;
-        int userId;
+        int uid;
+        int pid;
         Drawable icon;
-        String pkgName;
     }
 }
