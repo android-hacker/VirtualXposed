@@ -49,12 +49,12 @@ public class AppManageActivity extends VActivity {
     }
 
     private void loadAsync() {
-        mInstalledApps.clear();
         VUiKit.defer().when(this::loadApp).done((v) -> mAdapter.notifyDataSetChanged());
     }
 
     private void loadApp() {
 
+        List<AppManageInfo> ret = new ArrayList<>();
         List<InstalledAppInfo> installedApps = VirtualCore.get().getInstalledApps(0);
         PackageManager packageManager = getPackageManager();
         for (InstalledAppInfo installedApp : installedApps) {
@@ -66,9 +66,11 @@ public class AppManageActivity extends VActivity {
                 info.name = applicationInfo.loadLabel(packageManager);
                 info.icon = applicationInfo.loadIcon(packageManager);
                 info.pkgName = installedApp.packageName;
-                mInstalledApps.add(info);
+                ret.add(info);
             }
         }
+        mInstalledApps.clear();
+        mInstalledApps.addAll(ret);
     }
 
     class AppManageAdapter extends BaseAdapter {
