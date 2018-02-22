@@ -25,7 +25,7 @@ public class VDeviceManager {
 
     public IDeviceInfoManager getRemote() {
         if (mRemote == null ||
-                (!mRemote.asBinder().isBinderAlive() && !VirtualCore.get().isVAppProcess())) {
+                (!mRemote.asBinder().pingBinder() && !VirtualCore.get().isVAppProcess())) {
             synchronized (this) {
                 Object remote = getRemoteInterface();
                 mRemote = LocalProxyUtils.genProxy(IDeviceInfoManager.class, remote);

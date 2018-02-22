@@ -34,7 +34,7 @@ public class VPackageManager {
 
     public IPackageManager getInterface() {
         if (mRemote == null ||
-                (!mRemote.asBinder().isBinderAlive() && !VirtualCore.get().isVAppProcess())) {
+                (!mRemote.asBinder().pingBinder() && !VirtualCore.get().isVAppProcess())) {
             synchronized (VPackageManager.class) {
                 Object remote = getRemoteInterface();
                 mRemote = LocalProxyUtils.genProxy(IPackageManager.class, remote);

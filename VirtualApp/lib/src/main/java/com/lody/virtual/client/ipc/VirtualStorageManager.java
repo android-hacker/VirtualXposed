@@ -25,7 +25,7 @@ public class VirtualStorageManager {
 
     public IVirtualStorageService getRemote() {
         if (mRemote == null ||
-                (!mRemote.asBinder().isBinderAlive() && !VirtualCore.get().isVAppProcess())) {
+                (!mRemote.asBinder().pingBinder() && !VirtualCore.get().isVAppProcess())) {
             synchronized (this) {
                 Object remote = getRemoteInterface();
                 mRemote = LocalProxyUtils.genProxy(IVirtualStorageService.class, remote);

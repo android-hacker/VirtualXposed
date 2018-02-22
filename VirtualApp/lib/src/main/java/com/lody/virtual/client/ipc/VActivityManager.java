@@ -50,7 +50,7 @@ public class VActivityManager {
 
     public IActivityManager getService() {
         if (mRemote == null ||
-                (!mRemote.asBinder().isBinderAlive() && !VirtualCore.get().isVAppProcess())) {
+                (!mRemote.asBinder().pingBinder() && !VirtualCore.get().isVAppProcess())) {
             synchronized (VActivityManager.class) {
                 final Object remote = getRemoteInterface();
                 mRemote = LocalProxyUtils.genProxy(IActivityManager.class, remote);

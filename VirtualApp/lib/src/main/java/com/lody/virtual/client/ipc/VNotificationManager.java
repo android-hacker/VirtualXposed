@@ -26,7 +26,7 @@ public class VNotificationManager {
 
     public INotificationManager getService() {
         if (mRemote == null ||
-                (!mRemote.asBinder().isBinderAlive() && !VirtualCore.get().isVAppProcess())) {
+                (!mRemote.asBinder().pingBinder() && !VirtualCore.get().isVAppProcess())) {
             synchronized (VNotificationManager.class) {
                 final IBinder pmBinder = ServiceManagerNative.getService(ServiceManagerNative.NOTIFICATION);
                 mRemote = INotificationManager.Stub.asInterface(pmBinder);
