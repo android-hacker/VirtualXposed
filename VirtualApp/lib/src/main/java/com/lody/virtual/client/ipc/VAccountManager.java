@@ -34,7 +34,7 @@ public class VAccountManager {
 
     public IAccountManager getRemote() {
         if (mRemote == null ||
-                (!mRemote.asBinder().isBinderAlive() && !VirtualCore.get().isVAppProcess())) {
+                (!mRemote.asBinder().pingBinder() && !VirtualCore.get().isVAppProcess())) {
             synchronized (VAccountManager.class) {
                 Object remote = getStubInterface();
                 mRemote = LocalProxyUtils.genProxy(IAccountManager.class, remote);

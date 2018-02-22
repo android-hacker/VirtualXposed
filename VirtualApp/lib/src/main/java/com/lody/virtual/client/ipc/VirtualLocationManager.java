@@ -33,7 +33,7 @@ public class VirtualLocationManager {
 
     public IVirtualLocationManager getRemote() {
         if (mRemote == null ||
-                (!mRemote.asBinder().isBinderAlive() && !VirtualCore.get().isVAppProcess())) {
+                (!mRemote.asBinder().pingBinder() && !VirtualCore.get().isVAppProcess())) {
             synchronized (this) {
                 Object remote = getRemoteInterface();
                 mRemote = LocalProxyUtils.genProxy(IVirtualLocationManager.class, remote);

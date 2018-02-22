@@ -259,7 +259,7 @@ public final class VirtualCore {
 
     private IAppManager getService() {
         if (mService == null
-                || (!VirtualCore.get().isVAppProcess() && !mService.asBinder().isBinderAlive())) {
+                || (!VirtualCore.get().isVAppProcess() && !mService.asBinder().pingBinder())) {
             synchronized (this) {
                 Object remote = getStubInterface();
                 mService = LocalProxyUtils.genProxy(IAppManager.class, remote);
