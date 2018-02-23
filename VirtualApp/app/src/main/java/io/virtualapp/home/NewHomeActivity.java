@@ -183,7 +183,12 @@ public class NewHomeActivity extends NexusLauncherActivity implements HomeContra
             }
         }
         if (packageName == null) {
-            throw new RuntimeException("can not found package name for:" + intent);
+            try {
+                startActivity(intent);
+                return;
+            } catch (Throwable ignored) {
+                // ignore
+            }
         }
         LoadingActivity.launch(this, packageName, usedId);
     }
