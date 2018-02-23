@@ -82,6 +82,15 @@
             android:name=".update.VAVersionService"
             android:enabled="true"
             android:exported="true" />
+
+        <receiver
+            android:name=".dev.CmdReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="io.va.exposed.CMD" />
+            </intent-filter>
+        </receiver>
     </application>
 
 

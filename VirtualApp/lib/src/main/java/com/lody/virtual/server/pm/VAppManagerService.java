@@ -171,7 +171,7 @@ public class VAppManagerService extends IAppManager.Stub {
                 return res;
             }
             if (!canUpdate(existOne, pkg, flags)) {
-                return InstallResult.makeFailure("Not allowed to update the package.");
+                return InstallResult.makeFailure("Can not update the package (such as version downrange).");
             }
             res.isUpdate = true;
         }
