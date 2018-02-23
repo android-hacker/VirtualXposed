@@ -60,7 +60,7 @@ public class CmdReceiver extends BroadcastReceiver {
             try {
                 ApplicationInfo applicationInfo = packageManager.getApplicationInfo(pkg, 0);
                 String apkPath = applicationInfo.sourceDir;
-                InstallResult installResult = VirtualCore.get().installPackage(apkPath, InstallStrategy.COMPARE_VERSION);
+                InstallResult installResult = VirtualCore.get().installPackage(apkPath, InstallStrategy.UPDATE_IF_EXIST);
                 if (installResult.isSuccess) {
                     if (installResult.isUpdate) {
                         showTips(context, "Update " + pkg + " Success!!");
