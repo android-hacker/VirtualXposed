@@ -71,8 +71,9 @@ public class VApp extends MultiDexApplication {
 
                 Fabric.with(VApp.this, new Crashlytics());
 
-                boolean isXposedInstalled = VirtualCore.get().isAppInstalled(XPOSED_INSTALLER_PACKAGE);
+                boolean isXposedInstalled = false;
                 try {
+                    isXposedInstalled = VirtualCore.get().isAppInstalled(XPOSED_INSTALLER_PACKAGE);
                     File oldXposedInstallerApk = getFileStreamPath("XposedInstaller_1_24.apk");
                     if (oldXposedInstallerApk.exists()) {
                         VirtualCore.get().uninstallPackage(XPOSED_INSTALLER_PACKAGE);
