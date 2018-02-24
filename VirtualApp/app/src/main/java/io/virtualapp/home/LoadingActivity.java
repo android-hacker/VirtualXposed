@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.ipc.VActivityManager;
@@ -51,12 +52,19 @@ public class LoadingActivity extends VActivity {
         int userId = getIntent().getIntExtra(KEY_USER, -1);
         String pkg = getIntent().getStringExtra(PKG_NAME_ARGUMENT);
         appModel = PackageAppDataStorage.get().acquire(pkg);
+        if (appModel == null) {
+            Toast.makeText(getApplicationContext(), "Open App:" + pkg + " failed.", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
         ImageView iconView = (ImageView) findViewById(R.id.app_icon);
         iconView.setImageDrawable(appModel.icon);
         TextView nameView = (TextView) findViewById(R.id.app_name);
         nameView.setText(String.format(Locale.ENGLISH, "Opening %s...", appModel.name));
         Intent intent = getIntent().getParcelableExtra(KEY_INTENT);
         if (intent == null) {
+            finish();
             return;
         }
         VirtualCore.get().setUiCallback(intent, mUiCallback);
