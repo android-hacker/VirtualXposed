@@ -48,7 +48,7 @@
     <string name="prompt_alipay_not_found">Alipay Not Found.</string>
     <string name="prompt_wait">Please wait for a while.....</string>
     <string name="donate_dialog_title">About Donate</string>
-    <string name="donate_dialog_content">empty</string>
+    <string name="donate_dialog_content">Do not donate me if you are not rich :)</string>
     <string name="donate_dialog_yes">Donate</string>
     <string name="donate_dialog_no">Cancel</string>
     <string name="large_app_install_tips">Installation time may take a while, please be patient :)</string>
