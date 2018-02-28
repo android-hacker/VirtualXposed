@@ -31,6 +31,7 @@ import io.virtualapp.VCommends;
 import io.virtualapp.home.models.AppData;
 import io.virtualapp.home.models.AppInfoLite;
 import io.virtualapp.settings.SettingsActivity;
+import io.virtualapp.update.VAVersionService;
 
 /**
  * @author weishu
@@ -58,6 +59,14 @@ public class NewHomeActivity extends NexusLauncherActivity implements HomeContra
 
         alertForMeizu();
         alertForDoze();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // check for update
+        new Handler().postDelayed(() ->
+                VAVersionService.checkUpdate(getApplicationContext(), false), 1000);
     }
 
     @Override

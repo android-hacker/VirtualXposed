@@ -25,7 +25,6 @@ import io.virtualapp.delegate.MyAppRequestListener;
 import io.virtualapp.delegate.MyComponentDelegate;
 import io.virtualapp.delegate.MyPhoneInfoDelegate;
 import io.virtualapp.delegate.MyTaskDescriptionDelegate;
-import io.virtualapp.update.VAVersionService;
 import jonathanfinerty.once.Once;
 import me.weishu.exposed.LogcatService;
 
@@ -111,9 +110,7 @@ public class VApp extends MultiDexApplication {
                     }
                 }
 
-                // check for update
-                new android.os.Handler().postDelayed(() ->
-                        VAVersionService.checkUpdate(VApp.this), 10000);
+
             }
 
             @Override
