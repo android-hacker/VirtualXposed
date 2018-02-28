@@ -36,11 +36,6 @@
         </activity>
 
         <activity
-            android:name=".home.HomeActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/UITheme" />
-
-        <activity
             android:name=".home.ListAppActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />

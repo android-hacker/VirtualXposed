@@ -46,6 +46,12 @@ public class NewHomeActivity extends NexusLauncherActivity implements HomeContra
     private Handler mUiHandler;
     private int mInstallCount = 0;
 
+    public static void goHome(Context context) {
+        Intent intent = new Intent(context, NewHomeActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,25 +90,6 @@ public class NewHomeActivity extends NexusLauncherActivity implements HomeContra
         mPresenter = presenter;
     }
 
-    @Override
-    public void showBottomAction() {
-        // no-op
-    }
-
-    @Override
-    public void hideBottomAction() {
-        // no-op
-    }
-
-    @Override
-    public void showLoading() {
-
-    }
-
-    @Override
-    public void hideLoading() {
-
-    }
 
     @Override
     public void loadFinish(List<AppData> appModels) {
