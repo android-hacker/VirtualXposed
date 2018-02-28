@@ -85,5 +85,7 @@
     <string name="task_manage_uninstall">Kill Process</string>
     <string name="settings_reboot_title">Reboot VirtualXposed</string>
     <string name="settings_reboot_content">This will kill all apps running in VirtualXposed, do you want to do it?</string>
+    <string name="check_update">Check Update</string>
+    <string name="version_is_latest">Current version is latest!</string>
 
 </resources>
