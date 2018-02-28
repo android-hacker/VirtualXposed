@@ -55,7 +55,7 @@ public class VAVersionService extends AVersionService {
 
             int currentVersion = getCurrentVersionCode(this);
             if (currentVersion < versionCode) {
-                showVersionDialog(url, "VAExposed 更新啦: ", updateMessage);
+                showVersionDialog(url, getResources().getString(R.string.new_version_detected), updateMessage);
             } else {
                 boolean showTip = versionParams != null && versionParams.getParamBundle() != null
                         && versionParams.getParamBundle().getBoolean(KEY_SHOW_TIP, false);
