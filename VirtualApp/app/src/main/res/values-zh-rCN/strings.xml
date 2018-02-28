@@ -83,4 +83,5 @@
     <string name="settings_reboot_content">这将使所有运行在 VirtualXposed 内部的APP重启，确认要这么做吗？</string>
     <string name="check_update">检查更新</string>
     <string name="version_is_latest">当前版本已是最新！</string>
+    <string name="new_version_detected">检测到新版本：</string>
 </resources>

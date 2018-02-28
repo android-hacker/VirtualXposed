@@ -87,5 +87,6 @@
     <string name="settings_reboot_content">This will kill all apps running in VirtualXposed, do you want to do it?</string>
     <string name="check_update">Check Update</string>
     <string name="version_is_latest">Current version is latest!</string>
+    <string name="new_version_detected">New Version:</string>
 
 </resources>
