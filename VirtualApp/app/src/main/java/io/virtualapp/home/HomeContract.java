@@ -15,14 +15,6 @@ import io.virtualapp.home.models.AppInfoLite;
 
 	/* package */ interface HomeView extends BaseView<HomePresenter> {
 
-        void showBottomAction();
-
-        void hideBottomAction();
-
-		void showLoading();
-
-		void hideLoading();
-
 		void loadFinish(List<AppData> appModels);
 
 		void loadError(Throwable err);

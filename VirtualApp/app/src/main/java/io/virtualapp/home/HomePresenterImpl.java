@@ -78,7 +78,6 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
 
     @Override
     public void dataChanged() {
-        mView.showLoading();
         long start = SystemClock.elapsedRealtime();
         mRepo.getVirtualApps().then(result -> {
             long delta = 500 - (SystemClock.elapsedRealtime() - start);
