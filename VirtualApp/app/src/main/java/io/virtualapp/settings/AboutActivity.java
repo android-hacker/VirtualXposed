@@ -36,7 +36,7 @@ public class AboutActivity extends VActivity {
                 .addItem(getFeedbackWechatElement())
                 .addItem(getThanksElement())
                 .addEmail("va1xposed@gmail.com")
-                .addWebsite("https://github.com/android-hacker/VAExposed")
+                .addWebsite("https://github.com/android-hacker/VirtualXposed")
                 .addGitHub("tiann")
                 .addItem(getCopyRightsElement());
         View aboutPage = page.create();
