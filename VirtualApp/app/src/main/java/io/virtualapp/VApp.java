@@ -1,9 +1,9 @@
 package io.virtualapp;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Looper;
-import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
@@ -31,7 +31,7 @@ import me.weishu.exposed.LogcatService;
 /**
  * @author Lody
  */
-public class VApp extends MultiDexApplication {
+public class VApp extends Application {
 
     private static final String TAG = "VApp";
 
