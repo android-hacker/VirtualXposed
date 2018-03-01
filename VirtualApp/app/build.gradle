@@ -14,7 +14,7 @@ android {
         targetSdkVersion 22
         versionCode 71
         versionName "0.7.1"
-        multiDexEnabled true
+        multiDexEnabled false
         android {
             defaultConfig {
                 ndk {
