@@ -497,7 +497,6 @@ public final class VirtualCore {
     private static boolean createShortcutAboveN(Context context, String id, String label, Bitmap icon, Intent intent) {
         intent.setAction(Intent.ACTION_VIEW);
 
-        label = label.replaceAll("\\(VAE\\)", ""); // remove (VAE)
         Icon withBitmap = Icon.createWithBitmap(icon);
         ShortcutInfo likeShortcut = new ShortcutInfo.Builder(context, id)
                 .setShortLabel(label)
