@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:background="@color/desktopColorE">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
     <ImageView
         android:id="@+id/item_app_checked"
@@ -28,18 +27,17 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingBottom="35dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:paddingTop="35dp">
+        android:layout_gravity="start|center"
+        android:gravity="start|center"
+        android:orientation="horizontal"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:paddingLeft="24dp">
 
         <ImageView
             android:id="@+id/item_app_icon"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginBottom="12dp" />
+            android:layout_width="32dp"
+            android:layout_height="32dp"/>
 
         <io.virtualapp.widgets.MarqueeTextView
             android:id="@+id/item_app_name"
@@ -50,8 +48,9 @@
             android:gravity="center"
             android:marqueeRepeatLimit="marquee_forever"
             android:singleLine="true"
+            android:layout_marginStart="20dp"
             android:textColor="@color/desktopColorB"
-            android:textSize="12sp" />
+            android:textSize="14sp" />
 
     </LinearLayout>
 
