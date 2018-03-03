@@ -28,6 +28,7 @@ import io.virtualapp.home.models.AppInfo;
 import io.virtualapp.home.models.AppInfoLite;
 import io.virtualapp.home.models.MultiplePackageAppData;
 import io.virtualapp.home.models.PackageAppData;
+import io.virtualapp.utils.HanziToPinyin;
 
 /**
  * @author Lody
@@ -190,6 +191,13 @@ public class AppRepository implements AppDataSource {
             }
             list.add(info);
         }
+        // sort by name
+        Collections.sort(list, (o1, o2) -> {
+            HanziToPinyin hanziToPinyin = HanziToPinyin.getInstance();
+            String pinyin1 = hanziToPinyin.toPinyinString(o1.name.toString().trim());
+            String pinyin2 = hanziToPinyin.toPinyinString(o2.name.toString().trim());
+            return pinyin1.compareTo(pinyin2);
+        });
         return list;
     }
 
