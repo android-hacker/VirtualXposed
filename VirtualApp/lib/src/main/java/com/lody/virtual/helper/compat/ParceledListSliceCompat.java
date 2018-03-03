@@ -1,6 +1,7 @@
 package com.lody.virtual.helper.compat;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.List;
 
 import mirror.android.content.pm.ParceledListSlice;
@@ -29,4 +30,15 @@ public class ParceledListSliceCompat {
 		}
 	}
 
+	public static List getList(Object parceledList) {
+		if (parceledList == null || parceledList.getClass() != ParceledListSlice.TYPE) {
+			return Collections.EMPTY_LIST;
+		}
+
+		if (ParceledListSliceJBMR2.getList != null) {
+			return ParceledListSliceJBMR2.getList.call(parceledList);
+		} else {
+			return ParceledListSlice.getList.call(parceledList);
+		}
+	}
 }
