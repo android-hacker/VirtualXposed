@@ -160,7 +160,7 @@ public class TaskManageActivity extends VActivity {
         View root;
 
         ViewHolder(Context context, ViewGroup parent) {
-            root = LayoutInflater.from(context).inflate(R.layout.item_app_manage, parent, false);
+            root = LayoutInflater.from(context).inflate(R.layout.item_task_manage, parent, false);
             icon = root.findViewById(R.id.item_app_icon);
             label = root.findViewById(R.id.item_app_name);
             button = root.findViewById(R.id.item_app_button);
