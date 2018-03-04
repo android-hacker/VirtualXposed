@@ -29,8 +29,10 @@
             android:gravity="center|left"
             tools:text="App Label" />
 
-        <Button
+        <ImageView
             android:id="@+id/item_app_button"
+            android:src="@drawable/ic_more"
+            android:layout_marginRight="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"

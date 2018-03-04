@@ -77,6 +77,7 @@
     <string name="settings_app_manage_text">应用管理</string>
     <string name="settings_desktop_text">桌面设置</string>
     <string name="app_manage_uninstall">卸载</string>
+    <string name="app_manage_repair">尝试修复</string>
     <string name="settings_title">设置</string>
     <string name="task_manage_uninstall">结束任务</string>
     <string name="settings_reboot_title">重启 VirtualXposed</string>
@@ -90,4 +91,9 @@
     <string name="multi_version_cover">覆盖已有版本</string>
     <string name="multi_version_upgrade">升级安装</string>
     <string name="multi_version_downgrade">降级安装</string>
+    <string name="app_manage_repair_failed_tips">很抱歉，修复失败了 :( 请尝试重新安装…</string>
+    <string name="app_manage_repairing">正在修复，请耐心等待…</string>
+    <string name="app_manage_repair_success_title">修复提示</string>
+    <string name="app_manage_repair_success_content">修复成功，请立即重启 VirtualXposed 以保证修复生效。</string>
+    <string name="app_manage_repair_reboot_now">立即重启</string>
 </resources>
