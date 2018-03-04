@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -118,7 +119,7 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
             ArrayList<AppInfoLite> dataList = new ArrayList<AppInfoLite>(selectedIndices.length);
             for (int index : selectedIndices) {
                 AppInfo info = mAdapter.getItem(index);
-                dataList.add(new AppInfoLite(info.packageName, info.path, info.fastOpen));
+                dataList.add(new AppInfoLite(info.packageName, info.path, info.fastOpen, info.isEnableHidden));
             }
             Intent data = new Intent();
             data.putParcelableArrayListExtra(VCommends.EXTRA_APP_INFO_LIST, dataList);
@@ -173,7 +174,7 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
 
         PackageInfo pkgInfo = null;
         try {
-            pkgInfo = getActivity().getPackageManager().getPackageArchiveInfo(path, 0);
+            pkgInfo = getActivity().getPackageManager().getPackageArchiveInfo(path, PackageManager.GET_META_DATA);
             pkgInfo.applicationInfo.sourceDir = path;
             pkgInfo.applicationInfo.publicSourceDir = path;
         } catch (Exception e) {
@@ -183,7 +184,9 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
             return;
         }
 
-        AppInfoLite appInfoLite = new AppInfoLite(pkgInfo.packageName, path, false);
+        boolean isXposed = pkgInfo.applicationInfo.metaData != null
+                && pkgInfo.applicationInfo.metaData.containsKey("xposedmodule");
+        AppInfoLite appInfoLite = new AppInfoLite(pkgInfo.packageName, path, false, isXposed);
         ArrayList<AppInfoLite> dataList = new ArrayList<>();
         dataList.add(appInfoLite);
         Intent intent = new Intent();

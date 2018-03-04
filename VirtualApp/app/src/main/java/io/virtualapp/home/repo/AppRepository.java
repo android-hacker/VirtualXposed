@@ -85,7 +85,7 @@ public class AppRepository implements AppDataSource {
 
     @Override
     public Promise<List<AppInfo>, Throwable, Void> getInstalledApps(Context context) {
-        return VUiKit.defer().when(() -> convertPackageInfoToAppData(context, context.getPackageManager().getInstalledPackages(0), true));
+        return VUiKit.defer().when(() -> convertPackageInfoToAppData(context, context.getPackageManager().getInstalledPackages(PackageManager.GET_META_DATA), true));
     }
 
     @Override
@@ -121,7 +121,7 @@ public class AppRepository implements AppDataSource {
 
             PackageInfo pkgInfo = null;
             try {
-                pkgInfo = context.getPackageManager().getPackageArchiveInfo(f.getAbsolutePath(), 0);
+                pkgInfo = context.getPackageManager().getPackageArchiveInfo(f.getAbsolutePath(), PackageManager.GET_META_DATA);
                 pkgInfo.applicationInfo.sourceDir = f.getAbsolutePath();
                 pkgInfo.applicationInfo.publicSourceDir = f.getAbsolutePath();
             } catch (Exception e) {
@@ -189,6 +189,10 @@ public class AppRepository implements AppDataSource {
             if (installedAppInfo != null) {
                 info.cloneCount = installedAppInfo.getInstalledUsers().length;
             }
+            if (ai.metaData != null && ai.metaData.containsKey("xposedmodule")) {
+                info.isEnableHidden = true;
+                info.cloneCount = 0;
+            }
             list.add(info);
         }
         // sort by name
@@ -210,6 +214,9 @@ public class AppRepository implements AppDataSource {
         }
         if (info.fastOpen) {
             flags |= InstallStrategy.DEPEND_SYSTEM_IF_EXIST;
+        }
+        if (info.isEnableHidden) {
+            flags |= InstallStrategy.UPDATE_IF_EXIST;
         }
         return VirtualCore.get().installPackage(info.path, flags);
     }
