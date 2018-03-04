@@ -65,7 +65,7 @@
                 android:ellipsize="marquee"
                 android:focusableInTouchMode="true"
                 android:gravity="center"
-                android:marqueeRepeatLimit="2"
+                android:marqueeRepeatLimit="1"
                 android:singleLine="true"
                 android:textSize="12sp"
                 android:visibility="gone" />
