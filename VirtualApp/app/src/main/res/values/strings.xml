@@ -100,5 +100,6 @@
     <string name="app_manage_repair_success_title">Repair tips</string>
     <string name="app_manage_repair_success_content">Repair success, please force-stop VirtualXposed to make it take effect.</string>
     <string name="app_manage_repair_reboot_now">Reboot now</string>
+    <string name="wallpaper_too_big_tips">The wallpaper picture is too big to slow the startup time, please choose a proper one.</string>
 
 </resources>

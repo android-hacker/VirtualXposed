@@ -8,11 +8,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -44,6 +47,7 @@ import io.virtualapp.update.VAVersionService;
 public class NewHomeActivity extends NexusLauncherActivity implements HomeContract.HomeView {
 
     private static final String SHOW_DOZE_ALERT_KEY = "SHOW_DOZE_ALERT_KEY";
+    private static final String WALLPAPER_FILE_NAME = "wallpaper.png";
 
     private HomeContract.HomePresenter mPresenter;
     private Handler mUiHandler;
@@ -76,6 +80,9 @@ public class NewHomeActivity extends NexusLauncherActivity implements HomeContra
         // check for update
         new Handler().postDelayed(() ->
                 VAVersionService.checkUpdate(getApplicationContext(), false), 1000);
+
+        // check for wallpaper
+        setWallpaper();
     }
 
     @Override
@@ -349,6 +356,25 @@ public class NewHomeActivity extends NexusLauncherActivity implements HomeContra
                     ignored.printStackTrace();
                 }
             }, 1000);
+        }
+    }
+
+    private void setWallpaper() {
+        File wallpaper = getFileStreamPath(WALLPAPER_FILE_NAME);
+        if (wallpaper == null || !wallpaper.exists() || wallpaper.isDirectory()) {
+            setOurWallpaper(getResources().getDrawable(R.drawable.home_bg));
+        } else {
+            long start = SystemClock.elapsedRealtime();
+            Drawable d = BitmapDrawable.createFromPath(wallpaper.getPath());
+            long cost = SystemClock.elapsedRealtime() - start;
+            if (cost > 200) {
+                Toast.makeText(getApplicationContext(), R.string.wallpaper_too_big_tips, Toast.LENGTH_SHORT).show();
+            }
+            if (d == null) {
+                setOurWallpaper(getResources().getDrawable(R.drawable.home_bg));
+            } else {
+                setOurWallpaper(d);
+            }
         }
     }
 }
