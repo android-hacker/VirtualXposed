@@ -2,29 +2,39 @@ package io.virtualapp.settings;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.ArtDexOptimizer;
+import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.remote.InstalledAppInfo;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import io.virtualapp.R;
 import io.virtualapp.abs.ui.VActivity;
 import io.virtualapp.abs.ui.VUiKit;
+import io.virtualapp.home.LoadingDialog;
 
 /**
  * @author weishu
@@ -45,6 +55,10 @@ public class AppManageActivity extends VActivity {
         mAdapter = new AppManageAdapter();
         mListView.setAdapter(mAdapter);
 
+        mListView.setOnItemClickListener((parent, view, position, id) -> {
+            AppManageInfo appManageInfo = mInstalledApps.get(position);
+            showContextMenu(appManageInfo, view);
+        });
         loadAsync();
     }
 
@@ -66,6 +80,7 @@ public class AppManageActivity extends VActivity {
                 info.name = applicationInfo.loadLabel(packageManager);
                 info.icon = applicationInfo.loadIcon(packageManager);
                 info.pkgName = installedApp.packageName;
+                info.path = applicationInfo.sourceDir;
                 ret.add(info);
             }
         }
@@ -103,15 +118,7 @@ public class AppManageActivity extends VActivity {
 
             AppManageInfo item = getItem(position);
 
-            holder.button.setText(R.string.app_manage_uninstall);
-            CharSequence name;
-            if (item.userId == 0) {
-                name = item.name;
-            } else {
-                name = item.name + "[" + (item.userId + 1) + "]";
-            }
-
-            holder.label.setText(name);
+            holder.label.setText(item.getName());
 
             if (item.icon == null) {
                 holder.icon.setVisibility(View.GONE);
@@ -119,30 +126,118 @@ public class AppManageActivity extends VActivity {
                 holder.icon.setImageDrawable(item.icon);
             }
 
-            holder.button.setOnClickListener(v -> {
-                AlertDialog alertDialog = new AlertDialog.Builder(AppManageActivity.this)
-                        .setTitle(com.android.launcher3.R.string.home_menu_delete_title)
-                        .setMessage(getResources().getString(com.android.launcher3.R.string.home_menu_delete_content, name))
-                        .setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                            VirtualCore.get().uninstallPackageAsUser(item.pkgName, item.userId);
-                            loadAsync();
-                        })
-                        .setNegativeButton(android.R.string.no, null)
-                        .create();
-                try {
-                    alertDialog.show();
-                } catch (Throwable ignored) {
-                }
-            });
+            holder.button.setOnClickListener(v -> showContextMenu(item, v));
 
             return convertView;
+        }
+    }
+
+    private void showContextMenu(AppManageInfo appManageInfo, View anchor) {
+        if (appManageInfo == null) {
+            return;
+        }
+        PopupMenu popupMenu = new PopupMenu(this, anchor);
+        popupMenu.inflate(R.menu.app_manage_menu);
+        popupMenu.setOnMenuItemClickListener(item -> {
+            // ddd
+            switch (item.getItemId()) {
+                case R.id.action_uninstall:
+                    showUninstallDialog(appManageInfo, appManageInfo.getName());
+                    break;
+                case R.id.action_repair:
+                    showRepairDialog(appManageInfo);
+                    break;
+            }
+            return false;
+        });
+        try {
+            popupMenu.show();
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private void showRepairDialog(AppManageInfo item) {
+        LoadingDialog dialog = new LoadingDialog(this);
+        dialog.setTitle(getResources().getString(R.string.app_manage_repairing));
+        try {
+            dialog.show();
+            dialog.startLoading();
+        } catch (Throwable e) {
+            return;
+        }
+
+        VUiKit.defer().when(() -> {
+            NougatPolicy.fullCompile(getApplicationContext());
+
+            String packageName = item.pkgName;
+            String apkPath = item.path;
+
+            if (TextUtils.isEmpty(packageName) || TextUtils.isEmpty(apkPath)) {
+                return;
+            }
+
+            // 1. kill package
+            VirtualCore.get().killApp(packageName, item.userId);
+
+            // 2. backup the odex file
+            File odexFile = VEnvironment.getOdexFile(packageName);
+            if (odexFile.delete()) {
+                try {
+                    ArtDexOptimizer.compileDex2Oat(apkPath, odexFile.getPath());
+                } catch (IOException e) {
+                    throw new RuntimeException("compile failed.");
+                }
+            }
+        }).done((v) -> {
+            dialog.dismiss();
+            showAppDetailDialog();
+        }).fail((v) -> {
+            dialog.dismiss();
+            Toast.makeText(this, R.string.app_manage_repair_failed_tips, Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void showAppDetailDialog() {
+        AlertDialog alertDialog = new AlertDialog.Builder(AppManageActivity.this)
+                .setTitle(R.string.app_manage_repair_success_title)
+                .setMessage(getResources().getString(R.string.app_manage_repair_success_content))
+                .setPositiveButton(R.string.app_manage_repair_reboot_now, (dialog, which) -> {
+                    String packageName = getPackageName();
+                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            Uri.fromParts("package", packageName, null));
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                })
+                .create();
+
+        alertDialog.setCancelable(false);
+
+        try {
+            alertDialog.show();
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private void showUninstallDialog(AppManageInfo item, CharSequence name) {
+        AlertDialog alertDialog = new AlertDialog.Builder(AppManageActivity.this)
+                .setTitle(com.android.launcher3.R.string.home_menu_delete_title)
+                .setMessage(getResources().getString(com.android.launcher3.R.string.home_menu_delete_content, name))
+                .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                    VirtualCore.get().uninstallPackageAsUser(item.pkgName, item.userId);
+                    loadAsync();
+                })
+                .setNegativeButton(android.R.string.no, null)
+                .create();
+        try {
+            alertDialog.show();
+        } catch (Throwable ignored) {
         }
     }
 
     static class ViewHolder {
         ImageView icon;
         TextView label;
-        Button button;
+        ImageView button;
 
         View root;
 
@@ -159,5 +254,14 @@ public class AppManageActivity extends VActivity {
         int userId;
         Drawable icon;
         String pkgName;
+        String path;
+
+        CharSequence getName() {
+            if (userId == 0) {
+                return name;
+            } else {
+                return name + "[" + (userId + 1) + "]";
+            }
+        }
     }
 }

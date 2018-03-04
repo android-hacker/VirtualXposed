@@ -81,6 +81,7 @@
     <string name="settings_app_manage_text">Manage Apps</string>
     <string name="settings_desktop_text">Desktop Settings</string>
     <string name="app_manage_uninstall">Uninstall</string>
+    <string name="app_manage_repair">Repair</string>
     <string name="settings_title">Settings</string>
     <string name="task_manage_uninstall">Kill Process</string>
     <string name="settings_reboot_title">Reboot VirtualXposed</string>
@@ -94,5 +95,10 @@
     <string name="multi_version_cover">Cover</string>
     <string name="multi_version_upgrade">Upgrade</string>
     <string name="multi_version_downgrade">Downgrade</string>
+    <string name="app_manage_repair_failed_tips" >Sorry, Repair failed, please re-install this app</string>
+    <string name="app_manage_repairing">Repairing</string>
+    <string name="app_manage_repair_success_title">Repair tips</string>
+    <string name="app_manage_repair_success_content">Repair success, please force-stop VirtualXposed to make it take effect.</string>
+    <string name="app_manage_repair_reboot_now">Reboot now</string>
 
 </resources>
