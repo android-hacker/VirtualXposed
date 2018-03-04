@@ -84,4 +84,10 @@
     <string name="check_update">检查更新</string>
     <string name="version_is_latest">当前版本已是最新！</string>
     <string name="new_version_detected">检测到新版本：</string>
+    <string name="multi_version_tip_title">安装提示</string>
+    <string name="multi_version_tips_content">你选择了一个已经安装了的应用，是安装一个分身还是覆盖已经安装的版本？\n\n已经安装的版本：%1$s\n即将安装的版本：%2$s</string>
+    <string name="multi_version_multi">安装分身</string>
+    <string name="multi_version_cover">覆盖已有版本</string>
+    <string name="multi_version_upgrade">升级安装</string>
+    <string name="multi_version_downgrade">降级安装</string>
 </resources>

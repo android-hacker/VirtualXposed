@@ -88,5 +88,11 @@
     <string name="check_update">Check Update</string>
     <string name="version_is_latest">Current version is latest!</string>
     <string name="new_version_detected">New Version:</string>
+    <string name="multi_version_tip_title">Install tips</string>
+    <string name="multi_version_tips_content">You have chosen an existing app, Install one more app or update existing? \n(Installed version %1$s, selected version: %2$s</string>
+    <string name="multi_version_multi">Install another one</string>
+    <string name="multi_version_cover">Cover</string>
+    <string name="multi_version_upgrade">Upgrade</string>
+    <string name="multi_version_downgrade">Downgrade</string>
 
 </resources>
