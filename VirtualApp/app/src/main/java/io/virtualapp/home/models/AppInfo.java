@@ -14,4 +14,5 @@ public class AppInfo {
     public CharSequence name;
     public CharSequence version;
     public int cloneCount;
+    public boolean isEnableHidden;
 }

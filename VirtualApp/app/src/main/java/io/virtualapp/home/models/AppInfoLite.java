@@ -23,17 +23,20 @@ public class AppInfoLite implements Parcelable {
     public String packageName;
     public String path;
     public boolean fastOpen;
+    public boolean isEnableHidden;
 
-    public AppInfoLite(String packageName, String path, boolean fastOpen) {
+    public AppInfoLite(String packageName, String path, boolean fastOpen, boolean isEnableHidden) {
         this.packageName = packageName;
         this.path = path;
         this.fastOpen = fastOpen;
+        this.isEnableHidden = isEnableHidden;
     }
 
     protected AppInfoLite(Parcel in) {
         this.packageName = in.readString();
         this.path = in.readString();
         this.fastOpen = in.readByte() != 0;
+        this.isEnableHidden = in.readByte() != 0;
     }
 
     @Override
@@ -46,5 +49,6 @@ public class AppInfoLite implements Parcelable {
         dest.writeString(this.packageName);
         dest.writeString(this.path);
         dest.writeByte(this.fastOpen ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isEnableHidden ? (byte) 1 : (byte) 0);
     }
 }
