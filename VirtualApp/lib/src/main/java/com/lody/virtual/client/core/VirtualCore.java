@@ -463,7 +463,7 @@ public final class VirtualCore {
         if (targetIntent == null) {
             return false;
         }
-        Intent shortcutIntent = new Intent();
+        Intent shortcutIntent = new Intent(Intent.ACTION_VIEW);
         shortcutIntent.setClassName(getHostPkg(), Constants.SHORTCUT_PROXY_ACTIVITY_NAME);
         shortcutIntent.addCategory(Intent.CATEGORY_DEFAULT);
         if (splash != null) {
@@ -476,13 +476,23 @@ public final class VirtualCore {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             // bad parcel.
             shortcutIntent.removeExtra("_VA_|_intent_");
+
+            Icon withBitmap = Icon.createWithBitmap(icon);
+            ShortcutInfo likeShortcut = new ShortcutInfo.Builder(context, id)
+                    .setShortLabel(name)
+                    .setLongLabel(name)
+                    .setIcon(withBitmap)
+                    .setIntent(shortcutIntent)
+                    .build();
+
             // crate app shortcuts.
-            createShortcutAboveN(context, id, name, icon, shortcutIntent);
+            createShortcutAboveN(context, likeShortcut);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                return createDeskShortcutAboveO(context, likeShortcut);
+            }
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return createDeskShortcutAboveO(context, id, name, icon, shortcutIntent);
-        }
 
         Intent addIntent = new Intent();
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
@@ -494,17 +504,7 @@ public final class VirtualCore {
     }
 
     @TargetApi(Build.VERSION_CODES.N_MR1)
-    private static boolean createShortcutAboveN(Context context, String id, String label, Bitmap icon, Intent intent) {
-        intent.setAction(Intent.ACTION_VIEW);
-
-        Icon withBitmap = Icon.createWithBitmap(icon);
-        ShortcutInfo likeShortcut = new ShortcutInfo.Builder(context, id)
-                .setShortLabel(label)
-                .setLongLabel(label)
-                .setIcon(withBitmap)
-                .setIntent(intent)
-                .build();
-
+    private static boolean createShortcutAboveN(Context context, ShortcutInfo likeShortcut) {
         ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
         if (shortcutManager == null) {
             return false;
@@ -534,17 +534,12 @@ public final class VirtualCore {
     }
 
     @TargetApi(Build.VERSION_CODES.O)
-    private static boolean createDeskShortcutAboveO(Context context, String id, String label, Bitmap icon, Intent intent) {
+    private static boolean createDeskShortcutAboveO(Context context, ShortcutInfo info) {
         ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
         if (shortcutManager == null) {
             return false;
         }
         if (shortcutManager.isRequestPinShortcutSupported()) {
-            ShortcutInfo info = new ShortcutInfo.Builder(context, id)
-                    .setIcon(Icon.createWithBitmap(icon))
-                    .setShortLabel(label)
-                    .setIntent(intent)
-                    .build();
             // 当添加快捷方式的确认弹框弹出来时，将被回调
             // PendingIntent shortcutCallbackIntent = PendingIntent.getBroadcast(context, 0,
             // new Intent(context, MyReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT);
