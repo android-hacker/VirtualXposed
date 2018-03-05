@@ -24,6 +24,7 @@ import android.os.ConditionVariable;
 import android.os.Looper;
 import android.os.Process;
 import android.os.RemoteException;
+import android.util.Log;
 
 import com.lody.virtual.R;
 import com.lody.virtual.client.VClientImpl;
@@ -525,8 +526,7 @@ public final class VirtualCore {
                 shortcutManager.removeDynamicShortcuts(Collections.singletonList(remove.getId()));
             }
 
-            dynamicShortcuts.add(likeShortcut);
-            shortcutManager.addDynamicShortcuts(dynamicShortcuts);
+            shortcutManager.addDynamicShortcuts(Collections.singletonList(likeShortcut));
             return true;
         } catch (Throwable e) {
             return false;
