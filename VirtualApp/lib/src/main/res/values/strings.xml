@@ -7,4 +7,5 @@
     <string name="choose_empty">Chooser is Empty</string>
     <string name="noApplications">No find applications</string>
     <string name="add_account_button_label">Add account</string>
+    <string name="create_shortcut_already_exist">The shortcut already exists</string>
 </resources>

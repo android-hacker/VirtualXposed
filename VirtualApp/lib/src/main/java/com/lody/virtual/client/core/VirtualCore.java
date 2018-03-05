@@ -24,7 +24,8 @@ import android.os.ConditionVariable;
 import android.os.Looper;
 import android.os.Process;
 import android.os.RemoteException;
-import android.util.Log;
+import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.lody.virtual.R;
 import com.lody.virtual.client.VClientImpl;
@@ -544,7 +545,19 @@ public final class VirtualCore {
             // PendingIntent shortcutCallbackIntent = PendingIntent.getBroadcast(context, 0,
             // new Intent(context, MyReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT);
 
-            shortcutManager.requestPinShortcut(info, null);
+            List<ShortcutInfo> pinnedShortcuts = shortcutManager.getPinnedShortcuts();
+            boolean exists = false;
+            for (ShortcutInfo pinnedShortcut : pinnedShortcuts) {
+                if (TextUtils.equals(pinnedShortcut.getId(), info.getId())) {
+                    // already exist.
+                    exists = true;
+                    Toast.makeText(context, R.string.create_shortcut_already_exist, Toast.LENGTH_SHORT).show();
+                    break;
+                }
+            }
+            if (!exists) {
+                shortcutManager.requestPinShortcut(info, null);
+            }
             return true;
         }
         return false;
