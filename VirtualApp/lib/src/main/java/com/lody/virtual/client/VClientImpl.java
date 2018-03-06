@@ -353,7 +353,7 @@ public final class VClientImpl extends IVClient.Stub {
         } catch (Exception e) {
             if (!mInstrumentation.onException(mInitialApplication, e)) {
                 throw new RuntimeException(
-                        "Unable to create application " + (mInitialApplication == null ? " [null application] " : mInitialApplication.getClass().getName()
+                        "Unable to create application " + (mInitialApplication == null ? " [null application] " : mInitialApplication.getClass().getName())
                                 + ": " + e.toString(), e);
             }
         }
