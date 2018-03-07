@@ -15,6 +15,9 @@ static void jni_nativeLaunchEngine(alias_ref<jclass> clazz, JArrayClass<jobject>
     hookAndroidVM(javaMethods, packageName, isArt, apiLevel, cameraMethodType);
 }
 
+static void jni_disableJit(alias_ref<jclass> clazz) {
+    disableJit();
+}
 
 static void jni_nativeEnableIORedirect(alias_ref<jclass>, jstring selfSoPath, jint apiLevel,
                                        jint preview_api_level) {
@@ -77,6 +80,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *) {
                                          jni_nativeReverseRedirectedPath),
                         makeNativeMethod("nativeLaunchEngine",
                                          jni_nativeLaunchEngine),
+                        makeNativeMethod("disableJit", jni_disableJit)
                 }
         );
     });

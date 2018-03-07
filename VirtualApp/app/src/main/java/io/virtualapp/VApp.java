@@ -3,10 +3,12 @@ package io.virtualapp;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Looper;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.lody.virtual.client.NativeEngine;
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.stub.VASettings;
@@ -47,6 +49,9 @@ public class VApp extends Application {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            NativeEngine.disableJit();
+        }
         mPreferences = base.getSharedPreferences("va", Context.MODE_MULTI_PROCESS);
         VASettings.ENABLE_IO_REDIRECT = true;
         VASettings.ENABLE_INNER_SHORTCUT = false;

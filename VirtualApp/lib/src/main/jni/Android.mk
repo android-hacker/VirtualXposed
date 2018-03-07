@@ -16,6 +16,7 @@ LOCAL_SRC_FILES := Jni/VAJni.cpp \
 				   Foundation/SymbolFinder.cpp \
 				   Foundation/Path.cpp \
 				   Foundation/SandboxFs.cpp \
+				   Foundation/fake_dlfcn.cpp \
 				   Substrate/hde64.c \
                    Substrate/SubstrateDebug.cpp \
                    Substrate/SubstrateHook.cpp \

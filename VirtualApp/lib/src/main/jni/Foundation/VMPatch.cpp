@@ -2,7 +2,9 @@
 // VirtualApp Native Project
 //
 #include <Jni/VAJni.h>
+#include <Substrate/CydiaSubstrate.h>
 #include "VMPatch.h"
+#include "fake_dlfcn.h"
 
 namespace FunctionDef {
     typedef void (*Function_DalvikBridgeFunc)(const void **, void *, const void *, void *);
@@ -433,6 +435,37 @@ void hookAndroidVM(JArrayClass<jobject> javaMethods,
     replaceAudioRecordNativeCheckPermission(javaMethods.getElement(
             AUDIO_NATIVE_CHECK_PERMISSION).get(),
                                             isArt, apiLevel);
+}
+
+bool processNothing(void* thiz, void* new_methods){ return true; }
+bool (*orig_ProcessProfilingInfo)(void*, void*);
+
+bool compileNothing(void* thiz, void* thread, void* method, bool osr) { return false; }
+bool (*orig_CompileNothing)(void* thiz, void* thread, void* method, bool osr);
+
+void disableJit() {
+#ifdef __arm__
+    void *libart = fake_dlopen("/system/lib/libart.so", RTLD_NOW);
+    if (libart) {
+        // disable profile.
+        void *processProfilingInfo = NULL;
+        processProfilingInfo = fake_dlsym(libart,
+                                          "_ZN3art12ProfileSaver20ProcessProfilingInfoEbPt");
+        ALOGE("processProfileingInfo: %p", processProfilingInfo);
+        if (processProfilingInfo) {
+            MSHookFunction(processProfilingInfo, (void*)processNothing, (void**)&orig_ProcessProfilingInfo);
+        }
+
+        // disable jit
+        void *compileMethod = NULL;
+        compileMethod = fake_dlsym(libart,
+                                   "_ZN3art3jit3Jit13CompileMethodEPNS_9ArtMethodEPNS_6ThreadEb");
+        ALOGE("compileMethod: %p", compileMethod);
+        if (compileMethod) {
+            MSHookFunction(compileMethod, (void*) compileNothing, (void**) &orig_CompileNothing);
+        }
+    }
+#endif
 }
 
 void *getDvmOrArtSOHandle() {
