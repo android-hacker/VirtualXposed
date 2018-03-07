@@ -29,9 +29,9 @@ public class FlurryROMCollector {
             reportCameraNativeSetup();
         }
         Map<String, Integer> offsetInfo = Epic.collectOffsetInfo();
-//        if (!offsetInfo.isEmpty()) {
+        if (!offsetInfo.isEmpty()) {
             reportOffsetInfo(offsetInfo);
-//        }
+        }
         Log.i(TAG, "end collect...");
     }
 
