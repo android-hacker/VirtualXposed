@@ -26,5 +26,6 @@ void hookAndroidVM(JArrayClass<jobject> javaMethods,
 
 void *getDvmOrArtSOHandle();
 
+void disableJit();
 
 #endif //NDK_HOOK_NATIVE_H
