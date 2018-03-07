@@ -25,9 +25,9 @@ public class SplashActivity extends VActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         VUiKit.defer().when(() -> {
-            if (!Once.beenDone("collect_flurry")) {
+            if (!Once.beenDone("collect_fabric")) {
                 FlurryROMCollector.startCollect();
-                Once.markDone("collect_flurry");
+                Once.markDone("collect_fabric");
             }
             long time = System.currentTimeMillis();
             doActionInThread();
