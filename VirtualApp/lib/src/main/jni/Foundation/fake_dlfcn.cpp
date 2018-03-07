@@ -47,7 +47,7 @@
 #define Elf_Shdr Elf64_Shdr
 #define Elf_Sym  Elf64_Sym
 #else
-#error "Arch unknown, please port me" 
+//#error "Arch unknown, please port me"
 #endif
 
 struct ctx {
