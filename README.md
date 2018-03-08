@@ -1,32 +1,48 @@
-简介
------
-**VirtualXposed** 是基于[VirtualApp](https://github.com/asLody/VirtualApp) 和 [epic](https://github.com/tiann/epic) 在**非ROOT**环境下运行Xposed模块的实现（支持5.0~8.1)。
+# Introduce
 
-警告
--------
-本项目使用的 VirtualApp 不允许用于商业用途，如果有这个需求，请联系 Lody (imlody@foxmail.com)。
+**VirtualXposed** is a simple APP based on [VirtualApp](https://github.com/asLody/VirtualApp) and [epic](https://github.com/tiann/epic) to use Xposed Module without root, unlock the bootloader, or flash the system image.（Supoort Android 5.0~8.1)。
 
-使用
-----------
+[中文文档][CHINESE.md]
 
-## 准备
+# Warnning
 
-首先在 [发布页面](https://github.com/android-hacker/VirtualXposed/releases) 下载最新的VAExposed安装包安装到手机。
+No use for Commercial Purposes!!!  Please refer VirtualApp's [declaration](https://github.com/asLody/VirtualApp) 
 
-## 安装模块
+# Usage
 
-打开 VirtualXposed，在里面安装要使用的APP，以及相应的Xposed模块即可。
+## Prepare
 
-注意：**所有的工作（安装Xposed模块，安装APP）必须在 VirtualXposed中**进行，否则Xposed模块不会有任何作用！比如，将微信直接安装在系统上（而非VirtualXposed中），防撤回安装在VirtualXposed中；或者把微信安装在VirtualXposed上，防撤回插件直接安装在系统上；或者两者都直接安装在系统上，**均不会起任何作用**。
+Download the latest apk in [Relase page](https://github.com/android-hacker/VirtualXposed/releases) , then install it on your Android phone.
 
-在VirtualXposed中安装App有两种方式：
+## Install APP and Xposed module
 
-1. 直接复制已经在系统中安装好的APP，比如如果你系统中装了微信，那么可以直接复制一份。
-2. 通过外置存储直接安装APK文件；点主界面的➕，然后选择后面两个TAB即可。
+Open VirtualXposed, Click the ➕ in home page, add the APP and Xposed module to VirtualXposed's virtual environment.
 
-在VirtualXposed中安装Xposed模块，可以跟安装正常的APK一样，以上两种安装App的方式也适用于安装Xposed模块。不过，你也可以通过VirtualXposed中内置的XposedInstaller来安装和管理模块，跟通常的XposedInstaller使用方式一样；去下载页面，下载安装即可。 
+Notice: **All operation（install Xposed module, APP）must be done in VirtualXposed**, Otherwise, the Xposed module won't take effect!! For example, If you install Twitter APP on your system（Your phone's raw system, not in VirtualXposed）,and then install Twitter Xposed module in VirtualXposed; Or you install Twitter in VirtualXposed, and install Twitter Xposed module on original system; or both of them are installed on original system, **These three case won't take effect!**。
 
-## 已经支持的模块
+![How to install](https://raw.githubusercontent.com/tiann/arts/master/vxp_install.gif)
+
+There are three ways to install APP or Xposed module to VirtualXposed:
+
+1. clone the original system's installed apps. Click ➕ in home page, the first page are installed apps.
+2. install via apk file. (Click ➕ in home page, the second page are apks found in your sdcard)
+3. install via external file chooser. (Click ➕ in home page, use the float button to choose apk file to install)
+
+For Xposed module, You can install it from Xposed Installer, too.
+
+## Active the Xposed module
+
+Open Xposed Installer in VirtualXposed, go to the module fragment, check the module you want to use:
+
+![How to active module](https://raw.githubusercontent.com/tiann/arts/master/vxp_active.gif)
+
+## Reboot
+
+Reboot the VirtualXposed, **No need to reboot your phone**; Just click Settings in home page of VirtualXposed, Click `Reboot` Button, VirtualXposed will reboot like a shot. 
+
+![How to reboot](https://raw.githubusercontent.com/tiann/arts/master/vxp_.gif)
+
+## Supported Modules
 
 - 微X模块
 - 微信巫师
@@ -40,27 +56,20 @@
 - 模拟位置
 - 指纹支付
 
-或许还有很多，自行测试。
+Far more than above.
 
-已知问题
------------
+## Known Issues
 
-1. 由于暂不支持资源HOOK，因此资源钩子不会起任何作用；使用资源HOOK的模块，相应的功能不会生效。
-4. 部分插件的兼容性有问题，比如QX模块。
+1. Can not modify system, so the Module used to modify system can never take effect.
+2. Do not support Resource hooks now.
+3. May be some modules are not compatible with VirtualXposed now.
 
-支持和加入
-------------
+## Support
 
-目前VirtualXposed 还不完善，如果你对非ROOT下实现Xposed感兴趣；欢迎加入！你可以通过如下方式来支持：
+Welcome to contributing for VirtualXposed!!
 
-1. 直接贡献代码，提供Feature，修复BUG！
-2. 使用你拥有的手机，安装你常用的Xposed模块，反馈不可用情况；协助帮忙解决兼容性问题！
-3. 提出体验上，功能上的建议，帮助完善VirtualXposed！
 
-致谢
-------
+## Thanks
 
 1. [VirtualApp](https://github.com/asLody/VirtualApp)
 2. [Xposed](https://github.com/rovo89/Xposed)
-    
-
