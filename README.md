@@ -1,20 +1,23 @@
-# Introduce
 
-**VirtualXposed** is a simple APP based on [VirtualApp](https://github.com/asLody/VirtualApp) and [epic](https://github.com/tiann/epic) to use Xposed Module without root, unlock the bootloader, or flash the system image.（Supoort Android 5.0~8.1)。
+[中文文档](CHINESE.md "中文")
 
-[中文文档][CHINESE.md]
+Introduce
+------------
+**VirtualXposed** is a simple APP based on [VirtualApp](https://github.com/asLody/VirtualApp) and [epic](https://github.com/tiann/epic) to use Xposed Module without root, unlock the bootloader, or flash the system image.（Support Android 5.0~8.1)。
 
-# Warnning
+Warnning
+-----------
 
 No use for Commercial Purposes!!!  Please refer VirtualApp's [declaration](https://github.com/asLody/VirtualApp) 
 
-# Usage
+Usage
+-------
 
-## Prepare
+### Prepare
 
 Download the latest apk in [Relase page](https://github.com/android-hacker/VirtualXposed/releases) , then install it on your Android phone.
 
-## Install APP and Xposed module
+### Install APP and Xposed module
 
 Open VirtualXposed, Click the ➕ in home page, add the APP and Xposed module to VirtualXposed's virtual environment.
 
@@ -30,19 +33,20 @@ There are three ways to install APP or Xposed module to VirtualXposed:
 
 For Xposed module, You can install it from Xposed Installer, too.
 
-## Active the Xposed module
+### Active the Xposed module
 
 Open Xposed Installer in VirtualXposed, go to the module fragment, check the module you want to use:
 
 ![How to active module](https://raw.githubusercontent.com/tiann/arts/master/vxp_active.gif)
 
-## Reboot
+### Reboot
 
 Reboot the VirtualXposed, **No need to reboot your phone**; Just click Settings in home page of VirtualXposed, Click `Reboot` Button, VirtualXposed will reboot like a shot. 
 
 ![How to reboot](https://raw.githubusercontent.com/tiann/arts/master/vxp_.gif)
 
-## Supported Modules
+Supported Modules
+--------------------
 
 - 微X模块
 - 微信巫师
@@ -58,18 +62,26 @@ Reboot the VirtualXposed, **No need to reboot your phone**; Just click Settings 
 
 Far more than above.
 
-## Known Issues
+Known Issues
+-------------
 
 1. Can not modify system, so the Module used to modify system can never take effect.
 2. Do not support Resource hooks now.
 3. May be some modules are not compatible with VirtualXposed now.
 
-## Support
+Support
+-----------
 
 Welcome to contributing for VirtualXposed!!
 
+For Developer
+--------------
 
-## Thanks
+[Fire a bug](https://github.com/android-hacker/exposed/issues)
+[Wiki](https://github.com/android-hacker/VirtualXposed/wiki)
+
+Thanks
+-------
 
 1. [VirtualApp](https://github.com/asLody/VirtualApp)
 2. [Xposed](https://github.com/rovo89/Xposed)
