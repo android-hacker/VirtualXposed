@@ -21,7 +21,7 @@ Download the latest apk in [Relase page](https://github.com/android-hacker/Virtu
 
 Open VirtualXposed, Click the ➕ in home page, add the APP and Xposed module to VirtualXposed's virtual environment.
 
-Notice: **All operation（install Xposed module, APP）must be done in VirtualXposed**, Otherwise, the Xposed module won't take effect!! For example, If you install Twitter APP on your system（Your phone's raw system, not in VirtualXposed）,and then install Twitter Xposed module in VirtualXposed; Or you install Twitter in VirtualXposed, and install Twitter Xposed module on original system; or both of them are installed on original system, **These three case won't take effect!**。
+Notice: **All operation（install Xposed module, APP）must be done in VirtualXposed**, Otherwise, the Xposed module won't take effect!! For example, If you install Youtube APP on your system（Your phone's original system, not in VirtualXposed）,and then install Youtube AdAway(A Youtube Xposed module) in VirtualXposed; Or you install Youtube in VirtualXposed, and install Youtube AdAway on original system; or both of them are installed on original system, **These three case won't take effect!**。
 
 ![How to install](https://raw.githubusercontent.com/tiann/arts/master/vxp_install.gif)
 
@@ -77,8 +77,8 @@ Welcome to contributing for VirtualXposed!!
 For Developer
 --------------
 
-[Fire a bug](https://github.com/android-hacker/exposed/issues)
-[Wiki](https://github.com/android-hacker/VirtualXposed/wiki)
+- [Fire a bug](https://github.com/android-hacker/exposed/issues)
+- [Wiki](https://github.com/android-hacker/VirtualXposed/wiki)
 
 Thanks
 -------
