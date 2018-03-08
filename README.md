@@ -43,7 +43,7 @@ Open Xposed Installer in VirtualXposed, go to the module fragment, check the mod
 
 Reboot the VirtualXposed, **No need to reboot your phone**; Just click Settings in home page of VirtualXposed, Click `Reboot` Button, VirtualXposed will reboot like a shot. 
 
-![How to reboot](https://raw.githubusercontent.com/tiann/arts/master/vxp_.gif)
+![How to reboot](https://raw.githubusercontent.com/tiann/arts/master/vxp_reboot.gif)
 
 Supported Modules
 --------------------
