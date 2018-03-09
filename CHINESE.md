@@ -28,17 +28,18 @@
 
 ## 已经支持的模块
 
-- 微X模块
-- 微信巫师
-- 应用变量
-- 音量增强器
-- 微信学英语
-- 冲顶助手
-- 情迁抢包
-- 微信跳一跳助手
-- 步数修改器
-- 模拟位置
-- 指纹支付
+- [微X模块][wx]
+- [微信巫师][wxws]
+- [MDWechat][mdwechat]
+- [应用变量][yybl]
+- [音量增强器][ylzqq]
+- [微信学英语][wxxyy]
+- [冲顶助手][cdzs]
+- [情迁抢包][qqqb]
+- [微信跳一跳助手][ttzs]
+- [步数修改器][bsxg]
+- [模拟位置][mnwz]
+- [指纹支付][zwzf]
 
 或许还有很多，自行测试。
 
@@ -62,3 +63,16 @@
 
 1. [VirtualApp](https://github.com/asLody/VirtualApp)
 2. [Xposed](https://github.com/rovo89/Xposed)
+
+[wx]: https://pan.baidu.com/s/1hrOzCnq#list/path=%2Freleases%2Fapk&parentPath=%2Freleases
+[wxws]: https://github.com/Gh0u1L5/WechatMagician/releases
+[yybl]: https://www.coolapk.com/apk/com.sollyu.xposed.hook.model
+[ylzqq]: https://github.com/bin456789/Unblock163MusicClient-Xposed/releases
+[wxxyy]: https://www.coolapk.com/apk/com.hiwechart.translate
+[cdzs]: https://www.coolapk.com/apk/com.gy.xposed.cddh
+[qqqb]: http://repo.xposed.info/module/cn.qssq666.redpacket
+[ttzs]: http://repo.xposed.info/module/com.emily.mmjumphelper
+[mnwz]: https://www.coolapk.com/apk/com.rong.xposed.fakelocation
+[zwzf]: https://github.com/android-hacker/Xposed-Fingerprint-pay/releases
+[bsxg]: https://www.coolapk.com/apk/com.specher.sm
+[mdwechat]: https://github.com/Blankeer/MDWechat
