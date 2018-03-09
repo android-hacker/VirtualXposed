@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
-import android.os.Looper;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
@@ -25,6 +24,7 @@ import java.io.OutputStream;
 import io.fabric.sdk.android.Fabric;
 import io.virtualapp.delegate.MyAppRequestListener;
 import io.virtualapp.delegate.MyComponentDelegate;
+import io.virtualapp.delegate.MyCrashHandler;
 import io.virtualapp.delegate.MyPhoneInfoDelegate;
 import io.virtualapp.delegate.MyTaskDescriptionDelegate;
 import jonathanfinerty.once.Once;
@@ -114,26 +114,20 @@ public class VApp extends Application {
                         VirtualCore.get().installPackage(xposedInstallerApk.getPath(), InstallStrategy.TERMINATE_IF_EXIST);
                     }
                 }
-
-
             }
 
             @Override
             public void onVirtualProcess() {
+                Fabric.with(VApp.this, new Crashlytics());
+
                 //listener components
                 virtualCore.setComponentDelegate(new MyComponentDelegate());
                 //fake phone imei,macAddress,BluetoothAddress
                 virtualCore.setPhoneInfoDelegate(new MyPhoneInfoDelegate());
                 //fake task description's icon and title
                 virtualCore.setTaskDescriptionDelegate(new MyTaskDescriptionDelegate());
-                virtualCore.setCrashHandler((t, e) -> {
-                    Log.i(TAG, "uncaught :" + t, e);
-                    if (t == Looper.getMainLooper().getThread()) {
-                        System.exit(0);
-                    } else {
-                        Log.e(TAG, "ignore uncaught exception of thread: " + t);
-                    }
-                });
+                virtualCore.setCrashHandler(new MyCrashHandler());
+
                 // ensure the logcat service alive when every virtual process start.
                 LogcatService.start(VApp.this, VEnvironment.getDataUserPackageDirectory(0, XPOSED_INSTALLER_PACKAGE));
             }
