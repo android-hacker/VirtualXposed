@@ -12,6 +12,8 @@ import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.remote.InstallResult;
 
+import io.virtualapp.home.LoadingActivity;
+
 /**
  * author: weishu on 18/2/23.
  */
@@ -24,6 +26,7 @@ public class CmdReceiver extends BroadcastReceiver {
 
     private static final String CMD_UPDATE = "update";
     private static final String CMD_REBOOT = "reboot";
+    private static final String CMD_LAUNCH = "launch";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -47,7 +50,7 @@ public class CmdReceiver extends BroadcastReceiver {
         if (CMD_UPDATE.equalsIgnoreCase(cmd)) {
             String pkg = intent.getStringExtra(KEY_PKG);
             if (TextUtils.isEmpty(pkg)) {
-                showTips(context, "Please give me the update package!!");
+                showTips(context, "Please tell me the update package!!");
                 return;
             }
 
@@ -71,6 +74,13 @@ public class CmdReceiver extends BroadcastReceiver {
             } catch (PackageManager.NameNotFoundException e) {
                 showTips(context, "Can not found " + pkg + " outside!");
             }
+        } else if (CMD_LAUNCH.equalsIgnoreCase(cmd)) {
+            String pkg = intent.getStringExtra(KEY_PKG);
+            if (TextUtils.isEmpty(pkg)) {
+                showTips(context, "Please tell me the launch package!!");
+                return;
+            }
+            LoadingActivity.launch(context, pkg, 0);
         }
     }
 
