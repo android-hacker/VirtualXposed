@@ -36,6 +36,17 @@ public class NotificationManagerStub extends MethodInvocationProxy<MethodInvocat
             addMethodProxy(new ReplaceCallingPkgMethodProxy("getNotificationPolicy"));
             addMethodProxy(new ReplaceCallingPkgMethodProxy("isNotificationPolicyAccessGrantedForPackage"));
         }
+
+        // http://androidxref.com/8.0.0_r4/xref/frameworks/base/core/java/android/app/INotificationManager.aidl
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            addMethodProxy(new ReplaceCallingPkgMethodProxy("createNotificationChannelGroups"));
+            addMethodProxy(new ReplaceCallingPkgMethodProxy("getNotificationChannelGroups"));
+            addMethodProxy(new ReplaceCallingPkgMethodProxy("deleteNotificationChannelGroup"));
+            addMethodProxy(new ReplaceCallingPkgMethodProxy("createNotificationChannels"));
+            addMethodProxy(new ReplaceCallingPkgMethodProxy("getNotificationChannels"));
+            addMethodProxy(new ReplaceCallingPkgMethodProxy("getNotificationChannel"));
+            addMethodProxy(new ReplaceCallingPkgMethodProxy("deleteNotificationChannel"));
+        }
         if ("samsung".equalsIgnoreCase(Build.BRAND) || "samsung".equalsIgnoreCase(Build.MANUFACTURER)) {
             addMethodProxy(new ReplaceCallingPkgMethodProxy("removeEdgeNotification"));
         }
