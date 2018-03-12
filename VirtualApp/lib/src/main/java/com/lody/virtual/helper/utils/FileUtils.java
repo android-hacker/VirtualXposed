@@ -90,6 +90,9 @@ public class FileUtils {
     }
 
     public static boolean deleteDir(File dir) {
+        if (dir == null) {
+            return false;
+        }
         if (dir.isDirectory()) {
             String[] children = dir.list();
             for (String file : children) {

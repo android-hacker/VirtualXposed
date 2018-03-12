@@ -448,6 +448,11 @@ public final class VClientImpl extends IVClient.Stub {
         NativeEngine.redirectDirectory("/data/user/0/" + info.packageName + "/lib/", libPath);
 
         VirtualStorageManager vsManager = VirtualStorageManager.get();
+        File vsDir = VEnvironment.getVirtualStorageDir(VirtualCore.get().getContext(), info.packageName, userId);
+        if (vsDir != null && vsDir.exists() && vsDir.isDirectory()) {
+            // vsManager.setVirtualStorage(info.packageName, userId, vsDir.getPath());
+        }
+
         String vsPath = vsManager.getVirtualStorage(info.packageName, userId);
         boolean enable = vsManager.isVirtualStorageEnable(info.packageName, userId);
         if (enable && vsPath != null) {
