@@ -3,6 +3,7 @@ package com.lody.virtual.client.hook.delegate;
 import android.app.Activity;
 import android.app.Application;
 import android.app.Instrumentation;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -107,6 +108,32 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
             throw e;
         }
         VirtualCore.get().getComponentDelegate().afterActivityCreate(activity);
+    }
+
+    @Override
+    public Activity newActivity(Class<?> clazz, Context context, IBinder token, Application application, Intent intent, ActivityInfo info, CharSequence title, Activity parent, String id, Object lastNonConfigurationInstance) throws InstantiationException, IllegalAccessException {
+        try {
+            return super.newActivity(clazz, context, token, application, intent, info, title, parent, id, lastNonConfigurationInstance);
+        } catch (Throwable e) {
+            VLog.e(TAG, "activity crashed when call newActivity, clearing", e);
+            // 1. tell ui that we launched(failed)
+            callUiCallback(intent);
+            // 3. rethrow
+            throw e;
+        }
+    }
+
+    @Override
+    public Activity newActivity(ClassLoader cl, String className, Intent intent) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        try {
+            return super.newActivity(cl, className, intent);
+        } catch (Throwable e) {
+            VLog.e(TAG, "activity crashed when call newActivity, clearing", e);
+            // 1. tell ui that we launched(failed)
+            callUiCallback(intent);
+            // 3. rethrow
+            throw e;
+        }
     }
 
     @Override
