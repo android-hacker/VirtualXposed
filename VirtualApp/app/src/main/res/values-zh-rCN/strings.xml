@@ -98,4 +98,5 @@
     <string name="app_manage_repair_reboot_now">立即重启</string>
     <string name="wallpaper_too_big_tips">壁纸图片过大，严重拖慢启动速度，建议更换或者恢复默认壁纸~</string>
     <string name="create_shortcut_already_exist">这个快捷方式已经创建过啦～</string>
+    <string name="start_app_failed">打开应用 %1$s 失败 :(</string>
 </resources>

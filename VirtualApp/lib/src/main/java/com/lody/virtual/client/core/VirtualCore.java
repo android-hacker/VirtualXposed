@@ -21,6 +21,7 @@ import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.ConditionVariable;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.Process;
 import android.os.RemoteException;
@@ -614,6 +615,21 @@ public final class VirtualCore {
             BundleCompat.putBinder(bundle, "_VA_|_ui_callback_", callback.asBinder());
             intent.putExtra("_VA_|_sender_", bundle);
         }
+    }
+
+    public static IUiCallback getUiCallback(Intent intent) {
+        if (intent == null) {
+            return null;
+        }
+        try {
+            Bundle bundle = intent.getBundleExtra("_VA_|_sender_");
+            if (bundle != null) {
+                IBinder uicallbackToken = BundleCompat.getBinder(bundle, "_VA_|_ui_callback_");
+                return IUiCallback.Stub.asInterface(uicallbackToken);
+            }
+        } catch (Throwable ignored) {
+        }
+        return null;
     }
 
     public InstalledAppInfo getInstalledAppInfo(String pkg, int flags) {

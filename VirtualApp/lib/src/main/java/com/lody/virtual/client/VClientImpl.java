@@ -49,6 +49,7 @@ import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.remote.InstalledAppInfo;
 import com.lody.virtual.remote.PendingResultData;
 import com.lody.virtual.remote.VDeviceInfo;
+import com.lody.virtual.server.interfaces.IUiCallback;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -103,6 +104,7 @@ public final class VClientImpl extends IVClient.Stub {
     private AppBindData mBoundApplication;
     private Application mInitialApplication;
     private CrashHandler crashHandler;
+    private IUiCallback mUiCallback;
 
     public static VClientImpl get() {
         return gClient;
@@ -199,6 +201,11 @@ public final class VClientImpl extends IVClient.Stub {
                     Collections.singletonList(intent),
                     true);
         }
+    }
+
+    public void bindApplicationForActivity(final String packageName, final String processName, final Intent intent) {
+        mUiCallback = VirtualCore.getUiCallback(intent);
+        bindApplication(packageName, processName);
     }
 
     public void bindApplication(final String packageName, final String processName) {
@@ -352,6 +359,17 @@ public final class VClientImpl extends IVClient.Stub {
             }
         } catch (Exception e) {
             if (!mInstrumentation.onException(mInitialApplication, e)) {
+                // 1. tell ui that do not need wait use now.
+                if (mUiCallback != null) {
+                    try {
+                        mUiCallback.onOpenFailed(packageName, VUserHandle.myUserId());
+                    } catch (RemoteException ignored) {
+                    }
+                }
+                // 2. tell vams that launch finish.
+                VActivityManager.get().appDoneExecuting();
+
+                // 3. rethrow
                 throw new RuntimeException(
                         "Unable to create application " + (mInitialApplication == null ? " [null application] " : mInitialApplication.getClass().getName())
                                 + ": " + e.toString(), e);

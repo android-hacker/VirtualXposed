@@ -87,6 +87,19 @@ public class LoadingActivity extends VActivity {
         public void onAppOpened(String packageName, int userId) throws RemoteException {
             finish();
         }
+
+        @Override
+        public void onOpenFailed(String packageName, int userId) throws RemoteException {
+            VUiKit.defer().when(() -> {
+            }).done((v) -> {
+                if (!isFinishing()) {
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.start_app_failed, packageName),
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            finish();
+        }
     };
 
     @Override
