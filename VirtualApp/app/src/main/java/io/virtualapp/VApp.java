@@ -111,7 +111,10 @@ public class VApp extends Application {
                     }
 
                     if (xposedInstallerApk.isFile() && !DeviceUtil.isMeizuBelowN()) {
-                        VirtualCore.get().installPackage(xposedInstallerApk.getPath(), InstallStrategy.TERMINATE_IF_EXIST);
+                        try {
+                            VirtualCore.get().installPackage(xposedInstallerApk.getPath(), InstallStrategy.TERMINATE_IF_EXIST);
+                        } catch (Throwable ignored) {
+                        }
                     }
                 }
             }
