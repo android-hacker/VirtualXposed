@@ -502,7 +502,11 @@ public final class VirtualCore {
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, name);
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON, icon);
         addIntent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
-        context.sendBroadcast(addIntent);
+        try {
+            context.sendBroadcast(addIntent);
+        } catch (Throwable ignored) {
+            return false;
+        }
         return true;
     }
 
