@@ -101,7 +101,7 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
             VLog.e(TAG, "activity crashed when call onCreate, clearing", e);
             // 1. tell ui that we launched(failed)
             Intent intent = activity.getIntent();
-            callUiCallback(intent);
+            callUiCallback(intent, false);
             // 2. finish ourself to tell AMS that do not try launch us again.
             activity.finish();
             // 3. rethrow
@@ -117,7 +117,7 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
         } catch (Throwable e) {
             VLog.e(TAG, "activity crashed when call newActivity, clearing", e);
             // 1. tell ui that we launched(failed)
-            callUiCallback(intent);
+            callUiCallback(intent, false);
             // 3. rethrow
             throw e;
         }
@@ -130,7 +130,7 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
         } catch (Throwable e) {
             VLog.e(TAG, "activity crashed when call newActivity, clearing", e);
             // 1. tell ui that we launched(failed)
-            callUiCallback(intent);
+            callUiCallback(intent, false);
             // 3. rethrow
             throw e;
         }
@@ -152,7 +152,7 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
         VirtualCore.get().getComponentDelegate().afterActivityResume(activity);
         Intent intent = activity.getIntent();
 
-        callUiCallback(intent);
+        callUiCallback(intent, true);
     }
 
 
@@ -180,11 +180,15 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
      * tell the ui that the activity has launched.
      * @param intent
      */
-    private void callUiCallback(Intent intent) {
+    private void callUiCallback(Intent intent, boolean success) {
         IUiCallback callback = VirtualCore.getUiCallback(intent);
         if (callback != null) {
             try {
-                callback.onOpenFailed(VClientImpl.get().getCurrentPackage(), VUserHandle.myUserId());
+                if (success) {
+                    callback.onAppOpened(VClientImpl.get().getCurrentPackage(), VUserHandle.myUserId());
+                } else {
+                    callback.onOpenFailed(VClientImpl.get().getCurrentPackage(), VUserHandle.myUserId());
+                }
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
