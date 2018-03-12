@@ -18,6 +18,7 @@ import com.lody.virtual.client.interfaces.IInjector;
 import com.lody.virtual.client.ipc.ActivityClientRecord;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.helper.compat.BundleCompat;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.server.interfaces.IUiCallback;
 
@@ -93,7 +94,18 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
                 activity.setRequestedOrientation(info.screenOrientation);
             }
         }
-        super.callActivityOnCreate(activity, icicle);
+        try {
+            super.callActivityOnCreate(activity, icicle);
+        } catch (Throwable e) {
+            VLog.e(TAG, "activity crashed when call onCreate, clearing", e);
+            // 1. tell ui that we launched(failed)
+            Intent intent = activity.getIntent();
+            callUiCallback(intent);
+            // 2. finish ourself to tell AMS that do not try launch us again.
+            activity.finish();
+            // 3. rethrow
+            throw e;
+        }
         VirtualCore.get().getComponentDelegate().afterActivityCreate(activity);
     }
 
@@ -112,20 +124,8 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
         super.callActivityOnResume(activity);
         VirtualCore.get().getComponentDelegate().afterActivityResume(activity);
         Intent intent = activity.getIntent();
-        if (intent != null) {
-            Bundle bundle = intent.getBundleExtra("_VA_|_sender_");
-            if (bundle != null) {
-                IBinder callbackToken = BundleCompat.getBinder(bundle, "_VA_|_ui_callback_");
-                IUiCallback callback = IUiCallback.Stub.asInterface(callbackToken);
-                if (callback != null) {
-                    try {
-                        callback.onAppOpened(VClientImpl.get().getCurrentPackage(), VUserHandle.myUserId());
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
+
+        callUiCallback(intent);
     }
 
 
@@ -149,4 +149,18 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
         super.callApplicationOnCreate(app);
     }
 
+    /**
+     * tell the ui that the activity has launched.
+     * @param intent
+     */
+    private void callUiCallback(Intent intent) {
+        IUiCallback callback = VirtualCore.getUiCallback(intent);
+        if (callback != null) {
+            try {
+                callback.onOpenFailed(VClientImpl.get().getCurrentPackage(), VUserHandle.myUserId());
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

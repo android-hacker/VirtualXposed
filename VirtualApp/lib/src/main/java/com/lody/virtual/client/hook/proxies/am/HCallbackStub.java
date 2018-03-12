@@ -3,7 +3,6 @@ package com.lody.virtual.client.hook.proxies.am;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.ServiceInfo;
 import android.os.Handler;
 import android.os.IBinder;
@@ -117,7 +116,7 @@ import mirror.android.app.IActivityManager;
                 return false;
             }
             if (!VClientImpl.get().isBound()) {
-                VClientImpl.get().bindApplication(info.packageName, info.processName);
+                VClientImpl.get().bindApplicationForActivity(info.packageName, info.processName, intent);
                 getH().sendMessageAtFrontOfQueue(Message.obtain(msg));
                 return false;
             }
