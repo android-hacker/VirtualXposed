@@ -152,6 +152,25 @@ public class VEnvironment {
         return new File(USER_DIRECTORY, String.valueOf(userId));
     }
 
+    public static File getVirtualStorageBaseDir(Context context) {
+        File externalFilesRoot = context.getExternalFilesDir(null);
+        if (externalFilesRoot != null) {
+            File vsBaseDir = new File(externalFilesRoot, "virtual");
+            return ensureCreated(vsBaseDir);
+        }
+        return null;
+    }
+
+    public static File getVirtualStorageDir(Context context, String packageName, int userId) {
+        File virtualStorageBaseDir = getVirtualStorageBaseDir(context);
+        if (virtualStorageBaseDir == null) {
+            return null;
+        }
+        File pkgBase = new File(virtualStorageBaseDir, packageName);
+        File userDir = new File(pkgBase, String.valueOf(userId));
+        return ensureCreated(userDir);
+    }
+
     public static File getWifiMacFile(int userId) {
         return new File(getUserSystemDirectory(userId), "wifiMacAddress");
     }
