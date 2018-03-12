@@ -788,8 +788,9 @@ class MethodProxies {
         @Override
         public Object call(Object who, Method method, Object... args) throws Throwable {
             String processName = (String) args[0];
+            int uid = (int) args[1];
             int flags = (int) args[2];
-            List<ProviderInfo> infos = VPackageManager.get().queryContentProviders(processName, flags, 0);
+            List<ProviderInfo> infos = VPackageManager.get().queryContentProviders(processName, uid, flags);
             if (ParceledListSliceCompat.isReturnParceledListSlice(method)) {
                 return ParceledListSliceCompat.create(infos);
             }
