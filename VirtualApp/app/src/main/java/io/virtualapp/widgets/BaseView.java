@@ -30,7 +30,7 @@ public abstract class BaseView extends View {
 
     public void startAnim() {
         stopAnim();
-        startViewAnim(0f, 1f, 500);
+        startViewAnim(0f, 1f, 1250);
     }
 
     public void startAnim(int time) {
