@@ -431,7 +431,7 @@ public final class VClientImpl extends IVClient.Stub {
         VirtualStorageManager vsManager = VirtualStorageManager.get();
         File vsDir = VEnvironment.getVirtualStorageDir(VirtualCore.get().getContext(), info.packageName, userId);
         if (vsDir != null && vsDir.exists() && vsDir.isDirectory()) {
-            // vsManager.setVirtualStorage(info.packageName, userId, vsDir.getPath());
+            vsManager.setVirtualStorage(info.packageName, userId, vsDir.getPath());
         }
 
         String vsPath = vsManager.getVirtualStorage(info.packageName, userId);
