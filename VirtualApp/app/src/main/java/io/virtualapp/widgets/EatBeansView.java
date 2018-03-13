@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
@@ -12,12 +11,12 @@ import android.util.AttributeSet;
 
 public class EatBeansView extends BaseView {
 
-    int eatSpeed = 5;
-    private Paint mPaint, mPaintEye;
+    int eatSpeed = 8;
+    private Paint mPaint, mPaintEye, mPaintBeans;
     private float mWidth = 0f;
     private float mHigh = 0f;
     private float mPadding = 5f;
-    private float eatErWidth = 60f;
+    private float eatErWidth = 50f;
     private float eatErPositionX = 0f;
     private float beansWidth = 10f;
 
@@ -25,6 +24,7 @@ public class EatBeansView extends BaseView {
     private float mAngle = 34;
     private float eatErStartAngle = mAngle;
     private float eatErEndAngle = 360 - 2 * eatErStartAngle;
+    private RectF mRect = new RectF();
 
     public EatBeansView(Context context) {
         super(context);
@@ -52,8 +52,8 @@ public class EatBeansView extends BaseView {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         float eatRightX = mPadding + eatErWidth + eatErPositionX;
-        RectF rectF = new RectF(mPadding + eatErPositionX, mHigh / 2 - eatErWidth / 2, eatRightX, mHigh / 2 + eatErWidth / 2);
-        canvas.drawArc(rectF, eatErStartAngle, eatErEndAngle
+        mRect.set(mPadding + eatErPositionX, mHigh / 2 - eatErWidth / 2, eatRightX, mHigh / 2 + eatErWidth / 2);
+        canvas.drawArc(mRect, eatErStartAngle, eatErEndAngle
                 , true, mPaint);
         canvas.drawCircle(mPadding + eatErPositionX + eatErWidth / 2,
                 mHigh / 2 - eatErWidth / 4,
@@ -65,7 +65,7 @@ public class EatBeansView extends BaseView {
             float x = beansCount * i + beansWidth / 2 + mPadding + eatErWidth;
             if (x > eatRightX) {
                 canvas.drawCircle(x,
-                        mHigh / 2, beansWidth / 2, mPaint);
+                        mHigh / 2, beansWidth / 2, mPaintBeans);
             }
         }
 
@@ -76,13 +76,17 @@ public class EatBeansView extends BaseView {
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
         mPaint.setStyle(Paint.Style.FILL);
-        mPaint.setColor(Color.WHITE);
+        mPaint.setColor(0xDDDDDDDD);
+
+        mPaintBeans = new Paint();
+        mPaintBeans.setAntiAlias(true);
+        mPaintBeans.setStyle(Paint.Style.FILL);
+        mPaintBeans.setColor(0xFFBBBBBB);
 
         mPaintEye = new Paint();
         mPaintEye.setAntiAlias(true);
         mPaintEye.setStyle(Paint.Style.FILL);
-        mPaintEye.setColor(Color.BLACK);
-
+        mPaintEye.setColor(0xFF888888);
     }
 
 
