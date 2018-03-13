@@ -155,7 +155,7 @@ public class VEnvironment {
     public static File getVirtualStorageBaseDir(Context context) {
         File externalFilesRoot = context.getExternalFilesDir(null);
         if (externalFilesRoot != null) {
-            File vsBaseDir = new File(externalFilesRoot, "virtual");
+            File vsBaseDir = new File(externalFilesRoot, "vsdcard");
             return ensureCreated(vsBaseDir);
         }
         return null;
@@ -163,12 +163,12 @@ public class VEnvironment {
 
     public static File getVirtualStorageDir(Context context, String packageName, int userId) {
         File virtualStorageBaseDir = getVirtualStorageBaseDir(context);
+        // Apps may share sdcard files, we can not separate them by package.
         if (virtualStorageBaseDir == null) {
             return null;
         }
-        File pkgBase = new File(virtualStorageBaseDir, packageName);
-        File userDir = new File(pkgBase, String.valueOf(userId));
-        return ensureCreated(userDir);
+        File userBase = new File(virtualStorageBaseDir, String.valueOf(userId));
+        return ensureCreated(userBase);
     }
 
     public static File getWifiMacFile(int userId) {
