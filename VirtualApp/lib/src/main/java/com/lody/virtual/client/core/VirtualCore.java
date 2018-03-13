@@ -625,6 +625,10 @@ public final class VirtualCore {
         if (intent == null) {
             return null;
         }
+        // only for launch intent.
+        if (!Intent.ACTION_MAIN.equals(intent.getAction())) {
+            return null;
+        }
         try {
             Bundle bundle = intent.getBundleExtra("_VA_|_sender_");
             if (bundle != null) {
