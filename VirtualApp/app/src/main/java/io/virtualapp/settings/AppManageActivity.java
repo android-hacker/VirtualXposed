@@ -12,6 +12,7 @@ import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.ipc.VirtualStorageManager;
 import com.lody.virtual.helper.ArtDexOptimizer;
 import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.remote.InstalledAppInfo;
@@ -138,14 +140,27 @@ public class AppManageActivity extends VActivity {
         }
         PopupMenu popupMenu = new PopupMenu(this, anchor);
         popupMenu.inflate(R.menu.app_manage_menu);
+        MenuItem redirectMenu = popupMenu.getMenu().findItem(R.id.action_redirect);
+
+        try {
+            final String packageName = appManageInfo.pkgName;
+            final int userId = appManageInfo.userId;
+            boolean virtualStorageEnable = VirtualStorageManager.get().isVirtualStorageEnable(packageName, userId);
+            redirectMenu.setTitle(virtualStorageEnable ? R.string.app_manage_redirect_off : R.string.app_manage_redirect_on);
+        } catch (Throwable e) {
+            redirectMenu.setVisible(false);
+        }
+
         popupMenu.setOnMenuItemClickListener(item -> {
-            // ddd
             switch (item.getItemId()) {
                 case R.id.action_uninstall:
                     showUninstallDialog(appManageInfo, appManageInfo.getName());
                     break;
                 case R.id.action_repair:
                     showRepairDialog(appManageInfo);
+                    break;
+                case R.id.action_redirect:
+                    showStorageRedirectDialog(appManageInfo);
                     break;
             }
             return false;
@@ -226,6 +241,34 @@ public class AppManageActivity extends VActivity {
                     VirtualCore.get().uninstallPackageAsUser(item.pkgName, item.userId);
                     loadAsync();
                 })
+                .setNegativeButton(android.R.string.no, null)
+                .create();
+        try {
+            alertDialog.show();
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private void showStorageRedirectDialog(AppManageInfo item) {
+        final String packageName = item.pkgName;
+        final int userId = item.userId;
+        boolean virtualStorageEnable;
+        try {
+            virtualStorageEnable = VirtualStorageManager.get().isVirtualStorageEnable(packageName, userId);
+        } catch (Throwable e) {
+            return;
+        }
+
+        AlertDialog alertDialog = new AlertDialog.Builder(AppManageActivity.this)
+                .setTitle(virtualStorageEnable ? R.string.app_manage_redirect_off : R.string.app_manage_redirect_on)
+                .setMessage(getResources().getString(R.string.app_manage_redirect_desc))
+                .setPositiveButton(virtualStorageEnable ? R.string.app_manage_redirect_off_confirm : R.string.app_manage_redirect_on_confirm,
+                        (dialog, which) -> {
+                            try {
+                                VirtualStorageManager.get().setVirtualStorageState(packageName, userId, !virtualStorageEnable);
+                            } catch (Throwable ignored) {
+                            }
+                        })
                 .setNegativeButton(android.R.string.no, null)
                 .create();
         try {
