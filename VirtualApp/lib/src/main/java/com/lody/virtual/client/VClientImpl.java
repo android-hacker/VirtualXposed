@@ -428,24 +428,28 @@ public final class VClientImpl extends IVClient.Stub {
         NativeEngine.redirectDirectory("/data/data/" + info.packageName + "/lib/", libPath);
         NativeEngine.redirectDirectory("/data/user/0/" + info.packageName + "/lib/", libPath);
 
-        VirtualStorageManager vsManager = VirtualStorageManager.get();
+        setupVirtualStorage(info, userId);
+
+        NativeEngine.enableIORedirect();
+    }
+
+    private void setupVirtualStorage(ApplicationInfo info, int userId) {
         File vsDir = VEnvironment.getVirtualStorageDir(VirtualCore.get().getContext(), info.packageName, userId);
-        if (vsDir != null && vsDir.exists() && vsDir.isDirectory()) {
-            vsManager.setVirtualStorage(info.packageName, userId, vsDir.getPath());
+        if (vsDir == null || !vsDir.exists() || !vsDir.isDirectory()) {
+            return;
         }
 
-        String vsPath = vsManager.getVirtualStorage(info.packageName, userId);
+        VirtualStorageManager vsManager = VirtualStorageManager.get();
         boolean enable = vsManager.isVirtualStorageEnable(info.packageName, userId);
-        if (enable && vsPath != null) {
-            File vsDirectory = new File(vsPath);
-            if (vsDirectory.exists() || vsDirectory.mkdirs()) {
-                HashSet<String> mountPoints = getMountPoints();
-                for (String mountPoint : mountPoints) {
-                    NativeEngine.redirectDirectory(mountPoint, vsPath);
-                }
+        if (enable) {
+            vsManager.setVirtualStorage(info.packageName, userId, vsDir.getPath());
+
+            // redirect for normal path
+            HashSet<String> mountPoints = getMountPoints();
+            for (String mountPoint : mountPoints) {
+                NativeEngine.redirectDirectory(mountPoint, vsDir.getPath());
             }
         }
-        NativeEngine.enableIORedirect();
     }
 
     @SuppressLint("SdCardPath")
