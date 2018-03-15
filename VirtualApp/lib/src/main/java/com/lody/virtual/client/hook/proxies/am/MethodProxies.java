@@ -30,6 +30,7 @@ import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.TypedValue;
 
+import com.lody.virtual.client.NativeEngine;
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.badger.BadgerManager;
 import com.lody.virtual.client.core.VirtualCore;
@@ -1546,11 +1547,36 @@ class MethodProxies {
             } else if (BadgerManager.handleBadger(intent)) {
                 return null;
             } else if (Intent.ACTION_MEDIA_SCANNER_SCAN_FILE.equals(action)) {
-                // intent send to system, do not handle it(may have other same intent)
-                return intent;
+                // intent send to system, do not modify it's action(may have other same intent)
+                return handleMediaScannerIntent(intent);
             } else {
                 return ComponentUtils.redirectBroadcastIntent(intent, VUserHandle.myUserId());
             }
+            return intent;
+        }
+
+        private Intent handleMediaScannerIntent(Intent intent) {
+            if (intent == null) {
+                return null;
+            }
+            Uri data = intent.getData();
+            if (data == null) {
+                return intent;
+            }
+            String scheme = data.getScheme();
+            if (!"file".equalsIgnoreCase(scheme)) {
+                return intent;
+            }
+            String path = data.getPath();
+            if (path == null) {
+                return intent;
+            }
+            String newPath = NativeEngine.getRedirectedPath(path);
+            File newFile = new File(newPath);
+            if (!newFile.exists()) {
+                return intent;
+            }
+            intent.setData(Uri.fromFile(newFile));
             return intent;
         }
 
