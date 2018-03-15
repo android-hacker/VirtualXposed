@@ -24,6 +24,7 @@ import android.os.Message;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.StrictMode;
+import android.util.Base64;
 import android.util.Log;
 
 import com.lody.virtual.client.core.CrashHandler;
@@ -453,20 +454,27 @@ public final class VClientImpl extends IVClient.Stub {
     }
 
     private void setupVirtualStorage(ApplicationInfo info, int userId) {
-        File vsDir = VEnvironment.getVirtualStorageDir(VirtualCore.get().getContext(), info.packageName, userId);
+        File vsDir = VEnvironment.getVirtualStorageDir(info.packageName, userId);
         if (vsDir == null || !vsDir.exists() || !vsDir.isDirectory()) {
             return;
         }
 
         VirtualStorageManager vsManager = VirtualStorageManager.get();
         boolean enable = vsManager.isVirtualStorageEnable(info.packageName, userId);
+        HashSet<String> mountPoints = getMountPoints();
         if (enable) {
             vsManager.setVirtualStorage(info.packageName, userId, vsDir.getPath());
-
             // redirect for normal path
-            HashSet<String> mountPoints = getMountPoints();
             for (String mountPoint : mountPoints) {
                 NativeEngine.redirectDirectory(mountPoint, vsDir.getPath());
+            }
+        } else {
+            // redirect tencent to avoid message mess
+            final String tStr = new String(Base64.decode("dGVuY2VudA==", 0));
+            for (String mountPoint : mountPoints) {
+                File tDir = new File(mountPoint, tStr);
+                File tRelocateDir = new File(vsDir, tStr);
+                NativeEngine.redirectDirectory(tDir.getAbsolutePath(), tRelocateDir.getAbsolutePath());
             }
         }
     }

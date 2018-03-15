@@ -2,6 +2,7 @@ package com.lody.virtual.os;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.Environment;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.FileUtils;
@@ -152,17 +153,18 @@ public class VEnvironment {
         return new File(USER_DIRECTORY, String.valueOf(userId));
     }
 
-    public static File getVirtualStorageBaseDir(Context context) {
-        File externalFilesRoot = context.getExternalFilesDir(null);
+    public static File getVirtualStorageBaseDir() {
+        File externalFilesRoot = Environment.getExternalStorageDirectory();
         if (externalFilesRoot != null) {
-            File vsBaseDir = new File(externalFilesRoot, "vsdcard");
-            return ensureCreated(vsBaseDir);
+            File vBaseDir = new File(externalFilesRoot, "VirtualXposed");
+            File vSdcard = new File(vBaseDir, "vsdcard");
+            return ensureCreated(vSdcard);
         }
         return null;
     }
 
-    public static File getVirtualStorageDir(Context context, String packageName, int userId) {
-        File virtualStorageBaseDir = getVirtualStorageBaseDir(context);
+    public static File getVirtualStorageDir(String packageName, int userId) {
+        File virtualStorageBaseDir = getVirtualStorageBaseDir();
         // Apps may share sdcard files, we can not separate them by package.
         if (virtualStorageBaseDir == null) {
             return null;
