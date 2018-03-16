@@ -433,7 +433,7 @@ class MethodProxies {
 
             ActivityInfo activityInfo = VirtualCore.get().resolveActivityInfo(intent, userId);
             if (activityInfo == null) {
-                VLog.e("VActivityManager", "Unable to resolve activityInfo : " + intent);
+                VLog.e("VActivityManager", "Unable to resolve activityInfo : %s", intent);
                 if (intent.getPackage() != null && isAppPkg(intent.getPackage())) {
                     return ActivityManagerCompat.START_INTENT_NOT_RESOLVED;
                 }
