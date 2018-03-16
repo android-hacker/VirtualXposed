@@ -73,6 +73,21 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light" />
 
+        <activity
+            android:name=".share.ShareBridgeActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation"
+            android:excludeFromRecents="true"
+            android:label="@string/shared_to_vxp"
+            android:screenOrientation="portrait"
+            android:taskAffinity="io.va.exposed.share"
+            android:theme="@style/Theme.AppCompat.Light.Dialog">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".update.VAVersionService"
             android:enabled="true"

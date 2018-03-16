@@ -103,5 +103,7 @@
     <string name="app_manage_redirect_off">关闭存储重定向</string>
     <string name="app_manage_redirect_desc">存储重定向会把应用对真实SD卡的访问重定向到虚拟的SD卡中，可以防止某些APP在你的SD中乱创建目录；但是，开启存储重定向之后，应用无法再访问真实的SD卡，请按需选择。</string>
     <string name="app_manage_redirect_on_confirm">确认打开</string>
-    <string name="app_manage_redirect_off_confirm">确认关闭</string>>
+    <string name="app_manage_redirect_off_confirm">确认关闭</string>
+    <string name="shared_to_vxp">分享到VXP内的应用</string>
+    <string name="shared_to_vxp_failed">分享失败 :( 请稍后重试…</string>
 </resources>

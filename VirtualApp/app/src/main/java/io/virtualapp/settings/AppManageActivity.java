@@ -52,7 +52,7 @@ public class AppManageActivity extends VActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_app_list);
+        setContentView(R.layout.activity_list);
         mListView = (ListView) findViewById(R.id.list);
         mAdapter = new AppManageAdapter();
         mListView.setAdapter(mAdapter);
