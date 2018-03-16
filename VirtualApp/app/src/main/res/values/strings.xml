@@ -108,4 +108,6 @@
     <string name="app_manage_redirect_desc" />
     <string name="app_manage_redirect_on_confirm">Open, Confirm</string>
     <string name="app_manage_redirect_off_confirm">Close, Confirm</string>
+    <string name="shared_to_vxp">Shared to App in VirtualXposed</string>
+    <string name="shared_to_vxp_failed">Share failed, please try again.</string>
 </resources>
