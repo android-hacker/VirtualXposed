@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_above="@id/installer_progress_text"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:visibility="gone" />
 
     <Button
