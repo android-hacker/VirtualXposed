@@ -15,11 +15,21 @@
         android:textSize="18sp"
         tools:text="install new version?" />
 
+    <TextView
+        android:id="@+id/installer_progress_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:textColor="#000000"
+        android:visibility="gone" />
+
     <ProgressBar
         android:id="@+id/installer_loading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_above="@id/installer_progress_text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
         android:visibility="gone" />
 
     <Button

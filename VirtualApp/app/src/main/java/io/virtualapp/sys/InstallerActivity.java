@@ -1,5 +1,6 @@
 package io.virtualapp.sys;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -11,14 +12,21 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.FileUtils;
 import com.lody.virtual.remote.InstalledAppInfo;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import io.virtualapp.R;
+import io.virtualapp.VCommends;
 import io.virtualapp.abs.ui.VUiKit;
+import io.virtualapp.home.models.AppInfoLite;
 
 /**
  * author: weishu on 18/3/19.
@@ -29,6 +37,9 @@ public class InstallerActivity extends AppCompatActivity {
     private Button mLeft;
     private Button mRight;
     private ProgressBar mProgressBar;
+    private TextView mProgressText;
+
+    private int mInstallCount = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -40,6 +51,7 @@ public class InstallerActivity extends AppCompatActivity {
         mLeft = (Button) findViewById(R.id.installer_left_button);
         mRight = (Button) findViewById(R.id.installer_right_button);
         mProgressBar = (ProgressBar) findViewById(R.id.installer_loading);
+        mProgressText = (TextView) findViewById(R.id.installer_progress_text);
 
         handleIntent(getIntent());
     }
@@ -53,6 +65,9 @@ public class InstallerActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         // do nothing.
+        if (mInstallCount > 0) {
+
+        }
     }
 
     private void handleIntent(Intent intent) {
@@ -60,6 +75,122 @@ public class InstallerActivity extends AppCompatActivity {
             finish();
             return;
         }
+
+        ArrayList<AppInfoLite> dataList = intent.getParcelableArrayListExtra(VCommends.EXTRA_APP_INFO_LIST);
+        if (dataList == null) {
+            handleSystemIntent(intent);
+        } else {
+            handleSelfIntent(dataList);
+        }
+    }
+
+    private void handleSelfIntent(ArrayList<AppInfoLite> appList) {
+        if (appList != null) {
+            boolean showTip = false;
+            int size = appList.size();
+            mInstallCount = size;
+
+            if (dealUpdate(appList)) {
+                return;
+            }
+
+            for (int i = 0; i < size; i++) {
+                AppInfoLite info = appList.get(i);
+                if (new File(info.path).length() > 1024 * 1024 * 24) {
+                    showTip = true;
+                }
+
+                addApp(info);
+            }
+            if (showTip) {
+                Toast.makeText(this, R.string.large_app_install_tips, Toast.LENGTH_SHORT).show();
+            }
+        }
+
+    }
+
+    private void addApp(AppInfoLite appInfoLite) {
+        Installd.addApp(appInfoLite, model -> runOnUiThread(() -> {
+            if (model.isInstalling()) {
+                mProgressText.setVisibility(View.VISIBLE);
+                mProgressBar.setVisibility(View.VISIBLE);
+                mProgressText.setText(getResources().getString(R.string.add_app_installing_tips, model.getName()));
+            } else if (model.isLoading()) {
+                mProgressText.setVisibility(View.VISIBLE);
+                mProgressBar.setVisibility(View.VISIBLE);
+                mProgressText.setText(getResources().getString(R.string.add_app_loading_tips, model.getName()));
+            } else {
+                mInstallCount--;
+                if (mInstallCount <= 0) {
+                    mInstallCount = 0;
+                    // only dismiss when the app is the last to install.
+                    mProgressText.setText(getResources().getString(R.string.add_app_laoding_complete, model.getName()));
+                    mProgressText.postDelayed(() -> {
+                        mProgressBar.setVisibility(View.GONE);
+
+                        mRight.setVisibility(View.VISIBLE);
+                        mRight.setText(R.string.install_complete);
+                        mRight.setOnClickListener((vv)-> finish());
+                    }, 500);
+                }
+            }
+        }));
+    }
+
+    private boolean dealUpdate(List<AppInfoLite> appList) {
+        if (appList == null || appList.size() != 1) {
+            return false;
+        }
+        AppInfoLite appInfoLite = appList.get(0);
+        if (appInfoLite == null) {
+            return false;
+        }
+        if (appInfoLite.disableMultiVersion) {
+            return false;
+        }
+        InstalledAppInfo installedAppInfo = VirtualCore.get().getInstalledAppInfo(appInfoLite.packageName, 0);
+        if (installedAppInfo == null) {
+            return false;
+        }
+        String currentVersion;
+        String toInstalledVersion;
+        int currentVersionCode;
+        int toInstalledVersionCode;
+        PackageManager packageManager = getPackageManager();
+        if (packageManager == null) {
+            return false;
+        }
+        try {
+            PackageInfo applicationInfo = installedAppInfo.getPackageInfo(0);
+            currentVersion = applicationInfo.versionName;
+            currentVersionCode = applicationInfo.versionCode;
+
+            PackageInfo packageArchiveInfo = packageManager.getPackageArchiveInfo(appInfoLite.path, 0);
+            toInstalledVersion = packageArchiveInfo.versionName;
+            toInstalledVersionCode = packageArchiveInfo.versionCode;
+
+            String multiVersionUpdate = getResources().getString(currentVersionCode == toInstalledVersionCode ? R.string.multi_version_cover : (
+                    currentVersionCode < toInstalledVersionCode ? R.string.multi_version_upgrade : R.string.multi_version_downgrade
+            ));
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
+                    .setTitle(R.string.multi_version_tip_title)
+                    .setMessage(getResources().getString(R.string.multi_version_tips_content, currentVersion, toInstalledVersion))
+                    .setPositiveButton(R.string.multi_version_multi, (dialog, which) -> {
+                        addApp(appInfoLite);
+                    })
+                    .setNegativeButton(multiVersionUpdate, ((dialog, which) -> {
+                        appInfoLite.disableMultiVersion = true;
+                        addApp(appInfoLite);
+                    }))
+                    .create();
+            alertDialog.show();
+        } catch (Throwable ignored) {
+            return false;
+        }
+        return true;
+    }
+
+    private void handleSystemIntent(Intent intent) {
 
         Context context = VirtualCore.get().getContext();
         String path = FileUtils.getFileFromUri(context, intent.getData());

@@ -3,8 +3,6 @@ package io.virtualapp.home;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -27,11 +25,11 @@ import java.util.Locale;
 
 import io.virtualapp.R;
 import io.virtualapp.VApp;
-import io.virtualapp.VCommends;
 import io.virtualapp.abs.ui.VFragment;
 import io.virtualapp.home.adapters.CloneAppListAdapter;
 import io.virtualapp.home.models.AppInfo;
 import io.virtualapp.home.models.AppInfoLite;
+import io.virtualapp.sys.Installd;
 import io.virtualapp.widgets.DragSelectRecyclerView;
 
 
@@ -121,9 +119,8 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
                 AppInfo info = mAdapter.getItem(index);
                 dataList.add(new AppInfoLite(info.packageName, info.path, info.fastOpen, info.disableMultiVersion));
             }
-            Intent data = new Intent();
-            data.putParcelableArrayListExtra(VCommends.EXTRA_APP_INFO_LIST, dataList);
-            getActivity().setResult(Activity.RESULT_OK, data);
+
+            Installd.startInstallerActivity(getActivity(), dataList);
             getActivity().finish();
         });
         mSelectFromExternal.setOnClickListener(v -> {
@@ -171,27 +168,8 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
         if (path == null) {
             return;
         }
+        Installd.handleRequestFromFile(getActivity(), path);
 
-        PackageInfo pkgInfo = null;
-        try {
-            pkgInfo = getActivity().getPackageManager().getPackageArchiveInfo(path, PackageManager.GET_META_DATA);
-            pkgInfo.applicationInfo.sourceDir = path;
-            pkgInfo.applicationInfo.publicSourceDir = path;
-        } catch (Exception e) {
-            // Ignore
-        }
-        if (pkgInfo == null) {
-            return;
-        }
-
-        boolean isXposed = pkgInfo.applicationInfo.metaData != null
-                && pkgInfo.applicationInfo.metaData.containsKey("xposedmodule");
-        AppInfoLite appInfoLite = new AppInfoLite(pkgInfo.packageName, path, false, isXposed);
-        ArrayList<AppInfoLite> dataList = new ArrayList<>();
-        dataList.add(appInfoLite);
-        Intent intent = new Intent();
-        intent.putParcelableArrayListExtra(VCommends.EXTRA_APP_INFO_LIST, dataList);
-        getActivity().setResult(Activity.RESULT_OK, intent);
         getActivity().finish();
     }
 

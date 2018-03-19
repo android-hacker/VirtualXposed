@@ -1,6 +1,9 @@
 package io.virtualapp.sys;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
@@ -11,8 +14,10 @@ import com.lody.virtual.remote.InstallResult;
 import com.lody.virtual.remote.InstalledAppInfo;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import io.virtualapp.VApp;
+import io.virtualapp.VCommends;
 import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.home.models.AppData;
 import io.virtualapp.home.models.AppInfoLite;
@@ -170,5 +175,48 @@ public class Installd {
             flags |= InstallStrategy.UPDATE_IF_EXIST;
         }
         return VirtualCore.get().installPackage(info.path, flags);
+    }
+
+    private static ArrayList<AppInfoLite> getAppInfoLiteFromPath(Context context, String path) {
+        if (context == null) {
+            return null;
+        }
+        PackageInfo pkgInfo = null;
+        try {
+            pkgInfo = context.getPackageManager().getPackageArchiveInfo(path, PackageManager.GET_META_DATA);
+            pkgInfo.applicationInfo.sourceDir = path;
+            pkgInfo.applicationInfo.publicSourceDir = path;
+        } catch (Exception e) {
+            // Ignore
+        }
+        if (pkgInfo == null) {
+            return null;
+        }
+
+        boolean isXposed = pkgInfo.applicationInfo.metaData != null
+                && pkgInfo.applicationInfo.metaData.containsKey("xposedmodule");
+        AppInfoLite appInfoLite = new AppInfoLite(pkgInfo.packageName, path, false, isXposed);
+        ArrayList<AppInfoLite> dataList = new ArrayList<>();
+        dataList.add(appInfoLite);
+        return dataList;
+    }
+
+    public static void handleRequestFromFile(Context context, String path) {
+
+        ArrayList<AppInfoLite> dataList = getAppInfoLiteFromPath(context, path);
+        if (dataList == null) {
+            return;
+        }
+        startInstallerActivity(context, dataList);
+    }
+
+    public static void startInstallerActivity(Context context, ArrayList<AppInfoLite> data) {
+        if (context == null) {
+            return;
+        }
+        Intent intent = new Intent(context, InstallerActivity.class);
+        intent.putParcelableArrayListExtra(VCommends.EXTRA_APP_INFO_LIST, data);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
 }
