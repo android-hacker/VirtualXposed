@@ -1,5 +1,7 @@
 package com.lody.virtual.helper.utils;
 
+import android.content.Context;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Parcel;
 import android.system.Os;
@@ -14,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -131,6 +134,43 @@ public class FileUtils {
             bos.write(data, 0, count);
         }
         bos.close();
+    }
+
+    public static String getFileFromUri(Context context, Uri packageUri) {
+
+        if (packageUri == null) {
+            return null;
+        }
+
+        final String SCHEME_FILE = "file";
+        final String SCHEME_CONTENT = "content";
+        String sourcePath = null;
+
+        if (SCHEME_FILE.equals(packageUri.getScheme())) {
+            sourcePath = packageUri.getPath();
+        } else if (SCHEME_CONTENT.equals(packageUri.getScheme())){
+            InputStream inputStream = null;
+            OutputStream outputStream = null;
+            File sharedFileCopy = new File(context.getCacheDir(), packageUri.getLastPathSegment());
+            try {
+                inputStream = context.getContentResolver().openInputStream(packageUri);
+                outputStream = new FileOutputStream(sharedFileCopy);
+                byte[] buffer = new byte[1024];
+                int count;
+                while ((count = inputStream.read(buffer)) > 0) {
+                    outputStream.write(buffer, 0, count);
+                }
+                outputStream.flush();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                FileUtils.closeQuietly(inputStream);
+                FileUtils.closeQuietly(outputStream);
+            }
+            sourcePath = sharedFileCopy.getPath();
+        }
+        return sourcePath;
     }
 
     public static void writeToFile(byte[] data, File target) throws IOException {
