@@ -4,6 +4,7 @@
     <Preference
         android:key="settings_add_app"
         android:title="@string/add_app"
+        android:summary="@string/settings_add_app_summary"
         android:persistent="false">
     </Preference>
 
