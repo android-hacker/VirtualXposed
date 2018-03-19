@@ -190,7 +190,7 @@ public class AppRepository implements AppDataSource {
                 info.cloneCount = installedAppInfo.getInstalledUsers().length;
             }
             if (ai.metaData != null && ai.metaData.containsKey("xposedmodule")) {
-                info.isEnableHidden = true;
+                info.disableMultiVersion = true;
                 info.cloneCount = 0;
             }
             list.add(info);
@@ -215,7 +215,7 @@ public class AppRepository implements AppDataSource {
         if (info.fastOpen) {
             flags |= InstallStrategy.DEPEND_SYSTEM_IF_EXIST;
         }
-        if (info.isEnableHidden) {
+        if (info.disableMultiVersion) {
             flags |= InstallStrategy.UPDATE_IF_EXIST;
         }
         return VirtualCore.get().installPackage(info.path, flags);

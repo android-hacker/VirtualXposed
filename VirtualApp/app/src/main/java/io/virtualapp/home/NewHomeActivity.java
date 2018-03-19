@@ -173,7 +173,7 @@ public class NewHomeActivity extends NexusLauncherActivity implements HomeContra
         if (appInfoLite == null) {
             return false;
         }
-        if (appInfoLite.isEnableHidden) {
+        if (appInfoLite.disableMultiVersion) {
             return false;
         }
         InstalledAppInfo installedAppInfo = VirtualCore.get().getInstalledAppInfo(appInfoLite.packageName, 0);
@@ -207,7 +207,7 @@ public class NewHomeActivity extends NexusLauncherActivity implements HomeContra
                         mPresenter.addApp(appInfoLite);
                     })
                     .setNegativeButton(multiVersionUpdate, ((dialog, which) -> {
-                        appInfoLite.isEnableHidden = true;
+                        appInfoLite.disableMultiVersion = true;
                         mPresenter.addApp(appInfoLite);
                     }))
                     .create();
