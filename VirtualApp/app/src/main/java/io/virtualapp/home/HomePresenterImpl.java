@@ -65,7 +65,7 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
             InstalledAppInfo installedAppInfo = VirtualCore.get().getInstalledAppInfo(info.packageName, 0);
             addResult.justEnableHidden = installedAppInfo != null;
             addResult.addedToLaucher = false;
-            if (info.isEnableHidden) {
+            if (info.disableMultiVersion) {
                 addResult.justEnableHidden = false;
             }
             if (addResult.justEnableHidden) {
