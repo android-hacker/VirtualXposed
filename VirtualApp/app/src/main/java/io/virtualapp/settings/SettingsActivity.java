@@ -13,6 +13,7 @@ import com.lody.virtual.client.core.VirtualCore;
 
 import io.virtualapp.R;
 import io.virtualapp.abs.ui.VActivity;
+import io.virtualapp.home.ListAppActivity;
 import moe.feng.alipay.zerosdk.AlipayZeroSdk;
 
 /**
@@ -20,8 +21,9 @@ import moe.feng.alipay.zerosdk.AlipayZeroSdk;
  */
 public class SettingsActivity extends VActivity {
 
+    private static final String ADD_APP_KEY = "settings_add_app";
     private static final String APP_MANAGE_KEY = "settings_app_manage";
-    public static final String TASK_MANAGE_KEY = "settings_task_manage";
+    private static final String TASK_MANAGE_KEY = "settings_task_manage";
     private static final String DESKTOP_SETTINGS_KEY = "settings_desktop";
     private static final String FAQ_SETTINGS_KEY = "settings_faq";
     private static final String DONATE_KEY = "settings_donate";
@@ -54,6 +56,7 @@ public class SettingsActivity extends VActivity {
 
             // Setup allow rotation preference
 
+            Preference addApp = findPreference(ADD_APP_KEY);
             Preference appManage = findPreference(APP_MANAGE_KEY);
             Preference taskManage = findPreference(TASK_MANAGE_KEY);
             Preference desktop = findPreference(DESKTOP_SETTINGS_KEY);
@@ -62,6 +65,10 @@ public class SettingsActivity extends VActivity {
             Preference about = findPreference(ABOUT_KEY);
             Preference reboot = findPreference(REBOOT_KEY);
 
+            addApp.setOnPreferenceClickListener(preference -> {
+                ListAppActivity.gotoListApp(getActivity());
+                return false;
+            });
             appManage.setOnPreferenceClickListener(preference -> {
                 startActivity(new Intent(getActivity(), AppManageActivity.class));
                 return false;
