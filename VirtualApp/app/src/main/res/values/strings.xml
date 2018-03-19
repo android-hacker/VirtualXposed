@@ -116,5 +116,5 @@
     <string name="install">Install</string>
     <string name="install_package">Install new app: %s</string>
     <string name="install_package_version_tips">You have chosen an existing app, \n(Installed version %1$s, selected version: %2$s, install it?</string>
-    <string name="settings_add_app_summary">Please add app to VirtualXposed first, otherwise the Xposed module won\'t take effect.</string>
+    <string name="settings_add_app_summary">Please add both app and Xposed module to VirtualXposed first, otherwise the Xposed module won\'t take effect.</string>
 </resources>
