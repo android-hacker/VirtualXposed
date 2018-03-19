@@ -17,7 +17,10 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.google.android.apps.nexuslauncher.NexusLauncherActivity;
@@ -25,6 +28,7 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.DeviceUtil;
 
 import java.io.File;
+import java.lang.reflect.Method;
 
 import io.virtualapp.R;
 import io.virtualapp.VApp;
@@ -42,7 +46,6 @@ public class NewHomeActivity extends NexusLauncherActivity {
     private static final String WALLPAPER_FILE_NAME = "wallpaper.png";
 
     private Handler mUiHandler;
-    private int mInstallCount = 0;
 
     public static void goHome(Context context) {
         Intent intent = new Intent(context, NewHomeActivity.class);
@@ -54,9 +57,8 @@ public class NewHomeActivity extends NexusLauncherActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        showMenuKey();
         mUiHandler = new Handler(getMainLooper());
-
         alertForMeizu();
         alertForDoze();
     }
@@ -70,6 +72,15 @@ public class NewHomeActivity extends NexusLauncherActivity {
 
         // check for wallpaper
         setWallpaper();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_MENU) {
+            onSettingsClicked();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     public Activity getActivity() {
@@ -122,8 +133,6 @@ public class NewHomeActivity extends NexusLauncherActivity {
         }
         LoadingActivity.launch(this, packageName, usedId);
     }
-
-    private LoadingDialog mLoadingDialog;
 
     private void alertForMeizu() {
         if (!DeviceUtil.isMeizuBelowN()) {
@@ -212,6 +221,17 @@ public class NewHomeActivity extends NexusLauncherActivity {
             } else {
                 setOurWallpaper(d);
             }
+        }
+    }
+
+    private void showMenuKey() {
+        try {
+            Method setNeedsMenuKey = Window.class.getDeclaredMethod("setNeedsMenuKey", int.class);
+            setNeedsMenuKey.setAccessible(true);
+            int value = WindowManager.LayoutParams.class.getField("NEEDS_MENU_SET_TRUE").getInt(null);
+            setNeedsMenuKey.invoke(getWindow(), value);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
