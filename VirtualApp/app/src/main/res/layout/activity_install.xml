@@ -1,22 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="10dp">
 
-    <FrameLayout
-        android:layout_weight="0.9"
-        android:layout_width="match_parent"
-        android:layout_height="0dp">
+    <TextView
+        android:id="@+id/installer_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        tools:text="install new version?" />
 
-    </FrameLayout>
+    <ProgressBar
+        android:id="@+id/installer_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_weight="0.1"
-        android:layout_width="match_parent"
-        android:layout_height="0dp">
+    <Button
+        android:id="@+id/installer_right_button"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true" />
 
-    </LinearLayout>
+    <Button
+        android:id="@+id/installer_left_button"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@id/installer_right_button" />
 
-</LinearLayout>
+</RelativeLayout>

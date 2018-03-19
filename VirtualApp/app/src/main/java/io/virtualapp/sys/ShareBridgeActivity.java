@@ -1,4 +1,4 @@
-package io.virtualapp.share;
+package io.virtualapp.sys;
 
 import android.app.Activity;
 import android.content.ComponentName;
