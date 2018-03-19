@@ -100,30 +100,9 @@ public class NewHomeActivity extends NexusLauncherActivity implements HomeContra
         mPresenter = presenter;
     }
 
-
-    @Override
-    public void loadFinish(List<AppData> appModels) {
-
-    }
-
-    @Override
-    public void loadError(Throwable err) {
-
-    }
-
     @Override
     public void showGuide() {
         // no-op
-    }
-
-    @Override
-    public void addAppToLauncher(AppData model) {
-        refreshLoadingDialog(model);
-    }
-
-    @Override
-    public void removeAppToLauncher(AppData model) {
-
     }
 
     @Override
