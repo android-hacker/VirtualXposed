@@ -117,4 +117,9 @@
     <string name="install_package">Install new app: %s</string>
     <string name="install_package_version_tips">You have chosen an existing app, \n(Installed version %1$s, selected version: %2$s, install it?</string>
     <string name="settings_add_app_summary">Please add both app and Xposed module to VirtualXposed first, otherwise the Xposed module won\'t take effect.</string>
+    <string name="settings_advance">Advance Settings</string>
+    <string name="advance_settings_hide_settings">Hide settings button on desktop</string>
+    <string name="advance_settings_disable_installer">Disable apk installer for system</string>
+    <string name="advance_settings_hide_settings_summary">If you can enter settings by menu key on main activity, you can hide this, otherwise you may not be able to enter settings!! \n(Force stop VirtualXposed to take effect.)</string>
+    <string name="advance_settings_disable_installer_summary">Do not show VirtualXposed\'s installer when you choose apk file in system</string>
 </resources>

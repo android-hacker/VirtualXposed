@@ -113,4 +113,9 @@
     <string name="install_package">添加新应用 : %s</string>
     <string name="install_package_version_tips">你选择了一个已经安装了的应用，\n\n已经安装的版本：%1$s\n即将安装的版本：%2$s，确认安装？</string>
     <string name="settings_add_app_summary">必须先把应用以及Xposed模块都添加到 VirtualXposed ，否则Xposed模块不会生效。</string>
+    <string name="settings_advance">高级设置</string>
+    <string name="advance_settings_hide_settings">隐藏桌面的设置按钮</string>
+    <string name="advance_settings_disable_installer">禁用 VirtualXposed 的APK安装器</string>
+    <string name="advance_settings_hide_settings_summary">如果你可以在主界面通过菜单键（长按多任务或者虚拟菜单键）进入设置，那么可以隐藏这个按钮；否则你将无法进入设置！！\n(强制停止VirtualXposed后生效）</string>
+    <string name="advance_settings_disable_installer_summary">在系统中安装APK文件的时候，不显示VirtualXposed的安装器</string>
 </resources>
