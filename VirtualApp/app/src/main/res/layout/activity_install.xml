@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:textColor="#000000"
-        android:visibility="gone" />
+        android:visibility="invisible" />
 
     <ProgressBar
         android:id="@+id/installer_loading"
