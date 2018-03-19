@@ -56,8 +56,6 @@ public class NewHomeActivity extends NexusLauncherActivity {
         super.onCreate(savedInstanceState);
 
         mUiHandler = new Handler(getMainLooper());
-        getHotseat().setAddAppClickListener(v -> onAddAppClicked());
-        getHotseat().setSettingClickListener(v -> onSettingsClicked());
 
         alertForMeizu();
         alertForDoze();
@@ -84,7 +82,6 @@ public class NewHomeActivity extends NexusLauncherActivity {
 
     @Override
     public void onClickAddWidgetButton(View view) {
-        // Add App
         onAddAppClicked();
     }
 
@@ -98,7 +95,11 @@ public class NewHomeActivity extends NexusLauncherActivity {
 
     @Override
     public void onClickSettingsButton(View v) {
-        // super.onClickSettingsButton(v);
+        onSettingsClicked();
+    }
+
+    @Override
+    protected void onClickAllAppsButton(View v) {
         onSettingsClicked();
     }
 

@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference
+        android:key="settings_add_app"
+        android:title="@string/add_app"
+        android:persistent="false">
+    </Preference>
+
     <Preference
         android:key="settings_app_manage"
         android:title="@string/settings_app_manage_text"
