@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.IInterface;
 import android.os.RemoteException;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.TypedValue;
 
@@ -399,6 +400,10 @@ class MethodProxies {
                 if (handleUninstallRequest(intent)) {
                     return 0;
                 }
+            } else if (MediaStore.ACTION_IMAGE_CAPTURE.equals(intent.getAction()) ||
+                    MediaStore.ACTION_VIDEO_CAPTURE.equals(intent.getAction()) ||
+                    MediaStore.ACTION_IMAGE_CAPTURE_SECURE.equals(intent.getAction())) {
+                handleMediaCaptureRequest(intent);
             }
 
             String resultWho = null;
@@ -497,6 +502,21 @@ class MethodProxies {
 
             }
             return false;
+        }
+
+        private void handleMediaCaptureRequest(Intent intent) {
+            Uri uri = intent.getParcelableExtra(MediaStore.EXTRA_OUTPUT);
+            if (uri == null || !SCHEME_FILE.equals(uri.getScheme())) {
+                return;
+            }
+            String path = uri.getPath();
+            String newPath = NativeEngine.getRedirectedPath(path);
+            if (newPath == null) {
+                return;
+            }
+            File realFile = new File(newPath);
+            Uri newUri = Uri.fromFile(realFile);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, newUri);
         }
 
     }
