@@ -7,6 +7,7 @@ import com.lody.virtual.client.hook.base.Inject;
 import com.lody.virtual.client.hook.base.MethodInvocationProxy;
 import com.lody.virtual.client.hook.base.MethodInvocationStub;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgMethodProxy;
+import com.lody.virtual.helper.utils.DeviceUtil;
 
 import mirror.android.app.NotificationManager;
 import mirror.android.widget.Toast;
@@ -47,7 +48,7 @@ public class NotificationManagerStub extends MethodInvocationProxy<MethodInvocat
             addMethodProxy(new ReplaceCallingPkgMethodProxy("getNotificationChannel"));
             addMethodProxy(new ReplaceCallingPkgMethodProxy("deleteNotificationChannel"));
         }
-        if ("samsung".equalsIgnoreCase(Build.BRAND) || "samsung".equalsIgnoreCase(Build.MANUFACTURER)) {
+        if (DeviceUtil.isSamsung()) {
             addMethodProxy(new ReplaceCallingPkgMethodProxy("removeEdgeNotification"));
         }
     }

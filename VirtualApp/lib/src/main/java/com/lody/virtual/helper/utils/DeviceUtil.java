@@ -18,4 +18,8 @@ public class DeviceUtil {
         String display = Build.DISPLAY;
         return display.toLowerCase().contains("flyme");
     }
+
+    public static boolean isSamsung() {
+        return "samsung".equalsIgnoreCase(Build.BRAND) || "samsung".equalsIgnoreCase(Build.MANUFACTURER);
+    }
 }
