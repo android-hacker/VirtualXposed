@@ -34,6 +34,12 @@
             android:summary="@string/advance_settings_disable_installer_summary"
             android:title="@string/advance_settings_disable_installer" />
 
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="advance_settings_directly_back"
+            android:persistent="true"
+            android:summary="@string/advance_settings_directly_back_summary"
+            android:title="@string/advance_settings_directly_back" />
     </PreferenceScreen>
 
     <Preference

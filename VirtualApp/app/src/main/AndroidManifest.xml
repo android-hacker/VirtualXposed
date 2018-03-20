@@ -59,7 +59,7 @@
             android:name=".settings.SettingsActivity"
             android:label="@string/settings_title"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.Material.Settings" />
+            android:theme="@android:style/Theme.Material.Light" />
 
         <activity
             android:name=".settings.AppManageActivity"

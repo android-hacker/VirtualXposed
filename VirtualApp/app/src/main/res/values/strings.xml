@@ -120,6 +120,8 @@
     <string name="settings_advance">Advance Settings</string>
     <string name="advance_settings_hide_settings">Hide settings button on desktop</string>
     <string name="advance_settings_disable_installer">Disable apk installer for system</string>
-    <string name="advance_settings_hide_settings_summary">If you can enter settings by menu key on main activity, you can hide this, otherwise you may not be able to enter settings!! \n(Force stop VirtualXposed to take effect.)</string>
+    <string name="advance_settings_hide_settings_summary">If you can enter settings by menu key on main activity, you can hide this, otherwise you may not be able to enter settings!! \n(Restart VirtualXposed to take effect.)</string>
     <string name="advance_settings_disable_installer_summary">Do not show VirtualXposed\'s installer when you choose apk file in system</string>
+    <string name="advance_settings_directly_back">Directly back</string>
+    <string name="advance_settings_directly_back_summary">Back to system launcher instead of the virtual launcher when in virtual app.\n(Restart VirtualXposed to take effect.)</string>
 </resources>

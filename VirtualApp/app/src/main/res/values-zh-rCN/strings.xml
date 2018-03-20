@@ -118,4 +118,6 @@
     <string name="advance_settings_disable_installer">禁用 VirtualXposed 的APK安装器</string>
     <string name="advance_settings_hide_settings_summary">如果你可以在主界面通过菜单键（长按多任务或者虚拟菜单键）进入设置，那么可以隐藏这个按钮；否则你将无法进入设置！！\n(强制停止VirtualXposed后生效）</string>
     <string name="advance_settings_disable_installer_summary">在系统中安装APK文件的时候，不显示VirtualXposed的安装器</string>
+    <string name="advance_settings_directly_back">直接返回</string>
+    <string name="advance_settings_directly_back_summary">内部APP退出时，直接返回到系统桌面而不是VirtualXposed的虚拟桌面(强制停止VirtualXposed后生效）</string>
 </resources>
