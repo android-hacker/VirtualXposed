@@ -34,6 +34,7 @@ public class SettingsActivity extends Activity {
     private static final String REBOOT_KEY = "settings_reboot";
     private static final String HIDE_SETTINGS_KEY = "advance_settings_hide_settings";
     private static final String DISABLE_INSTALLER_KEY = "advance_settings_disable_installer";
+    public static final String DIRECTLY_BACK_KEY = "advance_settings_directly_back";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

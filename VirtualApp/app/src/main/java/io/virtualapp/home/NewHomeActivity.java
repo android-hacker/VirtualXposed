@@ -6,6 +6,7 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -23,6 +24,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.android.launcher3.LauncherFiles;
 import com.google.android.apps.nexuslauncher.NexusLauncherActivity;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.DeviceUtil;
@@ -46,6 +48,7 @@ public class NewHomeActivity extends NexusLauncherActivity {
     private static final String WALLPAPER_FILE_NAME = "wallpaper.png";
 
     private Handler mUiHandler;
+    private boolean mDirectlyBack = false;
 
     public static void goHome(Context context) {
         Intent intent = new Intent(context, NewHomeActivity.class);
@@ -56,11 +59,13 @@ public class NewHomeActivity extends NexusLauncherActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SharedPreferences sharedPreferences = getSharedPreferences(LauncherFiles.SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
         super.onCreate(savedInstanceState);
         showMenuKey();
         mUiHandler = new Handler(getMainLooper());
         alertForMeizu();
         alertForDoze();
+        mDirectlyBack = sharedPreferences.getBoolean(SettingsActivity.DIRECTLY_BACK_KEY, false);
     }
 
     @Override
@@ -132,6 +137,9 @@ public class NewHomeActivity extends NexusLauncherActivity {
             }
         }
         LoadingActivity.launch(this, packageName, usedId);
+        if (mDirectlyBack) {
+            finish();
+        }
     }
 
     private void alertForMeizu() {
