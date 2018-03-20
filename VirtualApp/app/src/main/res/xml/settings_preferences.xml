@@ -3,50 +3,61 @@
 
     <Preference
         android:key="settings_add_app"
-        android:title="@string/add_app"
+        android:persistent="false"
         android:summary="@string/settings_add_app_summary"
-        android:persistent="false">
-    </Preference>
+        android:title="@string/add_app" />
 
     <Preference
         android:key="settings_app_manage"
-        android:title="@string/settings_app_manage_text"
-        android:persistent="false">
-    </Preference>
+        android:persistent="false"
+        android:title="@string/settings_app_manage_text" />
 
     <Preference
         android:key="settings_task_manage"
-        android:title="@string/settings_task_manage_text"
-        android:persistent="false">
-    </Preference>
+        android:persistent="false"
+        android:title="@string/settings_task_manage_text" />
+
+    <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+        android:title="@string/settings_advance">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="advance_settings_hide_settings"
+            android:persistent="true"
+            android:summary="@string/advance_settings_hide_settings_summary"
+            android:title="@string/advance_settings_hide_settings" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="advance_settings_disable_installer"
+            android:persistent="true"
+            android:summary="@string/advance_settings_disable_installer_summary"
+            android:title="@string/advance_settings_disable_installer" />
+
+    </PreferenceScreen>
 
     <Preference
         android:key="settings_desktop"
-        android:title="@string/settings_desktop_text"
-        android:persistent="false">
-    </Preference>
+        android:persistent="false"
+        android:title="@string/settings_desktop_text" />
 
     <Preference
         android:key="settings_faq"
-        android:title="@string/about_faq_title"
-        android:persistent="false">
-    </Preference>
+        android:persistent="false"
+        android:title="@string/about_faq_title" />
 
     <Preference
         android:key="settings_donate"
-        android:title="@string/about_donate_title"
-        android:persistent="false">
-    </Preference>
+        android:persistent="false"
+        android:title="@string/about_donate_title" />
 
     <Preference
         android:key="settings_about"
-        android:title="@string/settings_about_text"
-        android:persistent="false">
-    </Preference>
+        android:persistent="false"
+        android:title="@string/settings_about_text" />
 
     <Preference
         android:key="settings_reboot"
-        android:title="@string/menu_reboot"
-        android:persistent="false">
-    </Preference>
+        android:persistent="false"
+        android:title="@string/menu_reboot" />
 </PreferenceScreen>
