@@ -1,10 +1,14 @@
 package io.virtualapp.settings;
 
+import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.preference.SwitchPreference;
 import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
@@ -12,14 +16,13 @@ import com.android.launcher3.LauncherFiles;
 import com.lody.virtual.client.core.VirtualCore;
 
 import io.virtualapp.R;
-import io.virtualapp.abs.ui.VActivity;
 import io.virtualapp.home.ListAppActivity;
 import moe.feng.alipay.zerosdk.AlipayZeroSdk;
 
 /**
  * Settings activity for Launcher. Currently implements the following setting: Allow rotation
  */
-public class SettingsActivity extends VActivity {
+public class SettingsActivity extends Activity {
 
     private static final String ADD_APP_KEY = "settings_add_app";
     private static final String APP_MANAGE_KEY = "settings_app_manage";
@@ -29,6 +32,8 @@ public class SettingsActivity extends VActivity {
     private static final String DONATE_KEY = "settings_donate";
     private static final String ABOUT_KEY = "settings_about";
     private static final String REBOOT_KEY = "settings_reboot";
+    private static final String HIDE_SETTINGS_KEY = "advance_settings_hide_settings";
+    private static final String DISABLE_INSTALLER_KEY = "advance_settings_disable_installer";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +69,8 @@ public class SettingsActivity extends VActivity {
             Preference donate = findPreference(DONATE_KEY);
             Preference about = findPreference(ABOUT_KEY);
             Preference reboot = findPreference(REBOOT_KEY);
+
+            SwitchPreference disableInstaller = (SwitchPreference) findPreference(DISABLE_INSTALLER_KEY);
 
             addApp.setOnPreferenceClickListener(preference -> {
                 ListAppActivity.gotoListApp(getActivity());
@@ -137,6 +144,22 @@ public class SettingsActivity extends VActivity {
                 } catch (Throwable ignored) {
                 }
                 return false;
+            });
+
+            disableInstaller.setOnPreferenceChangeListener((preference, newValue) -> {
+                if (!(newValue instanceof Boolean)) {
+                    return false;
+                }
+                try {
+                    boolean disable = (boolean) newValue;
+                    PackageManager packageManager = getActivity().getPackageManager();
+                    packageManager.setComponentEnabledSetting(new ComponentName(getActivity().getPackageName(), "vxp.installer"),
+                            !disable ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                            PackageManager.DONT_KILL_APP);
+                    return true;
+                } catch (Throwable ignored) {
+                    return false;
+                }
             });
         }
     }

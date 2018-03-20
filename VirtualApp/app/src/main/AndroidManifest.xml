@@ -59,7 +59,7 @@
             android:name=".settings.SettingsActivity"
             android:label="@string/settings_title"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light" />
+            android:theme="@android:style/Theme.Material.Settings" />
 
         <activity
             android:name=".settings.AppManageActivity"
@@ -93,13 +93,18 @@
             android:allowTaskReparenting="true"
             android:configChanges="keyboard|keyboardHidden|orientation"
             android:excludeFromRecents="true"
-            android:exported="true"
+            android:exported="false"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/app_installer_label"
             android:noHistory="true"
             android:taskAffinity="io.va.exposed.installer"
-            android:theme="@style/Theme.AppCompat.Light">
+            android:theme="@style/Theme.AppCompat.Light" />
 
+        <activity-alias
+            android:name="vxp.installer"
+            android:enabled="true"
+            android:exported="true"
+            android:targetActivity=".sys.InstallerActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -115,7 +120,7 @@
                 <data android:scheme="content" />
                 <data android:mimeType="application/vnd.android.package-archive" />
             </intent-filter>
-        </activity>
+        </activity-alias>
 
         <service
             android:name=".update.VAVersionService"
