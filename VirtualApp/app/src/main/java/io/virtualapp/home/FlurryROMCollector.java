@@ -13,8 +13,6 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.weishu.epic.art.Epic;
-
 /**
  * @author Lody
  */
@@ -27,10 +25,6 @@ public class FlurryROMCollector {
         NativeMethods.init();
         if (NativeMethods.gCameraNativeSetup == null) {
             reportCameraNativeSetup();
-        }
-        Map<String, Integer> offsetInfo = Epic.collectOffsetInfo();
-        if (!offsetInfo.isEmpty()) {
-            reportOffsetInfo(offsetInfo);
         }
         Log.i(TAG, "end collect...");
     }
