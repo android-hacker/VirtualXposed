@@ -1,6 +1,8 @@
 package io.virtualapp.settings;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -36,7 +38,6 @@ import java.util.List;
 import io.virtualapp.R;
 import io.virtualapp.abs.ui.VActivity;
 import io.virtualapp.abs.ui.VUiKit;
-import io.virtualapp.home.LoadingDialog;
 
 /**
  * @author weishu
@@ -172,11 +173,11 @@ public class AppManageActivity extends VActivity {
     }
 
     private void showRepairDialog(AppManageInfo item) {
-        LoadingDialog dialog = new LoadingDialog(this);
+        ProgressDialog dialog = new ProgressDialog(this);
         dialog.setTitle(getResources().getString(R.string.app_manage_repairing));
         try {
+            dialog.setCancelable(false);
             dialog.show();
-            dialog.startLoading();
         } catch (Throwable e) {
             return;
         }
@@ -204,10 +205,10 @@ public class AppManageActivity extends VActivity {
                 }
             }
         }).done((v) -> {
-            dialog.dismiss();
+            dismiss(dialog);
             showAppDetailDialog();
         }).fail((v) -> {
-            dialog.dismiss();
+            dismiss(dialog);
             Toast.makeText(this, R.string.app_manage_repair_failed_tips, Toast.LENGTH_SHORT).show();
         });
     }
@@ -305,6 +306,16 @@ public class AppManageActivity extends VActivity {
             } else {
                 return name + "[" + (userId + 1) + "]";
             }
+        }
+    }
+
+    private static void dismiss(Dialog dialog) {
+        if (dialog == null) {
+            return;
+        }
+        try {
+            dialog.dismiss();
+        } catch (Throwable ignored) {
         }
     }
 }
