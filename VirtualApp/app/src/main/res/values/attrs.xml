@@ -27,12 +27,6 @@
         <attr name="dsrv_autoScrollHotspot_offsetBottom" format="dimension" />
     </declare-styleable>
 
-    <declare-styleable name="RippleButton">
-        <attr name="rippleColor" format="color" />
-        <attr name="alphaFactor" format="float" />
-        <attr name="hover" format="boolean" />
-    </declare-styleable>
-
     <declare-styleable name="LabelView">
         <!-- 设置文字内容 -->
         <attr name="lv_text" format="string"/>
