@@ -5,15 +5,28 @@ repositories {
     maven { url 'https://maven.fabric.io/public' }
 }
 
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+def keyFile = file(properties.getProperty("keystore.path") ?: "/tmp/does_not_exist")
+
 android {
+    signingConfigs {
+        config {
+            keyAlias properties.getProperty("keystore.alias")
+            keyPassword properties.getProperty("keystore.pwd")
+            storeFile keyFile
+            storePassword properties.getProperty("keystore.alias_pwd")
+        }
+    }
+
     compileSdkVersion 26
     buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "io.va.exposed"
         minSdkVersion 21
         targetSdkVersion 22
-        versionCode 82
-        versionName "0.8.2"
+        versionCode 87
+        versionName "0.8.7"
         multiDexEnabled false
         android {
             defaultConfig {
@@ -23,17 +36,17 @@ android {
             }
         }
     }
-
     // https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration.html?utm_source=android-studio
     flavorDimensions 'main'
-
     productFlavors {
         aosp {
             dimension 'main'
             //matchingFallbacks ['aosp']
+            if (keyFile.exists()) {
+                signingConfig signingConfigs.config
+            }
         }
     }
-
     sourceSets {
         main {
             jniLibs.srcDirs = ['libs']
