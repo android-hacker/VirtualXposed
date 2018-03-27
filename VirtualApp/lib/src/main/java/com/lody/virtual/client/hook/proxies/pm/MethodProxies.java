@@ -21,6 +21,7 @@ import android.graphics.Bitmap;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IInterface;
+import android.os.Process;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.MethodProxy;
@@ -616,7 +617,6 @@ class MethodProxies {
     }
 
 
-    // FFFFFFFFFFFFFFFFFF1
     static final class GetPackageInfo extends MethodProxy {
 
         @Override
@@ -756,7 +756,7 @@ class MethodProxies {
             }
             String[] callingPkgs = VPackageManager.get().getPackagesForUid(callingUid);
             String[] targetPkgs = VPackageManager.get().getPackagesForUid(uid);
-            String[] selfPkgs = VPackageManager.get().getPackagesForUid(android.os.Process.myUid());
+            String[] selfPkgs = VPackageManager.get().getPackagesForUid(Process.myUid());
 
             Set<String> pkgList = new ArraySet<>(2);
             if (callingPkgs != null && callingPkgs.length > 0) {
@@ -924,7 +924,6 @@ class MethodProxies {
     }
 
 
-    // FFFFFFFFFFFFFFFFFFFF2
     static class ActivitySupportsIntent extends MethodProxy {
         @Override
         public String getMethodName() {
@@ -995,7 +994,7 @@ class MethodProxies {
         }
     }
 
-//FFFFFFFFFFFFFFF4
+
     static class GetProviderInfo extends MethodProxy {
 
         @Override
@@ -1063,7 +1062,6 @@ class MethodProxies {
         }
     }
 
-    // FFFFFFFFFFFFFFFFFFFFF3
     @SuppressWarnings({"unchecked", "WrongConstant"})
     static class GetInstalledPackages extends MethodProxy {
 
