@@ -70,7 +70,6 @@ public class VUserInfo implements Parcelable {
 
     /** User is only partially created. */
     public boolean partial;
-    public boolean guestToRemove;
 
     public VUserInfo(int id, String name, int flags) {
         this(id, name, null, flags);
@@ -121,7 +120,6 @@ public class VUserInfo implements Parcelable {
         lastLoggedInTime = orig.lastLoggedInTime;
         partial = orig.partial;
         profileGroupId = orig.profileGroupId;
-        guestToRemove = orig.guestToRemove;
     }
 
     @Override
@@ -143,7 +141,6 @@ public class VUserInfo implements Parcelable {
         dest.writeLong(lastLoggedInTime);
         dest.writeInt(partial ? 1 : 0);
         dest.writeInt(profileGroupId);
-        dest.writeInt(guestToRemove ? 1 : 0);
     }
 
     public static final Parcelable.Creator<VUserInfo> CREATOR
@@ -166,6 +163,5 @@ public class VUserInfo implements Parcelable {
         lastLoggedInTime = source.readLong();
         partial = source.readInt() != 0;
         profileGroupId = source.readInt();
-        guestToRemove = source.readInt() != 0;
     }
 }
