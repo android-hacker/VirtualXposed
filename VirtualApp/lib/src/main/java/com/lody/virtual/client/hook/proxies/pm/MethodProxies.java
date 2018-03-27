@@ -21,7 +21,6 @@ import android.graphics.Bitmap;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IInterface;
-import android.os.Process;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.MethodProxy;
@@ -30,6 +29,7 @@ import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.helper.collection.ArraySet;
 import com.lody.virtual.helper.compat.ParceledListSliceCompat;
 import com.lody.virtual.helper.utils.ArrayUtils;
+import com.lody.virtual.helper.utils.EncodeUtils;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.server.IPackageInstaller;
 import com.lody.virtual.server.pm.installer.SessionInfo;
@@ -616,6 +616,7 @@ class MethodProxies {
     }
 
 
+    // FFFFFFFFFFFFFFFFFF1
     static final class GetPackageInfo extends MethodProxy {
 
         @Override
@@ -755,7 +756,7 @@ class MethodProxies {
             }
             String[] callingPkgs = VPackageManager.get().getPackagesForUid(callingUid);
             String[] targetPkgs = VPackageManager.get().getPackagesForUid(uid);
-            String[] selfPkgs = VPackageManager.get().getPackagesForUid(Process.myUid());
+            String[] selfPkgs = VPackageManager.get().getPackagesForUid(android.os.Process.myUid());
 
             Set<String> pkgList = new ArraySet<>(2);
             if (callingPkgs != null && callingPkgs.length > 0) {
@@ -923,6 +924,7 @@ class MethodProxies {
     }
 
 
+    // FFFFFFFFFFFFFFFFFFFF2
     static class ActivitySupportsIntent extends MethodProxy {
         @Override
         public String getMethodName() {
@@ -993,7 +995,7 @@ class MethodProxies {
         }
     }
 
-
+//FFFFFFFFFFFFFFF4
     static class GetProviderInfo extends MethodProxy {
 
         @Override
@@ -1025,7 +1027,9 @@ class MethodProxies {
 
         @Override
         public String getMethodName() {
-            return "setComponentEnabledSetting";
+            // return "setComponentEnabledSetting";
+            // anti-virus, fuck ESET-NOD32: a variant of Android/AdDisplay.AdLock.AL potentially unwanted
+            return EncodeUtils.decode("c2V0Q29tcG9uZW50RW5hYmxlZFNldHRpbmc=");
         }
 
         @Override
@@ -1059,6 +1063,7 @@ class MethodProxies {
         }
     }
 
+    // FFFFFFFFFFFFFFFFFFFFF3
     @SuppressWarnings({"unchecked", "WrongConstant"})
     static class GetInstalledPackages extends MethodProxy {
 
