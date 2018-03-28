@@ -167,7 +167,7 @@ public class NativeEngine {
         if (vuid != -1) {
             return VUserHandle.getAppId(vuid);
         }
-        VLog.d(TAG, "Unknown uid: " + callingPid);
+        VLog.w(TAG, String.format("Unknown uid: %s", callingPid));
         return VClientImpl.get().getBaseVUid();
     }
 

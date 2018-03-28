@@ -542,7 +542,7 @@ public final class VClientImpl extends IVClient.Stub {
                 client = resolver.acquireContentProviderClient(authority);
             }
         } catch (Throwable e) {
-            e.printStackTrace();
+            VLog.e(TAG, "", e);
         }
         if (client != null) {
             provider = mirror.android.content.ContentProviderClient.mContentProvider.get(client);
@@ -664,10 +664,8 @@ public final class VClientImpl extends IVClient.Stub {
                 result.finish();
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(
-                    "Unable to start receiver " + data.component
-                            + ": " + e.toString(), e);
+            // must be this for misjudge of anti-virus!!
+            throw new RuntimeException(String.format("Unable to start receiver: %s ", data.component), e);
         }
         VActivityManager.get().broadcastFinish(data.resultData);
     }
