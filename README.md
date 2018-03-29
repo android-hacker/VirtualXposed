@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/android-hacker/VirtualXposed.svg?branch=exposed)](https://travis-ci.org/android-hacker/VirtualXposed)
 
 [中文文档](CHINESE.md "中文")
 
@@ -27,9 +28,9 @@ Notice: **All operation（install Xposed module, APP）must be done in VirtualXp
 
 There are three ways to install APP or Xposed module to VirtualXposed:
 
-1. clone the original system's installed apps. Click ➕ in home page, the first page are installed apps.
-2. install via apk file. (Click ➕ in home page, the second page are apks found in your sdcard)
-3. install via external file chooser. (Click ➕ in home page, use the float button to choose apk file to install)
+1. clone the original system's installed apps. Click Button at bottom of home page, then click Add App, the first page are installed apps.
+2. install via apk file. (Click Button at bottom of home page, then click Add App, the second page are apks found in your sdcard)
+3. install via external file chooser. (Click Button at bottom of home page home page, then click App App, use the float button to choose apk file to install)
 
 For Xposed module, You can install it from Xposed Installer, too.
 
