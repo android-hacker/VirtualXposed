@@ -4,6 +4,7 @@ android:
     - tools
     - build-tools-26.0.2
     - android-26
+    - android-27
     - extra-android-m2repository
     - extra-android-support
 
