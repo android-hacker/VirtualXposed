@@ -1,7 +1,10 @@
 apply plugin: 'com.android.library'
 
 Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
+def localProp = file(project.rootProject.file('local.properties'))
+if (localProp.exists()) {
+    properties.load(localProp.newDataInputStream())
+}
 def exposedVersion = properties.getProperty("exposed.version") ?: "0.3.5"
 
 android {
