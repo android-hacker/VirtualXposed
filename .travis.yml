@@ -8,7 +8,7 @@ android:
     - extra-android-support
 
 before_install:
-  - chmod +x gradlew
+  - chmod +x ./VirtualApp/gradlew
 
 script:
   - cd VirtualApp
