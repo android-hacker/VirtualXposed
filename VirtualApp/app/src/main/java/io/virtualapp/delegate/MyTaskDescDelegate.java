@@ -12,7 +12,7 @@ import com.lody.virtual.os.VUserManager;
  * Patch the task description with the (Virtual) user name
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class MyTaskDescriptionDelegate implements TaskDescriptionDelegate {
+public class MyTaskDescDelegate implements TaskDescriptionDelegate {
     @Override
     public ActivityManager.TaskDescription getTaskDescription(ActivityManager.TaskDescription oldTaskDescription) {
         if (oldTaskDescription == null) {

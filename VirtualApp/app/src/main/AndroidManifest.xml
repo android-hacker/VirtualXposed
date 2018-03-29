@@ -9,7 +9,7 @@
     <uses-sdk tools:overrideLibrary="com.android.launcher3,android.support.dynamicanimation" />
 
     <application
-        android:name=".VApp"
+        android:name=".XApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"

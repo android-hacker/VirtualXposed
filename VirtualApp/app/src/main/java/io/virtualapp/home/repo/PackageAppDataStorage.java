@@ -8,7 +8,7 @@ import com.lody.virtual.remote.InstalledAppInfo;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.virtualapp.VApp;
+import io.virtualapp.XApp;
 import io.virtualapp.abs.Callback;
 import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.home.models.PackageAppData;
@@ -47,7 +47,7 @@ public class PackageAppDataStorage {
     private PackageAppData loadAppData(String packageName) {
         InstalledAppInfo setting = VirtualCore.get().getInstalledAppInfo(packageName, 0);
         if (setting != null) {
-            PackageAppData data = new PackageAppData(VApp.getApp(), setting);
+            PackageAppData data = new PackageAppData(XApp.getApp(), setting);
             synchronized (packageDataMap) {
                 packageDataMap.put(packageName, data);
             }
@@ -74,7 +74,7 @@ public class PackageAppDataStorage {
     }
 
     private PackageAppData loadAppData(ApplicationInfo appInfo) {
-        PackageAppData data = new PackageAppData(VApp.getApp(), appInfo);
+        PackageAppData data = new PackageAppData(XApp.getApp(), appInfo);
         synchronized (packageDataMap) {
             packageDataMap.put(appInfo.packageName, data);
         }

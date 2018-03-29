@@ -7,8 +7,6 @@ import android.graphics.drawable.Drawable;
 
 import com.lody.virtual.remote.InstalledAppInfo;
 
-import io.virtualapp.VApp;
-
 /**
  * @author Lody
  */
@@ -76,9 +74,6 @@ public class PackageAppData implements AppData {
 
     @Override
     public boolean canReorder() {
-        if (VApp.XPOSED_INSTALLER_PACKAGE.equals(packageName)) {
-            return false;
-        }
         return true;
     }
 
