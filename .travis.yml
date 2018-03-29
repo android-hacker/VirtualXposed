@@ -1,0 +1,15 @@
+language: android
+android:
+  components:
+    - tools
+    - build-tools-26.0.2
+    - android-26
+    - extra-android-m2repository
+    - extra-android-support
+
+before_install:
+  - chmod +x gradlew
+
+script:
+  - cd VirtualApp
+  - ./gradlew assembleRelease
