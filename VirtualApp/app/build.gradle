@@ -6,7 +6,10 @@ repositories {
 }
 
 Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
+def localProp = file(project.rootProject.file('local.properties'))
+if (localProp.exists()) {
+    properties.load(localProp.newDataInputStream())
+}
 def keyFile = file(properties.getProperty("keystore.path") ?: "/tmp/does_not_exist")
 
 android {
