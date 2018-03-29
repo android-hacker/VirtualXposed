@@ -16,8 +16,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.virtualapp.XApp;
 import io.virtualapp.R;
-import io.virtualapp.VApp;
 import io.virtualapp.home.ListAppFragment;
 
 /**
@@ -29,10 +29,10 @@ public class AppPagerAdapter extends FragmentPagerAdapter {
 
     public AppPagerAdapter(FragmentManager fm) {
         super(fm);
-        titles.add(VApp.getApp().getResources().getString(R.string.clone_apps));
+        titles.add(XApp.getApp().getResources().getString(R.string.clone_apps));
         dirs.add(null);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Context ctx = VApp.getApp();
+            Context ctx = XApp.getApp();
             StorageManager storage = (StorageManager) ctx.getSystemService(Context.STORAGE_SERVICE);
             for (StorageVolume volume : storage.getStorageVolumes()) {
                 //Why the fuck are getPathFile and getUserLabel hidden?!
@@ -49,7 +49,7 @@ public class AppPagerAdapter extends FragmentPagerAdapter {
             if (!DeviceUtil.isMeizuBelowN()) {
                 File storageFir = Environment.getExternalStorageDirectory();
                 if (storageFir != null && storageFir.isDirectory()) {
-                    titles.add(VApp.getApp().getResources().getString(R.string.external_storage));
+                    titles.add(XApp.getApp().getResources().getString(R.string.external_storage));
                     dirs.add(storageFir);
                 }
             }

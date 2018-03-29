@@ -32,8 +32,8 @@ import com.lody.virtual.helper.utils.DeviceUtil;
 import java.io.File;
 import java.lang.reflect.Method;
 
+import io.virtualapp.XApp;
 import io.virtualapp.R;
-import io.virtualapp.VApp;
 import io.virtualapp.settings.SettingsActivity;
 import io.virtualapp.update.VAVersionService;
 
@@ -146,7 +146,7 @@ public class NewHomeActivity extends NexusLauncherActivity {
         if (!DeviceUtil.isMeizuBelowN()) {
             return;
         }
-        boolean isXposedInstalled = VirtualCore.get().isAppInstalled(VApp.XPOSED_INSTALLER_PACKAGE);
+        boolean isXposedInstalled = VirtualCore.get().isAppInstalled(XApp.XPOSED_INSTALLER_PACKAGE);
         if (isXposedInstalled) {
             return;
         }

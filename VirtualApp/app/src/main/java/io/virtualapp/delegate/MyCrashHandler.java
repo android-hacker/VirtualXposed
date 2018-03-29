@@ -17,7 +17,7 @@ import com.lody.virtual.remote.InstalledAppInfo;
  */
 public class MyCrashHandler implements CrashHandler {
 
-    private static final String TAG = "VApp";
+    private static final String TAG = "XApp";
 
     @Override
     public void handleUncaughtException(Thread t, Throwable e) {

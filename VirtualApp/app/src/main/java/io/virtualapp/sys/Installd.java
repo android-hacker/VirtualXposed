@@ -16,7 +16,7 @@ import com.lody.virtual.remote.InstalledAppInfo;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import io.virtualapp.VApp;
+import io.virtualapp.XApp;
 import io.virtualapp.VCommends;
 import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.home.models.AppData;
@@ -78,7 +78,7 @@ public class Installd {
             } else {
                 PackageInfo pkgInfo = null;
                 try {
-                    pkgInfo = VApp.getApp().getPackageManager().getPackageArchiveInfo(info.path, 0);
+                    pkgInfo = XApp.getApp().getPackageManager().getPackageArchiveInfo(info.path, 0);
                     pkgInfo.applicationInfo.sourceDir = info.path;
                     pkgInfo.applicationInfo.publicSourceDir = info.path;
                 } catch (Exception e) {

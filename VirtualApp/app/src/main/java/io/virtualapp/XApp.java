@@ -26,23 +26,23 @@ import io.virtualapp.delegate.MyAppRequestListener;
 import io.virtualapp.delegate.MyComponentDelegate;
 import io.virtualapp.delegate.MyCrashHandler;
 import io.virtualapp.delegate.MyPhoneInfoDelegate;
-import io.virtualapp.delegate.MyTaskDescriptionDelegate;
+import io.virtualapp.delegate.MyTaskDescDelegate;
 import jonathanfinerty.once.Once;
 import me.weishu.exposed.LogcatService;
 
 /**
  * @author Lody
  */
-public class VApp extends Application {
+public class XApp extends Application {
 
-    private static final String TAG = "VApp";
+    private static final String TAG = "XApp";
 
     public static final String XPOSED_INSTALLER_PACKAGE = "de.robv.android.xposed.installer";
 
-    private static VApp gApp;
+    private static XApp gApp;
     private SharedPreferences mPreferences;
 
-    public static VApp getApp() {
+    public static XApp getApp() {
         return gApp;
     }
 
@@ -71,9 +71,9 @@ public class VApp extends Application {
 
             @Override
             public void onMainProcess() {
-                Once.initialise(VApp.this);
+                Once.initialise(XApp.this);
 
-                Fabric.with(VApp.this, new Crashlytics());
+                Fabric.with(XApp.this, new Crashlytics());
 
                 boolean isXposedInstalled = false;
                 try {
@@ -121,23 +121,23 @@ public class VApp extends Application {
 
             @Override
             public void onVirtualProcess() {
-                Fabric.with(VApp.this, new Crashlytics());
+                Fabric.with(XApp.this, new Crashlytics());
 
                 //listener components
                 virtualCore.setComponentDelegate(new MyComponentDelegate());
                 //fake phone imei,macAddress,BluetoothAddress
                 virtualCore.setPhoneInfoDelegate(new MyPhoneInfoDelegate());
                 //fake task description's icon and title
-                virtualCore.setTaskDescriptionDelegate(new MyTaskDescriptionDelegate());
+                virtualCore.setTaskDescriptionDelegate(new MyTaskDescDelegate());
                 virtualCore.setCrashHandler(new MyCrashHandler());
 
                 // ensure the logcat service alive when every virtual process start.
-                LogcatService.start(VApp.this, VEnvironment.getDataUserPackageDirectory(0, XPOSED_INSTALLER_PACKAGE));
+                LogcatService.start(XApp.this, VEnvironment.getDataUserPackageDirectory(0, XPOSED_INSTALLER_PACKAGE));
             }
 
             @Override
             public void onServerProcess() {
-                virtualCore.setAppRequestListener(new MyAppRequestListener(VApp.this));
+                virtualCore.setAppRequestListener(new MyAppRequestListener(XApp.this));
                 virtualCore.addVisibleOutsidePackage("com.tencent.mobileqq");
                 virtualCore.addVisibleOutsidePackage("com.tencent.mobileqqi");
                 virtualCore.addVisibleOutsidePackage("com.tencent.minihd.qq");
