@@ -222,6 +222,10 @@ public class InstallerActivity extends AppCompatActivity {
             return;
         }
         PackageInfo packageArchiveInfo = packageManager.getPackageArchiveInfo(path, 0);
+        if (packageArchiveInfo == null) {
+            finish();
+            return;
+        }
         String toInstalledVersion = packageArchiveInfo.versionName;
         int toInstalledVersionCode = packageArchiveInfo.versionCode;
         CharSequence label;
