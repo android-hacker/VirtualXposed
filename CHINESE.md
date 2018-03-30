@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/android-hacker/VirtualXposed.svg?branch=exposed)](https://travis-ci.org/android-hacker/VirtualXposed)
+
 简介
 -----
 **VirtualXposed** 是基于[VirtualApp](https://github.com/asLody/VirtualApp) 和 [epic](https://github.com/tiann/epic) 在**非ROOT**环境下运行Xposed模块的实现（支持5.0~8.1)。
@@ -22,7 +24,7 @@
 在VirtualXposed中安装App有两种方式：
 
 1. 直接复制已经在系统中安装好的APP，比如如果你系统中装了微信，那么可以直接复制一份。
-2. 通过外置存储直接安装APK文件；点主界面的➕，然后选择后面两个TAB即可。
+2. 通过外置存储直接安装APK文件；点主界面的底部按钮－添加应用，然后选择后面两个TAB即可。
 
 在VirtualXposed中安装Xposed模块，可以跟安装正常的APK一样，以上两种安装App的方式也适用于安装Xposed模块。不过，你也可以通过VirtualXposed中内置的XposedInstaller来安装和管理模块，跟通常的XposedInstaller使用方式一样；去下载页面，下载安装即可。 
 
@@ -40,6 +42,7 @@
 - [步数修改器][bsxg]
 - [模拟位置][mnwz]
 - [指纹支付][zwzf]
+- [QQ精简模块][qqjj]
 
 或许还有很多，自行测试。
 
@@ -76,3 +79,6 @@
 [zwzf]: https://github.com/android-hacker/Xposed-Fingerprint-pay/releases
 [bsxg]: https://www.coolapk.com/apk/com.specher.sm
 [mdwechat]: https://github.com/Blankeer/MDWechat
+[qqjj]: https://github.com/zpp0196/QQSimple
+
+
