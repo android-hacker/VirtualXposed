@@ -125,9 +125,13 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
         });
         mSelectFromExternal.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.setType("application/vnd.android"); // apk file
+            intent.setType("application/vnd.android.package-archive"); // apk file
             intent.addCategory(Intent.CATEGORY_OPENABLE);
-            startActivityForResult(intent, REQUEST_GET_FILE);
+            try {
+                startActivityForResult(intent, REQUEST_GET_FILE);
+            } catch (Throwable ignored) {
+                Toast.makeText(getActivity(), "Error", Toast.LENGTH_SHORT).show();
+            }
         });
         new ListAppPresenterImpl(getActivity(), this, getSelectFrom()).start();
     }
