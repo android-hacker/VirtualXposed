@@ -57,6 +57,7 @@ import com.lody.virtual.helper.utils.ArrayUtils;
 import com.lody.virtual.helper.utils.BitmapUtils;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.DrawableUtils;
+import com.lody.virtual.helper.utils.EncodeUtils;
 import com.lody.virtual.helper.utils.FileUtils;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
@@ -886,6 +887,9 @@ class MethodProxies {
             service.setDataAndType(service.getData(), resolvedType);
             ServiceInfo serviceInfo = VirtualCore.get().resolveServiceInfo(service, VUserHandle.myUserId());
             if (serviceInfo != null) {
+                if (isFiltered(service)) {
+                    return service.getComponent();
+                }
                 return VActivityManager.get().startService(appThread, service, resolvedType, userId);
             }
             return method.invoke(who, args);
@@ -894,6 +898,16 @@ class MethodProxies {
         @Override
         public boolean isEnable() {
             return isAppProcess() || isServerProcess();
+        }
+
+        private boolean isFiltered(Intent service) {
+            // disable tinker.
+            if (service != null && service.getComponent() != null
+                    && EncodeUtils.decode("com.tencent.tinker.lib.servic.TinkerPatchService") // com.tencent.tinker.lib.service.TinkerPatchService
+                    .equals(service.getComponent().getClassName())) {
+                return true;
+            }
+            return false;
         }
     }
 
