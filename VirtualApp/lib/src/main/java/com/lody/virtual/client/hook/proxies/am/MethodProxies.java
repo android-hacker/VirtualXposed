@@ -903,7 +903,7 @@ class MethodProxies {
         private boolean isFiltered(Intent service) {
             // disable tinker.
             if (service != null && service.getComponent() != null
-                    && EncodeUtils.decode("com.tencent.tinker.lib.servic.TinkerPatchService") // com.tencent.tinker.lib.service.TinkerPatchService
+                    && EncodeUtils.decode("Y29tLnRlbmNlbnQudGlua2VyLmxpYi5zZXJ2aWMuVGlua2VyUGF0Y2hTZXJ2aWNl") // com.tencent.tinker.lib.service.TinkerPatchService
                     .equals(service.getComponent().getClassName())) {
                 return true;
             }
