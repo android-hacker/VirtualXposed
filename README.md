@@ -61,6 +61,7 @@ Supported Modules
 - [步数修改器][bsxg]
 - [模拟位置][mnwz]
 - [指纹支付][zwzf]
+- [微信增强插件][wxzqcj]
 
 Far more than above.
 
@@ -100,3 +101,4 @@ Thanks
 [zwzf]: https://github.com/android-hacker/Xposed-Fingerprint-pay/releases
 [bsxg]: https://www.coolapk.com/apk/com.specher.sm
 [mdwechat]: https://github.com/Blankeer/MDWechat
+[wxzqcj]:https://github.com/firesunCN/WechatEnhancement
