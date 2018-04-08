@@ -34,7 +34,7 @@
     <string name="copy_right" translatable="false" >Copyrights © %1$d</string>
     <string name="about_page_description">VirtualXposed is an app provides the ability to use Xposed module without root, unlock the bootload or modify sysyem image.</string>
     <string name="about_feedback_title">QQ Group: %1$s</string>
-    <string name="about_feedback_wechat_title">Wechat Group: %1$s</string>
+    <string name="about_feedback_wechat_title">WeChat Group: %1$s</string>
     <string name="about_feedback_tips">Group number has been copied to clipboard!</string>
     <string name="about_version_title">Version: %1$s</string>
     <string name="about_donate_title">Donate</string>
@@ -51,7 +51,7 @@
     <string name="donate_dialog_content">Do not donate me if you are not rich :)</string>
     <string name="donate_dialog_yes">Donate</string>
     <string name="donate_dialog_no">Cancel</string>
-    <string name="large_app_install_tips">Installation time may take a while, please be patient :)</string>
+    <string name="large_app_install_tips">Installation may take a while, please be patient :)</string>
     <string name="about_icon_title">About Icon</string>
     <string name="about_icon_content">If you do not like my new icon, welcome to design a new icon for VirtualXposed</string>
     <string name="about_icon_yes">OK</string>
@@ -60,7 +60,7 @@
     <string name="thanks_dialog_title">Thanks</string>
     <string name="thanks_dialog_content" >感谢 Cheney 提供超赞的Icon，另外谢谢芑芮、佩奇、以及另外一些我还不知道名字的设计师的辛勤付出；谢谢各位小伙伴提供的创意和建议，特别感谢 YingLin 不厌其烦地帮我实现我的稀烂设计 :)</string>
     <string name="alert_for_doze_mode_title">Tips</string>
-    <string name="alert_for_doze_mode_content">Please allow VirtualXposed running in background, otherwise you may not receive notification of some inner app.</string>
+    <string name="alert_for_doze_mode_content">Please allow VirtualXposed to run in background, otherwise you may not receive notification of some inner app.</string>
     <string name="alert_for_doze_mode_yes">Allow</string>
     <string name="alert_for_doze_mode_no">Deny</string>
     <string name="about_faq_title">FAQ</string>
@@ -87,7 +87,7 @@
     <string name="settings_reboot_title">Reboot VirtualXposed</string>
     <string name="settings_reboot_content">This will kill all apps running in VirtualXposed, do you want to do it?</string>
     <string name="check_update">Check Update</string>
-    <string name="version_is_latest">Current version is latest!</string>
+    <string name="version_is_latest">Latest version installed</string>
     <string name="new_version_detected">New Version:</string>
     <string name="multi_version_tip_title">Install tips</string>
     <string name="multi_version_tips_content">You have chosen an existing app, Install one more app or update existing? \n(Installed version %1$s, selected version: %2$s</string>
@@ -108,7 +108,7 @@
     <string name="app_manage_redirect_desc" />
     <string name="app_manage_redirect_on_confirm">Open, Confirm</string>
     <string name="app_manage_redirect_off_confirm">Close, Confirm</string>
-    <string name="shared_to_vxp">Shared to App in VirtualXposed</string>
+    <string name="shared_to_vxp">Share to App in VirtualXposed</string>
     <string name="shared_to_vxp_failed">Share failed, please try again.</string>
     <string name="app_installer_label">Add to VirtualXposed</string>
     <string name="install_complete">Complete</string>
@@ -117,7 +117,7 @@
     <string name="install_package">Install new app: %s</string>
     <string name="install_package_version_tips">You have chosen an existing app, \n(Installed version %1$s, selected version: %2$s, install it?</string>
     <string name="settings_add_app_summary">Please add both app and Xposed module to VirtualXposed first, otherwise the Xposed module won\'t take effect.</string>
-    <string name="settings_advance">Advance Settings</string>
+    <string name="settings_advance">Advanced Settings</string>
     <string name="advance_settings_hide_settings">Hide settings button on desktop</string>
     <string name="advance_settings_disable_installer">Disable apk installer for system</string>
     <string name="advance_settings_hide_settings_summary">If you can enter settings by menu key on main activity, you can hide this, otherwise you may not be able to enter settings!! \n(Restart VirtualXposed to take effect.)</string>
