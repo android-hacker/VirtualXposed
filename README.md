@@ -2,11 +2,11 @@
 
 [中文文档](CHINESE.md "中文")
 
-Introduce
+Introduction
 ------------
-**VirtualXposed** is a simple APP based on [VirtualApp](https://github.com/asLody/VirtualApp) and [epic](https://github.com/tiann/epic) to use Xposed Module without root, unlock the bootloader, or flash the system image.（Support Android 5.0~8.1)。
+**VirtualXposed** is a simple APP based on [VirtualApp](https://github.com/asLody/VirtualApp) and [epic](https://github.com/tiann/epic) to use Xposed Module without root, unlock the bootloader, or flash the system image. (Support Android 5.0~8.1)
 
-Warnning
+Warning
 -----------
 
 No use for Commercial Purposes!!!  Please refer VirtualApp's [declaration](https://github.com/asLody/VirtualApp) 
@@ -14,15 +14,15 @@ No use for Commercial Purposes!!!  Please refer VirtualApp's [declaration](https
 Usage
 -------
 
-### Prepare
+### Preparation
 
-Download the latest apk in [Relase page](https://github.com/android-hacker/VirtualXposed/releases) , then install it on your Android phone.
+Download the latest apk in [Release page](https://github.com/android-hacker/VirtualXposed/releases) , then install it on your Android phone.
 
 ### Install APP and Xposed module
 
 Open VirtualXposed, Click the ➕ in home page, add the APP and Xposed module to VirtualXposed's virtual environment.
 
-Notice: **All operation（install Xposed module, APP）must be done in VirtualXposed**, Otherwise, the Xposed module won't take effect!! For example, If you install Youtube APP on your system（Your phone's original system, not in VirtualXposed）,and then install Youtube AdAway(A Youtube Xposed module) in VirtualXposed; Or you install Youtube in VirtualXposed, and install Youtube AdAway on original system; or both of them are installed on original system, **These three case won't take effect!**。
+Notice: **All operation（install Xposed module, APP）must be done in VirtualXposed**, Otherwise, the Xposed module won't take effect!! For example, If you install Youtube APP on your system (Your phone's original system, not in VirtualXposed),and then install Youtube AdAway (A Youtube Xposed module) in VirtualXposed; Or you install Youtube in VirtualXposed, and install Youtube AdAway on original system; or both of them are installed on original system, **These three cases won't take effect!**
 
 ![How to install](https://raw.githubusercontent.com/tiann/arts/master/vxp_install.gif)
 
@@ -61,6 +61,7 @@ Supported Modules
 - [步数修改器][bsxg]
 - [模拟位置][mnwz]
 - [指纹支付][zwzf]
+- [微信增强插件][wxzqcj]
 
 Far more than above.
 
@@ -82,7 +83,7 @@ For Developer
 - [Fire a bug](https://github.com/android-hacker/exposed/issues)
 - [Wiki](https://github.com/android-hacker/VirtualXposed/wiki)
 
-Thanks
+Credit
 -------
 
 1. [VirtualApp](https://github.com/asLody/VirtualApp)
@@ -100,3 +101,4 @@ Thanks
 [zwzf]: https://github.com/android-hacker/Xposed-Fingerprint-pay/releases
 [bsxg]: https://www.coolapk.com/apk/com.specher.sm
 [mdwechat]: https://github.com/Blankeer/MDWechat
+[wxzqcj]:https://github.com/firesunCN/WechatEnhancement
