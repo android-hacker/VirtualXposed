@@ -30,6 +30,7 @@ import android.os.SystemClock;
 
 import com.lody.virtual.client.IVClient;
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.client.ipc.ProviderCall;
 import com.lody.virtual.client.ipc.VNotificationManager;
@@ -1088,7 +1089,8 @@ public class VActivityManagerService extends IActivityManager.Stub {
                                              PendingResultData result) {
         synchronized (this) {
             ProcessRecord r = findProcessLocked(info.processName, vuid);
-            if (BROADCAST_NOT_STARTED_PKG && r == null) {
+            if ((BROADCAST_NOT_STARTED_PKG || (info.packageName != null && (Constants.PRIVILEGE_APP.contains(info.packageName))))
+                    && r == null) {
                 r = startProcessIfNeedLocked(info.processName, getUserId(vuid), info.packageName);
             }
             if (r != null && r.appThread != null) {

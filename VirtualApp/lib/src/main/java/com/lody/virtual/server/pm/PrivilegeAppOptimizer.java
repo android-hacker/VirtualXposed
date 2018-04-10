@@ -1,7 +1,6 @@
 package com.lody.virtual.server.pm;
 
 import android.content.Intent;
-import android.util.Log;
 
 import com.lody.virtual.client.stub.VASettings;
 import com.lody.virtual.os.VUserHandle;
@@ -51,11 +50,8 @@ public class PrivilegeAppOptimizer {
     }
 
     public boolean performOptimize(String packageName, int userId) {
-        if (!isPrivilegeApp(packageName)) {
-            return false;
-        }
         VActivityManagerService.get().sendBroadcastAsUser(
-                specifyApp(new Intent(Intent.ACTION_BOOT_COMPLETED, null), packageName, userId)
+                specifyApp(new Intent(Intent.ACTION_BOOT_COMPLETED), packageName, userId)
                 , new VUserHandle(userId));
         return true;
     }
@@ -63,6 +59,7 @@ public class PrivilegeAppOptimizer {
     private Intent specifyApp(Intent intent, String packageName, int userId) {
         intent.putExtra("_VA_|_privilege_pkg_", packageName);
         intent.putExtra("_VA_|_user_id_", userId);
+        intent.putExtra("_VA_|_intent_", new Intent(Intent.ACTION_BOOT_COMPLETED));
         return intent;
     }
 
