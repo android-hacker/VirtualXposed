@@ -1,6 +1,5 @@
 package com.lody.virtual.server.am;
 
-import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;

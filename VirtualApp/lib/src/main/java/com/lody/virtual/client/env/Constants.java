@@ -1,9 +1,12 @@
 package com.lody.virtual.client.env;
 
-import android.app.PendingIntent;
 import android.content.Intent;
 
 import com.lody.virtual.client.stub.ShortcutHandleActivity;
+import com.lody.virtual.helper.utils.EncodeUtils;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Lody
@@ -30,6 +33,11 @@ public class Constants {
 	public static final String ACTION_USER_STARTED = "Virtual." + "android.intent.action.USER_STARTED";
 	public static String META_KEY_IDENTITY = "X-Identity";
 	public static String META_VALUE_STUB = "Stub-User";
+
+	public static final List<String> PRIVILEGE_APP = Arrays.asList(
+			EncodeUtils.decode("Y29tLnRlbmNlbnQubW0="), // wechat
+			EncodeUtils.decode("Y29tLnRlbmNlbnQubW9iaWxlcXE=")); // qq
+
 	/**
 	 * Server process name of VA
 	 */

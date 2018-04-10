@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 
+import com.lody.virtual.client.core.VirtualCore;
+
 
 /**
  * @author Lody
@@ -17,6 +19,9 @@ public class DaemonService extends Service {
 
 	public static void startup(Context context) {
 		context.startService(new Intent(context, DaemonService.class));
+		if (VirtualCore.get().isServerProcess()) {
+			DaemonJobService.scheduleJob(context);
+		}
 	}
 
 	@Override

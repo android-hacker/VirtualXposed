@@ -253,6 +253,12 @@
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:process="@string/engine_process_name" />
 
+        <service android:name=".client.stub.DaemonJobService"
+            android:exported="true"
+            android:enabled="true"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:process="@string/engine_process_name" />
+
         <activity
             android:name=".client.stub.ChooseAccountTypeActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
