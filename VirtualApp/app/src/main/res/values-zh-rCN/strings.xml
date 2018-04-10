@@ -120,4 +120,5 @@
     <string name="advance_settings_disable_installer_summary">在系统中安装APK文件的时候，不显示VirtualXposed的安装器</string>
     <string name="advance_settings_directly_back">直接返回</string>
     <string name="advance_settings_directly_back_summary">内部APP退出时，直接返回到系统桌面而不是VirtualXposed的虚拟桌面(强制停止VirtualXposed后生效）</string>
+    <string name="install_self_eggs">小伙子，你这个想法很有前途 :)</string>
 </resources>
