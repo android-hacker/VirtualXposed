@@ -16,11 +16,13 @@ import android.widget.Toast;
 
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.utils.EncodeUtils;
 import com.lody.virtual.helper.utils.FileUtils;
 import com.lody.virtual.remote.InstalledAppInfo;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import io.virtualapp.R;
@@ -145,6 +147,15 @@ public class InstallerActivity extends AppCompatActivity {
         if (appInfoLite == null) {
             return false;
         }
+
+        List<String> magicApps = Arrays.asList(EncodeUtils.decode("Y29tLmxiZS5wYXJhbGxlbA=="), // com.lbe.parallel
+                EncodeUtils.decode("Y29tLnFpaG9vLm1hZ2lj"), // com.qihoo.magic
+                EncodeUtils.decode("Y29tLmRvdWJsZW9wZW4=")); // com.doubleopen
+
+        if (magicApps.contains(appInfoLite.packageName)) {
+            Toast.makeText(VirtualCore.get().getContext(), R.string.install_self_eggs, Toast.LENGTH_SHORT).show();
+        }
+
         if (appInfoLite.disableMultiVersion) {
             return false;
         }
