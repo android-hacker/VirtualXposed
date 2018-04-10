@@ -43,6 +43,7 @@
 - [模拟位置][mnwz]
 - [指纹支付][zwzf]
 - [QQ精简模块][qqjj]
+- [微信增强插件][wxzqcj]
 
 或许还有很多，自行测试。
 
@@ -80,5 +81,5 @@
 [bsxg]: https://www.coolapk.com/apk/com.specher.sm
 [mdwechat]: https://github.com/Blankeer/MDWechat
 [qqjj]: https://github.com/zpp0196/QQSimple
-
+[wxzqcj]:https://github.com/firesunCN/WechatEnhancement
 
