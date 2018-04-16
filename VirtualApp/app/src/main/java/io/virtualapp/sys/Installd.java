@@ -2,9 +2,11 @@ package io.virtualapp.sys;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
+import com.lody.virtual.GmsSupport;
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.DeviceUtil;
@@ -15,9 +17,10 @@ import com.lody.virtual.remote.InstalledAppInfo;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
-import io.virtualapp.XApp;
 import io.virtualapp.VCommends;
+import io.virtualapp.XApp;
 import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.home.models.AppData;
 import io.virtualapp.home.models.AppInfoLite;
@@ -218,5 +221,34 @@ public class Installd {
         intent.putParcelableArrayListExtra(VCommends.EXTRA_APP_INFO_LIST, data);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
+    }
+
+    public static void addGmsSupport() {
+        List<String> gApps = new ArrayList<>();
+        gApps.addAll(GmsSupport.GOOGLE_APP);
+        gApps.addAll(GmsSupport.GOOGLE_SERVICE);
+
+        VirtualCore core = VirtualCore.get();
+        final int userId = 0;
+
+        ArrayList<AppInfoLite> toInstalled = new ArrayList<>();
+        for (String packageName : gApps) {
+            if (core.isAppInstalledAsUser(userId, packageName)) {
+                continue;
+            }
+            ApplicationInfo info = null;
+            try {
+                info = VirtualCore.get().getUnHookPackageManager().getApplicationInfo(packageName, 0);
+            } catch (PackageManager.NameNotFoundException e) {
+                // Ignore
+            }
+            if (info == null || info.sourceDir == null) {
+                continue;
+            }
+
+            AppInfoLite lite = new AppInfoLite(info.packageName, info.sourceDir, false, true);
+            toInstalled.add(lite);
+        }
+        startInstallerActivity(VirtualCore.get().getContext(), toInstalled);
     }
 }

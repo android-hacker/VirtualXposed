@@ -22,6 +22,13 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:visibility="gone"
+            android:key="advance_settings_install_gms"
+            android:persistent="true"
+            android:title="@string/advance_settings_install_gms" />
+
+        <SwitchPreference
+            android:defaultValue="false"
             android:key="advance_settings_hide_settings"
             android:persistent="true"
             android:summary="@string/advance_settings_hide_settings_summary"
