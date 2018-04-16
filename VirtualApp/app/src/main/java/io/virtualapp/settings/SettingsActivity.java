@@ -13,6 +13,7 @@ import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
 import com.android.launcher3.LauncherFiles;
+import com.lody.virtual.GmsSupport;
 import com.lody.virtual.client.core.VirtualCore;
 
 import io.virtualapp.R;
@@ -34,6 +35,7 @@ public class SettingsActivity extends Activity {
     private static final String REBOOT_KEY = "settings_reboot";
     private static final String HIDE_SETTINGS_KEY = "advance_settings_hide_settings";
     private static final String DISABLE_INSTALLER_KEY = "advance_settings_disable_installer";
+    private static final String INSTALL_GMS_KEY = "advance_settings_install_gms";
     public static final String DIRECTLY_BACK_KEY = "advance_settings_directly_back";
 
     @Override
@@ -72,6 +74,7 @@ public class SettingsActivity extends Activity {
             Preference reboot = findPreference(REBOOT_KEY);
 
             SwitchPreference disableInstaller = (SwitchPreference) findPreference(DISABLE_INSTALLER_KEY);
+            SwitchPreference installGms = (SwitchPreference) findPreference(INSTALL_GMS_KEY);
 
             addApp.setOnPreferenceClickListener(preference -> {
                 ListAppActivity.gotoListApp(getActivity());
@@ -162,6 +165,26 @@ public class SettingsActivity extends Activity {
                     return false;
                 }
             });
+
+            installGms.setOnPreferenceChangeListener(((preference, newValue) -> {
+                if (!(newValue instanceof Boolean)) {
+                    return false;
+                }
+                boolean install = (boolean) newValue;
+                if (install) {
+                    if (!GmsSupport.isOutsideGoogleFrameworkExist()) {
+                        Toast.makeText(getActivity(), "Sorry, your phone has no GMS supported.", Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+
+                    Toast.makeText(getActivity(), "Coming soon.", Toast.LENGTH_SHORT).show();
+                    // Installd.addGmsSupport();
+                    return false;
+                } else {
+                    // TODO, delete.
+                }
+                return false;
+            }));
         }
     }
 }

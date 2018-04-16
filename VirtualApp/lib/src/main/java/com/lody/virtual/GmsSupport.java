@@ -14,14 +14,14 @@ import java.util.List;
  */
 public class GmsSupport {
 
-    private static final List<String> GOOGLE_APP = Arrays.asList(
+    public static final List<String> GOOGLE_APP = Arrays.asList(
             "com.android.vending",
             "com.google.android.play.games",
             "com.google.android.wearable.app",
             "com.google.android.wearable.app.cn"
     );
 
-    private static final List<String> GOOGLE_SERVICE = Arrays.asList(
+    public static final List<String> GOOGLE_SERVICE = Arrays.asList(
             "com.google.android.gsf",
             "com.google.android.gms",
             "com.google.android.gsf.login",
