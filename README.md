@@ -9,7 +9,7 @@ Introduction
 Warning
 -----------
 
-No use for Commercial Purposes!!!  Please refer VirtualApp's [declaration](https://github.com/asLody/VirtualApp) 
+No use for Commercial Purposes!!!  Please refer VirtualApp's [declaration](https://github.com/asLody/VirtualApp).
 
 Usage
 -------
@@ -64,6 +64,24 @@ Supported Modules
 - [微信增强插件][wxzqcj]
 
 Far more than above.
+
+Others
+-------
+
+### GameGuardian
+
+VirtualXposed also supports GameGuardian, **use version 0.9.1 for best compatibility**.(You can download it in release page).
+
+[Video Tutorial](https://gameguardian.net/forum/gallery/image/437-no-root-via-virtualxposed-without-error-105-gameguardian/)
+
+### VirusTotal
+
+VirusTotal may say VirtualXposed have malware, it is stupid, you can refer my [explaination](https://github.com/android-hacker/VirtualXposed/issues/10).
+
+And also, VirtualXposed is open source, you can refer the source code, I am sure it is safe.
+
+If you still do not believe me, you can install version [0.8.7](https://github.com/android-hacker/VirtualXposed/releases/tag/0.8.7), VirusTotal thinks this version is safe.
+
 
 Known Issues
 -------------

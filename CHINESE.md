@@ -47,6 +47,23 @@
 
 或许还有很多，自行测试。
 
+其他
+-------
+
+### GameGuardian
+
+VirtualXposed也支持GG修改器，如果你需要用GG，那么请使用0.9.1版本，这个版本与GG修改器具有最好的兼容性(可以在发布页面下载)。
+
+[GG修改器使用视频教程](https://gameguardian.net/forum/gallery/image/437-no-root-via-virtualxposed-without-error-105-gameguardian/)
+
+### VirusTotal
+
+VirusTotal 还有一些其他的杀毒引擎检测到VirtualXposed有病毒，这一点我该不承认，而且我觉得这些愚蠢的杀毒引擎是在胡扯。请看[我的说明](https://github.com/android-hacker/VirtualXposed/issues/10).
+
+而且，VirtualXposed是开源的，你可以直接查看代码；我可以打包票，VirtualXposed本身没有做任何有害的事情（但是它确实有这个能力，所以请不要下载不明来源的Xposed插件）。
+
+如果你还是不放心，那么你可以使用 [0.8.7版本](https://github.com/android-hacker/VirtualXposed/releases/tag/0.8.7), 这个版本杀毒引擎的检测结果是安全的（简直就是扯淡）。
+
 已知问题
 -----------
 
