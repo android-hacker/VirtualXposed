@@ -27,6 +27,11 @@
             android:persistent="true"
             android:title="@string/advance_settings_install_gms" />
 
+        <Preference
+            android:key="advance_settings_copy_file"
+            android:persistent="false"
+            android:title="@string/advance_settings_copy_file" />
+
         <SwitchPreference
             android:defaultValue="false"
             android:key="advance_settings_hide_settings"

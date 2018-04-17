@@ -123,4 +123,5 @@
     <string name="install_self_eggs">小伙子，你这个想法很有前途 :)</string>
     <string name="advance_settings_install_gms">安装Google服务框架</string>
     <string name="about_feedback_tel_title">Telegram 群组: %1$s</string>
+    <string name="advance_settings_copy_file">内部文件复制</string>
 </resources>
