@@ -122,4 +122,5 @@
     <string name="advance_settings_directly_back_summary">内部APP退出时，直接返回到系统桌面而不是VirtualXposed的虚拟桌面(强制停止VirtualXposed后生效）</string>
     <string name="install_self_eggs">小伙子，你这个想法很有前途 :)</string>
     <string name="advance_settings_install_gms">安装Google服务框架</string>
+    <string name="about_feedback_tel_title">Telegram 群组: %1$s</string>
 </resources>

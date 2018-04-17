@@ -2,8 +2,10 @@ package io.virtualapp.settings;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -34,6 +36,7 @@ public class AboutActivity extends VActivity {
                 .addItem(getCheckUpdateElement())
                 .addItem(getFeedbackElement())
                 .addItem(getFeedbackWechatElement())
+                .addItem(getFeedbacTelegramElement())
                 .addItem(getThanksElement())
                 .addEmail("va1xposed@gmail.com")
                 .addWebsite("http://vxposed.com")
@@ -94,6 +97,22 @@ public class AboutActivity extends VActivity {
                 clipboardManager.setPrimaryClip(ClipData.newPlainText(null, weChatGroup));
             }
             Toast.makeText(v.getContext(), getResources().getString(R.string.about_feedback_tips), Toast.LENGTH_SHORT).show();
+        });
+        return feedback;
+    }
+
+    Element getFeedbacTelegramElement() {
+        Element feedback = new Element();
+        final String weChatGroup = "VirtualXposed";
+        feedback.setTitle(getResources().getString(R.string.about_feedback_tel_title, weChatGroup));
+
+        feedback.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("https://t.me/joinchat/Gtti8Usj1JD4TchHQmy-ew"));
+            try {
+                startActivity(intent);
+            } catch (Throwable ignored) {
+            }
         });
         return feedback;
     }
