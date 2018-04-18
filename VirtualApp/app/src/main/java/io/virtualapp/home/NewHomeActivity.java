@@ -58,7 +58,7 @@ public class NewHomeActivity extends NexusLauncherActivity {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         SharedPreferences sharedPreferences = getSharedPreferences(LauncherFiles.SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
         super.onCreate(savedInstanceState);
         showMenuKey();
