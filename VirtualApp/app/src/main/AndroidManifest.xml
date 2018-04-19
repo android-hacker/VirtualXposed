@@ -16,6 +16,8 @@
         android:theme="@style/LauncherTheme"
         tools:replace="android:icon,android:label">
 
+        <meta-data android:name="android.max_aspect" android:value="2.1" />
+
         <meta-data
             android:name="android.support.VERSION"
             android:value="com.android.support:design:25.4.0"
