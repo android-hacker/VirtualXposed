@@ -239,12 +239,7 @@ public class InstallerActivity extends AppCompatActivity {
         }
         String toInstalledVersion = packageArchiveInfo.versionName;
         int toInstalledVersionCode = packageArchiveInfo.versionCode;
-        CharSequence label;
-        try {
-            label = packageArchiveInfo.applicationInfo.loadLabel(packageManager);
-        } catch (Throwable e) {
-            label = packageArchiveInfo.packageName;
-        }
+        CharSequence label = packageArchiveInfo.packageName;
 
         if (installedAppInfo != null) {
             String currentVersion;
@@ -253,6 +248,8 @@ public class InstallerActivity extends AppCompatActivity {
             PackageInfo applicationInfo = installedAppInfo.getPackageInfo(0);
             currentVersion = applicationInfo.versionName;
             currentVersionCode = applicationInfo.versionCode;
+
+            label = applicationInfo.applicationInfo.loadLabel(packageManager);
 
             String multiVersionUpdate = getResources().getString(currentVersionCode == toInstalledVersionCode ? R.string.multi_version_cover : (
                     currentVersionCode < toInstalledVersionCode ? R.string.multi_version_upgrade : R.string.multi_version_downgrade
@@ -266,6 +263,7 @@ public class InstallerActivity extends AppCompatActivity {
             rightString = getResources().getString(R.string.install);
         }
 
+        final CharSequence apkName = label;
         mTips.setText(tipsText);
         mLeft.setText(leftString);
         mRight.setText(rightString);
@@ -283,13 +281,15 @@ public class InstallerActivity extends AppCompatActivity {
             }).done((res) -> {
                 // install success
                 mTips.setVisibility(View.GONE);
+                mProgressText.setVisibility(View.VISIBLE);
+                mProgressText.setText(getResources().getString(R.string.add_app_laoding_complete, apkName));
                 mProgressBar.setVisibility(View.GONE);
                 mRight.setEnabled(true);
                 mRight.setText(res.isSuccess ? R.string.install_complete : R.string.install_fail);
                 mRight.setOnClickListener((vv) -> finish());
             }).fail((res) -> {
-                mTips.setVisibility(View.VISIBLE);
-                mTips.setText(R.string.install_fail);
+                mProgressText.setVisibility(View.VISIBLE);
+                mProgressText.setText(R.string.install_fail);
                 mRight.setEnabled(true);
                 mProgressBar.setVisibility(View.GONE);
                 mRight.setText(android.R.string.ok);
