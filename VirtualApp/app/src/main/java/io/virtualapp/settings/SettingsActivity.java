@@ -48,6 +48,7 @@ public class SettingsActivity extends Activity {
     private static final String INSTALL_GMS_KEY = "advance_settings_install_gms";
     public static final String DIRECTLY_BACK_KEY = "advance_settings_directly_back";
     private static final String COPY_FILE = "advance_settings_copy_file";
+    private static final String YIELD_MODE = "advance_settings_yield_mode";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +88,7 @@ public class SettingsActivity extends Activity {
 
             SwitchPreference disableInstaller = (SwitchPreference) findPreference(DISABLE_INSTALLER_KEY);
             SwitchPreference installGms = (SwitchPreference) findPreference(INSTALL_GMS_KEY);
+            SwitchPreference yieldMode = (SwitchPreference) findPreference(YIELD_MODE);
 
             addApp.setOnPreferenceClickListener(preference -> {
                 ListAppActivity.gotoListApp(getActivity());
@@ -259,6 +261,27 @@ public class SettingsActivity extends Activity {
                 }
                 return false;
             }));
+
+            File yieldFile = getActivity().getFileStreamPath("yieldMode");
+            yieldMode.setOnPreferenceChangeListener((preference, newValue) -> {
+
+                if (!(newValue instanceof Boolean)) {
+                    return false;
+                }
+
+                boolean on = (boolean) newValue;
+                if (on) {
+                    boolean success;
+                    try {
+                        success = yieldFile.createNewFile();
+                    } catch (IOException e) {
+                        success = false;
+                    }
+                    return success;
+                } else {
+                    return yieldFile.delete();
+                }
+            });
         }
 
         private static void dismiss(ProgressDialog dialog) {

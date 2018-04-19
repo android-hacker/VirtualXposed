@@ -128,4 +128,6 @@
     <string name="advance_settings_install_gms">Install Google Service</string>
     <string name="about_feedback_tel_title">Telegram Group: %1$s</string>
     <string name="advance_settings_copy_file">Copy File</string>
+    <string name="advance_settings_yield_mode_summary">Open this for a trade off between stability and compatibility</string>
+    <string name="advance_settings_yield_mode">Conservative Mode</string>
 </resources>

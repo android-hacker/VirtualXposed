@@ -124,4 +124,6 @@
     <string name="advance_settings_install_gms">安装Google服务框架</string>
     <string name="about_feedback_tel_title">Telegram 群组: %1$s</string>
     <string name="advance_settings_copy_file">内部文件复制</string>
+    <string name="advance_settings_yield_mode_summary">开启这个开关，可能会提高VirtualXposed的稳定性，但同时会失去对插件的一些兼容性。</string>
+    <string name="advance_settings_yield_mode">保守模式</string>
 </resources>

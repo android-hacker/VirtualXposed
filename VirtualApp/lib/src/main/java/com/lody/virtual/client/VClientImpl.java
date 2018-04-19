@@ -313,6 +313,7 @@ public final class VClientImpl extends IVClient.Stub {
         }
 
         ClassLoader originClassLoader = context.getClassLoader();
+        initForYieldMode();
         ExposedBridge.initOnce(context, data.appInfo, originClassLoader);
         List<InstalledAppInfo> modules = VirtualCore.get().getInstalledApps(0);
         for (InstalledAppInfo module : modules) {
@@ -367,6 +368,12 @@ public final class VClientImpl extends IVClient.Stub {
         }
         VActivityManager.get().appDoneExecuting();
         VirtualCore.get().getComponentDelegate().afterApplicationCreate(mInitialApplication);
+    }
+
+    private void initForYieldMode() {
+        if (VirtualCore.get().getContext().getFileStreamPath("yieldMode").exists()) {
+            System.setProperty("yieldMode", "true");
+        }
     }
 
     private void fixWeChatRecovery(Application app) {
