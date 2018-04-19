@@ -15,8 +15,8 @@ static void jni_nativeLaunchEngine(alias_ref<jclass> clazz, JArrayClass<jobject>
     hookAndroidVM(javaMethods, packageName, isArt, apiLevel, cameraMethodType);
 }
 
-static void jni_disableJit(alias_ref<jclass> clazz) {
-    disableJit();
+static void jni_disableJit(alias_ref<jclass> clazz, jint apiLevel) {
+    disableJit(apiLevel);
 }
 
 static void jni_nativeEnableIORedirect(alias_ref<jclass>, jstring selfSoPath, jint apiLevel,

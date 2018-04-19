@@ -443,14 +443,16 @@ bool (*orig_ProcessProfilingInfo)(void*, void*);
 bool compileNothing(void* thiz, void* thread, void* method, bool osr) { return false; }
 bool (*orig_CompileNothing)(void* thiz, void* thread, void* method, bool osr);
 
-void disableJit() {
+void disableJit(int apiLevel) {
 #ifdef __arm__
     void *libart = fake_dlopen("/system/lib/libart.so", RTLD_NOW);
     if (libart) {
         // disable profile.
         void *processProfilingInfo = NULL;
-        processProfilingInfo = fake_dlsym(libart,
-                                          "_ZN3art12ProfileSaver20ProcessProfilingInfoEbPt");
+        const char *processProfileInfoFunc =
+                apiLevel < 26 ? "_ZN3art12ProfileSaver20ProcessProfilingInfoEPt" :
+                "_ZN3art12ProfileSaver20ProcessProfilingInfoEbPt";
+        processProfilingInfo = fake_dlsym(libart, processProfileInfoFunc);
         ALOGE("processProfileingInfo: %p", processProfilingInfo);
         if (processProfilingInfo) {
             MSHookFunction(processProfilingInfo, (void*)processNothing, (void**)&orig_ProcessProfilingInfo);
