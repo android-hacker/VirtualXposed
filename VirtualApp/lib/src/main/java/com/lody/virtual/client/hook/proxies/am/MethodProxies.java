@@ -372,7 +372,6 @@ class MethodProxies {
             String packageName = (String) args[1];
             if (Constants.WECHAT_PACKAGE.equals(packageName)) {
                 // 解决微信界面跳转狂闪的问题
-                android.util.Log.i("mylog", "override", new RuntimeException("stack"));
                 return null;
             } else {
                 return super.call(who, method, args);
