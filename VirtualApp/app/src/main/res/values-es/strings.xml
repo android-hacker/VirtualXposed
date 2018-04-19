@@ -33,8 +33,8 @@
     <string name="install_fail_tips">La instalación de %1$s falló: %2$s</string>
     <string name="copy_right" translatable="false" >Todos los derechos reservados © %1$d</string>
     <string name="about_page_description">VirtualXposed es una aplicación que otorga la posibilidad de utilizar un módulo Xposed sin tener root, sin desbloquear el bootloader y sin modificar la imágen del sistema.</string>
-    <string name="about_feedback_title">Grupo QQ: %1$s</string>
-    <string name="about_feedback_wechat_title">Grupo WeChat: %1$s</string>
+    <string name="about_feedback_title">Grupo QQ</string>
+    <string name="about_feedback_wechat_title">Grupo WeChat</string>
     <string name="about_feedback_tips">¡El número del grupo ha sido copiado al portapaleles!</string>
     <string name="about_version_title">Versión: %1$s</string>
     <string name="about_donate_title">Donar</string>
