@@ -204,7 +204,7 @@ public class NativeEngine {
 
     private static native void nativeEnableIORedirect(String selfSoPath, int apiLevel, int previewApiLevel);
 
-    public static native void disableJit();
+    public static native void disableJit(int apiLevel);
 
     public static int onGetUid(int uid) {
         return VClientImpl.get().getBaseVUid();

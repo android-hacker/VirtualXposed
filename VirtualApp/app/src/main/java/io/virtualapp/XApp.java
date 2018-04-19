@@ -50,7 +50,7 @@ public class XApp extends Application {
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            NativeEngine.disableJit();
+            NativeEngine.disableJit(Build.VERSION.SDK_INT);
         }
         mPreferences = base.getSharedPreferences("va", Context.MODE_MULTI_PROCESS);
         VASettings.ENABLE_IO_REDIRECT = true;
