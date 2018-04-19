@@ -38,8 +38,8 @@ public class AboutActivity extends VActivity {
                 .addItem(getFeedbackWechatElement())
                 .addItem(getFeedbacTelegramElement())
                 .addItem(getThanksElement())
+                .addItem(getWebsiteElement())
                 .addEmail("va1xposed@gmail.com")
-                .addWebsite("http://vxposed.com")
                 .addGitHub("tiann")
                 .addItem(getCopyRightsElement());
         View aboutPage = page.create();
@@ -74,7 +74,7 @@ public class AboutActivity extends VActivity {
     Element getFeedbackElement() {
         Element feedback = new Element();
         final String qqGroup = "597478474";
-        feedback.setTitle(getResources().getString(R.string.about_feedback_title, qqGroup));
+        feedback.setTitle(getResources().getString(R.string.about_feedback_title));
 
         feedback.setOnClickListener(v -> {
             ClipboardManager clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
@@ -88,13 +88,13 @@ public class AboutActivity extends VActivity {
 
     Element getFeedbackWechatElement() {
         Element feedback = new Element();
-        final String weChatGroup = "CSYJZF";
-        feedback.setTitle(getResources().getString(R.string.about_feedback_wechat_title, weChatGroup));
+        // final String weChatGroup = "CSYJZF";
+        feedback.setTitle(getResources().getString(R.string.about_feedback_wechat_title));
 
         feedback.setOnClickListener(v -> {
             ClipboardManager clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
             if (clipboardManager != null) {
-                clipboardManager.setPrimaryClip(ClipData.newPlainText(null, weChatGroup));
+                clipboardManager.setPrimaryClip(ClipData.newPlainText(null, "VirtualXposed"));
             }
             Toast.makeText(v.getContext(), getResources().getString(R.string.about_feedback_tips), Toast.LENGTH_SHORT).show();
         });
@@ -109,6 +109,21 @@ public class AboutActivity extends VActivity {
         feedback.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse("https://t.me/joinchat/Gtti8Usj1JD4TchHQmy-ew"));
+            try {
+                startActivity(intent);
+            } catch (Throwable ignored) {
+            }
+        });
+        return feedback;
+    }
+
+    Element getWebsiteElement() {
+        Element feedback = new Element();
+        feedback.setTitle(getResources().getString(R.string.about_website_title));
+
+        feedback.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("http://vxposed.com"));
             try {
                 startActivity(intent);
             } catch (Throwable ignored) {
