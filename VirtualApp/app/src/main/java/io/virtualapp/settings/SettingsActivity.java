@@ -296,4 +296,14 @@ public class SettingsActivity extends Activity {
             return (int) (dp * scale + 0.5f);
         }
     }
+
+    @Override
+    public void startActivity(Intent intent) {
+        try {
+            super.startActivity(intent);
+        } catch (Throwable ignored) {
+            Toast.makeText(this, "startActivity failed.", Toast.LENGTH_SHORT).show();
+            ignored.printStackTrace();
+        }
+    }
 }
