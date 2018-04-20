@@ -33,8 +33,8 @@
     <string name="install_fail_tips">Install %1$s failed: %2$s</string>
     <string name="copy_right" translatable="false" >Copyrights © %1$d</string>
     <string name="about_page_description">VirtualXposed is an app provides the ability to use Xposed module without root, unlock the bootload or modify sysyem image.</string>
-    <string name="about_feedback_title">QQ Group: %1$s</string>
-    <string name="about_feedback_wechat_title">WeChat Group(Click to copy group number)</string>
+    <string name="about_feedback_title">QQ Group(Click to copy group number)</string>
+    <string name="about_feedback_wechat_title">WeChat Group(Click to copy)</string>
     <string name="about_feedback_tips">Group number has been copied to clipboard!</string>
     <string name="about_version_title">Version: %1$s</string>
     <string name="about_donate_title">Donate</string>
