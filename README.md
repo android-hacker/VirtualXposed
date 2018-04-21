@@ -16,29 +16,29 @@ Usage
 
 ### Preparation
 
-Download the latest apk from the [Release page](https://github.com/android-hacker/VirtualXposed/releases), and install it on your Android device.
+Download the latest apk from the [release page](https://github.com/android-hacker/VirtualXposed/releases), and install it on your Android device.
 
 ### Install APP and Xposed module
 
 Open VirtualXposed, Click the ➕ in home page, add the APP and Xposed module to VirtualXposed's virtual environment.
 
-Notice: **All operation（install Xposed module, APP）must be done in VirtualXposed**, Otherwise, the Xposed module won't take effect!! For example, If you install YouTube APP on your system (Your phone's original system, not in VirtualXposed), and then install YouTube AdAway (A YouTube Xposed module) in VirtualXposed; or you install YouTube in VirtualXposed, and install YouTube AdAway on original system; or both of them are installed on original system, **These three cases won't take effect!**
+Notice: **All operations（installing Xposed module, APP）must be done in VirtualXposed**, otherwise the Xposed module won't take effect. For example, if you install the YouTube app on your system (Your phone's original system, not in VirtualXposed), and then install YouTube AdAway (A YouTube Xposed module) in VirtualXposed; or you install YouTube in VirtualXposed, and install YouTube AdAway on original system; or both of them are installed on original system, **yhese three cases won't take effect!**
 
 ![How to install](https://raw.githubusercontent.com/tiann/arts/master/vxp_install.gif)
 
-There are three ways to install an APP or Xposed module to VirtualXposed:
+There are three ways to install an app or Xposed module to VirtualXposed:
 
 1. Clone the original system's installed apps. Click Button at bottom of home page, then click Add App, the first page are installed apps.
-2. Install via an apk file. (Click Button at bottom of home page, then click Add App, the second page are apks found in your sdcard)
+2. Install via an APK file. (Click Button at bottom of home page, then click Add App, the second page are apks found in your sdcard)
 3. Install via the external file chooser. (Click Button at bottom of home page home page, then click App App, use the float button to choose apk file to install)
 
 For Xposed module, You can install it from XposedInstaller, too.
 
-### Active the Xposed module
+### Activate the Xposed module
 
 Open XposedInstaller in VirtualXposed, go to the module fragment, check the module you want to use:
 
-![How to active module](https://raw.githubusercontent.com/tiann/arts/master/vxp_active.gif)
+![How to activate module](https://raw.githubusercontent.com/tiann/arts/master/vxp_active.gif)
 
 ### Reboot
 
