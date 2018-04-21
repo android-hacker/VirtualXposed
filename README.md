@@ -4,7 +4,7 @@
 
 Introduction
 ------------
-**VirtualXposed** is a simple APP based on [VirtualApp](https://github.com/asLody/VirtualApp) and [epic](https://github.com/tiann/epic) to use Xposed Module without needing root, unlocking the bootloader, or flashing the system image. (Support Android 5.0~8.1)
+**VirtualXposed** is a simple APP based on [VirtualApp](https://github.com/asLody/VirtualApp) and [epic](https://github.com/tiann/epic) that lets you use the Xposed Module without needing to root, unlock the bootloader, or flash a system image. (Support Android 5.0~8.1)
 
 Warning
 -----------
@@ -16,7 +16,7 @@ Usage
 
 ### Preparation
 
-Download the latest apk from [Release page](https://github.com/android-hacker/VirtualXposed/releases), and install it on your Android device.
+Download the latest apk from the [Release page](https://github.com/android-hacker/VirtualXposed/releases), and install it on your Android device.
 
 ### Install APP and Xposed module
 
