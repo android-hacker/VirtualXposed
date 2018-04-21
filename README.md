@@ -4,45 +4,45 @@
 
 Introduction
 ------------
-**VirtualXposed** is a simple APP based on [VirtualApp](https://github.com/asLody/VirtualApp) and [epic](https://github.com/tiann/epic) to use Xposed Module without root, unlock the bootloader, or flash the system image. (Support Android 5.0~8.1)
+**VirtualXposed** is a simple APP based on [VirtualApp](https://github.com/asLody/VirtualApp) and [epic](https://github.com/tiann/epic) to use Xposed Module without needing root, unlocking the bootloader, or flashing the system image. (Support Android 5.0~8.1)
 
 Warning
 -----------
 
-No use for Commercial Purposes!!!  Please refer VirtualApp's [declaration](https://github.com/asLody/VirtualApp).
+No use for Commercial Purposes!!!  Please refer to VirtualApp's [declaration](https://github.com/asLody/VirtualApp).
 
 Usage
 -------
 
 ### Preparation
 
-Download the latest apk in [Release page](https://github.com/android-hacker/VirtualXposed/releases) , then install it on your Android phone.
+Download the latest apk from [Release page](https://github.com/android-hacker/VirtualXposed/releases), and install it on your Android device.
 
 ### Install APP and Xposed module
 
 Open VirtualXposed, Click the ➕ in home page, add the APP and Xposed module to VirtualXposed's virtual environment.
 
-Notice: **All operation（install Xposed module, APP）must be done in VirtualXposed**, Otherwise, the Xposed module won't take effect!! For example, If you install Youtube APP on your system (Your phone's original system, not in VirtualXposed),and then install Youtube AdAway (A Youtube Xposed module) in VirtualXposed; Or you install Youtube in VirtualXposed, and install Youtube AdAway on original system; or both of them are installed on original system, **These three cases won't take effect!**
+Notice: **All operation（install Xposed module, APP）must be done in VirtualXposed**, Otherwise, the Xposed module won't take effect!! For example, If you install YouTube APP on your system (Your phone's original system, not in VirtualXposed), and then install YouTube AdAway (A YouTube Xposed module) in VirtualXposed; or you install YouTube in VirtualXposed, and install YouTube AdAway on original system; or both of them are installed on original system, **These three cases won't take effect!**
 
 ![How to install](https://raw.githubusercontent.com/tiann/arts/master/vxp_install.gif)
 
-There are three ways to install APP or Xposed module to VirtualXposed:
+There are three ways to install an APP or Xposed module to VirtualXposed:
 
-1. clone the original system's installed apps. Click Button at bottom of home page, then click Add App, the first page are installed apps.
-2. install via apk file. (Click Button at bottom of home page, then click Add App, the second page are apks found in your sdcard)
-3. install via external file chooser. (Click Button at bottom of home page home page, then click App App, use the float button to choose apk file to install)
+1. Clone the original system's installed apps. Click Button at bottom of home page, then click Add App, the first page are installed apps.
+2. Install via an apk file. (Click Button at bottom of home page, then click Add App, the second page are apks found in your sdcard)
+3. Install via the external file chooser. (Click Button at bottom of home page home page, then click App App, use the float button to choose apk file to install)
 
-For Xposed module, You can install it from Xposed Installer, too.
+For Xposed module, You can install it from XposedInstaller, too.
 
 ### Active the Xposed module
 
-Open Xposed Installer in VirtualXposed, go to the module fragment, check the module you want to use:
+Open XposedInstaller in VirtualXposed, go to the module fragment, check the module you want to use:
 
 ![How to active module](https://raw.githubusercontent.com/tiann/arts/master/vxp_active.gif)
 
 ### Reboot
 
-Reboot the VirtualXposed, **No need to reboot your phone**; Just click Settings in home page of VirtualXposed, Click `Reboot` Button, VirtualXposed will reboot like a shot. 
+Reboot the VirtualXposed, **No need to reboot your phone**; Just click Settings in home page of VirtualXposed, click `Reboot` button, and VirtualXposed will reboot like a shot. 
 
 ![How to reboot](https://raw.githubusercontent.com/tiann/arts/master/vxp_reboot.gif)
 
@@ -76,19 +76,19 @@ VirtualXposed also supports GameGuardian, **use version 0.9.1 for best compatibi
 
 ### VirusTotal
 
-VirusTotal may say VirtualXposed have malware, it is stupid, you can refer my [explaination](https://github.com/android-hacker/VirtualXposed/issues/10).
+VirusTotal may say VirtualXposed has malware, it is stupid, you can refer to my [explanation](https://github.com/android-hacker/VirtualXposed/issues/10).
 
-And also, VirtualXposed is open source, you can refer the source code, I am sure it is safe.
+And VirtualXposed is obviously open source, so you can refer to the source code. I am sure it is safe.
 
-If you still do not believe me, you can install version [0.8.7](https://github.com/android-hacker/VirtualXposed/releases/tag/0.8.7), VirusTotal thinks this version is safe.
+If you still do not believe me, you can install version [0.8.7](https://github.com/android-hacker/VirtualXposed/releases/tag/0.8.7); VirusTotal says this version is safe.
 
 
 Known Issues
 -------------
 
-1. Can not modify system, so the Module used to modify system can never take effect.
+1. Cannot modify system, so the Module used to modify system can never take effect.
 2. Do not support Resource hooks now.
-3. May be some modules are not compatible with VirtualXposed now.
+3. Some modules may not be compatible with VirtualXposed now.
 
 Support
 -----------
