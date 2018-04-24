@@ -126,4 +126,9 @@
     <string name="advance_settings_directly_back_summary">Retornar al lanzador del sistema en vez del lanzador vitual cuando se está en una aplicación virtualizada.\n(Reiniciar VirtualXposed para que los cambios surtan efecto)</string>
     <string name="install_self_eggs">Chico, tu idea es prometedora :)</string>
     <string name="about_feedback_tel_title">Grupo de Telegram: %1$s</string>
+    <string name="advance_settings_install_gms">Instalar Servicios de Google</string>
+    <string name="advance_settings_copy_file">Copiar archivo</string>
+    <string name="advance_settings_yield_mode_summary">Activar esta opción para un balance entre estabilidad y compatibilidad</string>
+    <string name="advance_settings_yield_mode">Modo conservativo</string>
+<string name="about_website_title">Sitio web oficial</string>
 </resources>
