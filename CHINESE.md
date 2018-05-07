@@ -30,20 +30,23 @@
 
 ## 已经支持的模块
 
-- [微X模块][wx]
-- [微信巫师][wxws]
-- [MDWechat][mdwechat]
-- [应用变量][yybl]
-- [音量增强器][ylzqq]
-- [微信学英语][wxxyy]
-- [冲顶助手][cdzs]
-- [情迁抢包][qqqb]
-- [微信跳一跳助手][ttzs]
-- [步数修改器][bsxg]
-- [模拟位置][mnwz]
-- [指纹支付][zwzf]
-- [QQ精简模块][qqjj]
-- [微信增强插件][wxzqcj]
+- [微X模块][wx]: 微信模块，功能全面；但与VXP兼容性一般。
+- [微信巫师][wxws]: 微信模块，项目开源，代码优秀。
+- [MDWechat][mdwechat]: 微信美化模块，可以把微信整成MD风格。
+- [应用变量][yybl]: 可以用来进行机型修改，比如王者荣耀高帧率；QQ空间修改小尾巴等。
+- [音量增强器][ylzqq]: 网易云音乐模块，非常好用，低调。
+- [微信学英语][wxxyy]: 自动把微信消息翻译为英语，非常实用。
+- [冲顶助手][cdzs]: 答题辅助模块。
+- [情迁抢包][qqqb]: 抢红包模块，兼容性一般。
+- [微信跳一跳助手][ttzs]: 微信跳一跳游戏辅助模块。
+- [步数修改器][bsxg]: 运动步数修改模块。
+- [模拟位置][mnwz]: 虚拟定位模块，稳定好用。
+- [指纹支付][zwzf]: 对不支持指纹支付但系统本身有指纹的手机开启指纹支付的模块。
+- [QQ精简模块 2.0][qqjj]: QQ模块，不仅可以精简QQ，还能防撤回，防闪照。VXP不支持QX，推荐用这个。
+- [微信增强插件][wxzqcj]: 微信模块，VXP内最稳定的微信模块；如无特殊需求建议用这个。
+- [QQ斗图神器][qqdtsq]: 各种表情，斗图神器。
+- [微信斗图神器][wxdtsq]: 斗图神器，微信用的。
+- [大圣净化][dsjh]: 去广告神器，推荐使用。
 
 或许还有很多，自行测试。
 
@@ -97,6 +100,9 @@ VirusTotal 还有一些其他的杀毒引擎检测到VirtualXposed有病毒，�
 [zwzf]: https://github.com/android-hacker/Xposed-Fingerprint-pay/releases
 [bsxg]: https://www.coolapk.com/apk/com.specher.sm
 [mdwechat]: https://github.com/Blankeer/MDWechat
-[qqjj]: https://github.com/zpp0196/QQSimple
 [wxzqcj]:https://github.com/firesunCN/WechatEnhancement
+[qqjj]: https://www.coolapk.com/apk/me.zpp0196.qqsimple
+[qqdtsq]: https://www.coolapk.com/apk/x.hook.qqemoji
+[wxdtsq]: https://www.coolapk.com/apk/x.hook.emojihook
+[dsjh]: https://wiki.ad-gone.com/archives/32/
 
