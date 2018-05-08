@@ -78,7 +78,7 @@ public class XApp extends Application {
                 boolean isXposedInstalled = false;
                 try {
                     isXposedInstalled = VirtualCore.get().isAppInstalled(XPOSED_INSTALLER_PACKAGE);
-                    File oldXposedInstallerApk = getFileStreamPath("XposedInstaller_1_24.apk");
+                    File oldXposedInstallerApk = getFileStreamPath("XposedInstaller_1_31.apk");
                     if (oldXposedInstallerApk.exists()) {
                         VirtualCore.get().uninstallPackage(XPOSED_INSTALLER_PACKAGE);
                         oldXposedInstallerApk.delete();
@@ -90,7 +90,7 @@ public class XApp extends Application {
                 }
 
                 if (!isXposedInstalled) {
-                    File xposedInstallerApk = getFileStreamPath("XposedInstaller_1_31.apk");
+                    File xposedInstallerApk = getFileStreamPath("XposedInstaller_5_8.apk");
                     if (!xposedInstallerApk.exists()) {
                         InputStream input = null;
                         OutputStream output = null;
