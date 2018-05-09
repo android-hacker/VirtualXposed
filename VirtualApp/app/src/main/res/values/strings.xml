@@ -33,7 +33,7 @@
     <string name="install_fail_tips">Install %1$s failed: %2$s</string>
     <string name="copy_right" translatable="false" >Copyrights © %1$d</string>
     <string name="about_page_description">VirtualXposed is an app that provides the ability to use the Xposed module without needing to root, unlocking the bootloader, or modifying system image.</string>
-    <string name="about_feedback_title">QQ Group(Click to copy group number)</string>
+    <string name="about_feedback_qq_title">QQ Group(Click to copy group number)</string>
     <string name="about_feedback_wechat_title">WeChat Group(Click to copy)</string>
     <string name="about_feedback_tips">Group number has been copied to clipboard!</string>
     <string name="about_version_title">Version: %1$s</string>
@@ -131,4 +131,6 @@
     <string name="advance_settings_yield_mode_summary">Open this for a trade off between stability and compatibility</string>
     <string name="advance_settings_yield_mode">Conservative Mode</string>
     <string name="about_website_title">The official website</string>
+    <string name="about_feedback_title">Feedback</string>
+    <string name="about_feedback_hint">Please specify your phone model, Android version, Xposed plugin, and version of the corresponding App, and then describe in as much detail as possible the problem you are experiencing, otherwise it is considered invalid feedback. \n</string>
 </resources>

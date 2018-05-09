@@ -32,7 +32,7 @@
     <string name="install_success_tips">模块安装完后需要去XposedInstaller的模块设置里勾选才能生效哦～</string>
     <string name="install_fail_tips">%1$s 安装失败，错误码： %2$s</string>
     <string name="about_page_description">VirtualXposed是一个基于VirtualApp的，免Root、免解锁BL、免刷机使用Xposed框架的APP。</string>
-    <string name="about_feedback_title">内测 QQ 群（点击复制群号）</string>
+    <string name="about_feedback_qq_title">内测 QQ 群（点击复制群号）</string>
     <string name="about_feedback_wechat_title">内测微信群（点击复制群号）</string>
     <string name="about_feedback_tips">群号已经复制到剪切版</string>
     <string name="about_version_title">版本号: %1$s</string>
@@ -127,4 +127,6 @@
     <string name="advance_settings_yield_mode_summary">开启这个开关，可能会提高VirtualXposed的稳定性，但同时会失去对插件的一些兼容性。</string>
     <string name="advance_settings_yield_mode">保守模式</string>
     <string name="about_website_title">官网（使用教程/历史版本下载/模块下载)</string>
+    <string name="about_feedback_title">问题反馈</string>
+    <string name="about_feedback_hint">请说明你的机型，系统版本，使用的Xposed插件以及对应APP版本，然后尽可能详细地描述你遇到的问题；否则视为无效反馈。\n</string>
 </resources>
