@@ -96,13 +96,18 @@ public class FileUtils {
         if (dir == null) {
             return false;
         }
+        boolean success = true;
         if (dir.isDirectory()) {
             String[] children = dir.list();
             for (String file : children) {
-                boolean success = deleteDir(new File(dir, file));
-                if (!success) {
-                    return false;
+                boolean ret = deleteDir(new File(dir, file));
+                if (!ret) {
+                    success = false;
                 }
+            }
+            if (success) {
+                // if all subdirectory are deleted, delete the dir itself.
+                return dir.delete();
             }
         }
         return dir.delete();
