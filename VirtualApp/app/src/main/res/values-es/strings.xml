@@ -31,9 +31,9 @@
     <string name="update_success_tips">¡Se actualizó %1$s con éxito!</string>
     <string name="install_success_tips">El módulo Xposed no entrará en efecto hasta que lo haya activado en la sección Módulos de la aplicación XposedInstaller!</string>
     <string name="install_fail_tips">La instalación de %1$s falló: %2$s</string>
-    <string name="copy_right" translatable="false" >Todos los derechos reservados © %1$d</string>
+    <string name="copy_right" translatable="false">Todos los derechos reservados © %1$d</string>
     <string name="about_page_description">VirtualXposed es una aplicación que otorga la posibilidad de utilizar un módulo Xposed sin tener root, sin desbloquear el bootloader y sin modificar la imágen del sistema.</string>
-    <string name="about_feedback_title">Grupo QQ</string>
+    <string name="about_feedback_qq_title">Grupo QQ</string>
     <string name="about_feedback_wechat_title">Grupo WeChat</string>
     <string name="about_feedback_tips">¡El número del grupo ha sido copiado al portapaleles!</string>
     <string name="about_version_title">Versión: %1$s</string>
@@ -58,7 +58,7 @@
     <string name="create_shortcut_success">Acceso directo creado con éxito</string>
     <string name="about_thanks">Gracias</string>
     <string name="thanks_dialog_title">Gracias</string>
-    <string name="thanks_dialog_content" >Gracias Cheney por proporcionar un icono increíble y gracias por el arduo trabajo de Pei, Page y otros diseñadores, que no sé el nombre. Gracias por las ideas y sugerencias que me brindadas por colaboradores. Un agradecimiento especial a YingLin por ayudarme a comprenderme. El diseño pulposo :)</string>
+    <string name="thanks_dialog_content">Gracias Cheney por proporcionar un icono increíble y gracias por el arduo trabajo de Pei, Page y otros diseñadores, que no sé el nombre. Gracias por las ideas y sugerencias que me brindadas por colaboradores. Un agradecimiento especial a YingLin por ayudarme a comprenderme. El diseño pulposo :)</string>
     <string name="alert_for_doze_mode_title">Consejos</string>
     <string name="alert_for_doze_mode_content">Por favor, permita que VirtualXposed se ejecute en segundo plano, de lo contrario puede que no reciba notificaciones de alguna aplicación del entorno virtual.</string>
     <string name="alert_for_doze_mode_yes">Permitir</string>
@@ -68,8 +68,8 @@
     <string name="stop_app">Forzar\ndetención</string>
     <string name="home_menu_delete_title">Eliminar aplicación</string>
     <string name="home_menu_delete_content">¿Desea eliminar %1$s ?</string>
-    <string name="home_menu_clear_title" >Borrar datos</string>
-    <string name="home_menu_clear_content" >¿Desea borrar los datos de %1$s ?</string>
+    <string name="home_menu_clear_title">Borrar datos</string>
+    <string name="home_menu_clear_content">¿Desea borrar los datos de %1$s ?</string>
     <string name="home_menu_kill_title">Forzar detención</string>
     <string name="home_menu_kill_content">¿Desea forzar la detención de %1$s? Hacer esto puede causar que la aplicación no funcione correctamente.</string>
     <string name="add_app_loading_tips">Analizando paquete de la aplicación %1$s</string>
@@ -95,7 +95,7 @@
     <string name="multi_version_cover">Cubrir</string>
     <string name="multi_version_upgrade">Actualizar</string>
     <string name="multi_version_downgrade">Degradar</string>
-    <string name="app_manage_repair_failed_tips" >Lo siento, la reparación a fallado, por favor, reinstala esta aplicación</string>
+    <string name="app_manage_repair_failed_tips">Lo siento, la reparación a fallado, por favor, reinstala esta aplicación</string>
     <string name="app_manage_repairing">Reparando</string>
     <string name="app_manage_repair_success_title">Consejos de reparación</string>
     <string name="app_manage_repair_success_content">La reparación se realizó con éxito, por favor, detenga forzozamente VirtualXposed para que los cambios surtan efecto.</string>
@@ -130,5 +130,7 @@
     <string name="advance_settings_copy_file">Copiar archivo</string>
     <string name="advance_settings_yield_mode_summary">Activar esta opción para un balance entre estabilidad y compatibilidad</string>
     <string name="advance_settings_yield_mode">Modo conservativo</string>
-<string name="about_website_title">Sitio web oficial</string>
+    <string name="about_website_title">Sitio web oficial</string>
+    <string name="about_feedback_title">Comentarios</string>
+    <string name="about_feedback_hint">Especifique el modelo, la versión del sistema, el complemento Xposed utilizado y la versión de la aplicación correspondiente, y luego describa con el mayor detalle posible el problema que está experimentando, de lo contrario, se considera como un comentario no válido.\n</string>
 </resources>
