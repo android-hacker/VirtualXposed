@@ -8,6 +8,11 @@
         android:title="@string/add_app" />
 
     <Preference
+        android:key="settings_plugin_recommend"
+        android:persistent="false"
+        android:title="@string/settings_plugin_recommend" />
+
+    <Preference
         android:key="settings_app_manage"
         android:persistent="false"
         android:title="@string/settings_app_manage_text" />
@@ -59,12 +64,12 @@
             android:persistent="true"
             android:summary="@string/advance_settings_yield_mode_summary"
             android:title="@string/advance_settings_yield_mode" />
-    </PreferenceScreen>
 
-    <Preference
-        android:key="settings_desktop"
-        android:persistent="false"
-        android:title="@string/settings_desktop_text" />
+        <Preference
+            android:key="settings_desktop"
+            android:persistent="false"
+            android:title="@string/settings_desktop_text" />
+    </PreferenceScreen>
 
     <Preference
         android:key="settings_faq"
