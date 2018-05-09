@@ -390,7 +390,7 @@ public final class VClientImpl extends IVClient.Stub {
     }
 
     private void initForYieldMode() {
-        if (VirtualCore.get().getContext().getFileStreamPath("yieldMode").exists()) {
+        if (!VirtualCore.get().getContext().getFileStreamPath("yieldMode2").exists()) {
             System.setProperty("yieldMode", "true");
         }
     }

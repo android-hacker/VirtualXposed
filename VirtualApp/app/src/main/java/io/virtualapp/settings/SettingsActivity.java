@@ -48,7 +48,7 @@ public class SettingsActivity extends Activity {
     private static final String INSTALL_GMS_KEY = "advance_settings_install_gms";
     public static final String DIRECTLY_BACK_KEY = "advance_settings_directly_back";
     private static final String COPY_FILE = "advance_settings_copy_file";
-    private static final String YIELD_MODE = "advance_settings_yield_mode";
+    private static final String YIELD_MODE = "advance_settings_yield_mode2";
     private static final String RECOMMEND_PLUGIN = "settings_plugin_recommend";
 
     @Override
@@ -98,8 +98,6 @@ public class SettingsActivity extends Activity {
             });
 
             recommend.setOnPreferenceClickListener(preference -> {
-//                Uri uri = Uri.parse("https://github.com/android-hacker/VirtualXposed/wiki/Recommend-Xposed-Module");
-//                Intent t = new Intent(Intent.ACTION_VIEW, uri);
                 startActivity(new Intent(getActivity(), RecommendPluginActivity.class));
                 return false;
             });
@@ -272,7 +270,6 @@ public class SettingsActivity extends Activity {
                 return false;
             }));
 
-            File yieldFile = getActivity().getFileStreamPath("yieldMode");
             yieldMode.setOnPreferenceChangeListener((preference, newValue) -> {
 
                 if (!(newValue instanceof Boolean)) {
@@ -280,7 +277,9 @@ public class SettingsActivity extends Activity {
                 }
 
                 boolean on = (boolean) newValue;
-                if (on) {
+
+                File yieldFile = getActivity().getFileStreamPath("yieldMode2"); // 文件不存在代表是保守模式
+                if (!on) {
                     boolean success;
                     try {
                         success = yieldFile.createNewFile();
@@ -289,7 +288,7 @@ public class SettingsActivity extends Activity {
                     }
                     return success;
                 } else {
-                    return yieldFile.delete();
+                    return !yieldFile.exists() || yieldFile.delete();
                 }
             });
         }
