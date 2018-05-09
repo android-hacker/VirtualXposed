@@ -17,6 +17,7 @@
         android:gravity="center"
         android:textSize="18sp"
         android:textColor="#000000"
+        android:visibility="gone"
         android:text="No Data"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
