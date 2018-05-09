@@ -77,8 +77,8 @@ public class RecommendPluginActivity extends VActivity {
             URL url = new URL(ADDRESS);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
-            connection.setConnectTimeout(8000);
-            connection.setReadTimeout(8000);
+            connection.setConnectTimeout(30000);
+            connection.setReadTimeout(30000);
             if(connection.getResponseCode() == 200){
                 BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8"));
                 String line;
