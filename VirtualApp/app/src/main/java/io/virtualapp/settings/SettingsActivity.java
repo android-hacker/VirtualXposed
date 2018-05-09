@@ -49,6 +49,7 @@ public class SettingsActivity extends Activity {
     public static final String DIRECTLY_BACK_KEY = "advance_settings_directly_back";
     private static final String COPY_FILE = "advance_settings_copy_file";
     private static final String YIELD_MODE = "advance_settings_yield_mode";
+    private static final String RECOMMEND_PLUGIN = "settings_plugin_recommend";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +78,7 @@ public class SettingsActivity extends Activity {
             // Setup allow rotation preference
 
             Preference addApp = findPreference(ADD_APP_KEY);
+            Preference recommend = findPreference(RECOMMEND_PLUGIN);
             Preference appManage = findPreference(APP_MANAGE_KEY);
             Preference taskManage = findPreference(TASK_MANAGE_KEY);
             Preference desktop = findPreference(DESKTOP_SETTINGS_KEY);
@@ -94,6 +96,14 @@ public class SettingsActivity extends Activity {
                 ListAppActivity.gotoListApp(getActivity());
                 return false;
             });
+
+            recommend.setOnPreferenceClickListener(preference -> {
+//                Uri uri = Uri.parse("https://github.com/android-hacker/VirtualXposed/wiki/Recommend-Xposed-Module");
+//                Intent t = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(new Intent(getActivity(), RecommendPluginActivity.class));
+                return false;
+            });
+
             appManage.setOnPreferenceClickListener(preference -> {
                 startActivity(new Intent(getActivity(), AppManageActivity.class));
                 return false;
@@ -131,7 +141,7 @@ public class SettingsActivity extends Activity {
                             Intent intent = new Intent();
                             intent.setAction(Intent.ACTION_VIEW);
                             intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                            intent.setData(Uri.parse("https://github.com/android-hacker/exposed"));
+                            intent.setData(Uri.parse("https://github.com/android-hacker/VirtualXposed"));
                             startActivity(intent);
                         }))
                         .create();

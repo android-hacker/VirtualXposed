@@ -133,4 +133,5 @@
     <string name="about_website_title">The official website</string>
     <string name="about_feedback_title">Feedback</string>
     <string name="about_feedback_hint">Please specify your phone model, Android version, Xposed plugin, and version of the corresponding App, and then describe in as much detail as possible the problem you are experiencing, otherwise it is considered invalid feedback. \n</string>
+    <string name="settings_plugin_recommend">Recommended Xposed Module</string>
 </resources>

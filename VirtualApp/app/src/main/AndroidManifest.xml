@@ -16,7 +16,9 @@
         android:theme="@style/LauncherTheme"
         tools:replace="android:icon,android:label">
 
-        <meta-data android:name="android.max_aspect" android:value="2.1" />
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.1" />
 
         <meta-data
             android:name="android.support.VERSION"
@@ -62,6 +64,13 @@
             android:label="@string/settings_title"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Material.Light" />
+
+
+        <activity
+            android:name=".settings.RecommendPluginActivity"
+            android:label="@string/settings_plugin_recommend"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light" />
 
         <activity
             android:name=".settings.AppManageActivity"

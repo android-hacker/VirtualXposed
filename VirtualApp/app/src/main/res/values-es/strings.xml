@@ -133,4 +133,5 @@
     <string name="about_website_title">Sitio web oficial</string>
     <string name="about_feedback_title">Comentarios</string>
     <string name="about_feedback_hint">Especifique el modelo, la versión del sistema, el complemento Xposed utilizado y la versión de la aplicación correspondiente, y luego describa con el mayor detalle posible el problema que está experimentando, de lo contrario, se considera como un comentario no válido.\n</string>
+    <string name="settings_plugin_recommend">Módulo Xposed recomendado</string>
 </resources>

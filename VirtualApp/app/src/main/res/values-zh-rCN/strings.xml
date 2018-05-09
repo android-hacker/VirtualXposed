@@ -129,4 +129,5 @@
     <string name="about_website_title">官网（使用教程/历史版本下载/模块下载)</string>
     <string name="about_feedback_title">问题反馈</string>
     <string name="about_feedback_hint">请说明你的机型，系统版本，使用的Xposed插件以及对应APP版本，然后尽可能详细地描述你遇到的问题；否则视为无效反馈。\n</string>
+    <string name="settings_plugin_recommend">常用模块</string>
 </resources>
