@@ -134,4 +134,6 @@
     <string name="about_feedback_title">Comentarios</string>
     <string name="about_feedback_hint">Especifique el modelo, la versión del sistema, el complemento Xposed utilizado y la versión de la aplicación correspondiente, y luego describa con el mayor detalle posible el problema que está experimentando, de lo contrario, se considera como un comentario no válido.\n</string>
     <string name="settings_plugin_recommend">Módulo Xposed recomendado</string>
+    <string name="advance_settings_disable_resident_notification">Desactivar las notificaciones de residentes</string>
+    <string name="advance_settings_disable_resident_notification_summary">Después de cerrar la barra de notificaciones residentes, VirtualXposed podría ser eliminado fácilmente por el sistema, lo que provocaría problemas como la imposibilidad de recibir mensajes, y si puede asegurarse de que VirtualXposed no muera, puede intentarlo. En resumen, operación cuidadosa! (Efectivo después de reiniciar VirtualXposed)</string>
 </resources>

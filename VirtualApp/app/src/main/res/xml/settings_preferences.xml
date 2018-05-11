@@ -25,12 +25,12 @@
     <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
         android:title="@string/settings_advance">
 
-        <SwitchPreference
-            android:defaultValue="false"
-            android:visibility="gone"
-            android:key="advance_settings_install_gms"
-            android:persistent="true"
-            android:title="@string/advance_settings_install_gms" />
+        <!--<SwitchPreference-->
+        <!--android:defaultValue="false"-->
+        <!--android:visibility="gone"-->
+        <!--android:key="advance_settings_install_gms"-->
+        <!--android:persistent="true"-->
+        <!--android:title="@string/advance_settings_install_gms" />-->
 
         <Preference
             android:key="advance_settings_copy_file"
@@ -64,6 +64,13 @@
             android:persistent="true"
             android:summary="@string/advance_settings_yield_mode_summary"
             android:title="@string/advance_settings_yield_mode" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="advance_settings_disable_resident_notification"
+            android:persistent="true"
+            android:summary="@string/advance_settings_disable_resident_notification_summary"
+            android:title="@string/advance_settings_disable_resident_notification" />
 
         <Preference
             android:key="settings_desktop"

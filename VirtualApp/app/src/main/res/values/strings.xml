@@ -134,4 +134,6 @@
     <string name="about_feedback_title">Feedback</string>
     <string name="about_feedback_hint">Please specify your phone model, Android version, Xposed plugin, and version of the corresponding App, and then describe in as much detail as possible the problem you are experiencing, otherwise it is considered invalid feedback. \n</string>
     <string name="settings_plugin_recommend">Recommended Xposed Module</string>
+    <string name="advance_settings_disable_resident_notification">Disable resident notification</string>
+    <string name="advance_settings_disable_resident_notification_summary">Disable the resident notification of VirtualXposed, when disabled, VirtualXposed may be killed by system frequently. Please be cautious!!</string>
 </resources>

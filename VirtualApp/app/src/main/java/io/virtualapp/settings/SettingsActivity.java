@@ -18,8 +18,8 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.android.launcher3.LauncherFiles;
-import com.lody.virtual.GmsSupport;
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.helper.utils.FileUtils;
 
 import java.io.File;
@@ -50,6 +50,7 @@ public class SettingsActivity extends Activity {
     private static final String COPY_FILE = "advance_settings_copy_file";
     private static final String YIELD_MODE = "advance_settings_yield_mode2";
     private static final String RECOMMEND_PLUGIN = "settings_plugin_recommend";
+    private static final String DISABLE_RESIDENT_NOTIFICATION = "advance_settings_disable_resident_notification";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,8 +90,8 @@ public class SettingsActivity extends Activity {
             Preference copyFile = findPreference(COPY_FILE);
 
             SwitchPreference disableInstaller = (SwitchPreference) findPreference(DISABLE_INSTALLER_KEY);
-            SwitchPreference installGms = (SwitchPreference) findPreference(INSTALL_GMS_KEY);
             SwitchPreference yieldMode = (SwitchPreference) findPreference(YIELD_MODE);
+            SwitchPreference disableResidentNotification = (SwitchPreference) findPreference(DISABLE_RESIDENT_NOTIFICATION);
 
             addApp.setOnPreferenceClickListener(preference -> {
                 ListAppActivity.gotoListApp(getActivity());
@@ -188,6 +189,8 @@ public class SettingsActivity extends Activity {
                 }
             });
 
+            /*
+            SwitchPreference installGms = (SwitchPreference) findPreference(INSTALL_GMS_KEY);
             installGms.setOnPreferenceChangeListener(((preference, newValue) -> {
                 if (!(newValue instanceof Boolean)) {
                     return false;
@@ -206,7 +209,7 @@ public class SettingsActivity extends Activity {
                     // TODO, delete.
                 }
                 return false;
-            }));
+            }));*/
 
             copyFile.setOnPreferenceClickListener((preference -> {
                 Context context = getActivity();
@@ -291,6 +294,28 @@ public class SettingsActivity extends Activity {
                     return !yieldFile.exists() || yieldFile.delete();
                 }
             });
+
+            disableResidentNotification.setOnPreferenceChangeListener(((preference, newValue) -> {
+
+                if (!(newValue instanceof Boolean)) {
+                    return false;
+                }
+
+                boolean on = (boolean) newValue;
+
+                File flag = getActivity().getFileStreamPath(Constants.NO_NOTIFICATION_FLAG);
+                if (on) {
+                    boolean success;
+                    try {
+                        success = flag.createNewFile();
+                    } catch (IOException e) {
+                        success = false;
+                    }
+                    return success;
+                } else {
+                    return !flag.exists() || flag.delete();
+                }
+            }));
         }
 
         private static void dismiss(ProgressDialog dialog) {
