@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
 import android.support.v7.app.AlertDialog;
 import android.view.ViewGroup;
@@ -35,6 +36,7 @@ import moe.feng.alipay.zerosdk.AlipayZeroSdk;
  */
 public class SettingsActivity extends Activity {
 
+    private static final String ADVANCE_SETTINGS_KEY = "settings_advance";
     private static final String ADD_APP_KEY = "settings_add_app";
     private static final String APP_MANAGE_KEY = "settings_app_manage";
     private static final String TASK_MANAGE_KEY = "settings_task_manage";
@@ -316,6 +318,13 @@ public class SettingsActivity extends Activity {
                     return !flag.exists() || flag.delete();
                 }
             }));
+
+            if (android.os.Build.VERSION.SDK_INT < 25) {
+                // Android NR1 below do not need this.
+                PreferenceScreen advance = (PreferenceScreen) findPreference(ADVANCE_SETTINGS_KEY);
+                advance.removePreference(disableResidentNotification);
+            }
+
         }
 
         private static void dismiss(ProgressDialog dialog) {

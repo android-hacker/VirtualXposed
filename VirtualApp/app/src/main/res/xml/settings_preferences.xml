@@ -23,6 +23,7 @@
         android:title="@string/settings_task_manage_text" />
 
     <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+        android:key="settings_advance"
         android:title="@string/settings_advance">
 
         <!--<SwitchPreference-->
@@ -36,6 +37,13 @@
             android:key="advance_settings_copy_file"
             android:persistent="false"
             android:title="@string/advance_settings_copy_file" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="advance_settings_disable_resident_notification"
+            android:persistent="true"
+            android:summary="@string/advance_settings_disable_resident_notification_summary"
+            android:title="@string/advance_settings_disable_resident_notification" />
 
         <SwitchPreference
             android:defaultValue="false"
@@ -64,13 +72,6 @@
             android:persistent="true"
             android:summary="@string/advance_settings_yield_mode_summary"
             android:title="@string/advance_settings_yield_mode" />
-
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="advance_settings_disable_resident_notification"
-            android:persistent="true"
-            android:summary="@string/advance_settings_disable_resident_notification_summary"
-            android:title="@string/advance_settings_disable_resident_notification" />
 
         <Preference
             android:key="settings_desktop"
