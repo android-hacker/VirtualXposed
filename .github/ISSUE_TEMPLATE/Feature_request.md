@@ -1,9 +1,8 @@
 ---
-name: Feature request
+name: 寻求帮助issue模版
 about: 请求支持
 
 ---
 
-功能描述：
-
-理由：
+问题描述：
+做过的尝试：
