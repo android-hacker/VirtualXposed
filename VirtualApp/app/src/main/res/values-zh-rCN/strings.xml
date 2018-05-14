@@ -132,4 +132,7 @@
     <string name="settings_plugin_recommend">常用模块</string>
     <string name="advance_settings_disable_resident_notification">关闭常驻通知栏</string>
     <string name="advance_settings_disable_resident_notification_summary">关闭常驻通知栏之后，VirtualXposed有可能极易被系统杀死，导致无法收到消息等问题；如果你能确保 VirtualXposed 不会被杀死，可以尝试。总之，慎重操作！（重启VirtualXposed后生效）</string>
+    <string name="settings_module_manage">模块管理</string>
+    <string name="settings_module_manage_summary">开启或者关闭Xposed模块（Xposed模块安装之后必须手动开启才能生效）</string>
+    <string name="xposed_installer_not_found">没有找到 Xposed Installer, 请先把它添加到 VirtualXposed 中！</string>
 </resources>

@@ -136,4 +136,7 @@
     <string name="settings_plugin_recommend">Recommended Xposed Module</string>
     <string name="advance_settings_disable_resident_notification">Disable resident notification</string>
     <string name="advance_settings_disable_resident_notification_summary">Disable the resident notification of VirtualXposed, when disabled, VirtualXposed may be killed by system frequently. Please be cautious!!</string>
+    <string name="settings_module_manage">Manage Xposed Module</string>
+    <string name="settings_module_manage_summary">Enable/Disable Xposed module(You must enable it manully to make it take effect)</string>
+    <string name="xposed_installer_not_found">Xposed Installer not found, please add it to VirtualXposed first!</string>
 </resources>

@@ -8,6 +8,12 @@
         android:title="@string/add_app" />
 
     <Preference
+        android:key="settings_module_manage"
+        android:persistent="false"
+        android:summary="@string/settings_module_manage_summary"
+        android:title="@string/settings_module_manage" />
+
+    <Preference
         android:key="settings_plugin_recommend"
         android:persistent="false"
         android:title="@string/settings_plugin_recommend" />

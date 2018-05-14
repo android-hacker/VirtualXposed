@@ -136,4 +136,7 @@
     <string name="settings_plugin_recommend">Módulo Xposed recomendado</string>
     <string name="advance_settings_disable_resident_notification">Desactivar las notificaciones de residentes</string>
     <string name="advance_settings_disable_resident_notification_summary">Después de cerrar la barra de notificaciones residentes, VirtualXposed podría ser eliminado fácilmente por el sistema, lo que provocaría problemas como la imposibilidad de recibir mensajes, y si puede asegurarse de que VirtualXposed no muera, puede intentarlo. En resumen, operación cuidadosa! (Efectivo después de reiniciar VirtualXposed)</string>
+    <string name="settings_module_manage">Gestión de módulos</string>
+    <string name="settings_module_manage_summary">Encienda o apague el módulo Xposed (el módulo Xposed debe encenderse manualmente después de la instalación para que tenga efecto)</string>
+    <string name="xposed_installer_not_found">Instalador Xposed no encontrado, por favor agrégalo a VirtualXposed!</string>
 </resources>
