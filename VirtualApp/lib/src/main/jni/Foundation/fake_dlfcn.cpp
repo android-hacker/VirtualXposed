@@ -46,6 +46,10 @@
 #define Elf_Ehdr Elf64_Ehdr
 #define Elf_Shdr Elf64_Shdr
 #define Elf_Sym  Elf64_Sym
+#elif  defined(__i386__)
+#define Elf_Ehdr Elf32_Ehdr
+#define Elf_Shdr Elf32_Shdr
+#define Elf_Sym  Elf32_Sym
 #else
 //#error "Arch unknown, please port me"
 #endif
