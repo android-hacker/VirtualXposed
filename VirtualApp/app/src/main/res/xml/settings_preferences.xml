@@ -18,16 +18,6 @@
         android:persistent="false"
         android:title="@string/settings_plugin_recommend" />
 
-    <Preference
-        android:key="settings_app_manage"
-        android:persistent="false"
-        android:title="@string/settings_app_manage_text" />
-
-    <Preference
-        android:key="settings_task_manage"
-        android:persistent="false"
-        android:title="@string/settings_task_manage_text" />
-
     <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
         android:key="settings_advance"
         android:title="@string/settings_advance">
@@ -84,6 +74,16 @@
             android:persistent="false"
             android:title="@string/settings_desktop_text" />
     </PreferenceScreen>
+
+    <Preference
+        android:key="settings_app_manage"
+        android:persistent="false"
+        android:title="@string/settings_app_manage_text" />
+
+    <Preference
+        android:key="settings_task_manage"
+        android:persistent="false"
+        android:title="@string/settings_task_manage_text" />
 
     <Preference
         android:key="settings_faq"
