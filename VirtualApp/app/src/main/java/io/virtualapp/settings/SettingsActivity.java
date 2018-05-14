@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.android.launcher3.LauncherFiles;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
+import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.helper.utils.FileUtils;
 
 import java.io.File;
@@ -38,6 +39,7 @@ public class SettingsActivity extends Activity {
 
     private static final String ADVANCE_SETTINGS_KEY = "settings_advance";
     private static final String ADD_APP_KEY = "settings_add_app";
+    private static final String MODULE_MANAGE_KEY = "settings_module_manage";
     private static final String APP_MANAGE_KEY = "settings_app_manage";
     private static final String TASK_MANAGE_KEY = "settings_task_manage";
     private static final String DESKTOP_SETTINGS_KEY = "settings_desktop";
@@ -81,6 +83,7 @@ public class SettingsActivity extends Activity {
             // Setup allow rotation preference
 
             Preference addApp = findPreference(ADD_APP_KEY);
+            Preference moduleManage = findPreference(MODULE_MANAGE_KEY);
             Preference recommend = findPreference(RECOMMEND_PLUGIN);
             Preference appManage = findPreference(APP_MANAGE_KEY);
             Preference taskManage = findPreference(TASK_MANAGE_KEY);
@@ -97,6 +100,21 @@ public class SettingsActivity extends Activity {
 
             addApp.setOnPreferenceClickListener(preference -> {
                 ListAppActivity.gotoListApp(getActivity());
+                return false;
+            });
+
+            moduleManage.setOnPreferenceClickListener(preference -> {
+                try {
+                    Intent t = new Intent();
+                    t.setComponent(new ComponentName("de.robv.android.xposed.installer", "de.robv.android.xposed.installer.WelcomeActivity"));
+                    t.putExtra("fragment", 1);
+                    int ret = VActivityManager.get().startActivity(t, 0);
+                    if (ret < 0) {
+                        Toast.makeText(getActivity(), R.string.xposed_installer_not_found, Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Throwable ignored) {
+                    ignored.printStackTrace();
+                }
                 return false;
             });
 
