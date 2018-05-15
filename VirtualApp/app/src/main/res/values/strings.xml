@@ -42,7 +42,7 @@
     <string name="reboot_tips_2">Reboot successfully!</string>
     <string name="reboot_tips_3">Reboot successfully!</string>
     <string name="meizu_device_tips_title">Detect Meizu Device: </string>
-    <string name="meizu_device_tips_content">In Meizu OS, you can only use VirtualXposed by cloning an app; please install XposedInstaller first.</string>
+    <string name="meizu_device_tips_content">In Meizu OS phones, you can only add an app to VirtualXposed by cloning an existing app that\'s already installed (you cannot install an app in VirtualXposed via sideloading an apk). You must also install XposedInstaller manually, as, unlike installations on other Android phones, it isn\'t built in to VirtualXposed when installing on Meizu OS. Please install XposedInstaller first.</string>
     <string name="donate_alipay">Alipay</string>
     <string name="donate_wepay">Wechat Pay</string>
     <string name="prompt_alipay_not_found">Alipay not found.</string>
