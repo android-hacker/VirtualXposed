@@ -1,4 +1,36 @@
 <resources>
-    <!--Avoid to be Override By library-->
+    <!--<string name="app_name">VirtualXposed</string>-->
     <string name="app_name">VirtualXposed</string>
+    <string name="preparing">Opening app...</string>
+    <string name="save_success">Save successful!</string>
+    <string name="install_success_tips">The Xposed module will not take effect until you enable it in XposedInstaller\'s module setting.</string>
+    <string name="about_page_description">VirtualXposed is an app that provides the ability to use the Xposed module without needing root access, unlocking the bootloader, or modifying the system image.</string>
+    <string name="about_feedback_qq_title">QQ Group (Click to copy group number)</string>
+    <string name="about_feedback_wechat_title">WeChat Group (Click to copy)</string>
+    <string name="reboot_tips_1">Reboot successfully!</string>
+    <string name="reboot_tips_2">Reboot successfully!</string>
+    <string name="reboot_tips_3">Reboot successfully!</string>
+    <string name="meizu_device_tips_content">In Meizu OS, You can only use VirtualXposed by cloning an app; please install XposedInstaller first.</string>
+    <string name="donate_dialog_content">Don\'t donate to me if you aren\'t rich :)</string>
+    <string name="create_shortcut_success">Creating shortcut successful!</string>
+    <string name="thanks_dialog_content" >Thanks Cheney for providing the awesome icon, and thank you Pei, Peggy, and too many others to list, for your hard work. Thanks for the ideas and suggestions you all provided. Special thanks to YingLin for taking the time to help me achieve my design :)</string>
+    <string name="alert_for_doze_mode_content">Please allow VirtualXposed to run in the background, otherwise you may not receive notifications from some virtual apps.</string>
+    <string name="add_app_installing_tips">Installing %1$s ...</string>
+    <string name="settings_reboot_content">This will kill all apps currently running in VirtualXposed. Reboot anyway?</string>
+    <string name="version_is_latest">Latest version is installed</string>
+    <string name="multi_version_tips_content">You have chosen an existing app. Do you want to install it as a separate app, or just update the existing one? \n
+  (Installed version %1$s, selected version: %2$s )</string>
+    <string name="app_manage_redirect_desc" />
+    <string name="install_complete">Installation complete</string>
+    <string name="install_package_version_tips">You have chosen an existing app, \n
+ (Installed version %1$s, selected version: %2$s ), install it?</string>
+    <string name="settings_add_app_summary">Please add both the app and the Xposed module to VirtualXposed first, otherwise the Xposed module won\'t take effect.</string>
+    <string name="advance_settings_hide_settings_summary">If you can enter settings by the menu key on main activity, you can hide this, otherwise you may not be able to enter settings! \n
+ (Restart VirtualXposed to take effect.)</string>
+    <string name="advance_settings_directly_back_summary">Go back to system launcher instead of the virtual launcher when in a virtual app. (Restart VirtualXposed to take effect.)</string>
+    <string name="advance_settings_yield_mode_summary">Open this for a trade-off between stability and compatibility</string>
+    <string name="about_website_title">Official website</string>
+    <string name="about_feedback_hint">Please specify your phone model, Android version, Xposed plugin, and version of the corresponding app, and then describe (in as much detail as possible) the problem you are experiencing, otherwise it is considered invalid feedback (because we can\'t effectively troubleshoot and fix said problem with only \"this app crashes\" ;) )</string>
+    <string name="advance_settings_disable_resident_notification_summary">Disable the resident notification of VirtualXposed. (When disabled, VirtualXposed may be killed by system frequently. Please be cautious!)</string>
+    <string name="settings_module_manage_summary">Enable/Disable Xposed module (You must enable it manually for it to take effect)</string>
 </resources>
