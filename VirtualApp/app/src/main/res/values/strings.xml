@@ -105,7 +105,7 @@
     <string name="start_app_failed">Open app: %1$s failed.</string>
     <string name="app_manage_redirect_on">Open Storage Redirect</string>
     <string name="app_manage_redirect_off">Disable Storage Redirect</string>
-    <string name="app_manage_redirect_desc"Storage Redirection redirects an application\'s access from the real SD card to a virtual SD card, which will prevent certain apps from creating directories in your real SD card; however, after the storage redirection is enabled, the application can no longer access the real SD card. Please select it when prompted.</string>
+    <string name="app_manage_redirect_desc">Storage Redirection redirects an application\'s access from the real SD card to a virtual SD card, which will prevent certain apps from creating directories in your real SD card; however, after the storage redirection is enabled, the application can no longer access the real SD card. Please select it when prompted.</string>
     <string name="app_manage_redirect_on_confirm">Open, Confirm</string>
     <string name="app_manage_redirect_off_confirm">Close, Confirm</string>
     <string name="shared_to_vxp">Share to App in VirtualXposed</string>
