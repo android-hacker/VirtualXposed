@@ -246,6 +246,10 @@ public class InstallerActivity extends AppCompatActivity {
             int currentVersionCode;
 
             PackageInfo applicationInfo = installedAppInfo.getPackageInfo(0);
+            if (applicationInfo == null) {
+                finish();
+                return;
+            }
             currentVersion = applicationInfo.versionName;
             currentVersionCode = applicationInfo.versionCode;
 
