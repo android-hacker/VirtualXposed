@@ -84,7 +84,11 @@ public class CmdReceiver extends BroadcastReceiver {
             String uid = intent.getStringExtra(KEY_UID);
             int userId = 0;
             if (!TextUtils.isEmpty(uid)){
-                userId = Integer.parseInt(uid);
+                try {
+                    userId = Integer.parseInt(uid);
+                }catch (NumberFormatException e){
+                    e.printStackTrace();
+                }
             }
             LoadingActivity.launch(context, pkg, userId);
 
