@@ -23,6 +23,7 @@ public class CmdReceiver extends BroadcastReceiver {
     private static final String ACTION = "io.va.exposed.CMD";
     private static final String KEY_CMD = "cmd";
     private static final String KEY_PKG = "pkg";
+    private static final String KEY_UID = "uid";
 
     private static final String CMD_UPDATE = "update";
     private static final String CMD_REBOOT = "reboot";
@@ -80,7 +81,18 @@ public class CmdReceiver extends BroadcastReceiver {
                 showTips(context, "Please tell me the launch package!!");
                 return;
             }
-            LoadingActivity.launch(context, pkg, 0);
+            String uid = intent.getStringExtra(KEY_UID);
+            int userId = 0;
+            if (!TextUtils.isEmpty(uid)){
+                try {
+                    userId = Integer.parseInt(uid);
+                }catch (NumberFormatException e){
+                    e.printStackTrace();
+                }
+            }
+            LoadingActivity.launch(context, pkg, userId);
+
+
         }
     }
 
