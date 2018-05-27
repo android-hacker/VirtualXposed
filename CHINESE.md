@@ -4,6 +4,12 @@
 -----
 **VirtualXposed** 是基于[VirtualApp](https://github.com/asLody/VirtualApp) 和 [epic](https://github.com/tiann/epic) 在**非ROOT**环境下运行Xposed模块的实现（支持5.0~8.1)。
 
+与 Xposed 相比，目前 VirtualXposed 有两个限制：
+
+1. 不支持修改系统（可以修改普通APP中对系统API的调用），因此重力工具箱，应用控制器等无法使用。
+2. 暂不支持资源HOOK，因此资源钩子不会起任何作用；使用资源HOOK的模块，相应的功能不会生效。
+
+
 警告
 -------
 本项目使用的 VirtualApp 不允许用于商业用途，如果有这个需求，请联系 Lody (imlody@foxmail.com)。
@@ -28,7 +34,7 @@
 
 在VirtualXposed中安装Xposed模块，可以跟安装正常的APK一样，以上两种安装App的方式也适用于安装Xposed模块。不过，你也可以通过VirtualXposed中内置的XposedInstaller来安装和管理模块，跟通常的XposedInstaller使用方式一样；去下载页面，下载安装即可。 
 
-## 已经支持的模块
+## 亲测可用的模块
 
 - [微X模块][wx]: 微信模块，功能全面；但与VXP兼容性一般。
 - [微信巫师][wxws]: 微信模块，项目开源，代码优秀。
@@ -48,14 +54,14 @@
 - [微信斗图神器][wxdtsq]: 斗图神器，微信用的。
 - [大圣净化][dsjh]: 去广告神器，推荐使用。
 
-或许还有很多，自行测试。
+真正能用的模块远不止这么多，要用的话可以自己测试；如果你发现某些模块可以用但不在上面的列表中，欢迎给我发个PR。
 
 其他
 -------
 
 ### GameGuardian
 
-VirtualXposed也支持GG修改器，如果你需要用GG，那么请使用0.9.1版本，这个版本与GG修改器具有最好的兼容性(可以在发布页面下载)。
+VirtualXposed也支持GG修改器，如果你需要用GG，那么请使用GG专版(可以在发布页面下载，带 For_GameGuardian后缀)。
 
 [GG修改器使用视频教程](https://gameguardian.net/forum/gallery/image/437-no-root-via-virtualxposed-without-error-105-gameguardian/)
 
@@ -67,11 +73,6 @@ VirusTotal 还有一些其他的杀毒引擎检测到VirtualXposed有病毒，�
 
 如果你还是不放心，那么你可以使用 [0.8.7版本](https://github.com/android-hacker/VirtualXposed/releases/tag/0.8.7), 这个版本杀毒引擎的检测结果是安全的（简直就是扯淡）。
 
-已知问题
------------
-
-1. 由于暂不支持资源HOOK，因此资源钩子不会起任何作用；使用资源HOOK的模块，相应的功能不会生效。
-4. 部分插件的兼容性有问题，比如QX模块。
 
 支持和加入
 ------------
