@@ -4,7 +4,12 @@
 
 Introduction
 ------------
-**VirtualXposed** is a simple APP based on [VirtualApp](https://github.com/asLody/VirtualApp) and [epic](https://github.com/tiann/epic) that allows you to use an Xposed Module without needing to root, unlock the bootloader, or flash a custom system image. (Supports Android 5.0~8.1)
+**VirtualXposed** is a simple APP based on [VirtualApp](https://github.com/asLody/VirtualApp) and [epic](https://github.com/tiann/epic) that allows you to use an Xposed Module without needing to root, unlock the bootloader, or flash a custom system image. (Supports Android 5.0~8.1) 
+
+The only two restriction of VirtualXposed are:
+
+1. Unable to modify system, so any Module which modifies system won't be able to work properly.
+2. Currently resource hooks are not supported. (Theming modules use Resource Hooks).
 
 Warning
 -----------
@@ -20,7 +25,7 @@ Download the latest APK from the [release page](https://github.com/android-hacke
 
 ### Install APP and Xposed Module
 
-Open VirtualXposed, Click on the ➕ button in home page, add your desired APP and Xposed Module to VirtualXposed's virtual environment.
+Open VirtualXposed, Click on the **Drawer Button** at the bottom of home page(Or long click the screen), add your desired APP and Xposed Module to VirtualXposed's virtual environment.
 
 Note: **All operations（installation of Xposed Module, APP）must be done in VirtualXposed**, otherwise the Xposed Module installed won't take effect. For example, if you install the YouTube app on your system (Your phone's original system, not in VirtualXposed), and then install YouTube AdAway (A YouTube Xposed Module) in VirtualXposed; or you install YouTube in VirtualXposed, and install YouTube AdAway on original system; or both of them are installed on original system, **neither of these three cases will work!**
 
@@ -46,8 +51,8 @@ You only need to reboot VirtualXposed, **There's no need to reboot your phone**;
 
 ![How to reboot](https://raw.githubusercontent.com/tiann/arts/master/vxp_reboot.gif)
 
-Supported Modules
---------------------
+Modules tested by myself
+-------------------------
 
 - [微X模块][wx]: 微信模块，功能全面；但与VXP兼容性一般。
 - [微信巫师][wxws]: 微信模块，项目开源，代码优秀。
@@ -67,14 +72,14 @@ Supported Modules
 - [微信斗图神器][wxdtsq]: 斗图神器，微信用的。
 - [大圣净化][dsjh]: 去广告神器，推荐使用。
 
-Far more than above.
+Supported modules are far more than above, you should test it by yourself, and welcome to send me a PR for the list above.
 
 Others
 -------
 
 ### GameGuardian
 
-VirtualXposed also supports GameGuardian, **use version 0.9.1 for best compatibility**.(You can download it in release page).
+VirtualXposed also supports GameGuardian, **you should use the separate version for GameGuardian**.(Download it in release page).
 
 [Video Tutorial](https://gameguardian.net/forum/gallery/image/437-no-root-via-virtualxposed-without-error-105-gameguardian/)
 
@@ -85,14 +90,6 @@ VirusTotal might report VirtualXposed as a malware, it is stupid, you can refer 
 And obviously, VirtualXposed is open source, so you can refer to the source code. I am sure that it is safe to use.
 
 If you still couldn't believe in me, you can install version [0.8.7](https://github.com/android-hacker/VirtualXposed/releases/tag/0.8.7); VirusTotal reports this version as safe.
-
-
-Known Issues
--------------
-
-1. Unable to modify system, so any Module which modifies system won't be able to work properly.
-2. Currently resource hooks are not supported. (Theming modules use Resource Hooks)
-3. Currently some modules may not be compatible with VirtualXposed.
 
 Support
 -----------
