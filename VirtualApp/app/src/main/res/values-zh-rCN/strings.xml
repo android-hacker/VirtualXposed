@@ -135,4 +135,6 @@
     <string name="settings_module_manage">模块管理</string>
     <string name="settings_module_manage_summary">开启或者关闭Xposed模块（Xposed模块安装之后必须手动开启才能生效）</string>
     <string name="xposed_installer_not_found">没有找到 Xposed Installer, 请先把它添加到 VirtualXposed 中！</string>
+    <string name="advance_settings_allow_fake_signature_summary">启用之后，您可以安装没有签名的APK到 VirtualXposed （通常用于破解版的APP，请注意安全。如果APP有签名校检，依然会无法使用）</string>
+    <string name="advance_settings_allow_fake_signature">允许安装没有签名的应用</string>
 </resources>
