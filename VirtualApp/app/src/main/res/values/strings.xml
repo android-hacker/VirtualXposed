@@ -112,7 +112,7 @@
     <string name="shared_to_vxp_failed">Share failed, please try again.</string>
     <string name="app_installer_label">Add to VirtualXposed</string>
     <string name="install_complete">Installation complete.</string>
-    <string name="install_fail">Install failed.</string>
+    <string name="install_fail">Install failed: %1$s</string>
     <string name="install">Install</string>
     <string name="install_package">Install new app: %s</string>
     <string name="install_package_version_tips">You have chosen an existing app, \n(Installed version %1$s, selected version: %2$s). Install it?</string>

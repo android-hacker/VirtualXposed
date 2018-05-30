@@ -35,6 +35,8 @@ public class Installd {
 
     public interface UpdateListener {
         void update(AppData model);
+
+        void fail(String msg);
     }
 
     public static void addApp(AppInfoLite info, UpdateListener refreshListener) {
@@ -101,7 +103,7 @@ public class Installd {
                     if (addResult.appData != null) {
                         // mView.removeAppToLauncher(addResult.appData);
                     }
-                    throw new IllegalStateException();
+                    throw new IllegalStateException(res.error);
                 }
             }
         }).then((res) -> {
@@ -128,6 +130,11 @@ public class Installd {
                     refreshListener.update(data);
                 }
                 handleOptApp(data, info.packageName, false, refreshListener);
+            }
+        }).fail(result -> {
+            if (refreshListener != null) {
+                refreshListener.fail(result.getMessage());
+
             }
         });
     }
