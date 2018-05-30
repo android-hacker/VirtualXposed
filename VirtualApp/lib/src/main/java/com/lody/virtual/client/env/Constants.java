@@ -35,6 +35,7 @@ public class Constants {
 	public static String META_VALUE_STUB = "Stub-User";
 
 	public static String NO_NOTIFICATION_FLAG = ".no_notification";
+	public static String FAKE_SIGNATURE_FLAG = ".fake_signature";
 
 	public static final String WECHAT_PACKAGE = EncodeUtils.decode("Y29tLnRlbmNlbnQubW0="); // wechat
 	public static final List<String> PRIVILEGE_APP = Arrays.asList(

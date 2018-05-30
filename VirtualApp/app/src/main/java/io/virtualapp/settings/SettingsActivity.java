@@ -55,6 +55,7 @@ public class SettingsActivity extends Activity {
     private static final String YIELD_MODE = "advance_settings_yield_mode2";
     private static final String RECOMMEND_PLUGIN = "settings_plugin_recommend";
     private static final String DISABLE_RESIDENT_NOTIFICATION = "advance_settings_disable_resident_notification";
+    private static final String ALLOW_FAKE_SIGNATURE = "advance_settings_allow_fake_signature";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +98,7 @@ public class SettingsActivity extends Activity {
             SwitchPreference disableInstaller = (SwitchPreference) findPreference(DISABLE_INSTALLER_KEY);
             SwitchPreference yieldMode = (SwitchPreference) findPreference(YIELD_MODE);
             SwitchPreference disableResidentNotification = (SwitchPreference) findPreference(DISABLE_RESIDENT_NOTIFICATION);
+            SwitchPreference allowFakeSignature = (SwitchPreference) findPreference(ALLOW_FAKE_SIGNATURE);
 
             addApp.setOnPreferenceClickListener(preference -> {
                 ListAppActivity.gotoListApp(getActivity());
@@ -342,6 +344,26 @@ public class SettingsActivity extends Activity {
                 PreferenceScreen advance = (PreferenceScreen) findPreference(ADVANCE_SETTINGS_KEY);
                 advance.removePreference(disableResidentNotification);
             }
+
+            allowFakeSignature.setOnPreferenceChangeListener((preference, newValue) -> {
+                if (!(newValue instanceof Boolean)) {
+                    return false;
+                }
+
+                boolean on = (boolean) newValue;
+                File flag = getActivity().getFileStreamPath(Constants.FAKE_SIGNATURE_FLAG);
+                if (on) {
+                    boolean success;
+                    try {
+                        success = flag.createNewFile();
+                    } catch (IOException e) {
+                        success = false;
+                    }
+                    return success;
+                } else {
+                    return !flag.exists() || flag.delete();
+                }
+            });
 
         }
 

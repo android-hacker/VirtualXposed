@@ -139,4 +139,7 @@
     <string name="settings_module_manage">Manage Xposed Module</string>
     <string name="settings_module_manage_summary">Enable/Disable Xposed module (You must enable it manually for it to take effect)</string>
     <string name="xposed_installer_not_found">Xposed Installer not found, please add it to VirtualXposed first!</string>
+    <string name="advance_settings_allow_fake_signature_summary">When enabled, you can install apk which has no signatures(Usually used in cracked apk, please be careful
+)</string>
+    <string name="advance_settings_allow_fake_signature">Allow to install apk without signatures.</string>
 </resources>

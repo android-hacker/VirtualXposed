@@ -50,6 +50,13 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:key="advance_settings_allow_fake_signature"
+            android:persistent="true"
+            android:summary="@string/advance_settings_allow_fake_signature_summary"
+            android:title="@string/advance_settings_allow_fake_signature" />
+
+        <SwitchPreference
+            android:defaultValue="false"
             android:key="advance_settings_disable_installer"
             android:persistent="true"
             android:summary="@string/advance_settings_disable_installer_summary"
