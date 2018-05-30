@@ -53,4 +53,14 @@ public class InstallResult implements Parcelable {
 	public int describeContents() {
 		return 0;
 	}
+
+	@Override
+	public String toString() {
+		return "InstallResult{" +
+				"isSuccess=" + isSuccess +
+				", isUpdate=" + isUpdate +
+				", packageName='" + packageName + '\'' +
+				", error='" + error + '\'' +
+				'}';
+	}
 }
