@@ -130,7 +130,7 @@ public class InstallerActivity extends AppCompatActivity {
                                 if (mInstallCount <= 0) {
                                     mInstallCount = 0;
                                     // only dismiss when the app is the last to install.
-                                    mProgressText.setText(getResources().getString(R.string.add_app_laoding_complete, model.getName()));
+                                    mProgressText.setText(getResources().getString(R.string.add_app_loading_complete, model.getName()));
                                     mProgressText.postDelayed(() -> {
                                         mProgressBar.setVisibility(View.GONE);
 
@@ -308,7 +308,7 @@ public class InstallerActivity extends AppCompatActivity {
                 // install success
                 mTips.setVisibility(View.GONE);
                 mProgressText.setVisibility(View.VISIBLE);
-                mProgressText.setText(getResources().getString(R.string.add_app_laoding_complete, apkName));
+                mProgressText.setText(getResources().getString(R.string.add_app_loading_complete, apkName));
                 mProgressBar.setVisibility(View.GONE);
                 mRight.setEnabled(true);
                 mRight.setText(res.isSuccess ? getResources().getString(R.string.install_complete) :
