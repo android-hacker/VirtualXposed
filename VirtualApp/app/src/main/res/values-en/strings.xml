@@ -1,4 +1,5 @@
 <resources>
     <!--Avoid to be Override By library-->
     <string name="app_name">VirtualXposed</string>
+    <string name="versionchecklib_confirm">Upgrade now</string>
 </resources>
