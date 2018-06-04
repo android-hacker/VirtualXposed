@@ -378,15 +378,15 @@ public class SettingsActivity extends Activity {
             final float scale = getResources().getDisplayMetrics().density;
             return (int) (dp * scale + 0.5f);
         }
-    }
 
-    @Override
-    public void startActivity(Intent intent) {
-        try {
-            super.startActivity(intent);
-        } catch (Throwable ignored) {
-            Toast.makeText(this, "startActivity failed.", Toast.LENGTH_SHORT).show();
-            ignored.printStackTrace();
+        @Override
+        public void startActivity(Intent intent) {
+            try {
+                super.startActivity(intent);
+            } catch (Throwable ignored) {
+                Toast.makeText(getActivity(), "startActivity failed.", Toast.LENGTH_SHORT).show();
+                ignored.printStackTrace();
+            }
         }
     }
 }
