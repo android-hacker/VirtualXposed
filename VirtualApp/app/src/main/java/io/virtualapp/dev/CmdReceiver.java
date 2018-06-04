@@ -37,19 +37,36 @@ public class CmdReceiver extends BroadcastReceiver {
         }
 
         String cmd = intent.getStringExtra(KEY_CMD);
+        String pkg = intent.getStringExtra(KEY_PKG);
         if (TextUtils.isEmpty(cmd)) {
             showTips(context, "No cmd found!");
             return;
         }
 
         if (CMD_REBOOT.equalsIgnoreCase(cmd)) {
-            VirtualCore.get().killAllApps();
-            showTips(context, "Reboot Success!!");
+            if (TextUtils.isEmpty(pkg)) {
+                VirtualCore.get().killAllApps();
+                showTips(context, "Reboot Success!!");
+                return;
+            }
+
+            PackageManager packageManager = context.getPackageManager();
+            if (packageManager == null) {
+                showTips(context, "system error, reboot failed!");
+                return;
+            }
+
+            try {
+                ApplicationInfo applicationInfo = packageManager.getApplicationInfo(pkg, 0);
+                VirtualCore.get().killApp(pkg, applicationInfo.uid);
+                showTips(context, "Reboot " + pkg + " Success!!");
+            } catch (PackageManager.NameNotFoundException e) {
+                showTips(context, "Can not found " + pkg + " outside!");
+            }
             return;
         }
 
         if (CMD_UPDATE.equalsIgnoreCase(cmd)) {
-            String pkg = intent.getStringExtra(KEY_PKG);
             if (TextUtils.isEmpty(pkg)) {
                 showTips(context, "Please tell me the update package!!");
                 return;
@@ -76,7 +93,6 @@ public class CmdReceiver extends BroadcastReceiver {
                 showTips(context, "Can not found " + pkg + " outside!");
             }
         } else if (CMD_LAUNCH.equalsIgnoreCase(cmd)) {
-            String pkg = intent.getStringExtra(KEY_PKG);
             if (TextUtils.isEmpty(pkg)) {
                 showTips(context, "Please tell me the launch package!!");
                 return;
