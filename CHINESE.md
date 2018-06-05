@@ -48,7 +48,7 @@
 - [步数修改器][bsxg]: 运动步数修改模块。
 - [模拟位置][mnwz]: 虚拟定位模块，稳定好用。
 - [指纹支付][zwzf]: 对不支持指纹支付但系统本身有指纹的手机开启指纹支付的模块。
-- [QQ精简模块 2.0][qqjj]: QQ模块，不仅可以精简QQ，还能防撤回，防闪照。VXP不支持QX，推荐用这个。
+- [QQ净化][qqjh]: QQ模块，不仅可以精简QQ，还能防撤回，防闪照。VXP不支持QX，推荐用这个。
 - [微信增强插件][wxzqcj]: 微信模块，VXP内最稳定的微信模块；如无特殊需求建议用这个。
 - [QQ斗图神器][qqdtsq]: 各种表情，斗图神器。
 - [微信斗图神器][wxdtsq]: 斗图神器，微信用的。
@@ -102,7 +102,7 @@ VirusTotal 还有一些其他的杀毒引擎检测到VirtualXposed有病毒，�
 [bsxg]: https://www.coolapk.com/apk/com.specher.sm
 [mdwechat]: https://github.com/Blankeer/MDWechat
 [wxzqcj]:https://github.com/firesunCN/WechatEnhancement
-[qqjj]: https://www.coolapk.com/apk/me.zpp0196.qqsimple
+[qqjh]: https://www.coolapk.com/apk/me.zpp0196.qqsimple
 [qqdtsq]: https://www.coolapk.com/apk/x.hook.qqemoji
 [wxdtsq]: https://www.coolapk.com/apk/x.hook.emojihook
 [dsjh]: https://wiki.ad-gone.com/archives/32/
