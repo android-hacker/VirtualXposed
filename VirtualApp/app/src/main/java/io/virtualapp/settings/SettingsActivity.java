@@ -29,6 +29,7 @@ import java.io.IOException;
 
 import io.virtualapp.R;
 import io.virtualapp.abs.ui.VUiKit;
+import io.virtualapp.gms.FakeGms;
 import io.virtualapp.home.ListAppActivity;
 import moe.feng.alipay.zerosdk.AlipayZeroSdk;
 
@@ -211,27 +212,16 @@ public class SettingsActivity extends Activity {
                 }
             });
 
-            /*
-            SwitchPreference installGms = (SwitchPreference) findPreference(INSTALL_GMS_KEY);
-            installGms.setOnPreferenceChangeListener(((preference, newValue) -> {
-                if (!(newValue instanceof Boolean)) {
-                    return false;
-                }
-                boolean install = (boolean) newValue;
-                if (install) {
-                    if (!GmsSupport.isOutsideGoogleFrameworkExist()) {
-                        Toast.makeText(getActivity(), "Sorry, your phone has no GMS supported.", Toast.LENGTH_SHORT).show();
-                        return false;
-                    }
-
-                    Toast.makeText(getActivity(), "Coming soon.", Toast.LENGTH_SHORT).show();
-                    // Installd.addGmsSupport();
-                    return false;
+            Preference installGms = findPreference(INSTALL_GMS_KEY);
+            installGms.setOnPreferenceClickListener(preference -> {
+                boolean alreadyInstalled = FakeGms.isAlreadyInstalled(getActivity());
+                if (alreadyInstalled) {
+                    FakeGms.uninstallGms(getActivity());
                 } else {
-                    // TODO, delete.
+                    FakeGms.installGms(getActivity());
                 }
-                return false;
-            }));*/
+                return true;
+            });
 
             copyFile.setOnPreferenceClickListener((preference -> {
                 Context context = getActivity();

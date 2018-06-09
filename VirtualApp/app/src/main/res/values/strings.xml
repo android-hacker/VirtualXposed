@@ -126,7 +126,7 @@
     <string name="advance_settings_directly_back">Directly back</string>
     <string name="advance_settings_directly_back_summary">Go back to the system launcher instead of the virtual launcher when in a virtual app.\n(Restart VirtualXposed to take effect.)</string>
     <string name="install_self_eggs">Boy, your idea is promising :)</string>
-    <string name="advance_settings_install_gms">Install Google Services</string>
+    <string name="advance_settings_install_gms">Install/Uninstall Google Services</string>
     <string name="about_feedback_tel_title">Telegram Group: %1$s</string>
     <string name="advance_settings_copy_file">Copy File</string>
     <string name="advance_settings_yield_mode_summary">Open this for a trade-off between stability and compatibility.</string>
@@ -149,4 +149,15 @@
     <string name="permission_denied_tips_content">App: %1$s doesn\'t grant necessary permission, it cann\'t be launched. Please go to your device\'s permission management and give it permissions.</string>
     <string name="permission_denied_ok">Launch failed.</string>
     <string name="list_app_access_external_storage">If you want to install apk from external storage, please give VirtualXposed the permission.</string>
+    <string name="install_gms_title" >Install Google Service</string>
+    <string name="install_gms_content">The Google Service is supported by microG, VirtualXposed is about to download some file(2M), and it may consume more battery, would you like to install it?</string>
+    <string name="install_gms_fail_title">Install failed</string>
+    <string name="install_gms_fail_content">Install Google Service automatically failed, you can also install it manually.</string>
+    <string name="install_gms_fail_ok">Manual Install</string>
+    <string name="uninstall_gms_title">Uninstall Google Service</string>
+    <string name="uninstall_gms_content">Would you like to uninstall Google Service? you can reinstall it later.</string>
+    <string name="uninstall_gms_ok">Uninstall, Confirm</string>
+    <string name="install_gms_alreay_installed">The Google Service has been installed.</string>
+    <string name="install_gms_success">Google Service has been installed successfully!!</string>
+    <string name="uninstall_gms_success">Google Service has been uninstalled successfully!!</string>
 </resources>
