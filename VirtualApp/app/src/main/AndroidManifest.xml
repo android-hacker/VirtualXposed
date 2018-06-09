@@ -12,7 +12,7 @@
         android:name=".XApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="@string/vxp"
         android:theme="@style/LauncherTheme"
         tools:replace="android:icon,android:label">
 

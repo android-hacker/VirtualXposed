@@ -1,6 +1,7 @@
 <resources>
     <!--<string name="app_name">VirtualApp</string>-->
     <string name="app_name">VirtualXposed</string>
+    <string name="vxp">VirtualXposed</string>
     <string name="wait">Please wait…</string>
     <string name="desktop">Desktop</string>
     <string name="add_app">Add App</string>
