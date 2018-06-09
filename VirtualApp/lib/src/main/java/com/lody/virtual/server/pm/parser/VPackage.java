@@ -453,6 +453,7 @@ public class VPackage implements Parcelable {
 
     public static class PermissionComponent extends Component<IntentInfo> {
 
+        // https://developer.android.com/guide/topics/security/permissions?hl=zh-cn
         public static Set<String> DANGEROUS_PERMISSION = new HashSet<String>() {{
             // CALENDAR group
             add(Manifest.permission.READ_CALENDAR);
