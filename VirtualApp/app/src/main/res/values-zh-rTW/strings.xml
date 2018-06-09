@@ -21,4 +21,10 @@
     <string name="external_storage">外部空間</string>
     <string name="install_d">安裝 (%d)</string>
     <string name="install_too_much_once_time">不能一次性安裝超過 9 個程式！</string>
+    <string name="permission_tip_title">Important Tips:</string>
+    <string name="permission_tips_content">%1$s 不支持運行時權限，則必須提前提供所需的權限，請允許在下一步中請求的所有權限，否則可能無法正常運行。</string>
+    <string name="permission_tips_confirm">OK</string>
+    <string name="permission_denied_tips_content">You have denied some permission of %1$s, it doesn\'t support runtime permission, launch failed. Please go to your device\'s permission center and give it necessary permission.</string>
+    <string name="permission_denied_ok">启</string>
+    <string name="list_app_access_external_storage">If you want to install apk from external storage, please give VirtualXposed the permission.</string>
 </resources>

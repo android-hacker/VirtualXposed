@@ -142,4 +142,10 @@
     <string name="advance_settings_allow_fake_signature_summary">When enabled, you can install apk which has no signatures(Usually used in cracked apk, please be careful
 )</string>
     <string name="advance_settings_allow_fake_signature">Allow to install apk without signatures.</string>
+    <string name="permission_tip_title">Important tips:</string>
+    <string name="permission_tips_content">%1$s  doesn\'t support runtime permission, you must give permissions it needs in advance, please allow all the permission it will request in next step, otherwise it may not work properly.</string>
+    <string name="permission_tips_confirm">OK, I know.</string>
+    <string name="permission_denied_tips_content">App: %1$s doesn\'t grant necessary permission, it cann\'t be launched. Please go to your device\'s permission management and give it permissions.</string>
+    <string name="permission_denied_ok">Launch failed.</string>
+    <string name="list_app_access_external_storage">If you want to install apk from external storage, please give VirtualXposed the permission.</string>
 </resources>

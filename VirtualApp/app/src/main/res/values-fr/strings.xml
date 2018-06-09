@@ -72,7 +72,7 @@
     <string name="home_menu_clear_content" >Voulez-vous éffacer les données de %1$s ?</string>
     <string name="home_menu_kill_title">Forcer l\'arrêt</string>
     <string name="home_menu_kill_content">Voulez-vous forcer l\'arrêt de %1$s ? Cela peut entraîner un fonctionnement inattendu.</string>
-    <string name="add_app_loading_tips">Paquet d'analyse pour %1$s…</string>
+    <string name="add_app_loading_tips">Paquet d\'analyse pour %1$s…</string>
     <string name="add_app_installing_tips">Installation de %1$s…</string>
     <string name="add_app_loading_complete">%1$s installation accomplie!</string>
     <string name="list_app_activity_install">Ajouter à VirtualXposed</string>
@@ -89,7 +89,7 @@
     <string name="check_update">Vérifier mises à jours</string>
     <string name="version_is_latest">La dernière version est installée.</string>
     <string name="new_version_detected">Nouvelle Version:</string>
-    <string name="multi_version_tip_title">Conseils d'installation</string>
+    <string name="multi_version_tip_title">Conseils d\'installation</string>
     <string name="multi_version_tips_content">Vous avez choisi une application existante. Voulez-vous l\'installer en tant qu\'application séparée ou simplement mettre à jour l\'application existante ? \n(Version installée %1$s, Version sélectionnée : %2$s)</string>
     <string name="multi_version_multi">En installer une autre</string>
     <string name="multi_version_cover">Par-dessus</string>
@@ -100,7 +100,7 @@
     <string name="app_manage_repair_success_title">Conseils de réparation</string>
     <string name="app_manage_repair_success_content">Réparration éffectuée avec succès; merci de forcer l\'arrêt de VirtualXposed pour que le changement soit pris en compte.</string>
     <string name="app_manage_repair_reboot_now">Redémarrer maintenant</string>
-    <string name="wallpaper_too_big_tips">L'image du fond d'écran est trop grande et ralentira le temps de démarrage, veuillez choisir une image correcte..</string>
+    <string name="wallpaper_too_big_tips">L\'image du fond d\'écran est trop grande et ralentira le temps de démarrage, veuillez choisir une image correcte..</string>
     <string name="create_shortcut_already_exist">Ce raccourcis éxiste déjà</string>
     <string name="start_app_failed">Ouvrir appli: %1$s échoué.</string>
     <string name="app_manage_redirect_on">Réacheminement de stockage ouvert</string>
@@ -119,7 +119,7 @@
     <string name="settings_add_app_summary">Veuillez d\'abord ajouter l\'application et le module Xposed à VirtualXposed, sinon le module Xposed ne prendra pas effet.</string>
     <string name="settings_advance">Réglages avancés</string>
     <string name="advance_settings_hide_settings">Masquer le boutton réglages sur le bureau</string>
-    <string name="advance_settings_disable_installer">Désactiver l'installateur apk pour le système</string>
+    <string name="advance_settings_disable_installer">Désactiver l\'installateur apk pour le système</string>
     <string name="advance_settings_hide_settings_summary">Si vous pouvez saisir les paramètres à l\'aide de la touche de menu de l\'activité principale, vous pouvez les masquer ; sinon, vous ne pourrez peut-être pas saisir les paramètres ! \n(Redémarrer VirtualXposed pour prendre en compte le changement)..)</string>
     <string name="advance_settings_disable_installer_summary">Ne pas afficher l\'installateur de VirtualXposed lorsque vous choisissez le fichier apk dans le système.</string>
     <string name="advance_settings_directly_back">Directement en arrière</string>
@@ -138,7 +138,13 @@
     <string name="advance_settings_disable_resident_notification_summary">Désactivez la notification de résident de VirtualXposed. (Lorsqu\'il est désactivé, VirtualXposed peut être fréquemment tué par le système. Soyez prudents !)</string>
     <string name="settings_module_manage">Gérrer Module Xposed</string>
     <string name="settings_module_manage_summary">Activer/Désactiver le module Xposed (Vous devez l\'activer manuellement pour qu\'il prenne effet.)</string>
-    <string name="xposed_installer_not_found">Xposed Installer n\'a pas été trouvé, veuillez d'abord l\'ajouter à VirtualXposed !</string>
+    <string name="xposed_installer_not_found">Xposed Installer n\'a pas été trouvé, veuillez d\'abord l\'ajouter à VirtualXposed !</string>
     <string name="advance_settings_allow_fake_signature_summary">Lorsqu\'il est activé, vous pouvez installer apk qui n\'a pas de signatures (Habituellement utilisé dans les cracks d\'apks, veuillez faire attention)</string>
     <string name="advance_settings_allow_fake_signature">Permettre l\'installation d\'apk sans signatures.</string>
+    <string name="permission_tip_title">Important Tips:</string>
+    <string name="permission_tips_content">%1$s ne supporte pas l\'autorisation d\'exécution, vous devez donner les autorisations dont il a besoin à l\'avance, veuillez autoriser toutes les permissions qu\'il demandera à l\'étape suivante, sinon cela pourrait ne pas fonctionner correctement.</string>
+    <string name="permission_tips_confirm">Je sais</string>
+    <string name="permission_denied_tips_content">App: %1$s n\'accorde pas l\'autorisation nécessaire, il ne peut pas être lancé. Veuillez accéder à la gestion des autorisations de votre appareil et lui accorder des autorisations.</string>
+    <string name="permission_denied_ok">Le lancement a échoué.</string>
+    <string name="list_app_access_external_storage">Si vous voulez installer apk à partir d\'un espace de stockage externe, veuillez donner à VirtualXposed la permission.</string>
 </resources>
