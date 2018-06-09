@@ -3,6 +3,8 @@ package io.virtualapp.gms;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
@@ -144,7 +146,13 @@ public class FakeGms {
                                         .setTitle(R.string.install_gms_fail_title)
                                         .setMessage(R.string.install_gms_fail_content)
                                         .setPositiveButton(R.string.install_gms_fail_ok, ((dialog1, which1) -> {
-
+                                            try {
+                                                Intent t = new Intent(Intent.ACTION_VIEW);
+                                                t.setData(Uri.parse("https://github.com/android-hacker/VirtualXposed/wiki/Google-service-support"));
+                                                activity.startActivity(t);
+                                            } catch (Throwable ignored) {
+                                                ignored.printStackTrace();
+                                            }
                                         }))
                                         .setNegativeButton(android.R.string.cancel, null)
                                         .create();
