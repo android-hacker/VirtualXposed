@@ -4,13 +4,13 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
@@ -40,25 +40,24 @@ public class ListAppActivity extends VActivity {
         mToolBar = (Toolbar) findViewById(R.id.clone_app_tool_bar);
         mTabLayout = (TabLayout) mToolBar.findViewById(R.id.clone_app_tab_layout);
         mViewPager = (ViewPager) findViewById(R.id.clone_app_view_pager);
-        setupToolBar();
         mViewPager.setAdapter(new AppPagerAdapter(getSupportFragmentManager()));
         mTabLayout.setupWithViewPager(mViewPager);
+
         // Request permission to access external storage
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            AlertDialog alertDialog = new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight_Dialog_Alert)
+                    .setMessage(R.string.list_app_access_external_storage)
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
+                    })
+                    .create();
+            try {
+                alertDialog.show();
+            } catch (Throwable ignored) {
+                // BadTokenException.
             }
         }
     }
-
-    private void setupToolBar() {
-//        setSupportActionBar(mToolBar);
-//        ActionBar actionBar = getSupportActionBar();
-//        if (actionBar != null) {
-//            actionBar.setDisplayHomeAsUpEnabled(true);
-//        }
-    }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

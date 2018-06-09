@@ -141,4 +141,10 @@
     <string name="xposed_installer_not_found">Instalador Xposed no encontrado, por favor agrégalo a VirtualXposed!</string>
     <string name="advance_settings_allow_fake_signature_summary">Cuando está habilitado, puede instalar apk que no tiene firmas (Generalmente se usa en apk craqueado, Por favor, preste atención a la seguridad)</string>
     <string name="advance_settings_allow_fake_signature">Permitir la instalación de apk sin firmas.</string>
+    <string name="permission_tip_title">Important Tips:</string>
+    <string name="permission_tips_content">%1$s no admite permisos de tiempo de ejecución, debe otorgar los permisos que necesita de antemano, permita todos los permisos que solicitará en el siguiente paso, de lo contrario, puede que no funcione correctamente.</string>
+    <string name="permission_tips_confirm">Yo se</string>
+    <string name="permission_denied_tips_content">Aplicación: %1$s no concede el permiso necesario, no se puede iniciar. Dirígete a la administración de permisos de tu dispositivo y dale permisos.</string>
+    <string name="permission_denied_ok">Lanzamiento fallido</string>
+    <string name="list_app_access_external_storage">Si desea instalar apk desde el almacenamiento externo, dele el permiso a VirtualXposed.</string>
 </resources>
