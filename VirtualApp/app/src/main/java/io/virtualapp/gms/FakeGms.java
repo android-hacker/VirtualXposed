@@ -322,14 +322,13 @@ public class FakeGms {
 
         // Enable the Xposed module.
         File dataDir = VEnvironment.getDataUserPackageDirectory(0, "de.robv.android.xposed.installer");
+        File modulePath = VEnvironment.getPackageResourcePath(FAKE_GAPPS_PKG);
         File configDir = new File(dataDir, "exposed_conf" + File.separator + "modules.list");
         FileWriter writer = null;
         try {
             writer = new FileWriter(configDir, true);
             writer.append('\n');
-            writer.append("com.thermatk.android.xf.fakegapps.FakeSignatures");
-            writer.append('\n');
-            writer.append("com.thermatk.android.xf.fakegapps.PackageNameServiceHook");
+            writer.append(modulePath.getAbsolutePath());
             writer.flush();
 
         } catch (IOException e) {
