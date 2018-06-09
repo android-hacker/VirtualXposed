@@ -121,7 +121,7 @@
     <string name="advance_settings_directly_back">直接返回</string>
     <string name="advance_settings_directly_back_summary">内部APP退出时，直接返回到系统桌面而不是VirtualXposed的虚拟桌面(强制停止VirtualXposed后生效）</string>
     <string name="install_self_eggs">小伙子，你这个想法很有前途 :)</string>
-    <string name="advance_settings_install_gms">安装Google服务框架</string>
+    <string name="advance_settings_install_gms">安装/移除Google服务</string>
     <string name="about_feedback_tel_title">Telegram 群组: %1$s</string>
     <string name="advance_settings_copy_file">内部文件复制</string>
     <string name="advance_settings_yield_mode_summary">开启这个开关，可能会提高VirtualXposed的稳定性，但同时会失去对插件的一些兼容性。</string>
@@ -143,4 +143,14 @@
     <string name="permission_denied_tips_content">%1$s 没有获取到某些运行必须要使用的权限；它不支持动态申请权限. 请去您设备的系统权限管理中赋予 VirtualXposed 必要权限。</string>
     <string name="permission_denied_ok">启动失败</string>
     <string name="list_app_access_external_storage">如果你想把SD中的APK安装到 VirtualXposed，请赋予它外部存储权限。</string>
+    <string name="install_gms_title">安装Google服务</string>
+    <string name="install_gms_content">Google 服务是通过 micorG 支持的，需要下载 2M 左右的文件，安装完之后耗电量可能会增加，确认需要安装吗？</string>
+    <string name="install_gms_fail_title">安装失败</string>
+    <string name="install_gms_fail_content">自动安装Google 服务失败，你可以参考教程手动安装。</string>
+    <string name="install_gms_fail_ok">查看教程</string>
+    <string name="uninstall_gms_title">移除Google服务</string>
+    <string name="uninstall_gms_content">确定要移除 Google 服务吗？需要的时候你可以重新安装它。</string>
+    <string name="uninstall_gms_ok">确认移除</string>
+    <string name="install_gms_success">Google 服务已经安装成功！！</string>
+    <string name="uninstall_gms_success">Google服务已经移除成功！！</string>
 </resources>

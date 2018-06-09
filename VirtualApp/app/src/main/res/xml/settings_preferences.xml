@@ -22,12 +22,10 @@
         android:key="settings_advance"
         android:title="@string/settings_advance">
 
-        <!--<SwitchPreference-->
-        <!--android:defaultValue="false"-->
-        <!--android:visibility="gone"-->
-        <!--android:key="advance_settings_install_gms"-->
-        <!--android:persistent="true"-->
-        <!--android:title="@string/advance_settings_install_gms" />-->
+        <Preference
+            android:key="advance_settings_install_gms"
+            android:persistent="false"
+            android:title="@string/advance_settings_install_gms"/>
 
         <Preference
             android:key="advance_settings_copy_file"

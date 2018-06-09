@@ -167,4 +167,16 @@
     <string name="permission_denied_tips_content">Приложение: %1$s не предоставляет необходимое разрешение, его не запускать. Перейдите к управлению разрешения вашего устройства и дайте ему разрешения.</string>
     <string name="permission_denied_ok">Запуск завершился неудачно.</string>
     <string name="list_app_access_external_storage">Если вы хотите установить apk из внешнего хранилища, пожалуйста, дайте VirtualXposed разрешение.</string>
+    <string name="install_gms_title" />
+    <string name="install_gms_content">Служба Google поддерживается microG, VirtualXposed собирается загрузить некоторый файл (2M), и он может потреблять больше батареи, хотите ли вы его установить?</string>
+    <string name="install_gms_fail_title">Ошибка установки</string>
+    <string name="install_gms_fail_content">Устанавливать службу Google автоматически не удалось, вы также можете установить ее вручную.</string>
+    <string name="install_gms_fail_ok">Ручная установка</string>
+    <string name="uninstall_gms_title">Удаление службы Google</string>
+    <string name="uninstall_gms_content">Удалить службу Google? вы можете переустановить его позже.</string>
+    <string name="uninstall_gms_ok">Удалить, подтвердить</string>
+    <string name="install_gms_alreay_installed">Служба Google установлена.</string>
+    <string name="install_gms_success">Служба Google установлена успешно!</string>
+    <string name="uninstall_gms_success">Служба Google успешно удалена!</string>
+    <string name="advance_settings_install_gms">Installer / Désinstaller les services Google</string>
 </resources>
