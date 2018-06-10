@@ -156,4 +156,6 @@
     <string name="donate_choose_title">选择打赏方式</string>
     <string name="donate_bitconins_tips">我的比特币地址已经复制到剪切板 :)</string>
     <string name="donate_alipay">支付宝</string>
+    <string name="advance_settings_disable_xposed">关闭 Xposed</string>
+    <string name="advance_settings_disable_xposed_summary">关闭Xposed之后，所有的Xposed均不会生效。</string>
 </resources>

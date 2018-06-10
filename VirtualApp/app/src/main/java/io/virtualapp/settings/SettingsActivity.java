@@ -59,6 +59,7 @@ public class SettingsActivity extends Activity {
     private static final String RECOMMEND_PLUGIN = "settings_plugin_recommend";
     private static final String DISABLE_RESIDENT_NOTIFICATION = "advance_settings_disable_resident_notification";
     private static final String ALLOW_FAKE_SIGNATURE = "advance_settings_allow_fake_signature";
+    private static final String DISABLE_XPOSED = "advance_settings_disable_xposed";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +103,7 @@ public class SettingsActivity extends Activity {
             SwitchPreference yieldMode = (SwitchPreference) findPreference(YIELD_MODE);
             SwitchPreference disableResidentNotification = (SwitchPreference) findPreference(DISABLE_RESIDENT_NOTIFICATION);
             SwitchPreference allowFakeSignature = (SwitchPreference) findPreference(ALLOW_FAKE_SIGNATURE);
+            SwitchPreference disableXposed = (SwitchPreference) findPreference(DISABLE_XPOSED);
 
             addApp.setOnPreferenceClickListener(preference -> {
                 ListAppActivity.gotoListApp(getActivity());
@@ -340,6 +342,28 @@ public class SettingsActivity extends Activity {
                     return success;
                 } else {
                     return !yieldFile.exists() || yieldFile.delete();
+                }
+            });
+
+            disableXposed.setOnPreferenceChangeListener((preference, newValue) -> {
+
+                if (!(newValue instanceof Boolean)) {
+                    return false;
+                }
+
+                boolean on = (boolean) newValue;
+
+                File disableXposedFile = getActivity().getFileStreamPath(".disable_xposed"); // 文件不存在代表是保守模式
+                if (on) {
+                    boolean success;
+                    try {
+                        success = disableXposedFile.createNewFile();
+                    } catch (IOException e) {
+                        success = false;
+                    }
+                    return success;
+                } else {
+                    return !disableXposedFile.exists() || disableXposedFile.delete();
                 }
             });
 

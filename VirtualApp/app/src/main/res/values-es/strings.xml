@@ -160,4 +160,6 @@
     <string name="uninstall_gms_success">El servicio de Google ha sido desinstalado con éxito.</string>
     <string name="donate_choose_title">Forma de donar</string>
     <string name="donate_bitconins_tips">Mi dirección de bitconins ha sido copiada al portapapeles :)</string>
+    <string name="advance_settings_disable_xposed_summary">Cuando está deshabilitado, todo el módulo Xposed no tendrá efecto.</string>
+    <string name="advance_settings_disable_xposed">Deshabilitar Xposed</string>
 </resources>

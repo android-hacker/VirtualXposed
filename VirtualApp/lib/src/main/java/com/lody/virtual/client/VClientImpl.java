@@ -331,13 +331,19 @@ public final class VClientImpl extends IVClient.Stub {
             InvocationStubManager.getInstance().checkEnv(AppInstrumentation.class);
         }
 
-        ClassLoader originClassLoader = context.getClassLoader();
-        initForYieldMode();
-        ExposedBridge.initOnce(context, data.appInfo, originClassLoader);
-        List<InstalledAppInfo> modules = VirtualCore.get().getInstalledApps(0);
-        for (InstalledAppInfo module : modules) {
-            ExposedBridge.loadModule(module.apkPath, module.getOdexFile().getParent(), module.libPath,
-                    data.appInfo, originClassLoader);
+        boolean enableXposed = !VirtualCore.get().getContext().getFileStreamPath(".disable_xposed").exists();
+        if (enableXposed) {
+            VLog.i(TAG, "Xposed is enabled.");
+            ClassLoader originClassLoader = context.getClassLoader();
+            initForYieldMode();
+            ExposedBridge.initOnce(context, data.appInfo, originClassLoader);
+            List<InstalledAppInfo> modules = VirtualCore.get().getInstalledApps(0);
+            for (InstalledAppInfo module : modules) {
+                ExposedBridge.loadModule(module.apkPath, module.getOdexFile().getParent(), module.libPath,
+                        data.appInfo, originClassLoader);
+            }
+        } else {
+            VLog.w(TAG, "Xposed is disable..");
         }
 
         mInitialApplication = LoadedApk.makeApplication.call(data.info, false, null);

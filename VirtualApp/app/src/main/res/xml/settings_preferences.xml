@@ -34,6 +34,13 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:key="advance_settings_disable_xposed"
+            android:persistent="true"
+            android:summary="@string/advance_settings_disable_xposed_summary"
+            android:title="@string/advance_settings_disable_xposed" />
+
+        <SwitchPreference
+            android:defaultValue="false"
             android:key="advance_settings_disable_resident_notification"
             android:persistent="true"
             android:summary="@string/advance_settings_disable_resident_notification_summary"

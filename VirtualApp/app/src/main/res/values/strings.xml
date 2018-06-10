@@ -162,4 +162,6 @@
     <string name="uninstall_gms_success">Google Service has been uninstalled successfully!!</string>
     <string name="donate_choose_title">Way to donate</string>
     <string name="donate_bitconins_tips">My bitconins address has been copied to clipboard:)</string>
+    <string name="advance_settings_disable_xposed_summary">When disabled, all Xposed module won\'t take effect.</string>
+    <string name="advance_settings_disable_xposed">Disable Xposed</string>
 </resources>
