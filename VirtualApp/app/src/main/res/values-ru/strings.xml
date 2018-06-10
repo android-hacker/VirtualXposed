@@ -179,4 +179,6 @@
     <string name="install_gms_success">Служба Google установлена успешно!</string>
     <string name="uninstall_gms_success">Служба Google успешно удалена!</string>
     <string name="advance_settings_install_gms">Installer / Désinstaller les services Google</string>
+    <string name="donate_choose_title">Способ пожертвования</string>
+    <string name="donate_bitconins_tips">Мой адрес битконов был скопирован в буфер обмена :)</string>
 </resources>
