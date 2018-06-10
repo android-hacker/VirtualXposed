@@ -183,4 +183,5 @@
     <string name="donate_bitconins_tips">Мой адрес битконов был скопирован в буфер обмена :)</string>
     <string name="advance_settings_disable_xposed_summary">При отключении все модули Xposed не вступят в силу.</string>
     <string name="advance_settings_disable_xposed">Отключить Xposed</string>
+    <string name="prepare_xposed_installer">Подготовка среды Xposed, пожалуйста, подождите ...</string>
 </resources>

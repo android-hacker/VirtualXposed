@@ -42,7 +42,6 @@ public class SplashActivity extends VActivity {
         });
     }
 
-
     private void doActionInThread() {
         if (!VirtualCore.get().isEngineLaunched()) {
             VirtualCore.get().waitForEngine();

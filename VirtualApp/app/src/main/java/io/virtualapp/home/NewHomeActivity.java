@@ -2,6 +2,7 @@ package io.virtualapp.home;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
@@ -18,6 +19,7 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
@@ -26,16 +28,25 @@ import android.widget.Toast;
 
 import com.android.launcher3.LauncherFiles;
 import com.google.android.apps.nexuslauncher.NexusLauncherActivity;
+import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.DeviceUtil;
+import com.lody.virtual.helper.utils.FileUtils;
+import com.lody.virtual.helper.utils.MD5Utils;
+import com.lody.virtual.helper.utils.VLog;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
 
-import io.virtualapp.XApp;
 import io.virtualapp.R;
+import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.settings.SettingsActivity;
 import io.virtualapp.update.VAVersionService;
+
+import static io.virtualapp.XApp.XPOSED_INSTALLER_PACKAGE;
 
 /**
  * @author weishu
@@ -49,6 +60,7 @@ public class NewHomeActivity extends NexusLauncherActivity {
 
     private Handler mUiHandler;
     private boolean mDirectlyBack = false;
+    private boolean checkXposedInstaller = true;
 
     public static void goHome(Context context) {
         Intent intent = new Intent(context, NewHomeActivity.class);
@@ -68,9 +80,73 @@ public class NewHomeActivity extends NexusLauncherActivity {
         mDirectlyBack = sharedPreferences.getBoolean(SettingsActivity.DIRECTLY_BACK_KEY, false);
     }
 
+    private void installXposed() {
+        boolean isXposedInstalled = false;
+        try {
+            isXposedInstalled = VirtualCore.get().isAppInstalled(XPOSED_INSTALLER_PACKAGE);
+            File oldXposedInstallerApk = getFileStreamPath("XposedInstaller_1_31.apk");
+            if (oldXposedInstallerApk.exists()) {
+                VirtualCore.get().uninstallPackage(XPOSED_INSTALLER_PACKAGE);
+                oldXposedInstallerApk.delete();
+                isXposedInstalled = false;
+                Log.d(TAG, "remove xposed installer success!");
+            }
+        } catch (Throwable e) {
+            VLog.d(TAG, "remove xposed install failed.", e);
+        }
+
+        if (!isXposedInstalled) {
+            ProgressDialog dialog = new ProgressDialog(this);
+            dialog.setCancelable(false);
+            dialog.setMessage(getResources().getString(R.string.prepare_xposed_installer));
+            dialog.show();
+
+            VUiKit.defer().when(() -> {
+                File xposedInstallerApk = getFileStreamPath("XposedInstaller_5_8.apk");
+                if (!xposedInstallerApk.exists()) {
+                    InputStream input = null;
+                    OutputStream output = null;
+                    try {
+                        input = getApplicationContext().getAssets().open("XposedInstaller_3.1.5.apk_");
+                        output = new FileOutputStream(xposedInstallerApk);
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = input.read(buffer)) > 0) {
+                            output.write(buffer, 0, length);
+                        }
+                    } catch (Throwable e) {
+                        VLog.e(TAG, "copy file error", e);
+                    } finally {
+                        FileUtils.closeQuietly(input);
+                        FileUtils.closeQuietly(output);
+                    }
+                }
+
+                if (xposedInstallerApk.isFile() && !DeviceUtil.isMeizuBelowN()) {
+                    try {
+                        if ("8537fb219128ead3436cc19ff35cfb2e".equals(MD5Utils.getFileMD5String(xposedInstallerApk))) {
+                            VirtualCore.get().installPackage(xposedInstallerApk.getPath(), InstallStrategy.TERMINATE_IF_EXIST);
+                        } else {
+                            VLog.w(TAG, "unknown Xposed installer, ignore!");
+                        }
+                    } catch (Throwable ignored) {
+                    }
+                }
+            }).then((v) -> {
+                dialog.dismiss();
+            }).fail((err) -> {
+                dialog.dismiss();
+            });
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
+        if (checkXposedInstaller) {
+            checkXposedInstaller = false;
+            installXposed();
+        }
         // check for update
         new Handler().postDelayed(() ->
                 VAVersionService.checkUpdate(getApplicationContext(), false), 1000);
@@ -146,7 +222,7 @@ public class NewHomeActivity extends NexusLauncherActivity {
         if (!DeviceUtil.isMeizuBelowN()) {
             return;
         }
-        boolean isXposedInstalled = VirtualCore.get().isAppInstalled(XApp.XPOSED_INSTALLER_PACKAGE);
+        boolean isXposedInstalled = VirtualCore.get().isAppInstalled(XPOSED_INSTALLER_PACKAGE);
         if (isXposedInstalled) {
             return;
         }
