@@ -158,4 +158,5 @@
     <string name="donate_alipay">支付宝</string>
     <string name="advance_settings_disable_xposed">关闭 Xposed</string>
     <string name="advance_settings_disable_xposed_summary">关闭Xposed之后，所有的Xposed均不会生效。</string>
+    <string name="prepare_xposed_installer">正在准备 Xposed 环境，请等待…</string>
 </resources>

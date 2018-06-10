@@ -162,4 +162,5 @@
     <string name="donate_bitconins_tips">Mon adresse bitconins a été copiée dans le presse-papiers :)</string>
     <string name="advance_settings_disable_xposed_summary">Lorsqu\'il est désactivé, tous les modules Xposed ne prennent pas effet.</string>
     <string name="advance_settings_disable_xposed">Désactiver Xposed</string>
+    <string name="prepare_xposed_installer">Préparation de l\'environnement Xposed, veuillez patienter ...</string>
 </resources>
