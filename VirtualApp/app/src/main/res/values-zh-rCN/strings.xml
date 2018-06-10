@@ -153,4 +153,7 @@
     <string name="uninstall_gms_ok">确认移除</string>
     <string name="install_gms_success">Google 服务已经安装成功！！</string>
     <string name="uninstall_gms_success">Google服务已经移除成功！！</string>
+    <string name="donate_choose_title">选择打赏方式</string>
+    <string name="donate_bitconins_tips">我的比特币地址已经复制到剪切板 :)</string>
+    <string name="donate_alipay">支付宝</string>
 </resources>

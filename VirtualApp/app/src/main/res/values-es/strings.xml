@@ -158,4 +158,6 @@
     <string name="install_gms_alreay_installed">El servicio de Google ha sido instalado.</string>
     <string name="install_gms_success">¡El servicio de Google se ha instalado con éxito!</string>
     <string name="uninstall_gms_success">El servicio de Google ha sido desinstalado con éxito.</string>
+    <string name="donate_choose_title">Forma de donar</string>
+    <string name="donate_bitconins_tips">Mi dirección de bitconins ha sido copiada al portapapeles :)</string>
 </resources>
