@@ -133,10 +133,21 @@ public class NewHomeActivity extends NexusLauncherActivity {
                     }
                 }
             }).then((v) -> {
-                dialog.dismiss();
+                dismissDialog(dialog);
             }).fail((err) -> {
-                dialog.dismiss();
+                dismissDialog(dialog);
             });
+        }
+    }
+
+    private static void dismissDialog(ProgressDialog dialog) {
+        if (dialog == null) {
+            return;
+        }
+        try {
+            dialog.dismiss();
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
     }
 
