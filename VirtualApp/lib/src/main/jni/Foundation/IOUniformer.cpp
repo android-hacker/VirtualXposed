@@ -616,6 +616,8 @@ HOOK_DEF(int, execve, const char *pathname, char *argv[], char *const envp[]) {
         char **new_argv = build_new_argv(argv);
         int ret = syscall(__NR_execve, redirect_path, new_argv, new_envp);
         FREE(redirect_path, pathname);
+        free(new_envp);
+        free(new_argv);
         return ret;
     }
     int ret = syscall(__NR_execve, redirect_path, argv, envp);
