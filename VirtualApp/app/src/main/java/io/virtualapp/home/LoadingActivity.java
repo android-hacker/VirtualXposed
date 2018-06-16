@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.ipc.VPackageManager;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.server.pm.parser.VPackage;
 
 import java.util.HashSet;
@@ -103,7 +104,7 @@ public class LoadingActivity extends VActivity {
         if (android.os.Build.VERSION.SDK_INT < RUNTIME_PERMISSION_API_LEVEL) {
             // the device is below Android M, the permissions are granted when install, start directly
             Log.i(TAG, "device's api level below Android M, do not need runtime permission.");
-            launchActivity(intent, userId);
+            launchActivityWithDelay(intent, userId);
             return;
         }
 
@@ -119,7 +120,7 @@ public class LoadingActivity extends VActivity {
 
             if (targetSdkVersion >= RUNTIME_PERMISSION_API_LEVEL) {
                 Log.i(TAG, "target package support runtime permission, launch directly.");
-                launchActivity(intent, userId);
+                launchActivityWithDelay(intent, userId);
             } else {
 
                 intentToLaunch = intent;
@@ -143,7 +144,7 @@ public class LoadingActivity extends VActivity {
                 if (dangerousPermissions.isEmpty()) {
                     Log.i(TAG, "all permission are granted, launch directly.");
                     // all permission are granted, launch directly.
-                    launchActivity(intent, userId);
+                    launchActivityWithDelay(intent, userId);
                 } else {
                     // tell user that this app need that permission
                     Log.i(TAG, "request permission: " + dangerousPermissions);
@@ -167,19 +168,29 @@ public class LoadingActivity extends VActivity {
             }
         } catch (Throwable e) {
             Log.e(TAG, "check permission failed: ", e);
-            launchActivity(intent, userId);
+            launchActivityWithDelay(intent, userId);
         }
     }
 
-    private void launchActivity(Intent intent, int userId) {
+    private void launchActivityWithDelay(Intent intent, int userId) {
         final int MAX_WAIT = 1000;
         long delta = SystemClock.elapsedRealtime() - start;
         long waitTime = MAX_WAIT - delta;
 
         if (waitTime <= 0) {
-            VActivityManager.get().startActivity(intent, userId);
+            launchActivity(intent, userId);
         } else {
-            loadingView.postDelayed(() -> VActivityManager.get().startActivity(intent, userId), waitTime);
+            loadingView.postDelayed(() -> launchActivity(intent, userId), waitTime);
+        }
+    }
+
+    private void launchActivity(Intent intent, int userId) {
+        try {
+            VActivityManager.get().startActivity(intent, userId);
+        } catch (Throwable e) {
+            VLog.e(TAG, "start activity failed:", e);
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.start_app_failed, appModel.name), Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 
@@ -200,7 +211,7 @@ public class LoadingActivity extends VActivity {
                     Toast.makeText(this, getResources().getString(R.string.start_app_failed, appModel.name), Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
-                    launchActivity(intentToLaunch, userToLaunch);
+                    launchActivityWithDelay(intentToLaunch, userToLaunch);
                 }
             } else {
                 // 提示用户，targetSdkVersion < 23 无法使用运行时权限
@@ -215,7 +226,7 @@ public class LoadingActivity extends VActivity {
                             .setPositiveButton(R.string.permission_tips_confirm, (dialog, which) -> {
                                 finish();
                                 Once.markDone(tag);
-                                launchActivity(intentToLaunch, userToLaunch);
+                                launchActivityWithDelay(intentToLaunch, userToLaunch);
                             })
                             .create();
                     try {
@@ -225,7 +236,7 @@ public class LoadingActivity extends VActivity {
                         Toast.makeText(this, getResources().getString(R.string.start_app_failed, appModel.name), Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    launchActivity(intentToLaunch, userToLaunch);
+                    launchActivityWithDelay(intentToLaunch, userToLaunch);
                     finish();
                 }
             }
