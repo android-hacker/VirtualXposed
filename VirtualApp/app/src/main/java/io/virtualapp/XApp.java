@@ -38,6 +38,7 @@ public class XApp extends Application {
 
     @Override
     protected void attachBaseContext(Context base) {
+        gApp = this;
         super.attachBaseContext(base);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             NativeEngine.disableJit(Build.VERSION.SDK_INT);
@@ -54,7 +55,6 @@ public class XApp extends Application {
 
     @Override
     public void onCreate() {
-        gApp = this;
         super.onCreate();
         VirtualCore virtualCore = VirtualCore.get();
         virtualCore.initialize(new VirtualCore.VirtualInitializer() {
