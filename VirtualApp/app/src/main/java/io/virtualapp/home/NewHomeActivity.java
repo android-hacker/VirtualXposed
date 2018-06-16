@@ -306,7 +306,13 @@ public class NewHomeActivity extends NexusLauncherActivity {
             setOurWallpaper(getResources().getDrawable(R.drawable.home_bg));
         } else {
             long start = SystemClock.elapsedRealtime();
-            Drawable d = BitmapDrawable.createFromPath(wallpaper.getPath());
+            Drawable d;
+            try {
+                d = BitmapDrawable.createFromPath(wallpaper.getPath());
+            } catch (Throwable e) {
+                Toast.makeText(getApplicationContext(), R.string.wallpaper_too_big_tips, Toast.LENGTH_SHORT).show();
+                return;
+            }
             long cost = SystemClock.elapsedRealtime() - start;
             if (cost > 200) {
                 Toast.makeText(getApplicationContext(), R.string.wallpaper_too_big_tips, Toast.LENGTH_SHORT).show();
