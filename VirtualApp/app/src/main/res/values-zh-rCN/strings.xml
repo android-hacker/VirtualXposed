@@ -138,10 +138,9 @@
     <string name="advance_settings_allow_fake_signature_summary">启用之后，您可以安装没有签名的APK到 VirtualXposed （通常用于破解版的APP，请注意安全。如果APP有签名校检，依然会无法使用）</string>
     <string name="advance_settings_allow_fake_signature">允许安装没有签名的应用</string>
     <string name="permission_tip_title">重要提示：</string>
-    <string name="permission_tips_content">%1$s 不支持动态申请权限, 您必须提前赋予它需要的所有必要权限, 请在它接下来的权限请求中全部选择允许，否则它将无法运行。</string>
+    <string name="permission_tips_content">%1$s 不支持动态申请权限, 您必须提前赋予它需要的所有必要权限, 请在它接下来的权限请求中全部选择允许，否则他可能无法正常运行。</string>
     <string name="permission_tips_confirm">我知道了</string>
-    <string name="permission_denied_tips_content">%1$s 没有获取到某些运行必须要使用的权限；它不支持动态申请权限. 请去您设备的系统权限管理中赋予 VirtualXposed 必要权限。</string>
-    <string name="permission_denied_ok">启动失败</string>
+    <string name="permission_denied_tips_content">%1$s 不支持动态申请权限，如果它工作不正常，请去您设备的系统权限管理中赋予 VirtualXposed 必要权限。</string>
     <string name="list_app_access_external_storage">如果你想把SD中的APK安装到 VirtualXposed，请赋予它外部存储权限。</string>
     <string name="install_gms_title">安装Google服务</string>
     <string name="install_gms_content">Google 服务是通过 micorG 支持的，需要下载 2M 左右的文件，安装完之后耗电量可能会增加，确认需要安装吗？</string>

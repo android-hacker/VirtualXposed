@@ -146,8 +146,7 @@
     <string name="permission_tip_title">Important tips:</string>
     <string name="permission_tips_content">%1$s  doesn\'t support runtime permission, you must give permissions it needs in advance, please allow all the permission it will request in next step, otherwise it may not work properly.</string>
     <string name="permission_tips_confirm">OK, I know.</string>
-    <string name="permission_denied_tips_content">App: %1$s doesn\'t grant necessary permission, it cann\'t be launched. Please go to your device\'s permission management and give it permissions.</string>
-    <string name="permission_denied_ok">Launch failed.</string>
+    <string name="permission_denied_tips_content">App: %1$s doesn\'t grant necessary permission, if it doesn\'t work properly, please go to your device\'s permission management and give it permissions.</string>
     <string name="list_app_access_external_storage">If you want to install apk from external storage, please give VirtualXposed the permission.</string>
     <string name="install_gms_title" >Install Google Service</string>
     <string name="install_gms_content">The Google Service is supported by microG, VirtualXposed is about to download some file(2M), and it may consume more battery, would you like to install it?</string>

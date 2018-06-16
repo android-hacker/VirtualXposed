@@ -139,8 +139,7 @@
     <string name="permission_tip_title">重要提示：</string>
     <string name="permission_tips_content">%1$s 不支援動態申請權限, 您必須提前賦予它需要的所有必要權限, 請在它接下來的權限請求中全部選擇允許，否則它將無法執行。</string>
     <string name="permission_tips_confirm">我知道了</string>
-    <string name="permission_denied_tips_content">%1$s 沒有取得某些執行必須要使用的權限；它不支援動態申請權限. 請去您設備的系統權限管理中賦予 VirtualXposed 必要權限。</string>
-    <string name="permission_denied_ok">啟動失敗</string>
+    <string name="permission_denied_tips_content">%1$s 不支持動態申請權限，如果它工作不正常，請去您設備的系統權限管理中賦予 VirtualXposed 必要權限。</string>
     <string name="list_app_access_external_storage">如果你想把SD中的APK安裝到 VirtualXposed，請賦予它外部儲存權限。</string>
     <string name="install_gms_title">安裝Google服務</string>
     <string name="install_gms_content">Google 服務是透過 micorG 支援的，需要下載 2M 左右的檔案，安裝完之後耗電量可能會增加，確認需要安裝嗎？</string>

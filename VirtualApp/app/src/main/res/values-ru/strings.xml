@@ -164,8 +164,7 @@
     <string name="permission_tip_title">Important Tips:</string>
     <string name="permission_tips_content">%1$s не поддерживает разрешение во время выполнения, вы должны предоставить разрешения, необходимые для этого, пожалуйста, разрешите все разрешения, которые оно запросит на следующем шаге, иначе это может не сработать.</string>
     <string name="permission_tips_confirm">Я знаю</string>
-    <string name="permission_denied_tips_content">Приложение: %1$s не предоставляет необходимое разрешение, его не запускать. Перейдите к управлению разрешения вашего устройства и дайте ему разрешения.</string>
-    <string name="permission_denied_ok">Запуск завершился неудачно.</string>
+    <string name="permission_denied_tips_content">Приложение: %1$s не предоставляет необходимые разрешения, если оно не работает должным образом, перейдите в управление разрешения вашего устройства и дайте ему разрешения.</string>
     <string name="list_app_access_external_storage">Если вы хотите установить apk из внешнего хранилища, пожалуйста, дайте VirtualXposed разрешение.</string>
     <string name="install_gms_title" />
     <string name="install_gms_content">Служба Google поддерживается microG, VirtualXposed собирается загрузить некоторый файл (2M), и он может потреблять больше батареи, хотите ли вы его установить?</string>

@@ -32,6 +32,7 @@ import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.home.models.PackageAppData;
 import io.virtualapp.home.repo.PackageAppDataStorage;
 import io.virtualapp.widgets.EatBeansView;
+import jonathanfinerty.once.Once;
 
 /**
  * @author Lody
@@ -205,17 +206,28 @@ public class LoadingActivity extends VActivity {
                 // 提示用户，targetSdkVersion < 23 无法使用运行时权限
                 Log.i(TAG, "can not use runtime permission, you must grant all permission, otherwise the app may not work!");
 
-                AlertDialog alertDialog = new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight_Dialog_Alert)
-                        .setMessage(getResources().getString(R.string.permission_denied_tips_content, appModel.name))
-                        .setPositiveButton(R.string.permission_denied_ok, (dialog, which) -> finish())
-                        .create();
-                try {
-                    alertDialog.show();
-                } catch (Throwable ignored) {
-                    // BadTokenException.
-                    Toast.makeText(this, getResources().getString(R.string.start_app_failed, appModel.name), Toast.LENGTH_SHORT).show();
+                final String tag = "permission_tips_" + appModel.packageName.replaceAll("\\.", "_");
+                // TODO find a device figuring out why some permissions are not detected.
+                if (!Once.beenDone(tag)) {
+                    AlertDialog alertDialog = new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight_Dialog_Alert)
+                            .setTitle(android.R.string.dialog_alert_title)
+                            .setMessage(getResources().getString(R.string.permission_denied_tips_content, appModel.name))
+                            .setPositiveButton(R.string.permission_tips_confirm, (dialog, which) -> {
+                                finish();
+                                Once.markDone(tag);
+                                launchActivity(intentToLaunch, userToLaunch);
+                            })
+                            .create();
+                    try {
+                        alertDialog.show();
+                    } catch (Throwable ignored) {
+                        // BadTokenException.
+                        Toast.makeText(this, getResources().getString(R.string.start_app_failed, appModel.name), Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    launchActivity(intentToLaunch, userToLaunch);
+                    finish();
                 }
-
             }
         }
     }
