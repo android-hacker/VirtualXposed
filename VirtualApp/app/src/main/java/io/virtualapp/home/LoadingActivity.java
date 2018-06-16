@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.helper.utils.VLog;
@@ -43,9 +44,6 @@ public class LoadingActivity extends VActivity {
 
     private static final String TAG = "LoadingActivity";
 
-    private static final String PKG_NAME_ARGUMENT = "MODEL_ARGUMENT";
-    private static final String KEY_INTENT = "KEY_INTENT";
-    private static final String KEY_USER = "KEY_USER";
     private PackageAppData appModel;
     private EatBeansView loadingView;
 
@@ -60,10 +58,10 @@ public class LoadingActivity extends VActivity {
         Intent intent = VirtualCore.get().getLaunchIntent(packageName, userId);
         if (intent != null) {
             Intent loadingPageIntent = new Intent(context, LoadingActivity.class);
-            loadingPageIntent.putExtra(PKG_NAME_ARGUMENT, packageName);
+            loadingPageIntent.putExtra(Constants.PASS_PKG_NAME_ARGUMENT, packageName);
             loadingPageIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            loadingPageIntent.putExtra(KEY_INTENT, intent);
-            loadingPageIntent.putExtra(KEY_USER, userId);
+            loadingPageIntent.putExtra(Constants.PASS_KEY_INTENT, intent);
+            loadingPageIntent.putExtra(Constants.PASS_KEY_USER, userId);
             context.startActivity(loadingPageIntent);
         }
     }
@@ -76,8 +74,8 @@ public class LoadingActivity extends VActivity {
 
         setContentView(R.layout.activity_loading);
         loadingView = (EatBeansView) findViewById(R.id.loading_anim);
-        int userId = getIntent().getIntExtra(KEY_USER, -1);
-        String pkg = getIntent().getStringExtra(PKG_NAME_ARGUMENT);
+        int userId = getIntent().getIntExtra(Constants.PASS_KEY_USER, -1);
+        String pkg = getIntent().getStringExtra(Constants.PASS_PKG_NAME_ARGUMENT);
         appModel = PackageAppDataStorage.get().acquire(pkg);
         if (appModel == null) {
             Toast.makeText(getApplicationContext(), "Open App:" + pkg + " failed.", Toast.LENGTH_SHORT).show();
@@ -89,7 +87,7 @@ public class LoadingActivity extends VActivity {
         iconView.setImageDrawable(appModel.icon);
         TextView nameView = (TextView) findViewById(R.id.app_name);
         nameView.setText(String.format(Locale.ENGLISH, "Opening %s...", appModel.name));
-        Intent intent = getIntent().getParcelableExtra(KEY_INTENT);
+        Intent intent = getIntent().getParcelableExtra(Constants.PASS_KEY_INTENT);
         if (intent == null) {
             finish();
             return;

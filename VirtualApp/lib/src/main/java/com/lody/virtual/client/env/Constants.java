@@ -51,4 +51,8 @@ public class Constants {
 	 */
 	public static String SHORTCUT_PROXY_ACTIVITY_NAME = ShortcutHandleActivity.class.getName();
 
+	public static final String PASS_PKG_NAME_ARGUMENT = "MODEL_ARGUMENT";
+	public static final String PASS_KEY_INTENT = "KEY_INTENT";
+	public static final String PASS_KEY_USER = "KEY_USER";
+
 }
