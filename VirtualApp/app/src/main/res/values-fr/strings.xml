@@ -144,8 +144,7 @@
     <string name="permission_tip_title">Important Tips:</string>
     <string name="permission_tips_content">%1$s ne supporte pas l\'autorisation d\'exécution, vous devez donner les autorisations dont il a besoin à l\'avance, veuillez autoriser toutes les permissions qu\'il demandera à l\'étape suivante, sinon cela pourrait ne pas fonctionner correctement.</string>
     <string name="permission_tips_confirm">Je sais</string>
-    <string name="permission_denied_tips_content">App: %1$s n\'accorde pas l\'autorisation nécessaire, il ne peut pas être lancé. Veuillez accéder à la gestion des autorisations de votre appareil et lui accorder des autorisations.</string>
-    <string name="permission_denied_ok">Le lancement a échoué.</string>
+    <string name="permission_denied_tips_content">App: %1$ s n\'accorde pas l\'autorisation nécessaire, si cela ne fonctionne pas correctement, veuillez aller à la gestion des permissions de votre appareil et lui donner des permissions.</string>
     <string name="list_app_access_external_storage">Si vous voulez installer apk à partir d\'un espace de stockage externe, veuillez donner à VirtualXposed la permission.</string>
     <string name="install_gms_title" />
     <string name="install_gms_content">Le service Google est pris en charge par microG, VirtualXposed est sur le point de télécharger un fichier (2M), et il peut consommer plus de batterie, souhaitez-vous l\'installer?</string>
