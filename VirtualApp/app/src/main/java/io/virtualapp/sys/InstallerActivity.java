@@ -226,7 +226,13 @@ public class InstallerActivity extends AppCompatActivity {
     private void handleSystemIntent(Intent intent) {
 
         Context context = VirtualCore.get().getContext();
-        String path = FileUtils.getFileFromUri(context, intent.getData());
+        String path;
+        try {
+            path = FileUtils.getFileFromUri(context, intent.getData());
+        } catch (Throwable e) {
+            e.printStackTrace();
+            return;
+        }
         PackageInfo pkgInfo = null;
         try {
             pkgInfo = context.getPackageManager().getPackageArchiveInfo(path, PackageManager.GET_META_DATA);
