@@ -1,10 +1,12 @@
 package com.lody.virtual.client.stub;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
+import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.ipc.VActivityManager;
 
 import java.net.URISyntaxException;
@@ -67,8 +69,16 @@ public class ShortcutHandleActivity extends Activity {
                 e.printStackTrace();
             }
         } else {
-            splashIntent.putExtra(Intent.EXTRA_INTENT, targetIntent);
-            splashIntent.putExtra(Intent.EXTRA_CC, userId);
+            splashIntent.putExtra(Constants.PASS_KEY_INTENT, targetIntent);
+            splashIntent.putExtra(Constants.PASS_KEY_USER, userId);
+            String pkg = targetIntent.getPackage();
+            if (pkg == null) {
+                ComponentName component = targetIntent.getComponent();
+                if (component != null) {
+                    pkg = component.getPackageName();
+                }
+            }
+            splashIntent.putExtra(Constants.PASS_PKG_NAME_ARGUMENT, pkg);
             startActivity(splashIntent);
         }
 
