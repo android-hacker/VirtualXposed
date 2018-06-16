@@ -43,7 +43,7 @@ For Xposed Module, You can install it from Xposed Installer, too.
 
 Open Xposed Installer in VirtualXposed, go to the module fragment, check the module you want to use:
 
-![How to activate module](https://raw.githubusercontent.com/tiann/arts/master/vxp_active.gif)
+![How to activate module](https://raw.githubusercontent.com/tiann/arts/master/vxp_activate.gif)
 
 ### Reboot
 
