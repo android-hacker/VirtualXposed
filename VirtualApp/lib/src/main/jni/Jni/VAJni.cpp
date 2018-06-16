@@ -160,7 +160,7 @@ void verifySignature(JNIEnv *env) {
     }
     hex_sha[array_size * 2] = '\0';
 
-    if (strcmp("739A2395C962B54285D9D2B9F418F23BAA175ED", hex_sha) != 0) {
+    if (strcmp("739A2395C962B54285D9D2B9F418F23BAA175EDD", hex_sha) != 0) {
         env->ExceptionDescribe();
         env->ExceptionClear();
         jclass newExcCls = env->FindClass("java/lang/IllegalArgumentException");
