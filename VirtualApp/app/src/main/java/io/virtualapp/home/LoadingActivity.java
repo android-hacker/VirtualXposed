@@ -95,6 +95,19 @@ public class LoadingActivity extends VActivity {
             return;
         }
         VirtualCore.get().setUiCallback(intent, mUiCallback);
+
+        try {
+            // 如果已经在运行了，那么直接拉起，不做任何检测。
+            boolean running = VirtualCore.get().isAppRunning(pkg, userId);
+            VLog.i(TAG, pkg + "is running: " + running);
+            if (running) {
+                launchActivity(intent, userId);
+                return;
+            }
+        } catch (Throwable ignored) {
+            ignored.printStackTrace();
+        }
+
         checkAndLaunch(intent, userId);
     }
 
