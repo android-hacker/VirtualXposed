@@ -255,12 +255,21 @@ public class FakeGms {
             return "Download gms config failed, please check your network, error: 9";
         }
 
+        String yalpStoreUrl = null;
+        try {
+            yalpStoreUrl = jsonObject.getString("yalp");
+        } catch (JSONException e) {
+            // ignore.
+            Log.i(TAG, "Download gms config failed, please check your network");
+        }
+
         updateMessage(activity, dialog, "config parse success!");
 
         File gmsCoreFile = new File(cacheDir, "gms.apk");
         File gmsServiceFile = new File(cacheDir, "gsf.apk");
         File storeFile = new File(cacheDir, "store.apk");
         File fakeGappsFile = new File(cacheDir, "fakegapps.apk");
+        File yalpStoreFile = new File(cacheDir, "yalpStore.apk");
 
         // clear old files.
         if (gmsCoreFile.exists()) {
@@ -303,6 +312,11 @@ public class FakeGms {
             return "Download gms config failed, please check your network, error: 13";
         }
 
+        if (yalpStoreUrl != null) {
+            downloadFile(yalpStoreUrl,yalpStoreFile,
+                    (progress -> updateMessage(activity, dialog, "download yalp store.." + progress + "%")));
+        }
+
         updateMessage(activity, dialog, "installing gms core");
         InstallResult installResult = VirtualCore.get().installPackage(gmsCoreFile.getAbsolutePath(), InstallStrategy.UPDATE_IF_EXIST);
 
@@ -326,6 +340,11 @@ public class FakeGms {
         installResult = VirtualCore.get().installPackage(fakeGappsFile.getAbsolutePath(), InstallStrategy.UPDATE_IF_EXIST);
         if (!installResult.isSuccess) {
             return "install gms xposed module failed: " + installResult.error;
+        }
+
+        if (yalpStoreFile.exists()) {
+            updateMessage(activity, dialog, "installing yalp store...");
+            VirtualCore.get().installPackage(yalpStoreFile.getAbsolutePath(), InstallStrategy.UPDATE_IF_EXIST);
         }
 
         // Enable the Xposed module.
