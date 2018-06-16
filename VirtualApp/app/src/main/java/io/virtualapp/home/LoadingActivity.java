@@ -1,5 +1,6 @@
 package io.virtualapp.home;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -12,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -25,6 +27,7 @@ import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.server.pm.parser.VPackage;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -96,9 +99,21 @@ public class LoadingActivity extends VActivity {
 
         try {
             // 如果已经在运行了，那么直接拉起，不做任何检测。
-            boolean running = VirtualCore.get().isAppRunning(pkg, userId);
-            VLog.i(TAG, pkg + "is running: " + running);
-            if (running) {
+            boolean uiRunning = false;
+            ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+            if (am != null) {
+                List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = am.getRunningAppProcesses();
+                for (ActivityManager.RunningAppProcessInfo runningAppProcess : runningAppProcesses) {
+                    String appProcessName = VActivityManager.get().getAppProcessName(runningAppProcess.pid);
+                    if (TextUtils.equals(appProcessName, pkg)) {
+                        uiRunning = true;
+                        break;
+                    }
+                }
+            }
+
+            VLog.i(TAG, pkg + "is running: " + uiRunning);
+            if (uiRunning) {
                 launchActivity(intent, userId);
                 return;
             }
