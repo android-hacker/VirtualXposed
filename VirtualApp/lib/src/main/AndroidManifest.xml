@@ -233,6 +233,8 @@
 
         <activity
             android:name="com.lody.virtual.client.stub.ShortcutHandleActivity"
+            android:excludeFromRecents="true"
+            android:taskAffinity="va.task.shortcut"
             android:exported="true"
             android:process="@string/engine_process_name"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
@@ -253,9 +255,10 @@
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:process="@string/engine_process_name" />
 
-        <service android:name=".client.stub.DaemonJobService"
-            android:exported="true"
+        <service
+            android:name=".client.stub.DaemonJobService"
             android:enabled="true"
+            android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:process="@string/engine_process_name" />
 
