@@ -82,11 +82,14 @@ public class VAppManagerService extends IAppManager.Stub {
     }
 
     private void cleanUpResidualFiles(PackageSetting ps) {
+        VLog.w(TAG, "cleanUpResidualFiles: " + ps.packageName);
         File dataAppDir = VEnvironment.getDataAppPackageDirectory(ps.packageName);
         FileUtils.deleteDir(dataAppDir);
-        for (int userId : VUserManagerService.get().getUserIds()) {
-            FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(userId, ps.packageName));
-        }
+
+        // We shouldn't remove user data here!!! Just remove the package.
+        // for (int userId : VUserManagerService.get().getUserIds()) {
+        //     FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(userId, ps.packageName));
+        // }
     }
 
 
