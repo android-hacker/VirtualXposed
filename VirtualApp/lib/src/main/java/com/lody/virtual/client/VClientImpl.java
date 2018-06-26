@@ -335,7 +335,7 @@ public final class VClientImpl extends IVClient.Stub {
         if (enableXposed) {
             VLog.i(TAG, "Xposed is enabled.");
             ClassLoader originClassLoader = context.getClassLoader();
-            ExposedBridge.initOnce(context, data.appInfo, originClassLoader);
+            ExposedBridge.initOnce(context, data.appInfo, originClassLoader, getUserId(vuid));
             List<InstalledAppInfo> modules = VirtualCore.get().getInstalledApps(0);
             for (InstalledAppInfo module : modules) {
                 ExposedBridge.loadModule(module.apkPath, module.getOdexFile().getParent(), module.libPath,
