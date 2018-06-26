@@ -28,8 +28,8 @@ android {
         applicationId "io.va.exposed"
         minSdkVersion 21
         targetSdkVersion 23
-        versionCode 116
-        versionName "0.11.6"
+        versionCode 117
+        versionName "0.11.7"
         multiDexEnabled false
         android {
             defaultConfig {

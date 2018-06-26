@@ -74,13 +74,6 @@
             android:summary="@string/advance_settings_directly_back_summary"
             android:title="@string/advance_settings_directly_back" />
 
-        <SwitchPreference
-            android:defaultValue="true"
-            android:key="advance_settings_yield_mode2"
-            android:persistent="true"
-            android:summary="@string/advance_settings_yield_mode_summary"
-            android:title="@string/advance_settings_yield_mode" />
-
         <Preference
             android:key="settings_desktop"
             android:persistent="false"

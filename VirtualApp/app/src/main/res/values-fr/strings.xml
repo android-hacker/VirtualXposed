@@ -128,8 +128,6 @@
     <string name="advance_settings_install_gms">Installer / Désinstaller les services Google</string>
     <string name="about_feedback_tel_title">Group Telegram: %1$s</string>
     <string name="advance_settings_copy_file">Copier fichier</string>
-    <string name="advance_settings_yield_mode_summary">Ouvrir ceci pour un compromis entre la stabilité et la compatibilité.</string>
-    <string name="advance_settings_yield_mode">Mode Conservateur</string>
     <string name="about_website_title">Site web officiel</string>
     <string name="about_feedback_title">Retour utilisateurs</string>
     <string name="about_feedback_hint">Veuillez spécifier le modèle de votre téléphone, la version Android, le plugin Xposed et la version de l\'application correspondante, puis décrivez (avec le plus de détails possible) le problème que vous rencontrez, sinon il est considéré comme un feedback invalide (parce que nous ne pouvons pas résoudre efficacement le problème avec seulement \"cette application plante\"). ;) )</string>

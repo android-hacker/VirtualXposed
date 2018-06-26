@@ -128,8 +128,6 @@
     <string name="about_feedback_tel_title">Grupo de Telegram: %1$s</string>
     <string name="advance_settings_install_gms">Instalar / Desinstalar servicios de Google</string>
     <string name="advance_settings_copy_file">Copiar archivo</string>
-    <string name="advance_settings_yield_mode_summary">Activar esta opción para un balance entre estabilidad y compatibilidad</string>
-    <string name="advance_settings_yield_mode">Modo conservativo</string>
     <string name="about_website_title">Sitio web oficial</string>
     <string name="about_feedback_title">Comentarios</string>
     <string name="about_feedback_hint">Especifique el modelo, la versión del sistema, el complemento Xposed utilizado y la versión de la aplicación correspondiente, y luego describa con el mayor detalle posible el problema que está experimentando, de lo contrario, se considera como un comentario no válido.\n</string>
