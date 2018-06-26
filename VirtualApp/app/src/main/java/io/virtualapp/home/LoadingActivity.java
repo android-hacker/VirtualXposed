@@ -180,7 +180,10 @@ public class LoadingActivity extends VActivity {
                             .setMessage(getResources().getString(R.string.permission_tips_content, name))
                             .setPositiveButton(R.string.permission_tips_confirm, (dialog, which) -> {
                                 String[] permissionToRequest = dangerousPermissions.toArray(new String[dangerousPermissions.size()]);
-                                ActivityCompat.requestPermissions(this, permissionToRequest, REQUEST_PERMISSION_CODE);
+                                try {
+                                    ActivityCompat.requestPermissions(this, permissionToRequest, REQUEST_PERMISSION_CODE);
+                                } catch (Throwable ignored) {
+                                }
                             })
                             .create();
                     try {
