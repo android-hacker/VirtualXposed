@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.widget.Toast;
 
 import com.lody.virtual.GmsSupport;
 import com.lody.virtual.client.core.InstallStrategy;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.virtualapp.R;
 import io.virtualapp.VCommends;
 import io.virtualapp.XApp;
 import io.virtualapp.abs.ui.VUiKit;
@@ -200,6 +202,10 @@ public class Installd {
             // Ignore
         }
         if (pkgInfo == null) {
+            return null;
+        }
+        if (VirtualCore.get().getHostPkg().equals(pkgInfo.packageName)) {
+            Toast.makeText(VirtualCore.get().getContext(), R.string.install_self_eggs, Toast.LENGTH_SHORT).show();
             return null;
         }
 
