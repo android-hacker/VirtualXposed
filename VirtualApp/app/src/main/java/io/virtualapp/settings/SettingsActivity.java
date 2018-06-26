@@ -55,7 +55,6 @@ public class SettingsActivity extends Activity {
     private static final String INSTALL_GMS_KEY = "advance_settings_install_gms";
     public static final String DIRECTLY_BACK_KEY = "advance_settings_directly_back";
     private static final String COPY_FILE = "advance_settings_copy_file";
-    private static final String YIELD_MODE = "advance_settings_yield_mode2";
     private static final String RECOMMEND_PLUGIN = "settings_plugin_recommend";
     private static final String DISABLE_RESIDENT_NOTIFICATION = "advance_settings_disable_resident_notification";
     private static final String ALLOW_FAKE_SIGNATURE = "advance_settings_allow_fake_signature";
@@ -100,7 +99,6 @@ public class SettingsActivity extends Activity {
             Preference copyFile = findPreference(COPY_FILE);
 
             SwitchPreference disableInstaller = (SwitchPreference) findPreference(DISABLE_INSTALLER_KEY);
-            SwitchPreference yieldMode = (SwitchPreference) findPreference(YIELD_MODE);
             SwitchPreference disableResidentNotification = (SwitchPreference) findPreference(DISABLE_RESIDENT_NOTIFICATION);
             SwitchPreference allowFakeSignature = (SwitchPreference) findPreference(ALLOW_FAKE_SIGNATURE);
             SwitchPreference disableXposed = (SwitchPreference) findPreference(DISABLE_XPOSED);
@@ -322,28 +320,6 @@ public class SettingsActivity extends Activity {
                 }
                 return false;
             }));
-
-            yieldMode.setOnPreferenceChangeListener((preference, newValue) -> {
-
-                if (!(newValue instanceof Boolean)) {
-                    return false;
-                }
-
-                boolean on = (boolean) newValue;
-
-                File yieldFile = getActivity().getFileStreamPath("yieldMode2"); // 文件不存在代表是保守模式
-                if (!on) {
-                    boolean success;
-                    try {
-                        success = yieldFile.createNewFile();
-                    } catch (IOException e) {
-                        success = false;
-                    }
-                    return success;
-                } else {
-                    return !yieldFile.exists() || yieldFile.delete();
-                }
-            });
 
             disableXposed.setOnPreferenceChangeListener((preference, newValue) -> {
 

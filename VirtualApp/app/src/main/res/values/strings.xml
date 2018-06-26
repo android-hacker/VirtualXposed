@@ -129,8 +129,6 @@
     <string name="advance_settings_install_gms">Install/Uninstall Google Services</string>
     <string name="about_feedback_tel_title">Telegram Group: %1$s</string>
     <string name="advance_settings_copy_file">Copy File</string>
-    <string name="advance_settings_yield_mode_summary">Open this for a trade-off between stability and compatibility.</string>
-    <string name="advance_settings_yield_mode">Conservative Mode</string>
     <string name="about_website_title">Official website</string>
     <string name="about_feedback_title">Feedback</string>
     <string name="about_feedback_hint">Please specify your phone model, Android version, Xposed plugin, and version of the corresponding app, and then describe (in as much detail as possible) the problem you are experiencing, otherwise it is considered invalid feedback (because we can\'t effectively troubleshoot and fix said problem with only \"this app crashes\" ;) )</string>

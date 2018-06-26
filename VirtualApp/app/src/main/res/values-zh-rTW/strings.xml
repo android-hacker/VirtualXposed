@@ -123,8 +123,6 @@
     <string name="advance_settings_install_gms">安裝/移除Google服務</string>
     <string name="about_feedback_tel_title">Telegram 群組: %1$s</string>
     <string name="advance_settings_copy_file">內部檔案複製</string>
-    <string name="advance_settings_yield_mode_summary">開啟這個開關，可能會提高VirtualXposed的穩定性，但同時會失去對插件的一些相容性。</string>
-    <string name="advance_settings_yield_mode">保守模式</string>
     <string name="about_website_title">官網（使用教學/歷史版本下載/模組下載)</string>
     <string name="about_feedback_title">問題回饋</string>
     <string name="about_feedback_hint">請說明你的機型，系統版本，使用的Xposed插件以及對應APP版本，然後儘可能詳細地描述你遇到的問題；否則視為無效回饋。\n</string>
