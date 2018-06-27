@@ -8,12 +8,12 @@ if (localProp.exists()) {
 def exposedVersion = properties.getProperty("exposed.version") ?: "0.3.5"
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 27
+    buildToolsVersion '27.1.1'
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 22
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
         externalNativeBuild {
@@ -43,10 +43,9 @@ android {
     }
 }
 
-
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile "me.weishu.exposed:exposed-core:${exposedVersion}"
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "me.weishu.exposed:exposed-core:${exposedVersion}"
 }
 
 repositories {
