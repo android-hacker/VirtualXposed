@@ -13,9 +13,4 @@
         android:title="@string/app_manage_repair"
         app:showAsAction="always" />
 
-    <item
-        android:id="@+id/action_redirect"
-        android:orderInCategory="100"
-        android:title="@string/app_manage_redirect_on"
-        app:showAsAction="withText" />
 </menu>

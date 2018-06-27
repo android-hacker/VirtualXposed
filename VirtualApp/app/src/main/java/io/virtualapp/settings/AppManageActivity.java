@@ -14,7 +14,6 @@ import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -141,16 +140,6 @@ public class AppManageActivity extends VActivity {
         }
         PopupMenu popupMenu = new PopupMenu(this, anchor);
         popupMenu.inflate(R.menu.app_manage_menu);
-        MenuItem redirectMenu = popupMenu.getMenu().findItem(R.id.action_redirect);
-
-        try {
-            final String packageName = appManageInfo.pkgName;
-            final int userId = appManageInfo.userId;
-            boolean virtualStorageEnable = VirtualStorageManager.get().isVirtualStorageEnable(packageName, userId);
-            redirectMenu.setTitle(virtualStorageEnable ? R.string.app_manage_redirect_off : R.string.app_manage_redirect_on);
-        } catch (Throwable e) {
-            redirectMenu.setVisible(false);
-        }
 
         popupMenu.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
@@ -159,9 +148,6 @@ public class AppManageActivity extends VActivity {
                     break;
                 case R.id.action_repair:
                     showRepairDialog(appManageInfo);
-                    break;
-                case R.id.action_redirect:
-                    showStorageRedirectDialog(appManageInfo);
                     break;
             }
             return false;
