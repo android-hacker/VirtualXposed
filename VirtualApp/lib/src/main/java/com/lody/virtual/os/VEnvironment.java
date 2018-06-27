@@ -10,6 +10,7 @@ import com.lody.virtual.helper.utils.FileUtils;
 import com.lody.virtual.helper.utils.VLog;
 
 import java.io.File;
+import java.util.Locale;
 
 import mirror.dalvik.system.VMRuntime;
 
@@ -176,6 +177,14 @@ public class VEnvironment {
         }
         File userBase = new File(virtualStorageBaseDir, String.valueOf(userId));
         return ensureCreated(userBase);
+    }
+
+    // /sdcard/Android/data/<host_package>/virtual/<user>/<package>
+    public static File getVirtualPrivateStorageDir(String packageName, int userId) {
+        String base = String.format(Locale.ENGLISH, "%s/Android/data/%s/%s/%d", Environment.getExternalStorageDirectory(),
+                VirtualCore.get().getHostPkg(), "virtual", userId);
+        File file = new File(base, packageName);
+        return ensureCreated(file);
     }
 
     public static File getWifiMacFile(int userId) {
