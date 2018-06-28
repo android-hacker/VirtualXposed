@@ -179,11 +179,11 @@ public class VEnvironment {
         return ensureCreated(userBase);
     }
 
-    // /sdcard/Android/data/<host_package>/virtual/<user>/<package>
-    public static File getVirtualPrivateStorageDir(String packageName, int userId) {
+    // /sdcard/Android/data/<host_package>/virtual/<user>
+    public static File getVirtualPrivateStorageDir(int userId) {
         String base = String.format(Locale.ENGLISH, "%s/Android/data/%s/%s/%d", Environment.getExternalStorageDirectory(),
                 VirtualCore.get().getHostPkg(), "virtual", userId);
-        File file = new File(base, packageName);
+        File file = new File(base);
         return ensureCreated(file);
     }
 
