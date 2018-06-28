@@ -518,9 +518,12 @@ public final class VClientImpl extends IVClient.Stub {
             // redirect xxx/Android/data/<package> -> /xxx/Android/data/<host>/virtual/user/package
             String privatePath = VEnvironment.getVirtualPrivateStorageDir(info.packageName, userId).getAbsolutePath();
             NativeEngine.redirectDirectory(String.format(Locale.ENGLISH, "%s/Android/data/%s/", storageRoot, info.packageName), privatePath);
+            NativeEngine.whitelist(privatePath, true);
 
             // redirect /sdcard/ -> vsdcard
-            NativeEngine.redirectDirectory(storageRoot, vsDir.getAbsolutePath());
+            String vsPath = vsDir.getAbsolutePath();
+            NativeEngine.redirectDirectory(storageRoot, vsPath);
+            NativeEngine.whitelist(vsPath, true);
         }
     }
 
