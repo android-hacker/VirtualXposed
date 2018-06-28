@@ -2,6 +2,7 @@ package com.lody.virtual.server.pm;
 
 import android.content.Intent;
 
+import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.stub.VASettings;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.server.am.VActivityManagerService;
@@ -54,6 +55,15 @@ public class PrivilegeAppOptimizer {
                 specifyApp(new Intent(Intent.ACTION_BOOT_COMPLETED), packageName, userId)
                 , new VUserHandle(userId));
         return true;
+    }
+
+    public static void notifyBootFinish() {
+        for (String pkg : Constants.PRIVILEGE_APP) {
+            try {
+                PrivilegeAppOptimizer.get().performOptimize(pkg, 0);
+            } catch (Throwable ignored) {
+            }
+        }
     }
 
     private Intent specifyApp(Intent intent, String packageName, int userId) {

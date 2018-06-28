@@ -9,7 +9,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.os.Build;
 
-import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.server.pm.PrivilegeAppOptimizer;
 
 import java.util.concurrent.TimeUnit;
@@ -22,12 +21,7 @@ public class DaemonJobService extends JobService {
 
     @Override
     public boolean onStartJob(JobParameters params) {
-        for (String pkg : Constants.PRIVILEGE_APP) {
-            try {
-                PrivilegeAppOptimizer.get().performOptimize(pkg, 0);
-            } catch (Throwable ignored) {
-            }
-        }
+        PrivilegeAppOptimizer.notifyBootFinish();
         return true;
     }
 
