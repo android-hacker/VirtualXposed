@@ -58,13 +58,13 @@ public class NativeEngine {
         }
     }
 
-    public static String getRedirectedPath(String origPath) {
+    public static String getRedirectedPath(String redirectPath) {
         try {
-            return nativeGetRedirectedPath(origPath);
+            return nativeGetRedirectedPath(redirectPath);
         } catch (Throwable e) {
             VLog.e(TAG, VLog.getStackTraceString(e));
         }
-        return origPath;
+        return redirectPath;
     }
 
     public static String resverseRedirectedPath(String origPath) {
@@ -113,7 +113,10 @@ public class NativeEngine {
         }
     }
 
-    public static void whitelist(String path) {
+    public static void whitelist(String path, boolean directory) {
+        if (directory && !path.endsWith("/")) {
+            path = path + "/";
+        }
         try {
             nativeIOWhitelist(path);
         } catch (Throwable e) {

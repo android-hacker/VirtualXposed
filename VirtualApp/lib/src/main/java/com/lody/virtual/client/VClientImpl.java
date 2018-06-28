@@ -504,6 +504,7 @@ public final class VClientImpl extends IVClient.Stub {
             if (!originalDir.exists()) {
                 continue;
             }
+            //noinspection ResultOfMethodCallIgnored
             virtualDir.mkdirs();
         }
 
@@ -511,11 +512,9 @@ public final class VClientImpl extends IVClient.Stub {
             for (String whiteDir : whiteList) {
                 // white list, do not redirect
                 String whitePath = String.format("%s%s%s", storageRoot, File.separator, whiteDir);
-                NativeEngine.redirectDirectory(whitePath, whitePath);
+                NativeEngine.whitelist(whitePath, true);
             }
-        }
 
-        for (String storageRoot : storageRoots) {
             // redirect xxx/Android/data/<package> -> /xxx/Android/data/<host>/virtual/user/package
             String privatePath = VEnvironment.getVirtualPrivateStorageDir(info.packageName, userId).getAbsolutePath();
             NativeEngine.redirectDirectory(String.format(Locale.ENGLISH, "%s/Android/data/%s/", storageRoot, info.packageName), privatePath);
