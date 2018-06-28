@@ -56,7 +56,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -508,22 +507,22 @@ public final class VClientImpl extends IVClient.Stub {
             virtualDir.mkdirs();
         }
 
+        String vsPath = vsDir.getAbsolutePath();
+        NativeEngine.whitelist(vsPath, true);
+        String privatePath = VEnvironment.getVirtualPrivateStorageDir(userId).getAbsolutePath();
+        NativeEngine.whitelist(privatePath, true);
+
         for (String storageRoot : storageRoots) {
             for (String whiteDir : whiteList) {
                 // white list, do not redirect
-                String whitePath = String.format("%s%s%s", storageRoot, File.separator, whiteDir);
+                String whitePath = new File(storageRoot, whiteDir).getAbsolutePath();
                 NativeEngine.whitelist(whitePath, true);
             }
 
-            // redirect xxx/Android/data/<package> -> /xxx/Android/data/<host>/virtual/user/package
-            String privatePath = VEnvironment.getVirtualPrivateStorageDir(info.packageName, userId).getAbsolutePath();
-            NativeEngine.redirectDirectory(String.format(Locale.ENGLISH, "%s/Android/data/%s/", storageRoot, info.packageName), privatePath);
-            NativeEngine.whitelist(privatePath, true);
-
+            // redirect xxx/Android/data/ -> /xxx/Android/data/<host>/virtual/<user>
+            NativeEngine.redirectDirectory(new File(storageRoot, "Android/data/").getAbsolutePath(), privatePath);
             // redirect /sdcard/ -> vsdcard
-            String vsPath = vsDir.getAbsolutePath();
             NativeEngine.redirectDirectory(storageRoot, vsPath);
-            NativeEngine.whitelist(vsPath, true);
         }
     }
 
