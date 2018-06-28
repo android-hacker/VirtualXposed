@@ -187,6 +187,11 @@ public class VEnvironment {
         return ensureCreated(file);
     }
 
+    public static File getVirtualPrivateStorageDir(int userId, String packageName) {
+        File file = new File(getVirtualPrivateStorageDir(userId), packageName);
+        return ensureCreated(file);
+    }
+
     public static File getWifiMacFile(int userId) {
         // return new File(getUserSystemDirectory(userId), "wifiMacAddress");
         return new File(getUserSystemDirectory(userId), EncodeUtils.decode("d2lmaU1hY0FkZHJlc3M="));
