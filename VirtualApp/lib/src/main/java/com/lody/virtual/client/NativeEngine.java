@@ -116,6 +116,8 @@ public class NativeEngine {
     public static void whitelist(String path, boolean directory) {
         if (directory && !path.endsWith("/")) {
             path = path + "/";
+        } else if (!directory && path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
         }
         try {
             nativeIOWhitelist(path);
