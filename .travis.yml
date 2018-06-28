@@ -2,8 +2,7 @@ language: android
 android:
   components:
     - tools
-    - build-tools-26.0.2
-    - android-26
+    - build-tools-27.0.3
     - android-27
     - extra-android-m2repository
     - extra-android-support
@@ -11,7 +10,7 @@ android:
 install:
   - echo y | sdkmanager 'ndk-bundle'
   - echo y | sdkmanager 'cmake;3.6.4111459'
-  - echo y | sdkmanager 'lldb;3.0'
+  - echo y | sdkmanager 'lldb;3.1'
 
 before_install:
   - chmod +x ./VirtualApp/gradlew
