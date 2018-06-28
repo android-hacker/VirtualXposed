@@ -50,6 +50,12 @@ public class ProviderHook implements InvocationHandler {
                 return new DownloadProviderHook(provider);
             }
         });
+        PROVIDER_MAP.put("media", new HookFetcher() {
+            @Override
+            public ProviderHook fetch(boolean external, IInterface provider) {
+                return new MediaProviderHook(provider);
+            }
+        });
     }
 
     protected final Object mBase;
