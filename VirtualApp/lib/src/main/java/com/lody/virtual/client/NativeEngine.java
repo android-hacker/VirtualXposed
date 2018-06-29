@@ -91,6 +91,9 @@ public class NativeEngine {
     }
 
     public static String getEscapePath(String path) {
+        if (path == null) {
+            return null;
+        }
         File file = new File(path);
         if (file.exists()) {
             return file.getAbsolutePath();
