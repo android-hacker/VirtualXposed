@@ -38,6 +38,7 @@ import com.lody.virtual.client.hook.secondary.ProxyServiceFactory;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.ipc.VDeviceManager;
 import com.lody.virtual.client.ipc.VPackageManager;
+import com.lody.virtual.client.ipc.VirtualStorageManager;
 import com.lody.virtual.client.stub.VASettings;
 import com.lody.virtual.helper.compat.BuildCompat;
 import com.lody.virtual.helper.compat.StorageManagerCompat;
@@ -455,6 +456,14 @@ public final class VClientImpl extends IVClient.Stub {
     }
 
     private void setupVirtualStorage(ApplicationInfo info, int userId) {
+        VirtualStorageManager vsManager = VirtualStorageManager.get();
+        boolean enable = vsManager.isVirtualStorageEnable(info.packageName, userId);
+        if (!enable) {
+            // There are lots of situation to deal, I am tired, disable it now.
+            // such as: FileProvider.
+            return;
+        }
+
         File vsDir = VEnvironment.getVirtualStorageDir(info.packageName, userId);
         if (vsDir == null || !vsDir.exists() || !vsDir.isDirectory()) {
             return;
