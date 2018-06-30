@@ -41,7 +41,7 @@ public class ProviderHook implements InvocationHandler {
         PROVIDER_MAP.put("settings", new HookFetcher() {
             @Override
             public ProviderHook fetch(boolean external, IInterface provider) {
-                return new SettingsProviderHook(provider);
+                return new XPrivacyLuaHook(provider);
             }
         });
         PROVIDER_MAP.put("downloads", new HookFetcher() {
