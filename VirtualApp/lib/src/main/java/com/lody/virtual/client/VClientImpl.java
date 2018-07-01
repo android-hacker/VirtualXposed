@@ -29,6 +29,7 @@ import android.os.StrictMode;
 import com.lody.virtual.client.core.CrashHandler;
 import com.lody.virtual.client.core.InvocationStubManager;
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.fixer.ContextFixer;
@@ -475,6 +476,11 @@ public final class VClientImpl extends IVClient.Stub {
     }
 
     private void setupVirtualStorage(ApplicationInfo info, int userId) {
+        if (Constants.XPRIVACY_LUA_PACKAGE.equals(info.packageName)) {
+            File xluaDirectory = VirtualCore.get().getContext().getFileStreamPath("xlua");
+            NativeEngine.redirectDirectory(Constants.XPRIVACY_LUA_DB_FOLDER, xluaDirectory.getAbsolutePath());
+        }
+
         VirtualStorageManager vsManager = VirtualStorageManager.get();
         boolean enable = vsManager.isVirtualStorageEnable(info.packageName, userId);
         if (!enable) {
