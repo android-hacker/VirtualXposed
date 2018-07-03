@@ -54,6 +54,10 @@ You only need to reboot VirtualXposed, **There's no need to reboot your phone**;
 Modules tested by myself
 -------------------------
 
+- [XPrivacyLua][xpl]: Really simple to use privacy manager for Android 6.0 Marshmallow and later.
+- [XInsta][xinsta]: Instagram module(Feed downing, stories downloading, etc).
+- [Minminguard][minminguard]: Completely remove both the ads inside apps and the empty space caused by those ads.
+- [YouTube AdAway][yta]:  Get rid of ads on the official YouTube App.
 - [微X模块][wx]: 微信模块，功能强大。
 - [微信巫师][wxws]: 微信模块，项目开源，代码优秀。
 - [MDWechat][mdwechat]: 微信美化模块，可以把微信整成MD风格。
@@ -124,4 +128,7 @@ Credits
 [qqjj]: https://www.coolapk.com/apk/me.zpp0196.qqsimple
 [qqdtsq]: https://www.coolapk.com/apk/x.hook.qqemoji
 [wxdtsq]: https://www.coolapk.com/apk/x.hook.emojihook
-[dsjh]: https://wiki.ad-gone.com/archives/32/
+[dsjh]: https://wiki.ad-gone.com/archives/32
+[xpl]: https://github.com/android-hacker/VirtualXposed/wiki/Privacy-control(XPrivacyLua)
+[minminguard]: http://repo.xposed.info/module/tw.fatminmin.xposed.minminguard
+[yta]: http://repo.xposed.info/module/ma.wanam.youtubeadaway
