@@ -141,7 +141,7 @@
     <string name="permission_denied_tips_content">%1$s 不支持动态申请权限，如果它工作不正常，请去您设备的系统权限管理中赋予 VirtualXposed 必要权限。</string>
     <string name="list_app_access_external_storage">如果你想把SD中的APK安装到 VirtualXposed，请赋予它外部存储权限。</string>
     <string name="install_gms_title">安装Google服务</string>
-    <string name="install_gms_content">Google 服务是通过 micorG 支持的，需要下载 2M 左右的文件，安装完之后耗电量可能会增加，确认需要安装吗？</string>
+    <string name="install_gms_content">Google 服务是通过 microG 支持的，需要下载 2M 左右的文件，安装完之后耗电量可能会增加，确认需要安装吗？</string>
     <string name="install_gms_fail_title">安装失败</string>
     <string name="install_gms_fail_content">自动安装Google 服务失败，你可以参考教程手动安装。</string>
     <string name="install_gms_fail_ok">查看教程</string>
