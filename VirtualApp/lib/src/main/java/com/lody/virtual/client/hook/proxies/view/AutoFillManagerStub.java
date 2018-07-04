@@ -1,11 +1,14 @@
 package com.lody.virtual.client.hook.proxies.view;
 
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.util.Log;
 
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.BinderInvocationProxy;
 import com.lody.virtual.client.hook.base.MethodProxy;
 import com.lody.virtual.client.hook.utils.MethodParameterUtils;
+import com.lody.virtual.helper.utils.ArrayUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -52,10 +55,28 @@ public class AutoFillManagerStub extends BinderInvocationProxy {
             }
             @Override
             public boolean beforeCall(Object who, Method method, Object... args) {
-                MethodParameterUtils.replaceLastAppPkg(args);
+                if (args == null) {
+                    return super.beforeCall(who, method, args);
+                }
+                int length = args.length;
+                if (length == 0) {
+                    return super.beforeCall(who, method, args);
+                }
+
+                int lastIndex = length - 1;
+                Object lastParam = args[lastIndex];
+                if (lastParam instanceof String) {
+                    MethodParameterUtils.replaceLastAppPkg(args);
+                } else if (lastParam instanceof ComponentName){
+                    ComponentName lastComponent = (ComponentName) lastParam;
+                    ComponentName newComponent = new ComponentName(VirtualCore.get().getHostPkg(),
+                            lastComponent.getClassName());
+                    args[lastIndex] = newComponent;
+                }
                 return super.beforeCall(who, method, args);
             }
         });
+
         addMethodProxy(new MethodProxy() {
             @Override
             public String getMethodName() {
@@ -64,6 +85,12 @@ public class AutoFillManagerStub extends BinderInvocationProxy {
             @Override
             public boolean beforeCall(Object who, Method method, Object... args) {
                 MethodParameterUtils.replaceLastAppPkg(args);
+                int index = ArrayUtils.indexOfLast(args, ComponentName.class);
+                if (index > 0) {
+                    ComponentName origComponent = (ComponentName) args[index];
+                    ComponentName newComponent = new ComponentName(getHostPkg(), origComponent.getClassName());
+                    args[index] = newComponent;
+                }
                 return super.beforeCall(who, method, args);
             }
         });
