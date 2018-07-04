@@ -49,7 +49,7 @@ public class MethodInvocationStub<T> {
             }
             mProxyInterface = (T) Proxy.newProxyInstance(baseInterface.getClass().getClassLoader(), proxyInterfaces, new HookInvocationHandler());
         } else {
-            VLog.d(TAG, "Unable to build HookDelegate: %s.", getIdentityName());
+            VLog.w(TAG, "Unable to build HookDelegate: %s.", getIdentityName());
         }
     }
 
