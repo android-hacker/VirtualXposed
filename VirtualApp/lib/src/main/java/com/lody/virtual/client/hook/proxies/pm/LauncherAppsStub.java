@@ -34,5 +34,20 @@ public class LauncherAppsStub extends BinderInvocationProxy {
     protected void onBindMethods() {
         super.onBindMethods();
         addMethodProxy(new ReplaceCallingPkgMethodProxy("addOnAppsChangedListener"));
+        addMethodProxy(new ReplaceCallingPkgMethodProxy("getLauncherActivities"));
+        addMethodProxy(new ReplaceCallingPkgMethodProxy("resolveActivity"));
+        addMethodProxy(new ReplaceCallingPkgMethodProxy("startActivityAsUser"));
+        addMethodProxy(new ReplaceCallingPkgMethodProxy("showAppDetailsAsUser"));
+        addMethodProxy(new ReplaceCallingPkgMethodProxy("isPackageEnabled"));
+        addMethodProxy(new ReplaceCallingPkgMethodProxy("isActivityEnabled"));
+        addMethodProxy(new ReplaceCallingPkgMethodProxy("getApplicationInfo"));
+        addMethodProxy(new ReplaceCallingPkgMethodProxy("getShortcuts"));
+        addMethodProxy(new ReplaceCallingPkgMethodProxy("pinShortcuts"));
+        addMethodProxy(new ReplaceCallingPkgMethodProxy("startShortcut"));
+        addMethodProxy(new ReplaceCallingPkgMethodProxy("getShortcutIconResId"));
+        addMethodProxy(new ReplaceCallingPkgMethodProxy("getShortcutIconFd"));
+        addMethodProxy(new ReplaceCallingPkgMethodProxy("hasShortcutHostPermission"));
+        addMethodProxy(new ReplaceCallingPkgMethodProxy("getShortcutConfigActivities"));
+        addMethodProxy(new ReplaceCallingPkgMethodProxy("getShortcutConfigActivityIntent"));
     }
 }
