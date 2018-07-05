@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -15,22 +14,17 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
 import android.support.v7.app.AlertDialog;
-import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.android.launcher3.LauncherFiles;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.ipc.VActivityManager;
-import com.lody.virtual.helper.utils.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 
 import io.virtualapp.R;
-import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.gms.FakeGms;
 import io.virtualapp.home.ListAppActivity;
 import moe.feng.alipay.zerosdk.AlipayZeroSdk;
@@ -54,11 +48,12 @@ public class SettingsActivity extends Activity {
     private static final String DISABLE_INSTALLER_KEY = "advance_settings_disable_installer";
     private static final String INSTALL_GMS_KEY = "advance_settings_install_gms";
     public static final String DIRECTLY_BACK_KEY = "advance_settings_directly_back";
-    private static final String COPY_FILE = "advance_settings_copy_file";
     private static final String RECOMMEND_PLUGIN = "settings_plugin_recommend";
     private static final String DISABLE_RESIDENT_NOTIFICATION = "advance_settings_disable_resident_notification";
     private static final String ALLOW_FAKE_SIGNATURE = "advance_settings_allow_fake_signature";
     private static final String DISABLE_XPOSED = "advance_settings_disable_xposed";
+    private static final String FILE_MANAGE = "settings_file_manage";
+    private static final String PERMISSION_MANAGE = "settings_permission_manage";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +91,9 @@ public class SettingsActivity extends Activity {
             Preference donate = findPreference(DONATE_KEY);
             Preference about = findPreference(ABOUT_KEY);
             Preference reboot = findPreference(REBOOT_KEY);
-            Preference copyFile = findPreference(COPY_FILE);
+            Preference fileMange = findPreference(FILE_MANAGE);
+            Preference permissionManage = findPreference(PERMISSION_MANAGE);
+
 
             SwitchPreference disableInstaller = (SwitchPreference) findPreference(DISABLE_INSTALLER_KEY);
             SwitchPreference disableResidentNotification = (SwitchPreference) findPreference(DISABLE_RESIDENT_NOTIFICATION);
@@ -259,67 +256,17 @@ public class SettingsActivity extends Activity {
                 return true;
             });
 
-            copyFile.setOnPreferenceClickListener((preference -> {
-                Context context = getActivity();
-                LinearLayout layout = new LinearLayout(context);
-                EditText from = new EditText(context);
-                from.setHint("from");
-                EditText to = new EditText(context);
-                to.setHint("to");
-
-                LinearLayout.LayoutParams fromLayoutparams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                fromLayoutparams.rightMargin = dp2px(10);
-                fromLayoutparams.leftMargin = dp2px(10);
-
-                LinearLayout.LayoutParams toLayoutparams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                toLayoutparams.rightMargin = dp2px(10);
-                toLayoutparams.leftMargin = dp2px(10);
-
-                layout.setOrientation(LinearLayout.VERTICAL);
-                layout.addView(from, fromLayoutparams);
-                layout.addView(to, toLayoutparams);
-
-                AlertDialog alertDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_DayNight_Dialog_Alert)
-                        .setTitle(R.string.advance_settings_copy_file)
-                        .setView(layout)
-                        .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                            String fromPath = from.getText().toString();
-                            String toPath = to.getText().toString();
-                            File fromFile = new File(fromPath);
-                            if (!fromFile.exists()) {
-                                Toast.makeText(context, "source file not exist!", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-
-                            ProgressDialog loading = new ProgressDialog(context);
-                            try {
-                                loading.show();
-                            } catch (Throwable ignored) {
-                                return;
-                            }
-
-                            VUiKit.defer().when(() -> {
-                                try {
-                                    FileUtils.copyFile(fromPath, toPath);
-                                } catch (IOException e) {
-                                    throw new RuntimeException("copy failed");
-                                }
-                            }).done((v) -> {
-                                dismiss(loading);
-                                Toast.makeText(context, "copy file success!", Toast.LENGTH_SHORT).show();
-                            }).fail((v) -> {
-                                dismiss(loading);
-                                Toast.makeText(context, "copy file failed!", Toast.LENGTH_SHORT).show();
-                            });
-                        })
-                        .create();
-                try {
-                    alertDialog.show();
-                } catch (Throwable ignored) {
-                    // BadTokenException.
-                }
+            fileMange.setOnPreferenceClickListener(preference -> {
+                OnlinePlugin.openOrDownload(getActivity(), OnlinePlugin.FILE_MANAGE_PACKAGE,
+                        OnlinePlugin.FILE_MANAGE_URL, getString(R.string.install_file_manager_tips));
                 return false;
-            }));
+            });
+
+            permissionManage.setOnPreferenceClickListener(preference -> {
+                OnlinePlugin.openOrDownload(getActivity(), OnlinePlugin.PERMISSION_MANAGE_PACKAGE,
+                        OnlinePlugin.PERMISSION_MANAGE_URL, getString(R.string.install_permission_manager_tips));
+                return false;
+            });
 
             disableXposed.setOnPreferenceChangeListener((preference, newValue) -> {
 
