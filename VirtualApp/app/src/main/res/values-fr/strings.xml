@@ -160,4 +160,8 @@
     <string name="advance_settings_disable_xposed_summary">Lorsqu\'il est désactivé, tous les modules Xposed ne prennent pas effet.</string>
     <string name="advance_settings_disable_xposed">Désactiver Xposed</string>
     <string name="prepare_xposed_installer">Préparation de l\'environnement Xposed, veuillez patienter ...</string>
+    <string name="settings_file_manage_text">File Manage</string>
+    <string name="install_file_manager_tips">Gestionnaire de fichiers est pris en charge par Amaze File Manager, télécharger (environ 3M) et l\'installer maintenant?</string>
+    <string name="settings_permission_manage_text">Permission Gérer</string>
+    <string name="install_permission_manager_tips">Permission Manage est mis en œuvre par XPrivacyLua, télécharger (environ 1,7M) et l\'installer maintenant?</string>
 </resources>

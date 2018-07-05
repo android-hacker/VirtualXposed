@@ -160,4 +160,8 @@
     <string name="advance_settings_disable_xposed_summary">Cuando está deshabilitado, todo el módulo Xposed no tendrá efecto.</string>
     <string name="advance_settings_disable_xposed">Deshabilitar Xposed</string>
     <string name="prepare_xposed_installer">Preparación del entorno Xposed, espere ...</string>
+    <string name="settings_file_manage_text">File Manage</string>
+    <string name="install_file_manager_tips">File Manager es compatible con Amaze File Manager, descarga (aproximadamente 3M) e instálalo ahora.</string>
+    <string name="settings_permission_manage_text">Permiso Administrar</string>
+    <string name="install_permission_manager_tips">Permission Manage es implementado por XPrivacyLua, descarga (aproximadamente 1.7M) e instálalo ahora?</string>
 </resources>

@@ -162,4 +162,8 @@
     <string name="advance_settings_disable_xposed_summary">When disabled, all Xposed module won\'t take effect.</string>
     <string name="advance_settings_disable_xposed">Disable Xposed</string>
     <string name="prepare_xposed_installer">Preparing Xposed environment, please wait…</string>
+    <string name="settings_file_manage_text">File Manage</string>
+    <string name="install_file_manager_tips">File Manager is supported by Amaze File Manager, download(about 3M) and install it now?</string>
+    <string name="settings_permission_manage_text">Permission Manage</string>
+    <string name="install_permission_manager_tips">Permission Manage is implemented by XPrivacyLua, download(about 1.7M) and install it now?</string>
 </resources>

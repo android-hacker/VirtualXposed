@@ -28,9 +28,9 @@
             android:title="@string/advance_settings_install_gms"/>
 
         <Preference
-            android:key="advance_settings_copy_file"
+            android:key="settings_file_manage"
             android:persistent="false"
-            android:title="@string/advance_settings_copy_file" />
+            android:title="@string/settings_file_manage_text" />
 
         <SwitchPreference
             android:defaultValue="false"
@@ -81,6 +81,11 @@
     </PreferenceScreen>
 
     <Preference
+        android:key="settings_permission_manage"
+        android:persistent="false"
+        android:title="@string/settings_permission_manage_text" />
+
+    <Preference
         android:key="settings_app_manage"
         android:persistent="false"
         android:title="@string/settings_app_manage_text" />
@@ -91,14 +96,14 @@
         android:title="@string/settings_task_manage_text" />
 
     <Preference
-        android:key="settings_faq"
-        android:persistent="false"
-        android:title="@string/about_faq_title" />
-
-    <Preference
         android:key="settings_donate"
         android:persistent="false"
         android:title="@string/about_donate_title" />
+
+    <Preference
+        android:key="settings_faq"
+        android:persistent="false"
+        android:title="@string/about_faq_title" />
 
     <Preference
         android:key="settings_about"

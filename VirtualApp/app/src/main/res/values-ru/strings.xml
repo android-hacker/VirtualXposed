@@ -183,4 +183,8 @@
     <string name="advance_settings_disable_xposed_summary">При отключении все модули Xposed не вступят в силу.</string>
     <string name="advance_settings_disable_xposed">Отключить Xposed</string>
     <string name="prepare_xposed_installer">Подготовка среды Xposed, пожалуйста, подождите ...</string>
+    <string name="settings_file_manage_text">File Manage</string>
+    <string name="install_file_manager_tips">Файловый менеджер поддерживается Amaze File Manager, загружает (около 3 миллионов) и устанавливает его сейчас?</string>
+    <string name="settings_permission_manage_text">Управление разрешениями</string>
+    <string name="install_permission_manager_tips">Управление разрешениями реализовано XPrivacyLua, загрузите (около 1.7M) и установите его сейчас?</string>
 </resources>
