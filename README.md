@@ -132,3 +132,4 @@ Credits
 [xpl]: https://github.com/android-hacker/VirtualXposed/wiki/Privacy-control(XPrivacyLua)
 [minminguard]: http://repo.xposed.info/module/tw.fatminmin.xposed.minminguard
 [yta]: http://repo.xposed.info/module/ma.wanam.youtubeadaway
+[xinsta]: http://repo.xposed.info/module/com.ihelp101.instagram
