@@ -64,12 +64,6 @@ public class PackageParserEx {
                 PackageParserCompat.collectCertificates(parser, p, PackageParser.PARSE_IS_SYSTEM);
             } catch (Throwable e) {
                 VLog.e(TAG, "collectCertificates failed", e);
-                if (VirtualCore.get().getContext().getFileStreamPath(Constants.FAKE_SIGNATURE_FLAG).exists()) {
-                    VLog.w(TAG, "Using fake signature: " + p.packageName);
-                    p.mSignatures = new Signature[]{new Signature(FAKE_SIG)};
-                } else {
-                    throw e;
-                }
             }
         }
         return buildPackageCache(p);
