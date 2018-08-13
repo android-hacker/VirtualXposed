@@ -9,7 +9,6 @@ import android.os.IBinder;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
-import com.lody.virtual.server.pm.PrivilegeAppOptimizer;
 
 import java.io.File;
 
@@ -32,7 +31,8 @@ public class DaemonService extends Service {
 
 		context.startService(new Intent(context, DaemonService.class));
 		if (VirtualCore.get().isServerProcess()) {
-			PrivilegeAppOptimizer.notifyBootFinish();
+			// PrivilegeAppOptimizer.notifyBootFinish();
+			DaemonJobService.scheduleJob(context);
 		}
 	}
 

@@ -3,6 +3,7 @@ package mirror.android.app;
 
 import android.app.*;
 import android.app.Activity;
+import android.app.servertransaction.TransactionExecutor;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -48,6 +49,9 @@ public class ActivityThread {
     public static RefMethod<Void> sendActivityResult;
     public static RefMethod<Binder> getApplicationThread;
 
+    // Android 9.0
+    public static RefObject<TransactionExecutor> mTransactionExecutor;
+
     public static Object installProvider(Object mainThread, Context context, ProviderInfo providerInfo, Object holder) {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
             return installProvider.call(mainThread, context, holder, providerInfo, false, true);
@@ -61,6 +65,7 @@ public class ActivityThread {
         public static RefObject<ActivityInfo> activityInfo;
         public static RefObject<Intent> intent;
         public static RefObject<IBinder> token;
+        public static RefObject<?> packageInfo;
     }
 
     public static class ProviderClientRecord {

@@ -1101,11 +1101,6 @@ public class VActivityManagerService extends IActivityManager.Stub {
     }
 
     private static boolean isStartProcessForBroadcast(String processName, String packageName) {
-        if (Constants.WECHAT_PACKAGE.equals(packageName)) {
-            // only send to push process.
-            return processName.endsWith(":push");
-        }
-
         return Constants.PRIVILEGE_APP.contains(packageName);
     }
 

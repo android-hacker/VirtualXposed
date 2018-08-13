@@ -29,7 +29,7 @@ import mirror.android.app.IActivityManager;
     public class HCallbackStub implements Handler.Callback, IInjector {
 
 
-        private static final int LAUNCH_ACTIVITY = ActivityThread.H.LAUNCH_ACTIVITY.get();
+        private static int LAUNCH_ACTIVITY = -1;
         private static final int CREATE_SERVICE = ActivityThread.H.CREATE_SERVICE.get();
         private static final int SCHEDULE_CRASH =
                 ActivityThread.H.SCHEDULE_CRASH != null ? ActivityThread.H.SCHEDULE_CRASH.get() : -1;
@@ -42,6 +42,11 @@ import mirror.android.app.IActivityManager;
 
         private Handler.Callback otherCallback;
 
+        static {
+            if (android.os.Build.VERSION.SDK_INT < 28) {
+                LAUNCH_ACTIVITY = ActivityThread.H.LAUNCH_ACTIVITY.get();
+            }
+        }
         private HCallbackStub() {
         }
 
