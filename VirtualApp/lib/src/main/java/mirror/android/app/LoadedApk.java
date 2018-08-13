@@ -1,7 +1,5 @@
 package mirror.android.app;
 
-import java.lang.ref.WeakReference;
-
 import android.app.Application;
 import android.app.IServiceConnection;
 import android.app.Instrumentation;
@@ -13,10 +11,12 @@ import android.content.pm.ApplicationInfo;
 import android.os.Handler;
 import android.os.IInterface;
 
-import mirror.RefClass;
-import mirror.RefObject;
-import mirror.RefMethod;
+import java.lang.ref.WeakReference;
+
 import mirror.MethodParams;
+import mirror.RefClass;
+import mirror.RefMethod;
+import mirror.RefObject;
 
 public class LoadedApk {
     public static Class Class = RefClass.load(LoadedApk.class, "android.app.LoadedApk");
@@ -27,6 +27,8 @@ public class LoadedApk {
     public static RefMethod<IServiceConnection> getServiceDispatcher;
     @MethodParams({Context.class, ServiceConnection.class})
     public static RefMethod<IServiceConnection> forgetServiceDispatcher;
+
+    public static RefMethod<ClassLoader> getClassLoader;
 
     public static class ReceiverDispatcher {
         public static Class Class = RefClass.load(ReceiverDispatcher.class, "android.app.LoadedApk$ReceiverDispatcher");

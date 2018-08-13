@@ -153,6 +153,11 @@ public final class VClientImpl extends IVClient.Stub {
         return context.getClassLoader();
     }
 
+    public ClassLoader getClassLoader(String packageName) {
+        Context context = createPackageContext(packageName);
+        return context.getClassLoader();
+    }
+
     private void sendMessage(int what, Object obj) {
         Message msg = Message.obtain();
         msg.what = what;
@@ -312,6 +317,12 @@ public final class VClientImpl extends IVClient.Stub {
         if (!conflict) {
             InvocationStubManager.getInstance().checkEnv(AppInstrumentation.class);
         }
+
+        ApplicationInfo applicationInfo = LoadedApk.mApplicationInfo.get(data.info);
+        if (Build.VERSION.SDK_INT >= 26 && applicationInfo.splitNames == null) {
+            applicationInfo.splitNames = new String[1];
+        }
+
 
         boolean enableXposed = !VirtualCore.get().getContext().getFileStreamPath(".disable_xposed").exists();
         if (enableXposed) {

@@ -5,11 +5,18 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ComponentInfo;
+import android.os.IBinder;
+import android.os.Parcelable;
 
+import com.lody.virtual.GmsSupport;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.SpecialComponentList;
-import com.lody.virtual.GmsSupport;
+import com.lody.virtual.client.ipc.VActivityManager;
+import com.lody.virtual.client.stub.StubPendingActivity;
+import com.lody.virtual.client.stub.StubPendingReceiver;
+import com.lody.virtual.client.stub.StubPendingService;
 import com.lody.virtual.helper.compat.ObjectsCompat;
+import com.lody.virtual.os.VUserHandle;
 
 import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_INSTANCE;
 
@@ -126,5 +133,44 @@ public class ComponentUtils {
             }
         }
         return newIntent;
+    }
+
+    public static Intent redirectIntentSender(int type, String creator, Intent intent, IBinder iBinder) {
+        Intent cloneFilter = intent.cloneFilter();
+        switch (type) {
+            case 1:
+                cloneFilter.setClass(VirtualCore.get().getContext(), StubPendingReceiver.class);
+                break;
+            case 2:
+                if (VirtualCore.get().resolveActivityInfo(intent, VUserHandle.myUserId()) != null) {
+                    cloneFilter.setClass(VirtualCore.get().getContext(), StubPendingActivity.class);
+                    cloneFilter.setFlags(intent.getFlags());
+                    if (iBinder != null) {
+                        try {
+                            Parcelable activityForToken = VActivityManager.get().getActivityForToken(iBinder);
+                            if (activityForToken != null) {
+                                cloneFilter.putExtra("_VA_|_caller_", activityForToken);
+                                break;
+                            }
+                        } catch (Throwable th) {
+                            break;
+                        }
+                    }
+                }
+                break;
+            case 4:
+                if (VirtualCore.get().resolveServiceInfo(intent, VUserHandle.myUserId()) != null) {
+                    cloneFilter.setClass(VirtualCore.get().getContext(), StubPendingService.class);
+                    break;
+                }
+                break;
+            default:
+                return null;
+        }
+        cloneFilter.putExtra("_VA_|_user_id_", VUserHandle.myUserId());
+        cloneFilter.putExtra("_VA_|_intent_", intent);
+        cloneFilter.putExtra("_VA_|_creator_", creator);
+        cloneFilter.putExtra("_VA_|_from_inner_", true);
+        return cloneFilter;
     }
 }

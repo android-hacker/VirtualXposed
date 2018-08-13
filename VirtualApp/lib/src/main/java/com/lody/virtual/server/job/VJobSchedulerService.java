@@ -3,6 +3,7 @@ package com.lody.virtual.server.job;
 import android.annotation.TargetApi;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
+import android.app.job.JobWorkItem;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.Build;
@@ -331,6 +332,16 @@ public class VJobSchedulerService extends IJobScheduler.Stub {
             }
         }
         return jobs;
+    }
+
+    @Override
+    public int enqueue(JobInfo job, JobWorkItem work) throws RemoteException {
+        return 0;
+    }
+
+    @Override
+    public JobInfo getPendingJob(int i) throws RemoteException {
+        return null;
     }
 
 

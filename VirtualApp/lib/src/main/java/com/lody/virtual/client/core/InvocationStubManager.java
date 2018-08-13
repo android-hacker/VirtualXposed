@@ -9,6 +9,7 @@ import com.lody.virtual.client.hook.proxies.account.AccountManagerStub;
 import com.lody.virtual.client.hook.proxies.alarm.AlarmManagerStub;
 import com.lody.virtual.client.hook.proxies.am.ActivityManagerStub;
 import com.lody.virtual.client.hook.proxies.am.HCallbackStub;
+import com.lody.virtual.client.hook.proxies.am.TransactionHandlerStub;
 import com.lody.virtual.client.hook.proxies.appops.AppOpsManagerStub;
 import com.lody.virtual.client.hook.proxies.appwidget.AppWidgetManagerStub;
 import com.lody.virtual.client.hook.proxies.audio.AudioManagerStub;
@@ -120,6 +121,9 @@ public final class InvocationStubManager {
 			addInjector(new LibCoreStub());
 			addInjector(new ActivityManagerStub());
 			addInjector(new PackageManagerStub());
+			if (Build.VERSION.SDK_INT >= 28) {
+				addInjector(new TransactionHandlerStub());
+			}
 			addInjector(HCallbackStub.getDefault());
 			addInjector(new ISmsStub());
 			addInjector(new ISubStub());
