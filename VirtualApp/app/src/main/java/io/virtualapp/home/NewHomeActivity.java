@@ -8,6 +8,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -20,10 +21,14 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.launcher3.LauncherFiles;
@@ -78,6 +83,7 @@ public class NewHomeActivity extends NexusLauncherActivity {
         alertForMeizu();
         alertForDoze();
         mDirectlyBack = sharedPreferences.getBoolean(SettingsActivity.DIRECTLY_BACK_KEY, false);
+        alertForExp();
     }
 
     private void installXposed() {
@@ -246,6 +252,61 @@ public class NewHomeActivity extends NexusLauncherActivity {
                     .create();
             try {
                 alertDialog.show();
+            } catch (Throwable ignored) {
+            }
+        }, 2000);
+    }
+
+    protected int dp2px(float dp) {
+        final float scale = getResources().getDisplayMetrics().density;
+        return (int) (dp * scale + 0.5f);
+    }
+
+    private void alertForExp() {
+        final String shown = "_exp_has_alert";
+        boolean aBoolean = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(shown, false);
+        if (aBoolean) {
+            return;
+        }
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+
+        int _20dp = dp2px(20);
+        layout.setPadding(_20dp, _20dp, _20dp, _20dp);
+
+        TextView tv = new TextView(this);
+        tv.setTextColor(Color.BLACK);
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        tv.setText(R.string.exp_tips);
+        layout.addView(tv);
+
+        CheckBox checkBox = new CheckBox(this);
+        checkBox.setText("不再提示");
+        checkBox.setOnClickListener(v -> {
+            if (checkBox.isChecked()) {
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean(shown, true).apply();
+            }
+        });
+
+        layout.addView(checkBox);
+        mUiHandler.postDelayed(() -> {
+            AlertDialog alertDialog = new AlertDialog.Builder(getContext())
+                    .setTitle("关于新项目EXP的说明")
+                    .setView(layout)
+                    .setPositiveButton("查看详情说明", (dialog, which) -> {
+                        Intent t = new Intent(Intent.ACTION_VIEW);
+                        t.setData(Uri.parse("https://vxposed.com/exp.html"));
+                        startActivity(t);
+                    }).setNegativeButton("支持我", (dialog, which) -> {
+                        Intent t = new Intent(Intent.ACTION_VIEW);
+                        t.setData(Uri.parse("https://vxposed.com/donate.html"));
+                        startActivity(t);
+                    })
+                    .create();
+            try {
+                alertDialog.show();
+
             } catch (Throwable ignored) {
             }
         }, 2000);

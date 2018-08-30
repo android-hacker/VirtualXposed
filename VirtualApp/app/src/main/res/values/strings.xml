@@ -166,4 +166,10 @@
     <string name="install_file_manager_tips">File Manager is supported by Amaze File Manager, download(about 3M) and install it now?</string>
     <string name="settings_permission_manage_text">Permission Manage</string>
     <string name="install_permission_manager_tips">Permission Manage is implemented by XPrivacyLua, download(about 1.7M) and install it now?</string>
+    <string name="exp_tips">VirtualXposed 自去年诞生以来，已经经历了相当一段时间；在项目的演进过程中，逐渐发现它的一些不足。\n因此我产生了从另外换一种方式实现免ROOT Xposed功能的想法，我把它称之为 E-Xposed，简称EXP；简单来说，它有如下特性：\n\n
+
+1. 不再使用双开。\n
+2. 直接运行原始APP。\n
+3. 不易被检测。\n
+    </string>
 </resources>
