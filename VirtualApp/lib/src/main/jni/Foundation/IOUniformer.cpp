@@ -687,7 +687,13 @@ int findSymbol(const char *name, const char *libn,
 
 void hook_dlopen(int api_level) {
     void *symbol = NULL;
-    if (api_level > 23) {
+    if (api_level > 25) {
+        if (findSymbol("__dl__Z9do_dlopenPKciPK17android_dlextinfoPKv", "linker",
+                       (unsigned long *) &symbol) == 0) {
+            MSHookFunction(symbol, (void *) new_do_dlopen_V24,
+                           (void **) &orig_do_dlopen_V24);
+        }
+    } else if (api_level > 23) {
         if (findSymbol("__dl__Z9do_dlopenPKciPK17android_dlextinfoPv", "linker",
                        (unsigned long *) &symbol) == 0) {
             MSHookFunction(symbol, (void *) new_do_dlopen_V24,
