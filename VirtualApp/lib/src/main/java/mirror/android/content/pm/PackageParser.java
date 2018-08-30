@@ -63,6 +63,7 @@ public class PackageParser {
         public static RefObject<List> receivers;
         public static RefObject<List<String>> requestedPermissions;
         public static RefObject<List> services;
+        public static RefObject<Object> mSigningDetails;
     }
 
     public static class Activity {
@@ -98,5 +99,14 @@ public class PackageParser {
         public static RefObject<String> className;
         public static RefObject<ComponentName> componentName;
         public static RefObject<List<IntentFilter>> intents;
+    }
+
+    public static class SigningDetails {
+        public static Class<?> TYPE = RefClass.load(SigningDetails.class, "android.content.pm.PackageParser$SigningDetails");
+        public static RefObject<Signature[]> signatures;
+        public static RefObject<Signature[]> pastSigningCertificates;
+
+        public static RefMethod<Boolean> hasPastSigningCertificates;
+        public static RefMethod<Boolean> hasSignatures;
     }
 }
