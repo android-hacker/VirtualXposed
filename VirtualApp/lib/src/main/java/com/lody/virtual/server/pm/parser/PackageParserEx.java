@@ -187,6 +187,21 @@ public class PackageParserEx {
         cache.applicationInfo = p.applicationInfo;
         if (Build.VERSION.SDK_INT < 28) {
             cache.mSignatures = p.mSignatures;
+        } else {
+            Object signingDetails = mirror.android.content.pm.PackageParser.Package.mSigningDetails.get(p);
+            boolean hasPastSigningCertificates = mirror.android.content.pm.PackageParser.SigningDetails.hasPastSigningCertificates.call(signingDetails);
+            if (hasPastSigningCertificates) {
+                cache.mSignatures = new Signature[1];
+                cache.mSignatures[0] = mirror.android.content.pm.PackageParser.SigningDetails.pastSigningCertificates.get(signingDetails)[0];
+            } else {
+                boolean hasSignatures = mirror.android.content.pm.PackageParser.SigningDetails.hasSignatures.call(signingDetails);
+                if (hasSignatures) {
+                    Signature[] signatures = mirror.android.content.pm.PackageParser.SigningDetails.signatures.get(signingDetails);
+                    int numberOfSigs = signatures.length;
+                    cache.mSignatures = new Signature[numberOfSigs];
+                    System.arraycopy(signatures, 0, cache.mSignatures, 0, numberOfSigs);
+                }
+            }
         }
         cache.mAppMetaData = p.mAppMetaData;
         cache.packageName = p.packageName;
