@@ -24,6 +24,8 @@ import android.os.Message;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.StrictMode;
+import android.system.ErrnoException;
+import android.system.Os;
 
 import com.lody.virtual.client.core.CrashHandler;
 import com.lody.virtual.client.core.InvocationStubManager;
@@ -460,6 +462,15 @@ public final class VClientImpl extends IVClient.Stub {
         NativeEngine.redirectDirectory(userLibPath, libPath);
         NativeEngine.redirectDirectory("/data/data/" + info.packageName + "/lib/", libPath);
         NativeEngine.redirectDirectory("/data/user/0/" + info.packageName + "/lib/", libPath);
+
+        File dataUserLib = new File(VEnvironment.getDataUserPackageDirectory(userId, info.packageName), "lib");
+        if (!dataUserLib.exists()) {
+            try {
+                Os.symlink(libPath, dataUserLib.getPath());
+            } catch (ErrnoException e) {
+                VLog.w(TAG, "symlink error", e);
+            }
+        }
 
         setupVirtualStorage(info, userId);
 
