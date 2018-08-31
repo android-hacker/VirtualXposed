@@ -59,6 +59,7 @@ Modules tested by myself
 - [Minminguard][minminguard]: Completely remove both the ads inside apps and the empty space caused by those ads.
 - [YouTube AdAway][yta]:  Get rid of ads on the official YouTube App.
 - [微X模块][wx]: 微信模块，功能强大。
+- [畅玩微信][cwwx]: 微信模块新秀，功能丰富。
 - [微信巫师][wxws]: 微信模块，项目开源，代码优秀。
 - [MDWechat][mdwechat]: 微信美化模块，可以把微信整成MD风格。
 - [应用变量][yybl]: 可以用来进行机型修改，比如王者荣耀高帧率；QQ空间修改小尾巴等。
@@ -133,3 +134,4 @@ Credits
 [minminguard]: http://repo.xposed.info/module/tw.fatminmin.xposed.minminguard
 [yta]: http://repo.xposed.info/module/ma.wanam.youtubeadaway
 [xinsta]: http://repo.xposed.info/module/com.ihelp101.instagram
+[cwwx]: http://repo.xposed.info/module/com.example.wx_plug_in3
