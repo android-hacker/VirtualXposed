@@ -172,4 +172,6 @@
 2. 直接运行原始APP。\n
 3. 不易被检测。\n
     </string>
+    <string name="advance_settings_enable_launcher_summary">When enabled, You can set VirtualXposed be the Launcher of system</string>
+    <string name="advance_settings_enable_launcher">Enable Launcher</string>
 </resources>

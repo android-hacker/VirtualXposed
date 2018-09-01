@@ -159,4 +159,6 @@
     <string name="install_file_manager_tips">文件管理是通過 Amaze File Manager 支持的，是否立即下載（約3M）並安裝？</string>
     <string name="settings_permission_manage_text">權限管理</string>
     <string name="install_permission_manager_tips">權限管理由XPrivacyLua實現，下載（約1.7M）並立即安裝？</string>
+    <string name="advance_settings_enable_launcher_summary">Enable Launcher</string>
+    <string name="advance_settings_enable_launcher">Enable Launcher</string>
 </resources>

@@ -165,4 +165,6 @@
     <string name="install_file_manager_tips">Gerenciador de arquivos é suportado pelo Amaze File Manager, download (cerca de 3M) e instalá-lo agora?</string>
     <string name="settings_permission_manage_text">Gerenciador de permissões</string>
     <string name="install_permission_manager_tips">Gerenciador de permissões é implementado pelo XPrivacyLua, baixar (cerca de 1.7M) e instalá-lo agora?</string>
+    <string name="advance_settings_enable_launcher_summary">Enable Launcher</string>
+    <string name="advance_settings_enable_launcher">Enable Launcher</string>
 </resources>

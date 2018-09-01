@@ -69,6 +69,13 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:key="advance_settings_enable_launcher"
+            android:persistent="true"
+            android:summary="@string/advance_settings_enable_launcher_summary"
+            android:title="@string/advance_settings_enable_launcher" />
+
+        <SwitchPreference
+            android:defaultValue="false"
             android:key="advance_settings_directly_back"
             android:persistent="true"
             android:summary="@string/advance_settings_directly_back_summary"
