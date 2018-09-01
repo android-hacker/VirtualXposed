@@ -562,7 +562,7 @@ char **build_new_argv(char *const envp[]) {
     char *api_level_char = getenv("V_API_LEVEL");
     int api_level = atoi(api_level_char);
 
-    int new_envp_count = orig_envp_count + 3;
+    int new_envp_count = orig_envp_count + 4;
     char **new_envp = (char **) malloc(new_envp_count * sizeof(char *));
     int cur = 0;
     for (int i = 0; i < orig_envp_count; ++i) {
@@ -579,6 +579,9 @@ char **build_new_argv(char *const envp[]) {
     }
     if (api_level >= 23) {
         new_envp[cur++] = (char *) (api_level > 25 ? "--inline-max-code-units=0" : "--inline-depth-limit=0");
+    }
+    if (api_level >= 28) {
+        new_envp[cur++] = (char *) "--debuggable";
     }
     new_envp[cur] = NULL;
 
