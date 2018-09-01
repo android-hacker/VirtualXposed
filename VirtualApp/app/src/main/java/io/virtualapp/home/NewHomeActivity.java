@@ -229,7 +229,10 @@ public class NewHomeActivity extends NexusLauncherActivity {
                 // ignore
             }
         }
-        LoadingActivity.launch(this, packageName, usedId);
+        boolean result = LoadingActivity.launch(this, packageName, usedId);
+        if (!result) {
+            throw new ActivityNotFoundException("can not launch activity for :" + intent);
+        }
         if (mDirectlyBack) {
             finish();
         }
