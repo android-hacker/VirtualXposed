@@ -22,7 +22,7 @@
     <string name="clone_apps">Clone Apps</string>
     <string name="external_storage">External Storage</string>
     <string name="install_d">Install (%d)</string>
-    <string name="install_too_much_once_time">No more than 9 apps can be chosen at a time!</string>
+    <string name="install_too_much_once_time">You may choose no more than 9 apps at once!</string>
     <string name="versionchecklib_confirm">Download</string>
     <string name="versionchecklib_cancel">Cancel</string>
     <string name="menu_virtual_location">Virtual Location</string>
@@ -32,16 +32,16 @@
     <string name="update_success_tips">Update %1$s success!</string>
     <string name="install_success_tips">The Xposed module will not take effect until you enable it in XposedInstaller\'s module setting.</string>
     <string name="install_fail_tips">Install %1$s failed: %2$s</string>
-    <string name="copy_right" translatable="false" >Copyrights © %1$d</string>
+    <string name="copy_right" translatable="false" >Copyright © %1$d</string>
     <string name="about_page_description">VirtualXposed is an app that provides the ability to use the Xposed module without needing root access, unlocking the bootloader, or modifying the system image.</string>
     <string name="about_feedback_qq_title">QQ Group (Click to copy group number)</string>
     <string name="about_feedback_wechat_title">WeChat Group (Click to copy)</string>
     <string name="about_feedback_tips">Group number has been copied to clipboard!</string>
     <string name="about_version_title">Version: %1$s</string>
     <string name="about_donate_title">Donate</string>
-    <string name="reboot_tips_1">Reboot successfully!</string>
-    <string name="reboot_tips_2">Reboot successfully!</string>
-    <string name="reboot_tips_3">Reboot successfully!</string>
+    <string name="reboot_tips_1">Reboot successfull!</string>
+    <string name="reboot_tips_2">Reboot successfull!</string>
+    <string name="reboot_tips_3">Reboot successfull!</string>
     <string name="meizu_device_tips_title">Detect Meizu Device: </string>
     <string name="meizu_device_tips_content">In Meizu OS phones, you can only add an app to VirtualXposed by cloning an existing app that\'s already installed (you cannot install an app in VirtualXposed via sideloading an apk). You must also install XposedInstaller manually, as, unlike installations on other Android phones, it isn\'t built in to VirtualXposed when installing on Meizu OS. Please install XposedInstaller first.</string>
     <string name="donate_alipay">Alipay</string>
@@ -56,9 +56,9 @@
     <string name="about_icon_title">About Icon</string>
     <string name="about_icon_content">If you do not like my new icon, you are always welcome to design a new icon for VirtualXposed ;)</string>
     <string name="about_icon_yes">OK</string>
-    <string name="create_shortcut_success">Creating shortcut was successful!</string>
-    <string name="about_thanks">Thanks</string>
-    <string name="thanks_dialog_title">Thanks</string>
+    <string name="create_shortcut_success">Shortcut created!</string>
+    <string name="about_thanks">Credits</string>
+    <string name="thanks_dialog_title">Credits</string>
     <string name="thanks_dialog_content" >Thanks Cheney for providing the awesome icon, and thank you Pei, Peggy, and too many others to list, for your hard work. Thanks for the ideas and suggestions you all provided, and special thanks to YingLin for taking the time to help me achieve my design :)</string>
     <string name="alert_for_doze_mode_title">Tips</string>
     <string name="alert_for_doze_mode_content">Please allow VirtualXposed to run in the background, otherwise you may not receive notifications from some virtual apps.</string>
@@ -72,10 +72,10 @@
     <string name="home_menu_clear_title" >Clear App Data</string>
     <string name="home_menu_clear_content" >Do you want to clear data of %1$s ?</string>
     <string name="home_menu_kill_title">Force Stop</string>
-    <string name="home_menu_kill_content">Do you want to force stop %1$s ? This may cause it to work unexpectedly.</string>
+    <string name="home_menu_kill_content">Do you want to force stop %1$s ? This may cause unexpected app behaviours. </string>
     <string name="add_app_loading_tips">Parsing package for %1$s…</string>
     <string name="add_app_installing_tips">Installing %1$s…</string>
-    <string name="add_app_loading_complete">%1$s install success!</string>
+    <string name="add_app_loading_complete">%1$s successfully installed. </string>
     <string name="list_app_activity_install">Add to VirtualXposed</string>
     <string name="settings_about_text">About</string>
     <string name="settings_task_manage_text">Manage Tasks</string>
@@ -101,7 +101,7 @@
     <string name="app_manage_repair_success_title">Repair tips</string>
     <string name="app_manage_repair_success_content">Repair success; please force-stop VirtualXposed for it to take effect.</string>
     <string name="app_manage_repair_reboot_now">Reboot now</string>
-    <string name="wallpaper_too_big_tips">The wallpaper picture is too big to slow the startup time, please choose a proper one.</string>
+    <string name="wallpaper_too_big_tips">The wallpaper choosen is too large and may increase the startup time, please choose a proper one.</string>
     <string name="create_shortcut_already_exist">This shortcut already exists</string>
     <string name="start_app_failed">Open app: %1$s failed.</string>
     <string name="app_manage_redirect_on">Open Storage Redirect</string>
@@ -112,7 +112,7 @@
     <string name="shared_to_vxp">Share to App in VirtualXposed</string>
     <string name="shared_to_vxp_failed">Share failed, please try again.</string>
     <string name="app_installer_label">Add to VirtualXposed</string>
-    <string name="install_complete">Installation complete.</string>
+    <string name="install_complete">DONE</string>
     <string name="install_fail">Install failed: %1$s</string>
     <string name="install">Install</string>
     <string name="install_package">Install new app: %s</string>
@@ -132,13 +132,13 @@
     <string name="about_website_title">Official website</string>
     <string name="about_feedback_title">Feedback</string>
     <string name="about_feedback_hint">Please specify your phone model, Android version, Xposed plugin, and version of the corresponding app, and then describe (in as much detail as possible) the problem you are experiencing, otherwise it is considered invalid feedback (because we can\'t effectively troubleshoot and fix said problem with only \"this app crashes\" ;) )</string>
-    <string name="settings_plugin_recommend">Recommended Xposed Module</string>
-    <string name="advance_settings_disable_resident_notification">Disable resident notification</string>
-    <string name="advance_settings_disable_resident_notification_summary">Disable the resident notification of VirtualXposed. (When disabled, VirtualXposed may be frequently killed by the system. Please be cautious!)</string>
+    <string name="settings_plugin_recommend">Recommended Xposed Modules</string>
+    <string name="advance_settings_disable_resident_notification">Disable persistent notification</string>
+    <string name="advance_settings_disable_resident_notification_summary">Disable the persistent notification of VirtualXposed. (When disabled, VirtualXposed may be killed by the system frequently. Use with caution!)</string>
     <string name="settings_module_manage">Manage Xposed Module</string>
     <string name="settings_module_manage_summary">Enable/Disable Xposed module (You must enable it manually for it to take effect)</string>
     <string name="xposed_installer_not_found">Xposed Installer not found, please add it to VirtualXposed first!</string>
-    <string name="advance_settings_allow_fake_signature_summary">When enabled, you can install apk which has no signatures(Usually used in cracked apk, please be careful
+    <string name="advance_settings_allow_fake_signature_summary">When enabled, you can install apk which has no signatures(Usually applies to cracked/modded apps, please be careful
 )</string>
     <string name="advance_settings_allow_fake_signature">Allow to install apk without signatures.</string>
     <string name="permission_tip_title">Important tips:</string>
@@ -162,10 +162,10 @@
     <string name="advance_settings_disable_xposed_summary">When disabled, all Xposed module won\'t take effect.</string>
     <string name="advance_settings_disable_xposed">Disable Xposed</string>
     <string name="prepare_xposed_installer">Preparing Xposed environment, please wait…</string>
-    <string name="settings_file_manage_text">File Manage</string>
+    <string name="settings_file_manage_text">File Manager</string>
     <string name="install_file_manager_tips">File Manager is supported by Amaze File Manager, download(about 3M) and install it now?</string>
-    <string name="settings_permission_manage_text">Permission Manage</string>
-    <string name="install_permission_manager_tips">Permission Manage is implemented by XPrivacyLua, download(about 1.7M) and install it now?</string>
+    <string name="settings_permission_manage_text">Permission Manager</string>
+    <string name="install_permission_manager_tips">Permission Manager is implemented by XPrivacyLua, download(about 1.7M) and install it now?</string>
     <string name="exp_tips">VirtualXposed 自去年诞生以来，已经经历了相当一段时间；在项目的演进过程中，逐渐发现它的一些不足。\n因此我产生了从另外换一种方式实现免ROOT Xposed功能的想法，我把它称之为 E-Xposed，简称EXP；简单来说，它有如下特性：\n\n
 
 1. 不再使用双开。\n

@@ -9,7 +9,7 @@ android:
     - extra-android-support
 
 install:
-  - echo y | sdkmanager 'ndk-bundle'
+  - echo y | sdkmanager 'ndk-bundle;15.2.4203891'
   - echo y | sdkmanager 'cmake;3.6.4111459'
   - echo y | sdkmanager 'lldb;3.0'
 
