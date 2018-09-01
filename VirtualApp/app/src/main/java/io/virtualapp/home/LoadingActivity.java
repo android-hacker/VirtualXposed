@@ -57,7 +57,7 @@ public class LoadingActivity extends VActivity {
 
     private long start;
 
-    public static void launch(Context context, String packageName, int userId) {
+    public static boolean launch(Context context, String packageName, int userId) {
         Intent intent = VirtualCore.get().getLaunchIntent(packageName, userId);
         if (intent != null) {
             Intent loadingPageIntent = new Intent(context, LoadingActivity.class);
@@ -66,6 +66,9 @@ public class LoadingActivity extends VActivity {
             loadingPageIntent.putExtra(Constants.PASS_KEY_INTENT, intent);
             loadingPageIntent.putExtra(Constants.PASS_KEY_USER, userId);
             context.startActivity(loadingPageIntent);
+            return true;
+        } else {
+            return false;
         }
     }
 
