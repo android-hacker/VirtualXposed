@@ -46,6 +46,7 @@ public class SettingsActivity extends Activity {
     private static final String REBOOT_KEY = "settings_reboot";
     private static final String HIDE_SETTINGS_KEY = "advance_settings_hide_settings";
     private static final String DISABLE_INSTALLER_KEY = "advance_settings_disable_installer";
+    public static final String ENABLE_LAUNCHER = "advance_settings_enable_launcher";
     private static final String INSTALL_GMS_KEY = "advance_settings_install_gms";
     public static final String DIRECTLY_BACK_KEY = "advance_settings_directly_back";
     private static final String RECOMMEND_PLUGIN = "settings_plugin_recommend";
@@ -96,6 +97,7 @@ public class SettingsActivity extends Activity {
 
 
             SwitchPreference disableInstaller = (SwitchPreference) findPreference(DISABLE_INSTALLER_KEY);
+            SwitchPreference enableLauncher = (SwitchPreference) findPreference(ENABLE_LAUNCHER);
             SwitchPreference disableResidentNotification = (SwitchPreference) findPreference(DISABLE_RESIDENT_NOTIFICATION);
             SwitchPreference allowFakeSignature = (SwitchPreference) findPreference(ALLOW_FAKE_SIGNATURE);
             SwitchPreference disableXposed = (SwitchPreference) findPreference(DISABLE_XPOSED);
@@ -238,6 +240,22 @@ public class SettingsActivity extends Activity {
                     PackageManager packageManager = getActivity().getPackageManager();
                     packageManager.setComponentEnabledSetting(new ComponentName(getActivity().getPackageName(), "vxp.installer"),
                             !disable ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                            PackageManager.DONT_KILL_APP);
+                    return true;
+                } catch (Throwable ignored) {
+                    return false;
+                }
+            });
+
+            enableLauncher.setOnPreferenceChangeListener((preference, newValue) -> {
+                if (!(newValue instanceof Boolean)) {
+                    return false;
+                }
+                try {
+                    boolean enable = (boolean) newValue;
+                    PackageManager packageManager = getActivity().getPackageManager();
+                    packageManager.setComponentEnabledSetting(new ComponentName(getActivity().getPackageName(), "vxp.launcher"),
+                            enable ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED : PackageManager.COMPONENT_ENABLED_STATE_DEFAULT,
                             PackageManager.DONT_KILL_APP);
                     return true;
                 } catch (Throwable ignored) {

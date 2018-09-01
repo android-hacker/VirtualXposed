@@ -164,4 +164,6 @@
     <string name="install_file_manager_tips">File Manager es compatible con Amaze File Manager, descarga (aproximadamente 3M) e instálalo ahora.</string>
     <string name="settings_permission_manage_text">Permiso Administrar</string>
     <string name="install_permission_manager_tips">Permission Manage es implementado por XPrivacyLua, descarga (aproximadamente 1.7M) e instálalo ahora?</string>
+    <string name="advance_settings_enable_launcher_summary">Enable Launcher</string>
+    <string name="advance_settings_enable_launcher">Enable Launcher</string>
 </resources>
