@@ -771,5 +771,5 @@ void IOUniformer::startUniformer(const char *so_path, int api_level, int preview
         }
         dlclose(handle);
     }
-    hook_dlopen(api_level);
+    // hook_dlopen(api_level);
 }
