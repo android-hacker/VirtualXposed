@@ -157,19 +157,15 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
         );
 
         Object packageInfo = mirror.android.app.ActivityThread.ActivityClientRecord.packageInfo.get(r);
-        Log.i("mylog", "package info : " + packageInfo);
 
         mirror.android.app.ActivityThread.ActivityClientRecord.packageInfo.set(r, null);
 
-        Log.i("mylog", "package info classloader: " + mirror.android.app.LoadedApk.getClassLoader.call(packageInfo));
         VActivityManager.get().onActivityCreate(ComponentUtils.toComponentName(info), caller, token, info, intent, ComponentUtils.getTaskAffinity(info), taskId, info.launchMode, info.flags);
         ClassLoader appClassLoader = VClientImpl.get().getClassLoader(info.applicationInfo);
-        Log.i(TAG, "app class loader: " + appClassLoader);
         intent.setExtrasClassLoader(appClassLoader);
         mirror.android.app.ActivityThread.ActivityClientRecord.intent.set(r, intent);
         mirror.android.app.ActivityThread.ActivityClientRecord.activityInfo.set(r, info);
 
-        Log.i(TAG, "handle launch activity.");
         return originalHandler.handleLaunchActivity(r, pendingActions, customIntent);
     }
 
