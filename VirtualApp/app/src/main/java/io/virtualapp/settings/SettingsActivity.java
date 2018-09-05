@@ -255,7 +255,7 @@ public class SettingsActivity extends Activity {
                     boolean enable = (boolean) newValue;
                     PackageManager packageManager = getActivity().getPackageManager();
                     packageManager.setComponentEnabledSetting(new ComponentName(getActivity().getPackageName(), "vxp.launcher"),
-                            enable ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED : PackageManager.COMPONENT_ENABLED_STATE_DEFAULT,
+                            enable ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                             PackageManager.DONT_KILL_APP);
                     return true;
                 } catch (Throwable ignored) {
