@@ -14,6 +14,7 @@ public class VASettings {
     public static String STUB_CP = StubCP.class.getName();
     public static String STUB_JOB = StubJob.class.getName();
     public static String RESOLVER_ACTIVITY = ResolverActivity.class.getName();
+    public static String STUB_EXCLUDE_FROM_RECENT_ACTIVITY = StubExcludeFromRecentActivity.class.getName();
     public static String STUB_CP_AUTHORITY = "virtual_stub_";
     public static int STUB_COUNT = 50;
     public static String[] PRIVILEGE_APPS = new String[]{
@@ -33,6 +34,10 @@ public class VASettings {
      * we redirect it to '/data/data/{Your Host Package Name}/virtual/user/0/{Package Name}'.
      */
     public static boolean ENABLE_IO_REDIRECT = true;
+
+    public static String getStubExcludeFromRecentActivityName(int index) {
+        return String.format(Locale.ENGLISH, "%s$C%d", STUB_EXCLUDE_FROM_RECENT_ACTIVITY, index);
+    }
 
     public static String getStubActivityName(int index) {
         return String.format(Locale.ENGLISH, "%s$C%d", STUB_ACTIVITY, index);
