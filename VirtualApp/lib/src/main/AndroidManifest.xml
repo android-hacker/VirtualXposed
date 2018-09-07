@@ -1005,6 +1005,406 @@
             android:taskAffinity="com.lody.virtual.vt"
             android:theme="@android:style/Theme.Dialog" />
 
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C0"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p0"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C1"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p1"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C2"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p2"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C3"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p3"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C4"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p4"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C5"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p5"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C6"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p6"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C7"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p7"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C8"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p8"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C9"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p9"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C10"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p10"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C11"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p11"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C12"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p12"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C13"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p13"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C14"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p14"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C15"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p15"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C16"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p16"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C17"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p17"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C18"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p18"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C19"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p19"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C20"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p20"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C21"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p21"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C22"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p22"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C23"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p23"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C24"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p24"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C25"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p25"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C26"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p26"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C27"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p27"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C28"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p28"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C29"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p29"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C30"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p30"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C31"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p31"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C32"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p32"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C33"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p33"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C34"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p34"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C35"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p35"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C36"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p36"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C37"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p37"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C38"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p38"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C39"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p39"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C40"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p40"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C41"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p41"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C42"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p42"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C43"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p43"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C44"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p44"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C45"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p45"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C46"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p46"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C47"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p47"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C48"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p48"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
+        <activity
+            android:name="com.lody.virtual.client.stub.StubExcludeFromRecentActivity$C49"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:process=":p49"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.lody.virtual.vt"
+            android:theme="@style/VATheme" />
+
         <provider
             android:name="com.lody.virtual.client.stub.StubCP$C0"
             android:authorities="${applicationId}.virtual_stub_0"

@@ -542,6 +542,12 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
             e.printStackTrace();
         }
 
+        // deal with manifest Activity style android:excludeFromRecents="true", becasue Mobile Legends has two recent task
+        boolean isExcludeFromRecents = ((targetInfo.flags & ActivityInfo.FLAG_EXCLUDE_FROM_RECENTS) != 0);
+        if (isExcludeFromRecents) {
+            return VASettings.getStubExcludeFromRecentActivityName(vpid);
+        }
+
         boolean isDialogStyle = isFloating || isTranslucent || showWallpaper;
         if (isDialogStyle) {
             return VASettings.getStubDialogName(vpid);
