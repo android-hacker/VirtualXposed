@@ -162,4 +162,14 @@
     <string name="install_permission_manager_tips">权限管理是通过 XPrivacyLua 实现的，是否立即下载（约2M）并安装？</string>
     <string name="advance_settings_enable_launcher_summary">开启之后，可以设置 VirtualXposed 作为系统桌面（重启 VitualXposed 生效）</string>
     <string name="advance_settings_enable_launcher">启用桌面功能</string>
+    <string name="exp_introduce_title">另一种免Root用Xposed的方式</string>
+    <string name="exp_introduce_install">去看看</string>
+    <string name="what_is_exp">什么是太极？</string>
+    <string name="install_choose_way">选择安装方式</string>
+    <string name="install_choose_content" >除了 VirtualXposed 之外，您还可以通过 太极 来实现免Root使用 Xposed 模块。VirtualXposed 支持多开，太极则更加稳定。</string>
+    <string name="install_choose_taichi">太极</string>
+    <string name="install_taichi_not_exist">您没有安装 太极</string>
+    <string name="install_go_to_install_exp">去安装太极</string>
+    <string name="install_taichi_while_old_version">你安装的 太极 版本过低，请使用新版本的太极！</string>
+    <string name="install_go_latest_exp">去安装新版太极</string>
 </resources>

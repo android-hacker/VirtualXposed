@@ -266,7 +266,7 @@ public class NewHomeActivity extends NexusLauncherActivity {
     }
 
     private void alertForExp() {
-        final String shown = "_exp_has_alert";
+        final String shown = "_exp_has_alert2";
         boolean aBoolean = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(shown, false);
         if (aBoolean) {
             return;
@@ -295,13 +295,13 @@ public class NewHomeActivity extends NexusLauncherActivity {
         layout.addView(checkBox);
         mUiHandler.postDelayed(() -> {
             AlertDialog alertDialog = new AlertDialog.Builder(getContext())
-                    .setTitle("关于新项目EXP的说明")
+                    .setTitle(R.string.exp_introduce_title)
                     .setView(layout)
-                    .setPositiveButton("查看详情说明", (dialog, which) -> {
+                    .setPositiveButton(R.string.exp_introduce_install, (dialog, which) -> {
                         Intent t = new Intent(Intent.ACTION_VIEW);
-                        t.setData(Uri.parse("https://vxposed.com/exp.html"));
+                        t.setData(Uri.parse("https://www.coolapk.com/apk/me.weishu.exp"));
                         startActivity(t);
-                    }).setNegativeButton("支持我", (dialog, which) -> {
+                    }).setNegativeButton(R.string.about_donate_title, (dialog, which) -> {
                         Intent t = new Intent(Intent.ACTION_VIEW);
                         t.setData(Uri.parse("https://vxposed.com/donate.html"));
                         startActivity(t);
