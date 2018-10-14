@@ -166,12 +166,21 @@
     <string name="install_file_manager_tips">File Manager is supported by Amaze File Manager, download(about 3M) and install it now?</string>
     <string name="settings_permission_manage_text">Permission Manager</string>
     <string name="install_permission_manager_tips">Permission Manager is implemented by XPrivacyLua, download(about 1.7M) and install it now?</string>
-    <string name="exp_tips">VirtualXposed 自去年诞生以来，已经经历了相当一段时间；在项目的演进过程中，逐渐发现它的一些不足。\n因此我产生了从另外换一种方式实现免ROOT Xposed功能的想法，我把它称之为 E-Xposed，简称EXP；简单来说，它有如下特性：\n\n
+    <string name="exp_tips">很久之前跟大家透露了 EXposed 的相关信息，经过一段时间的反馈和调整，已经到达一个小的里程碑。可能还有很多小伙伴不知道，今天就给大家介绍一下。\n\n
 
-1. 不再使用双开。\n
-2. 直接运行原始APP。\n
-3. 不易被检测。\n
-    </string>
+跟我之前创造的 VirtualXposed 一样，EXposed 也是一个免Root使用Xposed 模块的App；他俩各有千秋，EXposed 由于直接运行在原生系统，不论是性能还是稳定性都会好很多；而VirtualXposed 基于VA，天生支持多开。EXposed 才诞生一个月，其稳定性已经超越发展将近一年的 VirtualXposed。\n\n
+
+目前 EXposed 已经上架应用商店，并且改名为 太极，大家可以在安装尝试一下。</string>
     <string name="advance_settings_enable_launcher_summary">When enabled, You can set VirtualXposed be the Launcher of system</string>
     <string name="advance_settings_enable_launcher">Enable Launcher</string>
+    <string name="exp_introduce_title">An easy way to use Xposed</string>
+    <string name="exp_introduce_install">Have a try</string>
+    <string name="what_is_exp">What is TaiChi?</string>
+    <string name="install_choose_way">Choose way to install</string>
+    <string name="install_choose_content" >You can use Xposed modules through TaiChi except VirtualXposed. VirtualXposed supports Virtual-App，while TaiChi is much more stable.</string>
+    <string name="install_choose_taichi">TaiChi</string>
+    <string name="install_taichi_not_exist">TaiChi is not installed!</string>
+    <string name="install_go_to_install_exp">Go to install TaiChi</string>
+    <string name="install_taichi_while_old_version">The version of TaiChi installed is too old, Please install the latest Taichi!</string>
+    <string name="install_go_latest_exp">Install the latest TaiChi</string>
 </resources>
