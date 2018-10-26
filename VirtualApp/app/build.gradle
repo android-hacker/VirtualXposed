@@ -94,4 +94,10 @@ dependencies {
     compile 'com.allenliu.versionchecklib:library:1.8.3'
     compile 'com.github.medyo:android-about-page:1.2.2'
     compile 'moe.feng:AlipayZeroSdk:1.1'
+
+    //Glide
+    implementation ('com.github.bumptech.glide:glide:4.8.0') {
+        exclude(group: "com.android.support")
+    }
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.8.0'
 }
