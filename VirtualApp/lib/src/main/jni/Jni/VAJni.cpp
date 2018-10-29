@@ -5,6 +5,7 @@
 #include <fb/include/fb/Build.h>
 #include <fb/include/fb/ALog.h>
 #include <fb/include/fb/fbjni.h>
+#include <ctime>
 #include "VAJni.h"
 
 using namespace facebook::jni;

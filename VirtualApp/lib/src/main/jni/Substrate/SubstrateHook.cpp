@@ -460,7 +460,7 @@ printf("SubstrateHookFunctionThumb\n");
             } exts = {backup[offset+1]};
 
             buffer[start+0] = T1$ldr_rt_$rn_im$(exts.rt, A$pc, T$Label(start+0, end-2));
-            buffer[start+1] = T2$ldr_rt_$rn_im$(exts.rt, A$pc, T$Label(start+0, end-2));
+            buffer[start+1] = T2$ldr_rt_$rn_im$(exts.rt, A$pc, (int)T$Label(start+0, end-2));
 
             buffer[start+2] = T1$ldr_rt_$rn_im$(exts.rt, exts.rt, 0);
             buffer[start+3] = T2$ldr_rt_$rn_im$(exts.rt, exts.rt, 0);
@@ -644,7 +644,7 @@ printf("SubstrateHookFunctionARM\n");
             if (guard)
                 buffer[start++] = A$stmdb_sp$_$rs$((1 << copy.rn));
 
-            buffer[start+0] = A$ldr_rd_$rn_im$(copy.rn, A$pc, (end-1 - (start+0)) * 4 - 8);
+            buffer[start+0] = A$ldr_rd_$rn_im$(copy.rn, A$pc, (int)(end-1 - (start+0)) * 4 - 8);
             buffer[start+1] = copy.value;
 
             start += 2;
