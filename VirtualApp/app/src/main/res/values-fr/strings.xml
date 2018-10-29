@@ -2,7 +2,6 @@
     <!--<string name="app_name">VirtualApp</string>-->
     <string name="app_name">VirtualXposed</string>
     <string name="wait">Patienter..</string>
-    <string name="bureau"></string>
     <string name="add_app">Ajouter appli</string>
     <string name="preparing">Ouvrir appli…</string>
     <string name="delete">Supprimer</string>
@@ -42,7 +41,6 @@
     <string name="reboot_tips_2">Redémarrage réussi!</string>
     <string name="reboot_tips_3">Redémarrage réussi!</string>
     <string name="meizu_device_tips_title">Détecter périphérique Meizu: </string>
-    <string name="meizu_device_tips_content">Dans les téléphones Meizu OS, vous ne pouvez que ajouter une appli dans VirtualXposed en clonnant une appli existante étant déjà installée (Vous ne pouvez pas installer une appli dans VirtualXposed par le menu latéral). Vous devez également installer XposedInstaller manuellementmanually, car, contrairement aux installations sur d\'autres téléphones Android, il n\'est pas intégré à VirtualXposed lors de l\'installation sur Meizu OS. Veuillez d'abord installer XposedInstaller.</string>
     <string name="donate_alipay">Alipay</string>
     <string name="donate_wepay">Paiement Wechat</string>
     <string name="prompt_alipay_not_found">Alipay non trouvé.</string>
@@ -68,7 +66,6 @@
     <string name="stop_app">Force\nStopper</string>
     <string name="home_menu_delete_title">Supprimer Appli</string>
     <string name="home_menu_delete_content">Voulez-vous supprimer %1$s ?</string>
-    <string name="home_menu_clear_title" >Éffacer données de \l'appli</string>
     <string name="home_menu_clear_content" >Voulez-vous éffacer les données de %1$s ?</string>
     <string name="home_menu_kill_title">Forcer l\'arrêt</string>
     <string name="home_menu_kill_content">Voulez-vous forcer l\'arrêt de %1$s ? Cela peut entraîner un fonctionnement inattendu.</string>
@@ -159,7 +156,7 @@
     <string name="donate_bitconins_tips">Mon adresse bitconins a été copiée dans le presse-papiers :)</string>
     <string name="advance_settings_disable_xposed_summary">Lorsqu\'il est désactivé, tous les modules Xposed ne prennent pas effet.</string>
     <string name="advance_settings_disable_xposed">Désactiver Xposed</string>
-    <string name="prepare_xposed_installer">Préparation de l\'environnement Xposed, veuillez patienter ...</string>
+    <string name="prepare_xposed_installer">Préparation de l\'environnement Xposed, veuillez patienter …</string>
     <string name="settings_file_manage_text">File Manage</string>
     <string name="install_file_manager_tips">Gestionnaire de fichiers est pris en charge par Amaze File Manager, télécharger (environ 3M) et l\'installer maintenant?</string>
     <string name="settings_permission_manage_text">Permission Gérer</string>
