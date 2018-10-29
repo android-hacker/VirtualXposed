@@ -50,6 +50,7 @@ import io.virtualapp.R;
 import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.settings.SettingsActivity;
 import io.virtualapp.update.VAVersionService;
+import io.virtualapp.utils.Misc;
 
 import static io.virtualapp.XApp.XPOSED_INSTALLER_PACKAGE;
 
@@ -266,7 +267,7 @@ public class NewHomeActivity extends NexusLauncherActivity {
     }
 
     private void alertForExp() {
-        final String shown = "_exp_has_alert2";
+        final String shown = "_exp_has_alert3";
         boolean aBoolean = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(shown, false);
         if (aBoolean) {
             return;
@@ -302,14 +303,11 @@ public class NewHomeActivity extends NexusLauncherActivity {
                         t.setData(Uri.parse("https://www.coolapk.com/apk/me.weishu.exp"));
                         startActivity(t);
                     }).setNegativeButton(R.string.about_donate_title, (dialog, which) -> {
-                        Intent t = new Intent(Intent.ACTION_VIEW);
-                        t.setData(Uri.parse("https://vxposed.com/donate.html"));
-                        startActivity(t);
+                        Misc.showDonate(NewHomeActivity.this);
                     })
                     .create();
             try {
                 alertDialog.show();
-
             } catch (Throwable ignored) {
             }
         }, 2000);

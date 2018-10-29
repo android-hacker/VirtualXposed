@@ -166,11 +166,11 @@
     <string name="install_file_manager_tips">File Manager is supported by Amaze File Manager, download(about 3M) and install it now?</string>
     <string name="settings_permission_manage_text">Permission Manager</string>
     <string name="install_permission_manager_tips">Permission Manager is implemented by XPrivacyLua, download(about 1.7M) and install it now?</string>
-    <string name="exp_tips">很久之前跟大家透露了 EXposed 的相关信息，经过一段时间的反馈和调整，已经到达一个小的里程碑。可能还有很多小伙伴不知道，今天就给大家介绍一下。\n\n
+    <string name="exp_tips">reached a milestone. Many users may don\'t know it, let me introduce you today. \n\n
 
-跟我之前创造的 VirtualXposed 一样，EXposed 也是一个免Root使用Xposed 模块的App；他俩各有千秋，EXposed 由于直接运行在原生系统，不论是性能还是稳定性都会好很多；而VirtualXposed 基于VA，天生支持多开。EXposed 才诞生一个月，其稳定性已经超越发展将近一年的 VirtualXposed。\n\n
+Like the VirtualXposed I created earlier, EXposed is also an app that makes you use Xposed module without root, unlock the bootloader. they both have their own advantages, and EXposed will be much better in terms of performance and stability due to running directly in the native system; while VirtualXposed is based on VitualApp, which is more natural. . EXposed was born a month, and its stability has surpassed the development of VirtualXposed for nearly a year. \n\n
 
-目前 EXposed 已经上架应用商店，并且改名为 太极，大家可以在安装尝试一下。</string>
+Currently, EXposed has been put on the app store and renamed to Tai Chi. You can try it out.</string>
     <string name="advance_settings_enable_launcher_summary">When enabled, You can set VirtualXposed be the Launcher of system</string>
     <string name="advance_settings_enable_launcher">Enable Launcher</string>
     <string name="exp_introduce_title">An easy way to use Xposed</string>
