@@ -38,6 +38,7 @@ import java.util.List;
 import io.virtualapp.R;
 import io.virtualapp.abs.ui.VActivity;
 import io.virtualapp.abs.ui.VUiKit;
+import io.virtualapp.glide.GlideUtils;
 
 /**
  * @author weishu
@@ -81,7 +82,7 @@ public class AppManageActivity extends VActivity {
                 info.userId = installedUser;
                 ApplicationInfo applicationInfo = installedApp.getApplicationInfo(installedUser);
                 info.name = applicationInfo.loadLabel(packageManager);
-                info.icon = applicationInfo.loadIcon(packageManager);
+//                info.icon = applicationInfo.loadIcon(packageManager);  //Use Glide to load icon async
                 info.pkgName = installedApp.packageName;
                 info.path = applicationInfo.sourceDir;
                 ret.add(info);
@@ -123,10 +124,10 @@ public class AppManageActivity extends VActivity {
 
             holder.label.setText(item.getName());
 
-            if (item.icon == null) {
-                holder.icon.setVisibility(View.GONE);
+            if (VirtualCore.get().isOutsideInstalled(item.pkgName)) {
+                GlideUtils.loadInstalledPackageIcon(getContext(), item.pkgName, holder.icon, android.R.drawable.sym_def_app_icon);
             } else {
-                holder.icon.setImageDrawable(item.icon);
+                GlideUtils.loadPackageIconFromApkFile(getContext(), item.path, holder.icon, android.R.drawable.sym_def_app_icon);
             }
 
             holder.button.setOnClickListener(v -> showContextMenu(item, v));

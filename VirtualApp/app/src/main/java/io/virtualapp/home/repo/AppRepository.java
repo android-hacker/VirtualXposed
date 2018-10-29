@@ -182,7 +182,8 @@ public class AppRepository implements AppDataSource {
             info.packageName = pkg.packageName;
             info.fastOpen = fastOpen;
             info.path = path;
-            info.icon = ai.loadIcon(pm);
+//            info.icon = ai.loadIcon(pm);
+            info.icon = null;  // Use Glide to load the icon async
             info.name = ai.loadLabel(pm);
             info.version = pkg.versionName;
             InstalledAppInfo installedAppInfo = VirtualCore.get().getInstalledAppInfo(pkg.packageName, 0);

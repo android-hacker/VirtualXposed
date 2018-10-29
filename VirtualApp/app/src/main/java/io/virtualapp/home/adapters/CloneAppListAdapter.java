@@ -1,6 +1,7 @@
 package io.virtualapp.home.adapters;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
@@ -9,10 +10,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.List;
 
 import io.virtualapp.R;
 import io.virtualapp.abs.ui.VUiKit;
+import io.virtualapp.glide.GlideUtils;
 import io.virtualapp.home.models.AppInfo;
 import io.virtualapp.widgets.DragSelectRecyclerViewAdapter;
 import io.virtualapp.widgets.LabelView;
@@ -28,7 +31,13 @@ public class CloneAppListAdapter extends DragSelectRecyclerViewAdapter<CloneAppL
     private List<AppInfo> mAppList;
     private ItemEventListener mItemEventListener;
 
-    public CloneAppListAdapter(Context context) {
+    private Context mContext;
+    private File mFrom;
+
+
+    public CloneAppListAdapter(Context context, @Nullable File from) {
+        mContext = context;
+        mFrom = from;
         this.mInflater = LayoutInflater.from(context);
         mFooterView = new View(context);
         StaggeredGridLayoutManager.LayoutParams params = new StaggeredGridLayoutManager.LayoutParams(
@@ -67,7 +76,13 @@ public class CloneAppListAdapter extends DragSelectRecyclerViewAdapter<CloneAppL
         }
         super.onBindViewHolder(holder, position);
         AppInfo info = mAppList.get(position);
-        holder.iconView.setImageDrawable(info.icon);
+
+        if (mFrom == null) {
+            GlideUtils.loadInstalledPackageIcon(mContext, info.packageName, holder.iconView, android.R.drawable.sym_def_app_icon);
+        } else {
+            GlideUtils.loadPackageIconFromApkFile(mContext, info.path, holder.iconView, android.R.drawable.sym_def_app_icon);
+        }
+
         holder.nameView.setText(String.format("%s: %s", info.name, info.version));
         if (isIndexSelected(position)) {
             holder.iconView.setAlpha(1f);
