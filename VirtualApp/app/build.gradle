@@ -75,25 +75,25 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile project(':lib')
-    compile project(':launcher')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation project(':lib')
+    implementation project(':launcher')
     //Android Lib
-    compile 'com.android.support:multidex:1.0.3'
-    compile 'com.android.support:appcompat-v7:27.1.1'
-    compile 'com.android.support:recyclerview-v7:27.1.1'
-    compile 'com.android.support:design:27.1.1'
+    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:recyclerview-v7:27.1.1'
+    implementation 'com.android.support:design:27.1.1'
     //Promise Support
-    compile 'org.jdeferred:jdeferred-android-aar:1.2.4'
+    implementation 'org.jdeferred:jdeferred-android-aar:1.2.4'
     // ThirdParty
-    compile 'com.jonathanfinerty.once:once:1.0.3'
-    compile('com.crashlytics.sdk.android:crashlytics:2.9.0@aar') {
+    implementation 'com.jonathanfinerty.once:once:1.0.3'
+    implementation('com.crashlytics.sdk.android:crashlytics:2.9.0@aar') {
         transitive = true
     }
-    compile 'com.kyleduo.switchbutton:library:1.4.6'
-    compile 'com.allenliu.versionchecklib:library:1.8.3'
-    compile 'com.github.medyo:android-about-page:1.2.2'
-    compile 'moe.feng:AlipayZeroSdk:1.1'
+    implementation 'com.kyleduo.switchbutton:library:1.4.6'
+    implementation 'com.allenliu.versionchecklib:library:1.8.3'
+    implementation 'com.github.medyo:android-about-page:1.2.2'
+    implementation 'moe.feng:AlipayZeroSdk:1.1'
 
     //Glide
     implementation ('com.github.bumptech.glide:glide:4.8.0') {
