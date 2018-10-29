@@ -162,7 +162,7 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
         dividerItemDecoration.setDrawable(new ColorDrawable(0x1f000000));
         mRecyclerView.addItemDecoration(dividerItemDecoration);
-        mAdapter = new CloneAppListAdapter(getActivity());
+        mAdapter = new CloneAppListAdapter(getActivity(), getSelectFrom());
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.setOnItemClickListener(new CloneAppListAdapter.ItemEventListener() {
             @Override

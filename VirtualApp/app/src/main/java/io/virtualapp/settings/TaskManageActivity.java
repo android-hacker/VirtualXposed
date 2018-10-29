@@ -2,7 +2,6 @@ package io.virtualapp.settings;
 
 import android.app.ActivityManager;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -25,6 +24,7 @@ import java.util.List;
 
 import io.virtualapp.R;
 import io.virtualapp.abs.ui.VActivity;
+import io.virtualapp.glide.GlideUtils;
 
 /**
  * @author weishu
@@ -82,27 +82,21 @@ public class TaskManageActivity extends VActivity {
             }
         }
 
-        PackageManager packageManager = getPackageManager();
         for (ActivityManager.RunningAppProcessInfo runningAppProcessInfo : retList) {
             TaskManageInfo info = new TaskManageInfo();
             info.name = runningAppProcessInfo.processName;
             info.pid = runningAppProcessInfo.pid;
             info.uid = runningAppProcessInfo.uid;
 
-            Drawable icon = getResources().getDrawable(android.R.drawable.sym_def_app_icon);
             if (runningAppProcessInfo.pkgList != null) {
                 for (String pkg : runningAppProcessInfo.pkgList) {
                     InstalledAppInfo installedAppInfo = VirtualCore.get().getInstalledAppInfo(pkg, 0);
                     if (installedAppInfo != null) {
-                        Drawable drawable = installedAppInfo.getApplicationInfo(0).loadIcon(packageManager);
-                        if (drawable != null) {
-                            icon = drawable;
-                            break;
-                        }
+                        info.pkgName = installedAppInfo.packageName;
+                        info.path = installedAppInfo.apkPath;
                     }
                 }
             }
-            info.icon = icon;
             ret.add(info);
         }
         mInstalledApps.clear();
@@ -143,6 +137,12 @@ public class TaskManageActivity extends VActivity {
             holder.label.setText(item.name);
             holder.icon.setImageDrawable(item.icon);
 
+            if (VirtualCore.get().isOutsideInstalled(item.name.toString())) {
+                GlideUtils.loadInstalledPackageIcon(getContext(), item.pkgName, holder.icon, android.R.drawable.sym_def_app_icon);
+            } else {
+                GlideUtils.loadPackageIconFromApkFile(getContext(), item.path, holder.icon, android.R.drawable.sym_def_app_icon);
+            }
+
             holder.button.setOnClickListener(v -> {
                 VActivityManager.get().killApplicationProcess(item.name.toString(), item.uid);
                 holder.button.postDelayed(TaskManageActivity.this::loadAsync, 300);
@@ -168,6 +168,8 @@ public class TaskManageActivity extends VActivity {
     }
 
     static class TaskManageInfo {
+        public String pkgName;
+        public String path;
         CharSequence name;
         int uid;
         int pid;
