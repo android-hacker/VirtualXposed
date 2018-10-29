@@ -2,8 +2,6 @@ package io.virtualapp.settings;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -13,7 +11,6 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
-import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
 import com.android.launcher3.LauncherFiles;
@@ -27,7 +24,7 @@ import java.io.IOException;
 import io.virtualapp.R;
 import io.virtualapp.gms.FakeGms;
 import io.virtualapp.home.ListAppActivity;
-import moe.feng.alipay.zerosdk.AlipayZeroSdk;
+import io.virtualapp.utils.Misc;
 
 /**
  * Settings activity for Launcher. Currently implements the following setting: Allow rotation
@@ -150,63 +147,7 @@ public class SettingsActivity extends Activity {
             });
 
             donate.setOnPreferenceClickListener(preference -> {
-                AlertDialog alertDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_DayNight_Dialog_Alert)
-                        .setTitle(R.string.donate_dialog_title)
-                        .setMessage(R.string.donate_dialog_content)
-                        .setPositiveButton(R.string.donate_dialog_yes, (dialog, which) -> {
-                            // show chooser dialog
-
-                            final String alipay = getResources().getString(R.string.donate_alipay);
-                            final String[] items = {alipay, "Paypal", "Bitcoin"};
-
-                            AlertDialog chooseDialog = new AlertDialog.Builder(getActivity(), R.style.Theme_AppCompat_DayNight_Dialog_Alert)
-                                    .setTitle(R.string.donate_choose_title)
-                                    .setItems(items, (dialog1, which1) -> {
-                                        dialog1.dismiss();
-                                        if (which1 == 0) {
-                                            if (!AlipayZeroSdk.hasInstalledAlipayClient(getActivity())) {
-                                                Toast.makeText(getActivity(), R.string.prompt_alipay_not_found, Toast.LENGTH_SHORT).show();
-                                                return;
-                                            }
-                                            AlipayZeroSdk.startAlipayClient(getActivity(), "FKX016770URBZGZSR37U37");
-                                        } else if (which1 == 1) {
-                                            try {
-                                                Intent t = new Intent(Intent.ACTION_VIEW);
-                                                t.setData(Uri.parse("https://paypal.me/virtualxposed"));
-                                                startActivity(t);
-                                            } catch (Throwable ignored) {
-                                                ignored.printStackTrace();
-                                            }
-                                        } else if (which1 == 2) {
-                                            final String address = "39Wst8oL74pRP2vKPkPihH6RFQF4hWoBqU";
-
-                                            try {
-                                                ClipboardManager clipboardManager = (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
-                                                if (clipboardManager != null) {
-                                                    clipboardManager.setPrimaryClip(ClipData.newPlainText(null, address));
-                                                }
-                                                Toast.makeText(getActivity(), getResources().getString(R.string.donate_bitconins_tips), Toast.LENGTH_SHORT).show();
-                                            } catch (Throwable ignored) {
-                                                ignored.printStackTrace();
-                                            }
-                                        }
-                                    })
-                                    .create();
-                            chooseDialog.show();
-                        })
-                        .setNegativeButton(R.string.donate_dialog_no, ((dialog, which) -> {
-                            Intent intent = new Intent();
-                            intent.setAction(Intent.ACTION_VIEW);
-                            intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                            intent.setData(Uri.parse("https://github.com/android-hacker/VirtualXposed"));
-                            startActivity(intent);
-                        }))
-                        .create();
-                try {
-                    alertDialog.show();
-                } catch (Throwable ignored) {
-                    // BadTokenException.
-                }
+                Misc.showDonate(getActivity());
                 return false;
             });
             about.setOnPreferenceClickListener(preference -> {
