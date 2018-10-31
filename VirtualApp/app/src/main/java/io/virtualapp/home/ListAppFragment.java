@@ -194,7 +194,10 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
                 dataList.add(new AppInfoLite(info.packageName, info.path, info.fastOpen, info.disableMultiVersion));
             }
 
-            chooseInstallWay(() -> Installd.startInstallerActivity(getActivity(), dataList), dataList.get(0).path);
+            if (dataList.size() > 0) {
+                String path = dataList.get(0).path;
+                chooseInstallWay(() -> Installd.startInstallerActivity(getActivity(), dataList), path);
+            }
         });
         mSelectFromExternal.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
