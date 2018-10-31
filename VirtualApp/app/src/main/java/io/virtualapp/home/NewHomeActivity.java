@@ -301,7 +301,10 @@ public class NewHomeActivity extends NexusLauncherActivity {
                     .setPositiveButton(R.string.exp_introduce_install, (dialog, which) -> {
                         Intent t = new Intent(Intent.ACTION_VIEW);
                         t.setData(Uri.parse("https://www.coolapk.com/apk/me.weishu.exp"));
-                        startActivity(t);
+                        try {
+                            startActivity(t);
+                        } catch (Throwable ignored) {
+                        }
                     }).setNegativeButton(R.string.about_donate_title, (dialog, which) -> {
                         Misc.showDonate(NewHomeActivity.this);
                     })
