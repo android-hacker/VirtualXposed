@@ -172,4 +172,9 @@
     <string name="install_go_to_install_exp">去安装太极</string>
     <string name="install_taichi_while_old_version">你安装的 太极 版本过低，请使用新版本的太极！</string>
     <string name="install_go_latest_exp">去安装新版太极</string>
+    <string name="exp_tips">很久之前跟大家透露了 EXposed 的相关信息，经过一段时间的反馈和调整，已经到达一个小的里程碑。可能还有很多小伙伴不知道，今天就给大家介绍一下。\n\n
+
+跟我之前创造的 VirtualXposed 一样，EXposed 也是一个免Root使用Xposed 模块的App；他俩各有千秋，EXposed 由于直接运行在原生系统，不论是性能还是稳定性都会好很多；而VirtualXposed 基于VA，天生支持多开。EXposed 才诞生一个月，其稳定性已经超越发展将近一年的 VirtualXposed。\n\n
+
+目前 EXposed 已经上架应用商店，并且改名为 太极，大家可以在安装尝试一下。</string>
 </resources>
