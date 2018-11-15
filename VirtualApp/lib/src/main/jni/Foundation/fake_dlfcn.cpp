@@ -55,11 +55,11 @@
 #endif
 
 struct ctx {
-    void *load_addr;
-    void *dynstr;
-    void *dynsym;	
-    int nsyms;
-    off_t bias;
+	void *load_addr;
+	void *dynstr;
+	void *dynsym;
+	int nsyms;
+	off_t bias;
 };
 
 extern "C" {
@@ -187,5 +187,3 @@ void *fake_dlsym(void *handle, const char *name) {
 	return 0;
 }
 }
-
-
