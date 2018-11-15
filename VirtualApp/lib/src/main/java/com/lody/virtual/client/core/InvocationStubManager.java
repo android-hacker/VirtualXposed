@@ -49,6 +49,7 @@ import com.lody.virtual.client.hook.proxies.telephony.TelephonyStub;
 import com.lody.virtual.client.hook.proxies.usage.UsageStatsManagerStub;
 import com.lody.virtual.client.hook.proxies.user.UserManagerStub;
 import com.lody.virtual.client.hook.proxies.vibrator.VibratorStub;
+import com.lody.virtual.client.hook.proxies.view.AutoFillManagerStub;
 import com.lody.virtual.client.hook.proxies.wifi.WifiManagerStub;
 import com.lody.virtual.client.hook.proxies.wifi_scanner.WifiScannerStub;
 import com.lody.virtual.client.hook.proxies.window.WindowManagerStub;
@@ -185,6 +186,9 @@ public final class InvocationStubManager {
                 addInjector(new ShortcutServiceStub());
                 addInjector(new DevicePolicyManagerStub());
             }
+            if (Build.VERSION.SDK_INT >= 26) {
+				addInjector(new AutoFillManagerStub());
+			}
 		}
 	}
 
