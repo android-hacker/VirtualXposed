@@ -88,18 +88,6 @@ typedef struct _RegState {
     } floating;
 } RegState;
 #elif defined(__arm__)
-typedef struct _RegState {
-    zuint32 sp;
-
-    union {
-        zuint32 r[13];
-        struct {
-            zuint32 r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12;
-        } regs;
-    } general;
-
-    zuint32 lr;
-} RegState;
 #elif defined(__x86_64__)
 #endif
 #endif
@@ -123,6 +111,19 @@ typedef struct _CallStack {
     zsize call_id;
     struct _ThreadStack *threadstack;
 } CallStack;
+
+typedef struct _RegState {
+    zuint32 sp;
+
+    union {
+        zuint32 r[13];
+        struct {
+            zuint32 r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12;
+        } regs;
+    } general;
+
+    zuint32 lr;
+} RegState;
 
 typedef struct _ThreadStack {
     zsize thread_id;
