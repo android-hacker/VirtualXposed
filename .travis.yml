@@ -19,3 +19,11 @@ before_install:
 script:
   - cd VirtualApp
   - ./gradlew assembleRelease
+
+deploy:
+  provider: releases
+  api_key: ${GH_TOKEN}
+  file: VirtualApp/app/build/outputs/apk/app-release.apk
+  skip_cleanup: true
+  on:
+    tags: true
