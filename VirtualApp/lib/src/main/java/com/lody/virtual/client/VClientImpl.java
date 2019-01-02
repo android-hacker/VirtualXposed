@@ -535,6 +535,8 @@ public final class VClientImpl extends IVClient.Stub {
             NativeEngine.redirectDirectory(new File(storageRoot, "Android/data/").getAbsolutePath(), privatePath);
             // redirect /sdcard/ -> vsdcard
             NativeEngine.redirectDirectory(storageRoot, vsPath);
+            // redirect /system/framework -> vsdcard/framework
+            NativeEngine.redirectDirectory("/system/framework", new File(vsPath, "framework/").getAbsolutePath());
         }
     }
 
