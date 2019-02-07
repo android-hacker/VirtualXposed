@@ -143,5 +143,7 @@
         <string name="settings_file_manage_text">Файловый менеджер</string>
         <string name="install_file_manager_tips">Файловый менеджер поддерживается Amaze File Manager, скачать(около 3МБ) и установить сейчас?</string>
         <string name="settings_permission_manage_text">Управление разрешениями</string>
-        <string name="install_permission_manager_tips">Управление разрешениями реализовано XPrivacyLua, скачать(около 1.7МБ) и установить сейчас?</string>	
+        <string name="install_permission_manager_tips">Управление разрешениями реализовано XPrivacyLua, скачать(около 1.7МБ) и установить сейчас?</string>
+	<string name="advance_settings_enable_launcher_summary">Когда включен, Вы можете выбрать VirtualXposed как лаунчер по умолчанию для системы</string>
+        <string name="advance_settings_enable_launcher">Включить лаунчер</string>
 </resources>
