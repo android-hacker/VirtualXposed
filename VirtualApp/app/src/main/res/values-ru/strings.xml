@@ -140,4 +140,8 @@
 	<string name="home_menu_clear_title">Очистить данные приложения</string>
 	<string name="home_menu_clear_content">Очистить данные %1$s ?</string>
 	<string name="app_manage_repair_failed_tips">Исправление не удалось; переустановите это приложение.</string>
+        <string name="settings_file_manage_text">Файловый менеджер</string>
+        <string name="install_file_manager_tips">Файловый менеджер поддерживается Amaze File Manager, скачать(около 3МБ) и установить сейчас?</string>
+        <string name="settings_permission_manage_text">Управление разрешениями</string>
+        <string name="install_permission_manager_tips">Управление разрешениями реализовано XPrivacyLua, скачать(около 1.7МБ) и установить сейчас?</string>	
 </resources>
