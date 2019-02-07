@@ -146,4 +146,6 @@
         <string name="install_permission_manager_tips">Управление разрешениями реализовано XPrivacyLua, скачать(около 1.7МБ) и установить сейчас?</string>
 	<string name="advance_settings_enable_launcher_summary">Когда включен, Вы можете выбрать VirtualXposed как лаунчер по умолчанию для системы</string>
         <string name="advance_settings_enable_launcher">Включить лаунчер</string>
+	<string name="advance_settings_disable_xposed_summary">Когда отключен, все Xposed модули не будут работать.</string>
+        <string name="advance_settings_disable_xposed">Отключить Xposed</string>
 </resources>
