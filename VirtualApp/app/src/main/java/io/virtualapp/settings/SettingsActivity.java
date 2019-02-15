@@ -124,6 +124,12 @@ public class SettingsActivity extends Activity {
                 return false;
             });
 
+            boolean xposedEnabled = VirtualCore.get().isXposedEnabled();
+            if (!xposedEnabled) {
+                getPreferenceScreen().removePreference(moduleManage);
+                getPreferenceScreen().removePreference(recommend);
+            }
+
             appManage.setOnPreferenceClickListener(preference -> {
                 startActivity(new Intent(getActivity(), AppManageActivity.class));
                 return false;
