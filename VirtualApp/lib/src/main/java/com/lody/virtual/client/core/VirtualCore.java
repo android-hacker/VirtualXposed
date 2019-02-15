@@ -102,7 +102,7 @@ public final class VirtualCore {
     private PhoneInfoDelegate phoneInfoDelegate;
     private ComponentDelegate componentDelegate;
     private TaskDescriptionDelegate taskDescriptionDelegate;
-    private Boolean xposedEnabled = null;
+    private Boolean taichiInstalled = null;
 
     private VirtualCore() {
     }
@@ -391,7 +391,7 @@ public final class VirtualCore {
     }
 
     public boolean isOutsidePackageVisible(String pkg) {
-        if (!isXposedEnabled()) {
+        if (!isXposedEnabled() || isTaiChiInstalled()) {
             PackageManager unHookPackageManager = getUnHookPackageManager();
             try {
                 unHookPackageManager.getPackageInfo(pkg, 0);
@@ -408,25 +408,23 @@ public final class VirtualCore {
         }
     }
 
-    public boolean isXposedEnabled() {
-        if (xposedEnabled != null) {
-            return xposedEnabled;
-        }
-
-        boolean switchDisabled = VirtualCore.get().getContext().getFileStreamPath(".disable_xposed").exists();
-        if (switchDisabled) {
-            xposedEnabled = false;
-            return false;
+    private boolean isTaiChiInstalled() {
+        if (taichiInstalled != null) {
+            return taichiInstalled;
         }
 
         try {
-            getUnHookPackageManager().getPackageInfo("me.weishu.exp", 0);
-            xposedEnabled = false;
+            getUnHookPackageManager().getPackageInfo(TAICHI_PACKAGE, 0);
+            taichiInstalled = true;
         } catch (PackageManager.NameNotFoundException e) {
-            xposedEnabled = true;
+            taichiInstalled = false;
         }
 
-        return xposedEnabled;
+        return taichiInstalled;
+    }
+
+    public boolean isXposedEnabled() {
+        return !VirtualCore.get().getContext().getFileStreamPath(".disable_xposed").exists();
     }
 
     public boolean isAppInstalled(String pkg) {
