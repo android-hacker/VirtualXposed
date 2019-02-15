@@ -6,9 +6,9 @@
 #include <fb/include/fb/ALog.h>
 #include <Substrate/SubstrateHook.h>
 
-extern "C" {
-#include <HookZz/include/hookzz.h>
-}
+//extern "C" {
+//#include <HookZz/include/hookzz.h>
+//}
 
 
 #include "IOUniformer.h"
