@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.lody.virtual.GmsSupport;
@@ -204,6 +205,11 @@ public class Installd {
         if (pkgInfo == null) {
             return null;
         }
+
+        if (TextUtils.equals(VirtualCore.TAICHI_PACKAGE, pkgInfo.packageName)) {
+            return null;
+        }
+
         if (VirtualCore.get().getHostPkg().equals(pkgInfo.packageName)) {
             Toast.makeText(VirtualCore.get().getContext(), R.string.install_self_eggs, Toast.LENGTH_SHORT).show();
             return null;

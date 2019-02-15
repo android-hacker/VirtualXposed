@@ -169,6 +169,12 @@ public class AppRepository implements AppDataSource {
             if (hostPkg.equals(pkg.packageName)) {
                 continue;
             }
+
+            // ignore taichi package
+            if (VirtualCore.TAICHI_PACKAGE.equals(pkg.packageName)) {
+                continue;
+            }
+
             // ignore the System package
             if (isSystemApplication(pkg)) {
                 continue;

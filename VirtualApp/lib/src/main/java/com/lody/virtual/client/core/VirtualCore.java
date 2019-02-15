@@ -67,6 +67,8 @@ public final class VirtualCore {
 
     public static final int GET_HIDDEN_APP = 0x00000001;
 
+    public static final String TAICHI_PACKAGE = "me.weishu.exp";
+
     @SuppressLint("StaticFieldLeak")
     private static VirtualCore gCore = new VirtualCore();
     private final int myUid = Process.myUid();
@@ -100,6 +102,7 @@ public final class VirtualCore {
     private PhoneInfoDelegate phoneInfoDelegate;
     private ComponentDelegate componentDelegate;
     private TaskDescriptionDelegate taskDescriptionDelegate;
+    private Boolean xposedEnabled = null;
 
     private VirtualCore() {
     }
@@ -388,11 +391,42 @@ public final class VirtualCore {
     }
 
     public boolean isOutsidePackageVisible(String pkg) {
+        if (!isXposedEnabled()) {
+            PackageManager unHookPackageManager = getUnHookPackageManager();
+            try {
+                unHookPackageManager.getPackageInfo(pkg, 0);
+                return true;
+            } catch (PackageManager.NameNotFoundException e) {
+                return false;
+            }
+        }
+
         try {
             return getService().isOutsidePackageVisible(pkg);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
+    }
+
+    public boolean isXposedEnabled() {
+        if (xposedEnabled != null) {
+            return xposedEnabled;
+        }
+
+        boolean switchDisabled = VirtualCore.get().getContext().getFileStreamPath(".disable_xposed").exists();
+        if (switchDisabled) {
+            xposedEnabled = false;
+            return false;
+        }
+
+        try {
+            getUnHookPackageManager().getPackageInfo("me.weishu.exp", 0);
+            xposedEnabled = false;
+        } catch (PackageManager.NameNotFoundException e) {
+            xposedEnabled = true;
+        }
+
+        return xposedEnabled;
     }
 
     public boolean isAppInstalled(String pkg) {
