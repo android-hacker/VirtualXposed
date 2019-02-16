@@ -102,7 +102,6 @@ public final class VirtualCore {
     private PhoneInfoDelegate phoneInfoDelegate;
     private ComponentDelegate componentDelegate;
     private TaskDescriptionDelegate taskDescriptionDelegate;
-    private Boolean taichiInstalled = null;
 
     private VirtualCore() {
     }
@@ -391,7 +390,7 @@ public final class VirtualCore {
     }
 
     public boolean isOutsidePackageVisible(String pkg) {
-        if (!isXposedEnabled() || isTaiChiInstalled()) {
+        if (!isXposedEnabled()) {
             PackageManager unHookPackageManager = getUnHookPackageManager();
             try {
                 unHookPackageManager.getPackageInfo(pkg, 0);
@@ -406,21 +405,6 @@ public final class VirtualCore {
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
-    }
-
-    private boolean isTaiChiInstalled() {
-        if (taichiInstalled != null) {
-            return taichiInstalled;
-        }
-
-        try {
-            getUnHookPackageManager().getPackageInfo(TAICHI_PACKAGE, 0);
-            taichiInstalled = true;
-        } catch (PackageManager.NameNotFoundException e) {
-            taichiInstalled = false;
-        }
-
-        return taichiInstalled;
     }
 
     public boolean isXposedEnabled() {
