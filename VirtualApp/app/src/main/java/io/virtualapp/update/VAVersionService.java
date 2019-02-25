@@ -18,7 +18,6 @@ import org.json.JSONObject;
 import java.util.concurrent.TimeUnit;
 
 import io.virtualapp.R;
-import io.virtualapp.VCommends;
 
 /**
  * @author weishu
@@ -63,9 +62,6 @@ public class VAVersionService extends AVersionService {
                     Toast.makeText(getApplicationContext(), R.string.version_is_latest, Toast.LENGTH_SHORT).show();
                 }
             }
-            new Thread(() -> {
-                VCommends.c(getApplicationContext());
-            }).start();
 
         } catch (JSONException e) {
             Log.e(TAG, "version info parse error!!", e);
