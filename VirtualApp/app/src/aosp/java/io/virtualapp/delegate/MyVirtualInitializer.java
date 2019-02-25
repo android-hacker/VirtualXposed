@@ -27,8 +27,10 @@ public class MyVirtualInitializer extends BaseVirtualInitializer {
 
         // For Crash statics
         Fabric.with(application, new Crashlytics());
-        virtualCore.setCrashHandler(new MyCrashHandler());
 
         super.onVirtualProcess();
+
+        // Override
+        virtualCore.setCrashHandler(new MyCrashHandler());
     }
 }

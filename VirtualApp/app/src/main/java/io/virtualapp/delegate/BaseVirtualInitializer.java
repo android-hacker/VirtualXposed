@@ -32,6 +32,8 @@ public class BaseVirtualInitializer extends VirtualCore.VirtualInitializer {
     @Override
     public void onVirtualProcess() {
 
+        virtualCore.setCrashHandler(new BaseCrashHandler());
+
         //listener components
         virtualCore.setComponentDelegate(new MyComponentDelegate());
         //fake phone imei,macAddress,BluetoothAddress

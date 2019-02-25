@@ -91,7 +91,7 @@ dependencies {
     implementation 'org.jdeferred:jdeferred-android-aar:1.2.4'
     // ThirdParty
     implementation 'com.jonathanfinerty.once:once:1.0.3'
-    fdroidImplementation('com.crashlytics.sdk.android:crashlytics:2.9.0@aar') {
+    aospImplementation('com.crashlytics.sdk.android:crashlytics:2.9.0@aar') {
         transitive = true
     }
     implementation 'com.kyleduo.switchbutton:library:1.4.6'
