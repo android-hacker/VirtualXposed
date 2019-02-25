@@ -11,11 +11,6 @@ The only two restriction of VirtualXposed are:
 1. Unable to modify system, so any Module which modifies system won't be able to work properly.
 2. Currently resource hooks are not supported. (Theming modules use Resource Hooks).
 
-Warning
------------
-
-Usage for Commercial Purposes are not allowed!!!  Please refer to VirtualApp's [declaration](https://github.com/asLody/VirtualApp).
-
 Usage
 -------
 
