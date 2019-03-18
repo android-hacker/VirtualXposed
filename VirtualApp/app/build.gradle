@@ -63,7 +63,7 @@ android {
         release {
             minifyEnabled false
             debuggable
-            debuggable false
+            debuggable true
         }
     }
     compileOptions {
