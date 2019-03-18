@@ -25,4 +25,10 @@ public class BuildCompat {
                 || Build.VERSION.SDK_INT > 25;
     }
 
+    public static boolean isQ() {
+        final int SDK = Build.VERSION.SDK_INT;
+        final int Q = 29;
+        return SDK == Q - 1 && getPreviewSDKInt() > 0 || Build.VERSION.SDK_INT >= Q;
+    }
+
 }

@@ -64,6 +64,10 @@ public class PackageParserCompat {
     }
 
     public static Package parsePackage(PackageParser parser, File packageFile, int flags) throws Throwable {
+        if (BuildCompat.isQ()) {
+            PackageParserP28.setCallback.call(parser, PackageParserP28.CallbackImpl.ctor.newInstance(VirtualCore.getPM()));
+        }
+
         if (API_LEVEL >= M) {
             return PackageParserMarshmallow.parsePackage.callWithException(parser, packageFile, flags);
         } else if (API_LEVEL >= LOLLIPOP_MR1) {
