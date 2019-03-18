@@ -2,6 +2,8 @@ package com.lody.virtual.helper;
 
 import android.os.Build;
 
+import com.lody.virtual.helper.compat.BuildCompat;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,7 +45,7 @@ public class ArtDexOptimizer {
         commandAndParams.add("--oat-file=" + oatFilePath);
         commandAndParams.add("--instruction-set=" + VMRuntime.getCurrentInstructionSet.call());
         commandAndParams.add("--compiler-filter=everything");
-        if (Build.VERSION.SDK_INT >= 22) {
+        if (Build.VERSION.SDK_INT >= 22 && !BuildCompat.isQ()) {
             commandAndParams.add("--compile-pic");
         }
         if (Build.VERSION.SDK_INT > 25) {
