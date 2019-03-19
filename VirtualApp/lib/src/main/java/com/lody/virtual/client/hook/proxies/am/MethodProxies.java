@@ -196,10 +196,12 @@ class MethodProxies {
 
         @Override
         public int getProviderNameIndex() {
-            if (BuildCompat.isQ()) {
-                return 1;
-            }
             return 0;
+        }
+
+        @Override
+        public int getPackageIndex() {
+            return super.getPackageIndex();
         }
 
         @Override
@@ -1392,6 +1394,13 @@ class MethodProxies {
                 }
                 return holder;
             }
+
+            if (BuildCompat.isQ()) {
+                int packageIndex = getPackageIndex();
+                if (packageIndex > 0 && args[packageIndex] instanceof String) {
+                    args[packageIndex] = getHostPkg();
+                }
+            }
             Object holder = method.invoke(who, args);
             if (holder != null) {
                 if (BuildCompat.isOreo()) {
@@ -1420,6 +1429,13 @@ class MethodProxies {
                 return 2;
             }
             return 1;
+        }
+
+        public int getPackageIndex() {
+            if (BuildCompat.isQ()) {
+                return 1;
+            }
+            return -1;
         }
 
         @Override
