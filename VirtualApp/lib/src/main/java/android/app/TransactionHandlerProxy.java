@@ -21,6 +21,7 @@ import com.lody.virtual.remote.InstalledAppInfo;
 import com.lody.virtual.remote.StubActivityRecord;
 
 import java.util.List;
+import java.util.Map;
 
 import mirror.android.app.ActivityManagerNative;
 import mirror.android.app.IActivityManager;
@@ -203,5 +204,25 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
     @Override
     public void reportRelaunch(IBinder token, PendingTransactionActions pendingActions) {
         originalHandler.reportRelaunch(token, pendingActions);
+    }
+
+    @Override
+    public Map getActivitiesToBeDestroyed() {
+        return originalHandler.getActivitiesToBeDestroyed();
+    }
+
+    @Override
+    public Activity getActivity(IBinder token) {
+        return originalHandler.getActivity(token);
+    }
+
+    @Override
+    public void updatePendingActivityConfiguration(IBinder arg1, Configuration arg2) {
+        originalHandler.updatePendingActivityConfiguration(arg1, arg2);
+    }
+
+    @Override
+    public void handleTopResumedActivityChanged(IBinder arg1, boolean arg2, String arg3) {
+        originalHandler.handleTopResumedActivityChanged(arg1, arg2, arg3);
     }
 }

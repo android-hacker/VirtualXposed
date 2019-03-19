@@ -26,6 +26,7 @@ import android.os.IBinder;
 import android.util.MergedConfiguration;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Defines operations that a {@link ClientTransaction} or its items
@@ -155,4 +156,12 @@ public abstract class ClientTransactionHandler {
      *                       Used to check if we should report relaunch to WM.
      * */
     public abstract void reportRelaunch(IBinder token, PendingTransactionActions pendingActions);
+
+    public abstract Map getActivitiesToBeDestroyed();
+
+    public abstract Activity getActivity(IBinder token);
+
+    public abstract void updatePendingActivityConfiguration(IBinder arg1, Configuration arg2);
+
+    public abstract void handleTopResumedActivityChanged(IBinder arg1, boolean arg2, String arg3);
 }
