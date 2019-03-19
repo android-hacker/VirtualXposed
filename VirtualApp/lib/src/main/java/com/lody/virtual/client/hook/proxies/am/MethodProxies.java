@@ -201,7 +201,7 @@ class MethodProxies {
 
         @Override
         public int getPackageIndex() {
-            return super.getPackageIndex();
+            return -1;
         }
 
         @Override
