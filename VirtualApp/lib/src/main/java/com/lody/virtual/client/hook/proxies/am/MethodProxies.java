@@ -196,6 +196,9 @@ class MethodProxies {
 
         @Override
         public int getProviderNameIndex() {
+            if (BuildCompat.isQ()) {
+                return 1;
+            }
             return 0;
         }
 
@@ -1413,6 +1416,9 @@ class MethodProxies {
 
 
         public int getProviderNameIndex() {
+            if (BuildCompat.isQ()) {
+                return 2;
+            }
             return 1;
         }
 
