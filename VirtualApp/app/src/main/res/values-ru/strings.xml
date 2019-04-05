@@ -45,7 +45,7 @@
 	<string name="prompt_alipay_not_found">Alipay не найден.</string>
 	<string name="prompt_wait">Подождите минуту...</string>
 	<string name="donate_dialog_title">О пожертвовании</string>
-	<string name="donate_dialog_content">Не жертвуйте мне, если не богаты :)</string>
+	<string name="donate_dialog_content">Поддержание VirtualXposed отнимает у меня много времени, если вы цените мою работу, купите мне чашку кофе! :)</string>
 	<string name="donate_dialog_yes">Пожертвовать</string>
 	<string name="donate_dialog_no">Отмена</string>
 	<string name="large_app_install_tips">Установка может занять некоторое время, будьте терпеливы... :)</string>

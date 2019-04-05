@@ -45,6 +45,8 @@ import io.virtualapp.R;
 import io.virtualapp.abs.ui.VUiKit;
 import io.virtualapp.settings.SettingsActivity;
 import io.virtualapp.update.VAVersionService;
+import io.virtualapp.utils.Misc;
+import jonathanfinerty.once.Once;
 
 import static io.virtualapp.XApp.XPOSED_INSTALLER_PACKAGE;
 
@@ -76,7 +78,7 @@ public class NewHomeActivity extends NexusLauncherActivity {
         showMenuKey();
         mUiHandler = new Handler(getMainLooper());
         alertForMeizu();
-        alertForDoze();
+        alertForDonate();
         mDirectlyBack = sharedPreferences.getBoolean(SettingsActivity.DIRECTLY_BACK_KEY, false);
     }
 
@@ -229,6 +231,26 @@ public class NewHomeActivity extends NexusLauncherActivity {
         }
         if (mDirectlyBack) {
             finish();
+        }
+    }
+
+    private void alertForDonate() {
+        final String TAG = "show_donate";
+        if (Once.beenDone(Once.THIS_APP_VERSION, TAG)) {
+            alertForDoze();
+            return;
+        }
+        AlertDialog alertDialog = new AlertDialog.Builder(getContext())
+                .setTitle(R.string.about_donate)
+                .setMessage(R.string.donate_dialog_content)
+                .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                    Misc.showDonate(this);
+                    Once.markDone(TAG);
+                })
+                .create();
+        try {
+            alertDialog.show();
+        } catch (Throwable ignored) {
         }
     }
 

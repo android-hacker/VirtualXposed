@@ -44,7 +44,7 @@
     <string name="meizu_device_tips_content">受限于魅族系统的限制，您必须先在系统中安装相应的APP以及Xposed模块，然后再克隆到VirtualXposed中才能正常使用。请首先在安装 XposedInstaller 然后克隆到 VAEposed 中！！</string>
     <string name="prompt_alipay_not_found">你没有安装支付宝 ~_~</string>
     <string name="donate_dialog_title">关于打赏</string>
-    <string name="donate_dialog_content">如果你并不富裕，请不要捐赠！去github点赞支持或者告诉身边的朋友就好 ^_^ </string>
+    <string name="donate_dialog_content">维护 VirtualXposed 花费了我很多业余时间，如果它给您带来了便利，可以赞助我一波 :)</string>
     <string name="donate_dialog_yes">我就要打赏</string>
     <string name="donate_dialog_no">去github点赞</string>
     <string name="large_app_install_tips">安装大型APP可能需要花费较长的时间，请耐心等待~</string>
