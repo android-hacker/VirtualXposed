@@ -443,10 +443,24 @@ public final class VirtualCore {
         if (ris == null || ris.size() <= 0) {
             return null;
         }
+
+        ActivityInfo activityInfo = null;
+        for (ResolveInfo resolveInfo : ris) {
+            if (resolveInfo.activityInfo.enabled) {
+                // select the first enabled component
+                activityInfo = resolveInfo.activityInfo;
+                break;
+            }
+        }
+
+        if (activityInfo == null) {
+            activityInfo = ris.get(0).activityInfo;
+        }
+
         Intent intent = new Intent(intentToResolve);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setClassName(ris.get(0).activityInfo.packageName,
-                ris.get(0).activityInfo.name);
+        intent.setClassName(activityInfo.packageName,
+                activityInfo.name);
         return intent;
     }
 
