@@ -175,7 +175,7 @@ Currently, EXposed has been put on the app store and renamed to Tai Chi. You can
     <string name="advance_settings_enable_launcher">Enable Launcher</string>
     <string name="exp_introduce_title">An easy way to use Xposed</string>
     <string name="exp_introduce_install">Have a try</string>
-    <string name="what_is_exp">What is TaiChi?</string>
+    <string name="what_is_exp">What\'s TaiChi?</string>
     <string name="install_choose_way">Choose way to install</string>
     <string name="install_choose_content" >You can use Xposed modules through TaiChi except VirtualXposed. VirtualXposed supports Virtual-App，while TaiChi is much more stable.</string>
     <string name="install_choose_taichi">TaiChi</string>

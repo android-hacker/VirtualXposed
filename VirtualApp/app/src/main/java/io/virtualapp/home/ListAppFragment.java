@@ -130,7 +130,7 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
                                 .setMessage(R.string.install_taichi_while_old_version)
                                 .setPositiveButton(R.string.install_go_latest_exp, (dialog1, which1) -> {
                                     Intent t = new Intent(Intent.ACTION_VIEW);
-                                    t.setData(Uri.parse("https://www.coolapk.com/apk/me.weishu.exp"));
+                                    t.setData(Uri.parse("https://taichi.cool"));
                                     startActivity(t);
                                 })
                                 .create();
@@ -143,7 +143,9 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
                     }
                     finishActivity();
                 }).setNeutralButton(R.string.what_is_exp, ((dialog, which) -> {
-                    whatIsTaiChi();
+                    Intent t = new Intent(Intent.ACTION_VIEW);
+                    t.setData(Uri.parse("https://taichi.cool"));
+                    startActivity(t);
                 }))
                 .create();
         try {
