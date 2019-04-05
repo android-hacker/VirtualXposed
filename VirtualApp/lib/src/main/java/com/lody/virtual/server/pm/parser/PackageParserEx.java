@@ -57,7 +57,7 @@ public class PackageParserEx {
                 && p.mAppMetaData != null
                 && p.mAppMetaData.containsKey("fake-signature")) {
             String sig = p.mAppMetaData.getString("fake-signature");
-            p.mSignatures = new Signature[]{new Signature(sig)};
+            buildSignature(p, new Signature[]{new Signature(sig)});
             VLog.d(TAG, "Using fake-signature feature on : " + p.packageName);
         } else {
             try {
@@ -66,13 +66,23 @@ public class PackageParserEx {
                 VLog.e(TAG, "collectCertificates failed", e);
                 if (VirtualCore.get().getContext().getFileStreamPath(Constants.FAKE_SIGNATURE_FLAG).exists()) {
                     VLog.w(TAG, "Using fake signature: " + p.packageName);
-                    p.mSignatures = new Signature[]{new Signature(FAKE_SIG)};
+                    buildSignature(p, new Signature[]{new Signature(FAKE_SIG)});
                 } else {
                     throw e;
                 }
             }
         }
         return buildPackageCache(p);
+    }
+
+    private static void buildSignature(PackageParser.Package p, Signature[] signatures) {
+        if (Build.VERSION.SDK_INT < 28) {
+            p.mSignatures = signatures;
+        } else {
+            Object signingDetails = mirror.android.content.pm.PackageParser.Package.mSigningDetails.get(p);
+            mirror.android.content.pm.PackageParser.SigningDetails.pastSigningCertificates.set(signingDetails, signatures);
+            mirror.android.content.pm.PackageParser.SigningDetails.signatures.set(signingDetails, signatures);
+        }
     }
 
     public static VPackage readPackageCache(String packageName) {
