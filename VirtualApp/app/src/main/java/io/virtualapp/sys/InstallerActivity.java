@@ -28,6 +28,7 @@ import java.util.List;
 import io.virtualapp.R;
 import io.virtualapp.VCommends;
 import io.virtualapp.abs.ui.VUiKit;
+import io.virtualapp.home.LoadingActivity;
 import io.virtualapp.home.models.AppData;
 import io.virtualapp.home.models.AppInfoLite;
 
@@ -134,9 +135,16 @@ public class InstallerActivity extends AppCompatActivity {
                                     mProgressText.postDelayed(() -> {
                                         mProgressBar.setVisibility(View.GONE);
 
+                                        mLeft.setVisibility(View.VISIBLE);
+                                        mLeft.setText(R.string.install_complete);
+                                        mLeft.setOnClickListener((vv) -> finish());
+
                                         mRight.setVisibility(View.VISIBLE);
-                                        mRight.setText(R.string.install_complete);
-                                        mRight.setOnClickListener((vv) -> finish());
+                                        mRight.setText(R.string.install_complete_and_open);
+                                        mRight.setOnClickListener((vv) -> {
+                                            LoadingActivity.launch(getApplicationContext(), appInfoLite.packageName, 0);
+                                            finish();
+                                        });
                                     }, 500);
                                 }
                             }
@@ -260,14 +268,11 @@ public class InstallerActivity extends AppCompatActivity {
             finish();
             return;
         }
-        PackageInfo packageArchiveInfo = packageManager.getPackageArchiveInfo(path, 0);
-        if (packageArchiveInfo == null) {
-            finish();
-            return;
-        }
-        String toInstalledVersion = packageArchiveInfo.versionName;
-        int toInstalledVersionCode = packageArchiveInfo.versionCode;
-        CharSequence label = packageArchiveInfo.packageName;
+
+        final String packageName = pkgInfo.packageName;
+        String toInstalledVersion = pkgInfo.versionName;
+        int toInstalledVersionCode = pkgInfo.versionCode;
+        CharSequence label = packageName;
 
         if (installedAppInfo != null) {
             String currentVersion;
@@ -316,10 +321,18 @@ public class InstallerActivity extends AppCompatActivity {
                 mProgressText.setVisibility(View.VISIBLE);
                 mProgressText.setText(getResources().getString(R.string.add_app_loading_complete, apkName));
                 mProgressBar.setVisibility(View.GONE);
+                mRight.setVisibility(View.VISIBLE);
                 mRight.setEnabled(true);
-                mRight.setText(res.isSuccess ? getResources().getString(R.string.install_complete) :
+                mRight.setText(R.string.install_complete_and_open);
+                mRight.setOnClickListener(vv -> {
+                    LoadingActivity.launch(this, packageName, 0);
+                    finish();
+                });
+                mLeft.setVisibility(View.VISIBLE);
+                mLeft.setEnabled(true);
+                mLeft.setText(res.isSuccess ? getResources().getString(R.string.install_complete) :
                         getResources().getString(R.string.install_fail, res.error));
-                mRight.setOnClickListener((vv) -> finish());
+                mLeft.setOnClickListener((vv) -> finish());
             }).fail((res) -> {
                 String msg = res.getMessage();
                 if (msg == null) {

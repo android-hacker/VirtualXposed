@@ -163,4 +163,5 @@
     <string name="install_permission_manager_tips">Permission Manage est mis en œuvre par XPrivacyLua, télécharger (environ 1,7M) et l\'installer maintenant?</string>
     <string name="advance_settings_enable_launcher_summary">Enable Launcher</string>
     <string name="advance_settings_enable_launcher">Enable Launcher</string>
+    <string name="install_complete_and_open">Ouvert</string>
 </resources>

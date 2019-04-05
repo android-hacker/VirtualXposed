@@ -161,4 +161,5 @@
     <string name="install_permission_manager_tips">權限管理由XPrivacyLua實現，下載（約1.7M）並立即安裝？</string>
     <string name="advance_settings_enable_launcher_summary">Enable Launcher</string>
     <string name="advance_settings_enable_launcher">Enable Launcher</string>
+    <string name="install_complete_and_open">打開</string>
 </resources>

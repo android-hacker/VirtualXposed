@@ -177,4 +177,5 @@
 跟我之前创造的 VirtualXposed 一样，EXposed 也是一个免Root使用Xposed 模块的App；他俩各有千秋，EXposed 由于直接运行在原生系统，不论是性能还是稳定性都会好很多；而VirtualXposed 基于VA，天生支持多开。EXposed 才诞生一个月，其稳定性已经超越发展将近一年的 VirtualXposed。\n\n
 
 目前 EXposed 已经上架应用商店，并且改名为 太极，大家可以在安装尝试一下。</string>
+    <string name="install_complete_and_open">打开</string>
 </resources>

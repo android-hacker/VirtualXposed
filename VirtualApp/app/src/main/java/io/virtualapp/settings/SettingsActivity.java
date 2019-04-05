@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 
 import io.virtualapp.R;
+import io.virtualapp.VCommends;
 import io.virtualapp.gms.FakeGms;
 import io.virtualapp.home.ListAppActivity;
 import io.virtualapp.utils.Misc;
@@ -324,6 +325,15 @@ public class SettingsActivity extends Activity {
             } catch (Throwable ignored) {
                 Toast.makeText(getActivity(), "startActivity failed.", Toast.LENGTH_SHORT).show();
                 ignored.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == VCommends.REQUEST_SELECT_APP) {
+            if (resultCode == RESULT_OK) {
+                finish();
             }
         }
     }

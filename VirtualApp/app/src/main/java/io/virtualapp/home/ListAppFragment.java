@@ -196,7 +196,14 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
 
             if (dataList.size() > 0) {
                 String path = dataList.get(0).path;
-                chooseInstallWay(() -> Installd.startInstallerActivity(getActivity(), dataList), path);
+                chooseInstallWay(() -> {
+                    Activity activity = getActivity();
+                    if (activity == null) {
+                        return;
+                    }
+                    Installd.startInstallerActivity(activity, dataList);
+                    activity.setResult(Activity.RESULT_OK);
+                }, path);
             }
         });
         mSelectFromExternal.setOnClickListener(v -> {
@@ -249,7 +256,10 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
             return;
         }
 
-        chooseInstallWay(() -> Installd.handleRequestFromFile(getActivity(), path), path);
+        chooseInstallWay(() -> {
+            Installd.handleRequestFromFile(getActivity(), path);
+            getActivity().setResult(Activity.RESULT_OK);
+        }, path);
     }
 
     public static String getPath(Context context, Uri uri) {
