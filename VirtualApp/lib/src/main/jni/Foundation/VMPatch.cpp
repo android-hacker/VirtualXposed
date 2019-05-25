@@ -443,6 +443,11 @@ bool (*orig_ProcessProfilingInfo)(void*, void*);
 bool compileNothing(void* thiz, void* thread, void* method, bool osr) { return false; }
 bool (*orig_CompileNothing)(void* thiz, void* thread, void* method, bool osr);
 
+void (*org_notifyJitActivity)(void *);
+void notifyNothing(void *thiz) {
+    return;
+}
+
 void disableJit(int apiLevel) {
 #ifdef __arm__
     void *libart = fake_dlopen("/system/lib/libart.so", RTLD_NOW);
@@ -465,6 +470,12 @@ void disableJit(int apiLevel) {
         ALOGE("compileMethod: %p", compileMethod);
         if (compileMethod) {
             MSHookFunction(compileMethod, (void*) compileNothing, (void**) &orig_CompileNothing);
+        }
+
+        void *notifyJitActivity = fake_dlsym(libart, "_ZN3art12ProfileSaver17NotifyJitActivityEv");
+        if (notifyJitActivity) {
+            MSHookFunction(notifyJitActivity, (void *) notifyNothing,
+                          (void **) &org_notifyJitActivity);
         }
     }
 #endif
