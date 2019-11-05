@@ -8,7 +8,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IInterface;
 import android.os.ParcelFileDescriptor;
-import android.util.Log;
 
 import com.lody.virtual.client.hook.base.MethodBox;
 import com.lody.virtual.helper.compat.BuildCompat;
@@ -195,7 +194,6 @@ public class ProviderHook implements InvocationHandler {
                 String mode = (String) args[start + 1];
                 return openAssetFile(methodBox, url, mode);
             } else if ("query".equals(name)) {
-                Log.i("mylog", "args: " + Arrays.toString(args));
                 Uri url = (Uri) args[start];
                 String[] projection = (String[]) args[start + 1];
                 String selection = null;

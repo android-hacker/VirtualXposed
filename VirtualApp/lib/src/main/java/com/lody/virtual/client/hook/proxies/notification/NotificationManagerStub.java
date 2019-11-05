@@ -9,6 +9,7 @@ import com.lody.virtual.client.hook.base.MethodInvocationStub;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgMethodProxy;
 import com.lody.virtual.client.hook.base.StaticMethodProxy;
 import com.lody.virtual.client.hook.utils.MethodParameterUtils;
+import com.lody.virtual.helper.compat.BuildCompat;
 import com.lody.virtual.helper.utils.DeviceUtil;
 
 import java.lang.reflect.Method;
@@ -59,7 +60,7 @@ public class NotificationManagerStub extends MethodInvocationProxy<MethodInvocat
                 @Override
                 public boolean beforeCall(Object who, Method method, Object... args) {
                     MethodParameterUtils.replaceLastUid(args);
-                    int sequence = Build.VERSION.SDK_INT >= 29 ? 2 : 1;
+                    int sequence = BuildCompat.isQ() ? 2 : 1;
                     MethodParameterUtils.replaceSequenceAppPkg(args, sequence);
                     return super.beforeCall(who, method, args);
                 }
