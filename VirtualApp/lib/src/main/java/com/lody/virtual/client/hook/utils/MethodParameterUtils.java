@@ -1,5 +1,7 @@
 package com.lody.virtual.client.hook.utils;
 
+import android.os.Process;
+
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.helper.utils.ArrayUtils;
 
@@ -44,6 +46,16 @@ public class MethodParameterUtils {
 			return pkg;
 		}
 		return null;
+	}
+
+	public static void replaceLastUid(Object[] args) {
+		int index = ArrayUtils.indexOfLast(args, Integer.class);
+		if (index != -1) {
+			int uid = (int) args[index];
+			if (uid == Process.myUid()) {
+				args[index] = VirtualCore.get().myUid();
+			}
+		}
 	}
 
 	public static String replaceSequenceAppPkg(Object[] args, int sequence) {
