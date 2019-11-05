@@ -225,4 +225,14 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
     public void handleTopResumedActivityChanged(IBinder arg1, boolean arg2, String arg3) {
         originalHandler.handleTopResumedActivityChanged(arg1, arg2, arg3);
     }
+
+    @Override
+    public void countLaunchingActivities(int num) {
+        originalHandler.countLaunchingActivities(num);
+    }
+
+    @Override
+    public void handleNewIntent(IBinder token, List intents) {
+        originalHandler.handleNewIntent(token, intents);
+    }
 }
