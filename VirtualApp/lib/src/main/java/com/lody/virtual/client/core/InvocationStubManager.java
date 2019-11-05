@@ -8,6 +8,7 @@ import com.lody.virtual.client.hook.delegate.AppInstrumentation;
 import com.lody.virtual.client.hook.proxies.account.AccountManagerStub;
 import com.lody.virtual.client.hook.proxies.alarm.AlarmManagerStub;
 import com.lody.virtual.client.hook.proxies.am.ActivityManagerStub;
+import com.lody.virtual.client.hook.proxies.am.ActivityTaskManagerStub;
 import com.lody.virtual.client.hook.proxies.am.HCallbackStub;
 import com.lody.virtual.client.hook.proxies.am.TransactionHandlerStub;
 import com.lody.virtual.client.hook.proxies.appops.AppOpsManagerStub;
@@ -188,6 +189,9 @@ public final class InvocationStubManager {
             }
             if (Build.VERSION.SDK_INT >= 26) {
 				addInjector(new AutoFillManagerStub());
+			}
+            if (Build.VERSION.SDK_INT >= 29) {
+            	addInjector(new ActivityTaskManagerStub());
 			}
 		}
 	}

@@ -113,6 +113,10 @@ public class VActivityManager {
 
     public void onActivityResumed(Activity activity) {
         IBinder token = mirror.android.app.Activity.mToken.get(activity);
+        onActivityResumed(token);
+    }
+
+    public void onActivityResumed(IBinder token) {
         try {
             getService().onActivityResumed(VUserHandle.myUserId(), token);
         } catch (RemoteException e) {
