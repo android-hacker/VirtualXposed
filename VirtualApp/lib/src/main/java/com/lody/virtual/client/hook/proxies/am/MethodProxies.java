@@ -882,6 +882,20 @@ class MethodProxies {
         }
     }
 
+    // http://aospxref.com/android-10.0.0_r2/xref/frameworks/base/core/java/android/app/ContextImpl.java#1735
+    static class BindIsolatedService extends BindService {
+        @Override
+        public String getMethodName() {
+            return "bindIsolatedService";
+        }
+
+        @Override
+        public boolean beforeCall(Object who, Method method, Object... args) {
+            MethodParameterUtils.replaceLastAppPkg(args);
+            return super.beforeCall(who, method, args);
+        }
+    }
+
 
     static class StartService extends MethodProxy {
 
