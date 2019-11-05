@@ -330,7 +330,7 @@ public final class VClientImpl extends IVClient.Stub {
         }
 
 
-        boolean enableXposed = VirtualCore.get().isXposedEnabled();
+        boolean enableXposed = VirtualCore.get().isXposedEnabled() && !BuildCompat.isQ();
         if (enableXposed) {
             VLog.i(TAG, "Xposed is enabled.");
             ClassLoader originClassLoader = context.getClassLoader();
