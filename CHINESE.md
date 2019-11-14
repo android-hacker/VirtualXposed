@@ -2,7 +2,7 @@
 
 简介
 -----
-**VirtualXposed** 是基于[VirtualApp](https://github.com/asLody/VirtualApp) 和 [epic](https://github.com/tiann/epic) 在**非ROOT**环境下运行Xposed模块的实现（支持5.0~9.0)。
+**VirtualXposed** 是基于[VirtualApp](https://github.com/asLody/VirtualApp) 和 [epic](https://github.com/tiann/epic) 在**非ROOT**环境下运行Xposed模块的实现（支持5.0~10.0)。
 
 与 Xposed 相比，目前 VirtualXposed 有两个限制：
 
