@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="virtual_installer">Встановлювач VirtualPackage</string>
+	<string name="owner_name">Адмін</string>
+	<string name="choose">Вибрати</string>
+	<string name="choose_empty">Пустий вибір</string>
+	<string name="noApplications">Немає додатків для пошуку</string>
+	<string name="add_account_button_label">Додати акаунт</string>
+	<string name="create_shortcut_already_exist">Цей ярлик вже існує</string>
+</resources>
