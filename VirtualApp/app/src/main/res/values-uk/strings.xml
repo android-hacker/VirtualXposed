@@ -171,7 +171,7 @@
 
 VirtualXposed, який я створив раніше, EXposed - це також додаток, який дозволяє вам використовувати модуль Xposed без root, розблокованого завантажувача.  вони мають і свої переваги, і EXposed буде набагато кращим з точки зору продуктивності та стабільності завдяки роботі безпосередньо в рідній системі;  тоді як VirtualXposed базується на VitualApp, який схожий на Parallel Space.  EXposed народився місяць назад, і його стабільність перевершила VirtualXposed, який розроблявся майже рік. \n\n
 
- В даний час EXposed розміщена в магазині додатків і перейменована в Tai Chi.  Ви можете спробувати :)</string>
+В даний час EXposed розміщений в магазині додатків і перейменований в Tai Chi.  Ви можете спробувати :)</string>
     <string name="advance_settings_enable_launcher_summary">Коли включений, Ви можете вибрати VirtualXposed як лаунчер за замовчуванням для системи</string>
     <string name="advance_settings_enable_launcher">Увімкнути лаунчер</string>
     <string name="exp_introduce_title">Простий спосіб використання Xposed</string>
