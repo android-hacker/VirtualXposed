@@ -8,6 +8,7 @@ import com.lody.virtual.client.hook.delegate.AppInstrumentation;
 import com.lody.virtual.client.hook.proxies.account.AccountManagerStub;
 import com.lody.virtual.client.hook.proxies.alarm.AlarmManagerStub;
 import com.lody.virtual.client.hook.proxies.am.ActivityManagerStub;
+import com.lody.virtual.client.hook.proxies.am.ActivityTaskManagerStub;
 import com.lody.virtual.client.hook.proxies.am.HCallbackStub;
 import com.lody.virtual.client.hook.proxies.am.TransactionHandlerStub;
 import com.lody.virtual.client.hook.proxies.appops.AppOpsManagerStub;
@@ -54,6 +55,7 @@ import com.lody.virtual.client.hook.proxies.wifi.WifiManagerStub;
 import com.lody.virtual.client.hook.proxies.wifi_scanner.WifiScannerStub;
 import com.lody.virtual.client.hook.proxies.window.WindowManagerStub;
 import com.lody.virtual.client.interfaces.IInjector;
+import com.lody.virtual.helper.compat.BuildCompat;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -186,8 +188,11 @@ public final class InvocationStubManager {
                 addInjector(new ShortcutServiceStub());
                 addInjector(new DevicePolicyManagerStub());
             }
-            if (Build.VERSION.SDK_INT >= 26) {
+            if (BuildCompat.isOreo()) {
 				addInjector(new AutoFillManagerStub());
+			}
+            if (BuildCompat.isQ()) {
+            	addInjector(new ActivityTaskManagerStub());
 			}
 		}
 	}

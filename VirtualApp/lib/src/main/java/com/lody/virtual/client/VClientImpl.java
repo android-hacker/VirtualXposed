@@ -196,11 +196,15 @@ public final class VClientImpl extends IVClient.Stub {
                     Collections.singletonList(intent)
             );
         } else {
-            ActivityThreadNMR1.performNewIntents.call(
-                    VirtualCore.mainThread(),
-                    data.token,
-                    Collections.singletonList(intent),
-                    true);
+            if (BuildCompat.isQ()) {
+                ActivityThread.handleNewIntent.call(VirtualCore.mainThread(), data.token, Collections.singletonList(intent));
+            } else {
+                ActivityThreadNMR1.performNewIntents.call(
+                        VirtualCore.mainThread(),
+                        data.token,
+                        Collections.singletonList(intent),
+                        true);
+            }
         }
     }
 

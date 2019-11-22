@@ -159,9 +159,16 @@ public abstract class ClientTransactionHandler {
 
     public abstract Map getActivitiesToBeDestroyed();
 
+    // Android 10
     public abstract Activity getActivity(IBinder token);
 
     public abstract void updatePendingActivityConfiguration(IBinder arg1, Configuration arg2);
 
     public abstract void handleTopResumedActivityChanged(IBinder arg1, boolean arg2, String arg3);
+
+    /** Count how many activities are launching. */
+    public abstract void countLaunchingActivities(int num);
+
+    /** Deliver new intent. */
+    public abstract void handleNewIntent(IBinder token, List intents);
 }
