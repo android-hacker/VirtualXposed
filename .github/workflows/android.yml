@@ -25,4 +25,4 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: compiled
-        path: VirtualApp\app\build\
+        path: VirtualApp/app/build/
