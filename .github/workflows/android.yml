@@ -19,3 +19,8 @@ jobs:
         java-version: 1.8
     - name: Build with Gradle
       run: cd VirtualApp && ./gradlew assembleRelease
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: compiled
+        path: VirtualApp
