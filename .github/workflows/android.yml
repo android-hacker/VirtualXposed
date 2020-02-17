@@ -1,6 +1,6 @@
 name: Android CI
 
-on: [push]
+on: [pull_request, push]
 
 jobs:
   build:
@@ -9,9 +9,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - name: Checkout submodules
+      uses: srt32/git-actions@v0.0.3
+      with:
+        args: git submodule update --init --recursive
     - name: set up JDK 1.8
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
     - name: Build with Gradle
-      run: cd VirtualApp && ./gradlew build
+      run: cd VirtualApp && ./gradlew assembleRelease
+    - name: ls
+      run: ls
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: compiled
+        path: VirtualApp/app/build/
