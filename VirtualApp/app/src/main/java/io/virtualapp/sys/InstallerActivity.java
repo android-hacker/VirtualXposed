@@ -179,6 +179,8 @@ public class InstallerActivity extends AppCompatActivity {
         }
 
         List<String> magicApps = Arrays.asList(EncodeUtils.decode("Y29tLmxiZS5wYXJhbGxlbA=="), // com.lbe.parallel
+                EncodeUtils.decode("aW8udmlydHVhbGFwcC5zYW5kdnhwb3NlZA=="), // io.virtualapp.sandvxposed
+                EncodeUtils.decode("Y29tLnNrLnNwYXRjaA=="), // com.sk.spatch
                 EncodeUtils.decode("Y29tLnFpaG9vLm1hZ2lj"), // com.qihoo.magic
                 EncodeUtils.decode("Y29tLmRvdWJsZW9wZW4=")); // com.doubleopen
 
