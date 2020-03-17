@@ -2,10 +2,10 @@ package io.virtualapp.delegate;
 
 import android.app.Application;
 
-import com.crashlytics.android.Crashlytics;
 import com.lody.virtual.client.core.VirtualCore;
-
-import io.fabric.sdk.android.Fabric;
+import com.microsoft.appcenter.AppCenter;
+import com.microsoft.appcenter.analytics.Analytics;
+import com.microsoft.appcenter.crashes.Crashes;
 
 /**
  * @author weishu
@@ -18,7 +18,8 @@ public class MyVirtualInitializer extends BaseVirtualInitializer {
 
     @Override
     public void onMainProcess() {
-        Fabric.with(this.application, new Crashlytics());
+        AppCenter.start(application, "bf5e74bd-3795-49bd-95c8-327db494dd11",
+                Analytics.class, Crashes.class);
         super.onMainProcess();
     }
 
@@ -26,7 +27,8 @@ public class MyVirtualInitializer extends BaseVirtualInitializer {
     public void onVirtualProcess() {
 
         // For Crash statics
-        Fabric.with(application, new Crashlytics());
+        AppCenter.start(application, "bf5e74bd-3795-49bd-95c8-327db494dd11",
+                Analytics.class, Crashes.class);
 
         super.onVirtualProcess();
 

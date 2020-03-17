@@ -1,9 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'io.fabric'
-
-repositories {
-    maven { url 'https://maven.fabric.io/public' }
-}
 
 Properties properties = new Properties()
 def localProp = file(project.rootProject.file('local.properties'))
@@ -90,9 +85,11 @@ dependencies {
     implementation 'org.jdeferred:jdeferred-android-aar:1.2.4'
     // ThirdParty
     implementation 'com.jonathanfinerty.once:once:1.0.3'
-    aospImplementation('com.crashlytics.sdk.android:crashlytics:2.9.0@aar') {
-        transitive = true
-    }
+
+    def appCenterSdkVersion = '3.0.0'
+    aospImplementation("com.microsoft.appcenter:appcenter-analytics:${appCenterSdkVersion}")
+    aospImplementation("com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}")
+
     implementation 'com.kyleduo.switchbutton:library:1.4.6'
     implementation 'com.allenliu.versionchecklib:library:1.8.3'
     implementation 'com.github.medyo:android-about-page:1.2.2'

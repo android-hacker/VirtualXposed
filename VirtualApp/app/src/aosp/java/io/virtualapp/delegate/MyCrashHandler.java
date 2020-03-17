@@ -6,12 +6,14 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.remote.InstalledAppInfo;
+import com.microsoft.appcenter.crashes.Crashes;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -27,18 +29,19 @@ public class MyCrashHandler extends BaseCrashHandler {
     public void handleUncaughtException(Thread t, Throwable e) {
         SharedPreferences sp = VirtualCore.get().getContext().getSharedPreferences(CRASH_SP, Context.MODE_MULTI_PROCESS);
 
+        Map<String, String> properties = new HashMap<>();
         try {
             ApplicationInfo currentApplicationInfo = VClientImpl.get().getCurrentApplicationInfo();
             if (currentApplicationInfo != null) {
                 String packageName = currentApplicationInfo.packageName;
                 String processName = currentApplicationInfo.processName;
 
-                Crashlytics.setString("process", processName);
-                Crashlytics.setString("package", packageName);
+                properties.put("process", processName);
+                properties.put("package", packageName);
 
                 int userId = VUserHandle.myUserId();
 
-                Crashlytics.setInt("uid", userId);
+                properties.put("uid", String.valueOf(userId));
 
                 InstalledAppInfo installedAppInfo = VirtualCore.get().getInstalledAppInfo(packageName, 0);
                 if (installedAppInfo != null) {
@@ -47,8 +50,8 @@ public class MyCrashHandler extends BaseCrashHandler {
                         String versionName = packageInfo.versionName;
                         int versionCode = packageInfo.versionCode;
 
-                        Crashlytics.setString("versionName", versionName);
-                        Crashlytics.setInt("versionCode", versionCode);
+                        properties.put("versionName", versionName);
+                        properties.put("versionCode", String.valueOf(versionCode));
 
                     }
                 }
@@ -64,7 +67,7 @@ public class MyCrashHandler extends BaseCrashHandler {
         if (exceptionType.equals(lastCrashType) && (now - lastCrash) < TimeUnit.MINUTES.toMillis(1)) {
             // continues crash, do not upload
         } else {
-            Crashlytics.logException(e);
+            Crashes.trackError(e, properties, null);
         }
 
         Log.i(TAG, "uncaught :" + t, e);

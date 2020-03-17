@@ -26,10 +26,6 @@
             android:value="com.android.support:design:25.4.0"
             tools:replace="android:value" />
 
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="797c6ad1f87c908a4d7f6e8091e6466848b1611d" />
-
         <activity
             android:name=".splash.SplashActivity"
             android:screenOrientation="portrait"
