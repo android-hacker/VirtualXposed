@@ -160,7 +160,7 @@
     <string name="settings_permission_manage_text">权限管理</string>
     <string name="settings_file_manage_text">文件管理</string>
     <string name="install_permission_manager_tips">权限管理是通过 XPrivacyLua 实现的，是否立即下载（约2M）并安装？</string>
-    <string name="advance_settings_enable_launcher_summary">开启之后，可以设置 VirtualXposed 作为系统桌面（重启 VitualXposed 生效）</string>
+    <string name="advance_settings_enable_launcher_summary">开启之后，可以设置 VirtualXposed 作为系统桌面（重启 VirtualXposed 生效）</string>
     <string name="advance_settings_enable_launcher">启用桌面功能</string>
     <string name="exp_introduce_title">另一种免Root用Xposed的方式</string>
     <string name="exp_introduce_install">去看看</string>
