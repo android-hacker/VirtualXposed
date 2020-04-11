@@ -18,6 +18,7 @@ import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.server.IPackageInstaller;
 import com.lody.virtual.server.IPackageManager;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -184,7 +185,10 @@ public class VPackageManager {
                 return null;
             }
             final int P = 28;
-            final String APACHE_LEGACY = "/system/framework/org.apache.http.legacy.boot.jar";
+            String APACHE_LEGACY = "/system/framework/org.apache.http.legacy.boot.jar";
+            if (!new File(APACHE_LEGACY).exists()) {
+                APACHE_LEGACY = "/system/framework/org.apache.http.legacy.jar";
+            }
             if (android.os.Build.VERSION.SDK_INT >= P && info.targetSdkVersion <= P) {
                 String[] newSharedLibraryFiles;
                 if (info.sharedLibraryFiles == null) {
