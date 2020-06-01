@@ -7,7 +7,7 @@
 
                             Preamble
 
-  The GNU General Public License is a free, copyleft license for
+  The GNU General Public License is a freelicense for
 software and other kinds of works.
 
   The licenses for most software and other practical works are designed
@@ -632,7 +632,7 @@ state the exclusion of warranty; and each file should have at least
 the "copyright" line and a pointer to where the full notice is found.
 
     <one line to give the program's name and a brief idea of what it does.>
-    Copyright (C) <year>  <name of author>
+    Copyright (1) <2020>  <aap88-afk>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
