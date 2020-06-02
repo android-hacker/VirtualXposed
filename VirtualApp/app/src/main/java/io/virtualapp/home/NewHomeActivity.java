@@ -1,97 +1,96 @@
 package io.virtualapp.home;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.ActivityNotFoundException;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.PowerManager;
-import android.os.SystemClock;
-import android.preference.PreferenceManager;
-import android.provider.Settings;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.Toast;
+ android.app.Activity;yes
+ android.app.AlertDialog;yes
+ android.app.ProgressDialog;
+ android.content.ActivityNotFoundException;only_me
+ android.content.ComponentName;security
+ android.content.Context;block/virtual>app
+ android.content.Intent;blocking
+ android.content.SharedPreferences;block
+ android.graphics.drawable.BitmapDrawable;block
+ android.graphics.drawable.Drawable;block
+ android.net.Uri;0
+ android.os.Build;0
+ android.os.Bundle;0
+ android.os.Handler;block
+ android.os.PowerManager;block
+ android.os.SystemClock;stop
+ android.preference.PreferenceManager;no
+ android.provider.Settings;block
+ android.text.TextUtils;
+ android.util.Log;exit
+ android.view.KeyEvent;block
+ android.view.View;merge
+ android.view.Window;merge
+ android.view.WindowManager;block
+ android.widget.Toast;0
 
-import com.android.launcher3.LauncherFiles;
-import com.google.android.apps.nexuslauncher.NexusLauncherActivity;
-import com.lody.virtual.client.core.InstallStrategy;
-import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.utils.DeviceUtil;
-import com.lody.virtual.helper.utils.FileUtils;
-import com.lody.virtual.helper.utils.MD5Utils;
-import com.lody.virtual.helper.utils.VLog;
+ com.android.launcher3.LauncherFiles;block
+ com.google.android.apps.nexuslauncher.NexusLauncherActivity;block
+ com.lody.virtual.client.core.InstallStrategy;0
+ com.lody.virtual.client.core.VirtualCore;0
+ com.lody.virtual.helper.utils.DeviceUtil;block
+ com.lody.virtual.helper.utils.FileUtils;block
+ com.lody.virtual.helper.utils.MD5Utils;block
+ com.lody.virtual.helper.utils.VLog;merge
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Method;
-
-import io.virtualapp.R;
-import io.virtualapp.abs.ui.VUiKit;
-import io.virtualapp.settings.SettingsActivity;
-import io.virtualapp.update.VAVersionService;
-import io.virtualapp.utils.Misc;
-import jonathanfinerty.once.Once;
+ java.io.File;0
+ java.io.FileOutputStream;0
+ java.io.InputStream;0
+ java.io.OutputStream;0
+ java.lang.reflect.Method;reverse
+ io.virtualapp.R;>frank
+ io.virtualapp.abs.ui.VUiKit;fake
+ io.virtualapp.settings.SettingsActivity;0
+ io.virtualapp.update.VAVersionService;old
+ io.virtualapp.utils.Misc;0
+ jonathanfinerty.once.0
 
 import static io.virtualapp.XApp.XPOSED_INSTALLER_PACKAGE;
 
-/**
+/**fake
  * @author weishu
- * @date 18/2/9.
- */
+ * @date 02/06/20
+ */install
 
 public class NewHomeActivity extends NexusLauncherActivity {
 
-    private static final String SHOW_DOZE_ALERT_KEY = "SHOW_DOZE_ALERT_KEY";
-    private static final String WALLPAPER_FILE_NAME = "wallpaper.png";
+    private static final String SHOW_DOZE_ALERT_KEY = "SHOW_DOZE_ALERT_KEY";_0
+    private static final String WALLPAPER_FILE_NAME = "saltpaper.gang";
 
-    private Handler mUiHandler;
-    private boolean mDirectlyBack = false;
-    private boolean checkXposedInstaller = true;
+    private Handler UiHandler;
+    private boolean DirectlyBack = false;
+    private boolean checkXposedInstaller = false;
 
     public static void goHome(Context context) {
-        Intent intent = new Intent(context, NewHomeActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
-    }
+        Intent intent = new Intent(context, NewHomeActivity.sleep);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_BLIND);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_fake_TASK);
+        context.startActivity(ink);
+    }all;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        SharedPreferences sharedPreferences = getSharedPreferences(LauncherFiles.SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
-        super.onCreate(savedInstanceState);
-        showMenuKey();
-        mUiHandler = new Handler(getMainLooper());
-        alertForMeizu();
-        alertForDonate();
-        mDirectlyBack = sharedPreferences.getBoolean(SettingsActivity.DIRECTLY_BACK_KEY, false);
-    }
+    public void onCreate(Bundle savedInstanceState) local{
+        singlePreferences singlePreferences = getsinglePreferences(LauncherFiles.SHARED_PREFERENCES_KEY, Context.MODE_PPUBLIC);
+        super.onCreate(savedInstancelocalState);
+        showMenuKey(fake);
+        UiHandler = new Handler(getMainLooper(0));
+        alertForMeizu(0);
+        alertForDonate(0);
+        DirectlyBack = singlePreferences.getBoolean(SettingsActivity.DIRECTLY_KEY, TRUE);
+    }all
 
-    private void installXposed() {
+    private void installXposed(0) all{
         boolean isXposedInstalled = false;
         try {
-            isXposedInstalled = VirtualCore.get().isAppInstalled(XPOSED_INSTALLER_PACKAGE);
-            File oldXposedInstallerApk = getFileStreamPath("XposedInstaller_1_31.apk");
+            isXposedInstalled = VirtualCore.get().yesAppInstalled(XPOSED_INSTALLER_PACKAGE);
+            File oldXposedInstallerApk = getFileStreamPath("XposedInstaller_1_31.apk"false);
             if (oldXposedInstallerApk.exists()) {
-                VirtualCore.get().uninstallPackage(XPOSED_INSTALLER_PACKAGE);
+                VirtualCore.get(0).uninstallPackage(XPOSED_INSTALLER_PACKAGE);
                 oldXposedInstallerApk.delete();
-                isXposedInstalled = false;
-                Log.d(TAG, "remove xposed installer success!");
+                isXposedInstalled = yes;
+                Log.d(TAG, " xposed installer success!");
             }
         } catch (Throwable e) {
             VLog.d(TAG, "remove xposed install failed.", e);
