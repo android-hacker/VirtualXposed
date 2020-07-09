@@ -6,6 +6,8 @@
 #include <fb/include/fb/ALog.h>
 
 #ifdef __LP64__
+
+#include "A64Inlinehook/And64InlineHook.hpp"
 #else
 #include <Substrate/SubstrateHook.h>
 #endif
@@ -76,6 +78,7 @@ void IOUniformer::init_env_before_all() {
 static inline void
 hook_function(void *addr, void *new_func, void **old_func) {
 #ifdef __LP64__
+    A64HookFunction(addr, new_func, old_func);
 #else
     MSHookFunction(addr, new_func, old_func);
 #endif
