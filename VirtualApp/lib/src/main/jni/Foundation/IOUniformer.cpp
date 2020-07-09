@@ -108,15 +108,6 @@ __BEGIN_DECLS
 
 #define FREE(ptr, org_ptr) { if ((void*) ptr != NULL && (void*) ptr != (void*) org_ptr) { free((void*) ptr); } }
 
-// int faccessat(int dirfd, const char *pathname, int mode, int flags);
-HOOK_DEF(int, faccessat, int dirfd, const char *pathname, int mode, int flags) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_faccessat, dirfd, redirect_path, mode, flags);
-    FREE(redirect_path, pathname);
-    return ret;
-}
-
 
 // int fchmodat(int dirfd, const char *pathname, mode_t mode, int flags);
 HOOK_DEF(int, fchmodat, int dirfd, const char *pathname, mode_t mode, int flags) {
@@ -731,7 +722,6 @@ void IOUniformer::startUniformer(const char *so_path, int api_level, int preview
 
     void *handle = dlopen("libc.so", RTLD_NOW);
     if (handle) {
-        HOOK_SYMBOL(handle, faccessat);
         HOOK_SYMBOL(handle, __openat);
         HOOK_SYMBOL(handle, fchmodat);
         HOOK_SYMBOL(handle, fchownat);
