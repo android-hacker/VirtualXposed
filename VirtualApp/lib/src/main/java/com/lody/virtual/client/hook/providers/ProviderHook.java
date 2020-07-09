@@ -157,7 +157,9 @@ public class ProviderHook implements InvocationHandler {
         try {
             String name = method.getName();
             if ("call".equals(name)) {
-                if (BuildCompat.isQ()) {
+                if (BuildCompat.isR()) {
+                    start = 3;
+                } else if (BuildCompat.isQ()) {
                     start = 2;
                 }
                 String methodName = (String) args[start];
