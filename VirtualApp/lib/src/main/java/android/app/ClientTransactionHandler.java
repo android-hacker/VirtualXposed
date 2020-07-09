@@ -116,6 +116,8 @@ public abstract class ClientTransactionHandler {
     /** Perform activity start. */
     public abstract void handleStartActivity(ActivityThread.ActivityClientRecord r,
             PendingTransactionActions pendingActions);
+    public abstract void handleStartActivity(IBinder r,
+                                             PendingTransactionActions pendingActions);
     /** Get package info. */
     public abstract LoadedApk getPackageInfoNoCheck(ApplicationInfo ai,
                                                     CompatibilityInfo compatInfo);

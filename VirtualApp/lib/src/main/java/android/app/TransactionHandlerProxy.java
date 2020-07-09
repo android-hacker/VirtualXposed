@@ -176,6 +176,11 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
     }
 
     @Override
+    public void handleStartActivity(IBinder r, PendingTransactionActions pendingActions) {
+        originalHandler.handleStartActivity(r, pendingActions);
+    }
+
+    @Override
     public LoadedApk getPackageInfoNoCheck(ApplicationInfo ai, CompatibilityInfo compatInfo) {
         return originalHandler.getPackageInfoNoCheck(ai, compatInfo);
     }
