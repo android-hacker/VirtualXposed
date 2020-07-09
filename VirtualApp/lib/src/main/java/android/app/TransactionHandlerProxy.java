@@ -82,6 +82,11 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
     }
 
     @Override
+    public void handleStopActivity(IBinder token, int configChanges, PendingTransactionActions pendingActions, boolean finalStateRequest, String reason) {
+        originalHandler.handleStopActivity(token, configChanges, pendingActions, finalStateRequest, reason);
+    }
+
+    @Override
     public void reportStop(PendingTransactionActions pendingActions) {
         originalHandler.reportStop(pendingActions);
     }

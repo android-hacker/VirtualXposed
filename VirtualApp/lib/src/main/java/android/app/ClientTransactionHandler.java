@@ -90,6 +90,9 @@ public abstract class ClientTransactionHandler {
      */
     public abstract void handleStopActivity(IBinder token, boolean show, int configChanges,
             PendingTransactionActions pendingActions, boolean finalStateRequest, String reason);
+
+    public abstract void handleStopActivity(IBinder token, int configChanges,
+                                            PendingTransactionActions pendingActions, boolean finalStateRequest, String reason);
     /** Report that activity was stopped to server. */
     public abstract void reportStop(PendingTransactionActions pendingActions);
     /** Restart the activity after it was stopped. */
