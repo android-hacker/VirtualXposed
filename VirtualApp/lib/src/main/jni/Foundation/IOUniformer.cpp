@@ -454,23 +454,6 @@ HOOK_DEF(int, __getcwd, char *buf, size_t size) {
 }
 
 
-// int __openat(int fd, const char *pathname, int flags, int mode);
-HOOK_DEF(int, __openat, int fd, const char *pathname, int flags, int mode) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_openat, fd, redirect_path, flags, mode);
-    FREE(redirect_path, pathname);
-    return ret;
-}
-// int __open(const char *pathname, int flags, int mode);
-HOOK_DEF(int, __open, const char *pathname, int flags, int mode) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_open, redirect_path, flags, mode);
-    FREE(redirect_path, pathname);
-    return ret;
-}
-
 // int __statfs (__const char *__file, struct statfs *__buf);
 HOOK_DEF(int, __statfs, __const char *__file, struct statfs *__buf) {
     int res;
@@ -722,7 +705,6 @@ void IOUniformer::startUniformer(const char *so_path, int api_level, int preview
 
     void *handle = dlopen("libc.so", RTLD_NOW);
     if (handle) {
-        HOOK_SYMBOL(handle, __openat);
         HOOK_SYMBOL(handle, fchmodat);
         HOOK_SYMBOL(handle, fchownat);
         HOOK_SYMBOL(handle, renameat);
