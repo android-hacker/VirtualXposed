@@ -124,4 +124,7 @@ public class NativeLibraryHelperCompat {
 		return null;
 	}
 
+	public static boolean isApk64(String apk) {
+		return isVM64(getABIsFromApk(apk));
+	}
 }
