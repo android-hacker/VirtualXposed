@@ -275,6 +275,15 @@ HOOK_DEF(int, __statfs, __const char *__file, struct statfs *__buf) {
     return ret;
 }
 
+// int statfs64 (__const char *__file, struct statfs *__buf);
+HOOK_DEF(int, statfs64, __const char *__file, struct statfs *__buf) {
+    int res;
+    const char *redirect_path = relocate_path(__file, &res);
+    int ret = syscall(__NR_statfs, redirect_path, __buf);
+    FREE(redirect_path, __file);
+    return ret;
+}
+
 int inline getArrayItemCount(char *const array[]) {
     int i;
     for (i = 0; array[i]; ++i);
@@ -520,9 +529,9 @@ void IOUniformer::startUniformer(const char *so_path, int api_level, int preview
         HOOK_SYMBOL(handle, unlinkat);
         HOOK_SYMBOL(handle, symlinkat);
         HOOK_SYMBOL(handle, utimensat);
-//        HOOK_SYMBOL(handle, __getdents64);
         HOOK_SYMBOL(handle, chdir);
         HOOK_SYMBOL(handle, execve);
+        HOOK_SYMBOL(handle, statfs64);
         dlclose(handle);
     }
     // hook_dlopen(api_level);
