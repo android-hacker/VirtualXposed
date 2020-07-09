@@ -410,7 +410,7 @@ public final class VirtualCore {
     }
 
     public boolean isXposedEnabled() {
-        return !VirtualCore.get().getContext().getFileStreamPath(".disable_xposed").exists();
+        return !VirtualCore.get().getContext().getFileStreamPath(".disable_xposed").exists() || BuildCompat.isR();
     }
 
     public boolean isAppInstalled(String pkg) {
