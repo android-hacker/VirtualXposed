@@ -924,7 +924,7 @@ static void SubstrateHookFunction(SubstrateProcessRef process, void *symbol, voi
 #endif
 
 _extern void MSHookFunction(void *symbol, void *replace, void **result) {
-#ifndef __LP64__
+#ifndef __aarch64__
      SubstrateHookFunction(NULL, symbol, replace, result);
 #endif
 }
