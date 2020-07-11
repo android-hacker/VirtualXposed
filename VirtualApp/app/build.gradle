@@ -23,13 +23,13 @@ android {
         applicationId "io.va.exposed"
         minSdkVersion 21
         targetSdkVersion 23
-        versionCode 182
-        versionName "0.18.2"
+        versionCode 190
+        versionName "0.19.0"
         multiDexEnabled false
         android {
             defaultConfig {
                 ndk {
-                    abiFilters "armeabi-v7a", "x86"
+                    abiFilters "arm64-v8a", "x86_64"
                 }
             }
         }

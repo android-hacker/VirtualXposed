@@ -4,7 +4,12 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <fb/include/fb/ALog.h>
+
+#ifdef __aarch64__
+#include "A64Inlinehook/And64InlineHook.hpp"
+#else
 #include <Substrate/SubstrateHook.h>
+#endif
 
 //extern "C" {
 //#include <HookZz/include/hookzz.h>
@@ -69,6 +74,15 @@ void IOUniformer::init_env_before_all() {
     }
 }
 
+static inline void
+hook_function(void *addr, void *new_func, void **old_func) {
+#ifdef __aarch64__
+    A64HookFunction(addr, new_func, old_func);
+#else
+    MSHookFunction(addr, new_func, old_func);
+#endif
+
+}
 
 static inline void
 hook_function(void *handle, const char *symbol, void *new_func, void **old_func) {
@@ -76,7 +90,7 @@ hook_function(void *handle, const char *symbol, void *new_func, void **old_func)
     if (addr == NULL) {
         return;
     }
-    MSHookFunction(addr, new_func, old_func);
+    hook_function(addr, new_func, old_func);
 }
 
 
@@ -108,58 +122,13 @@ __BEGIN_DECLS
 
 #define FREE(ptr, org_ptr) { if ((void*) ptr != NULL && (void*) ptr != (void*) org_ptr) { free((void*) ptr); } }
 
-// int faccessat(int dirfd, const char *pathname, int mode, int flags);
-HOOK_DEF(int, faccessat, int dirfd, const char *pathname, int mode, int flags) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_faccessat, dirfd, redirect_path, mode, flags);
-    FREE(redirect_path, pathname);
-    return ret;
-}
 
-
-// int fchmodat(int dirfd, const char *pathname, mode_t mode, int flags);
-HOOK_DEF(int, fchmodat, int dirfd, const char *pathname, mode_t mode, int flags) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_fchmodat, dirfd, redirect_path, mode, flags);
-    FREE(redirect_path, pathname);
-    return ret;
-}
-// int fchmod(const char *pathname, mode_t mode);
-HOOK_DEF(int, fchmod, const char *pathname, mode_t mode) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_chmod, redirect_path, mode);
-    FREE(redirect_path, pathname);
-    return ret;
-}
-
-
-// int fstatat(int dirfd, const char *pathname, struct stat *buf, int flags);
-HOOK_DEF(int, fstatat, int dirfd, const char *pathname, struct stat *buf, int flags) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_fstatat64, dirfd, redirect_path, buf, flags);
-    FREE(redirect_path, pathname);
-    return ret;
-}
 
 // int fstatat64(int dirfd, const char *pathname, struct stat *buf, int flags);
 HOOK_DEF(int, fstatat64, int dirfd, const char *pathname, struct stat *buf, int flags) {
     int res;
     const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_fstatat64, dirfd, redirect_path, buf, flags);
-    FREE(redirect_path, pathname);
-    return ret;
-}
-
-
-// int fstat(const char *pathname, struct stat *buf, int flags);
-HOOK_DEF(int, fstat, const char *pathname, struct stat *buf) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_fstat64, redirect_path, buf);
+    int ret = syscall(__NR_newfstatat, dirfd, redirect_path, buf, flags);
     FREE(redirect_path, pathname);
     return ret;
 }
@@ -170,14 +139,6 @@ HOOK_DEF(int, mknodat, int dirfd, const char *pathname, mode_t mode, dev_t dev) 
     int res;
     const char *redirect_path = relocate_path(pathname, &res);
     int ret = syscall(__NR_mknodat, dirfd, redirect_path, mode, dev);
-    FREE(redirect_path, pathname);
-    return ret;
-}
-// int mknod(const char *pathname, mode_t mode, dev_t dev);
-HOOK_DEF(int, mknod, const char *pathname, mode_t mode, dev_t dev) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_mknod, redirect_path, mode, dev);
     FREE(redirect_path, pathname);
     return ret;
 }
@@ -224,17 +185,6 @@ HOOK_DEF(int, renameat, int olddirfd, const char *oldpath, int newdirfd, const c
     FREE(redirect_path_new, newpath);
     return ret;
 }
-// int rename(const char *oldpath, const char *newpath);
-HOOK_DEF(int, rename, const char *oldpath, const char *newpath) {
-    int res_old;
-    int res_new;
-    const char *redirect_path_old = relocate_path(oldpath, &res_old);
-    const char *redirect_path_new = relocate_path(newpath, &res_new);
-    int ret = syscall(__NR_rename, redirect_path_old, redirect_path_new);
-    FREE(redirect_path_old, oldpath);
-    FREE(redirect_path_new, newpath);
-    return ret;
-}
 
 
 // int unlinkat(int dirfd, const char *pathname, int flags);
@@ -242,14 +192,6 @@ HOOK_DEF(int, unlinkat, int dirfd, const char *pathname, int flags) {
     int res;
     const char *redirect_path = relocate_path(pathname, &res);
     int ret = syscall(__NR_unlinkat, dirfd, redirect_path, flags);
-    FREE(redirect_path, pathname);
-    return ret;
-}
-// int unlink(const char *pathname);
-HOOK_DEF(int, unlink, const char *pathname) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_unlink, redirect_path);
     FREE(redirect_path, pathname);
     return ret;
 }
@@ -266,18 +208,6 @@ HOOK_DEF(int, symlinkat, const char *oldpath, int newdirfd, const char *newpath)
     FREE(redirect_path_new, newpath);
     return ret;
 }
-// int symlink(const char *oldpath, const char *newpath);
-HOOK_DEF(int, symlink, const char *oldpath, const char *newpath) {
-    int res_old;
-    int res_new;
-    const char *redirect_path_old = relocate_path(oldpath, &res_old);
-    const char *redirect_path_new = relocate_path(newpath, &res_new);
-    int ret = syscall(__NR_symlink, redirect_path_old, redirect_path_new);
-    FREE(redirect_path_old, oldpath);
-    FREE(redirect_path_new, newpath);
-    return ret;
-}
-
 
 // int linkat(int olddirfd, const char *oldpath, int newdirfd, const char *newpath, int flags);
 HOOK_DEF(int, linkat, int olddirfd, const char *oldpath, int newdirfd, const char *newpath,
@@ -291,77 +221,6 @@ HOOK_DEF(int, linkat, int olddirfd, const char *oldpath, int newdirfd, const cha
     FREE(redirect_path_new, newpath);
     return ret;
 }
-// int link(const char *oldpath, const char *newpath);
-HOOK_DEF(int, link, const char *oldpath, const char *newpath) {
-    int res_old;
-    int res_new;
-    const char *redirect_path_old = relocate_path(oldpath, &res_old);
-    const char *redirect_path_new = relocate_path(newpath, &res_new);
-    int ret = syscall(__NR_link, redirect_path_old, redirect_path_new);
-    FREE(redirect_path_old, oldpath);
-    FREE(redirect_path_new, newpath);
-    return ret;
-}
-
-
-// int utimes(const char *filename, const struct timeval *tvp);
-HOOK_DEF(int, utimes, const char *pathname, const struct timeval *tvp) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_utimes, redirect_path, tvp);
-    FREE(redirect_path, pathname);
-    return ret;
-}
-
-
-// int access(const char *pathname, int mode);
-HOOK_DEF(int, access, const char *pathname, int mode) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_access, redirect_path, mode);
-    FREE(redirect_path, pathname);
-    return ret;
-}
-
-
-// int chmod(const char *path, mode_t mode);
-HOOK_DEF(int, chmod, const char *pathname, mode_t mode) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_chmod, redirect_path, mode);
-    FREE(redirect_path, pathname);
-    return ret;
-}
-
-
-// int chown(const char *path, uid_t owner, gid_t group);
-HOOK_DEF(int, chown, const char *pathname, uid_t owner, gid_t group) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_chown, redirect_path, owner, group);
-    FREE(redirect_path, pathname);
-    return ret;
-}
-
-
-// int lstat(const char *path, struct stat *buf);
-HOOK_DEF(int, lstat, const char *pathname, struct stat *buf) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_lstat64, redirect_path, buf);
-    FREE(redirect_path, pathname);
-    return ret;
-}
-
-
-// int stat(const char *path, struct stat *buf);
-HOOK_DEF(int, stat, const char *pathname, struct stat *buf) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_stat64, redirect_path, buf);
-    FREE(redirect_path, pathname);
-    return ret;
-}
 
 
 // int mkdirat(int dirfd, const char *pathname, mode_t mode);
@@ -369,24 +228,6 @@ HOOK_DEF(int, mkdirat, int dirfd, const char *pathname, mode_t mode) {
     int res;
     const char *redirect_path = relocate_path(pathname, &res);
     int ret = syscall(__NR_mkdirat, dirfd, redirect_path, mode);
-    FREE(redirect_path, pathname);
-    return ret;
-}
-// int mkdir(const char *pathname, mode_t mode);
-HOOK_DEF(int, mkdir, const char *pathname, mode_t mode) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_mkdir, redirect_path, mode);
-    FREE(redirect_path, pathname);
-    return ret;
-}
-
-
-// int rmdir(const char *pathname);
-HOOK_DEF(int, rmdir, const char *pathname) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_rmdir, redirect_path);
     FREE(redirect_path, pathname);
     return ret;
 }
@@ -400,25 +241,6 @@ HOOK_DEF(int, readlinkat, int dirfd, const char *pathname, char *buf, size_t buf
     FREE(redirect_path, pathname);
     return ret;
 }
-// ssize_t readlink(const char *path, char *buf, size_t bufsiz);
-HOOK_DEF(ssize_t, readlink, const char *pathname, char *buf, size_t bufsiz) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    ssize_t ret = syscall(__NR_readlink, redirect_path, buf, bufsiz);
-    FREE(redirect_path, pathname);
-    return ret;
-}
-
-
-// int __statfs64(const char *path, size_t size, struct statfs *stat);
-HOOK_DEF(int, __statfs64, const char *pathname, size_t size, struct statfs *stat) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_statfs64, redirect_path, size, stat);
-    FREE(redirect_path, pathname);
-    return ret;
-}
-
 
 // int truncate(const char *path, off_t length);
 HOOK_DEF(int, truncate, const char *pathname, off_t length) {
@@ -430,16 +252,6 @@ HOOK_DEF(int, truncate, const char *pathname, off_t length) {
 }
 
 #define RETURN_IF_FORBID if(res == FORBID) return -1;
-
-// int truncate64(const char *pathname, off_t length);
-HOOK_DEF(int, truncate64, const char *pathname, off_t length) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    RETURN_IF_FORBID
-    int ret = syscall(__NR_truncate64, redirect_path, length);
-    FREE(redirect_path, pathname);
-    return ret;
-}
 
 
 // int chdir(const char *path);
@@ -453,33 +265,6 @@ HOOK_DEF(int, chdir, const char *pathname) {
 }
 
 
-// int __getcwd(char *buf, size_t size);
-HOOK_DEF(int, __getcwd, char *buf, size_t size) {
-    int ret = syscall(__NR_getcwd, buf, size);
-    if (!ret) {
-
-    }
-    return ret;
-}
-
-
-// int __openat(int fd, const char *pathname, int flags, int mode);
-HOOK_DEF(int, __openat, int fd, const char *pathname, int flags, int mode) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_openat, fd, redirect_path, flags, mode);
-    FREE(redirect_path, pathname);
-    return ret;
-}
-// int __open(const char *pathname, int flags, int mode);
-HOOK_DEF(int, __open, const char *pathname, int flags, int mode) {
-    int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_open, redirect_path, flags, mode);
-    FREE(redirect_path, pathname);
-    return ret;
-}
-
 // int __statfs (__const char *__file, struct statfs *__buf);
 HOOK_DEF(int, __statfs, __const char *__file, struct statfs *__buf) {
     int res;
@@ -489,12 +274,12 @@ HOOK_DEF(int, __statfs, __const char *__file, struct statfs *__buf) {
     return ret;
 }
 
-// int lchown(const char *pathname, uid_t owner, gid_t group);
-HOOK_DEF(int, lchown, const char *pathname, uid_t owner, gid_t group) {
+// int statfs64 (__const char *__file, struct statfs *__buf);
+HOOK_DEF(int, statfs64, __const char *__file, struct statfs *__buf) {
     int res;
-    const char *redirect_path = relocate_path(pathname, &res);
-    int ret = syscall(__NR_lchown, redirect_path, owner, group);
-    FREE(redirect_path, pathname);
+    const char *redirect_path = relocate_path(__file, &res);
+    int ret = syscall(__NR_statfs, redirect_path, __buf);
+    FREE(redirect_path, __file);
     return ret;
 }
 
@@ -697,25 +482,25 @@ void hook_dlopen(int api_level) {
     if (api_level > 25) {
         if (findSymbol("__dl__Z9do_dlopenPKciPK17android_dlextinfoPKv", "linker",
                        (unsigned long *) &symbol) == 0) {
-            MSHookFunction(symbol, (void *) new_do_dlopen_V24,
+            hook_function(symbol, (void *) new_do_dlopen_V24,
                            (void **) &orig_do_dlopen_V24);
         }
     } else if (api_level > 23) {
         if (findSymbol("__dl__Z9do_dlopenPKciPK17android_dlextinfoPv", "linker",
                        (unsigned long *) &symbol) == 0) {
-            MSHookFunction(symbol, (void *) new_do_dlopen_V24,
+            hook_function(symbol, (void *) new_do_dlopen_V24,
                           (void **) &orig_do_dlopen_V24);
         }
     } else if (api_level >= 19) {
         if (findSymbol("__dl__Z9do_dlopenPKciPK17android_dlextinfo", "linker",
                        (unsigned long *) &symbol) == 0) {
-            MSHookFunction(symbol, (void *) new_do_dlopen_V19,
+            hook_function(symbol, (void *) new_do_dlopen_V19,
                           (void **) &orig_do_dlopen_V19);
         }
     } else {
         if (findSymbol("__dl_dlopen", "linker",
                        (unsigned long *) &symbol) == 0) {
-            MSHookFunction(symbol, (void *) new_dlopen, (void **) &orig_dlopen);
+            hook_function(symbol, (void *) new_dlopen, (void **) &orig_dlopen);
         }
     }
 }
@@ -731,14 +516,10 @@ void IOUniformer::startUniformer(const char *so_path, int api_level, int preview
 
     void *handle = dlopen("libc.so", RTLD_NOW);
     if (handle) {
-        HOOK_SYMBOL(handle, faccessat);
-        HOOK_SYMBOL(handle, __openat);
-        HOOK_SYMBOL(handle, fchmodat);
         HOOK_SYMBOL(handle, fchownat);
         HOOK_SYMBOL(handle, renameat);
         HOOK_SYMBOL(handle, fstatat64);
         HOOK_SYMBOL(handle, __statfs);
-        HOOK_SYMBOL(handle, __statfs64);
         HOOK_SYMBOL(handle, mkdirat);
         HOOK_SYMBOL(handle, mknodat);
         HOOK_SYMBOL(handle, truncate);
@@ -747,29 +528,9 @@ void IOUniformer::startUniformer(const char *so_path, int api_level, int preview
         HOOK_SYMBOL(handle, unlinkat);
         HOOK_SYMBOL(handle, symlinkat);
         HOOK_SYMBOL(handle, utimensat);
-        HOOK_SYMBOL(handle, __getcwd);
-//        HOOK_SYMBOL(handle, __getdents64);
         HOOK_SYMBOL(handle, chdir);
         HOOK_SYMBOL(handle, execve);
-        if (api_level <= 20) {
-            HOOK_SYMBOL(handle, access);
-            HOOK_SYMBOL(handle, __open);
-            HOOK_SYMBOL(handle, stat);
-            HOOK_SYMBOL(handle, lstat);
-            HOOK_SYMBOL(handle, fstatat);
-            HOOK_SYMBOL(handle, chmod);
-            HOOK_SYMBOL(handle, chown);
-            HOOK_SYMBOL(handle, rename);
-            HOOK_SYMBOL(handle, rmdir);
-            HOOK_SYMBOL(handle, mkdir);
-            HOOK_SYMBOL(handle, mknod);
-            HOOK_SYMBOL(handle, link);
-            HOOK_SYMBOL(handle, unlink);
-            HOOK_SYMBOL(handle, readlink);
-            HOOK_SYMBOL(handle, symlink);
-//            HOOK_SYMBOL(handle, getdents);
-//            HOOK_SYMBOL(handle, execv);
-        }
+        HOOK_SYMBOL(handle, statfs64);
         dlclose(handle);
     }
     // hook_dlopen(api_level);

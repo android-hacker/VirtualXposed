@@ -21,6 +21,7 @@ LOCAL_SRC_FILES := Jni/VAJni.cpp \
                    Substrate/SubstrateDebug.cpp \
                    Substrate/SubstrateHook.cpp \
                    Substrate/SubstratePosixMemory.cpp \
+                   A64Inlinehook/And64InlineHook.cpp
 
 LOCAL_LDLIBS := -llog -latomic
 LOCAL_STATIC_LIBRARIES := fb
