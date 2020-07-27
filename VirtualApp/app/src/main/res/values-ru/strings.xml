@@ -149,4 +149,5 @@
 	<string name="advance_settings_disable_xposed_summary">Когда отключен, все Xposed модули не будут работать.</string>
         <string name="advance_settings_disable_xposed">Отключить Xposed</string>
     <string name="install_complete_and_open">открытый</string>
+    <string name="unsupported_for_32bit_app">32-битные приложения не поддерживаются!</string>
 </resources>

@@ -162,4 +162,5 @@
     <string name="advance_settings_enable_launcher_summary">Enable Launcher</string>
     <string name="advance_settings_enable_launcher">Enable Launcher</string>
     <string name="install_complete_and_open">打開</string>
+    <string name="unsupported_for_32bit_app">不支持 32 位的應用！</string>
 </resources>

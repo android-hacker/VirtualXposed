@@ -173,4 +173,5 @@
     <string name="install_taichi_while_old_version">你安装的 太极 版本过低，请使用新版本的太极！</string>
     <string name="install_go_latest_exp">去安装新版太极</string>
     <string name="install_complete_and_open">打开</string>
+    <string name="unsupported_for_32bit_app">不支持 32 位的应用！</string>
 </resources>

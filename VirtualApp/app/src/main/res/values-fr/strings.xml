@@ -173,4 +173,5 @@
     <string name="install_taichi_while_old_version">La version de TaiChi installée est trop ancienne, veuillez installer la dernière version de Taichi.</string>
     <string name="install_go_latest_exp">Installer le dernier TaiChi</string>
     <string name="install_complete_and_open">Ouvrir</string>
+    <string name="unsupported_for_32bit_app">Les applications 32 bits ne sont pas prises en charge!</string>
 </resources>

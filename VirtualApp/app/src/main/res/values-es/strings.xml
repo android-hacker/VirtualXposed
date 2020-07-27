@@ -167,4 +167,5 @@
     <string name="advance_settings_enable_launcher_summary">Enable Launcher</string>
     <string name="advance_settings_enable_launcher">Enable Launcher</string>
     <string name="install_complete_and_open">Abierto</string>
+    <string name="unsupported_for_32bit_app">¡Las aplicaciones de 32 bits no son compatibles!</string>
 </resources>

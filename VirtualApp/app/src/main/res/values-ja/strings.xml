@@ -185,4 +185,5 @@
     <string name="install_taichi_while_old_version">インストールされているTaiChiのバージョンが古すぎます。最新のTaichiをインストールしてください。</string>
     <string name="install_go_latest_exp">最新のTaiChiをインストール</string>
     <string name="install_complete_and_open">開く</string>
+    <string name="unsupported_for_32bit_app">32ビットアプリケーションはサポートされていません。</string>
 </resources>

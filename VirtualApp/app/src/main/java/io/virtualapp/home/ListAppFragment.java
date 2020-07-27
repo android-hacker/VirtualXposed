@@ -81,26 +81,6 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
         mAdapter.saveInstanceState(outState);
     }
 
-    private void whatIsTaiChi() {
-        AlertDialog alertDialog = new AlertDialog.Builder(getContext())
-                .setTitle(R.string.what_is_exp)
-                .setMessage(R.string.exp_tips)
-                .setPositiveButton(R.string.exp_introduce_title, (dialog, which) -> {
-                    Intent t = new Intent(Intent.ACTION_VIEW);
-                    t.setData(Uri.parse("https://www.coolapk.com/apk/me.weishu.exp"));
-                    startActivity(t);
-                }).setNegativeButton(R.string.about_donate_title, (dialog, which) -> {
-                    Intent t = new Intent(Intent.ACTION_VIEW);
-                    t.setData(Uri.parse("https://vxposed.com/donate.html"));
-                    startActivity(t);
-                })
-                .create();
-        try {
-            alertDialog.show();
-        } catch (Throwable ignored) {
-        }
-    }
-
     private void chooseInstallWay(Runnable runnable, String path) {
         AlertDialog alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle(R.string.install_choose_way)
@@ -169,6 +149,10 @@ public class ListAppFragment extends VFragment<ListAppContract.ListAppPresenter>
         mAdapter.setOnItemClickListener(new CloneAppListAdapter.ItemEventListener() {
             @Override
             public void onItemClick(AppInfo info, int position) {
+                if (!info.is64bit) {
+                    Toast.makeText(getContext(), R.string.unsupported_for_32bit_app, Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 int count = mAdapter.getSelectedCount();
                 if (!mAdapter.isIndexSelected(position)) {
                     if (count >= 9) {
