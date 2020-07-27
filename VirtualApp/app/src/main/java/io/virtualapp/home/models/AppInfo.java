@@ -15,5 +15,4 @@ public class AppInfo {
     public CharSequence version;
     public int cloneCount;
     public boolean disableMultiVersion;
-    public boolean is64bit;
 }

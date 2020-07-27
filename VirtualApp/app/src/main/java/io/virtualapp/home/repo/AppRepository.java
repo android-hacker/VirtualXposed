@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import com.lody.virtual.GmsSupport;
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.helper.compat.NativeLibraryHelperCompat;
 import com.lody.virtual.helper.utils.DeviceUtil;
 import com.lody.virtual.remote.InstallResult;
 import com.lody.virtual.remote.InstalledAppInfo;
@@ -189,7 +188,6 @@ public class AppRepository implements AppDataSource {
             info.packageName = pkg.packageName;
             info.fastOpen = fastOpen;
             info.path = path;
-//            info.icon = ai.loadIcon(pm);
             info.icon = null;  // Use Glide to load the icon async
             info.name = ai.loadLabel(pm);
             info.version = pkg.versionName;
@@ -201,7 +199,6 @@ public class AppRepository implements AppDataSource {
                 info.disableMultiVersion = true;
                 info.cloneCount = 0;
             }
-            info.is64bit = NativeLibraryHelperCompat.isApk64(ai.sourceDir);
             list.add(info);
         }
         // sort by name

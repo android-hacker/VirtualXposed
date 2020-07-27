@@ -2,6 +2,7 @@ package com.lody.virtual.helper.compat;
 
 import android.annotation.TargetApi;
 import android.os.Build;
+import android.os.SystemClock;
 
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
@@ -101,8 +102,7 @@ public class NativeLibraryHelperCompat {
 	}
 
 	private static Set<String> getABIsFromApk(String apk) {
-		try {
-			ZipFile apkFile = new ZipFile(apk);
+		try (ZipFile apkFile = new ZipFile(apk)) {
 			Enumeration<? extends ZipEntry> entries = apkFile.entries();
 			Set<String> supportedABIs = new HashSet<String>();
 			while (entries.hasMoreElements()) {
@@ -125,6 +125,9 @@ public class NativeLibraryHelperCompat {
 	}
 
 	public static boolean isApk64(String apk) {
-		return isVM64(getABIsFromApk(apk));
+		long start = SystemClock.elapsedRealtime();
+		Set<String> abIsFromApk = getABIsFromApk(apk);
+		System.out.println("pkg: " + apk + " abis: " + abIsFromApk + " cost: " + (SystemClock.elapsedRealtime() - start));
+		return isVM64(abIsFromApk);
 	}
 }
