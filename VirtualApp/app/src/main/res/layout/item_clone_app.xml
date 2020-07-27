@@ -10,29 +10,15 @@
         android:layout_gravity="top|end"
         android:src="@drawable/ic_no_check" />
 
-    <io.virtualapp.widgets.LabelView xmlns:lv="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/item_app_clone_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|start"
-        android:visibility="invisible"
-        lv:lv_background_color="#F6CE59"
-        lv:lv_fill_triangle="true"
-        lv:lv_gravity="BOTTOM_LEFT"
-        lv:lv_text="2"
-        lv:lv_text_all_caps="false"
-        lv:lv_text_color="@android:color/white"
-        lv:lv_text_size="12sp" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="start|center"
         android:gravity="start|center"
         android:orientation="horizontal"
-        android:paddingBottom="12dp"
         android:paddingLeft="24dp"
-        android:paddingTop="12dp">
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
 
         <ImageView
             android:id="@+id/item_app_icon"
@@ -46,7 +32,7 @@
             android:orientation="vertical"
             android:paddingLeft="10dp">
 
-            <io.virtualapp.widgets.MarqueeTextView
+            <TextView
                 android:id="@+id/item_app_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -58,18 +44,21 @@
                 android:textColor="@color/desktopColorB"
                 android:textSize="14sp" />
 
-            <io.virtualapp.widgets.MarqueeTextView
-                android:id="@+id/item_app_summary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="marquee"
-                android:focusableInTouchMode="true"
-                android:gravity="center"
-                android:marqueeRepeatLimit="1"
-                android:singleLine="true"
-                android:textSize="12sp"
-                android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
+
+    <io.virtualapp.widgets.LabelView xmlns:lv="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/item_app_clone_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:visibility="invisible"
+        lv:lv_background_color="#F6CE59"
+        lv:lv_fill_triangle="true"
+        lv:lv_gravity="BOTTOM_LEFT"
+        lv:lv_text="2"
+        lv:lv_text_all_caps="false"
+        lv:lv_text_color="@android:color/white"
+        lv:lv_text_size="12sp" />
 
 </FrameLayout>
