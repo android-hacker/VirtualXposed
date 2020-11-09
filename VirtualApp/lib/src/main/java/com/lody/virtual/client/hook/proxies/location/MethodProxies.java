@@ -10,7 +10,7 @@ import com.lody.virtual.client.ipc.VirtualLocationManager;
 import com.lody.virtual.helper.utils.ArrayUtils;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.remote.vloc.VLocation;
-
+import com.lody.virtual.client.hook.utils.MethodParameterUtils;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
@@ -254,6 +254,7 @@ public class MethodProxies {
 
         @Override
         public Object call(Object who, Method method, Object... args) throws Throwable {
+            MethodParameterUtils.replaceFirstAppPkg(args);
             if (!isFakeLocationEnable()) {
                 return super.call(who, method, args);
             }
