@@ -44,7 +44,7 @@ dependencies {
         exclude group: 'me.weishu', module: 'epic'
     }
     implementation "me.weishu:free_reflection:3.0.1"
-    implementation "me.weishu:epic:0.11.0"
+    implementation "me.weishu:epic:0.11.1"
 }
 
 repositories {
