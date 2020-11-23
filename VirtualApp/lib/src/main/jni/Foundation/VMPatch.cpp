@@ -440,10 +440,6 @@ void hookAndroidVM(JArrayClass<jobject> javaMethods,
                                                                          "dvmCreateStringFromCstr");
         }
     }
-    if (apiLevel >= 30) {
-        // fixme for Android 11
-        return;
-    }
     measureNativeOffset(isArt);
     // Crash on Q if hook directly by modify entrypoint of function.
     // Just skip this step on Q and get never crash
