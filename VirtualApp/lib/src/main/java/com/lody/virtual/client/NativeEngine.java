@@ -144,7 +144,7 @@ public class NativeEngine {
 
     public static void enableIORedirect() {
         try {
-            String soPath = VirtualCore.get().getContext().getApplicationInfo().nativeLibraryDir + File.separator + "lib" + LIB_NAME;
+            String soPath = VirtualCore.get().getContext().getApplicationInfo().nativeLibraryDir + File.separator + "lib" + LIB_NAME + ".so";
             if (!new File(soPath).exists()) {
                 throw new RuntimeException("io redirect failed.");
             }
