@@ -153,7 +153,7 @@ public class ProviderHook implements InvocationHandler {
         }
         MethodBox methodBox = new MethodBox(method, mBase, args);
         int start = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ? 1 : 0;
-        // Android 11.
+        // Android 11: https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/content/IContentProvider.java?q=IContentProvider&ss=android%2Fplatform%2Fsuperproject
         if(Build.VERSION.SDK_INT >= 30) start = 2;
         try {
             String name = method.getName();
