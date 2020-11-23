@@ -391,17 +391,6 @@ public final class VirtualCore {
     }
 
     public boolean isOutsidePackageVisible(String pkg) {
-        if (!isXposedEnabled() && !BuildCompat.isR()) {
-            // FIXME: 2020/7/9 recursive call
-            PackageManager unHookPackageManager = getUnHookPackageManager();
-            try {
-                unHookPackageManager.getPackageInfo(pkg, 0);
-                return true;
-            } catch (PackageManager.NameNotFoundException e) {
-                return false;
-            }
-        }
-
         try {
             return getService().isOutsidePackageVisible(pkg);
         } catch (RemoteException e) {
@@ -410,7 +399,7 @@ public final class VirtualCore {
     }
 
     public boolean isXposedEnabled() {
-        return !VirtualCore.get().getContext().getFileStreamPath(".disable_xposed").exists() || BuildCompat.isR();
+        return !VirtualCore.get().getContext().getFileStreamPath(".disable_xposed").exists() && !BuildCompat.isR();
     }
 
     public boolean isAppInstalled(String pkg) {
