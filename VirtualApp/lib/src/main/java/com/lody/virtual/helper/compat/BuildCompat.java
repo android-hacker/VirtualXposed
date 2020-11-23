@@ -31,4 +31,8 @@ public class BuildCompat {
         return SDK == Q - 1 && getPreviewSDKInt() > 0 || Build.VERSION.SDK_INT >= Q;
     }
 
+    public static boolean isR() {
+        return Build.VERSION.SDK_INT >= 30;
+    }
+
 }

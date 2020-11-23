@@ -158,10 +158,9 @@ public class ProviderHook implements InvocationHandler {
         try {
             String name = method.getName();
             if ("call".equals(name)) {
-                // Android 11
-                if(Build.VERSION.SDK_INT >= 30)
+                if (BuildCompat.isR()) {
                     start = 3;
-                else if (BuildCompat.isQ()) {
+                } else if (BuildCompat.isQ()) {
                     start = 2;
                 }
                 String methodName = (String) args[start];
