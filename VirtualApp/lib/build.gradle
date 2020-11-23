@@ -41,8 +41,10 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     api("me.weishu.exposed:exposed-core:0.8.1") {
         exclude group: 'me.weishu', module: 'free_reflection'
+        exclude group: 'me.weishu', module: 'epic'
     }
     implementation "me.weishu:free_reflection:3.0.1"
+    implementation "me.weishu:epic:0.11.0"
 }
 
 repositories {

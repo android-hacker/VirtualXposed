@@ -41,7 +41,6 @@ import com.lody.virtual.client.ipc.ServiceManagerNative;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.client.stub.VASettings;
-import com.lody.virtual.helper.compat.BuildCompat;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.utils.BitmapUtils;
 import com.lody.virtual.os.VUserHandle;
@@ -399,7 +398,7 @@ public final class VirtualCore {
     }
 
     public boolean isXposedEnabled() {
-        return !VirtualCore.get().getContext().getFileStreamPath(".disable_xposed").exists() && !BuildCompat.isR();
+        return !VirtualCore.get().getContext().getFileStreamPath(".disable_xposed").exists();
     }
 
     public boolean isAppInstalled(String pkg) {
