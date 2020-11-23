@@ -193,10 +193,11 @@ public class PackageInstallerSession extends IPackageInstallerSession.Stub {
                 final String targetName = "base.apk";
                 final File targetFile = new File(mResolvedStageDir, targetName);
                 if (!addedFile.equals(targetFile)) {
-                    addedFile.renameTo(targetFile);
+                    // addedFile.renameTo(targetFile);
+                    mResolvedStagedFiles.add(targetFile);
+                } else {
+                    mResolvedBaseFile = targetFile;
                 }
-                mResolvedBaseFile = targetFile;
-                mResolvedStagedFiles.add(targetFile);
             }
         }
         if (mResolvedBaseFile == null) {
@@ -378,6 +379,11 @@ public class PackageInstallerSession extends IPackageInstallerSession.Stub {
         if (mActiveCount.decrementAndGet() == 0) {
             mCallback.onSessionActiveChanged(this, false);
         }
+    }
+
+    // https://cs.android.com/android/platform/superproject/+/android-11.0.0_r1:frameworks/base/core/java/android/content/pm/IPackageInstallerSession.aidl;l=39
+    public void commit(IntentSender statusReceiver, boolean forTransferred) throws RemoteException {
+        commit(statusReceiver);
     }
 
     @Override

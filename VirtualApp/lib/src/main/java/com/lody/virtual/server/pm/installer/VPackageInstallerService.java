@@ -117,6 +117,9 @@ public class VPackageInstallerService extends IPackageInstaller.Stub {
             sessionId = allocateSessionIdLocked();
             session = new PackageInstallerSession(mInternalCallback, mContext, mInstallHandler.getLooper(), installerPackageName, sessionId, userId, callingUid, params, VEnvironment.getPackageInstallerStageDir());
         }
+        synchronized (mSessions) {
+            mSessions.put(sessionId, session);
+        }
         mCallbacks.notifySessionCreated(session.sessionId, session.userId);
         return sessionId;
     }
