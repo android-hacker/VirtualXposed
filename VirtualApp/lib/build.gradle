@@ -39,8 +39,10 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    api "me.weishu.exposed:exposed-core:0.8.1"
-    implementation "me.weishu:free_reflection:2.2.0"
+    api("me.weishu.exposed:exposed-core:0.8.1") {
+        exclude group: 'me.weishu', module: 'free_reflection'
+    }
+    implementation "me.weishu:free_reflection:3.0.1"
 }
 
 repositories {
