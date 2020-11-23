@@ -12,6 +12,7 @@ import android.content.res.Configuration;
 import android.os.IBinder;
 import android.util.Log;
 import android.util.MergedConfiguration;
+import android.view.DisplayAdjustments;
 
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
@@ -82,6 +83,11 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
     }
 
     @Override
+    public void handleStopActivity(IBinder token, int configChanges, PendingTransactionActions pendingActions, boolean finalStateRequest, String reason) {
+        originalHandler.handleStopActivity(token, configChanges, pendingActions, finalStateRequest, reason);
+    }
+
+    @Override
     public void reportStop(PendingTransactionActions pendingActions) {
         originalHandler.reportStop(pendingActions);
     }
@@ -114,6 +120,11 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
     @Override
     public void handlePictureInPictureModeChanged(IBinder token, boolean isInPipMode, Configuration overrideConfig) {
         originalHandler.handlePictureInPictureModeChanged(token, isInPipMode, overrideConfig);
+    }
+
+    @Override
+    public void handlePictureInPictureRequested(IBinder token) {
+        originalHandler.handlePictureInPictureRequested(token);
     }
 
     @Override
@@ -176,6 +187,11 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
     }
 
     @Override
+    public void handleStartActivity(IBinder binder, PendingTransactionActions pendingActions) {
+        originalHandler.handleStartActivity(binder, pendingActions);
+    }
+
+    @Override
     public LoadedApk getPackageInfoNoCheck(ApplicationInfo ai, CompatibilityInfo compatInfo) {
         return originalHandler.getPackageInfoNoCheck(ai, compatInfo);
     }
@@ -183,6 +199,11 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
     @Override
     public void handleConfigurationChanged(Configuration config) {
         originalHandler.handleConfigurationChanged(config);
+    }
+
+    @Override
+    public void handleFixedRotationAdjustments(IBinder token, DisplayAdjustments.FixedRotationAdjustments fixedRotationAdjustments) {
+        originalHandler.handleFixedRotationAdjustments(token, fixedRotationAdjustments);
     }
 
     @Override
