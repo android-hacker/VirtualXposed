@@ -191,6 +191,8 @@ public class VAppManagerService extends IAppManager.Stub {
             dependSystem = false;
         }
 
+        String[] splitCodePaths = null;
+
         if (!dependSystem) {
             File privatePackageFile = new File(appDir, "base.apk");
             File parentFolder = privatePackageFile.getParentFile();
@@ -213,6 +215,8 @@ public class VAppManagerService extends IAppManager.Stub {
 
             if (pkg.splitNames != null) {
                 int length = pkg.splitNames.length;
+                splitCodePaths = new String[length];
+
                 for (int i = 0; i < length; i++) {
                     String splitName = pkg.splitNames[i];
                     File privateSplitFile = new File(appDir, splitName + ".apk");
@@ -225,6 +229,7 @@ public class VAppManagerService extends IAppManager.Stub {
                         privateSplitFile.delete();
                         return InstallResult.makeFailure("Unable to copy split: " + splitName);
                     }
+                    splitCodePaths[i] = privateSplitFile.getPath();
                 }
             }
         }
@@ -254,6 +259,7 @@ public class VAppManagerService extends IAppManager.Stub {
                 ps.setUserState(userId, false/*launched*/, false/*hidden*/, installed);
             }
         }
+        ps.splitCodePaths = splitCodePaths;
         PackageParserEx.savePackageCache(pkg);
         PackageCacheManager.put(pkg, ps);
         mPersistenceLayer.save();

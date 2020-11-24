@@ -98,6 +98,9 @@ public class CloneAppListAdapter extends DragSelectRecyclerViewAdapter<CloneAppL
             holder.labelView.setVisibility(View.INVISIBLE);
         }
 
+        if (info.splitApk) {
+        } else {
+        }
         holder.itemView.setOnClickListener(v -> {
             mItemEventListener.onItemClick(info, position);
         });

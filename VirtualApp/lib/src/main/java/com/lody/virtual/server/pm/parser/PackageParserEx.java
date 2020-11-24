@@ -250,8 +250,9 @@ public class PackageParserEx {
         ai.publicSourceDir = ps.apkPath;
         ai.sourceDir = ps.apkPath;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            ai.splitSourceDirs = new String[]{ps.apkPath};
-            ai.splitPublicSourceDirs = ai.splitSourceDirs;
+            ai.splitSourceDirs = ps.splitCodePaths;
+            ai.splitPublicSourceDirs = ps.splitCodePaths;
+
             ApplicationInfoL.scanSourceDir.set(ai, ai.dataDir);
             ApplicationInfoL.scanPublicSourceDir.set(ai, ai.dataDir);
             String hostPrimaryCpuAbi = ApplicationInfoL.primaryCpuAbi.get(VirtualCore.get().getContext().getApplicationInfo());

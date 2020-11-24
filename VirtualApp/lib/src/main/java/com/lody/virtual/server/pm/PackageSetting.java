@@ -33,6 +33,8 @@ public class PackageSetting implements Parcelable {
     public int appId;
     public long firstInstallTime;
     public long lastUpdateTime;
+
+    public String[] splitCodePaths;
     private SparseArray<PackageUserState> userState = new SparseArray<>();
 
     public PackageSetting() {
@@ -47,10 +49,11 @@ public class PackageSetting implements Parcelable {
         //noinspection unchecked
         this.userState = in.readSparseArray(PackageUserState.class.getClassLoader());
         this.skipDexOpt = in.readByte() != 0;
+        this.splitCodePaths = in.createStringArray();
     }
 
     public InstalledAppInfo getAppInfo() {
-        return new InstalledAppInfo(packageName, apkPath, libPath, dependSystem, skipDexOpt, appId);
+        return new InstalledAppInfo(packageName, apkPath, libPath, dependSystem, skipDexOpt, appId, splitCodePaths);
     }
 
     PackageUserState modifyUserState(int userId) {
@@ -96,6 +99,7 @@ public class PackageSetting implements Parcelable {
         //noinspection unchecked
         dest.writeSparseArray((SparseArray) this.userState);
         dest.writeByte(this.skipDexOpt ? (byte) 1 : (byte) 0);
+        dest.writeStringArray(this.splitCodePaths);
     }
 
     public boolean isLaunched(int userId) {
