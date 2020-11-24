@@ -83,7 +83,7 @@ public class CloneAppListAdapter extends DragSelectRecyclerViewAdapter<CloneAppL
             GlideUtils.loadPackageIconFromApkFile(mContext, info.path, holder.iconView, android.R.drawable.sym_def_app_icon);
         }
 
-        holder.nameView.setText(String.format("%s: %s", info.name, info.version));
+        holder.nameView.setText(String.format("%s: %s%s", info.name, info.version, info.splitApk ? " [S]" : ""));
         if (isIndexSelected(position)) {
             holder.iconView.setAlpha(1f);
             holder.appCheckView.setImageResource(R.drawable.ic_check);
@@ -98,9 +98,6 @@ public class CloneAppListAdapter extends DragSelectRecyclerViewAdapter<CloneAppL
             holder.labelView.setVisibility(View.INVISIBLE);
         }
 
-        if (info.splitApk) {
-        } else {
-        }
         holder.itemView.setOnClickListener(v -> {
             mItemEventListener.onItemClick(info, position);
         });
