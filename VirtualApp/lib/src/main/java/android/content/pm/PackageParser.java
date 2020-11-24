@@ -63,6 +63,11 @@ public class PackageParser {
         // Applications requested features
         public ArrayList<FeatureInfo> reqFeatures = null;
         public int mSharedUserLabel;
+
+        public String[] splitNames;
+        public String codePath;
+        public String baseCodePath;
+        public String[] splitCodePaths;
     }
 
     public final class Service extends Component<ServiceIntentInfo> {

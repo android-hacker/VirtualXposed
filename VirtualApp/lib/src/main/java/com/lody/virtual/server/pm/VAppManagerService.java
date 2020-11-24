@@ -147,7 +147,7 @@ public class VAppManagerService extends IAppManager.Stub {
             return InstallResult.makeFailure("path = NULL");
         }
         File packageFile = new File(path);
-        if (!packageFile.exists() || !packageFile.isFile()) {
+        if (!packageFile.exists()) {
             return InstallResult.makeFailure("Package File is not exist.");
         }
         VPackage pkg = null;
@@ -191,7 +191,6 @@ public class VAppManagerService extends IAppManager.Stub {
             dependSystem = false;
         }
 
-        NativeLibraryHelperCompat.copyNativeBinaries(new File(path), libDir);
         if (!dependSystem) {
             File privatePackageFile = new File(appDir, "base.apk");
             File parentFolder = privatePackageFile.getParentFile();
@@ -200,14 +199,36 @@ public class VAppManagerService extends IAppManager.Stub {
             } else if (privatePackageFile.exists() && !privatePackageFile.delete()) {
                 VLog.w(TAG, "Warning: unable to delete file : " + privatePackageFile.getPath());
             }
+            File baseApkFile = packageFile.isFile() ? packageFile : new File(pkg.baseCodePath);
             try {
-                FileUtils.copyFile(packageFile, privatePackageFile);
+                FileUtils.copyFile(baseApkFile, privatePackageFile);
             } catch (IOException e) {
                 privatePackageFile.delete();
                 return InstallResult.makeFailure("Unable to copy the package file.");
             }
+            // copy lib in base apk
+            NativeLibraryHelperCompat.copyNativeBinaries(baseApkFile, libDir);
+
             packageFile = privatePackageFile;
+
+            if (pkg.splitNames != null) {
+                int length = pkg.splitNames.length;
+                for (int i = 0; i < length; i++) {
+                    String splitName = pkg.splitNames[i];
+                    File privateSplitFile = new File(appDir, splitName + ".apk");
+                    try {
+                        FileUtils.copyFile(new File(pkg.splitCodePaths[i]), privateSplitFile);
+
+                        // copy lib in split apk
+                        NativeLibraryHelperCompat.copyNativeBinaries(privateSplitFile, libDir);
+                    } catch (IOException e) {
+                        privateSplitFile.delete();
+                        return InstallResult.makeFailure("Unable to copy split: " + splitName);
+                    }
+                }
+            }
         }
+
         if (existOne != null) {
             PackageCacheManager.remove(pkg.packageName);
         }

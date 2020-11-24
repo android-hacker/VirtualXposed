@@ -224,6 +224,15 @@ public class PackageParserEx {
         cache.mAppMetaData = p.mAppMetaData;
         cache.configPreferences = p.configPreferences;
         cache.reqFeatures = p.reqFeatures;
+
+        // for split apks
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            cache.splitNames = p.splitNames;
+            cache.codePath = p.codePath;
+            cache.baseCodePath = p.baseCodePath;
+            cache.splitCodePaths = p.splitCodePaths;
+        }
+
         addOwner(cache);
         return cache;
     }
