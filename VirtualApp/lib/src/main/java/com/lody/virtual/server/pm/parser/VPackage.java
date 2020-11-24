@@ -66,6 +66,7 @@ public class VPackage implements Parcelable {
     public Object mExtras;
 
     public String[] splitNames;
+    public ArrayList<String> usesOptionalLibraries;
 
     /**
      * Path where this package was found on disk. For monolithic packages
@@ -136,6 +137,8 @@ public class VPackage implements Parcelable {
         this.codePath = in.readString();
         this.baseCodePath = in.readString();
         this.splitCodePaths = in.createStringArray();
+
+        this.usesOptionalLibraries = in.createStringArrayList();
     }
 
     @Override
@@ -247,6 +250,8 @@ public class VPackage implements Parcelable {
         dest.writeString(this.codePath);
         dest.writeString(this.baseCodePath);
         dest.writeStringArray(this.splitCodePaths);
+
+        dest.writeStringList(this.usesOptionalLibraries);
     }
 
     public static class ActivityIntentInfo extends IntentInfo {

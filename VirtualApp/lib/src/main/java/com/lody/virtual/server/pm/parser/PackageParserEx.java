@@ -233,6 +233,8 @@ public class PackageParserEx {
             cache.splitCodePaths = p.splitCodePaths;
         }
 
+        cache.usesOptionalLibraries = p.usesOptionalLibraries;
+
         addOwner(cache);
         return cache;
     }

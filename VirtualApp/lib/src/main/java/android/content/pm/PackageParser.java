@@ -68,6 +68,8 @@ public class PackageParser {
         public String codePath;
         public String baseCodePath;
         public String[] splitCodePaths;
+
+        public ArrayList<String> usesOptionalLibraries;
     }
 
     public final class Service extends Component<ServiceIntentInfo> {
