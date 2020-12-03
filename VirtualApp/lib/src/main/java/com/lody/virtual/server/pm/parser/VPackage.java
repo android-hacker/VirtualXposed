@@ -14,10 +14,13 @@ import android.content.pm.PermissionInfo;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ServiceInfo;
 import android.content.pm.Signature;
+import android.content.pm.SigningInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.lody.virtual.helper.compat.BuildCompat;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -80,6 +83,8 @@ public class VPackage implements Parcelable {
     /** Paths of any split APKs, ordered by parsed splitName */
     public String[] splitCodePaths;
 
+    public SigningInfo signingInfo;
+
     public VPackage() {
     }
 
@@ -139,6 +144,10 @@ public class VPackage implements Parcelable {
         this.splitCodePaths = in.createStringArray();
 
         this.usesOptionalLibraries = in.createStringArrayList();
+
+        if (BuildCompat.isPie()) {
+            this.signingInfo = in.readParcelable(Bundle.class.getClassLoader());
+        }
     }
 
     @Override
@@ -252,6 +261,10 @@ public class VPackage implements Parcelable {
         dest.writeStringArray(this.splitCodePaths);
 
         dest.writeStringList(this.usesOptionalLibraries);
+
+        if (BuildCompat.isPie()) {
+            dest.writeParcelable(this.signingInfo, flags);
+        }
     }
 
     public static class ActivityIntentInfo extends IntentInfo {

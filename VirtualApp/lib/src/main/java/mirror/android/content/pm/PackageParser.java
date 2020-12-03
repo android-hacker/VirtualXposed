@@ -16,12 +16,12 @@ import android.util.DisplayMetrics;
 import java.io.File;
 import java.util.List;
 
-import mirror.RefClass;
-import mirror.RefConstructor;
-import mirror.RefObject;
-import mirror.RefMethod;
 import mirror.MethodParams;
 import mirror.MethodReflectParams;
+import mirror.RefClass;
+import mirror.RefConstructor;
+import mirror.RefMethod;
+import mirror.RefObject;
 import mirror.RefStaticMethod;
 
 /**
@@ -99,6 +99,13 @@ public class PackageParser {
         public static RefObject<String> className;
         public static RefObject<ComponentName> componentName;
         public static RefObject<List<IntentFilter>> intents;
+    }
+
+    public static class SigningInfo {
+        public static Class<?> TYPE = RefClass.load(SigningInfo.class, "android.content.pm.SigningInfo");
+
+        @MethodReflectParams("android.content.pm.PackageParser$SigningDetails")
+        public static RefConstructor<android.content.pm.SigningInfo> ctor;
     }
 
     public static class SigningDetails {
