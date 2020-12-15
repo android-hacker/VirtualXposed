@@ -12,6 +12,7 @@ import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.remote.InstallResult;
 
+import io.virtualapp.BuildConfig;
 import io.virtualapp.home.LoadingActivity;
 
 /**
@@ -20,7 +21,7 @@ import io.virtualapp.home.LoadingActivity;
 
 public class CmdReceiver extends BroadcastReceiver {
 
-    private static final String ACTION = "io.va.exposed.CMD";
+    private static final String ACTION = BuildConfig.APPLICATION_ID + ".CMD";
     private static final String KEY_CMD = "cmd";
     private static final String KEY_PKG = "pkg";
     private static final String KEY_UID = "uid";
