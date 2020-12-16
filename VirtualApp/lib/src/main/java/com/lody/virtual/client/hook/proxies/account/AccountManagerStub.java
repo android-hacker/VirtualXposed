@@ -62,6 +62,8 @@ public class AccountManagerStub extends BinderInvocationProxy {
 		addMethodProxy(new renameAccount());
 		addMethodProxy(new getPreviousName());
 		addMethodProxy(new renameSharedAccountAsUser());
+
+		addMethodProxy(new setAccountVisibility());
 	}
 
 	private static class getPassword extends MethodProxy {
@@ -592,6 +594,19 @@ public class AccountManagerStub extends BinderInvocationProxy {
 			String newName = (String) args[1];
 			int userId = (int) args[2];
 			return method.invoke(who, args);
+		}
+	}
+
+	private static class setAccountVisibility extends MethodProxy {
+
+		@Override
+		public String getMethodName() {
+			return "setAccountVisibility";
+		}
+
+		@Override
+		public Object call(Object who, Method method, Object... args) throws Throwable {
+			return true;
 		}
 	}
 }

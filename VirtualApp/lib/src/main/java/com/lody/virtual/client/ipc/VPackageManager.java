@@ -189,7 +189,11 @@ public class VPackageManager {
             if (!new File(APACHE_LEGACY).exists()) {
                 APACHE_LEGACY = "/system/framework/org.apache.http.legacy.jar";
             }
-            if (android.os.Build.VERSION.SDK_INT >= P && info.targetSdkVersion <= P) {
+            List<String> sharedLibraries = getInterface().getSharedLibraries(packageName);
+            boolean forceAdd = sharedLibraries.contains("org.apache.http.legacy");
+
+            // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/services/core/java/com/android/server/pm/parsing/library/OrgApacheHttpLegacyUpdater.java;l=36?q=OrgApacheHttpLegacyUpdater&ss=android%2Fplatform%2Fsuperproject:frameworks%2Fbase%2Fservices%2Fcore%2Fjava%2Fcom%2Fandroid%2Fserver%2Fpm%2Fparsing%2Flibrary%2F
+            if (android.os.Build.VERSION.SDK_INT >= P && info.targetSdkVersion < P || forceAdd) {
                 String[] newSharedLibraryFiles;
                 if (info.sharedLibraryFiles == null) {
                     newSharedLibraryFiles = new String[]{APACHE_LEGACY};

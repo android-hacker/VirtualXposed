@@ -14,6 +14,7 @@ import android.content.pm.ProviderInfo;
 import android.content.pm.ServiceInfo;
 import android.content.pm.Signature;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.text.TextUtils;
 
@@ -21,6 +22,7 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.fixer.ComponentFixer;
 import com.lody.virtual.helper.collection.ArrayMap;
+import com.lody.virtual.helper.compat.BuildCompat;
 import com.lody.virtual.helper.compat.PackageParserCompat;
 import com.lody.virtual.helper.utils.FileUtils;
 import com.lody.virtual.helper.utils.VLog;
@@ -121,6 +123,9 @@ public class PackageParserEx {
             p.unmarshall(bytes, 0, bytes.length);
             p.setDataPosition(0);
             pkg.mSignatures = p.createTypedArray(Signature.CREATOR);
+            if (BuildCompat.isPie()) {
+                pkg.signingInfo = p.readParcelable(Bundle.class.getClassLoader());
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -151,6 +156,9 @@ public class PackageParserEx {
             p = Parcel.obtain();
             try {
                 p.writeTypedArray(signatures, 0);
+                if (BuildCompat.isPie()) {
+                    p.writeParcelable(pkg.signingInfo, 0);
+                }
                 FileUtils.writeParcelToFile(p, signatureFile);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -212,6 +220,7 @@ public class PackageParserEx {
                     System.arraycopy(signatures, 0, cache.mSignatures, 0, numberOfSigs);
                 }
             }
+            cache.signingInfo = mirror.android.content.pm.PackageParser.SigningInfo.ctor.newInstance(signingDetails);
         }
         cache.mAppMetaData = p.mAppMetaData;
         cache.packageName = p.packageName;
@@ -224,6 +233,17 @@ public class PackageParserEx {
         cache.mAppMetaData = p.mAppMetaData;
         cache.configPreferences = p.configPreferences;
         cache.reqFeatures = p.reqFeatures;
+
+        // for split apks
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            cache.splitNames = p.splitNames;
+            cache.codePath = p.codePath;
+            cache.baseCodePath = p.baseCodePath;
+            cache.splitCodePaths = p.splitCodePaths;
+        }
+
+        cache.usesOptionalLibraries = p.usesOptionalLibraries;
+
         addOwner(cache);
         return cache;
     }
@@ -241,8 +261,9 @@ public class PackageParserEx {
         ai.publicSourceDir = ps.apkPath;
         ai.sourceDir = ps.apkPath;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            ai.splitSourceDirs = new String[]{ps.apkPath};
-            ai.splitPublicSourceDirs = ai.splitSourceDirs;
+            ai.splitSourceDirs = ps.splitCodePaths;
+            ai.splitPublicSourceDirs = ps.splitCodePaths;
+
             ApplicationInfoL.scanSourceDir.set(ai, ai.dataDir);
             ApplicationInfoL.scanPublicSourceDir.set(ai, ai.dataDir);
             String hostPrimaryCpuAbi = ApplicationInfoL.primaryCpuAbi.get(VirtualCore.get().getContext().getApplicationInfo());
@@ -413,12 +434,18 @@ public class PackageParserEx {
                 }
             }
         }
-        if ((flags & PackageManager.GET_SIGNATURES) != 0) {
+        boolean hasGetSignatureFlag = (flags & PackageManager.GET_SIGNATURES) != 0;
+        boolean hasGetSigningInfoFlag = BuildCompat.isPie() && (flags & PackageManager.GET_SIGNING_CERTIFICATES) != 0;
+
+        if (hasGetSignatureFlag || hasGetSigningInfoFlag) {
             int N = (p.mSignatures != null) ? p.mSignatures.length : 0;
             if (N > 0) {
                 pi.signatures = new Signature[N];
                 System.arraycopy(p.mSignatures, 0, pi.signatures, 0, N);
             }
+        }
+        if (hasGetSigningInfoFlag) {
+            pi.signingInfo = p.signingInfo;
         }
         return pi;
     }

@@ -20,15 +20,27 @@ public class BuildCompat {
     }
 
     public static boolean isOreo() {
+        return isAndroidLevel(Build.VERSION_CODES.O);
+    }
 
-        return (Build.VERSION.SDK_INT == 25 && getPreviewSDKInt() > 0)
-                || Build.VERSION.SDK_INT > 25;
+    public static boolean isPie() {
+        return isAndroidLevel(Build.VERSION_CODES.P);
     }
 
     public static boolean isQ() {
-        final int SDK = Build.VERSION.SDK_INT;
-        final int Q = 29;
-        return SDK == Q - 1 && getPreviewSDKInt() > 0 || Build.VERSION.SDK_INT >= Q;
+        return isAndroidLevel(29);
     }
 
+    public static boolean isR() {
+        return isAndroidLevel(30);
+    }
+
+    private static boolean isAndroidLevelPreview(int level) {
+        return (Build.VERSION.SDK_INT == level && getPreviewSDKInt() > 0)
+                || Build.VERSION.SDK_INT > level;
+    }
+
+    private static boolean isAndroidLevel(int level) {
+        return Build.VERSION.SDK_INT >= level;
+    }
 }

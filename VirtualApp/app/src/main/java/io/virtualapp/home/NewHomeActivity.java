@@ -40,6 +40,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.virtualapp.R;
 import io.virtualapp.abs.ui.VUiKit;
@@ -62,7 +63,7 @@ public class NewHomeActivity extends NexusLauncherActivity {
 
     private Handler mUiHandler;
     private boolean mDirectlyBack = false;
-    private boolean checkXposedInstaller = true;
+    private final AtomicBoolean checkXposedInstaller = new AtomicBoolean(true);
 
     public static void goHome(Context context) {
         Intent intent = new Intent(context, NewHomeActivity.class);
@@ -83,6 +84,9 @@ public class NewHomeActivity extends NexusLauncherActivity {
     }
 
     private void installXposed() {
+        if (!VirtualCore.get().isXposedEnabled()) {
+            return;
+        }
         boolean isXposedInstalled = false;
         try {
             isXposedInstalled = VirtualCore.get().isAppInstalled(XPOSED_INSTALLER_PACKAGE);
@@ -156,8 +160,7 @@ public class NewHomeActivity extends NexusLauncherActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (checkXposedInstaller) {
-            checkXposedInstaller = false;
+        if (checkXposedInstaller.compareAndSet(true, false)) {
             installXposed();
         }
         // check for update

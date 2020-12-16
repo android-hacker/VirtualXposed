@@ -21,13 +21,15 @@ public final class InstalledAppInfo implements Parcelable {
     public String libPath;
     public boolean dependSystem;
     public int appId;
+    public String[] splitCodePaths;
 
-    public InstalledAppInfo(String packageName, String apkPath, String libPath, boolean dependSystem, boolean skipDexOpt, int appId) {
+    public InstalledAppInfo(String packageName, String apkPath, String libPath, boolean dependSystem, boolean skipDexOpt, int appId, String[] splitCodePaths) {
         this.packageName = packageName;
         this.apkPath = apkPath;
         this.libPath = libPath;
         this.dependSystem = dependSystem;
         this.appId = appId;
+        this.splitCodePaths = splitCodePaths;
     }
 
     public File getOdexFile() {
@@ -62,6 +64,8 @@ public final class InstalledAppInfo implements Parcelable {
         dest.writeString(this.libPath);
         dest.writeByte(this.dependSystem ? (byte) 1 : (byte) 0);
         dest.writeInt(this.appId);
+
+        dest.writeStringArray(this.splitCodePaths);
     }
 
     protected InstalledAppInfo(Parcel in) {
@@ -70,6 +74,8 @@ public final class InstalledAppInfo implements Parcelable {
         this.libPath = in.readString();
         this.dependSystem = in.readByte() != 0;
         this.appId = in.readInt();
+
+        this.splitCodePaths = in.createStringArray();
     }
 
     public static final Creator<InstalledAppInfo> CREATOR = new Creator<InstalledAppInfo>() {

@@ -390,16 +390,6 @@ public final class VirtualCore {
     }
 
     public boolean isOutsidePackageVisible(String pkg) {
-        if (!isXposedEnabled()) {
-            PackageManager unHookPackageManager = getUnHookPackageManager();
-            try {
-                unHookPackageManager.getPackageInfo(pkg, 0);
-                return true;
-            } catch (PackageManager.NameNotFoundException e) {
-                return false;
-            }
-        }
-
         try {
             return getService().isOutsidePackageVisible(pkg);
         } catch (RemoteException e) {
@@ -716,6 +706,11 @@ public final class VirtualCore {
         if (installedAppInfo != null) {
             AssetManager assets = mirror.android.content.res.AssetManager.ctor.newInstance();
             mirror.android.content.res.AssetManager.addAssetPath.call(assets, installedAppInfo.apkPath);
+            if (installedAppInfo.splitCodePaths != null) {
+                for (String splitCodePath : installedAppInfo.splitCodePaths) {
+                    mirror.android.content.res.AssetManager.addAssetPath.call(assets, splitCodePath);
+                }
+            }
             Resources hostRes = context.getResources();
             return new Resources(assets, hostRes.getDisplayMetrics(), hostRes.getConfiguration());
         }

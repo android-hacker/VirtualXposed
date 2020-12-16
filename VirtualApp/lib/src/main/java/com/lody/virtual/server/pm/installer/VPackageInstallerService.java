@@ -29,6 +29,7 @@ import com.lody.virtual.remote.VParceledListSlice;
 import com.lody.virtual.server.IPackageInstaller;
 import com.lody.virtual.server.pm.VAppManagerService;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -115,7 +116,11 @@ public class VPackageInstallerService extends IPackageInstaller.Stub {
                         "Too many active sessions for UID " + callingUid);
             }
             sessionId = allocateSessionIdLocked();
-            session = new PackageInstallerSession(mInternalCallback, mContext, mInstallHandler.getLooper(), installerPackageName, sessionId, userId, callingUid, params, VEnvironment.getPackageInstallerStageDir());
+            File sessionDir = new File(VEnvironment.getPackageInstallerStageDir(), "vmd-" + sessionId);
+            session = new PackageInstallerSession(mInternalCallback, mContext, mInstallHandler.getLooper(), installerPackageName, sessionId, userId, callingUid, params, sessionDir);
+        }
+        synchronized (mSessions) {
+            mSessions.put(sessionId, session);
         }
         mCallbacks.notifySessionCreated(session.sessionId, session.userId);
         return sessionId;

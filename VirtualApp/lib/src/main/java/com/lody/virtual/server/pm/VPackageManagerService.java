@@ -220,7 +220,14 @@ public class VPackageManagerService extends IPackageManager.Stub {
         synchronized (mPackages) {
             VPackage p = mPackages.get(packageName);
             if (p != null) {
-                return p.usesLibraries;
+                ArrayList<String> list = new ArrayList<>();
+                if (p.usesLibraries != null) {
+                    list.addAll(p.usesLibraries);
+                }
+                if (p.usesOptionalLibraries != null) {
+                    list.addAll(p.usesOptionalLibraries);
+                }
+                return list;
             }
             return null;
         }

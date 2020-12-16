@@ -8,8 +8,6 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.client.env.VirtualRuntime;
-import com.lody.virtual.helper.ArtDexOptimizer;
 import com.lody.virtual.helper.collection.IntArray;
 import com.lody.virtual.helper.compat.NativeLibraryHelperCompat;
 import com.lody.virtual.helper.utils.ArrayUtils;
@@ -36,8 +34,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
-
-import dalvik.system.DexFile;
 
 /**
  * @author Lody
@@ -151,7 +147,7 @@ public class VAppManagerService extends IAppManager.Stub {
             return InstallResult.makeFailure("path = NULL");
         }
         File packageFile = new File(path);
-        if (!packageFile.exists() || !packageFile.isFile()) {
+        if (!packageFile.exists()) {
             return InstallResult.makeFailure("Package File is not exist.");
         }
         VPackage pkg = null;
@@ -195,7 +191,8 @@ public class VAppManagerService extends IAppManager.Stub {
             dependSystem = false;
         }
 
-        NativeLibraryHelperCompat.copyNativeBinaries(new File(path), libDir);
+        String[] splitCodePaths = null;
+
         if (!dependSystem) {
             File privatePackageFile = new File(appDir, "base.apk");
             File parentFolder = privatePackageFile.getParentFile();
@@ -204,14 +201,39 @@ public class VAppManagerService extends IAppManager.Stub {
             } else if (privatePackageFile.exists() && !privatePackageFile.delete()) {
                 VLog.w(TAG, "Warning: unable to delete file : " + privatePackageFile.getPath());
             }
+            File baseApkFile = packageFile.isFile() ? packageFile : new File(pkg.baseCodePath);
             try {
-                FileUtils.copyFile(packageFile, privatePackageFile);
+                FileUtils.copyFile(baseApkFile, privatePackageFile);
             } catch (IOException e) {
                 privatePackageFile.delete();
                 return InstallResult.makeFailure("Unable to copy the package file.");
             }
+            // copy lib in base apk
+            NativeLibraryHelperCompat.copyNativeBinaries(baseApkFile, libDir);
+
             packageFile = privatePackageFile;
+
+            if (pkg.splitNames != null) {
+                int length = pkg.splitNames.length;
+                splitCodePaths = new String[length];
+
+                for (int i = 0; i < length; i++) {
+                    String splitName = pkg.splitNames[i];
+                    File privateSplitFile = new File(appDir, splitName + ".apk");
+                    try {
+                        FileUtils.copyFile(new File(pkg.splitCodePaths[i]), privateSplitFile);
+
+                        // copy lib in split apk
+                        NativeLibraryHelperCompat.copyNativeBinaries(privateSplitFile, libDir);
+                    } catch (IOException e) {
+                        privateSplitFile.delete();
+                        return InstallResult.makeFailure("Unable to copy split: " + splitName);
+                    }
+                    splitCodePaths[i] = privateSplitFile.getPath();
+                }
+            }
         }
+
         if (existOne != null) {
             PackageCacheManager.remove(pkg.packageName);
         }
@@ -237,29 +259,10 @@ public class VAppManagerService extends IAppManager.Stub {
                 ps.setUserState(userId, false/*launched*/, false/*hidden*/, installed);
             }
         }
+        ps.splitCodePaths = splitCodePaths;
         PackageParserEx.savePackageCache(pkg);
         PackageCacheManager.put(pkg, ps);
         mPersistenceLayer.save();
-        if (!dependSystem) {
-            boolean runDexOpt = false;
-            if (VirtualRuntime.isArt()) {
-                try {
-                    ArtDexOptimizer.compileDex2Oat(ps.apkPath, VEnvironment.getOdexFile(ps.packageName).getPath());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    runDexOpt = true;
-                }
-            } else {
-                runDexOpt = true;
-            }
-            if (runDexOpt) {
-                try {
-                    DexFile.loadDex(ps.apkPath, VEnvironment.getOdexFile(ps.packageName).getPath(), 0).close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
         BroadcastSystem.get().startApp(pkg);
         if (notify) {
             notifyAppInstalled(ps, -1);
