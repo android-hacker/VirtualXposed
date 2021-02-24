@@ -78,6 +78,11 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
     }
 
     @Override
+    public void handleResumeActivity(ActivityClientRecord record, boolean finalStateRequest, boolean isForward, String reason) {
+        originalHandler.handleResumeActivity(record, finalStateRequest, isForward, reason);
+    }
+
+    @Override
     public void handleStopActivity(IBinder token, boolean show, int configChanges, PendingTransactionActions pendingActions, boolean finalStateRequest, String reason) {
         originalHandler.handleStopActivity(token, show, configChanges, pendingActions, finalStateRequest, reason);
     }
@@ -182,6 +187,11 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
     }
 
     @Override
+    public void handleStartActivity(ActivityClientRecord r, PendingTransactionActions pendingActions, ActivityOptions options) {
+        originalHandler.handleStartActivity(r, pendingActions, options);
+    }
+
+    @Override
     public void handleStartActivity(ActivityClientRecord r, PendingTransactionActions pendingActions) {
         originalHandler.handleStartActivity(r, pendingActions);
     }
@@ -245,6 +255,11 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
     @Override
     public void handleTopResumedActivityChanged(IBinder arg1, boolean arg2, String arg3) {
         originalHandler.handleTopResumedActivityChanged(arg1, arg2, arg3);
+    }
+
+    @Override
+    public void handleTopResumedActivityChanged(ActivityClientRecord record, boolean arg2, String arg3) {
+        originalHandler.handleTopResumedActivityChanged(record, arg2, arg3);
     }
 
     @Override

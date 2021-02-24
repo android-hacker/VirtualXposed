@@ -78,6 +78,11 @@ public abstract class ClientTransactionHandler {
      */
     public abstract void handleResumeActivity(IBinder token, boolean finalStateRequest,
             boolean isForward, String reason);
+
+    // Android 12
+    public abstract void handleResumeActivity(ActivityThread.ActivityClientRecord record, boolean finalStateRequest,
+                                              boolean isForward, String reason);
+
     /**
      * Stop the activity.
      * @param token Target activity token.
@@ -126,6 +131,11 @@ public abstract class ClientTransactionHandler {
     /** Perform activity start. */
     public abstract void handleStartActivity(ActivityThread.ActivityClientRecord r,
             PendingTransactionActions pendingActions);
+
+    // Android 12
+    /** Perform activity start. */
+    public abstract void handleStartActivity(ActivityThread.ActivityClientRecord r,
+                                             PendingTransactionActions pendingActions, ActivityOptions options);
 
     // Android 11
     public abstract void handleStartActivity(IBinder binder,
@@ -183,6 +193,9 @@ public abstract class ClientTransactionHandler {
     public abstract void updatePendingActivityConfiguration(IBinder arg1, Configuration arg2);
 
     public abstract void handleTopResumedActivityChanged(IBinder arg1, boolean arg2, String arg3);
+
+    public abstract void handleTopResumedActivityChanged(ActivityThread.ActivityClientRecord record, boolean arg2, String arg3);
+
 
     /** Count how many activities are launching. */
     public abstract void countLaunchingActivities(int num);
