@@ -507,7 +507,11 @@ public final class VClientImpl extends IVClient.Stub {
         whiteList.add(Environment.DIRECTORY_MOVIES);
         whiteList.add(Environment.DIRECTORY_DOWNLOADS);
         whiteList.add(Environment.DIRECTORY_DCIM);
-        whiteList.add("Android/obb");
+        // Android 11, do not tryna fetch this directory directly or crash.
+        // See docs below...
+        if (Build.VERSION.SDK_INT < 30) {
+            whiteList.add("Android/obb");
+        }
         if (Build.VERSION.SDK_INT >= 19) {
             whiteList.add(Environment.DIRECTORY_DOCUMENTS);
         }
@@ -535,8 +539,13 @@ public final class VClientImpl extends IVClient.Stub {
                 NativeEngine.whitelist(whitePath, true);
             }
 
+            // Android 11 -> see https://developer.android.com/training/data-storage#scoped-storage
+            // 安卓11 打开这个链接看看 https://developer.android.google.cn/training/data-storage#scoped-storage
+            // see https://android-opengrok.bangnimang.net/android-11.0.0_r8/xref/frameworks/base/core/java/android/os/Environment.java
             // redirect xxx/Android/data/ -> /xxx/Android/data/<host>/virtual/<user>
             NativeEngine.redirectDirectory(new File(storageRoot, "Android/data/").getAbsolutePath(), privatePath);
+            // redirect xxx/Android/obb/ -> /xxx/Android/data/<host>/virtual/<user>
+            NativeEngine.redirectDirectory(new File(storageRoot, "Android/obb/").getAbsolutePath(), privatePath);
             // redirect /sdcard/ -> vsdcard
             NativeEngine.redirectDirectory(storageRoot, vsPath);
         }
@@ -547,6 +556,9 @@ public final class VClientImpl extends IVClient.Stub {
         HashSet<String> mountPoints = new HashSet<>(3);
         mountPoints.add("/mnt/sdcard/");
         mountPoints.add("/sdcard/");
+        // Redmi 10X Pro, Pixel 5... More mount points?
+        // 1@die.lu
+        mountPoints.add("/storage/self/primary/");
         String[] points = StorageManagerCompat.getAllPoints(VirtualCore.get().getContext());
         if (points != null) {
             Collections.addAll(mountPoints, points);
