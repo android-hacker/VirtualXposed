@@ -484,7 +484,8 @@ public final class VClientImpl extends IVClient.Stub {
     private void setupVirtualStorage(ApplicationInfo info, int userId) {
         VirtualStorageManager vsManager = VirtualStorageManager.get();
         boolean enable = vsManager.isVirtualStorageEnable(info.packageName, userId);
-        if (!enable) {
+        // Android 11, force enable storage redirect.
+        if (!enable && !(Build.VERSION.SDK_INT >= 30)) {
             // There are lots of situation to deal, I am tired, disable it now.
             // such as: FileProvider.
             return;
