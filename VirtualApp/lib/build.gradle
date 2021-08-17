@@ -5,13 +5,13 @@ android {
     buildToolsVersion '28.0.3'
 
     defaultConfig {
-        minSdkVersion 21
+        minSdkVersion 16
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
         externalNativeBuild {
             ndkBuild {
-                abiFilters "arm64-v8a", "x86_64"
+                abiFilters "arm64-v8a", "x86_64", "armeabi"
             }
         }
     }
