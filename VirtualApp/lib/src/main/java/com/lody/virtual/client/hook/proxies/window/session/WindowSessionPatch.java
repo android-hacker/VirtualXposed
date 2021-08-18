@@ -1,10 +1,10 @@
 package com.lody.virtual.client.hook.proxies.window.session;
 
+import android.os.Build;
 import android.os.IInterface;
 
 import com.lody.virtual.client.hook.base.MethodInvocationProxy;
 import com.lody.virtual.client.hook.base.MethodInvocationStub;
-import com.lody.virtual.client.hook.base.ReplaceCallingPkgMethodProxy;
 
 /**
  * @author Lody
@@ -22,6 +22,12 @@ public class WindowSessionPatch extends MethodInvocationProxy<MethodInvocationSt
 		addMethodProxy(new BaseMethodProxy("addToDisplayWithoutInputChannel"));
 		addMethodProxy(new BaseMethodProxy("addWithoutInputChannel"));
 		addMethodProxy(new BaseMethodProxy("relayout"));
+
+		// http://aospxref.com/android-11.0.0_r21/xref/frameworks/base/core/java/android/view/IWindowSession.aidl#51
+		if (Build.VERSION.SDK_INT >= 30) {
+			addMethodProxy(new BaseMethodProxy("addToDisplayAsUser"));
+			addMethodProxy(new BaseMethodProxy("grantInputChannel"));
+		}
 	}
 
 
