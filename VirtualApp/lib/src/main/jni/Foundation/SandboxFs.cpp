@@ -96,6 +96,11 @@ const char *relocate_path(const char *_path, int *result) {
         *result = NOT_MATCH;
         return NULL;
     }
+    // fix bug https://github.com/android-hacker/VirtualXposed/issues/1033
+    if (strstr(_path, PACKAGE_NAME) != nullptr) {
+        *result = KEEP;
+        return _path;
+    }
     char *path = canonicalize_filename(_path);
     for (int i = 0; i < keep_item_count; ++i) {
         PathItem &item = keep_items[i];

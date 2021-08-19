@@ -549,6 +549,17 @@ public final class VClientImpl extends IVClient.Stub {
             NativeEngine.redirectDirectory(new File(storageRoot, "Android/obb/").getAbsolutePath(), privatePath);
             // redirect /sdcard/ -> vsdcard
             NativeEngine.redirectDirectory(storageRoot, vsPath);
+
+            // fix bug https://github.com/android-hacker/VirtualXposed/issues/1033
+            if (Build.VERSION.SDK_INT >= 30) {
+                String xPrivatePath = privatePath + "/" + info.packageName;
+                File xPrivatePathFile = new File(xPrivatePath);
+                if (!xPrivatePathFile.exists()) {
+                    xPrivatePathFile.mkdirs();
+                }
+                NativeEngine.redirectDirectory(new File(storageRoot, "Android/data/" + info.packageName).getAbsolutePath(), xPrivatePathFile.getAbsolutePath());
+                NativeEngine.redirectDirectory(new File(storageRoot, "Android/obb/" + info.packageName).getAbsolutePath(), xPrivatePathFile.getAbsolutePath());
+            }
         }
     }
 
