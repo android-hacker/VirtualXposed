@@ -83,6 +83,7 @@ For Developers
 
 - [File a bug](https://github.com/android-hacker/exposed/issues)
 - [Wiki](https://github.com/android-hacker/VirtualXposed/wiki)
+- [Telegram](https://t.me/vxp_devs)
 
 Credits
 -------
