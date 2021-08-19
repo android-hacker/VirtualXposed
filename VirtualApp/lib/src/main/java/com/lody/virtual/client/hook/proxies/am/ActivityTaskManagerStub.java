@@ -4,8 +4,10 @@ import android.os.IBinder;
 
 import com.lody.virtual.client.hook.base.BinderInvocationProxy;
 import com.lody.virtual.client.hook.base.Inject;
+import com.lody.virtual.client.hook.base.ReplaceCallingPkgMethodProxy;
 import com.lody.virtual.client.hook.base.StaticMethodProxy;
 import com.lody.virtual.client.ipc.VActivityManager;
+import com.lody.virtual.helper.compat.BuildCompat;
 
 import java.lang.reflect.Method;
 
@@ -49,5 +51,9 @@ public class ActivityTaskManagerStub extends BinderInvocationProxy {
                 return super.call(who, method, args);
             }
         });
+
+        if (BuildCompat.isQ()) {
+            addMethodProxy(new ReplaceCallingPkgMethodProxy("getAppTasks"));
+        }
     }
 }

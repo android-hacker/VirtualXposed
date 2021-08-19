@@ -289,6 +289,10 @@ class MethodProxies {
 
     static class GetIntentSender extends MethodProxy {
 
+        protected int mIntentIndex = 5;
+        protected int mResolvedTypesIndex = 6;
+        protected int mFlagsIndex = 7;
+
         @Override
         public String getMethodName() {
             return "getIntentSender";
@@ -297,11 +301,11 @@ class MethodProxies {
         @Override
         public Object call(Object who, Method method, Object... args) throws Throwable {
             String creator = (String) args[1];
-            String[] resolvedTypes = (String[]) args[6];
+            String[] resolvedTypes = (String[]) args[mResolvedTypesIndex];
             int type = (int) args[0];
-            int flags = (int) args[7];
+            int flags = (int) args[mFlagsIndex];
             if (args[5] instanceof Intent[]) {
-                Intent[] intents = (Intent[]) args[5];
+                Intent[] intents = (Intent[]) args[mIntentIndex];
                 for (int i = 0; i < intents.length; i++) {
                     Intent intent = intents[i];
                     if (resolvedTypes != null && i < resolvedTypes.length) {
@@ -313,7 +317,7 @@ class MethodProxies {
                     }
                 }
             }
-            args[7] = flags;
+            args[mFlagsIndex] = flags;
             args[1] = getHostPkg();
             // Force userId to 0
             if (args[args.length - 1] instanceof Integer) {
@@ -1775,6 +1779,21 @@ class MethodProxies {
         @Override
         public String getMethodName() {
             return "registerReceiverWithFeature";
+        }
+    }
+
+    static class GetIntentSenderWithFeature extends GetIntentSender {
+
+        public GetIntentSenderWithFeature() {
+            // http://aospxref.com/android-11.0.0_r21/xref/frameworks/base/core/java/android/app/IActivityManager.aidl?fi=IActivityManager#245
+            mIntentIndex = 6;
+            mResolvedTypesIndex = 7;
+            mFlagsIndex = 8;
+        }
+
+        @Override
+        public String getMethodName() {
+            return "getIntentSenderWithFeature";
         }
     }
 }
