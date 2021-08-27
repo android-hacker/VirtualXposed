@@ -15,6 +15,7 @@ import android.os.RemoteException;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
+import com.lody.virtual.helper.compat.BuildCompat;
 import com.lody.virtual.server.IPackageInstaller;
 import com.lody.virtual.server.IPackageManager;
 
@@ -202,6 +203,20 @@ public class VPackageManager {
                     newSharedLibraryFiles = new String[newLength];
                     System.arraycopy(info.sharedLibraryFiles, 0, newSharedLibraryFiles, 0, newLength - 1);
                     newSharedLibraryFiles[newLength - 1] = APACHE_LEGACY;
+                }
+                info.sharedLibraryFiles = newSharedLibraryFiles;
+            }
+
+            String TEST_BASE = "/system/framework/android.test.base.jar";
+            if (BuildCompat.isR() && new File(TEST_BASE).exists()) {
+                String[] newSharedLibraryFiles;
+                if (info.sharedLibraryFiles == null) {
+                    newSharedLibraryFiles = new String[]{TEST_BASE};
+                } else {
+                    int newLength = info.sharedLibraryFiles.length + 1;
+                    newSharedLibraryFiles = new String[newLength];
+                    System.arraycopy(info.sharedLibraryFiles, 0, newSharedLibraryFiles, 0, newLength - 1);
+                    newSharedLibraryFiles[newLength - 1] = TEST_BASE;
                 }
                 info.sharedLibraryFiles = newSharedLibraryFiles;
             }

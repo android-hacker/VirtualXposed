@@ -289,6 +289,10 @@ class MethodProxies {
 
     static class GetIntentSender extends MethodProxy {
 
+        protected int mIntentIndex = 5;
+        protected int mResolvedTypesIndex = 6;
+        protected int mFlagsIndex = 7;
+
         @Override
         public String getMethodName() {
             return "getIntentSender";
@@ -297,11 +301,11 @@ class MethodProxies {
         @Override
         public Object call(Object who, Method method, Object... args) throws Throwable {
             String creator = (String) args[1];
-            String[] resolvedTypes = (String[]) args[6];
+            String[] resolvedTypes = (String[]) args[mResolvedTypesIndex];
             int type = (int) args[0];
-            int flags = (int) args[7];
+            int flags = (int) args[mFlagsIndex];
             if (args[5] instanceof Intent[]) {
-                Intent[] intents = (Intent[]) args[5];
+                Intent[] intents = (Intent[]) args[mIntentIndex];
                 for (int i = 0; i < intents.length; i++) {
                     Intent intent = intents[i];
                     if (resolvedTypes != null && i < resolvedTypes.length) {
@@ -313,7 +317,7 @@ class MethodProxies {
                     }
                 }
             }
-            args[7] = flags;
+            args[mFlagsIndex] = flags;
             args[1] = getHostPkg();
             // Force userId to 0
             if (args[args.length - 1] instanceof Integer) {
@@ -1228,14 +1232,14 @@ class MethodProxies {
 
 
     static class RegisterReceiver extends MethodProxy {
-        private static final int IDX_IIntentReceiver = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
+        protected int mIIntentReceiverIndex = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
                 ? 2
                 : 1;
 
-        private static final int IDX_RequiredPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
+        protected int mRequiredPermissionIndex = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
                 ? 4
                 : 3;
-        private static final int IDX_IntentFilter = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
+        protected int mIntentFilterIndex = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
                 ? 3
                 : 2;
 
@@ -1249,11 +1253,11 @@ class MethodProxies {
         @Override
         public Object call(Object who, Method method, Object... args) throws Throwable {
             MethodParameterUtils.replaceFirstAppPkg(args);
-            args[IDX_RequiredPermission] = null;
-            IntentFilter filter = (IntentFilter) args[IDX_IntentFilter];
+            args[mRequiredPermissionIndex] = null;
+            IntentFilter filter = (IntentFilter) args[mIntentFilterIndex];
             SpecialComponentList.protectIntentFilter(filter);
-            if (args.length > IDX_IIntentReceiver && IIntentReceiver.class.isInstance(args[IDX_IIntentReceiver])) {
-                final IInterface old = (IInterface) args[IDX_IIntentReceiver];
+            if (args.length > mIIntentReceiverIndex && IIntentReceiver.class.isInstance(args[mIIntentReceiverIndex])) {
+                final IInterface old = (IInterface) args[mIIntentReceiverIndex];
                 if (!IIntentReceiverProxy.class.isInstance(old)) {
                     final IBinder token = old.asBinder();
                     if (token != null) {
@@ -1272,7 +1276,7 @@ class MethodProxies {
                         WeakReference mDispatcher = LoadedApk.ReceiverDispatcher.InnerReceiver.mDispatcher.get(old);
                         if (mDispatcher != null) {
                             LoadedApk.ReceiverDispatcher.mIIntentReceiver.set(mDispatcher.get(), proxyIIntentReceiver);
-                            args[IDX_IIntentReceiver] = proxyIIntentReceiver;
+                            args[mIIntentReceiverIndex] = proxyIIntentReceiver;
                         }
                     }
                 }
@@ -1760,6 +1764,36 @@ class MethodProxies {
     static class GetPackageProcessState extends ReplaceLastPkgMethodProxy {
         public GetPackageProcessState() {
             super("getPackageProcessState");
+        }
+    }
+
+    // For Android 11
+    static class RegisterReceiverWithFeature extends RegisterReceiver {
+        public RegisterReceiverWithFeature() {
+            // http://aospxref.com/android-11.0.0_r21/xref/frameworks/base/core/java/android/app/IActivityManager.aidl?fi=IActivityManager#124
+            mIIntentReceiverIndex = 3;
+            mIntentFilterIndex = 4;
+            mRequiredPermissionIndex = 5;
+        }
+
+        @Override
+        public String getMethodName() {
+            return "registerReceiverWithFeature";
+        }
+    }
+
+    static class GetIntentSenderWithFeature extends GetIntentSender {
+
+        public GetIntentSenderWithFeature() {
+            // http://aospxref.com/android-11.0.0_r21/xref/frameworks/base/core/java/android/app/IActivityManager.aidl?fi=IActivityManager#245
+            mIntentIndex = 6;
+            mResolvedTypesIndex = 7;
+            mFlagsIndex = 8;
+        }
+
+        @Override
+        public String getMethodName() {
+            return "getIntentSenderWithFeature";
         }
     }
 }
