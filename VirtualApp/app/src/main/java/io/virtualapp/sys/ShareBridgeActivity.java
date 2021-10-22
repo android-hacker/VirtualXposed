@@ -50,6 +50,7 @@ public class ShareBridgeActivity extends AppCompatActivity {
         try {
             mShareComponents = VPackageManager.get().
                     queryIntentActivities(new Intent(Intent.ACTION_SEND), type, 0, 0); // multi-user?
+            mShareComponents.add(0, new ResolveInfo()); // Placeholder for Package Installer
         } catch (Throwable ignored) {
         }
 
@@ -65,10 +66,19 @@ public class ShareBridgeActivity extends AppCompatActivity {
 
         mListView.setOnItemClickListener((parent, view, position, id) -> {
             try {
-                ResolveInfo item = mAdapter.getItem(position);
-                Intent t = new Intent(intent);
-                t.setComponent(new ComponentName(item.activityInfo.packageName, item.activityInfo.name));
-                VActivityManager.get().startActivity(t, 0);
+                if (position == 0) {
+                    Context context = getApplicationContext();
+                    Intent t = new Intent();
+                    t.setComponent(new ComponentName(context, InstallerActivity.class));
+                    t.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    t.setData(intent.getClipData().getItemAt(0).getUri());
+                    context.startActivity(t);
+                } else {
+                    ResolveInfo item = mAdapter.getItem(position);
+                    Intent t = new Intent(intent);
+                    t.setComponent(new ComponentName(item.activityInfo.packageName, item.activityInfo.name));
+                    VActivityManager.get().startActivity(t, 0);
+                }
             } catch (Throwable e) {
                 Toast.makeText(getApplicationContext(), R.string.shared_to_vxp_failed, Toast.LENGTH_SHORT).show();
             }
@@ -102,6 +112,12 @@ public class ShareBridgeActivity extends AppCompatActivity {
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder) convertView.getTag();
+            }
+
+            if (position == 0) {
+                holder.label.setText(R.string.app_installer_label);
+                holder.icon.setImageResource(R.mipmap.ic_launcher);
+                return convertView;
             }
 
             ResolveInfo item = getItem(position);
