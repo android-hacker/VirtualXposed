@@ -76,6 +76,7 @@ import mirror.android.view.ThreadedRenderer;
 import mirror.com.android.internal.content.ReferrerIntent;
 import mirror.dalvik.system.VMRuntime;
 import mirror.java.lang.ThreadGroupN;
+import mirror.android.security.net.config.ApplicationConfig;
 
 import static com.lody.virtual.os.VUserHandle.getUserId;
 
@@ -344,6 +345,7 @@ public final class VClientImpl extends IVClient.Stub {
             VLog.w(TAG, "Xposed is disable..");
         }
 
+        ApplicationConfig.setDefaultInstance.call(new Object[] { null });
         mInitialApplication = LoadedApk.makeApplication.call(data.info, false, null);
 
         // ExposedBridge.patchAppClassLoader(context);
