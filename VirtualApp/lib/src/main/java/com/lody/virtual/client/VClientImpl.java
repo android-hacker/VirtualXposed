@@ -344,8 +344,8 @@ public final class VClientImpl extends IVClient.Stub {
         } else {
             VLog.w(TAG, "Xposed is disable..");
         }
-
-        ApplicationConfig.setDefaultInstance.call(new Object[] { null });
+        if (Build.VERSION.SDK_INT >= 30)
+            ApplicationConfig.setDefaultInstance.call(new Object[] { null });
         mInitialApplication = LoadedApk.makeApplication.call(data.info, false, null);
 
         // ExposedBridge.patchAppClassLoader(context);
