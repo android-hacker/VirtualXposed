@@ -1391,6 +1391,11 @@ class MethodProxies {
                     return null;
                 }
                 args[nameIdx] = VASettings.getStubAuthority(targetVPid);
+                
+                if (Build.VERSION.SDK_INT >= 30) {
+                    args[1] = VirtualCore.get().getContext().getPackageName();
+                }
+                
                 Object holder = method.invoke(who, args);
                 if (holder == null) {
                     return null;
