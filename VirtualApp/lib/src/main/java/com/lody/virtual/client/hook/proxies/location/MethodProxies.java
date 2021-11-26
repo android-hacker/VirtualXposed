@@ -4,6 +4,7 @@ import android.location.LocationManager;
 import android.location.LocationRequest;
 import android.os.Build;
 
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.MethodProxy;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgMethodProxy;
 import com.lody.virtual.client.ipc.VirtualLocationManager;
@@ -84,6 +85,11 @@ public class MethodProxies {
                 }
                 return 0;
             }
+            
+            if (Build.VERSION.SDK_INT >= 30) {
+                args[3] = VirtualCore.get().getContext().getPackageName();
+            }
+            
             return super.call(who, method, args);
         }
     }
