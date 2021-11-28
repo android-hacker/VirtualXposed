@@ -202,4 +202,11 @@ public abstract class ClientTransactionHandler {
 
     /** Deliver new intent. */
     public abstract void handleNewIntent(IBinder token, List intents);
+    
+    /**
+     * Get {@link ActivityClientRecord} that is preparing to be launched.
+     * @param token Activity token.
+     * @return An initialized instance of {@link ActivityClientRecord} to use during launch.
+     */
+    public abstract ActivityThread.ActivityClientRecord getLaunchingActivity(IBinder token);
 }
