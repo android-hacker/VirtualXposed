@@ -103,6 +103,9 @@ public final class VirtualCore {
     private ComponentDelegate componentDelegate;
     private TaskDescriptionDelegate taskDescriptionDelegate;
 
+    public String obbDir;
+
+
     private VirtualCore() {
     }
 
@@ -185,6 +188,7 @@ public final class VirtualCore {
                 throw new IllegalStateException("VirtualCore.startup() must called in main thread.");
             }
             Reflection.unseal(context);
+            obbDir = context.getObbDir().toString();
 
             VASettings.STUB_CP_AUTHORITY = context.getPackageName() + "." + VASettings.STUB_DEF_AUTHORITY;
             ServiceManagerNative.SERVICE_CP_AUTH = context.getPackageName() + "." + ServiceManagerNative.SERVICE_DEF_AUTH;

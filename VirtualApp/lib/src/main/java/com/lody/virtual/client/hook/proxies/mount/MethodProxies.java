@@ -2,6 +2,7 @@ package com.lody.virtual.client.hook.proxies.mount;
 
 import android.os.Build;
 
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.MethodProxy;
 import com.lody.virtual.client.hook.utils.MethodParameterUtils;
 
@@ -36,6 +37,20 @@ class MethodProxies {
         @Override
         public Object afterCall(Object who, Method method, Object[] args, Object result) throws Throwable {
             return result;
+        }
+    }
+
+    static class FixupAppDir extends MethodProxy {
+
+        @Override
+        public String getMethodName() {
+            return "fixupAppDir";
+        }
+
+        @Override
+        public Object call(Object who, Method method, Object... args) throws Throwable {
+            args[0] = VirtualCore.get().obbDir;
+            return super.call(who, method, args);
         }
     }
 
