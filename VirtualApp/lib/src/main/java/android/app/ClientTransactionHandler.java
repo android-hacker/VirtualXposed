@@ -236,4 +236,9 @@ public abstract class ClientTransactionHandler {
     /** Deliver result from another activity. */
     public abstract void handleSendResult(ActivityThread.ActivityClientRecord r, List<ResultInfo> results, String reason);
 
+    public abstract void handleStopActivity(ActivityThread.ActivityClientRecord r, int configChanges, PendingTransactionActions pendingActions, boolean finalStateRequest, String reason);
+    public abstract void handleDestroyActivity(ActivityThread.ActivityClientRecord r, boolean finishing, int configChanges, boolean getNonConfigInstance, String reason);
+
+    /** Restart the activity after it was stopped. */
+    public abstract void performRestartActivity(ActivityThread.ActivityClientRecord r, boolean start);
 }
