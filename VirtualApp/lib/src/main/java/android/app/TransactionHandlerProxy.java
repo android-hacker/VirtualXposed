@@ -271,4 +271,9 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
     public void handleNewIntent(IBinder token, List intents) {
         originalHandler.handleNewIntent(token, intents);
     }
+    
+    @Override
+    public ActivityClientRecord getLaunchingActivity(IBinder token) {
+        return originalHandler.getLaunchingActivity(token);
+    }
 }
