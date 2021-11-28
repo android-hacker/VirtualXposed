@@ -228,8 +228,10 @@ public class ProviderHook implements InvocationHandler {
                 String mode = (String) args[start + 1];
                 return openAssetFile(methodBox, url, mode);
             } else if ("query".equals(name)) {
-                if(Build.VERSION.SDK_INT >= 31)
+                if(Build.VERSION.SDK_INT >= 31) {
                     fixAttributionSource(args[0]);
+                    start--;
+                }
 
                 Uri url = (Uri) args[start];
                 String[] projection = (String[]) args[start + 1];
