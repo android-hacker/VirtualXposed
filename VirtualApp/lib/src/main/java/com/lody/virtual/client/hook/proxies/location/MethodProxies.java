@@ -318,4 +318,31 @@ public class MethodProxies {
         }
     }
 
+    static class RegisterLocationListener extends MethodProxy {
+
+        @Override
+        public Object call(Object who, Method method, Object... args) throws Throwable {
+            args[3] = VirtualCore.get().getContext().getPackageName();
+            return super.call(who, method, args);
+        }
+
+        @Override
+        public String getMethodName() {
+            return "registerLocationListener";
+        }
+    }
+    static class GetCurrentLocation extends MethodProxy {
+
+        @Override
+        public Object call(Object who, Method method, Object... args) throws Throwable {
+            args[3] = VirtualCore.get().getContext().getPackageName();
+            return super.call(who, method, args);
+        }
+
+        @Override
+        public String getMethodName() {
+            return "getCurrentLocation";
+        }
+    }
+
 }
