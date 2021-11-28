@@ -307,4 +307,9 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
     public void handlePauseActivity(ActivityClientRecord r, boolean finished, boolean userLeaving, int configChanges, PendingTransactionActions pendingActions, String reason) {
         originalHandler.handlePauseActivity(r, finished, userLeaving, configChanges, pendingActions, reason);
     }
+
+    @Override
+    public void handleSendResult(ActivityClientRecord r, List<ResultInfo> results, String reason) {
+        originalHandler.handleSendResult(r, results, reason);
+    }
 }

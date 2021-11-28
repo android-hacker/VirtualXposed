@@ -233,4 +233,7 @@ public abstract class ClientTransactionHandler {
                                                boolean userLeaving, int configChanges, PendingTransactionActions pendingActions,
                                                String reason);
 
+    /** Deliver result from another activity. */
+    public abstract void handleSendResult(ActivityThread.ActivityClientRecord r, List<ResultInfo> results, String reason);
+
 }
