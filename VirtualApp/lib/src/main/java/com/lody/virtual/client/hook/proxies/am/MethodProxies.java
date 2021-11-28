@@ -463,6 +463,11 @@ class MethodProxies {
                 if (intent.getPackage() != null && isAppPkg(intent.getPackage())) {
                     return ActivityManagerCompat.START_INTENT_NOT_RESOLVED;
                 }
+                
+                if (Build.VERSION.SDK_INT >= 30) {
+                    args[1] = VirtualCore.get().getContext().getPackageName();
+                }
+                
                 return method.invoke(who, args);
             }
             int res = VActivityManager.get().startActivity(intent, activityInfo, resultTo, options, resultWho, requestCode, VUserHandle.myUserId());
@@ -1386,6 +1391,11 @@ class MethodProxies {
                     return null;
                 }
                 args[nameIdx] = VASettings.getStubAuthority(targetVPid);
+                
+                if (Build.VERSION.SDK_INT >= 30) {
+                    args[1] = VirtualCore.get().getContext().getPackageName();
+                }
+                
                 Object holder = method.invoke(who, args);
                 if (holder == null) {
                     return null;
