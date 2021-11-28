@@ -25,6 +25,7 @@ import android.content.res.Configuration;
 import android.os.IBinder;
 import android.util.MergedConfiguration;
 import android.view.DisplayAdjustments;
+import android.window.SplashScreenViewParcelable;
 
 import java.util.List;
 import java.util.Map;
@@ -202,4 +203,42 @@ public abstract class ClientTransactionHandler {
 
     /** Deliver new intent. */
     public abstract void handleNewIntent(IBinder token, List intents);
+    
+    /**
+     * Get {@link ActivityClientRecord} that is preparing to be launched.
+     * @param token Activity token.
+     * @return An initialized instance of {@link ActivityClientRecord} to use during launch.
+     */
+    public abstract ActivityThread.ActivityClientRecord getLaunchingActivity(IBinder token);
+
+    /**
+     * Remove {@link ActivityClientRecord} from the launching activity list.
+     * @param token Activity token.
+     * */
+    public abstract void removeLaunchingActivity(IBinder token);
+
+    /** Whether the activity want to handle splash screen exit animation */
+    public abstract boolean isHandleSplashScreenExit(IBinder token);
+
+    /** Hand over the splash screen window view to the activity */
+    public abstract void handOverSplashScreenView(ActivityThread.ActivityClientRecord r);
+
+    /** Attach a splash screen window view to the top of the activity */
+    public abstract void handleAttachSplashScreenView(ActivityThread.ActivityClientRecord r, SplashScreenViewParcelable parcelable);
+
+    public abstract void handlePictureInPictureStateChanged(ActivityThread.ActivityClientRecord r, PictureInPictureUiState pipState);
+
+    /** Pause the activity. */
+      public abstract void handlePauseActivity(ActivityThread.ActivityClientRecord r, boolean finished,
+                                               boolean userLeaving, int configChanges, PendingTransactionActions pendingActions,
+                                               String reason);
+
+    /** Deliver result from another activity. */
+    public abstract void handleSendResult(ActivityThread.ActivityClientRecord r, List<ResultInfo> results, String reason);
+
+    public abstract void handleStopActivity(ActivityThread.ActivityClientRecord r, int configChanges, PendingTransactionActions pendingActions, boolean finalStateRequest, String reason);
+    public abstract void handleDestroyActivity(ActivityThread.ActivityClientRecord r, boolean finishing, int configChanges, boolean getNonConfigInstance, String reason);
+
+    /** Restart the activity after it was stopped. */
+    public abstract void performRestartActivity(ActivityThread.ActivityClientRecord r, boolean start);
 }

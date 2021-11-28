@@ -13,6 +13,7 @@ import android.os.IBinder;
 import android.util.Log;
 import android.util.MergedConfiguration;
 import android.view.DisplayAdjustments;
+import android.window.SplashScreenViewParcelable;
 
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.VirtualCore;
@@ -270,5 +271,60 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
     @Override
     public void handleNewIntent(IBinder token, List intents) {
         originalHandler.handleNewIntent(token, intents);
+    }
+    
+    @Override
+    public ActivityClientRecord getLaunchingActivity(IBinder token) {
+        return originalHandler.getLaunchingActivity(token);
+    }
+
+    @Override
+    public void removeLaunchingActivity(IBinder token) {
+        originalHandler.removeLaunchingActivity(token);
+    }
+
+    @Override
+    public boolean isHandleSplashScreenExit(IBinder token) {
+        return originalHandler.isHandleSplashScreenExit(token);
+    }
+
+    @Override
+    public void handOverSplashScreenView(ActivityClientRecord r) {
+        originalHandler.handOverSplashScreenView(r);
+    }
+
+    @Override
+    public void handleAttachSplashScreenView(ActivityClientRecord r, SplashScreenViewParcelable parcelable) {
+        originalHandler.handleAttachSplashScreenView(r, parcelable);
+    }
+
+    @Override
+    public void handlePictureInPictureStateChanged(ActivityClientRecord r, PictureInPictureUiState pipState) {
+        originalHandler.handlePictureInPictureStateChanged(r, pipState);
+    }
+
+    @Override
+    public void handlePauseActivity(ActivityClientRecord r, boolean finished, boolean userLeaving, int configChanges, PendingTransactionActions pendingActions, String reason) {
+        originalHandler.handlePauseActivity(r, finished, userLeaving, configChanges, pendingActions, reason);
+    }
+
+    @Override
+    public void handleSendResult(ActivityClientRecord r, List<ResultInfo> results, String reason) {
+        originalHandler.handleSendResult(r, results, reason);
+    }
+
+    @Override
+    public void handleStopActivity(ActivityClientRecord r, int configChanges, PendingTransactionActions pendingActions, boolean finalStateRequest, String reason) {
+        originalHandler.handleStopActivity(r, configChanges, pendingActions, finalStateRequest, reason);
+    }
+
+    @Override
+    public void handleDestroyActivity(ActivityClientRecord r, boolean finishing, int configChanges, boolean getNonConfigInstance, String reason) {
+        originalHandler.handleDestroyActivity(r, finishing, configChanges, getNonConfigInstance, reason);
+    }
+
+    @Override
+    public void performRestartActivity(ActivityClientRecord r, boolean start) {
+        originalHandler.performRestartActivity(r, start);
     }
 }

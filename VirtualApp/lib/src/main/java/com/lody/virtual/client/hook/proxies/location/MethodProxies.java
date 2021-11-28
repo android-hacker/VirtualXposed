@@ -3,8 +3,10 @@ package com.lody.virtual.client.hook.proxies.location;
 import android.location.LocationManager;
 import android.location.LocationRequest;
 import android.os.Build;
+import android.os.Debug;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.client.hook.base.MethodProxy;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgMethodProxy;
 import com.lody.virtual.client.ipc.VirtualLocationManager;
@@ -16,6 +18,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
+import mirror.android.location.GeocoderParams;
 import mirror.android.location.LocationRequestL;
 
 /**
@@ -315,6 +318,68 @@ public class MethodProxies {
         @Override
         public String getMethodName() {
             return "locationCallbackFinished";
+        }
+    }
+
+    static class RegisterLocationListener extends MethodProxy {
+
+        @Override
+        public Object call(Object who, Method method, Object... args) throws Throwable {
+            args[3] = VirtualCore.get().getContext().getPackageName();
+            return super.call(who, method, args);
+        }
+
+        @Override
+        public String getMethodName() {
+            return "registerLocationListener";
+        }
+    }
+    static class GetCurrentLocation extends MethodProxy {
+
+        @Override
+        public Object call(Object who, Method method, Object... args) throws Throwable {
+            args[3] = VirtualCore.get().getContext().getPackageName();
+            return super.call(who, method, args);
+        }
+
+        @Override
+        public String getMethodName() {
+            return "getCurrentLocation";
+        }
+    }
+    static class GetFromLocation extends MethodProxy {
+
+        @Override
+        public Object call(Object who, Method method, Object... args) throws Throwable {
+            Object geocodeParams = args[3];
+
+            GeocoderParams.mPackageName.set(geocodeParams, VirtualCore.get().getContext().getPackageName());
+            GeocoderParams.mUid.set(geocodeParams, VirtualCore.get().myUid());
+
+            return super.call(who, method, args);
+        }
+
+        @Override
+        public String getMethodName() {
+            return "getFromLocation";
+        }
+    }
+
+    static class GetFromLocationName extends MethodProxy {
+
+        @Override
+        public Object call(Object who, Method method, Object... args) throws Throwable {
+            Object geocodeParams = args[6];
+
+            GeocoderParams.mPackageName.set(geocodeParams, VirtualCore.get().getContext().getPackageName());
+            GeocoderParams.mUid.set(geocodeParams, VirtualCore.get().myUid());
+
+            return super.call(who, method, args);
+        }
+
+        @Override
+        public String getMethodName() {
+            return "getFromLocationName";
         }
     }
 
