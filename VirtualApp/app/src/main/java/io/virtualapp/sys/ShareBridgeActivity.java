@@ -6,6 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +24,7 @@ import android.widget.Toast;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.ipc.VPackageManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.virtualapp.R;
@@ -30,7 +34,112 @@ import io.virtualapp.R;
  */
 public class ShareBridgeActivity extends AppCompatActivity {
     private SharedAdapter mAdapter;
-    private List<ResolveInfo> mShareComponents;
+    private List<ListItem> mShareComponents = null;
+
+    private List<ListItem> getCommonComponents(Intent intent) {
+        Context context = getApplicationContext();
+        List<ListItem> mCommonComponents = new ArrayList<>();
+        Resources r = getResources();
+        ListItem listItem;
+        listItem = new ListItem(
+                context.getPackageName(),
+                InstallerActivity.class.getName(),
+                r.getString(R.string.app_installer_label),
+                r.getDrawable(R.mipmap.ic_launcher),
+                ContextType.APP,
+                Intent.FLAG_ACTIVITY_NEW_TASK,
+                intent.getClipData().getItemAt(0).getUri());
+        mCommonComponents.add(listItem);
+        return mCommonComponents;
+    }
+
+    private enum ContextType {
+        APP,
+        VXP
+    }
+
+    private static class ListItem {
+        private ContextType contextType;
+        private PackageManager pm = null;
+        private String label = null;
+        private Drawable icon = null;
+
+        private String packageName;
+        private String activityName;
+        private ResolveInfo resolveInfo;
+
+        private Uri data;
+        private Integer flag;
+
+        public String getLabel() {
+            if (label != null) return label;
+            if (pm == null) throw new IllegalArgumentException();
+            label = String.valueOf(resolveInfo.loadLabel(pm));
+            return label;
+        }
+
+        public Drawable getIcon() {
+            if (icon != null) return icon;
+            if (pm == null) throw new IllegalArgumentException();
+            icon = resolveInfo.loadIcon(pm);
+            return icon;
+        }
+
+        public String getPackageName() {
+            return packageName;
+        }
+
+        public String getActivityName() {
+            return activityName;
+        }
+
+        public Uri getData() {
+            return data;
+        }
+
+        public Integer getFlag() {
+            return flag;
+        }
+
+        public ContextType getContextType() {
+            return contextType;
+        }
+
+        private ListItem(String packageName, String activityName, String label, Drawable icon, ContextType contextType) {
+            this.packageName = packageName;
+            this.activityName = activityName;
+            this.label = label;
+            this.icon = icon;
+            this.contextType = contextType;
+        }
+
+        private ListItem(String packageName, String activityName, String label, Drawable icon, ContextType contextType, Integer flag, Uri data) {
+            this(packageName, activityName, label, icon, contextType);
+            this.flag = flag;
+            this.data = data;
+        }
+
+        private ListItem(ResolveInfo resolveInfo, PackageManager pm) {
+            this(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name, null, null, ContextType.VXP);
+            this.resolveInfo = resolveInfo;
+            this.pm = pm;
+        }
+
+        @Override
+        public String toString() {
+            return "ListItem{" +
+                    "pm=" + pm +
+                    ", label='" + label + '\'' +
+                    ", icon=" + icon +
+                    ", packageName='" + packageName + '\'' +
+                    ", activityName='" + activityName + '\'' +
+                    ", resolveInfo=" + resolveInfo +
+                    ", data=" + data +
+                    ", flag=" + flag +
+                    ", contextType=" + contextType +
+                    '}';
+        }
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -48,9 +157,13 @@ public class ShareBridgeActivity extends AppCompatActivity {
         }
 
         try {
-            mShareComponents = VPackageManager.get().
+            List<ResolveInfo> resolveInfoList = VPackageManager.get().
                     queryIntentActivities(new Intent(Intent.ACTION_SEND), type, 0, 0); // multi-user?
-            mShareComponents.add(0, new ResolveInfo()); // Placeholder for Package Installer
+            mShareComponents = getCommonComponents(intent);
+            PackageManager pm = getPackageManager();
+            for (ResolveInfo resolveInfo : resolveInfoList) {
+                mShareComponents.add(new ListItem(resolveInfo, pm));
+            }
         } catch (Throwable ignored) {
         }
 
@@ -66,17 +179,18 @@ public class ShareBridgeActivity extends AppCompatActivity {
 
         mListView.setOnItemClickListener((parent, view, position, id) -> {
             try {
-                if (position == 0) {
-                    Context context = getApplicationContext();
-                    Intent t = new Intent();
-                    t.setComponent(new ComponentName(context, InstallerActivity.class));
-                    t.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    t.setData(intent.getClipData().getItemAt(0).getUri());
-                    context.startActivity(t);
-                } else {
-                    ResolveInfo item = mAdapter.getItem(position);
-                    Intent t = new Intent(intent);
-                    t.setComponent(new ComponentName(item.activityInfo.packageName, item.activityInfo.name));
+                Intent t = new Intent(intent);
+                ListItem item = mAdapter.getItem(position);
+                t.setComponent(new ComponentName(item.getPackageName(), item.getActivityName()));
+                if (item.getFlag() != null) {
+                    t.addFlags(item.getFlag());
+                }
+                if (item.getData() != null) {
+                    t.setData(item.getData());
+                }
+                if (item.getContextType() == ContextType.APP) {
+                    getApplicationContext().startActivity(t);
+                } else if (item.getContextType() == ContextType.VXP) {
                     VActivityManager.get().startActivity(t, 0);
                 }
             } catch (Throwable e) {
@@ -94,7 +208,7 @@ public class ShareBridgeActivity extends AppCompatActivity {
         }
 
         @Override
-        public ResolveInfo getItem(int position) {
+        public ListItem getItem(int position) {
             return mShareComponents.get(position);
         }
 
@@ -114,21 +228,14 @@ public class ShareBridgeActivity extends AppCompatActivity {
                 holder = (ViewHolder) convertView.getTag();
             }
 
-            if (position == 0) {
-                holder.label.setText(R.string.app_installer_label);
-                holder.icon.setImageResource(R.mipmap.ic_launcher);
-                return convertView;
-            }
-
-            ResolveInfo item = getItem(position);
-            PackageManager packageManager = getPackageManager();
+            ListItem item = getItem(position);
             try {
-                holder.label.setText(item.loadLabel(packageManager));
+                holder.label.setText(item.getLabel());
             } catch (Throwable e) {
                 holder.label.setText(R.string.package_state_unknown);
             }
             try {
-                holder.icon.setImageDrawable(item.loadIcon(packageManager));
+                holder.icon.setImageDrawable(item.getIcon());
             } catch (Throwable e) {
                 holder.icon.setImageDrawable(getResources().getDrawable(android.R.drawable.sym_def_app_icon));
             }
