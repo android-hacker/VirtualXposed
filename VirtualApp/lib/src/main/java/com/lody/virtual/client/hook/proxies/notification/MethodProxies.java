@@ -105,13 +105,23 @@ class MethodProxies {
             if (getHostPkg().equals(pkg)) {
                 return method.invoke(who, args);
             }
-            String tag = (String) args[1];
-            int id = (int) args[2];
+            
+            int index_tag = 1;
+            int index_id = 2;
+
+            if (Build.VERSION.SDK_INT >= 30) {
+                index_tag = 2;
+                index_id = 3;
+            }
+            
+            String tag = (String) args[index_tag];
+            int id = (int) args[index_id];
+
             id = VNotificationManager.get().dealNotificationId(id, pkg, tag, getAppUserId());
             tag = VNotificationManager.get().dealNotificationTag(id, pkg, tag, getAppUserId());
 
-            args[1] = tag;
-            args[2] = id;
+            args[index_tag] = tag;
+            args[index_id] = id;
             return method.invoke(who, args);
         }
     }
