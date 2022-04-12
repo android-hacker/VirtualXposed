@@ -26,6 +26,7 @@ import android.os.RemoteException;
 import android.os.StrictMode;
 import android.system.ErrnoException;
 import android.system.Os;
+import android.util.Log;
 
 import com.lody.virtual.client.core.CrashHandler;
 import com.lody.virtual.client.core.InvocationStubManager;
@@ -344,6 +345,10 @@ public final class VClientImpl extends IVClient.Stub {
         } else {
             VLog.w(TAG, "Xposed is disable..");
         }
+
+        ClassLoader call = LoadedApk.getClassLoader.call(data.info);
+        Log.i("mylog", "classloader: " + call + " parent: " + call.getParent());
+
         if (Build.VERSION.SDK_INT >= 30)
             ApplicationConfig.setDefaultInstance.call(new Object[] { null });
         mInitialApplication = LoadedApk.makeApplication.call(data.info, false, null);

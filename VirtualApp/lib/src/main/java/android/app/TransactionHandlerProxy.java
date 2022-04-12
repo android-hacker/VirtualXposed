@@ -27,6 +27,7 @@ import java.util.Map;
 
 import mirror.android.app.ActivityManagerNative;
 import mirror.android.app.IActivityManager;
+import mirror.com.android.internal.content.ReferrerIntent;
 
 
 /**
@@ -74,6 +75,16 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
     }
 
     @Override
+    public void handleDestroyActivity(ActivityClientRecord r, boolean finishing, int configChanges, boolean getNonConfigInstance, String reason) {
+        originalHandler.handleDestroyActivity(r, finishing, configChanges, getNonConfigInstance, reason);
+    }
+
+    @Override
+    public void handlePauseActivity(ActivityClientRecord r, boolean finished, boolean userLeaving, int configChanges, PendingTransactionActions pendingActions, String reason) {
+        originalHandler.handlePauseActivity(r, finished, userLeaving, configChanges, pendingActions, reason);
+    }
+
+    @Override
     public void handleResumeActivity(IBinder token, boolean finalStateRequest, boolean isForward, String reason) {
         originalHandler.handleResumeActivity(token, finalStateRequest, isForward, reason);
     }
@@ -94,6 +105,11 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
     }
 
     @Override
+    public void handleStopActivity(ActivityClientRecord r, int configChanges, PendingTransactionActions pendingActions, boolean finalStateRequest, String reason) {
+        originalHandler.handleStopActivity(r, configChanges, pendingActions, finalStateRequest, reason);
+    }
+
+    @Override
     public void reportStop(PendingTransactionActions pendingActions) {
         originalHandler.reportStop(pendingActions);
     }
@@ -104,13 +120,28 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
     }
 
     @Override
+    public void performRestartActivity(ActivityClientRecord r, boolean start) {
+        originalHandler.performRestartActivity(r, start);
+    }
+
+    @Override
     public void handleActivityConfigurationChanged(IBinder activityToken, Configuration overrideConfig, int displayId) {
         originalHandler.handleActivityConfigurationChanged(activityToken, overrideConfig, displayId);
     }
 
     @Override
+    public void handleActivityConfigurationChanged(ActivityClientRecord r, Configuration overrideConfig, int displayId) {
+        originalHandler.handleActivityConfigurationChanged(r, overrideConfig, displayId);
+    }
+
+    @Override
     public void handleSendResult(IBinder token, List results, String reason) {
         originalHandler.handleSendResult(token, results, reason);
+    }
+
+    @Override
+    public void handleSendResult(ActivityClientRecord r, List results, String reason) {
+        originalHandler.handleSendResult(r, results, reason);
     }
 
     @Override
@@ -131,6 +162,11 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
     @Override
     public void handlePictureInPictureRequested(IBinder token) {
         originalHandler.handlePictureInPictureRequested(token);
+    }
+
+    @Override
+    public void handlePictureInPictureRequested(ActivityClientRecord r) {
+        originalHandler.handlePictureInPictureRequested(r);
     }
 
     @Override
@@ -307,4 +343,10 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
     public void handleNewIntent(IBinder token, List intents) {
         originalHandler.handleNewIntent(token, intents);
     }
+
+    @Override
+    public void handleNewIntent(ActivityClientRecord r, List<ReferrerIntent> intents) {
+        originalHandler.handleNewIntent(r, intents);
+    }
+
 }
