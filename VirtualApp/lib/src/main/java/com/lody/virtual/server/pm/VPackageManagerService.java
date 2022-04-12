@@ -260,7 +260,11 @@ public class VPackageManagerService extends IPackageManager.Stub {
         PackageInfo packageInfo = PackageParserEx.generatePackageInfo(p, flags,
                 ps.firstInstallTime, ps.lastUpdateTime, ps.readUserState(userId), userId);
         if (packageInfo != null) {
-            return packageInfo;
+            Parcel parcel = Parcel.obtain();
+            packageInfo.writeToParcel(parcel, 0);
+            PackageInfo info = PackageInfo.CREATOR.createFromParcel(parcel);
+            parcel.recycle();
+            return info;
         }
         return null;
     }
