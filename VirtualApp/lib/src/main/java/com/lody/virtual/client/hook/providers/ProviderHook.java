@@ -158,7 +158,11 @@ public class ProviderHook implements InvocationHandler {
         try {
             String name = method.getName();
             if ("call".equals(name)) {
-                if (BuildCompat.isR()) {
+                if (BuildCompat.isS()) {
+                    // What's the fuck with Google???
+                    // https://cs.android.com/android/platform/superproject/+/android-12.0.0_r1:frameworks/base/core/java/android/content/IContentProvider.java;l=123
+                    start = 2;
+                } else if (BuildCompat.isR()) {
                     start = 3;
                 } else if (BuildCompat.isQ()) {
                     start = 2;

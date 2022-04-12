@@ -35,6 +35,10 @@ public class BuildCompat {
         return isAndroidLevel(30);
     }
 
+    public static boolean isS() {
+        return isAndroidLevel(31);
+    }
+
     private static boolean isAndroidLevelPreview(int level) {
         return (Build.VERSION.SDK_INT == level && getPreviewSDKInt() > 0)
                 || Build.VERSION.SDK_INT > level;
