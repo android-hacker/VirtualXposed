@@ -1780,10 +1780,17 @@ class MethodProxies {
     // For Android 11
     static class RegisterReceiverWithFeature extends RegisterReceiver {
         public RegisterReceiverWithFeature() {
-            // http://aospxref.com/android-11.0.0_r21/xref/frameworks/base/core/java/android/app/IActivityManager.aidl?fi=IActivityManager#124
-            mIIntentReceiverIndex = 3;
-            mIntentFilterIndex = 4;
-            mRequiredPermissionIndex = 5;
+            if (BuildCompat.isS()) {
+                // http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/java/android/app/IActivityManager.aidl?fi=IActivityManager#127
+                mIIntentReceiverIndex = 4;
+                mIntentFilterIndex = 5;
+                mRequiredPermissionIndex = 6;
+            } else {
+                // http://aospxref.com/android-11.0.0_r21/xref/frameworks/base/core/java/android/app/IActivityManager.aidl?fi=IActivityManager#124
+                mIIntentReceiverIndex = 3;
+                mIntentFilterIndex = 4;
+                mRequiredPermissionIndex = 5;
+            }
         }
 
         @Override
