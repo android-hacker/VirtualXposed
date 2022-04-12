@@ -9,8 +9,10 @@ import android.os.Bundle;
 import android.os.IInterface;
 import android.os.ParcelFileDescriptor;
 
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.MethodBox;
 import com.lody.virtual.helper.compat.BuildCompat;
+import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.InvocationHandler;
@@ -153,8 +155,13 @@ public class ProviderHook implements InvocationHandler {
         }
         MethodBox methodBox = new MethodBox(method, mBase, args);
         int start = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ? 1 : 0;
-        // Android 11: https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/content/IContentProvider.java?q=IContentProvider&ss=android%2Fplatform%2Fsuperproject
-        if(Build.VERSION.SDK_INT >= 30) start = 2;
+        if (BuildCompat.isS()) {
+            // https://cs.android.com/android/platform/superproject/+/android-12.0.0_r16:frameworks/base/core/java/android/content/IContentProvider.java
+            start = 1;
+        } else if (BuildCompat.isR()) {
+            // Android 11: https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/content/IContentProvider.java?q=IContentProvider&ss=android%2Fplatform%2Fsuperproject
+            start = 2;
+        }
         try {
             String name = method.getName();
             if ("call".equals(name)) {
@@ -207,6 +214,9 @@ public class ProviderHook implements InvocationHandler {
                 String[] selectionArgs = null;
                 String sortOrder = null;
                 Bundle queryArgs = null;
+                if (BuildCompat.isS()) {
+                    fixAttributionSource(args[0]);
+                }
                 if (Build.VERSION.SDK_INT >= 26) {
                     queryArgs = (Bundle) args[start + 2];
                     if (queryArgs != null) {
@@ -237,5 +247,15 @@ public class ProviderHook implements InvocationHandler {
 
     public interface HookFetcher {
         ProviderHook fetch(boolean external, IInterface provider);
+    }
+
+    private void fixAttributionSource(Object attribution) {
+        try {
+            Object mAttributionSourceState = Reflect.on(attribution).get("mAttributionSourceState");
+            Reflect.on(mAttributionSourceState).set("uid", VirtualCore.get().myUid());
+            Reflect.on(mAttributionSourceState).set("packageName", VirtualCore.get().getHostPkg());
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 }
