@@ -26,7 +26,6 @@ import android.os.RemoteException;
 import android.os.StrictMode;
 import android.system.ErrnoException;
 import android.system.Os;
-import android.util.Log;
 
 import com.lody.virtual.client.core.CrashHandler;
 import com.lody.virtual.client.core.InvocationStubManager;
@@ -45,6 +44,7 @@ import com.lody.virtual.client.ipc.VirtualStorageManager;
 import com.lody.virtual.client.stub.VASettings;
 import com.lody.virtual.helper.compat.BuildCompat;
 import com.lody.virtual.helper.compat.StorageManagerCompat;
+import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VEnvironment;
 import com.lody.virtual.os.VUserHandle;
@@ -62,6 +62,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import dalvik.system.DelegateLastClassLoader;
 import me.weishu.exposed.ExposedBridge;
 import mirror.android.app.ActivityThread;
 import mirror.android.app.ActivityThreadNMR1;
@@ -71,13 +72,13 @@ import mirror.android.app.LoadedApk;
 import mirror.android.content.ContentProviderHolderOreo;
 import mirror.android.providers.Settings;
 import mirror.android.renderscript.RenderScriptCacheDir;
+import mirror.android.security.net.config.ApplicationConfig;
 import mirror.android.view.HardwareRenderer;
 import mirror.android.view.RenderScript;
 import mirror.android.view.ThreadedRenderer;
 import mirror.com.android.internal.content.ReferrerIntent;
 import mirror.dalvik.system.VMRuntime;
 import mirror.java.lang.ThreadGroupN;
-import mirror.android.security.net.config.ApplicationConfig;
 
 import static com.lody.virtual.os.VUserHandle.getUserId;
 
@@ -346,8 +347,11 @@ public final class VClientImpl extends IVClient.Stub {
             VLog.w(TAG, "Xposed is disable..");
         }
 
-        ClassLoader call = LoadedApk.getClassLoader.call(data.info);
-        Log.i("mylog", "classloader: " + call + " parent: " + call.getParent());
+        ClassLoader cl = LoadedApk.getClassLoader.call(data.info);
+        if (BuildCompat.isS()) {
+            ClassLoader parent = cl.getParent();
+            Reflect.on(cl).set("parent", new DelegateLastClassLoader("/system/framework/android.test.base.jar", parent));
+        }
 
         if (Build.VERSION.SDK_INT >= 30)
             ApplicationConfig.setDefaultInstance.call(new Object[] { null });
