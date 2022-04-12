@@ -23,6 +23,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.res.CompatibilityInfo;
 import android.content.res.Configuration;
 import android.os.IBinder;
+import android.os.Parcelable;
 import android.util.MergedConfiguration;
 import android.view.DisplayAdjustments;
 
@@ -122,6 +123,20 @@ public abstract class ClientTransactionHandler {
 
     // Android 11
     public abstract void handlePictureInPictureRequested(IBinder token);
+
+    /** Signal to an activity (that is currently in PiP) of PiP state changes. */
+    public abstract void handlePictureInPictureStateChanged(ActivityThread.ActivityClientRecord r,
+                                                            Parcelable pipState);
+
+    /** Whether the activity want to handle splash screen exit animation */
+    public abstract boolean isHandleSplashScreenExit(IBinder token);
+
+    /** Attach a splash screen window view to the top of the activity */
+    public abstract void handleAttachSplashScreenView(ActivityThread.ActivityClientRecord r,
+                                                      Parcelable parcelable);
+
+    /** Hand over the splash screen window view to the activity */
+    public abstract void handOverSplashScreenView(ActivityThread.ActivityClientRecord r);
 
     /** Update window visibility. */
     public abstract void handleWindowVisibility(IBinder token, boolean show);

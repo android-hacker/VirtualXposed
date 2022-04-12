@@ -10,6 +10,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.res.CompatibilityInfo;
 import android.content.res.Configuration;
 import android.os.IBinder;
+import android.os.Parcelable;
 import android.util.Log;
 import android.util.MergedConfiguration;
 import android.view.DisplayAdjustments;
@@ -130,6 +131,26 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
     @Override
     public void handlePictureInPictureRequested(IBinder token) {
         originalHandler.handlePictureInPictureRequested(token);
+    }
+
+    @Override
+    public void handlePictureInPictureStateChanged(ActivityClientRecord r, Parcelable pipState) {
+        originalHandler.handlePictureInPictureStateChanged(r, pipState);
+    }
+
+    @Override
+    public boolean isHandleSplashScreenExit(IBinder token) {
+        return originalHandler.isHandleSplashScreenExit(token);
+    }
+
+    @Override
+    public void handleAttachSplashScreenView(ActivityClientRecord r, Parcelable parcelable) {
+        originalHandler.handleAttachSplashScreenView(r, parcelable);
+    }
+
+    @Override
+    public void handOverSplashScreenView(ActivityClientRecord r) {
+        originalHandler.handOverSplashScreenView(r);
     }
 
     @Override
