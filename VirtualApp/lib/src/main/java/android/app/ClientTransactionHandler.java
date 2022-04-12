@@ -150,6 +150,26 @@ public abstract class ClientTransactionHandler {
                                                         DisplayAdjustments.FixedRotationAdjustments fixedRotationAdjustments);
 
     /**
+     * Add {@link ActivityThread.ActivityClientRecord} that is preparing to be launched.
+     * @param token Activity token.
+     * @param activity An initialized instance of {@link ActivityThread.ActivityClientRecord} to use during launch.
+     */
+    public abstract void addLaunchingActivity(IBinder token, ActivityThread.ActivityClientRecord activity);
+
+    /**
+     * Get {@link ActivityThread.ActivityClientRecord} that is preparing to be launched.
+     * @param token Activity token.
+     * @return An initialized instance of {@link ActivityThread.ActivityClientRecord} to use during launch.
+     */
+    public abstract ActivityThread.ActivityClientRecord getLaunchingActivity(IBinder token);
+
+    /**
+     * Remove {@link ActivityThread.ActivityClientRecord} from the launching activity list.
+     * @param token Activity token.
+     */
+    public abstract void removeLaunchingActivity(IBinder token);
+
+    /**
      * Get {@link ActivityThread.ActivityClientRecord} instance that corresponds to the
      * provided token.
      */

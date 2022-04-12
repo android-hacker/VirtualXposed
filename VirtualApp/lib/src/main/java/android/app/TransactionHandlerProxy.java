@@ -217,6 +217,21 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
     }
 
     @Override
+    public void addLaunchingActivity(IBinder token, ActivityClientRecord activity) {
+        originalHandler.addLaunchingActivity(token, activity);
+    }
+
+    @Override
+    public ActivityClientRecord getLaunchingActivity(IBinder token) {
+        return originalHandler.getLaunchingActivity(token);
+    }
+
+    @Override
+    public void removeLaunchingActivity(IBinder token) {
+        originalHandler.removeLaunchingActivity(token);
+    }
+
+    @Override
     public ActivityClientRecord getActivityClient(IBinder token) {
         Log.i(TAG, "getActivityClient : " + token);
         return originalHandler.getActivityClient(token);
