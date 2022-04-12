@@ -322,7 +322,7 @@ public final class VClientImpl extends IVClient.Stub {
         mirror.android.app.ActivityThread.AppBindData.info.set(boundApp, data.info);
         VMRuntime.setTargetSdkVersion.call(VMRuntime.getRuntime.call(), data.appInfo.targetSdkVersion);
 
-        boolean conflict = SpecialComponentList.isConflictingInstrumentation(packageName);
+        boolean conflict = SpecialComponentList.ConflictInstrumentation.isConflictingInstrumentation(packageName);
         if (!conflict) {
             InvocationStubManager.getInstance().checkEnv(AppInstrumentation.class);
         }
@@ -361,6 +361,7 @@ public final class VClientImpl extends IVClient.Stub {
 
         mirror.android.app.ActivityThread.mInitialApplication.set(mainThread, mInitialApplication);
         ContextFixer.fixContext(mInitialApplication);
+
         if (Build.VERSION.SDK_INT >= 24 && "com.tencent.mm:recovery".equals(processName)) {
             fixWeChatRecovery(mInitialApplication);
         }
