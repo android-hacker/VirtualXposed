@@ -441,10 +441,7 @@ void hookAndroidVM(JArrayClass<jobject> javaMethods,
         }
     }
     measureNativeOffset(isArt);
-    // Crash on Q if hook directly by modify entrypoint of function.
-    // Just skip this step on Q and get never crash
-    if(apiLevel <= 28)
-        replaceGetCallingUid(isArt);
+    replaceGetCallingUid(isArt);
 
     replaceOpenDexFileMethod(javaMethods.getElement(OPEN_DEX).get(), isArt,
                              apiLevel);

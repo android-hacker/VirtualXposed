@@ -23,11 +23,14 @@ import android.content.pm.ApplicationInfo;
 import android.content.res.CompatibilityInfo;
 import android.content.res.Configuration;
 import android.os.IBinder;
+import android.os.Parcelable;
 import android.util.MergedConfiguration;
 import android.view.DisplayAdjustments;
 
 import java.util.List;
 import java.util.Map;
+
+import mirror.com.android.internal.content.ReferrerIntent;
 
 /**
  * Defines operations that a {@link ClientTransaction} or its items
@@ -68,6 +71,15 @@ public abstract class ClientTransactionHandler {
     /** Pause the activity. */
     public abstract void handlePauseActivity(IBinder token, boolean finished, boolean userLeaving,
             int configChanges, PendingTransactionActions pendingActions, String reason);
+
+    // Android 12
+    /** Destroy the activity. */
+    public abstract void handleDestroyActivity(ActivityThread.ActivityClientRecord r, boolean finishing,
+                                               int configChanges, boolean getNonConfigInstance, String reason);
+
+    /** Pause the activity. */
+    public abstract void handlePauseActivity(ActivityThread.ActivityClientRecord r, boolean finished, boolean userLeaving,
+                                             int configChanges, PendingTransactionActions pendingActions, String reason);
     /**
      * Resume the activity.
      * @param token Target activity token.
@@ -101,27 +113,59 @@ public abstract class ClientTransactionHandler {
     public abstract void handleStopActivity(IBinder token, int configChanges,
                                             PendingTransactionActions pendingActions, boolean finalStateRequest, String reason);
 
+    // Android 12
+    public abstract void handleStopActivity(ActivityThread.ActivityClientRecord r, int configChanges,
+                                            PendingTransactionActions pendingActions, boolean finalStateRequest, String reason);
+
     /** Report that activity was stopped to server. */
     public abstract void reportStop(PendingTransactionActions pendingActions);
     /** Restart the activity after it was stopped. */
     public abstract void performRestartActivity(IBinder token, boolean start);
+    /** Restart the activity after it was stopped. */
+    public abstract void performRestartActivity(ActivityThread.ActivityClientRecord r, boolean start);
+
     /** Deliver activity (override) configuration change. */
     public abstract void handleActivityConfigurationChanged(IBinder activityToken,
             Configuration overrideConfig, int displayId);
+    public abstract void handleActivityConfigurationChanged(ActivityThread.ActivityClientRecord r,
+                                                            Configuration overrideConfig, int displayId);
+
     /** Deliver result from another activity. */
     public abstract void handleSendResult(IBinder token, List results, String reason);
+
+    /** Deliver result from another activity. */
+    public abstract void handleSendResult(
+            ActivityThread.ActivityClientRecord r, List results, String reason);
+
     /** Deliver multi-window mode change notification. */
     public abstract void handleMultiWindowModeChanged(IBinder token, boolean isInMultiWindowMode,
             Configuration overrideConfig);
     /** Deliver new intent. */
     public abstract void handleNewIntent(IBinder token, List intents,
             boolean andPause);
+    public abstract void handleNewIntent(
+            ActivityThread.ActivityClientRecord r, List<ReferrerIntent> intents);
     /** Deliver picture-in-picture mode change notification. */
     public abstract void handlePictureInPictureModeChanged(IBinder token, boolean isInPipMode,
             Configuration overrideConfig);
 
     // Android 11
     public abstract void handlePictureInPictureRequested(IBinder token);
+    public abstract void handlePictureInPictureRequested(ActivityThread.ActivityClientRecord r);
+
+    /** Signal to an activity (that is currently in PiP) of PiP state changes. */
+    public abstract void handlePictureInPictureStateChanged(ActivityThread.ActivityClientRecord r,
+                                                            Parcelable pipState);
+
+    /** Whether the activity want to handle splash screen exit animation */
+    public abstract boolean isHandleSplashScreenExit(IBinder token);
+
+    /** Attach a splash screen window view to the top of the activity */
+    public abstract void handleAttachSplashScreenView(ActivityThread.ActivityClientRecord r,
+                                                      Parcelable parcelable);
+
+    /** Hand over the splash screen window view to the activity */
+    public abstract void handOverSplashScreenView(ActivityThread.ActivityClientRecord r);
 
     /** Update window visibility. */
     public abstract void handleWindowVisibility(IBinder token, boolean show);
@@ -148,6 +192,26 @@ public abstract class ClientTransactionHandler {
 
     public abstract void handleFixedRotationAdjustments(IBinder token,
                                                         DisplayAdjustments.FixedRotationAdjustments fixedRotationAdjustments);
+
+    /**
+     * Add {@link ActivityThread.ActivityClientRecord} that is preparing to be launched.
+     * @param token Activity token.
+     * @param activity An initialized instance of {@link ActivityThread.ActivityClientRecord} to use during launch.
+     */
+    public abstract void addLaunchingActivity(IBinder token, ActivityThread.ActivityClientRecord activity);
+
+    /**
+     * Get {@link ActivityThread.ActivityClientRecord} that is preparing to be launched.
+     * @param token Activity token.
+     * @return An initialized instance of {@link ActivityThread.ActivityClientRecord} to use during launch.
+     */
+    public abstract ActivityThread.ActivityClientRecord getLaunchingActivity(IBinder token);
+
+    /**
+     * Remove {@link ActivityThread.ActivityClientRecord} from the launching activity list.
+     * @param token Activity token.
+     */
+    public abstract void removeLaunchingActivity(IBinder token);
 
     /**
      * Get {@link ActivityThread.ActivityClientRecord} instance that corresponds to the
