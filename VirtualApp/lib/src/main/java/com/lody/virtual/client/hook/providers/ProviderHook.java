@@ -10,9 +10,9 @@ import android.os.IInterface;
 import android.os.ParcelFileDescriptor;
 
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.fixer.ContextFixer;
 import com.lody.virtual.client.hook.base.MethodBox;
 import com.lody.virtual.helper.compat.BuildCompat;
-import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.InvocationHandler;
@@ -162,6 +162,9 @@ public class ProviderHook implements InvocationHandler {
             // Android 11: https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/content/IContentProvider.java?q=IContentProvider&ss=android%2Fplatform%2Fsuperproject
             start = 2;
         }
+        if (BuildCompat.isS() ) {
+            tryFixAttributionSource(args);
+        }
         try {
             String name = method.getName();
             if ("call".equals(name)) {
@@ -214,9 +217,7 @@ public class ProviderHook implements InvocationHandler {
                 String[] selectionArgs = null;
                 String sortOrder = null;
                 Bundle queryArgs = null;
-                if (BuildCompat.isS()) {
-                    fixAttributionSource(args[0]);
-                }
+
                 if (Build.VERSION.SDK_INT >= 26) {
                     queryArgs = (Bundle) args[start + 2];
                     if (queryArgs != null) {
@@ -249,13 +250,18 @@ public class ProviderHook implements InvocationHandler {
         ProviderHook fetch(boolean external, IInterface provider);
     }
 
-    private void fixAttributionSource(Object attribution) {
-        try {
-            Object mAttributionSourceState = Reflect.on(attribution).get("mAttributionSourceState");
-            Reflect.on(mAttributionSourceState).set("uid", VirtualCore.get().myUid());
-            Reflect.on(mAttributionSourceState).set("packageName", VirtualCore.get().getHostPkg());
-        } catch (Throwable e) {
-            e.printStackTrace();
+    private void tryFixAttributionSource(Object[] args) {
+        if (args == null || args.length == 0) {
+            return;
         }
+        Object attribution = args[0];
+        if (attribution == null) {
+            return;
+        }
+        if (!attribution.getClass().getName().equals("android.content.AttributionSource")) {
+            return;
+        }
+
+        ContextFixer.fixAttributionSource(attribution, VirtualCore.get().getHostPkg(), VirtualCore.get().myUid());
     }
 }

@@ -450,11 +450,25 @@ public class PackageParserEx {
         return pi;
     }
 
+    private static boolean copyNeeded(int flags, VPackage p,
+                                      PackageUserState state, Bundle metaData, int userId) {
+        if (!state.installed || state.hidden) {
+            return true;
+        }
+        return (flags & PackageManager.GET_META_DATA) != 0
+                && (metaData != null || p.mAppMetaData != null);
+    }
+
     public static ApplicationInfo generateApplicationInfo(VPackage p, int flags,
                                                           PackageUserState state, int userId) {
         if (p == null) return null;
         if (!checkUseInstalledOrHidden(state, flags)) {
             return null;
+        }
+
+        if (!copyNeeded(flags, p, state, null, userId)) {
+            initApplicationAsUser(p.applicationInfo, userId);
+            return p.applicationInfo;
         }
 
         // Make shallow copy so we can store the metadata/libraries safely
