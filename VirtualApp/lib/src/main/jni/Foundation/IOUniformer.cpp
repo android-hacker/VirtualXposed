@@ -21,6 +21,8 @@
 #include "Path.h"
 #include "SymbolFinder.h"
 
+#include <Foundation/syscall/BinarySyscallFinder.h>
+
 bool iu_loaded = false;
 
 void IOUniformer::init_env_before_all() {
@@ -119,6 +121,17 @@ const char *IOUniformer::reverse(const char *_path) {
 
 
 __BEGIN_DECLS
+
+// int faccessat(int dirfd, const char *pathname, int mode, int flags);
+HOOK_DEF(int, faccessat, int dirfd, const char *pathname, int mode, int flags) {
+    char temp[PATH_MAX];
+    const char *relocated_path = relocate_path(pathname, (int*)temp);
+    if (relocated_path && !(mode & W_OK && false)) {
+        return static_cast<int>(syscall(__NR_faccessat, dirfd, relocated_path, mode, flags));
+    }
+    errno = EACCES;
+    return -1;
+}
 
 #define FREE(ptr, org_ptr) { if ((void*) ptr != NULL && (void*) ptr != (void*) org_ptr) { free((void*) ptr); } }
 
@@ -262,6 +275,26 @@ HOOK_DEF(int, chdir, const char *pathname) {
     int ret = syscall(__NR_chdir, redirect_path);
     FREE(redirect_path, pathname);
     return ret;
+}
+
+
+// int __openat(int fd, const char *pathname, int flags, int mode);
+HOOK_DEF(int, openat, int fd, const char *pathname, int flags, int mode) {
+    char temp[PATH_MAX];
+    const char *relocated_path = relocate_path(pathname, (int*)temp);
+    if (__predict_true(relocated_path)) {
+        if ((flags & O_ACCMODE) == O_WRONLY) {
+            flags &= ~O_ACCMODE;
+            flags |= O_RDWR;
+        }
+
+        int ret = static_cast<int>(syscall(__NR_openat, fd, relocated_path, flags, mode));
+        /*zString op("openat fd = %d err = %s", ret, strerror(errno));
+        doFileTrace(relocated_path, op.toString());*/
+        return ret;
+    }
+    errno = EACCES;
+    return -1;
 }
 
 
@@ -469,6 +502,41 @@ __END_DECLS
 // end IO DEF
 
 
+bool on_found_syscall_aarch64(const char *path, int num, void *func) {
+    static int pass = 0;
+    switch (num) {
+        case __NR_faccessat:
+            hook_function(func, (void *) new_faccessat, (void **) &orig_faccessat);
+            pass++;
+            break;
+        /*case __NR_statfs:
+            hook_function(func, (void *) new___statfs, (void **) &orig___statfs);
+            pass++;
+            break;*/
+        /*case __NR_getcwd:
+            hook_function(func, (void *) new_getcwd, (void **) &orig_getcwd);
+            pass++;
+            break;*/
+        case __NR_openat:
+            hook_function(func, (void *) new_openat, (void **) &orig_openat);
+            pass++;
+            break;
+    }
+    if (pass == 5) {
+        return BREAK_FIND_SYSCALL;
+    }
+    return CONTINUE_FIND_SYSCALL;
+}
+
+bool on_found_linker_syscall_arch64(const char *path, int num, void *func) {
+    switch (num) {
+        case __NR_openat:
+            hook_function(func, (void *) new_openat, (void **) &orig_openat);
+            return BREAK_FIND_SYSCALL;
+    }
+    return CONTINUE_FIND_SYSCALL;
+}
+
 void onSoLoaded(const char *name, void *handle) {
 }
 
@@ -531,6 +599,18 @@ void IOUniformer::startUniformer(const char *so_path, int api_level, int preview
         HOOK_SYMBOL(handle, chdir);
         HOOK_SYMBOL(handle, execve);
         HOOK_SYMBOL(handle, statfs64);
+
+#if defined(__aarch64__)
+        HOOK_SYMBOL(handle, faccessat);
+        HOOK_SYMBOL(handle, openat);
+
+        if (api_level >= 30) {
+            findSyscalls("/apex/com.android.runtime/lib64/bionic/libc.so", on_found_syscall_aarch64);
+            findSyscalls("/apex/com.android.runtime/bin/linker64", on_found_linker_syscall_arch64);
+        }
+
+#endif
+
         dlclose(handle);
     }
     // hook_dlopen(api_level);

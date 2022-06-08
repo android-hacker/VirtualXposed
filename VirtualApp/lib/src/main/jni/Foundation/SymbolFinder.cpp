@@ -11,6 +11,16 @@
 /* memory map for libraries */
 #define MAX_NAME_LEN 256
 #define MEMORY_ONLY  "[memory]"
+#if defined(__LP64__)
+#define ELFW(type) ELF64_ ## type
+#else
+#define ELFW(type) ELF32_ ## type
+#endif
+#if defined(__LP64__)
+#define ElfW(type) Elf64_ ## type
+#else
+#define ElfW(type) Elf32_ ## type
+#endif
 struct mm {
     char name[MAX_NAME_LEN];
     unsigned long start, end;
@@ -18,7 +28,7 @@ struct mm {
 
 typedef struct symtab *symtab_t;
 struct symlist {
-    Elf32_Sym *sym; /* symbols */
+    ElfW(Sym) *sym; /* symbols */
     char *str; /* symbol strings */
     unsigned num; /* number of symbols */
 };
@@ -42,7 +52,7 @@ static int my_pread(int fd, void *buf, size_t count, off_t offset) {
     return read(fd, buf, count);
 }
 
-static struct symlist* get_syms(int fd, Elf32_Shdr *symh, Elf32_Shdr *strh) {
+static struct symlist* get_syms(int fd, ElfW(Shdr) *symh, ElfW(Shdr) *strh) {
     struct symlist *sl, *ret;
     int rv;
 
@@ -52,14 +62,14 @@ static struct symlist* get_syms(int fd, Elf32_Shdr *symh, Elf32_Shdr *strh) {
     sl->sym = NULL;
 
     /* sanity */
-    if (symh->sh_size % sizeof(Elf32_Sym)) {
+    if (symh->sh_size % sizeof(ElfW(Sym))) {
         //printf("elf_error\n");
         goto out;
     }
 
     /* symbol table */
-    sl->num = symh->sh_size / sizeof(Elf32_Sym);
-    sl->sym = (Elf32_Sym *) xmalloc(symh->sh_size);
+    sl->num = symh->sh_size / sizeof(ElfW(Sym));
+    sl->sym = (ElfW(Sym) *) xmalloc(symh->sh_size);
     rv = my_pread(fd, sl->sym, symh->sh_size, symh->sh_offset);
     if (0 > rv) {
         //perror("read");
@@ -89,10 +99,10 @@ static struct symlist* get_syms(int fd, Elf32_Shdr *symh, Elf32_Shdr *strh) {
 static int do_load(int fd, symtab_t symtab) {
     int rv;
     size_t size;
-    Elf32_Ehdr ehdr;
-    Elf32_Shdr *shdr = NULL, *p;
-    Elf32_Shdr *dynsymh, *dynstrh;
-    Elf32_Shdr *symh, *strh;
+    ElfW(Ehdr) ehdr;
+    ElfW(Shdr) *shdr = NULL, *p;
+    ElfW(Shdr) *dynsymh, *dynstrh;
+    ElfW(Shdr) *symh, *strh;
     char *shstrtab = NULL;
     int i;
     int ret = -1;
@@ -111,14 +121,14 @@ static int do_load(int fd, symtab_t symtab) {
         ALOGD("not an elf\n");
         goto out;
     }
-    if (sizeof(Elf32_Shdr) != ehdr.e_shentsize) { /* sanity */
+    if (sizeof(ElfW(Shdr)) != ehdr.e_shentsize) { /* sanity */
         ALOGD("elf error 2\n");
         goto out;
     }
 
     /* section header table */
     size = ehdr.e_shentsize * ehdr.e_shnum;
-    shdr = (Elf32_Shdr *) xmalloc(size);
+    shdr = (ElfW(Shdr) *) xmalloc(size);
     rv = my_pread(fd, shdr, size, ehdr.e_shoff);
     if (0 > rv) {
         ALOGD("read\n");
@@ -221,7 +231,7 @@ static symtab_t load_symtab(char *filename) {
 
 
 static int load_memmap(pid_t pid, struct mm *mm, int *nmmp) {
-    size_t buf_size = 0x40000;
+    size_t buf_size = 0x100000;
     char *p_buf = (char *) malloc(buf_size); // increase this if needed for larger "maps"
     char name[MAX_NAME_LEN] = { 0 };
     char *p;
@@ -265,10 +275,8 @@ static int load_memmap(pid_t pid, struct mm *mm, int *nmmp) {
     m = mm;
     while (p) {
         /* parse current map line */
-        rv = sscanf(p, "%08lx-%08lx %*s %*s %*s %*s %s\n", &start, &end, name);
-
+        rv = sscanf(p, "%16lx-%16lx %*s %*s %*s %*s %s\n", &start, &end, name);
         p = strtok(NULL, "\n");
-
         if (rv == 2) {
             m = &mm[nmm++];
             m->start = start;
@@ -344,7 +352,7 @@ static int find_libname(const char *libn, char *name, int len, unsigned long *st
 
 static int lookup2(struct symlist *sl, unsigned char type, char *name,
                    unsigned long *val) {
-    Elf32_Sym *p;
+    ElfW(Sym) *p;
     int len;
     int i;
 
@@ -353,7 +361,7 @@ static int lookup2(struct symlist *sl, unsigned char type, char *name,
         //ALOGD("name: %s %x\n", sl->str+p->st_name, p->st_value)
         if (!strncmp(sl->str + p->st_name, name, len)
             && *(sl->str + p->st_name + len) == 0
-            && ELF32_ST_TYPE(p->st_info) == type) {
+            && ELFW(ST_TYPE)(p->st_info) == type) {
             //if (p->st_value != 0) {
             *val = p->st_value;
             return 0;
