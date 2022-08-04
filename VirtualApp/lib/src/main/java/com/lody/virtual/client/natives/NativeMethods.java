@@ -4,6 +4,8 @@ import android.hardware.Camera;
 import android.media.AudioRecord;
 import android.os.Build;
 
+import com.lody.virtual.helper.utils.EncodeUtils;
+
 import java.lang.reflect.Method;
 
 import dalvik.system.DexFile;
@@ -21,8 +23,12 @@ public class NativeMethods {
     public static Method gAudioRecordNativeCheckPermission;
 
     public static void init() {
+        // anti-virus, fuck ESET-NOD32: a variant of Android/AdDisplay.AdLock.AL potentially unwanted
+        final String openDexFileNative = EncodeUtils.decode("b3BlbkRleEZpbGVOYXRpdmU=");
+        final String openDexFile = EncodeUtils.decode("b3BlbkRleEZpbGU=");
+
         String methodName =
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? "openDexFileNative" : "openDexFile";
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? openDexFileNative : openDexFile;
         for (Method method : DexFile.class.getDeclaredMethods()) {
             if (method.getName().equals(methodName)) {
                 gOpenDexFileNative = method;

@@ -1,17 +1,24 @@
 apply plugin: 'com.android.library'
 
+Properties properties = new Properties()
+def localProp = file(project.rootProject.file('local.properties'))
+if (localProp.exists()) {
+    properties.load(localProp.newDataInputStream())
+}
+def exposedVersion = properties.getProperty("exposed.version") ?: "0.3.5"
+
 android {
-    compileSdkVersion 24
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 28
+    buildToolsVersion '28.0.3'
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 25
+        minSdkVersion 21
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0"
         externalNativeBuild {
             ndkBuild {
-                abiFilters "armeabi", "armeabi-v7a", "x86"
+                abiFilters "armeabi-v7a", "x86"
             }
         }
     }
@@ -26,11 +33,23 @@ android {
             path file("src/main/jni/Android.mk")
         }
     }
+    lintOptions {
+        //IJobService need NewApi
+        warning 'NewApi','OnClick'
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
 }
 
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    //    compile 'net.lingala.zip4j:zip4j:1.3.2'
-    compile files('src/main/libs/android-art-interpret-3.0.0.jar')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    api "me.weishu.exposed:exposed-core:${exposedVersion}"
+    implementation "me.weishu:free_reflection:1.2.0"
+}
+
+repositories {
+    maven { url 'https://jitpack.io' }
 }

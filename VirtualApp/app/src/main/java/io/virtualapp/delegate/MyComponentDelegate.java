@@ -1,6 +1,7 @@
 package io.virtualapp.delegate;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Intent;
 
 import com.lody.virtual.client.hook.delegate.ComponentDelegate;
@@ -10,6 +11,17 @@ import java.io.File;
 
 
 public class MyComponentDelegate implements ComponentDelegate {
+
+    @Override
+    public void beforeApplicationCreate(Application application) {
+
+    }
+
+    @Override
+    public void afterApplicationCreate(Application application) {
+
+    }
+
     @Override
     public void beforeActivityCreate(Activity activity) {
 

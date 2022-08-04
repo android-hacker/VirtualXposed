@@ -1,9 +1,13 @@
 package com.lody.virtual.client.ipc;
 
+import android.annotation.TargetApi;
 import android.app.job.JobInfo;
+import android.app.job.JobWorkItem;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.server.IJobScheduler;
 
@@ -24,12 +28,11 @@ public class VJobScheduler {
     }
 
     public IJobScheduler getRemote() {
-        if (mRemote == null) {
+        if (mRemote == null ||
+                (!mRemote.asBinder().pingBinder() && !VirtualCore.get().isVAppProcess())) {
             synchronized (this) {
-                if (mRemote == null) {
-                    Object remote = getRemoteInterface();
-                    mRemote = LocalProxyUtils.genProxy(IJobScheduler.class, remote);
-                }
+                Object remote = getRemoteInterface();
+                mRemote = LocalProxyUtils.genProxy(IJobScheduler.class, remote);
             }
         }
         return mRemote;
@@ -69,6 +72,25 @@ public class VJobScheduler {
             getRemote().cancel(jobId);
         } catch (RemoteException e) {
             e.printStackTrace();
+        }
+    }
+    public JobInfo getPendingJob(int jobId) {
+        try {
+            return getRemote().getPendingJob(jobId);
+        } catch (RemoteException e) {
+            return (JobInfo) VirtualRuntime.crash(e);
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    public int enqueue(JobInfo job, Object workItem) {
+        if (workItem == null) {
+            return -1;
+        }
+        try {
+            return getRemote().enqueue(job, (JobWorkItem) workItem);
+        } catch (RemoteException e) {
+            return (Integer) VirtualRuntime.crash(e);
         }
     }
 }

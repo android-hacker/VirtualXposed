@@ -9,8 +9,7 @@
     <ImageView
         android:id="@+id/iv_icon"
         android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:src="@drawable/ic_user" />
+        android:layout_height="60dp" />
 
     <TextView
         android:id="@+id/tv_title"

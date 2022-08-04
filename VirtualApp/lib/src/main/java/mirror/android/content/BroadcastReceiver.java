@@ -13,13 +13,13 @@ import mirror.RefMethod;
 import mirror.RefObject;
 
 public class BroadcastReceiver {
-    public static Class<?> Class = RefClass.load(BroadcastReceiver.class, android.content.BroadcastReceiver.class);
+    public static Class<?> TYPE = RefClass.load(BroadcastReceiver.class, android.content.BroadcastReceiver.class);
     public static RefMethod<android.content.BroadcastReceiver.PendingResult> getPendingResult;
     @MethodParams({android.content.BroadcastReceiver.PendingResult.class})
     public static RefMethod<Void> setPendingResult;
 
     public static class PendingResult {
-        public static Class<?> Class = RefClass.load(PendingResult.class, android.content.BroadcastReceiver.PendingResult.class);
+        public static Class<?> TYPE = RefClass.load(PendingResult.class, android.content.BroadcastReceiver.PendingResult.class);
         @MethodParams({int.class, String.class, Bundle.class, int.class, boolean.class, boolean.class, IBinder.class})
         public static RefConstructor<android.content.BroadcastReceiver.PendingResult> ctor;
         public static RefBoolean mAbortBroadcast;
@@ -34,7 +34,7 @@ public class BroadcastReceiver {
     }
 
     public static class PendingResultJBMR1 {
-        public static Class<?> Class = RefClass.load(PendingResultJBMR1.class, android.content.BroadcastReceiver.PendingResult.class);
+        public static Class<?> TYPE = RefClass.load(PendingResultJBMR1.class, android.content.BroadcastReceiver.PendingResult.class);
         @MethodParams({int.class, String.class, Bundle.class, int.class, boolean.class, boolean.class, IBinder.class, int.class})
         public static RefConstructor<android.content.BroadcastReceiver.PendingResult> ctor;
         public static RefBoolean mAbortBroadcast;
@@ -50,7 +50,7 @@ public class BroadcastReceiver {
     }
 
     public static class PendingResultMNC {
-        public static Class<?> Class = RefClass.load(PendingResultMNC.class, android.content.BroadcastReceiver.PendingResult.class);
+        public static Class<?> TYPE = RefClass.load(PendingResultMNC.class, android.content.BroadcastReceiver.PendingResult.class);
         @MethodParams({int.class, String.class, Bundle.class, int.class, boolean.class, boolean.class, IBinder.class, int.class, int.class})
         public static RefConstructor<android.content.BroadcastReceiver.PendingResult> ctor;
         public static RefBoolean mAbortBroadcast;

@@ -71,6 +71,7 @@ public class VPackageInstallerService extends IPackageInstaller.Stub {
     private VPackageInstallerService() {
         mContext = VirtualCore.get().getContext();
         mInstallThread = new HandlerThread("PackageInstaller");
+        mInstallThread.start();
         mInstallHandler = new Handler(mInstallThread.getLooper());
         mCallbacks = new Callbacks(mInstallThread.getLooper());
     }

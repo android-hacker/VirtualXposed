@@ -12,6 +12,17 @@ import java.util.HashSet;
  */
 public class MethodParameterUtils {
 
+	public static <T> T getFirstParam(Object[] args, Class<T> tClass) {
+		if (args == null) {
+			return null;
+		}
+		int index = ArrayUtils.indexOfFirst(args, tClass);
+		if (index != -1) {
+			return (T) args[index];
+		}
+		return null;
+	}
+
 	public static String replaceFirstAppPkg(Object[] args) {
 		if (args == null) {
 			return null;

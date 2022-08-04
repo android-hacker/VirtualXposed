@@ -1,0 +1,21 @@
+language: android
+android:
+  components:
+    - tools
+    - build-tools-28.0.3
+    - android-27
+    - android-28
+    - extra-android-m2repository
+    - extra-android-support
+
+install:
+  - echo y | sdkmanager 'ndk-bundle'
+  - echo y | sdkmanager 'cmake;3.6.4111459'
+  - echo y | sdkmanager 'lldb;3.0'
+
+before_install:
+  - chmod +x ./VirtualApp/gradlew
+
+script:
+  - cd VirtualApp
+  - ./gradlew assembleRelease

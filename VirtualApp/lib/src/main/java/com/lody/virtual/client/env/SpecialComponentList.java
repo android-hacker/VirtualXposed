@@ -1,6 +1,7 @@
 package com.lody.virtual.client.env;
 
 import android.Manifest;
+import android.app.DownloadManager;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
@@ -30,6 +31,7 @@ public final class SpecialComponentList {
     private static String PROTECT_ACTION_PREFIX = "_VA_protected_";
 
     static {
+        SYSTEM_BROADCAST_ACTION.add(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
         SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_SCREEN_ON);
         SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_SCREEN_OFF);
         SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_NEW_OUTGOING_CALL);
@@ -41,6 +43,7 @@ public final class SpecialComponentList {
         SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_BATTERY_OKAY);
         SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_POWER_CONNECTED);
         SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_POWER_DISCONNECTED);
+        SYSTEM_BROADCAST_ACTION.add(Intent.ACTION_USER_PRESENT);
         SYSTEM_BROADCAST_ACTION.add("android.provider.Telephony.SMS_RECEIVED");
         SYSTEM_BROADCAST_ACTION.add("android.provider.Telephony.SMS_DELIVER");
         SYSTEM_BROADCAST_ACTION.add("android.net.wifi.STATE_CHANGE");

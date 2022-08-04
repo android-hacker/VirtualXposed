@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference
+        android:key="settings_add_app"
+        android:persistent="false"
+        android:summary="@string/settings_add_app_summary"
+        android:title="@string/add_app" />
+
+    <Preference
+        android:key="settings_module_manage"
+        android:persistent="false"
+        android:summary="@string/settings_module_manage_summary"
+        android:title="@string/settings_module_manage" />
+
+    <Preference
+        android:key="settings_plugin_recommend"
+        android:persistent="false"
+        android:title="@string/settings_plugin_recommend" />
+
+    <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+        android:key="settings_advance"
+        android:title="@string/settings_advance">
+
+        <Preference
+            android:key="advance_settings_install_gms"
+            android:persistent="false"
+            android:title="@string/advance_settings_install_gms"/>
+
+        <Preference
+            android:key="settings_file_manage"
+            android:persistent="false"
+            android:title="@string/settings_file_manage_text" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="advance_settings_disable_xposed"
+            android:persistent="true"
+            android:summary="@string/advance_settings_disable_xposed_summary"
+            android:title="@string/advance_settings_disable_xposed" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="advance_settings_disable_resident_notification"
+            android:persistent="true"
+            android:summary="@string/advance_settings_disable_resident_notification_summary"
+            android:title="@string/advance_settings_disable_resident_notification" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="advance_settings_hide_settings"
+            android:persistent="true"
+            android:summary="@string/advance_settings_hide_settings_summary"
+            android:title="@string/advance_settings_hide_settings" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="advance_settings_allow_fake_signature"
+            android:persistent="true"
+            android:summary="@string/advance_settings_allow_fake_signature_summary"
+            android:title="@string/advance_settings_allow_fake_signature" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="advance_settings_disable_installer"
+            android:persistent="true"
+            android:summary="@string/advance_settings_disable_installer_summary"
+            android:title="@string/advance_settings_disable_installer" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="advance_settings_enable_launcher"
+            android:persistent="true"
+            android:summary="@string/advance_settings_enable_launcher_summary"
+            android:title="@string/advance_settings_enable_launcher" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="advance_settings_directly_back"
+            android:persistent="true"
+            android:summary="@string/advance_settings_directly_back_summary"
+            android:title="@string/advance_settings_directly_back" />
+
+        <Preference
+            android:key="settings_desktop"
+            android:persistent="false"
+            android:title="@string/settings_desktop_text" />
+    </PreferenceScreen>
+
+    <Preference
+        android:key="settings_permission_manage"
+        android:persistent="false"
+        android:title="@string/settings_permission_manage_text" />
+
+    <Preference
+        android:key="settings_app_manage"
+        android:persistent="false"
+        android:title="@string/settings_app_manage_text" />
+
+    <Preference
+        android:key="settings_task_manage"
+        android:persistent="false"
+        android:title="@string/settings_task_manage_text" />
+
+    <Preference
+        android:key="settings_donate"
+        android:persistent="false"
+        android:title="@string/about_donate_title" />
+
+    <Preference
+        android:key="settings_faq"
+        android:persistent="false"
+        android:title="@string/about_faq_title" />
+
+    <Preference
+        android:key="settings_about"
+        android:persistent="false"
+        android:title="@string/settings_about_text" />
+
+    <Preference
+        android:key="settings_reboot"
+        android:persistent="false"
+        android:title="@string/menu_reboot" />
+</PreferenceScreen>

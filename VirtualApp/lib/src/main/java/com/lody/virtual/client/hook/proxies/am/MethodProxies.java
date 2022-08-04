@@ -4,7 +4,8 @@ import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.app.IServiceConnection;
-import android.app.PendingIntent;
+import android.app.Notification;
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.IIntentReceiver;
 import android.content.Intent;
@@ -19,38 +20,47 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.IInterface;
 import android.os.RemoteException;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.TypedValue;
 
+import com.lody.virtual.client.NativeEngine;
 import com.lody.virtual.client.VClientImpl;
+import com.lody.virtual.client.badger.BadgerManager;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.client.hook.base.MethodProxy;
+import com.lody.virtual.client.hook.base.ReplaceLastPkgMethodProxy;
 import com.lody.virtual.client.hook.delegate.TaskDescriptionDelegate;
 import com.lody.virtual.client.hook.providers.ProviderHook;
 import com.lody.virtual.client.hook.secondary.ServiceConnectionDelegate;
 import com.lody.virtual.client.hook.utils.MethodParameterUtils;
 import com.lody.virtual.client.ipc.ActivityClientRecord;
 import com.lody.virtual.client.ipc.VActivityManager;
+import com.lody.virtual.client.ipc.VNotificationManager;
 import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.client.stub.ChooserActivity;
-import com.lody.virtual.client.stub.StubManifest;
 import com.lody.virtual.client.stub.StubPendingActivity;
 import com.lody.virtual.client.stub.StubPendingReceiver;
 import com.lody.virtual.client.stub.StubPendingService;
+import com.lody.virtual.client.stub.VASettings;
 import com.lody.virtual.helper.compat.ActivityManagerCompat;
 import com.lody.virtual.helper.compat.BuildCompat;
 import com.lody.virtual.helper.utils.ArrayUtils;
 import com.lody.virtual.helper.utils.BitmapUtils;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.DrawableUtils;
+import com.lody.virtual.helper.utils.EncodeUtils;
+import com.lody.virtual.helper.utils.FileUtils;
+import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.os.VUserInfo;
@@ -285,19 +295,16 @@ class MethodProxies {
             String[] resolvedTypes = (String[]) args[6];
             int type = (int) args[0];
             int flags = (int) args[7];
-            if ((PendingIntent.FLAG_UPDATE_CURRENT & flags) != 0) {
-                flags = (flags & ~(PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_NO_CREATE)) | PendingIntent.FLAG_CANCEL_CURRENT;
-            }
             if (args[5] instanceof Intent[]) {
                 Intent[] intents = (Intent[]) args[5];
-                if (intents.length > 0) {
-                    Intent intent = intents[intents.length - 1];
-                    if (resolvedTypes != null && resolvedTypes.length > 0) {
-                        intent.setDataAndType(intent.getData(), resolvedTypes[resolvedTypes.length - 1]);
+                for (int i = 0; i < intents.length; i++) {
+                    Intent intent = intents[i];
+                    if (resolvedTypes != null && i < resolvedTypes.length) {
+                        intent.setDataAndType(intent.getData(), resolvedTypes[i]);
                     }
                     Intent targetIntent = redirectIntentSender(type, creator, intent);
                     if (targetIntent != null) {
-                        args[5] = new Intent[]{targetIntent};
+                        intents[i] = targetIntent;
                     }
                 }
             }
@@ -354,10 +361,30 @@ class MethodProxies {
     }
 
 
+    static class OverridePendingTransition extends MethodProxy {
+
+        @Override
+        public String getMethodName() {
+            return "overridePendingTransition";
+        }
+
+        @Override
+        public Object call(Object who, Method method, Object... args) throws Throwable {
+            String packageName = (String) args[1];
+            if (Constants.WECHAT_PACKAGE.equals(packageName)) {
+                // 解决微信界面跳转狂闪的问题
+                return null;
+            } else {
+                return super.call(who, method, args);
+            }
+        }
+    }
+
     static class StartActivity extends MethodProxy {
 
         private static final String SCHEME_FILE = "file";
         private static final String SCHEME_PACKAGE = "package";
+        private static final String SCHEME_CONTENT = "content";
 
         @Override
         public String getMethodName() {
@@ -394,6 +421,10 @@ class MethodProxies {
                 if (handleUninstallRequest(intent)) {
                     return 0;
                 }
+            } else if (MediaStore.ACTION_IMAGE_CAPTURE.equals(intent.getAction()) ||
+                    MediaStore.ACTION_VIDEO_CAPTURE.equals(intent.getAction()) ||
+                    MediaStore.ACTION_IMAGE_CAPTURE_SECURE.equals(intent.getAction())) {
+                handleMediaCaptureRequest(intent);
             }
 
             String resultWho = null;
@@ -416,10 +447,15 @@ class MethodProxies {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
                 args[intentIndex - 1] = getHostPkg();
             }
+            if (intent.getScheme() != null && intent.getScheme().equals(SCHEME_PACKAGE) && intent.getData() != null) {
+                if (intent.getAction() != null && intent.getAction().startsWith("android.settings.")) {
+                    intent.setData(Uri.parse("package:" + getHostPkg()));
+                }
+            }
 
             ActivityInfo activityInfo = VirtualCore.get().resolveActivityInfo(intent, userId);
             if (activityInfo == null) {
-                VLog.e("VActivityManager", "Unable to resolve activityInfo : " + intent);
+                VLog.e("VActivityManager", "Unable to resolve activityInfo : %s", intent);
                 if (intent.getPackage() != null && isAppPkg(intent.getPackage())) {
                     return ActivityManagerCompat.START_INTENT_NOT_RESOLVED;
                 }
@@ -460,16 +496,13 @@ class MethodProxies {
             IAppRequestListener listener = VirtualCore.get().getAppRequestListener();
             if (listener != null) {
                 Uri packageUri = intent.getData();
-                if (SCHEME_FILE.equals(packageUri.getScheme())) {
-                    File sourceFile = new File(packageUri.getPath());
-                    try {
-                        listener.onRequestInstall(sourceFile.getPath());
-                        return true;
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
+                String sourcePath = FileUtils.getFileFromUri(getHostContext(), packageUri);
+                try {
+                    listener.onRequestInstall(sourcePath);
+                    return true;
+                } catch (RemoteException e) {
+                    e.printStackTrace();
                 }
-
             }
             return false;
         }
@@ -492,6 +525,21 @@ class MethodProxies {
             return false;
         }
 
+        private void handleMediaCaptureRequest(Intent intent) {
+            Uri uri = intent.getParcelableExtra(MediaStore.EXTRA_OUTPUT);
+            if (uri == null || !SCHEME_FILE.equals(uri.getScheme())) {
+                return;
+            }
+            String path = uri.getPath();
+            String newPath = NativeEngine.getRedirectedPath(path);
+            if (newPath == null) {
+                return;
+            }
+            File realFile = new File(newPath);
+            Uri newUri = Uri.fromFile(realFile);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, newUri);
+        }
+
     }
 
     static class StartActivities extends MethodProxy {
@@ -511,8 +559,12 @@ class MethodProxies {
                 token = (IBinder) args[tokenIndex];
             }
             Bundle options = ArrayUtils.getFirst(args, Bundle.class);
-
             return VActivityManager.get().startActivities(intents, resolvedTypes, token, options, VUserHandle.myUserId());
+        }
+
+        @Override
+        public boolean isEnable() {
+            return isAppProcess();
         }
     }
 
@@ -669,6 +721,37 @@ class MethodProxies {
 
         @Override
         public Object call(Object who, Method method, Object... args) throws Throwable {
+            ComponentName component = (ComponentName) args[0];
+            IBinder token = (IBinder) args[1];
+            int id = (int) args[2];
+            Notification notification = (Notification) args[3];
+            boolean removeNotification = false;
+            if (args[4] instanceof Boolean) {
+                removeNotification = (boolean) args[4];
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && args[4] instanceof Integer) {
+                int flags = (int) args[4];
+                removeNotification = (flags & Service.STOP_FOREGROUND_REMOVE) != 0;
+            } else {
+                VLog.e(getClass().getSimpleName(), "Unknown flag : " + args[4]);
+            }
+            VNotificationManager.get().dealNotification(id, notification, getAppPkg());
+
+            /**
+             * `BaseStatusBar#updateNotification` aosp will use use
+             * `new StatusBarIcon(...notification.getSmallIcon()...)`
+             *  while in samsung SystemUI.apk ,the corresponding code comes as
+             * `new StatusBarIcon(...pkgName,notification.icon...)`
+             * the icon comes from `getSmallIcon.getResource`
+             * which will throw an exception on :x process thus crash the application
+             */
+            if (notification != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                    (Build.BRAND.equalsIgnoreCase("samsung") || Build.MANUFACTURER.equalsIgnoreCase("samsung"))) {
+                notification.icon = getHostContext().getApplicationInfo().icon;
+                Icon icon = Icon.createWithResource(getHostPkg(), notification.icon);
+                Reflect.on(notification).call("setSmallIcon", icon);
+            }
+
+            VActivityManager.get().setServiceForeground(component, token, id, notification, removeNotification);
             return 0;
         }
 
@@ -824,6 +907,9 @@ class MethodProxies {
             service.setDataAndType(service.getData(), resolvedType);
             ServiceInfo serviceInfo = VirtualCore.get().resolveServiceInfo(service, VUserHandle.myUserId());
             if (serviceInfo != null) {
+                if (isFiltered(service)) {
+                    return service.getComponent();
+                }
                 return VActivityManager.get().startService(appThread, service, resolvedType, userId);
             }
             return method.invoke(who, args);
@@ -832,6 +918,16 @@ class MethodProxies {
         @Override
         public boolean isEnable() {
             return isAppProcess() || isServerProcess();
+        }
+
+        private boolean isFiltered(Intent service) {
+            // disable tinker.
+            if (service != null && service.getComponent() != null
+                    && EncodeUtils.decode("Y29tLnRlbmNlbnQudGlua2VyLmxpYi5zZXJ2aWMuVGlua2VyUGF0Y2hTZXJ2aWNl") // com.tencent.tinker.lib.service.TinkerPatchService
+                    .equals(service.getComponent().getClassName())) {
+                return true;
+            }
+            return false;
         }
     }
 
@@ -1271,7 +1367,7 @@ class MethodProxies {
                 if (targetVPid == -1) {
                     return null;
                 }
-                args[nameIdx] = StubManifest.getStubAuthority(targetVPid);
+                args[nameIdx] = VASettings.getStubAuthority(targetVPid);
                 Object holder = method.invoke(who, args);
                 if (holder == null) {
                     return null;
@@ -1463,15 +1559,45 @@ class MethodProxies {
             if ("android.intent.action.CREATE_SHORTCUT".equals(action)
                     || "com.android.launcher.action.INSTALL_SHORTCUT".equals(action)) {
 
-                return StubManifest.ENABLE_INNER_SHORTCUT ? handleInstallShortcutIntent(intent) : null;
+                return VASettings.ENABLE_INNER_SHORTCUT ? handleInstallShortcutIntent(intent) : null;
 
             } else if ("com.android.launcher.action.UNINSTALL_SHORTCUT".equals(action)) {
 
                 handleUninstallShortcutIntent(intent);
 
+            } else if (BadgerManager.handleBadger(intent)) {
+                return null;
+            } else if (Intent.ACTION_MEDIA_SCANNER_SCAN_FILE.equals(action)) {
+                // intent send to system, do not modify it's action(may have other same intent)
+                return handleMediaScannerIntent(intent);
             } else {
                 return ComponentUtils.redirectBroadcastIntent(intent, VUserHandle.myUserId());
             }
+            return intent;
+        }
+
+        private Intent handleMediaScannerIntent(Intent intent) {
+            if (intent == null) {
+                return null;
+            }
+            Uri data = intent.getData();
+            if (data == null) {
+                return intent;
+            }
+            String scheme = data.getScheme();
+            if (!"file".equalsIgnoreCase(scheme)) {
+                return intent;
+            }
+            String path = data.getPath();
+            if (path == null) {
+                return intent;
+            }
+            String newPath = NativeEngine.getRedirectedPath(path);
+            File newFile = new File(newPath);
+            if (!newFile.exists()) {
+                return intent;
+            }
+            intent.setData(Uri.fromFile(newFile));
             return intent;
         }
 
@@ -1494,16 +1620,14 @@ class MethodProxies {
                     if (icon != null && !TextUtils.equals(icon.packageName, getHostPkg())) {
                         try {
                             Resources resources = VirtualCore.get().getResources(pkg);
-                            if (resources != null) {
-                                int resId = resources.getIdentifier(icon.resourceName, "drawable", pkg);
-                                if (resId > 0) {
-                                    //noinspection deprecation
-                                    Drawable iconDrawable = resources.getDrawable(resId);
-                                    Bitmap newIcon = BitmapUtils.drawableToBitmap(iconDrawable);
-                                    if (newIcon != null) {
-                                        intent.removeExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE);
-                                        intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, newIcon);
-                                    }
+                            int resId = resources.getIdentifier(icon.resourceName, "drawable", pkg);
+                            if (resId > 0) {
+                                //noinspection deprecation
+                                Drawable iconDrawable = resources.getDrawable(resId);
+                                Bitmap newIcon = BitmapUtils.drawableToBitmap(iconDrawable);
+                                if (newIcon != null) {
+                                    intent.removeExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE);
+                                    intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, newIcon);
                                 }
                             }
                         } catch (Throwable e) {
@@ -1599,6 +1723,12 @@ class MethodProxies {
         @Override
         public boolean isEnable() {
             return isAppProcess();
+        }
+    }
+
+    static class GetPackageProcessState extends ReplaceLastPkgMethodProxy {
+        public GetPackageProcessState() {
+            super("getPackageProcessState");
         }
     }
 }

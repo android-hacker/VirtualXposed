@@ -20,11 +20,13 @@ import android.util.Log;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.fixer.ComponentFixer;
-import com.lody.virtual.client.stub.StubManifest;
+import com.lody.virtual.client.stub.VASettings;
 import com.lody.virtual.helper.compat.ObjectsCompat;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.remote.VParceledListSlice;
+import com.lody.virtual.server.IPackageInstaller;
 import com.lody.virtual.server.IPackageManager;
+import com.lody.virtual.server.pm.installer.VPackageInstallerService;
 import com.lody.virtual.server.pm.parser.PackageParserEx;
 import com.lody.virtual.server.pm.parser.VPackage;
 
@@ -96,7 +98,7 @@ public class VPackageManagerService extends IPackageManager.Stub {
 
     public VPackageManagerService() {
         Intent intent = new Intent();
-        intent.setClassName(VirtualCore.get().getHostPkg(), StubManifest.RESOLVER_ACTIVITY);
+        intent.setClassName(VirtualCore.get().getHostPkg(), VASettings.RESOLVER_ACTIVITY);
         mResolveInfo = VirtualCore.get().getUnHookPackageManager().resolveActivity(intent, 0);
     }
 
@@ -738,6 +740,20 @@ public class VPackageManagerService extends IPackageManager.Stub {
         }
     }
 
+    @Override
+    public String getNameForUid(int uid) {
+        int appId = VUserHandle.getAppId(uid);
+        synchronized (mPackages) {
+            for (VPackage p : mPackages.values()) {
+                PackageSetting ps = (PackageSetting) p.mExtras;
+                if (ps.appId == appId) {
+                    return ps.packageName;
+                }
+            }
+            return null;
+        }
+    }
+
 
     @Override
     public List<String> querySharedPackages(String packageName) {
@@ -765,6 +781,11 @@ public class VPackageManagerService extends IPackageManager.Stub {
             e.printStackTrace();
             throw e;
         }
+    }
+
+    @Override
+    public IPackageInstaller getPackageInstaller() {
+        return VPackageInstallerService.get();
     }
 
     void createNewUser(int userId, File userPath) {

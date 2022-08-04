@@ -4,6 +4,7 @@ package com.lody.virtual.client.ipc;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
 import com.lody.virtual.server.IVirtualStorageService;
 
@@ -23,12 +24,11 @@ public class VirtualStorageManager {
 
 
     public IVirtualStorageService getRemote() {
-        if (mRemote == null) {
+        if (mRemote == null ||
+                (!mRemote.asBinder().pingBinder() && !VirtualCore.get().isVAppProcess())) {
             synchronized (this) {
-                if (mRemote == null) {
-                    Object remote = getRemoteInterface();
-                    mRemote = LocalProxyUtils.genProxy(IVirtualStorageService.class, remote);
-                }
+                Object remote = getRemoteInterface();
+                mRemote = LocalProxyUtils.genProxy(IVirtualStorageService.class, remote);
             }
         }
         return mRemote;

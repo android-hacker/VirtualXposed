@@ -9,6 +9,7 @@ import com.lody.virtual.client.hook.proxies.account.AccountManagerStub;
 import com.lody.virtual.client.hook.proxies.alarm.AlarmManagerStub;
 import com.lody.virtual.client.hook.proxies.am.ActivityManagerStub;
 import com.lody.virtual.client.hook.proxies.am.HCallbackStub;
+import com.lody.virtual.client.hook.proxies.am.TransactionHandlerStub;
 import com.lody.virtual.client.hook.proxies.appops.AppOpsManagerStub;
 import com.lody.virtual.client.hook.proxies.appwidget.AppWidgetManagerStub;
 import com.lody.virtual.client.hook.proxies.audio.AudioManagerStub;
@@ -18,8 +19,10 @@ import com.lody.virtual.client.hook.proxies.clipboard.ClipBoardStub;
 import com.lody.virtual.client.hook.proxies.connectivity.ConnectivityStub;
 import com.lody.virtual.client.hook.proxies.content.ContentServiceStub;
 import com.lody.virtual.client.hook.proxies.context_hub.ContextHubServiceStub;
+import com.lody.virtual.client.hook.proxies.devicepolicy.DevicePolicyManagerStub;
 import com.lody.virtual.client.hook.proxies.display.DisplayStub;
 import com.lody.virtual.client.hook.proxies.dropbox.DropBoxManagerStub;
+import com.lody.virtual.client.hook.proxies.fingerprint.FingerprintManagerStub;
 import com.lody.virtual.client.hook.proxies.graphics.GraphicsStatsStub;
 import com.lody.virtual.client.hook.proxies.imms.MmsStub;
 import com.lody.virtual.client.hook.proxies.input.InputMethodManagerStub;
@@ -35,6 +38,7 @@ import com.lody.virtual.client.hook.proxies.network.NetworkManagementStub;
 import com.lody.virtual.client.hook.proxies.notification.NotificationManagerStub;
 import com.lody.virtual.client.hook.proxies.persistent_data_block.PersistentDataBlockServiceStub;
 import com.lody.virtual.client.hook.proxies.phonesubinfo.PhoneSubInfoStub;
+import com.lody.virtual.client.hook.proxies.pm.LauncherAppsStub;
 import com.lody.virtual.client.hook.proxies.pm.PackageManagerStub;
 import com.lody.virtual.client.hook.proxies.power.PowerManagerStub;
 import com.lody.virtual.client.hook.proxies.restriction.RestrictionStub;
@@ -42,8 +46,10 @@ import com.lody.virtual.client.hook.proxies.search.SearchManagerStub;
 import com.lody.virtual.client.hook.proxies.shortcut.ShortcutServiceStub;
 import com.lody.virtual.client.hook.proxies.telephony.TelephonyRegistryStub;
 import com.lody.virtual.client.hook.proxies.telephony.TelephonyStub;
+import com.lody.virtual.client.hook.proxies.usage.UsageStatsManagerStub;
 import com.lody.virtual.client.hook.proxies.user.UserManagerStub;
 import com.lody.virtual.client.hook.proxies.vibrator.VibratorStub;
+import com.lody.virtual.client.hook.proxies.view.AutoFillManagerStub;
 import com.lody.virtual.client.hook.proxies.wifi.WifiManagerStub;
 import com.lody.virtual.client.hook.proxies.wifi_scanner.WifiScannerStub;
 import com.lody.virtual.client.hook.proxies.window.WindowManagerStub;
@@ -116,6 +122,9 @@ public final class InvocationStubManager {
 			addInjector(new LibCoreStub());
 			addInjector(new ActivityManagerStub());
 			addInjector(new PackageManagerStub());
+			if (Build.VERSION.SDK_INT >= 28) {
+				addInjector(new TransactionHandlerStub());
+			}
 			addInjector(HCallbackStub.getDefault());
 			addInjector(new ISmsStub());
 			addInjector(new ISubStub());
@@ -165,14 +174,21 @@ public final class InvocationStubManager {
 			}
 			if (Build.VERSION.SDK_INT >= LOLLIPOP_MR1) {
 				addInjector(new GraphicsStatsStub());
+				addInjector(new UsageStatsManagerStub());
+				addInjector(new LauncherAppsStub());
 			}
 			if (Build.VERSION.SDK_INT >= M) {
+				addInjector(new FingerprintManagerStub());
 				addInjector(new NetworkManagementStub());
 			}
 			if (Build.VERSION.SDK_INT >= N) {
                 addInjector(new WifiScannerStub());
                 addInjector(new ShortcutServiceStub());
+                addInjector(new DevicePolicyManagerStub());
             }
+            if (Build.VERSION.SDK_INT >= 26) {
+				addInjector(new AutoFillManagerStub());
+			}
 		}
 	}
 

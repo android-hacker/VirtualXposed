@@ -8,6 +8,7 @@ import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.BinderInvocationProxy;
 import com.lody.virtual.client.hook.base.ReplaceLastPkgMethodProxy;
 import com.lody.virtual.helper.compat.BuildCompat;
+import com.lody.virtual.helper.utils.DeviceUtil;
 
 import mirror.android.content.ClipboardManager;
 import mirror.android.content.ClipboardManagerOreo;
@@ -23,7 +24,7 @@ public class ClipBoardStub extends BinderInvocationProxy {
     }
 
     private static IInterface getInterface() {
-        if (BuildCompat.isOreo()) {
+        if (isOreo()) {
             android.content.ClipboardManager cm = (android.content.ClipboardManager)
                     VirtualCore.get().getContext().getSystemService(Context.CLIPBOARD_SERVICE);
             return ClipboardManagerOreo.mService.get(cm);
@@ -49,12 +50,18 @@ public class ClipBoardStub extends BinderInvocationProxy {
     @Override
     public void inject() throws Throwable {
         super.inject();
-        if (BuildCompat.isOreo()) {
+        if (isOreo()) {
             android.content.ClipboardManager cm = (android.content.ClipboardManager)
                     VirtualCore.get().getContext().getSystemService(Context.CLIPBOARD_SERVICE);
             ClipboardManagerOreo.mService.set(cm, getInvocationStub().getProxyInterface());
         } else {
             ClipboardManager.sService.set(getInvocationStub().getProxyInterface());
         }
+    }
+
+    private static boolean isOreo() {
+        return BuildCompat.isOreo() &&
+                !DeviceUtil.isSamsung()
+                || ClipboardManager.getService == null;
     }
 }

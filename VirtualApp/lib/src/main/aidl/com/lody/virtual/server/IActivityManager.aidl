@@ -5,6 +5,7 @@ import com.lody.virtual.remote.VParceledListSlice;
 import com.lody.virtual.remote.AppTaskInfo;
 import com.lody.virtual.remote.PendingIntentData;
 import com.lody.virtual.remote.PendingResultData;
+import com.lody.virtual.remote.BadgerInfo;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.app.Notification;
@@ -80,7 +81,7 @@ interface IActivityManager {
     boolean stopServiceToken(in ComponentName className, in IBinder token, int startId, int userId);
 
     void setServiceForeground(in ComponentName className, in IBinder token, int id,
-                            in Notification notification, boolean keepNotification, int userId);
+                            in Notification notification, boolean removeNotification, int userId);
 
     int bindService(in IBinder caller, in IBinder token, in Intent service,
                     String resolvedType, in IServiceConnection connection, int flags, int userId);
@@ -110,4 +111,6 @@ interface IActivityManager {
     void processRestarted(in String packageName, in String processName, int userId);
 
     void broadcastFinish(in PendingResultData res);
+
+    void notifyBadgerChange(in BadgerInfo info);
 }

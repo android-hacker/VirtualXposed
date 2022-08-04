@@ -1,12 +1,15 @@
 package com.lody.virtual.client.hook.providers;
 
+import android.content.ContentValues;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IInterface;
 import android.os.ParcelFileDescriptor;
 
+import com.lody.virtual.client.hook.base.MethodBox;
 import com.lody.virtual.helper.utils.VLog;
 
 import java.lang.reflect.InvocationHandler;
@@ -25,6 +28,13 @@ import mirror.android.content.IContentProvider;
 
 public class ProviderHook implements InvocationHandler {
 
+    public static final String QUERY_ARG_SQL_SELECTION = "android:query-arg-sql-selection";
+
+    public static final String QUERY_ARG_SQL_SELECTION_ARGS =
+            "android:query-arg-sql-selection-args";
+    public static final String QUERY_ARG_SQL_SORT_ORDER = "android:query-arg-sql-sort-order";
+
+
     private static final Map<String, HookFetcher> PROVIDER_MAP = new HashMap<>();
 
     static {
@@ -38,6 +48,12 @@ public class ProviderHook implements InvocationHandler {
             @Override
             public ProviderHook fetch(boolean external, IInterface provider) {
                 return new DownloadProviderHook(provider);
+            }
+        });
+        PROVIDER_MAP.put("media", new HookFetcher() {
+            @Override
+            public ProviderHook fetch(boolean external, IInterface provider) {
+                return new MediaProviderHook(provider);
             }
         });
     }
@@ -88,77 +104,112 @@ public class ProviderHook implements InvocationHandler {
         return provider;
     }
 
-    public Bundle call(Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
-
-        return (Bundle) method.invoke(mBase, args);
+    public Bundle call(MethodBox methodBox, String method, String arg, Bundle extras) throws InvocationTargetException {
+        return methodBox.call();
     }
 
-    public Uri insert(Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
+    public Uri insert(MethodBox methodBox, Uri url, ContentValues initialValues) throws InvocationTargetException {
 
-        return (Uri) method.invoke(mBase, args);
+        return (Uri) methodBox.call();
     }
 
-    public Cursor query(Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
-        return (Cursor) method.invoke(mBase, args);
+    public Cursor query(MethodBox methodBox, Uri url, String[] projection, String selection,
+                        String[] selectionArgs, String sortOrder, Bundle originQueryArgs) throws InvocationTargetException {
+        return (Cursor) methodBox.call();
     }
 
-    public String getType(Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
-        return (String) method.invoke(mBase, args);
+    public String getType(MethodBox methodBox, Uri url) throws InvocationTargetException {
+        return (String) methodBox.call();
     }
 
-    public int bulkInsert(Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
-        return (int) method.invoke(mBase, args);
+    public int bulkInsert(MethodBox methodBox, Uri url, ContentValues[] initialValues) throws InvocationTargetException {
+        return (int) methodBox.call();
     }
 
-    public int delete(Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
-        return (int) method.invoke(mBase, args);
+    public int delete(MethodBox methodBox, Uri url, String selection, String[] selectionArgs) throws InvocationTargetException {
+        return (int) methodBox.call();
     }
 
-    public int update(Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
-        return (int) method.invoke(mBase, args);
+    public int update(MethodBox methodBox, Uri url, ContentValues values, String selection,
+                      String[] selectionArgs) throws InvocationTargetException {
+        return (int) methodBox.call();
     }
 
-    public ParcelFileDescriptor openFile(Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
-        return (ParcelFileDescriptor) method.invoke(mBase, args);
+    public ParcelFileDescriptor openFile(MethodBox methodBox, Uri url, String mode) throws InvocationTargetException {
+        return (ParcelFileDescriptor) methodBox.call();
     }
 
-    public AssetFileDescriptor openAssetFile(Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
-        return (AssetFileDescriptor) method.invoke(mBase, args);
+    public AssetFileDescriptor openAssetFile(MethodBox methodBox, Uri url, String mode) throws InvocationTargetException {
+        return (AssetFileDescriptor) methodBox.call();
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object... args) throws Throwable {
         try {
             processArgs(method, args);
         } catch (Throwable e) {
             e.printStackTrace();
         }
+        MethodBox methodBox = new MethodBox(method, mBase, args);
+        int start = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ? 1 : 0;
         try {
             String name = method.getName();
             if ("call".equals(name)) {
-                return call(method, args);
+                String methodName = (String) args[start];
+                String arg = (String) args[start + 1];
+                Bundle extras = (Bundle) args[start + 2];
+                return call(methodBox, methodName, arg, extras);
             } else if ("insert".equals(name)) {
-                return insert(method, args);
+                Uri url = (Uri) args[start];
+                ContentValues initialValues = (ContentValues) args[start + 1];
+                return insert(methodBox, url, initialValues);
             } else if ("getType".equals(name)) {
-                return getType(method, args);
-            } else if ("insert".equals(name)) {
-                return insert(method, args);
+                return getType(methodBox, (Uri) args[0]);
             } else if ("delete".equals(name)) {
-                return bulkInsert(method, args);
-            } else if ("delete".equals(name)) {
-                return bulkInsert(method, args);
+                Uri url = (Uri) args[start];
+                String selection = (String) args[start + 1];
+                String[] selectionArgs = (String[]) args[start + 2];
+                return delete(methodBox, url, selection, selectionArgs);
             } else if ("bulkInsert".equals(name)) {
-                return bulkInsert(method, args);
+                Uri url = (Uri) args[start];
+                ContentValues[] initialValues = (ContentValues[]) args[start + 1];
+                return bulkInsert(methodBox, url, initialValues);
             } else if ("update".equals(name)) {
-                return update(method, args);
+                Uri url = (Uri) args[start];
+                ContentValues values = (ContentValues) args[start + 1];
+                String selection = (String) args[start + 2];
+                String[] selectionArgs = (String[]) args[start + 3];
+                return update(methodBox, url, values, selection, selectionArgs);
             } else if ("openFile".equals(name)) {
-                return openFile(method, args);
+                Uri url = (Uri) args[start];
+                String mode = (String) args[start + 1];
+                return openFile(methodBox, url, mode);
             } else if ("openAssetFile".equals(name)) {
-                return openAssetFile(method, args);
+                Uri url = (Uri) args[start];
+                String mode = (String) args[start + 1];
+                return openAssetFile(methodBox, url, mode);
             } else if ("query".equals(name)) {
-                return query(method, args);
+                Uri url = (Uri) args[start];
+                String[] projection = (String[]) args[start + 1];
+                String selection = null;
+                String[] selectionArgs = null;
+                String sortOrder = null;
+                Bundle queryArgs = null;
+                if (Build.VERSION.SDK_INT >= 26) {
+                    queryArgs = (Bundle) args[start + 2];
+                    if (queryArgs != null) {
+                        selection = queryArgs.getString(QUERY_ARG_SQL_SELECTION);
+                        selectionArgs = queryArgs.getStringArray(QUERY_ARG_SQL_SELECTION_ARGS);
+                        sortOrder = queryArgs.getString(QUERY_ARG_SQL_SORT_ORDER);
+                    }
+                } else {
+                    selection = (String) args[start + 2];
+                    selectionArgs = (String[]) args[start + 3];
+                    sortOrder = (String) args[start + 4];
+                }
+                return query(methodBox, url, projection, selection, selectionArgs, sortOrder, queryArgs);
             }
-            return method.invoke(mBase, args);
+            return methodBox.call();
         } catch (Throwable e) {
             VLog.d("ProviderHook", "call: %s (%s) with error", method.getName(), Arrays.toString(args));
             if (e instanceof InvocationTargetException) {

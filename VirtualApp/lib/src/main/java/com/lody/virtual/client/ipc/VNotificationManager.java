@@ -25,18 +25,18 @@ public class VNotificationManager {
     }
 
     public INotificationManager getService() {
-        if (mRemote == null) {
+        if (mRemote == null ||
+                (!mRemote.asBinder().pingBinder() && !VirtualCore.get().isVAppProcess())) {
             synchronized (VNotificationManager.class) {
-                if (mRemote == null) {
-                    final IBinder pmBinder = ServiceManagerNative.getService(ServiceManagerNative.NOTIFICATION);
-                    mRemote = INotificationManager.Stub.asInterface(pmBinder);
-                }
+                final IBinder pmBinder = ServiceManagerNative.getService(ServiceManagerNative.NOTIFICATION);
+                mRemote = INotificationManager.Stub.asInterface(pmBinder);
             }
         }
         return mRemote;
     }
 
     public boolean dealNotification(int id, Notification notification, String packageName) {
+        if(notification == null)return false;
         return VirtualCore.get().getHostPkg().equals(packageName)
                 || mNotificationCompat.dealNotification(id, notification, packageName);
     }

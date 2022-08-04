@@ -1,9 +1,12 @@
 package com.lody.virtual.client.env;
 
-import android.app.PendingIntent;
 import android.content.Intent;
 
 import com.lody.virtual.client.stub.ShortcutHandleActivity;
+import com.lody.virtual.helper.utils.EncodeUtils;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Lody
@@ -30,6 +33,15 @@ public class Constants {
 	public static final String ACTION_USER_STARTED = "Virtual." + "android.intent.action.USER_STARTED";
 	public static String META_KEY_IDENTITY = "X-Identity";
 	public static String META_VALUE_STUB = "Stub-User";
+
+	public static String NO_NOTIFICATION_FLAG = ".no_notification";
+	public static String FAKE_SIGNATURE_FLAG = ".fake_signature";
+
+	public static final String WECHAT_PACKAGE = EncodeUtils.decode("Y29tLnRlbmNlbnQubW0="); // wechat
+	public static final List<String> PRIVILEGE_APP = Arrays.asList(
+			WECHAT_PACKAGE,
+			EncodeUtils.decode("Y29tLnRlbmNlbnQubW9iaWxlcXE=")); // qq
+
 	/**
 	 * Server process name of VA
 	 */
@@ -38,5 +50,9 @@ public class Constants {
 	 * The activity who handle the shortcut.
 	 */
 	public static String SHORTCUT_PROXY_ACTIVITY_NAME = ShortcutHandleActivity.class.getName();
+
+	public static final String PASS_PKG_NAME_ARGUMENT = "MODEL_ARGUMENT";
+	public static final String PASS_KEY_INTENT = "KEY_INTENT";
+	public static final String PASS_KEY_USER = "KEY_USER";
 
 }

@@ -5,8 +5,10 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
+import com.lody.virtual.GmsSupport;
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.helper.utils.DeviceUtil;
 import com.lody.virtual.remote.InstallResult;
 import com.lody.virtual.remote.InstalledAppInfo;
 
@@ -16,6 +18,7 @@ import java.io.File;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -25,6 +28,7 @@ import io.virtualapp.home.models.AppInfo;
 import io.virtualapp.home.models.AppInfoLite;
 import io.virtualapp.home.models.MultiplePackageAppData;
 import io.virtualapp.home.models.PackageAppData;
+import io.virtualapp.utils.HanziToPinyin;
 
 /**
  * @author Lody
@@ -42,6 +46,8 @@ public class AppRepository implements AppDataSource {
             "pp/downloader/apk",
             "pp/downloader/silent/apk");
 
+    private static final int MAX_SCAN_DEPTH = 2;
+
     private Context mContext;
 
     public AppRepository(Context context) {
@@ -49,7 +55,8 @@ public class AppRepository implements AppDataSource {
     }
 
     private static boolean isSystemApplication(PackageInfo packageInfo) {
-        return (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
+        return (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0
+                && !GmsSupport.isGmsFamilyPackage(packageInfo.packageName);
     }
 
     @Override
@@ -78,12 +85,53 @@ public class AppRepository implements AppDataSource {
 
     @Override
     public Promise<List<AppInfo>, Throwable, Void> getInstalledApps(Context context) {
-        return VUiKit.defer().when(() -> convertPackageInfoToAppData(context, context.getPackageManager().getInstalledPackages(0), true));
+        return VUiKit.defer().when(() -> convertPackageInfoToAppData(context, context.getPackageManager().getInstalledPackages(PackageManager.GET_META_DATA), true));
     }
 
     @Override
     public Promise<List<AppInfo>, Throwable, Void> getStorageApps(Context context, File rootDir) {
-        return VUiKit.defer().when(() -> convertPackageInfoToAppData(context, findAndParseAPKs(context, rootDir, SCAN_PATH_LIST), false));
+        // return VUiKit.defer().when(() -> convertPackageInfoToAppData(context, findAndParseAPKs(context, rootDir, SCAN_PATH_LIST), false));
+        return VUiKit.defer().when(() -> convertPackageInfoToAppData(context, findAndParseApkRecursively(context, rootDir,null, 0), false));
+    }
+
+    private List<PackageInfo> findAndParseApkRecursively(Context context, File rootDir, List<PackageInfo> result, int depth) {
+        if (result == null) {
+            result = new ArrayList<>();
+        }
+
+        if (depth > MAX_SCAN_DEPTH) {
+            return result;
+        }
+
+        File[] dirFiles = rootDir.listFiles();
+
+        if (dirFiles == null) {
+            return Collections.emptyList();
+        }
+
+        for (File f: dirFiles) {
+            if (f.isDirectory()) {
+                List<PackageInfo> andParseApkRecursively = findAndParseApkRecursively(context, f, new ArrayList<>(), depth + 1);
+                result.addAll(andParseApkRecursively);
+            }
+
+            if (!(f.isFile() && f.getName().toLowerCase().endsWith(".apk"))) {
+                continue;
+            }
+
+            PackageInfo pkgInfo = null;
+            try {
+                pkgInfo = context.getPackageManager().getPackageArchiveInfo(f.getAbsolutePath(), PackageManager.GET_META_DATA);
+                pkgInfo.applicationInfo.sourceDir = f.getAbsolutePath();
+                pkgInfo.applicationInfo.publicSourceDir = f.getAbsolutePath();
+            } catch (Exception e) {
+                // Ignore
+            }
+            if (pkgInfo != null) {
+                result.add(pkgInfo);
+            }
+        }
+        return result;
     }
 
     private List<PackageInfo> findAndParseAPKs(Context context, File rootDir, List<String> paths) {
@@ -121,6 +169,12 @@ public class AppRepository implements AppDataSource {
             if (hostPkg.equals(pkg.packageName)) {
                 continue;
             }
+
+            // ignore taichi package
+            if (VirtualCore.TAICHI_PACKAGE.equals(pkg.packageName)) {
+                continue;
+            }
+
             // ignore the System package
             if (isSystemApplication(pkg)) {
                 continue;
@@ -134,22 +188,42 @@ public class AppRepository implements AppDataSource {
             info.packageName = pkg.packageName;
             info.fastOpen = fastOpen;
             info.path = path;
-            info.icon = ai.loadIcon(pm);
+//            info.icon = ai.loadIcon(pm);
+            info.icon = null;  // Use Glide to load the icon async
             info.name = ai.loadLabel(pm);
+            info.version = pkg.versionName;
             InstalledAppInfo installedAppInfo = VirtualCore.get().getInstalledAppInfo(pkg.packageName, 0);
             if (installedAppInfo != null) {
                 info.cloneCount = installedAppInfo.getInstalledUsers().length;
             }
+            if (ai.metaData != null && ai.metaData.containsKey("xposedmodule")) {
+                info.disableMultiVersion = true;
+                info.cloneCount = 0;
+            }
             list.add(info);
         }
+        // sort by name
+        Collections.sort(list, (o1, o2) -> {
+            HanziToPinyin hanziToPinyin = HanziToPinyin.getInstance();
+            String pinyin1 = hanziToPinyin.toPinyinString(o1.name.toString().trim());
+            String pinyin2 = hanziToPinyin.toPinyinString(o2.name.toString().trim());
+            return pinyin1.compareTo(pinyin2);
+        });
         return list;
     }
 
     @Override
     public InstallResult addVirtualApp(AppInfoLite info) {
-        int flags = InstallStrategy.COMPARE_VERSION | InstallStrategy.ART_FLY_MODE;
+        int flags = InstallStrategy.COMPARE_VERSION | InstallStrategy.SKIP_DEX_OPT;
+        info.fastOpen = false; // disable fast open for compile.
+        if (DeviceUtil.isMeizuBelowN()) {
+            info.fastOpen = true;
+        }
         if (info.fastOpen) {
             flags |= InstallStrategy.DEPEND_SYSTEM_IF_EXIST;
+        }
+        if (info.disableMultiVersion) {
+            flags |= InstallStrategy.UPDATE_IF_EXIST;
         }
         return VirtualCore.get().installPackage(info.path, flags);
     }

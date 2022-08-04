@@ -15,6 +15,7 @@ import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.helper.utils.ComponentUtils;
 import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
+import com.lody.virtual.remote.InstalledAppInfo;
 import com.lody.virtual.remote.StubActivityRecord;
 
 import mirror.android.app.ActivityManagerNative;
@@ -28,7 +29,7 @@ import mirror.android.app.IActivityManager;
     public class HCallbackStub implements Handler.Callback, IInjector {
 
 
-        private static final int LAUNCH_ACTIVITY = ActivityThread.H.LAUNCH_ACTIVITY.get();
+        private static int LAUNCH_ACTIVITY = -1;
         private static final int CREATE_SERVICE = ActivityThread.H.CREATE_SERVICE.get();
         private static final int SCHEDULE_CRASH =
                 ActivityThread.H.SCHEDULE_CRASH != null ? ActivityThread.H.SCHEDULE_CRASH.get() : -1;
@@ -41,6 +42,11 @@ import mirror.android.app.IActivityManager;
 
         private Handler.Callback otherCallback;
 
+        static {
+            if (android.os.Build.VERSION.SDK_INT < 28) {
+                LAUNCH_ACTIVITY = ActivityThread.H.LAUNCH_ACTIVITY.get();
+            }
+        }
         private HCallbackStub() {
         }
 
@@ -106,12 +112,16 @@ import mirror.android.app.IActivityManager;
             IBinder token = ActivityThread.ActivityClientRecord.token.get(r);
             ActivityInfo info = saveInstance.info;
             if (VClientImpl.get().getToken() == null) {
+                InstalledAppInfo installedAppInfo = VirtualCore.get().getInstalledAppInfo(info.packageName, 0);
+                if(installedAppInfo == null){
+                    return true;
+                }
                 VActivityManager.get().processRestarted(info.packageName, info.processName, saveInstance.userId);
                 getH().sendMessageAtFrontOfQueue(Message.obtain(msg));
                 return false;
             }
             if (!VClientImpl.get().isBound()) {
-                VClientImpl.get().bindApplication(info.packageName, info.processName);
+                VClientImpl.get().bindApplicationForActivity(info.packageName, info.processName, intent);
                 getH().sendMessageAtFrontOfQueue(Message.obtain(msg));
                 return false;
             }

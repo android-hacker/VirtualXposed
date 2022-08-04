@@ -1,6 +1,8 @@
 package com.lody.virtual.client.core;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -10,15 +12,23 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Icon;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.ConditionVariable;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.Process;
 import android.os.RemoteException;
+import android.text.TextUtils;
+import android.widget.Toast;
 
+import com.lody.virtual.R;
 import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.env.Constants;
 import com.lody.virtual.client.env.VirtualRuntime;
@@ -30,7 +40,7 @@ import com.lody.virtual.client.ipc.LocalProxyUtils;
 import com.lody.virtual.client.ipc.ServiceManagerNative;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.client.ipc.VPackageManager;
-import com.lody.virtual.client.stub.StubManifest;
+import com.lody.virtual.client.stub.VASettings;
 import com.lody.virtual.helper.compat.BundleCompat;
 import com.lody.virtual.helper.utils.BitmapUtils;
 import com.lody.virtual.os.VUserHandle;
@@ -42,9 +52,11 @@ import com.lody.virtual.server.interfaces.IPackageObserver;
 import com.lody.virtual.server.interfaces.IUiCallback;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
-import dalvik.system.DexFile;
+import me.weishu.reflection.Reflection;
 import mirror.android.app.ActivityThread;
 
 /**
@@ -54,6 +66,8 @@ import mirror.android.app.ActivityThread;
 public final class VirtualCore {
 
     public static final int GET_HIDDEN_APP = 0x00000001;
+
+    public static final String TAICHI_PACKAGE = "me.weishu.exp";
 
     @SuppressLint("StaticFieldLeak")
     private static VirtualCore gCore = new VirtualCore();
@@ -88,6 +102,7 @@ public final class VirtualCore {
     private PhoneInfoDelegate phoneInfoDelegate;
     private ComponentDelegate componentDelegate;
     private TaskDescriptionDelegate taskDescriptionDelegate;
+    private Boolean taichiInstalled = null;
 
     private VirtualCore() {
     }
@@ -170,7 +185,9 @@ public final class VirtualCore {
             if (Looper.myLooper() != Looper.getMainLooper()) {
                 throw new IllegalStateException("VirtualCore.startup() must called in main thread.");
             }
-            StubManifest.STUB_CP_AUTHORITY = context.getPackageName() + "." + StubManifest.STUB_DEF_AUTHORITY;
+            Reflection.unseal(context);
+
+            VASettings.STUB_CP_AUTHORITY = context.getPackageName() + "." + VASettings.STUB_DEF_AUTHORITY;
             ServiceManagerNative.SERVICE_CP_AUTH = context.getPackageName() + "." + ServiceManagerNative.SERVICE_DEF_AUTH;
             this.context = context;
             mainThread = ActivityThread.currentActivityThread.call();
@@ -191,6 +208,21 @@ public final class VirtualCore {
 
     public void waitForEngine() {
         ServiceManagerNative.ensureServerStarted();
+    }
+
+    public boolean isEngineLaunched() {
+        String engineProcessName = getEngineProcessName();
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningAppProcessInfo info : am.getRunningAppProcesses()) {
+            if (info.processName.endsWith(engineProcessName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String getEngineProcessName() {
+        return context.getString(R.string.engine_process_name);
     }
 
     public void initialize(VirtualInitializer initializer) {
@@ -235,12 +267,11 @@ public final class VirtualCore {
     }
 
     private IAppManager getService() {
-        if (mService == null) {
+        if (mService == null
+                || (!VirtualCore.get().isVAppProcess() && !mService.asBinder().pingBinder())) {
             synchronized (this) {
-                if (mService == null) {
-                    Object remote = getStubInterface();
-                    mService = LocalProxyUtils.genProxy(IAppManager.class, remote);
-                }
+                Object remote = getStubInterface();
+                mService = LocalProxyUtils.genProxy(IAppManager.class, remote);
             }
         }
         return mService;
@@ -299,11 +330,13 @@ public final class VirtualCore {
      * @param pkg package name
      * @throws IOException
      */
+    @Deprecated
     public void preOpt(String pkg) throws IOException {
+        /*
         InstalledAppInfo info = getInstalledAppInfo(pkg, 0);
-        if (info != null && !info.dependSystem && !info.artFlyMode) {
+        if (info != null && !info.dependSystem) {
             DexFile.loadDex(info.apkPath, info.getOdexFile().getPath(), 0).close();
-        }
+        }*/
     }
 
     /**
@@ -320,6 +353,22 @@ public final class VirtualCore {
     public InstallResult installPackage(String apkPath, int flags) {
         try {
             return getService().installPackage(apkPath, flags);
+        } catch (RemoteException e) {
+            return VirtualRuntime.crash(e);
+        }
+    }
+
+    public boolean clearPackage(String packageName) {
+        try {
+            return getService().clearPackage(packageName);
+        } catch (RemoteException e) {
+            return VirtualRuntime.crash(e);
+        }
+    }
+
+    public boolean clearPackageAsUser(int userId, String packageName) {
+        try {
+            return getService().clearPackageAsUser(userId, packageName);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
@@ -342,11 +391,40 @@ public final class VirtualCore {
     }
 
     public boolean isOutsidePackageVisible(String pkg) {
+        if (!isXposedEnabled() || isTaiChiInstalled()) {
+            PackageManager unHookPackageManager = getUnHookPackageManager();
+            try {
+                unHookPackageManager.getPackageInfo(pkg, 0);
+                return true;
+            } catch (PackageManager.NameNotFoundException e) {
+                return false;
+            }
+        }
+
         try {
             return getService().isOutsidePackageVisible(pkg);
         } catch (RemoteException e) {
             return VirtualRuntime.crash(e);
         }
+    }
+
+    private boolean isTaiChiInstalled() {
+        if (taichiInstalled != null) {
+            return taichiInstalled;
+        }
+
+        try {
+            getUnHookPackageManager().getPackageInfo(TAICHI_PACKAGE, 0);
+            taichiInstalled = true;
+        } catch (PackageManager.NameNotFoundException e) {
+            taichiInstalled = false;
+        }
+
+        return taichiInstalled;
+    }
+
+    public boolean isXposedEnabled() {
+        return !VirtualCore.get().getContext().getFileStreamPath(".disable_xposed").exists();
     }
 
     public boolean isAppInstalled(String pkg) {
@@ -401,6 +479,7 @@ public final class VirtualCore {
         PackageManager pm = context.getPackageManager();
         String name;
         Bitmap icon;
+        String id = packageName + userId;
         try {
             CharSequence sequence = appInfo.loadLabel(pm);
             name = sequence.toString();
@@ -422,7 +501,7 @@ public final class VirtualCore {
         if (targetIntent == null) {
             return false;
         }
-        Intent shortcutIntent = new Intent();
+        Intent shortcutIntent = new Intent(Intent.ACTION_VIEW);
         shortcutIntent.setClassName(getHostPkg(), Constants.SHORTCUT_PROXY_ACTIVITY_NAME);
         shortcutIntent.addCategory(Intent.CATEGORY_DEFAULT);
         if (splash != null) {
@@ -430,15 +509,98 @@ public final class VirtualCore {
         }
         shortcutIntent.putExtra("_VA_|_intent_", targetIntent);
         shortcutIntent.putExtra("_VA_|_uri_", targetIntent.toUri(0));
-        shortcutIntent.putExtra("_VA_|_user_id_", VUserHandle.myUserId());
+        shortcutIntent.putExtra("_VA_|_user_id_", userId);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+            // bad parcel.
+            shortcutIntent.removeExtra("_VA_|_intent_");
+
+            Icon withBitmap = Icon.createWithBitmap(icon);
+            ShortcutInfo likeShortcut = new ShortcutInfo.Builder(context, id)
+                    .setShortLabel(name)
+                    .setLongLabel(name)
+                    .setIcon(withBitmap)
+                    .setIntent(shortcutIntent)
+                    .build();
+
+            // crate app shortcuts.
+            createShortcutAboveN(context, likeShortcut);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                return createDeskShortcutAboveO(context, likeShortcut);
+            }
+        }
+
 
         Intent addIntent = new Intent();
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, name);
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON, icon);
         addIntent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
-        context.sendBroadcast(addIntent);
+        try {
+            context.sendBroadcast(addIntent);
+        } catch (Throwable ignored) {
+            return false;
+        }
         return true;
+    }
+
+    @TargetApi(Build.VERSION_CODES.N_MR1)
+    private static boolean createShortcutAboveN(Context context, ShortcutInfo likeShortcut) {
+        ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
+        if (shortcutManager == null) {
+            return false;
+        }
+        try {
+            int max = shortcutManager.getMaxShortcutCountPerActivity();
+            List<ShortcutInfo> dynamicShortcuts = shortcutManager.getDynamicShortcuts();
+            if (dynamicShortcuts.size() >= max) {
+                Collections.sort(dynamicShortcuts, new Comparator<ShortcutInfo>() {
+                    @Override
+                    public int compare(ShortcutInfo o1, ShortcutInfo o2) {
+                        long r = o1.getLastChangedTimestamp() - o2.getLastChangedTimestamp();
+                        return r == 0 ? 0 : (r > 0 ? 1 : -1);
+                    }
+                });
+
+                ShortcutInfo remove = dynamicShortcuts.remove(0);// remove old.
+                shortcutManager.removeDynamicShortcuts(Collections.singletonList(remove.getId()));
+            }
+
+            shortcutManager.addDynamicShortcuts(Collections.singletonList(likeShortcut));
+            return true;
+        } catch (Throwable e) {
+            return false;
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private static boolean createDeskShortcutAboveO(Context context, ShortcutInfo info) {
+        ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
+        if (shortcutManager == null) {
+            return false;
+        }
+        if (shortcutManager.isRequestPinShortcutSupported()) {
+            // 当添加快捷方式的确认弹框弹出来时，将被回调
+            // PendingIntent shortcutCallbackIntent = PendingIntent.getBroadcast(context, 0,
+            // new Intent(context, MyReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT);
+
+            List<ShortcutInfo> pinnedShortcuts = shortcutManager.getPinnedShortcuts();
+            boolean exists = false;
+            for (ShortcutInfo pinnedShortcut : pinnedShortcuts) {
+                if (TextUtils.equals(pinnedShortcut.getId(), info.getId())) {
+                    // already exist.
+                    exists = true;
+                    Toast.makeText(context, R.string.create_shortcut_already_exist, Toast.LENGTH_SHORT).show();
+                    break;
+                }
+            }
+            if (!exists) {
+                shortcutManager.requestPinShortcut(info, null);
+            }
+            return true;
+        }
+        return false;
     }
 
     public boolean removeShortcut(int userId, String packageName, Intent splash, OnEmitShortcutListener listener) {
@@ -494,6 +656,25 @@ public final class VirtualCore {
         }
     }
 
+    public static IUiCallback getUiCallback(Intent intent) {
+        if (intent == null) {
+            return null;
+        }
+        // only for launch intent.
+        if (!Intent.ACTION_MAIN.equals(intent.getAction())) {
+            return null;
+        }
+        try {
+            Bundle bundle = intent.getBundleExtra("_VA_|_sender_");
+            if (bundle != null) {
+                IBinder uicallbackToken = BundleCompat.getBinder(bundle, "_VA_|_ui_callback_");
+                return IUiCallback.Stub.asInterface(uicallbackToken);
+            }
+        } catch (Throwable ignored) {
+        }
+        return null;
+    }
+
     public InstalledAppInfo getInstalledAppInfo(String pkg, int flags) {
         try {
             return getService().getInstalledAppInfo(pkg, flags);
@@ -532,7 +713,7 @@ public final class VirtualCore {
         return false;
     }
 
-    public Resources getResources(String pkg) {
+    public Resources getResources(String pkg) throws Resources.NotFoundException {
         InstalledAppInfo installedAppInfo = getInstalledAppInfo(pkg, 0);
         if (installedAppInfo != null) {
             AssetManager assets = mirror.android.content.res.AssetManager.ctor.newInstance();
@@ -540,7 +721,7 @@ public final class VirtualCore {
             Resources hostRes = context.getResources();
             return new Resources(assets, hostRes.getDisplayMetrics(), hostRes.getConfiguration());
         }
-        return null;
+        throw new Resources.NotFoundException(pkg);
     }
 
     public synchronized ActivityInfo resolveActivityInfo(Intent intent, int userId) {
@@ -694,7 +875,8 @@ public final class VirtualCore {
         }
     }
 
-    public abstract static class PackageObserver extends IPackageObserver.Stub {}
+    public abstract static class PackageObserver extends IPackageObserver.Stub {
+    }
 
     public void registerObserver(IPackageObserver observer) {
         try {

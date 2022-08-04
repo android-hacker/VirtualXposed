@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/selectableItemBackground">
@@ -12,7 +13,9 @@
         <ImageView
             android:id="@+id/item_app_icon"
             android:layout_width="60dp"
-            android:layout_height="60dp" />
+            android:layout_height="60dp"
+            tools:src="@mipmap/ic_launcher"
+            />
 
         <TextView
             android:id="@+id/item_app_name"
@@ -20,6 +23,7 @@
             android:layout_height="match_parent"
             android:layout_marginLeft="20dp"
             android:layout_marginStart="20dp"
+            tools:text="App Label"
             android:gravity="center|start" />
 
     </LinearLayout>

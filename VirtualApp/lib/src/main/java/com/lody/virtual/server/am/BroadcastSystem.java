@@ -7,12 +7,15 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.SpecialComponentList;
 import com.lody.virtual.helper.collection.ArrayMap;
+import com.lody.virtual.helper.utils.Reflect;
 import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.remote.PendingResultData;
 import com.lody.virtual.server.pm.PackageSetting;
@@ -60,8 +63,12 @@ public class BroadcastSystem {
         this.mContext = context;
         this.mApp = app;
         this.mAMS = ams;
-        mScheduler = new StaticScheduler();
-        mTimeoutHandler = new TimeoutHandler();
+        HandlerThread broadcastThread = new HandlerThread("BroadcastThread");
+        HandlerThread anrThread = new HandlerThread("BroadcastAnrThread");
+        broadcastThread.start();
+        anrThread.start();
+        mScheduler = new StaticScheduler(broadcastThread.getLooper());
+        mTimeoutHandler = new TimeoutHandler(anrThread.getLooper());
         fuckHuaWeiVerifier();
     }
 
@@ -96,7 +103,15 @@ public class BroadcastSystem {
             if (packageInfo != null) {
                 Object receiverResource = LoadedApkHuaWei.mReceiverResource.get(packageInfo);
                 if (receiverResource != null) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    if (Build.VERSION.SDK_INT >= 26) {
+                        Map<Integer, List<String>> whiteListMap = Reflect.on(receiverResource).get("mWhiteListMap");
+                        List<String> whiteList = whiteListMap.get(0);
+                        if (whiteList == null) {
+                            whiteList = new ArrayList<>();
+                            whiteListMap.put(0, whiteList);
+                        }
+                        whiteList.add(mContext.getPackageName());
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         if (ReceiverResourceN.mWhiteList != null) {
                             List<String> whiteList = ReceiverResourceN.mWhiteList.get(receiverResource);
                             List<String> newWhiteList = new ArrayList<>();
@@ -107,7 +122,6 @@ public class BroadcastSystem {
                             }
                             ReceiverResourceN.mWhiteList.set(receiverResource, newWhiteList);
                         }
-
                     } else {
                         if (ReceiverResourceM.mWhiteList != null) {
                             String[] whiteList = ReceiverResourceM.mWhiteList.get(receiverResource);
@@ -197,6 +211,9 @@ public class BroadcastSystem {
 
     private static final class StaticScheduler extends Handler {
 
+        StaticScheduler(Looper looper) {
+            super(looper);
+        }
     }
 
     private static final class BroadcastRecord {
@@ -212,6 +229,11 @@ public class BroadcastSystem {
     }
 
     private final class TimeoutHandler extends Handler {
+
+        TimeoutHandler(Looper looper) {
+            super(looper);
+        }
+
         @Override
         public void handleMessage(Message msg) {
             IBinder token = (IBinder) msg.obj;
@@ -242,6 +264,10 @@ public class BroadcastSystem {
                 return;
             }
             if ((intent.getFlags() & FLAG_RECEIVER_REGISTERED_ONLY) != 0 || isInitialStickyBroadcast()) {
+                return;
+            }
+            String privilegePkg = intent.getStringExtra("_VA_|_privilege_pkg_");
+            if (privilegePkg != null && !info.packageName.equals(privilegePkg)) {
                 return;
             }
             PendingResult result = goAsync();

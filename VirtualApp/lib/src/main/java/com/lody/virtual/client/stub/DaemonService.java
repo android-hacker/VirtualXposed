@@ -4,7 +4,13 @@ import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.IBinder;
+
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.env.Constants;
+
+import java.io.File;
 
 
 /**
@@ -15,8 +21,19 @@ public class DaemonService extends Service {
 
     private static final int NOTIFY_ID = 1001;
 
+	static boolean showNotification = true;
+
 	public static void startup(Context context) {
+		File flagFile = context.getFileStreamPath(Constants.NO_NOTIFICATION_FLAG);
+		if (Build.VERSION.SDK_INT >= 25 && flagFile.exists()) {
+			showNotification = false;
+		}
+
 		context.startService(new Intent(context, DaemonService.class));
+		if (VirtualCore.get().isServerProcess()) {
+			// PrivilegeAppOptimizer.notifyBootFinish();
+			DaemonJobService.scheduleJob(context);
+		}
 	}
 
 	@Override
@@ -33,9 +50,11 @@ public class DaemonService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		if (!showNotification) {
+			return;
+		}
         startService(new Intent(this, InnerService.class));
         startForeground(NOTIFY_ID, new Notification());
-
 	}
 
 	@Override

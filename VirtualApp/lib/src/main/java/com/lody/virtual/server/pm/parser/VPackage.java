@@ -1,5 +1,6 @@
 package com.lody.virtual.server.pm.parser;
 
+import android.Manifest;
 import android.content.ComponentName;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
@@ -19,6 +20,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Lody
@@ -449,6 +452,49 @@ public class VPackage implements Parcelable {
     }
 
     public static class PermissionComponent extends Component<IntentInfo> {
+
+        // https://developer.android.com/guide/topics/security/permissions?hl=zh-cn
+        public static Set<String> DANGEROUS_PERMISSION = new HashSet<String>() {{
+            // CALENDAR group
+            add(Manifest.permission.READ_CALENDAR);
+            add(Manifest.permission.WRITE_CALENDAR);
+
+            // CAMERA
+            add(Manifest.permission.CAMERA);
+
+            // CONTACTS
+            add(Manifest.permission.READ_CONTACTS);
+            add(Manifest.permission.WRITE_CONTACTS);
+            add(Manifest.permission.GET_ACCOUNTS);
+
+            // LOCATION
+            add(Manifest.permission.ACCESS_FINE_LOCATION);
+            add(Manifest.permission.ACCESS_COARSE_LOCATION);
+
+            // PHONE
+            add(Manifest.permission.READ_PHONE_STATE);
+            add(Manifest.permission.CALL_PHONE);
+            add(Manifest.permission.READ_CALL_LOG);
+            add(Manifest.permission.WRITE_CALL_LOG);
+            add(Manifest.permission.ADD_VOICEMAIL);
+            add(Manifest.permission.USE_SIP);
+            add(Manifest.permission.PROCESS_OUTGOING_CALLS);
+
+            // SENSORS
+            add(Manifest.permission.BODY_SENSORS);
+
+            // SMS
+            add(Manifest.permission.SEND_SMS);
+            add(Manifest.permission.RECEIVE_SMS);
+            add(Manifest.permission.READ_SMS);
+            add(Manifest.permission.RECEIVE_WAP_PUSH);
+            add(Manifest.permission.RECEIVE_MMS);
+
+            // STORAGE
+            add(Manifest.permission.READ_EXTERNAL_STORAGE);
+            add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }};
+
         public PermissionInfo info;
 
         public PermissionComponent(PackageParser.Permission p) {

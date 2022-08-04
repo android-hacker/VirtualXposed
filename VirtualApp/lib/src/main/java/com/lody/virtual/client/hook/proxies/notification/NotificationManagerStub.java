@@ -7,6 +7,7 @@ import com.lody.virtual.client.hook.base.Inject;
 import com.lody.virtual.client.hook.base.MethodInvocationProxy;
 import com.lody.virtual.client.hook.base.MethodInvocationStub;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgMethodProxy;
+import com.lody.virtual.helper.utils.DeviceUtil;
 
 import mirror.android.app.NotificationManager;
 import mirror.android.widget.Toast;
@@ -36,7 +37,18 @@ public class NotificationManagerStub extends MethodInvocationProxy<MethodInvocat
             addMethodProxy(new ReplaceCallingPkgMethodProxy("getNotificationPolicy"));
             addMethodProxy(new ReplaceCallingPkgMethodProxy("isNotificationPolicyAccessGrantedForPackage"));
         }
-        if ("samsung".equalsIgnoreCase(Build.BRAND) || "samsung".equalsIgnoreCase(Build.MANUFACTURER)) {
+
+        // http://androidxref.com/8.0.0_r4/xref/frameworks/base/core/java/android/app/INotificationManager.aidl
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            addMethodProxy(new ReplaceCallingPkgMethodProxy("createNotificationChannelGroups"));
+            addMethodProxy(new ReplaceCallingPkgMethodProxy("getNotificationChannelGroups"));
+            addMethodProxy(new ReplaceCallingPkgMethodProxy("deleteNotificationChannelGroup"));
+            addMethodProxy(new ReplaceCallingPkgMethodProxy("createNotificationChannels"));
+            addMethodProxy(new ReplaceCallingPkgMethodProxy("getNotificationChannels"));
+            addMethodProxy(new ReplaceCallingPkgMethodProxy("getNotificationChannel"));
+            addMethodProxy(new ReplaceCallingPkgMethodProxy("deleteNotificationChannel"));
+        }
+        if (DeviceUtil.isSamsung()) {
             addMethodProxy(new ReplaceCallingPkgMethodProxy("removeEdgeNotification"));
         }
     }

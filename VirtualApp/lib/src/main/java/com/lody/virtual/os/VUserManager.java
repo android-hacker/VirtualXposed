@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.ipc.LocalProxyUtils;
 import com.lody.virtual.client.ipc.ServiceManagerNative;
 import com.lody.virtual.server.IUserManager;
 
@@ -17,7 +19,7 @@ import static com.lody.virtual.client.ipc.ServiceManagerNative.USER;
 public class VUserManager {
 
     private static String TAG = "VUserManager";
-    private final IUserManager mService;
+    private IUserManager mService;
 
     /**
      * Key for user restrictions. Specifies if a user is disallowed from adding and removing
@@ -119,6 +121,21 @@ public class VUserManager {
         mService = service;
     }
 
+    private IUserManager getService() {
+        if (mService == null
+                || (!VirtualCore.get().isVAppProcess() && !mService.asBinder().pingBinder())) {
+            synchronized (this) {
+                Object remote = getStubInterface();
+                mService = LocalProxyUtils.genProxy(IUserManager.class, remote);
+            }
+        }
+        return mService;
+    }
+
+    private Object getStubInterface() {
+        return IUserManager.Stub.asInterface(ServiceManagerNative.getService(USER));
+    }
+
     /**
      * Returns whether the system supports multiple users.
      * @return true if multiple users can be created, false if it is a single user device.
@@ -145,7 +162,7 @@ public class VUserManager {
      */
     public String getUserName() {
         try {
-            return mService.getUserInfo(getUserHandle()).name;
+            return getService().getUserInfo(getUserHandle()).name;
         } catch (RemoteException re) {
             Log.w(TAG, "Could not get user name", re);
             return "";
@@ -169,7 +186,7 @@ public class VUserManager {
      */
     public VUserInfo getUserInfo(int handle) {
         try {
-            return mService.getUserInfo(handle);
+            return getService().getUserInfo(handle);
         } catch (RemoteException re) {
             Log.w(TAG, "Could not get user info", re);
             return null;
@@ -215,7 +232,7 @@ public class VUserManager {
      */
     public VUserInfo createUser(String name, int flags) {
         try {
-            return mService.createUser(name, flags);
+            return getService().createUser(name, flags);
         } catch (RemoteException re) {
             Log.w(TAG, "Could not create a user", re);
             return null;
@@ -237,7 +254,7 @@ public class VUserManager {
      */
     public List<VUserInfo> getUsers() {
         try {
-            return mService.getUsers(false);
+            return getService().getUsers(false);
         } catch (RemoteException re) {
             Log.w(TAG, "Could not get user list", re);
             return null;
@@ -252,7 +269,7 @@ public class VUserManager {
      */
     public List<VUserInfo> getUsers(boolean excludeDying) {
         try {
-            return mService.getUsers(excludeDying);
+            return getService().getUsers(excludeDying);
         } catch (RemoteException re) {
             Log.w(TAG, "Could not get user list", re);
             return null;
@@ -266,7 +283,7 @@ public class VUserManager {
      */
     public boolean removeUser(int handle) {
         try {
-            return mService.removeUser(handle);
+            return getService().removeUser(handle);
         } catch (RemoteException re) {
             Log.w(TAG, "Could not remove user ", re);
             return false;
@@ -282,7 +299,7 @@ public class VUserManager {
      */
     public void setUserName(int handle, String name) {
         try {
-            mService.setUserName(handle, name);
+            getService().setUserName(handle, name);
         } catch (RemoteException re) {
             Log.w(TAG, "Could not set the user name ", re);
         }
@@ -296,7 +313,7 @@ public class VUserManager {
      */
     public void setUserIcon(int handle, Bitmap icon) {
         try {
-            mService.setUserIcon(handle, icon);
+            getService().setUserIcon(handle, icon);
         } catch (RemoteException re) {
             Log.w(TAG, "Could not set the user icon ", re);
         }
@@ -310,7 +327,7 @@ public class VUserManager {
      */
     public Bitmap getUserIcon(int handle) {
         try {
-            return mService.getUserIcon(handle);
+            return getService().getUserIcon(handle);
         } catch (RemoteException re) {
             Log.w(TAG, "Could not get the user icon ", re);
             return null;
@@ -325,7 +342,7 @@ public class VUserManager {
      */
     public void setGuestEnabled(boolean enable) {
         try {
-            mService.setGuestEnabled(enable);
+            getService().setGuestEnabled(enable);
         } catch (RemoteException re) {
             Log.w(TAG, "Could not change guest account availability to " + enable);
         }
@@ -338,7 +355,7 @@ public class VUserManager {
      */
     public boolean isGuestEnabled() {
         try {
-            return mService.isGuestEnabled();
+            return getService().isGuestEnabled();
         } catch (RemoteException re) {
             Log.w(TAG, "Could not retrieve guest enabled state");
             return false;
@@ -352,7 +369,7 @@ public class VUserManager {
      */
     public void wipeUser(int handle) {
         try {
-            mService.wipeUser(handle);
+            getService().wipeUser(handle);
         } catch (RemoteException re) {
             Log.w(TAG, "Could not wipe user " + handle);
         }
@@ -377,7 +394,7 @@ public class VUserManager {
      */
     public int getUserSerialNumber(int handle) {
         try {
-            return mService.getUserSerialNumber(handle);
+            return getService().getUserSerialNumber(handle);
         } catch (RemoteException re) {
             Log.w(TAG, "Could not get serial number for user " + handle);
         }
@@ -395,7 +412,7 @@ public class VUserManager {
      */
     public int getUserHandle(int userSerialNumber) {
         try {
-            return mService.getUserHandle(userSerialNumber);
+            return getService().getUserHandle(userSerialNumber);
         } catch (RemoteException re) {
             Log.w(TAG, "Could not get VUserHandle for user " + userSerialNumber);
         }

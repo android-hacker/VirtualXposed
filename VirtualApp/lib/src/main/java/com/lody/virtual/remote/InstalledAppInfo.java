@@ -1,6 +1,7 @@
 package com.lody.virtual.remote;
 
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -19,15 +20,13 @@ public final class InstalledAppInfo implements Parcelable {
     public String apkPath;
     public String libPath;
     public boolean dependSystem;
-    public boolean artFlyMode;
     public int appId;
 
-    public InstalledAppInfo(String packageName, String apkPath, String libPath, boolean dependSystem, boolean artFlyMode, int appId) {
+    public InstalledAppInfo(String packageName, String apkPath, String libPath, boolean dependSystem, boolean skipDexOpt, int appId) {
         this.packageName = packageName;
         this.apkPath = apkPath;
         this.libPath = libPath;
         this.dependSystem = dependSystem;
-        this.artFlyMode = artFlyMode;
         this.appId = appId;
     }
 
@@ -37,6 +36,10 @@ public final class InstalledAppInfo implements Parcelable {
 
     public ApplicationInfo getApplicationInfo(int userId) {
         return VPackageManager.get().getApplicationInfo(packageName, 0, userId);
+    }
+
+    public PackageInfo getPackageInfo(int userId) {
+        return VPackageManager.get().getPackageInfo(packageName, 0, userId);
     }
 
     public int[] getInstalledUsers() {
@@ -58,7 +61,6 @@ public final class InstalledAppInfo implements Parcelable {
         dest.writeString(this.apkPath);
         dest.writeString(this.libPath);
         dest.writeByte(this.dependSystem ? (byte) 1 : (byte) 0);
-        dest.writeByte(this.artFlyMode ? (byte) 1 : (byte) 0);
         dest.writeInt(this.appId);
     }
 
@@ -67,7 +69,6 @@ public final class InstalledAppInfo implements Parcelable {
         this.apkPath = in.readString();
         this.libPath = in.readString();
         this.dependSystem = in.readByte() != 0;
-        this.artFlyMode = in.readByte() != 0;
         this.appId = in.readInt();
     }
 

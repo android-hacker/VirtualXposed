@@ -98,7 +98,6 @@ public class VNotificationManagerService extends INotificationManager.Stub {
                 mNotifications.put(packageName, list);
             }
             if (!list.contains(notificationInfo)) {
-                VLog.d(TAG, "add " + tag + " " + id);
                 list.add(notificationInfo);
             }
         }

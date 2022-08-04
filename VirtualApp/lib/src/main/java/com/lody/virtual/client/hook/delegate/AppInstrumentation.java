@@ -3,10 +3,12 @@ package com.lody.virtual.client.hook.delegate;
 import android.app.Activity;
 import android.app.Application;
 import android.app.Instrumentation;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.PersistableBundle;
 import android.os.RemoteException;
 
 import com.lody.virtual.client.VClientImpl;
@@ -17,6 +19,7 @@ import com.lody.virtual.client.interfaces.IInjector;
 import com.lody.virtual.client.ipc.ActivityClientRecord;
 import com.lody.virtual.client.ipc.VActivityManager;
 import com.lody.virtual.helper.compat.BundleCompat;
+import com.lody.virtual.helper.utils.VLog;
 import com.lody.virtual.os.VUserHandle;
 import com.lody.virtual.server.interfaces.IUiCallback;
 
@@ -68,6 +71,9 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
 
     @Override
     public void callActivityOnCreate(Activity activity, Bundle icicle) {
+        if (icicle != null) {
+            BundleCompat.clearParcelledData(icicle);
+        }
         VirtualCore.get().getComponentDelegate().beforeActivityCreate(activity);
         IBinder token = mirror.android.app.Activity.mToken.get(activity);
         ActivityClientRecord r = VActivityManager.get().getActivityRecord(token);
@@ -89,8 +95,53 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
                 activity.setRequestedOrientation(info.screenOrientation);
             }
         }
-        super.callActivityOnCreate(activity, icicle);
+        try {
+            super.callActivityOnCreate(activity, icicle);
+        } catch (Throwable e) {
+            VLog.e(TAG, "activity crashed when call onCreate, clearing", e);
+            // 1. tell ui that we launched(failed)
+            Intent intent = activity.getIntent();
+            callUiCallback(intent, false);
+            // 2. finish ourself to tell AMS that do not try launch us again.
+            activity.finish();
+            // 3. rethrow
+            throw e;
+        }
         VirtualCore.get().getComponentDelegate().afterActivityCreate(activity);
+    }
+
+    @Override
+    public Activity newActivity(Class<?> clazz, Context context, IBinder token, Application application, Intent intent, ActivityInfo info, CharSequence title, Activity parent, String id, Object lastNonConfigurationInstance) throws InstantiationException, IllegalAccessException {
+        try {
+            return super.newActivity(clazz, context, token, application, intent, info, title, parent, id, lastNonConfigurationInstance);
+        } catch (Throwable e) {
+            VLog.e(TAG, "activity crashed when call newActivity, clearing", e);
+            // 1. tell ui that we launched(failed)
+            callUiCallback(intent, false);
+            // 3. rethrow
+            throw e;
+        }
+    }
+
+    @Override
+    public Activity newActivity(ClassLoader cl, String className, Intent intent) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        try {
+            return super.newActivity(cl, className, intent);
+        } catch (Throwable e) {
+            VLog.e(TAG, "activity crashed when call newActivity, clearing", e);
+            // 1. tell ui that we launched(failed)
+            callUiCallback(intent, false);
+            // 3. rethrow
+            throw e;
+        }
+    }
+
+    @Override
+    public void callActivityOnCreate(Activity activity, Bundle icicle, PersistableBundle persistentState) {
+        if (icicle != null) {
+            BundleCompat.clearParcelledData(icicle);
+        }
+        super.callActivityOnCreate(activity, icicle, persistentState);
     }
 
     @Override
@@ -100,20 +151,8 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
         super.callActivityOnResume(activity);
         VirtualCore.get().getComponentDelegate().afterActivityResume(activity);
         Intent intent = activity.getIntent();
-        if (intent != null) {
-            Bundle bundle = intent.getBundleExtra("_VA_|_sender_");
-            if (bundle != null) {
-                IBinder callbackToken = BundleCompat.getBinder(bundle, "_VA_|_ui_callback_");
-                IUiCallback callback = IUiCallback.Stub.asInterface(callbackToken);
-                if (callback != null) {
-                    try {
-                        callback.onAppOpened(VClientImpl.get().getCurrentPackage(), VUserHandle.myUserId());
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
+
+        callUiCallback(intent, true);
     }
 
 
@@ -137,4 +176,22 @@ public final class AppInstrumentation extends InstrumentationDelegate implements
         super.callApplicationOnCreate(app);
     }
 
+    /**
+     * tell the ui that the activity has launched.
+     * @param intent
+     */
+    private void callUiCallback(Intent intent, boolean success) {
+        IUiCallback callback = VirtualCore.getUiCallback(intent);
+        if (callback != null) {
+            try {
+                if (success) {
+                    callback.onAppOpened(VClientImpl.get().getCurrentPackage(), VUserHandle.myUserId());
+                } else {
+                    callback.onOpenFailed(VClientImpl.get().getCurrentPackage(), VUserHandle.myUserId());
+                }
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

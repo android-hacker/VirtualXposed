@@ -9,8 +9,7 @@ import android.os.RemoteException;
 import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.VirtualRuntime;
-import com.lody.virtual.client.hook.secondary.GmsSupport;
-import com.lody.virtual.client.stub.StubManifest;
+import com.lody.virtual.helper.ArtDexOptimizer;
 import com.lody.virtual.helper.collection.IntArray;
 import com.lody.virtual.helper.compat.NativeLibraryHelperCompat;
 import com.lody.virtual.helper.utils.ArrayUtils;
@@ -37,6 +36,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+
+import dalvik.system.DexFile;
 
 /**
  * @author Lody
@@ -75,19 +76,20 @@ public class VAppManagerService extends IAppManager.Stub {
         synchronized (this) {
             mBooting = true;
             mPersistenceLayer.read();
-            if (StubManifest.ENABLE_GMS && !GmsSupport.isGoogleFrameworkInstalled()) {
-                GmsSupport.installGms(0);
-            }
+            PrivilegeAppOptimizer.get().performOptimizeAllApps();
             mBooting = false;
         }
     }
 
     private void cleanUpResidualFiles(PackageSetting ps) {
+        VLog.w(TAG, "cleanUpResidualFiles: " + ps.packageName);
         File dataAppDir = VEnvironment.getDataAppPackageDirectory(ps.packageName);
         FileUtils.deleteDir(dataAppDir);
-        for (int userId : VUserManagerService.get().getUserIds()) {
-            FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(userId, ps.packageName));
-        }
+
+        // We shouldn't remove user data here!!! Just remove the package.
+        // for (int userId : VUserManagerService.get().getUserIds()) {
+        //     FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(userId, ps.packageName));
+        // }
     }
 
 
@@ -148,7 +150,6 @@ public class VAppManagerService extends IAppManager.Stub {
         if (path == null) {
             return InstallResult.makeFailure("path = NULL");
         }
-        boolean artFlyMode = VirtualRuntime.isArt() && (flags & InstallStrategy.ART_FLY_MODE) != 0;
         File packageFile = new File(path);
         if (!packageFile.exists() || !packageFile.isFile()) {
             return InstallResult.makeFailure("Package File is not exist.");
@@ -173,7 +174,7 @@ public class VAppManagerService extends IAppManager.Stub {
                 return res;
             }
             if (!canUpdate(existOne, pkg, flags)) {
-                return InstallResult.makeFailure("Not allowed to update the package.");
+                return InstallResult.makeFailure("Can not update the package (such as version downrange).");
             }
             res.isUpdate = true;
         }
@@ -221,7 +222,6 @@ public class VAppManagerService extends IAppManager.Stub {
         } else {
             ps = new PackageSetting();
         }
-        ps.artFlyMode = artFlyMode;
         ps.dependSystem = dependSystem;
         ps.apkPath = packageFile.getPath();
         ps.libPath = libDir.getPath();
@@ -240,6 +240,26 @@ public class VAppManagerService extends IAppManager.Stub {
         PackageParserEx.savePackageCache(pkg);
         PackageCacheManager.put(pkg, ps);
         mPersistenceLayer.save();
+        if (!dependSystem) {
+            boolean runDexOpt = false;
+            if (VirtualRuntime.isArt()) {
+                try {
+                    ArtDexOptimizer.compileDex2Oat(ps.apkPath, VEnvironment.getOdexFile(ps.packageName).getPath());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    runDexOpt = true;
+                }
+            } else {
+                runDexOpt = true;
+            }
+            if (runDexOpt) {
+                try {
+                    DexFile.loadDex(ps.apkPath, VEnvironment.getOdexFile(ps.packageName).getPath(), 0).close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         BroadcastSystem.get().startApp(pkg);
         if (notify) {
             notifyAppInstalled(ps, -1);
@@ -306,6 +326,48 @@ public class VAppManagerService extends IAppManager.Stub {
     }
 
     @Override
+    public boolean clearPackageAsUser(int userId, String packageName) throws RemoteException {
+        if (!VUserManagerService.get().exists(userId)) {
+            return false;
+        }
+        PackageSetting ps = PackageCacheManager.getSetting(packageName);
+        if (ps != null) {
+            int[] userIds = getPackageInstalledUsers(packageName);
+            if (!ArrayUtils.contains(userIds, userId)) {
+                return false;
+            }
+            if (userIds.length == 1) {
+                clearPackage(packageName);
+            } else {
+                // Just hidden it
+                VActivityManagerService.get().killAppByPkg(packageName, userId);
+                ps.setInstalled(userId, false);
+                mPersistenceLayer.save();
+                FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(userId, packageName));
+                FileUtils.deleteDir(VEnvironment.getVirtualPrivateStorageDir(userId, packageName));
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean clearPackage(String packageName) throws RemoteException {
+        try {
+            BroadcastSystem.get().stopApp(packageName);
+            VActivityManagerService.get().killAppByPkg(packageName, VUserHandle.USER_ALL);
+
+            for (int id : VUserManagerService.get().getUserIds()) {
+                FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(id, packageName));
+                FileUtils.deleteDir(VEnvironment.getVirtualPrivateStorageDir(id, packageName));
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
     public synchronized boolean uninstallPackageAsUser(String packageName, int userId) {
         if (!VUserManagerService.get().exists(userId)) {
             return false;
@@ -325,6 +387,7 @@ public class VAppManagerService extends IAppManager.Stub {
                 notifyAppUninstalled(ps, userId);
                 mPersistenceLayer.save();
                 FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(userId, packageName));
+                FileUtils.deleteDir(VEnvironment.getVirtualPrivateStorageDir(userId, packageName));
             }
             return true;
         }
@@ -341,6 +404,7 @@ public class VAppManagerService extends IAppManager.Stub {
             VEnvironment.getOdexFile(packageName).delete();
             for (int id : VUserManagerService.get().getUserIds()) {
                 FileUtils.deleteDir(VEnvironment.getDataUserPackageDirectory(id, packageName));
+                FileUtils.deleteDir(VEnvironment.getVirtualPrivateStorageDir(id, packageName));
             }
             PackageCacheManager.remove(packageName);
         } catch (Exception e) {

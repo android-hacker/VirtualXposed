@@ -1,16 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="io.virtualapp">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <uses-sdk tools:overrideLibrary="com.android.launcher3,android.support.dynamicanimation" />
+
     <application
-        android:name=".VApp"
+        android:name=".XApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:label="@string/vxp"
+        android:theme="@style/LauncherTheme"
+        tools:replace="android:icon,android:label">
+
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.1" />
+
+        <meta-data
+            android:name="android.support.VERSION"
+            android:value="com.android.support:design:25.4.0"
+            tools:replace="android:value" />
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="797c6ad1f87c908a4d7f6e8091e6466848b1611d" />
 
         <activity
             android:name=".splash.SplashActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -19,20 +40,129 @@
         </activity>
 
         <activity
-            android:name=".home.HomeActivity"
-            android:theme="@style/UITheme" />
-
-        <activity
             android:name=".home.ListAppActivity"
-            android:theme="@style/UITheme" />
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <activity
             android:name=".home.LoadingActivity"
             android:excludeFromRecents="true"
             android:noHistory="true"
+            android:screenOrientation="portrait"
             android:taskAffinity="va.task.loading"
             android:theme="@style/TransparentTheme" />
 
+        <activity
+            android:name=".settings.AboutActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <activity android:name=".home.NewHomeActivity" />
+
+        <activity
+            android:name=".settings.SettingsActivity"
+            android:label="@string/settings_title"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Material.Light" />
+
+
+        <activity
+            android:name=".settings.RecommendPluginActivity"
+            android:label="@string/settings_plugin_recommend"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light" />
+
+        <activity
+            android:name=".settings.AppManageActivity"
+            android:label="@string/settings_app_manage_text"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light" />
+
+        <activity
+            android:name=".settings.TaskManageActivity"
+            android:label="@string/settings_task_manage_text"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light" />
+
+        <activity
+            android:name=".sys.ShareBridgeActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation"
+            android:excludeFromRecents="true"
+            android:label="@string/shared_to_vxp"
+            android:screenOrientation="portrait"
+            android:taskAffinity="io.va.exposed.share"
+            android:theme="@style/Theme.AppCompat.Light.Dialog">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".sys.InstallerActivity"
+            android:allowTaskReparenting="true"
+            android:configChanges="keyboard|keyboardHidden|orientation"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_installer_label"
+            android:noHistory="true"
+            android:taskAffinity="io.va.exposed.installer"
+            android:theme="@style/Theme.AppCompat.Light" />
+
+        <activity-alias
+            android:name="vxp.installer"
+            android:enabled="true"
+            android:exported="true"
+            android:targetActivity=".sys.InstallerActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="file" />
+                <data android:mimeType="application/vnd.android.package-archive" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="content" />
+                <data android:mimeType="application/vnd.android.package-archive" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name="vxp.launcher"
+            android:enabled="false"
+            android:exported="true"
+            android:targetActivity=".home.NewHomeActivity">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.MONKEY" />
+                <category android:name="android.intent.category.LAUNCHER_APP" />
+            </intent-filter>
+        </activity-alias>
+
+
+        <service
+            android:name=".update.VAVersionService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <receiver
+            android:name=".dev.CmdReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="io.va.exposed.CMD" />
+            </intent-filter>
+        </receiver>
     </application>
 
 

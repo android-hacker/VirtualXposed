@@ -1,0 +1,19 @@
+# Comment that will be sent if an issue is judged to be closed
+comment: "This issue is closed because it does not meet our issue template/为方便解决问题，请使用 issue 模版提交问题。"
+issueConfigs:
+# There can be several configs for different kind of issues.
+- content:
+# Example 1: bug report
+  - "Expected behavior"
+  - "To Reproduce"
+  - "Describe the bug"
+- content:
+# Example 2: feature request
+  - "Describe the solution you'd like"
+- content:
+  - "问题描述"
+  - "复现步骤"
+  - "环境"
+- content:
+  - "场景描述"
+  - "希望的解决方案"

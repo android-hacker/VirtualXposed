@@ -22,9 +22,6 @@ public class TelephonyStub extends BinderInvocationProxy {
 	@Override
 	protected void onBindMethods() {
 		super.onBindMethods();
-		addMethodProxy(new ReplaceCallingPkgMethodProxy("getNeighboringCellInfo"));
-		addMethodProxy(new ReplaceCallingPkgMethodProxy("getAllCellInfo"));
-		addMethodProxy(new ReplaceCallingPkgMethodProxy("getCellLocation"));
 		addMethodProxy(new ReplaceCallingPkgMethodProxy("isOffhook"));
 		addMethodProxy(new ReplaceLastPkgMethodProxy("getLine1NumberForDisplay"));
 		addMethodProxy(new ReplaceLastPkgMethodProxy("isOffhookForSubscriber"));

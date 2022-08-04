@@ -1,13 +1,15 @@
 package io.virtualapp.delegate;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.widget.Toast;
 
-import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.client.core.VirtualCore;
-import com.lody.virtual.remote.InstallResult;
 
-import java.io.IOException;
+import java.io.File;
+
+import io.virtualapp.sys.InstallerActivity;
 
 /**
  * @author Lody
@@ -23,27 +25,18 @@ public class MyAppRequestListener implements VirtualCore.AppRequestListener {
 
     @Override
     public void onRequestInstall(String path) {
-        Toast.makeText(context, "Installing: " + path, Toast.LENGTH_SHORT).show();
-        InstallResult res = VirtualCore.get().installPackage(path, InstallStrategy.UPDATE_IF_EXIST);
-        if (res.isSuccess) {
-            try {
-                VirtualCore.get().preOpt(res.packageName);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if (res.isUpdate) {
-                Toast.makeText(context, "Update: " + res.packageName + " success!", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(context, "Install: " + res.packageName + " success!", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            Toast.makeText(context, "Install failed: " + res.error, Toast.LENGTH_SHORT).show();
+        try {
+            Intent t = new Intent(context, InstallerActivity.class);
+            t.setDataAndType(Uri.fromFile(new File(path)), "application/vnd.android.package-archive");
+            t.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(t);
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
     }
 
     @Override
     public void onRequestUninstall(String pkg) {
         Toast.makeText(context, "Uninstall: " + pkg, Toast.LENGTH_SHORT).show();
-
     }
 }

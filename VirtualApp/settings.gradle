@@ -1,1 +1,2 @@
-include ':lib', ':app'
+include ':lib', ':app', ':launcher'
+rootProject.name="VirtualXposed"
