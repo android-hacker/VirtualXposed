@@ -90,10 +90,6 @@ void Environment::detachCurrentThread() {
 
 /* static */
 JNIEnv* Environment::ensureCurrentThreadIsAttached() {
-  auto scope = currentScope();
-  if (scope && scope->env_) {
-    return scope->env_;
-  }
 
   JNIEnv* env;
   // We should be able to just get the JNIEnv* by just calling
@@ -104,7 +100,6 @@ JNIEnv* Environment::ensureCurrentThreadIsAttached() {
   FBASSERT(result == JNI_OK || result == JNI_EDETACHED);
   if (result == JNI_EDETACHED) {
     // The thread should not be detached while a ThreadScope is in the stack.
-    FBASSERT(!scope);
     env = attachCurrentThread();
   }
   FBASSERT(env);

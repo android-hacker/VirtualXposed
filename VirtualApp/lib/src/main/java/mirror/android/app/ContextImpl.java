@@ -17,4 +17,6 @@ public class ContextImpl {
     public static RefObject<PackageManager> mPackageManager;
 
     public static RefMethod<Context> getReceiverRestrictedContext;
+
+    public static RefMethod<Object> getAttributionSource;
 }

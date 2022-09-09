@@ -22,11 +22,47 @@ import mirror.android.webkit.WebViewFactory;
  */
 public final class SpecialComponentList {
 
+    public static class ConflictInstrumentation {
+        private static final HashSet<String> INSTRUMENTATION_CONFLICTING = new HashSet<>(2);
+
+        static {
+            INSTRUMENTATION_CONFLICTING.add("com.qihoo.magic");
+            INSTRUMENTATION_CONFLICTING.add("com.qihoo.magic_mutiple");
+            INSTRUMENTATION_CONFLICTING.add("com.facebook.katana");
+        }
+
+        public static boolean isConflictingInstrumentation(String packageName) {
+            return INSTRUMENTATION_CONFLICTING.contains(packageName);
+        }
+    }
+
+    public static class SpecSystemComponent {
+
+        private static final HashSet<String> SPEC_SYSTEM_APP_LIST = new HashSet<>(3);
+
+        static {
+            SPEC_SYSTEM_APP_LIST.add("android");
+            SPEC_SYSTEM_APP_LIST.add("com.google.android.webview");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                try {
+                    String webViewPkgN = IWebViewUpdateService.getCurrentWebViewPackageName.call(WebViewFactory.getUpdateService.call());
+                    if (webViewPkgN != null) {
+                        SPEC_SYSTEM_APP_LIST.add(webViewPkgN);
+                    }
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        public static boolean isSpecSystemPackage(String pkg) {
+            return SPEC_SYSTEM_APP_LIST.contains(pkg);
+        }
+    }
+
     private static final List<String> ACTION_BLACK_LIST = new ArrayList<String>(1);
     private static final Map<String, String> PROTECTED_ACTION_MAP = new HashMap<>(5);
     private static final HashSet<String> WHITE_PERMISSION = new HashSet<>(3);
-    private static final HashSet<String> INSTRUMENTATION_CONFLICTING = new HashSet<>(2);
-    private static final HashSet<String> SPEC_SYSTEM_APP_LIST = new HashSet<>(3);
     private static final Set<String> SYSTEM_BROADCAST_ACTION = new HashSet<>(7);
     private static String PROTECT_ACTION_PREFIX = "_VA_protected_";
 
@@ -66,31 +102,9 @@ public final class SpecialComponentList {
         PROTECTED_ACTION_MAP.put("android.intent.action.USER_ADDED", Constants.ACTION_USER_ADDED);
         PROTECTED_ACTION_MAP.put("android.intent.action.USER_REMOVED", Constants.ACTION_USER_REMOVED);
 
-        INSTRUMENTATION_CONFLICTING.add("com.qihoo.magic");
-        INSTRUMENTATION_CONFLICTING.add("com.qihoo.magic_mutiple");
-        INSTRUMENTATION_CONFLICTING.add("com.facebook.katana");
-
-        SPEC_SYSTEM_APP_LIST.add("android");
-        SPEC_SYSTEM_APP_LIST.add("com.google.android.webview");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            try {
-                String webViewPkgN = IWebViewUpdateService.getCurrentWebViewPackageName.call(WebViewFactory.getUpdateService.call());
-                if (webViewPkgN != null) {
-                    SPEC_SYSTEM_APP_LIST.add(webViewPkgN);
-                }
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
-        }
     }
 
-    public static boolean isSpecSystemPackage(String pkg) {
-        return SPEC_SYSTEM_APP_LIST.contains(pkg);
-    }
 
-    public static boolean isConflictingInstrumentation(String packageName) {
-        return INSTRUMENTATION_CONFLICTING.contains(packageName);
-    }
 
     /**
      * Check if the action in the BlackList.

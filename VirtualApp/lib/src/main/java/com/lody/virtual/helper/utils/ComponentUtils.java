@@ -96,7 +96,7 @@ public class ComponentUtils {
     public static boolean isSystemApp(ApplicationInfo applicationInfo) {
         return !GmsSupport.isGmsFamilyPackage(applicationInfo.packageName)
                 && ((ApplicationInfo.FLAG_SYSTEM & applicationInfo.flags) != 0
-                || SpecialComponentList.isSpecSystemPackage(applicationInfo.packageName));
+                || SpecialComponentList.SpecSystemComponent.isSpecSystemPackage(applicationInfo.packageName));
     }
 
     public static boolean isStubComponent(Intent intent) {

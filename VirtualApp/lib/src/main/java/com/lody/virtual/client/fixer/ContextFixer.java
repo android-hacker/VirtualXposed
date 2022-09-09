@@ -5,6 +5,7 @@ import android.content.ContextWrapper;
 import android.os.Build;
 import android.os.DropBoxManager;
 
+import com.lody.virtual.client.VClientImpl;
 import com.lody.virtual.client.core.InvocationStubManager;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.hook.base.BinderInvocationStub;
@@ -69,6 +70,26 @@ public class ContextFixer {
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             ContentResolverJBMR2.mPackageName.set(context.getContentResolver(), hostPkg);
+        }
+
+        if (ContextImpl.getAttributionSource != null) {
+            fixAttributionSource(ContextImpl.getAttributionSource.call(context), hostPkg, VClientImpl.get().getVUid());
+        }
+    }
+
+    public static void fixAttributionSource(Object attr, String pkg, int uid) {
+        if (attr == null) {
+            return;
+        }
+        try {
+            Object mAttributionSourceState = Reflect.on(attr).get("mAttributionSourceState");
+            Reflect.on(mAttributionSourceState).set("uid", uid);
+            Reflect.on(mAttributionSourceState).set("packageName", pkg);
+
+            Object next = Reflect.on(attr).call("getNext").get();
+            fixAttributionSource(next, pkg, uid);
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
     }
 

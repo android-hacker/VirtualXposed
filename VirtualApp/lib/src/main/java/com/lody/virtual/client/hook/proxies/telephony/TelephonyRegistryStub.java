@@ -5,6 +5,7 @@ import android.telephony.PhoneStateListener;
 import com.lody.virtual.client.hook.base.BinderInvocationProxy;
 import com.lody.virtual.client.hook.base.ReplaceCallingPkgMethodProxy;
 import com.lody.virtual.client.hook.base.ReplaceSequencePkgMethodProxy;
+import com.lody.virtual.helper.compat.BuildCompat;
 
 import java.lang.reflect.Method;
 
@@ -39,5 +40,9 @@ public class TelephonyRegistryStub extends BinderInvocationProxy {
 				return super.beforeCall(who, method, args);
 			}
 		});
+
+		if (BuildCompat.isS()) {
+			addMethodProxy(new ReplaceCallingPkgMethodProxy("listenWithEventList"));
+		}
 	}
 }

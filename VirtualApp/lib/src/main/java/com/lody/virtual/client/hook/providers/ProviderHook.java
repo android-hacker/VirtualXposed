@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.os.IInterface;
 import android.os.ParcelFileDescriptor;
 
+import com.lody.virtual.client.core.VirtualCore;
+import com.lody.virtual.client.fixer.ContextFixer;
 import com.lody.virtual.client.hook.base.MethodBox;
 import com.lody.virtual.helper.compat.BuildCompat;
 import com.lody.virtual.helper.utils.VLog;
@@ -153,12 +155,24 @@ public class ProviderHook implements InvocationHandler {
         }
         MethodBox methodBox = new MethodBox(method, mBase, args);
         int start = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ? 1 : 0;
-        // Android 11: https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/content/IContentProvider.java?q=IContentProvider&ss=android%2Fplatform%2Fsuperproject
-        if(Build.VERSION.SDK_INT >= 30) start = 2;
+        if (BuildCompat.isS()) {
+            // https://cs.android.com/android/platform/superproject/+/android-12.0.0_r16:frameworks/base/core/java/android/content/IContentProvider.java
+            start = 1;
+        } else if (BuildCompat.isR()) {
+            // Android 11: https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/content/IContentProvider.java?q=IContentProvider&ss=android%2Fplatform%2Fsuperproject
+            start = 2;
+        }
+        if (BuildCompat.isS() ) {
+            tryFixAttributionSource(args);
+        }
         try {
             String name = method.getName();
             if ("call".equals(name)) {
-                if (BuildCompat.isR()) {
+                if (BuildCompat.isS()) {
+                    // What's the fuck with Google???
+                    // https://cs.android.com/android/platform/superproject/+/android-12.0.0_r1:frameworks/base/core/java/android/content/IContentProvider.java;l=123
+                    start = 2;
+                } else if (BuildCompat.isR()) {
                     start = 3;
                 } else if (BuildCompat.isQ()) {
                     start = 2;
@@ -203,6 +217,7 @@ public class ProviderHook implements InvocationHandler {
                 String[] selectionArgs = null;
                 String sortOrder = null;
                 Bundle queryArgs = null;
+
                 if (Build.VERSION.SDK_INT >= 26) {
                     queryArgs = (Bundle) args[start + 2];
                     if (queryArgs != null) {
@@ -233,5 +248,20 @@ public class ProviderHook implements InvocationHandler {
 
     public interface HookFetcher {
         ProviderHook fetch(boolean external, IInterface provider);
+    }
+
+    private void tryFixAttributionSource(Object[] args) {
+        if (args == null || args.length == 0) {
+            return;
+        }
+        Object attribution = args[0];
+        if (attribution == null) {
+            return;
+        }
+        if (!attribution.getClass().getName().equals("android.content.AttributionSource")) {
+            return;
+        }
+
+        ContextFixer.fixAttributionSource(attribution, VirtualCore.get().getHostPkg(), VirtualCore.get().myUid());
     }
 }
