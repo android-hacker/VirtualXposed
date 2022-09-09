@@ -159,6 +159,7 @@ public class FileUtils {
             File sharedFileCopy = new File(context.getCacheDir(), packageUri.getLastPathSegment());
             try {
                 inputStream = context.getContentResolver().openInputStream(packageUri);
+                sharedFileCopy.getParentFile().mkdirs();
                 outputStream = new FileOutputStream(sharedFileCopy);
                 byte[] buffer = new byte[1024];
                 int count;
