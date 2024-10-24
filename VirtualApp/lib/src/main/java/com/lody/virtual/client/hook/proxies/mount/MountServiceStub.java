@@ -20,6 +20,13 @@ public class MountServiceStub extends BinderInvocationProxy {
         super(getInterfaceMethod(), "mount");
     }
 
+    @Override
+    protected void onBindMethods() {
+        super.onBindMethods();
+
+        addMethodProxy(new MethodProxies.GetVolumeList());
+    }
+
     private static RefStaticMethod<IInterface> getInterfaceMethod() {
         if (BuildCompat.isOreo()) {
             return IStorageManager.Stub.asInterface;

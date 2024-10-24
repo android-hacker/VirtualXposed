@@ -10,6 +10,7 @@ import android.content.pm.PackageParser.Provider;
 import android.content.pm.PackageParser.Service;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ServiceInfo;
+import android.content.pm.SigningInfo;
 import android.os.Build;
 import android.os.Process;
 import android.util.DisplayMetrics;
@@ -19,6 +20,7 @@ import com.lody.virtual.os.VUserHandle;
 
 import java.io.File;
 
+import mirror.android.content.pm.PackageParser33;
 import mirror.android.content.pm.PackageParserJellyBean;
 import mirror.android.content.pm.PackageParserJellyBean17;
 import mirror.android.content.pm.PackageParserLollipop;
@@ -44,11 +46,13 @@ public class PackageParserCompat {
     public static final int[] GIDS = VirtualCore.get().getGids();
     private static final int API_LEVEL = Build.VERSION.SDK_INT;
     private static final int myUserId = VUserHandle.getUserId(Process.myUid());
-    private static final Object sUserState = API_LEVEL >= JELLY_BEAN_MR1 ? PackageUserState.ctor.newInstance() : null;
+    private static final Object sUserState = (API_LEVEL >= JELLY_BEAN_MR1 && API_LEVEL <= 32 /*Android 12L*/) ? PackageUserState.ctor.newInstance() : null;
 
 
     public static PackageParser createParser(File packageFile) {
-        if (API_LEVEL >= M) {
+        if (API_LEVEL >= 33) {
+            return PackageParser33.ctor.newInstance();
+        } else if (API_LEVEL >= M) {
             return PackageParserMarshmallow.ctor.newInstance();
         } else if (API_LEVEL >= LOLLIPOP_MR1) {
             return PackageParserLollipop22.ctor.newInstance();
@@ -67,7 +71,9 @@ public class PackageParserCompat {
         if (BuildCompat.isQ()) {
             PackageParserP28.setCallback.call(parser, PackageParserP28.CallbackImpl.ctor.newInstance(VirtualCore.getPM()));
         }
-
+        if (API_LEVEL >= 33) {
+            return PackageParser33.parsePackage.callWithException(parser, packageFile, flags);
+        }
         if (API_LEVEL >= M) {
             return PackageParserMarshmallow.parsePackage.callWithException(parser, packageFile, flags);
         } else if (API_LEVEL >= LOLLIPOP_MR1) {
@@ -192,5 +198,17 @@ public class PackageParserCompat {
         } else {
             mirror.android.content.pm.PackageParser.collectCertificates.call(parser, p, flags);
         }
+    }
+
+    public static SigningInfo createSigningInfo(Object signingDetails) {
+        if (API_LEVEL >= 33) {
+            // 33之后
+            Object signatures = mirror.android.content.pm.PackageParser.SigningDetails.signatures.get(signingDetails);
+            Object pastSigningCertificates = mirror.android.content.pm.PackageParser.SigningDetails.pastSigningCertificates.get(signingDetails);
+            int signatureSchemeVersion = mirror.android.content.pm.PackageParser.SigningDetails.signatureSchemeVersion.get(signingDetails);
+            Object newDetail = mirror.android.content.pm.PackageParser.SigningDetailsUp33.ctor.newInstance(signatures, signatureSchemeVersion, pastSigningCertificates);
+            return mirror.android.content.pm.PackageParser.SigningInfoUp33.ctor.newInstance(newDetail);
+        }
+        return mirror.android.content.pm.PackageParser.SigningInfo.ctor.newInstance(signingDetails);
     }
 }

@@ -255,19 +255,23 @@ public final class VClientImpl extends IVClient.Stub {
                 null
         );
         AppBindData data = new AppBindData();
+
         InstalledAppInfo info = VirtualCore.get().getInstalledAppInfo(packageName, 0);
         if (info == null) {
             new Exception("App not exist!").printStackTrace();
             Process.killProcess(0);
             System.exit(0);
         }
+        VLog.d(TAG, "bindApplicationNoCheck getInstalledAppInfo:" + info);
         data.appInfo = VPackageManager.get().getApplicationInfo(packageName, 0, getUserId(vuid));
         data.processName = processName;
         data.appInfo.processName = processName;
         data.providers = VPackageManager.get().queryContentProviders(processName, getVUid(), PackageManager.GET_META_DATA);
         VLog.i(TAG, String.format("Binding application %s, (%s)", data.appInfo.packageName, data.processName));
         mBoundApplication = data;
+
         VirtualRuntime.setupRuntime(data.processName, data.appInfo);
+
         int targetSdkVersion = data.appInfo.targetSdkVersion;
         if (targetSdkVersion < Build.VERSION_CODES.GINGERBREAD) {
             StrictMode.ThreadPolicy newPolicy = new StrictMode.ThreadPolicy.Builder(StrictMode.getThreadPolicy()).permitNetwork().build();
@@ -282,22 +286,23 @@ public final class VClientImpl extends IVClient.Stub {
         NativeEngine.launchEngine();
         Object mainThread = VirtualCore.mainThread();
         NativeEngine.startDexOverride();
-        Context context = createPackageContext(data.appInfo.packageName);
+
+        Context appContext = createPackageContext(data.appInfo.packageName);
         try {
             // anti-virus, fuck ESET-NOD32: a variant of Android/AdDisplay.AdLock.AL potentially unwanted
             // we can make direct call... use reflect to bypass.
             // System.setProperty("java.io.tmpdir", context.getCacheDir().getAbsolutePath());
             System.class.getDeclaredMethod("setProperty", String.class, String.class)
-                    .invoke(null, "java.io.tmpdir", context.getCacheDir().getAbsolutePath());
+                    .invoke(null, "java.io.tmpdir", appContext.getCacheDir().getAbsolutePath());
         } catch (Throwable ignored) {
             VLog.e(TAG, "set tmp dir error:", ignored);
         }
 
         File codeCacheDir;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            codeCacheDir = context.getCodeCacheDir();
+            codeCacheDir = appContext.getCodeCacheDir();
         } else {
-            codeCacheDir = context.getCacheDir();
+            codeCacheDir = appContext.getCacheDir();
         }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             if (HardwareRenderer.setupDiskCache != null) {
@@ -318,7 +323,8 @@ public final class VClientImpl extends IVClient.Stub {
             }
         }
         Object boundApp = fixBoundApp(mBoundApplication);
-        mBoundApplication.info = ContextImpl.mPackageInfo.get(context);
+        mBoundApplication.info = ContextImpl.mPackageInfo.get(appContext);
+
         mirror.android.app.ActivityThread.AppBindData.info.set(boundApp, data.info);
         VMRuntime.setTargetSdkVersion.call(VMRuntime.getRuntime.call(), data.appInfo.targetSdkVersion);
 
@@ -336,22 +342,36 @@ public final class VClientImpl extends IVClient.Stub {
         boolean enableXposed = VirtualCore.get().isXposedEnabled();
         if (enableXposed) {
             VLog.i(TAG, "Xposed is enabled.");
-            ClassLoader originClassLoader = context.getClassLoader();
-            ExposedBridge.initOnce(context, data.appInfo, originClassLoader);
-            List<InstalledAppInfo> modules = VirtualCore.get().getInstalledApps(0);
-            for (InstalledAppInfo module : modules) {
-                ExposedBridge.loadModule(module.apkPath, module.getOdexFile().getParent(), module.libPath,
-                        data.appInfo, originClassLoader);
+
+            // 内部报错：java.lang.ClassNotFoundException: Didn't find class "androidx.core.app.CoreComponentFactory" on path: DexPathList[[zip file "/data/user/0/io.va.exposed64/virtual/data/app/com.laolaiwangtech/base.apk"],nativeLibraryDirectories=[/data/user/0/io.va.exposed64/virtual/data/app/com.laolaiwangtech/lib, /data/user/0/io.va.exposed64/virtual/data/app/com.laolaiwangtech/base.apk!/lib/arm64-v8a, /system/lib64, /product_h/lib64, /system_ext/lib64]]
+
+            ClassLoader originClassLoader = null;
+            try {
+                originClassLoader = appContext.getClassLoader();
+            } catch (Exception e) {
+                VLog.w(TAG, "appContext.getClassLoader() error", e);
+            }
+            if (originClassLoader !=null) {
+                ExposedBridge.initOnce(appContext, data.appInfo, originClassLoader);
+
+                List<InstalledAppInfo> modules = VirtualCore.get().getInstalledApps(0);
+                for (InstalledAppInfo module : modules) {
+                    ExposedBridge.loadModule(module.apkPath, module.getOdexFile().getParent(), module.libPath,
+                            data.appInfo, originClassLoader);
+                }
             }
         } else {
             VLog.w(TAG, "Xposed is disable..");
         }
+
+
 
         ClassLoader cl = LoadedApk.getClassLoader.call(data.info);
         if (BuildCompat.isS()) {
             ClassLoader parent = cl.getParent();
             Reflect.on(cl).set("parent", new DelegateLastClassLoader("/system/framework/android.test.base.jar", parent));
         }
+
 
         if (Build.VERSION.SDK_INT >= 30)
             ApplicationConfig.setDefaultInstance.call(new Object[] { null });
@@ -509,7 +529,7 @@ public final class VClientImpl extends IVClient.Stub {
         }
 
         HashSet<String> storageRoots = getMountPoints();
-        storageRoots.add(Environment.getExternalStorageDirectory().getAbsolutePath());
+        storageRoots.add(VEnvironment.getExternalStorageDirectory().getAbsolutePath());
 
         Set<String> whiteList = new HashSet<>();
         whiteList.add(Environment.DIRECTORY_PODCASTS);
@@ -531,7 +551,7 @@ public final class VClientImpl extends IVClient.Stub {
 
         // ensure virtual storage white directory exists.
         for (String whiteDir : whiteList) {
-            File originalDir = new File(Environment.getExternalStorageDirectory(), whiteDir);
+            File originalDir = new File(VEnvironment.getExternalStorageDirectory(), whiteDir);
             File virtualDir = new File(vsDir, whiteDir);
             if (!originalDir.exists()) {
                 continue;

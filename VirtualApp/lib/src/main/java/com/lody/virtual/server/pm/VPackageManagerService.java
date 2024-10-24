@@ -262,6 +262,9 @@ public class VPackageManagerService extends IPackageManager.Stub {
         if (packageInfo != null) {
             Parcel parcel = Parcel.obtain();
             packageInfo.writeToParcel(parcel, 0);
+
+            // Fixed packageInfo. After serialization and deserialization, the data is gone
+            parcel.setDataPosition(0);
             PackageInfo info = PackageInfo.CREATOR.createFromParcel(parcel);
             parcel.recycle();
             return info;

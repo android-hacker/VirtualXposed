@@ -159,11 +159,21 @@ public class VEnvironment {
         return new File(USER_DIRECTORY, String.valueOf(userId));
     }
 
+    public static File getExternalStorageDirectory() {
+        try {
+            return Environment.getExternalStorageDirectory();
+        } catch (Exception e) { // android 13 no permission will throw exception
+            return null;
+        }
+    }
+
     public static File getVirtualStorageBaseDir() {
-        File externalFilesRoot = Environment.getExternalStorageDirectory();
+        File externalFilesRoot = getExternalStorageDirectory();
+        VLog.d(TAG, "getVirtualStorageBaseDir externalFilesRoot:" + externalFilesRoot);
         if (externalFilesRoot != null) {
             File vBaseDir = new File(externalFilesRoot, "VirtualXposed");
             File vSdcard = new File(vBaseDir, "vsdcard");
+            VLog.d(TAG, "getVirtualStorageBaseDir vBaseDir:" + vBaseDir + ", vSdcard:" + vSdcard);
             return ensureCreated(vSdcard);
         }
         return null;

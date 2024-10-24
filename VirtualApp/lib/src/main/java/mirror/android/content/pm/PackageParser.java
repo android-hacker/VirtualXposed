@@ -20,9 +20,11 @@ import mirror.MethodParams;
 import mirror.MethodReflectParams;
 import mirror.RefClass;
 import mirror.RefConstructor;
+import mirror.RefInt;
 import mirror.RefMethod;
 import mirror.RefObject;
 import mirror.RefStaticMethod;
+import mirror.android.util.Singleton;
 
 /**
  * @author Lody
@@ -101,6 +103,8 @@ public class PackageParser {
         public static RefObject<List<IntentFilter>> intents;
     }
 
+
+
     public static class SigningInfo {
         public static Class<?> TYPE = RefClass.load(SigningInfo.class, "android.content.pm.SigningInfo");
 
@@ -108,10 +112,37 @@ public class PackageParser {
         public static RefConstructor<android.content.pm.SigningInfo> ctor;
     }
 
+    public static class SigningInfoUp33 {
+        public static Class<?> TYPE = RefClass.load(SigningInfoUp33.class, "android.content.pm.SigningInfo");
+
+        @MethodReflectParams("android.content.pm.SigningDetails")
+        public static RefConstructor<android.content.pm.SigningInfo> ctor;
+    }
+
+
     public static class SigningDetails {
         public static Class<?> TYPE = RefClass.load(SigningDetails.class, "android.content.pm.PackageParser$SigningDetails");
         public static RefObject<Signature[]> signatures;
         public static RefObject<Signature[]> pastSigningCertificates;
+
+        public static RefInt signatureSchemeVersion;
+
+        public static RefMethod<Boolean> hasPastSigningCertificates;
+        public static RefMethod<Boolean> hasSignatures;
+    }
+
+    public static class SigningDetailsUp33 {
+        public static Class<?> TYPE = RefClass.load(SigningDetailsUp33.class, "android.content.pm.SigningDetails");
+
+//        Signature[] signatures,
+//        @SignatureSchemeVersion int signatureSchemeVersion,
+//        @Nullable Signature[] pastSigningCertificates
+        @MethodParams({Signature[].class, int.class, Signature[].class})
+        public static RefConstructor<android.content.pm.SigningDetails> ctor;
+
+
+        public static RefObject<Signature[]> mSignatures;
+        public static RefObject<Signature[]>  mPastSigningCertificates;
 
         public static RefMethod<Boolean> hasPastSigningCertificates;
         public static RefMethod<Boolean> hasSignatures;

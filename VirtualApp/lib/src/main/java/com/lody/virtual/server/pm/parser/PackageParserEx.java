@@ -220,7 +220,8 @@ public class PackageParserEx {
                     System.arraycopy(signatures, 0, cache.mSignatures, 0, numberOfSigs);
                 }
             }
-            cache.signingInfo = mirror.android.content.pm.PackageParser.SigningInfo.ctor.newInstance(signingDetails);
+
+            cache.signingInfo =  PackageParserCompat.createSigningInfo(signingDetails); // mirror.android.content.pm.PackageParser.SigningInfo.ctor.newInstance(signingDetails);
         }
         cache.mAppMetaData = p.mAppMetaData;
         cache.packageName = p.packageName;

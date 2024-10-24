@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.os.Build;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -124,9 +125,18 @@ public final class SpecialComponentList {
         ACTION_BLACK_LIST.add(action);
     }
 
+    private static List<String> toList(Object actionsObj) {
+        List<String> actions = new ArrayList<>();
+        if (actionsObj instanceof Collection) {
+            actions.addAll((Collection<String>) actionsObj);
+        }
+        return  actions;
+    }
+
     public static void protectIntentFilter(IntentFilter filter) {
         if (filter != null) {
-            List<String> actions = mirror.android.content.IntentFilter.mActions.get(filter);
+            // 13以后这里返回的是set, 做个兼容
+            List<String> actions = toList(mirror.android.content.IntentFilter.mActions.get(filter));
             ListIterator<String> iterator = actions.listIterator();
             while (iterator.hasNext()) {
                 String action = iterator.next();

@@ -172,6 +172,11 @@ public abstract class ClientTransactionHandler {
     /** Perform activity launch. */
     public abstract Activity handleLaunchActivity(ActivityThread.ActivityClientRecord r,
             PendingTransactionActions pendingActions, Intent customIntent);
+
+    // Android 13
+    public abstract Activity handleLaunchActivity( ActivityThread.ActivityClientRecord r,
+              PendingTransactionActions pendingActions, int deviceId, Intent customIntent);
+
     /** Perform activity start. */
     public abstract void handleStartActivity(ActivityThread.ActivityClientRecord r,
             PendingTransactionActions pendingActions);
@@ -184,6 +189,10 @@ public abstract class ClientTransactionHandler {
     // Android 11
     public abstract void handleStartActivity(IBinder binder,
                                              PendingTransactionActions pendingActions);
+
+    // Android 14
+    public abstract LoadedApk getPackageInfoNoCheck(ApplicationInfo ai);
+
     /** Get package info. */
     public abstract LoadedApk getPackageInfoNoCheck(ApplicationInfo ai,
                                                     CompatibilityInfo compatInfo);

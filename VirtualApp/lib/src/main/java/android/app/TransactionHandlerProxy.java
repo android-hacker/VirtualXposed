@@ -9,6 +9,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.res.CompatibilityInfo;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.util.Log;
@@ -47,6 +48,11 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
     @Override
     TransactionExecutor getTransactionExecutor() {
         return originalHandler.getTransactionExecutor();
+    }
+
+    /** Get package info. */
+    public  LoadedApk getPackageInfoNoCheck(ApplicationInfo ai) {
+        return originalHandler.getPackageInfoNoCheck(ai);
     }
 
     @Override
@@ -194,8 +200,16 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
         originalHandler.handleWindowVisibility(token, show);
     }
 
+
+    public Activity handleLaunchActivity( ActivityThread.ActivityClientRecord r,
+                                                   PendingTransactionActions pendingActions,  Intent customIntent) {
+        return handleLaunchActivity(r, pendingActions, 0, customIntent);
+    }
+
+
+    // Android 13
     @Override
-    public Activity handleLaunchActivity(ActivityClientRecord r, PendingTransactionActions pendingActions, Intent customIntent) {
+    public Activity handleLaunchActivity(ActivityClientRecord r, PendingTransactionActions pendingActions, int deviceId, Intent customIntent) {
 
         Intent stubIntent = mirror.android.app.ActivityThread.ActivityClientRecord.intent.get(r);
         StubActivityRecord saveInstance = new StubActivityRecord(stubIntent);
@@ -216,13 +230,13 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
             VActivityManager.get().processRestarted(info.packageName, info.processName, saveInstance.userId);
             // getH().sendMessageAtFrontOfQueue(Message.obtain(msg));
             Log.i(TAG, "restart process, return");
-            return handleLaunchActivity(r, pendingActions, customIntent);
+            return handleLaunchActivity(r, pendingActions, deviceId, customIntent);
         }
         if (!VClientImpl.get().isBound()) {
             VClientImpl.get().bindApplicationForActivity(info.packageName, info.processName, intent);
             // getH().sendMessageAtFrontOfQueue(Message.obtain(msg));
             Log.i(TAG, "rebound application, return");
-            return handleLaunchActivity(r, pendingActions, customIntent);
+            return handleLaunchActivity(r, pendingActions, deviceId, customIntent);
         }
         int taskId = IActivityManager.getTaskForActivity.call(
                 ActivityManagerNative.getDefault.call(),
@@ -240,7 +254,12 @@ public class TransactionHandlerProxy extends ClientTransactionHandler {
         mirror.android.app.ActivityThread.ActivityClientRecord.intent.set(r, intent);
         mirror.android.app.ActivityThread.ActivityClientRecord.activityInfo.set(r, info);
 
-        return originalHandler.handleLaunchActivity(r, pendingActions, customIntent);
+        if (Build.VERSION.SDK_INT >= 34) {
+            return originalHandler.handleLaunchActivity(r, pendingActions, deviceId, customIntent);
+        } else {
+            return originalHandler.handleLaunchActivity(r, pendingActions, customIntent);
+        }
+
     }
 
     @Override

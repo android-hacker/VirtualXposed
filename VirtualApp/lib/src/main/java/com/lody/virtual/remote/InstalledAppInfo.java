@@ -10,6 +10,7 @@ import com.lody.virtual.client.ipc.VPackageManager;
 import com.lody.virtual.os.VEnvironment;
 
 import java.io.File;
+import java.util.Arrays;
 
 /**
  * @author Lody
@@ -22,6 +23,19 @@ public final class InstalledAppInfo implements Parcelable {
     public boolean dependSystem;
     public int appId;
     public String[] splitCodePaths;
+
+
+    @Override
+    public String toString() {
+        return "InstalledAppInfo{" +
+                "packageName='" + packageName + '\'' +
+                ", apkPath='" + apkPath + '\'' +
+                ", libPath='" + libPath + '\'' +
+                ", dependSystem=" + dependSystem +
+                ", appId=" + appId +
+                ", splitCodePaths=" + Arrays.toString(splitCodePaths) +
+                '}';
+    }
 
     public InstalledAppInfo(String packageName, String apkPath, String libPath, boolean dependSystem, boolean skipDexOpt, int appId, String[] splitCodePaths) {
         this.packageName = packageName;
